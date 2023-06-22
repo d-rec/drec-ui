@@ -12,28 +12,11 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService } from '../../../auth/services/device.service';
 import { Router } from '@angular/router';
-
-import { Observable } from 'rxjs';
+import { Observable,Subscription } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
 
-const ELEMENT_DATA: PeriodicElement[] = [
-  { position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-  { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-  { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-  { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-  { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-  { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' },
-  { position: 7, name: 'Nitrogen', weight: 14.0067, symbol: 'N' },
-  { position: 8, name: 'Oxygen', weight: 15.9994, symbol: 'O' },
-  { position: 9, name: 'Fluorine', weight: 18.9984, symbol: 'F' },
-  { position: 10, name: 'Neon', weight: 20.1797, symbol: 'Ne' },
-];
+
+
 @Component({
   selector: 'app-alldevices',
   templateUrl: './alldevices.component.html',
@@ -74,10 +57,15 @@ export class AlldevicesComponent {
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   endminDate = new Date();
   totalPages: number;
+  subscription: Subscription;
+  selectedCountry: any;
+  isAnyFieldFilled: boolean = false;
+
   constructor(private authService: AuthbaseService, private deviceService: DeviceService, private formBuilder: FormBuilder, private router: Router) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
+      countryname: [],
       fuelCode: [],
       deviceTypeCode: [],
       capacity: [],
@@ -91,70 +79,79 @@ export class AlldevicesComponent {
   ngOnInit(): void {
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
-        // display list in the console
+       
         this.fuellist = data1;
         this.fuellistLoaded = true;
       });
     this.authService.GetMethod('device/device-type').subscribe(
       (data2) => {
-        // display list in the console
+       
         this.devicetypelist = data2;
         this.devicetypeLoded = true;
       }
     );
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3) => {
-        // display list in the console
-        // console.log(data)
+        
         this.countrylist = data3;
         this.countrycodeLoded = true;
       }
     )
     this.authService.GetMethod('sdgbenefit/code').subscribe(
       (data) => {
-        // display list in the console 
-
         this.sdgblist = data;
-
       }
     )
-    this.getDeviceListData(this.p);
+ 
     console.log("myreservation");
-
-    // setTimeout(() => this.DisplayList(), 10000);
     setTimeout(() => {
       this.loading = false;
       this.applycountryFilter();
-      this.DisplayList();
+      this.getDeviceListData(this.p);
+     
     }, 1000)
   }
-  isAnyFieldFilled: boolean = false;
 
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+ 
   checkFormValidity(): void {
     console.log("115");
     const formValues = this.FilterForm.value;
     this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
-    console.log(this.isAnyFieldFilled);
+    
   }
   applycountryFilter() {
-    this.FilterForm.controls['countryCode'];
-    this.filteredOptions = this.FilterForm.controls['countryCode'].valueChanges.pipe(
+    this.FilterForm.controls['countryname'];
+    this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '')),
     );
-    console.log(this.filteredOptions);
+   
   }
 
   private _filter(value: any): string[] {
-    console.log(value)
-  
-    const filterValue = value.toLowerCase();
+  const filterValue = value.toLowerCase();
     return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
 
   }
+  selectCountry(event: any) {
+    console.log(event)
+    this.subscription =  this.filteredOptions.subscribe(options => {
+    const selectedCountry = options.find(option => option.country === event.option.value);
+    if (selectedCountry) {
+        this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
+      }
+    });
+  }
+
 
   reset() {
     this.FilterForm.reset();
+    this.FilterForm.controls['countryCode'].setValue(null);
     this.loading = false;
     this.isAnyFieldFilled = false;
     this.p = 1;
@@ -208,7 +205,6 @@ export class AlldevicesComponent {
       this.totalRows = this.data.totalCount
       console.log(this.totalRows);
       this.totalPages = this.data.totalPages
-
       // this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
 

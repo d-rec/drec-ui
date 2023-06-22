@@ -156,7 +156,7 @@ export class AddDevicesComponent {
       this.showinput[i] = false;
     }
   }
-  deletePhone(i: number) {
+  deleteDevice(i: number) {
     this.deviceForms.removeAt(i)
   }
   DisplayList() {
