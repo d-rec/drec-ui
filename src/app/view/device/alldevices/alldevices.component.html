@@ -40,12 +40,11 @@
           <div class="col-md-3">
             <mat-form-field>
               <mat-label class="text-capitalize">Select Country Code</mat-label>
-              <input type="text" placeholder="Please Enter countryCode" aria-label="text" matInput
-                formControlName="countryCode" [matAutocomplete]="auto" (ngModelChange)="checkFormValidity()">
-              <mat-autocomplete #auto="matAutocomplete">
-                <mat-option [value]="">---</mat-option>
-                <mat-option *ngFor="let code of filteredOptions | async" [value]="code.alpha3">
-                  {{code.country}}
+              <input type="text"  aria-label="text" matInput
+                formControlName="countryname" [matAutocomplete]="auto" (ngModelChange)="checkFormValidity()">
+              <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
+                <mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
+                  {{ code.country }}
                 </mat-option>
               </mat-autocomplete>
             </mat-form-field>

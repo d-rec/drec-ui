@@ -12,7 +12,7 @@ import { DeviceService } from '../../auth/services/device.service'
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatBottomSheet, MatBottomSheetConfig, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MeterReadTableComponent } from '../meter-read/meter-read-table/meter-read-table.component'
-import { Observable } from 'rxjs';
+import { Observable,Subscription } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 @Component({
   selector: 'app-add-reservation',
@@ -60,6 +60,8 @@ export class AddReservationComponent {
   frequency = ['hourly', 'daily', 'weekly', 'monthly']
   dialogRef: any;
   sdgblist:any;
+  totalPages: number;
+  subscription: Subscription;
   reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };
   constructor(private authService: AuthbaseService, private router: Router,
     public dialog: MatDialog, private bottomSheet: MatBottomSheet,
@@ -79,6 +81,7 @@ export class AddReservationComponent {
     });
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
+      countryname: [],
       fuelCode: [],
       deviceTypeCode: [],
       capacity: [],
@@ -90,7 +93,6 @@ export class AddReservationComponent {
     });
   }
   ngOnInit() {
-
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1: any) => {
 
@@ -99,7 +101,6 @@ export class AddReservationComponent {
       });
     this.authService.GetMethod('device/device-type').subscribe(
       (data2: any) => {
-
         this.devicetypelist = data2;
         this.devicetypeLoded = true;
       }
@@ -107,20 +108,21 @@ export class AddReservationComponent {
     this.authService.GetMethod('sdgbenefit/code').subscribe(
       (data) => {
         // display list in the console 
-
         this.sdgblist = data;
-
       }
     )
     this.getcountryListData();
-    this. displayList();
+    this. displayList(this.p);
     console.log("myreservation");
     setTimeout(() => {
-     // this.loading = false;
-
       this.applycountryFilter();
     }, 2000)
     
+  }
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
   }
   isAnyFieldFilled: boolean = false;
 
@@ -128,15 +130,29 @@ checkFormValidity(): void {
   console.log("115");
   const formValues = this.FilterForm.value;
   this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
-  console.log(this.isAnyFieldFilled);
+
 }
   applycountryFilter() {
-    this.FilterForm.controls['countryCode'];
-    this.filteredOptions = this.FilterForm.controls['countryCode'].valueChanges.pipe(
+    this.FilterForm.controls['countryname'];
+    this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '')),
     );
-    console.log(this.filteredOptions);
+  }
+
+  private _filter(value: any): string[] {
+    const filterValue = value.toLowerCase();
+      return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
+  
+    }
+  selectCountry(event: any) {
+   
+    this.subscription =  this.filteredOptions.subscribe(options => {
+    const selectedCountry = options.find(option => option.country === event.option.value);
+    if (selectedCountry) {
+        this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
+      }
+    });
   }
 
   openBottomSheet(device: any) {
@@ -157,10 +173,11 @@ checkFormValidity(): void {
   }
   reset() {
     this.FilterForm.reset();
+    this.FilterForm.controls['countryCode'].setValue(null);
     this.loading = false;
     this.p=1;
     this.selection.clear();
-    this.displayList();
+    this.displayList(this.p);
    this.isAnyFieldFilled=false;
     
   }
@@ -190,55 +207,24 @@ checkFormValidity(): void {
 
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3: any) => {
-
         this.countrylist = data3;
         this.countrycodeLoded = true;
       }
     )
   }
 
-  // getDeviceListData() {
-
-  //   this.deviceservice.GetUnreserveDevices().subscribe(
-  //     (data) => {
-  //       this.data = data;
-  //       this.displayList();
-  //       //@ts-ignore
-  //     }
-  //   )
-  // }
-  // displayList() {
-  //   if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
-  //     //@ts-ignore
-  //     this.data.forEach(ele => {
-  //       //@ts-ignore
-  //       ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
-  //       //@ts-ignore
-  //       ele['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == ele.deviceTypeCode)?.name;
-  //       //@ts-ignore
-  //       ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
-  //     })
-  //     console.log(this.data)
-  //     this.dataSource = new MatTableDataSource(this.data);
-
-  //     this.dataSource.paginator = this.paginator;
-  //     this.dataSource.sort = this.sort;
-  //     this.loading = false;
-  //   }
-  // }
   applyFilter(){
     this.p=1;
     console.log(this.p);
-    this.displayList();
+    this.displayList(this.p);
   }
-  displayList() {
+  displayList(page:number) {
     // this.data=this.selection.selected;
     console.log(this.FilterForm.value);
     console.log(this.p);
-    this.FilterForm.controls['pagenumber'].setValue(this.p);
+    this.FilterForm.controls['pagenumber'].setValue(page);
     this.deviceservice.getfilterData(this.FilterForm.value).subscribe(
       (data) => {
-
         this.loading = true;
         if (this.selection.selected.length > 0) {
           this.selection.selected.forEach((ele) => {
@@ -272,21 +258,12 @@ checkFormValidity(): void {
         this.dataSource = new MatTableDataSource(this.data);
         this.totalRows = data.totalCount
         console.log(this.totalRows);
+        this.totalPages = data.totalPages
         //this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-        
+        this.dataSource.sort = this.sort;   
         //@ts-ignore
       }
     )
-  }
-  private _filter(value: any): string[] {
-    console.log(value)
-    const filterValue = value.toLowerCase();
-
-    // if (this.countrycodeLoded === true) {
-   // console.log(this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0))
-    return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
-
   }
   onSubmit(): void {
     console.log(this.reservationForm.value)
@@ -296,8 +273,6 @@ checkFormValidity(): void {
       let deviceId: any = []
       this.selection.selected.forEach(ele => {
         deviceId.push(ele.id)
-        console.log(deviceId)
-
       })
       this.reservationForm.controls['deviceIds'].setValue(deviceId)
       console.log(this.reservationForm);
@@ -305,31 +280,21 @@ checkFormValidity(): void {
     } else {
        this.toastrService.error('Please add start and end date!', 'Validation error');
     }
-
-
   }
 
 
   openpopupDialog(reservationForm: any) {
     console.log("reservationForm");
-    console.log(reservationForm)
     this.dialogRef = this.dialog.open(this.popupDialog,
       { data: this.reservationbollean, height: '300px', width: '500px' });
     console.log(this.reservationForm)
     this.dialogRef.afterClosed().subscribe((result: any) => {
-      console.log(result);
-
       this.onContinue(result);
-
     });
   }
   onContinue(result: any) {
-    console.log(this.reservationForm);
-    console.log(result);
     this.reservationForm.controls['continueWithReservationIfOneOrMoreDevicesUnavailableForReservation'].setValue(result.continewwithunavilableonedevice);
     this.reservationForm.controls['continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'].setValue(result.continueWithTCLessDTC);
-    console.log(this.reservationForm);
-
     this.authService.PostAuth('device-group', this.reservationForm.value).subscribe({
       next: data => {
         console.log(data)
@@ -349,10 +314,23 @@ checkFormValidity(): void {
 
   }
   
-  pageChangeEvent(event: PageEvent) {
-    console.log(event);
-    this.p = event.pageIndex + 1;
+  // pageChangeEvent(event: PageEvent) {
+  //   console.log(event);
+  //   this.p = event.pageIndex + 1;
+  //   this.displayList();
+  // }
 
-    this.displayList();
+  previousPage(): void {
+    if (this.p > 1) {
+      this.p--;
+      this.displayList(this.p);
+    }
+  }
+
+  nextPage(): void {
+    if (this.p < this.totalPages) {
+      this.p++;
+      this.displayList(this.p);;
+    }
   }
 }

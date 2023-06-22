@@ -21,15 +21,7 @@
                 <div formArrayName='devices'>
                     <div *ngFor="let phone of deviceForms.controls; let i=index" [formGroupName]="i">
                         <mat-card>
-                            <!-- <mat-card-header>
-                                <mat-card-title>
-                                    <h2 class="pb-0 mb-0 fw-bold text-capitalize">Device &nbsp;{{1+i}}
-                                        <button mat-raised-button color="warn" (click)='deletePhone(i)'><mat-icon>delete</mat-icon></button>
-                                    </h2>
-                                </mat-card-title>
-                            </mat-card-header> -->
-
-
+                            
                             <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
                                 <div>
                                     <h3 class="pb-0 mb-0 fw-bold text-capitalize">Device &nbsp;{{1+i}}
@@ -37,7 +29,7 @@
                                 </div>
                                 <div>
                                     <button class="btn btn-danger danger-btn justify-content-end btn-sm"
-                                        (click)='deletePhone(i)' *ngIf="deviceForms.controls.length>1">
+                                        (click)='deleteDevice(i)' *ngIf="deviceForms.controls.length>1">
                                         <mat-icon class="align-middle">delete</mat-icon>
                                     </button>
                                 </div>
@@ -78,6 +70,8 @@
                                                 </mat-option>
                                             </mat-select>
                                         </mat-form-field>
+
+                                        
                                         <!-- <mat-form-field>
                                             <mat-select formControlName='countryCode' placeholder="Bank" #singleSelect>
                                               <mat-option>
