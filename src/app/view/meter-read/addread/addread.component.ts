@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
+import {getValidmsgTimezoneFormat} from '../../../utils/Gettimezone_msg'
 @Component({
   selector: 'app-addread',
   templateUrl: './addread.component.html',
@@ -66,10 +67,10 @@ export class AddreadComponent implements OnInit {
     //this.TimeZoneList();
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3) => {
-        this.countrylist = data3;  
+        this.countrylist = data3;
       }
     )
-  
+
   }
   get addreads() {
     return this.readForm.controls["reads"] as FormArray;
@@ -79,7 +80,7 @@ export class AddreadComponent implements OnInit {
     console.log(deviceurl);
     this.deviceservice.GetMyDevices(deviceurl).subscribe(
       (data) => {
-        console.log("data",data)
+        console.log("data", data)
         // display list in the console 
         this.data = data;
       }
@@ -151,10 +152,10 @@ export class AddreadComponent implements OnInit {
     console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if (!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
-    }else{
+    } else {
       this.showerror = false;
     }
-    
+
     return this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue))
   }
   getErrorcheckdatavalidation() {
@@ -220,7 +221,11 @@ export class AddreadComponent implements OnInit {
       },
       error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
         console.error('error caught in component', err)
-        this.toastrService.error(err.error.message,'error!');
+       //@ts-ignore
+        let message =  getValidmsgTimezoneFormat(err.error.message);
+        console.error(message)
+       
+        this.toastrService.error(message, 'error!');
       }
     });
   }

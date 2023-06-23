@@ -43,6 +43,7 @@
               <input type="text"  aria-label="text" matInput
                 formControlName="countryname" [matAutocomplete]="auto" (ngModelChange)="checkFormValidity()">
               <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
+                <mat-option [value]="">---</mat-option>
                 <mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
                   {{ code.country }}
                 </mat-option>
@@ -86,10 +87,10 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
             <mat-form-field>
               <mat-label>Capacity(Kw)</mat-label>
-              <input matInput (ngModelChange)="checkFormValidity()" formControlName='capacity' #input>
+              <input matInput type="number" (ngModelChange)="checkFormValidity()" formControlName='capacity' #input>
             </mat-form-field>
           </div>
           <div class="col-md-3">
@@ -103,9 +104,13 @@
               </mat-select>
             </mat-form-field>
           </div>
+          <div class="col-md-1">
+						<h6>Commissioning Date: </h6>
+
+					</div>
           <div class="col-md-3">
             <mat-form-field>
-                <mat-label class="text-capitalize">Commissioning Start Date </mat-label>
+                <mat-label class="text-capitalize">From </mat-label>
                 <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
                     formControlName="start_date" autocomplete="off"
                     (ngModelChange)="onEndChangeEvent($event);checkFormValidity()">
@@ -118,7 +123,7 @@
         </div>
         <div class="col-md-3">
             <mat-form-field>
-                <mat-label class="text-capitalize">Commissioning End Date </mat-label>
+                <mat-label class="text-capitalize">To </mat-label>
               
                 <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
                     formControlName="end_date" [min]="endminDate" autocomplete="off" (ngModelChange)="checkFormValidity()">

@@ -130,7 +130,8 @@
                                         <input type="text" aria-label="text" matInput
                                           formControlName="countryname" [matAutocomplete]="auto" (ngModelChange)="checkFormValidity()">
                                         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
-                                          <mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
+                                            <mat-option [value]="">---</mat-option>
+                                            <mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
                                             {{ code.country }}
                                           </mat-option>
                                         </mat-autocomplete>

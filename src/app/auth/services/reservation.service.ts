@@ -21,7 +21,7 @@ export class ReservationService {
     let searchUrl = `${this.url}device-group/my?pagenumber=`+searchData.pagenumber;
 
     if (!(typeof searchData.countryCode === "undefined" || searchData.countryCode === ""||searchData.countryCode === null)) {
-      searchUrl += `country=${searchData.countryCode}`;
+      searchUrl += `&country=${searchData.countryCode}`;
     }
 
     if (!(typeof searchData.fuelCode === "undefined" || searchData.fuelCode === ""||searchData.fuelCode === null)) {
