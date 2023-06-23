@@ -111,7 +111,13 @@ export class AddReservationComponent {
         this.sdgblist = data;
       }
     )
-    this.getcountryListData();
+    this.authService.GetMethod('countrycode/list').subscribe(
+      (data3: any) => {
+        this.countrylist = data3;
+        this.countrycodeLoded = true;
+      }
+    )
+   // this.getcountryListData();
     this. displayList(this.p);
     console.log("myreservation");
     setTimeout(() => {
@@ -203,15 +209,10 @@ checkFormValidity(): void {
     console.log(event);
     this.filterendminDate = event;
   }
-  getcountryListData() {
+  // getcountryListData() {
 
-    this.authService.GetMethod('countrycode/list').subscribe(
-      (data3: any) => {
-        this.countrylist = data3;
-        this.countrycodeLoded = true;
-      }
-    )
-  }
+    
+  // }
 
   applyFilter(){
     this.p=1;

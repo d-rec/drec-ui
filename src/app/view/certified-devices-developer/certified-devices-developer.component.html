@@ -31,7 +31,7 @@
 					<div class="col-md-3">
 						<mat-form-field>
 							<mat-label class="text-capitalize">Select Country Code</mat-label>
-							<input type="text" placeholder="Please Enter countryCode" aria-label="text" matInput
+							<input type="text" aria-label="text" matInput
 								formControlName="countryCode" [matAutocomplete]="auto"
 								(ngModelChange)="checkFormValidity()">
 							<mat-autocomplete #auto="matAutocomplete">
@@ -91,9 +91,13 @@
 							</mat-select>
 						</mat-form-field>
 					</div>
+					<div class="col-md-1">
+						<h5>Certificate Date: </h5>
+
+					</div>
 					<div class="col-md-3">
 						<mat-form-field>
-							<mat-label class="text-capitalize">Certificate Start Date </mat-label>
+							<mat-label class="text-capitalize">From </mat-label>
 							<input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
 								formControlName="start_date" autocomplete="off"
 								(ngModelChange)="onEndChangeEvent($event);checkFormValidity()">
@@ -106,7 +110,7 @@
 					</div>
 					<div class="col-md-3">
 						<mat-form-field>
-							<mat-label class="text-capitalize">Certificate End Date </mat-label>
+							<mat-label class="text-capitalize">To </mat-label>
 
 							<input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
 								formControlName="end_date" [min]="endminDate" autocomplete="off"
