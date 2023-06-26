@@ -13,7 +13,7 @@ export class CertificateService {
     return this.httpClient.get(this.url+'certificate-log/redemption-report')
   }
   GetDevoloperCertificateMethod(searchData:any) : Observable<any>{
-    let searchUrl = this.url+'certificate-log/issuer/certifiedfordeveloper?pageNumber='+searchData.pagenumber;
+    let searchUrl = this.url+'certificate-log/issuer/certifiedlogOfdevices?pageNumber='+searchData.pagenumber;
     if(searchData!=undefined){
       // if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null)) {
       //   searchUrl += `pagenumber=${searchData.pagenumber}`;
