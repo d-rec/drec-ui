@@ -242,6 +242,8 @@ export class MyreservationComponent implements OnInit {
   reset() {
     this.FilterForm.reset();
     this.FilterForm.controls['countryCode'].setValue(null);
+    this.isLoadingResults=true;
+    this.isAnyFieldFilled=false;
     this.p = 1;
     this.DisplayList(this.p)
   }
