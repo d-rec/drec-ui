@@ -18,27 +18,20 @@
 
 			<form [formGroup]="FilterForm">
 				<div class="example-container1 row">
-					<!-- <div class="col-md-3">
-						  <mat-form-field>
-							  <mat-label class="text-capitalize">Select country Code</mat-label>
-							  <mat-select formControlName='countryCode'>
-								  <mat-option *ngFor="let code of countrylist" [value]="code.alpha3">
-									  {{code.country}}
-								  </mat-option>
-							  </mat-select>
-						  </mat-form-field>
-					  </div> -->
+				
 					<div class="col-md-3">
 						<mat-form-field>
-							<mat-label class="text-capitalize">Select Country Code</mat-label>
-							<input type="text" aria-label="text" matInput
-								formControlName="countryCode" [matAutocomplete]="auto"
-								(ngModelChange)="checkFormValidity()">
-							<mat-autocomplete #auto="matAutocomplete">
-								<mat-option *ngFor="let code of filteredOptions | async" [value]="code.alpha3">
+							<mat-label class="text-capitalize">Select country Code</mat-label>
+							<input type="text"  aria-label="text" matInput
+								formControlName="countryname" (ngModelChange)="checkFormValidity()"
+								[matAutocomplete]="auto" multiple>
+							<mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
+								<mat-option [value]="">---</mat-option>
+								<mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
 									{{code.country}}
 								</mat-option>
 							</mat-autocomplete>
+
 						</mat-form-field>
 					</div>
 					<div class="col-md-3">
@@ -273,6 +266,7 @@
 			</mat-paginator> -->
 
 			<button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()" [disabled]="p === 1">Previous</button>
+			Total Pages:{{totalPages}}
 			<button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()" [disabled]="p === totalPages">Next</button>
 			
 			<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>

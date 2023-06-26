@@ -28,7 +28,7 @@ export interface Student {
 }
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { Observable } from 'rxjs';
+import { Observable ,Subscription} from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DateAdapter } from '@angular/material/core';
@@ -75,6 +75,7 @@ export class CertifiedDevicesDeveloperComponent {
   sdgblist:any;
   fuellist: any;
   devicetypelist: any;
+  subscription: Subscription;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -85,6 +86,7 @@ export class CertifiedDevicesDeveloperComponent {
   ) {
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
+      countryname: [],
       fuelCode: [],
       // deviceTypeCode: [],
       capacity: [],
@@ -127,39 +129,52 @@ export class CertifiedDevicesDeveloperComponent {
     this.authService.GetMethod('sdgbenefit/code').subscribe(
       (data) => {
         // display list in the console 
-
         this.sdgblist = data;
-
       }
     )
     setTimeout(() => {
+      this.applycountryFilter();
       this.DisplayList(this.p);
     }, 1000);
     this.getBlockchainProperties();
-    this.AllCountryList();
+   
     this.selectAccountAddressFromMetamask();
     console.log("drt46")
+   
   }
-
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
   onEndChangeEvent(event: any) {
     console.log(event);
     this.endminDate = event;
   }
-  AllCountryList() {
-    this.authService.GetMethod('countrycode/list').subscribe(
-      (data) => {
-        // display list in the console 
-        console.log(data)
-        this.countrylist = data;
-
-      }
-    )
+  applycountryFilter() {
+    this.FilterForm.controls['countryname'];
+    this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
+   
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
 
     return this.countrylist.filter((option: { country: string; }) => option.country.toLowerCase().includes(filterValue));
   }
+
+  selectCountry(event: any) {
+    console.log(event)
+    this.subscription =  this.filteredOptions.subscribe(options => {
+    const selectedCountry = options.find((option:any) => option.country === event.option.value);
+    if (selectedCountry) {
+        this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
+      }
+    });
+  }
+ 
   // ngAfterViewInit() {
   //   this.dataSource.paginator = this.paginator;
   //   this.dataSource.sort = this.sort;
@@ -181,7 +196,8 @@ export class CertifiedDevicesDeveloperComponent {
   }
   reset() {
     this.FilterForm.reset();
-    this.loading = false;
+    this.FilterForm.controls['countryCode'].setValue(null);
+   // this.loading = false;
     this.isAnyFieldFilled = false;
     this.p = 1;
     this.DisplayList(this.p);
@@ -196,6 +212,7 @@ export class CertifiedDevicesDeveloperComponent {
     }
   }
   DisplayListFilter() {
+    this.loading=true;
     this.p = 1;
     this.DisplayList(this.p);
   }
