@@ -7,7 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
-import {getValidmsgTimezoneFormat} from '../../../utils/Gettimezone_msg'
+import {getValidmsgTimezoneFormat} from '../../../utils/getTimezone_msg'
 @Component({
   selector: 'app-addread',
   templateUrl: './addread.component.html',
