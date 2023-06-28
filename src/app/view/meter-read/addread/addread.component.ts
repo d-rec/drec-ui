@@ -14,6 +14,9 @@ import {getValidmsgTimezoneFormat} from '../../../utils/getTimezone_msg'
   styleUrls: ['./addread.component.scss']
 })
 export class AddreadComponent implements OnInit {
+  autocompleteResults: any[] = [];
+ // searchControl: FormControl = new FormControl();
+  filteredResults: Observable<any[]>;
   startmaxDate = new Date();
   startminDate = new Date();
   endminDate = new Date();
@@ -32,6 +35,7 @@ export class AddreadComponent implements OnInit {
   readtype = ['History', 'Delta', 'Aggregate'];
   unit = ['Wh', 'kWh', 'MWh', 'GWh'];
   commissioningDate: any;
+  selectedResult: any;
   filteredOptions: Observable<any[]>;
   constructor(private fb: FormBuilder, private readService: MeterReadService,
     private deviceservice: DeviceService,
@@ -69,11 +73,64 @@ export class AddreadComponent implements OnInit {
       (data3) => {
         this.countrylist = data3;
       }
-    )
-
+    );
+    
   }
+
+ 
   get addreads() {
     return this.readForm.controls["reads"] as FormArray;
+  }
+  search(): void {
+    const input = this.readForm.controls['externalId'].value;
+    if (input) {
+      this.deviceservice.GetDeviceAutocomplete(input).subscribe(
+        (response) => {
+          this.autocompleteResults = response;
+        },
+        (error) => {
+          console.error('Error fetching autocomplete results:', error);
+        }
+      );
+    } else {
+      this.autocompleteResults = [];
+    }
+  }
+  displayFn(result: any): string {
+    return result ? result.label : '';
+  }
+  lastreadvalue: number;
+  lastreaddate: any;
+  onSelect(result: any): void {
+    this.selectedResult = result;
+    console.log(this.selectedResult);
+    console.log(result);
+    this.addreads.reset();
+    this.readForm.controls['type'].setValue(null)
+    this.devicecreateddate = result.createdAt;
+    this.commissioningDate = result.commissioningDate;
+
+    this.historyAge = new Date(this.devicecreateddate);
+    this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
+    //@ts-ignore
+    this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == event.countryCode)?.timezones;
+    console.log(this.timezonedata);
+    this.readForm.controls['timezone'].setValue(null);
+    this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
+    console.log(this.filteredOptions);
+    this.readService.Getlastread(result.externalId).subscribe({
+      next: data => {
+        console.log(data),
+          this.lastreaddate = data.enddate;
+        this.lastreadvalue = data.value;
+      },
+      error: err => {                      //Error callback
+        console.error('error caught in component', err)
+      }
+    })
   }
   DisplayList() {
     const deviceurl = 'device/my';
@@ -94,8 +151,7 @@ export class AddreadComponent implements OnInit {
   //     }
   //   )
   // }
-  lastreadvalue: number;
-  lastreaddate: any;
+ 
   ExternaIdonChangeEvent(event: any) {
     console.log(event);
     this.addreads.reset();
