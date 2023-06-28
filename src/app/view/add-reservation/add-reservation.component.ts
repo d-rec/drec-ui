@@ -12,7 +12,7 @@ import { DeviceService } from '../../auth/services/device.service'
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatBottomSheet, MatBottomSheetConfig, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MeterReadTableComponent } from '../meter-read/meter-read-table/meter-read-table.component'
-import { Observable,Subscription } from 'rxjs';
+import { Observable,Subscription,debounceTime  } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 @Component({
   selector: 'app-add-reservation',
@@ -62,6 +62,7 @@ export class AddReservationComponent {
   sdgblist:any;
   totalPages: number;
   subscription: Subscription;
+  isAnyFieldFilled: boolean = false;
   reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };
   constructor(private authService: AuthbaseService, private router: Router,
     public dialog: MatDialog, private bottomSheet: MatBottomSheet,
@@ -89,7 +90,11 @@ export class AddReservationComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-      pagenumber: [this.p]
+      // pagenumber: [this.p]
+    });
+
+    this.FilterForm.valueChanges.subscribe(() => {
+      this.isAnyFieldFilled = Object.values(this.FilterForm.value).some(value => value !== null);
     });
   }
   ngOnInit() {
@@ -118,11 +123,12 @@ export class AddReservationComponent {
       }
     )
    // this.getcountryListData();
-    this. displayList(this.p);
+  
     console.log("myreservation");
     setTimeout(() => {
+      this. displayList(this.p);
       this.applycountryFilter();
-    }, 2000)
+    }, 1000)
     
   }
   ngOnDestroy() {
@@ -130,14 +136,9 @@ export class AddReservationComponent {
       this.subscription.unsubscribe();
     }
   }
-  isAnyFieldFilled: boolean = false;
+ 
 
-checkFormValidity(): void {
-  console.log("115");
-  const formValues = this.FilterForm.value;
-  this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
-
-}
+  
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
@@ -148,6 +149,7 @@ checkFormValidity(): void {
 
   private _filter(value: any): string[] {
     const filterValue = value.toLowerCase();
+
       return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
   
     }
@@ -160,7 +162,43 @@ checkFormValidity(): void {
       }
     });
   }
+  checkFormValidity(): void {
+    let isUserInteraction = true; // Flag to track user interaction
 
+    this.FilterForm.valueChanges.pipe(
+      debounceTime(500) // Debounce the stream for 500 milliseconds
+    ).subscribe((formValues) => {
+      if (isUserInteraction) {
+        const countryValue = formValues.countryname;
+        console.log(countryValue)
+        if (countryValue === undefined) {
+          console.log('234')
+          this.FilterForm.controls['countryname'].setValue(null);
+          this.FilterForm.controls['countryCode'].setValue(null);
+         
+        }
+        const fuelCodeValue = formValues.fuelCode;
+        if (fuelCodeValue != null && fuelCodeValue === undefined) {
+          this.FilterForm.controls['fuelCode'].setValue(null);
+        }
+        if (formValues.offTaker != null && formValues.offTaker === undefined) {
+          this.FilterForm.controls['offTaker'].setValue(null);
+        }
+        if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
+          this.FilterForm.controls['SDGBenefits'].setValue(null);
+        }
+        // Other code...
+      }
+    });
+console.log(this.FilterForm.value)
+    setTimeout(() => {
+      const updatedFormValues = this.FilterForm.value;
+      const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
+      this.isAnyFieldFilled = isAllValuesNull;
+    }, 500);
+
+    // Other code...
+  }
   openBottomSheet(device: any) {
     if (this.reservationForm.value.reservationStartDate != null && this.reservationForm.value.reservationEndDate != null) {
       let requestreaddata: any = { devicename: device.externalId, rexternalid: device.id, reservationStartDate: this.reservationForm.value.reservationStartDate, reservationEndDate: this.reservationForm.value.reservationEndDate }
@@ -215,6 +253,7 @@ checkFormValidity(): void {
   // }
 
   applyFilter(){
+    this.loading = true;
     this.p=1;
     console.log(this.p);
     this.displayList(this.p);
@@ -223,10 +262,10 @@ checkFormValidity(): void {
     // this.data=this.selection.selected;
     console.log(this.FilterForm.value);
     console.log(this.p);
-    this.FilterForm.controls['pagenumber'].setValue(page);
-    this.deviceservice.getfilterData(this.FilterForm.value).subscribe(
+  //  this.FilterForm.controls['pagenumber'].setValue(page);
+    this.deviceservice.getfilterData(this.FilterForm.value,page).subscribe(
       (data) => {
-        this.loading = true;
+        this.loading = false;
         if (this.selection.selected.length > 0) {
           this.selection.selected.forEach((ele) => {
 
@@ -279,7 +318,7 @@ checkFormValidity(): void {
       console.log(this.reservationForm);
       this.openpopupDialog(this.reservationForm)
     } else {
-       this.toastrService.error('Please add start and end date!', 'Validation error');
+      this.toastrService.error('Please select at least one device', 'Validation Error!');
     }
   }
 

@@ -7,11 +7,11 @@ import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRe
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator,PageEvent } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { ReservationService } from '../../auth/services/reservation.service';
 import { Router } from '@angular/router';
-import { Observable,Subscription } from 'rxjs';
+import { Observable, Subscription, take,debounceTime  } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
@@ -37,7 +37,7 @@ export class MyreservationComponent implements OnInit {
     //'fuelCode',
     'number Of Devices',
     'SDGBenefits',
-   
+
   ];
   displayedColumns1 = [
     'projectName',
@@ -73,12 +73,12 @@ export class MyreservationComponent implements OnInit {
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   filteredOptions: Observable<any[]>;
   endminDate = new Date();
-  group_info:any;
-  reservationsstatus:any;
-  reservationstart:any;
+  group_info: any;
+  reservationsstatus: any;
+  reservationstart: any;
   subscription: Subscription;
-  totalPages:number;
-
+  totalPages: number;
+  isAnyFieldFilled: boolean = false;
   constructor(private authService: AuthbaseService,
     private reservationService: ReservationService,
     private router: Router, private formBuilder: FormBuilder,
@@ -97,7 +97,7 @@ export class MyreservationComponent implements OnInit {
       reservationStartDate: [null],
       reservationEndDate: [null],
       reservationActive: [],
-      pagenumber: [this.p]
+      // pagenumber: [this.p]
     });
 
     console.log("myreservation");
@@ -114,11 +114,7 @@ export class MyreservationComponent implements OnInit {
       this.applycountryFilter();
     }, 2000)
   }
-  ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-  }
+
   DisplaycountryList() {
 
     this.authService.GetMethod('countrycode/list').subscribe(
@@ -171,19 +167,115 @@ export class MyreservationComponent implements OnInit {
     console.log(value)
     const filterValue = value.toLowerCase();
     // if (this.countrycodeLoded === true) {
-    console.log(this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0))
+    //   console.log(this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0))
     return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
 
   }
-  DisplayList(page:number) {
+
+  // checkFormValidity(): void {
+  //   // console.log("115");
+  //   let formValues = this.FilterForm.value;
+  //   const countryValue = formValues.countryname;
+  //   if (countryValue != null && countryValue === undefined) {
+  //     this.FilterForm.controls['countryCode'].setValue(null);
+  //   }
+  //   const fuelCodeValue = formValues.fuelCode;
+  //   if (fuelCodeValue != null && fuelCodeValue[0] === undefined) {
+  //     this.FilterForm.controls['fuelCode'].setValue(null);
+
+  //   }
+  //   if (formValues.offTaker != null && formValues.offTaker[0] === undefined) {
+  //     this.FilterForm.controls['offTaker'].setValue(null);
+  //   }
+  //   if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
+  //     this.FilterForm.controls['SDGBenefits'].setValue(null);
+  //   }
+
+  //   formValues = this.FilterForm.value;
+  //   setTimeout(() => {
+  //     const updatedFormValues = this.FilterForm.value;
+
+  //     const isAllValuesNull = Object.values(updatedFormValues).some(value => !!value);
+  //     console.log(isAllValuesNull);
+  //     this.isAnyFieldFilled = isAllValuesNull;
+  //     console.log(this.isAnyFieldFilled);
+  //   }, 500);
+
+  // }
+
+  checkFormValidity(): void {
+    let isUserInteraction = true; // Flag to track user interaction
+
+    this.FilterForm.valueChanges.pipe(
+      debounceTime(500) // Debounce the stream for 500 milliseconds
+    ).subscribe((formValues) => {
+      if (isUserInteraction) {
+        const countryValue = formValues.countryname;
+        console.log(countryValue)
+        if (countryValue === undefined) {
+          console.log('234')
+          this.FilterForm.controls['countryname'].setValue(null);
+          this.FilterForm.controls['countryCode'].setValue(null);
+         
+        }
+        const fuelCodeValue = formValues.fuelCode;
+      if (fuelCodeValue != null && fuelCodeValue[0] === undefined) {
+        this.FilterForm.controls['fuelCode'].setValue(null);
+      }
+        if (formValues.offTaker != null && formValues.offTaker[0] === undefined) {
+          this.FilterForm.controls['offTaker'].setValue(null);
+        }
+        if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
+          this.FilterForm.controls['SDGBenefits'].setValue(null);
+        }
+        // Other code...
+      }
+    });
+
+    setTimeout(() => {
+      const updatedFormValues = this.FilterForm.value;
+      const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
+      this.isAnyFieldFilled = isAllValuesNull;
+    }, 500);
+
+    // Other code...
+  }
+  onEndChangeEvent(event: any) {
+    console.log(event);
+    this.endminDate = event;
+  }
+  selectCountry(event: any) {
+    console.log(event)
+    this.subscription = this.filteredOptions.subscribe(options => {
+      const selectedCountry = options.find(option => option.country === event.option.value);
+      if (selectedCountry) {
+        this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
+      }
+    });
+  }
+
+  formfilter() {
+    this.p = 1;
+    this.DisplayList(this.p)
+  }
+
+  reset() {
+    this.FilterForm.reset();
+    this.FilterForm.controls['countryCode'].setValue(null);
+    this.isLoadingResults = true;
+    this.isAnyFieldFilled = false;
+    this.p = 1;
+    this.DisplayList(this.p)
+  }
+  DisplayList(page: number) {
     console.log(this.FilterForm.value)
-    this.FilterForm.controls['pagenumber'].setValue(page);
+  //  this.FilterForm.controls['pagenumber'].setValue(page);
     if (this.FilterForm.value.reservationActive === "All") {
       this.FilterForm.removeControl('reservationActive');
     }
     if (!(this.FilterForm.value.reservationStartDate != null && this.FilterForm.value.reservationEndDate === null)) {
 
-      this.reservationService.getReservationData(this.FilterForm.value).subscribe(
+      this.reservationService.getReservationData(this.FilterForm.value,page).subscribe(
         (data) => {
           this.showdevicesinfo = false;
 
@@ -210,43 +302,7 @@ export class MyreservationComponent implements OnInit {
       this.toastrService.error("Filter error", "End date should be if in filter query you used with Start date");
     }
   }
-  isAnyFieldFilled: boolean = false;
 
-  checkFormValidity(): void {
-    console.log("115");
-    const formValues = this.FilterForm.value;
-    this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
-    console.log(this.isAnyFieldFilled);
-  }
-
-  onEndChangeEvent(event: any) {
-    console.log(event);
-    this.endminDate = event;
-  }
-  selectCountry(event: any) {
-    console.log(event)
-    this.subscription =  this.filteredOptions.subscribe(options => {
-    const selectedCountry = options.find(option => option.country === event.option.value);
-    if (selectedCountry) {
-        this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
-      }
-    });
-  }
- 
-  formfilter()
-  {
-    this.p=1;
-    this.DisplayList(this.p)
-  }
- 
-  reset() {
-    this.FilterForm.reset();
-    this.FilterForm.controls['countryCode'].setValue(null);
-    this.isLoadingResults=true;
-    this.isAnyFieldFilled=false;
-    this.p = 1;
-    this.DisplayList(this.p)
-  }
 
   DisplayCertificatepage(reservation_row: any) {
     console.log(typeof reservation_row.deviceIds);
@@ -259,10 +315,10 @@ export class MyreservationComponent implements OnInit {
     this.FilterForm.reset();
     this.showdevicesinfo = true;
 
-   this.group_info=row;
-  //  this.reservationsstatus=row.reservationActivethis, 
+    this.group_info = row;
+    //  this.reservationsstatus=row.reservationActivethis, 
 
-  // this.reservationstart= "start from "+row.reservationStartDate+ " To "+row. reservationEndDate 
+    // this.reservationstart= "start from "+row.reservationStartDate+ " To "+row. reservationEndDate 
     this.DevicesList = [];
     //@ts-ignore
     row.deviceIds.forEach(ele => {
@@ -306,7 +362,8 @@ export class MyreservationComponent implements OnInit {
 
   //   this.DisplayList();
   // }
-  Gobacklist(){
+  Gobacklist() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     this.p = 1;
     this.DisplayList(this.p)
   }
@@ -321,6 +378,11 @@ export class MyreservationComponent implements OnInit {
     if (this.p < this.totalPages) {
       this.p++;
       this.DisplayList(this.p);;
+    }
+  }
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 }

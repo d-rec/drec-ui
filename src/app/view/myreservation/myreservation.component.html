@@ -18,19 +18,12 @@
                 <mat-card-content>
                     <form [formGroup]="FilterForm">
                         <div class="example-container1 row">
-                            <!-- <div class="col-md-3">
-                                <mat-form-field>
-                                    <mat-label class="text-capitalize">Select country Code</mat-label>
-                                    <mat-select formControlName='countryCode'>
-                                        <mat-option *ngFor="let code of countrylist" [value]="code.alpha3">
-                                            {{code.country}}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div> -->
+                           
                             <div class="col-md-3">
+                                <input  type="hidden"  formControlName='countryCode' #input>
                                 <mat-form-field>
                                     <mat-label class="text-capitalize">Select country Code</mat-label>
+                                    
                                     <input type="text"  aria-label="text" matInput
                                         formControlName="countryname" (ngModelChange)="checkFormValidity()"
                                         [matAutocomplete]="auto" multiple>
@@ -57,7 +50,6 @@
                                     </mat-select>
                                 </mat-form-field>
                             </div>
-
 
                             <div class="col-md-3">
                                 <mat-form-field>
@@ -99,6 +91,7 @@
                                 </mat-form-field>
                             </div>
                             <div class="col-md-3">
+
                                 <mat-form-field>
                                     <mat-label class="text-capitalize">End Date </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
@@ -112,6 +105,7 @@
                                    <b> {{getErrorcheckdatavalidation()}}</b>
                                   </mat-error> -->
                                 </mat-form-field>
+                               
                             </div>
                             <div class="col-md-6 d-flex flex-column">
                                 <span>Reservation Status:</span>
