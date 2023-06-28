@@ -28,7 +28,7 @@ export interface Student {
 }
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { Observable ,Subscription} from 'rxjs';
+import { Observable ,Subscription,debounceTime} from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DateAdapter } from '@angular/material/core';
@@ -188,11 +188,53 @@ export class CertifiedDevicesDeveloperComponent {
   }
   isAnyFieldFilled: boolean = false;
 
+  // checkFormValidity(): void {
+  //   console.log("115");
+  //   const formValues = this.FilterForm.value;
+  //   this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
+  //   console.log(this.isAnyFieldFilled);
+  // }
   checkFormValidity(): void {
-    console.log("115");
-    const formValues = this.FilterForm.value;
-    this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
-    console.log(this.isAnyFieldFilled);
+    let isUserInteraction = true; // Flag to track user interaction
+
+    this.FilterForm.valueChanges.pipe(
+      debounceTime(500) // Debounce the stream for 500 milliseconds
+    ).subscribe((formValues) => {
+      if (isUserInteraction) {
+        const countryValue = formValues.countryname;
+        console.log(countryValue)
+        if (countryValue === undefined) {
+          console.log('234')
+          this.FilterForm.controls['countryname'].setValue(null);
+          this.FilterForm.controls['countryCode'].setValue(null);
+         
+        }
+        const fuelCodeValue = formValues.fuelCode;
+        if ( fuelCodeValue === undefined) {
+          this.FilterForm.controls['fuelCode'].setValue(null);
+        }
+        console.log(formValues.deviceTypeCode);
+        if ( formValues.offTaker === undefined) {
+          this.FilterForm.controls['offTaker'].setValue(null);
+        }
+        console.log(formValues.deviceTypeCode);
+        if (formValues.deviceTypeCode === undefined) {
+          this.FilterForm.controls['deviceTypeCode'].setValue(null);
+        }
+        if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
+          this.FilterForm.controls['SDGBenefits'].setValue(null);
+        }
+        // Other code...
+      }
+    });
+
+    setTimeout(() => {
+      const updatedFormValues = this.FilterForm.value;
+      const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
+      this.isAnyFieldFilled = isAllValuesNull;
+    }, 500);
+
+    // Other code...
   }
   reset() {
     this.FilterForm.reset();

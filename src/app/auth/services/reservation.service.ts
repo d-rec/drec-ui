@@ -16,9 +16,9 @@ export class ReservationService {
   //   return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/Job/${jobId}`);
   // }
 
-  getReservationData(searchData:any): Observable<any> {
+  getReservationData(searchData:any,pagenumber:number): Observable<any> {
     //    return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/search/paged`, { params: params, observe: 'response' });
-    let searchUrl = `${this.url}device-group/my?pagenumber=`+searchData.pagenumber;
+    let searchUrl = `${this.url}device-group/my?pagenumber=`+pagenumber;
 
     if (!(typeof searchData.countryCode === "undefined" || searchData.countryCode === ""||searchData.countryCode === null)) {
       searchUrl += `&country=${searchData.countryCode}`;

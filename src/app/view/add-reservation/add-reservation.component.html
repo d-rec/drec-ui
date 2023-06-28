@@ -114,21 +114,12 @@
                         <h3>Use Filters To Select Devices </h3>
                         <form [formGroup]="FilterForm">
                             <div class="example-container1 row">
-                                <!-- <div class="col-md-3">
-                                    <mat-form-field>
-                                        <mat-label class="text-capitalize">Select country Code</mat-label>
-                                        <mat-select formControlName='countryCode'>
-                                            <mat-option *ngFor="let code of countrylist" [value]="code.alpha3">
-                                                {{code.country}}
-                                            </mat-option>
-                                        </mat-select>
-                                    </mat-form-field>
-                                </div> -->
+                               
                                 <div class="col-md-3">
                                     <mat-form-field>
                                         <mat-label class="text-capitalize">Select Country Code</mat-label>
                                         <input type="text" aria-label="text" matInput
-                                          formControlName="countryname" [matAutocomplete]="auto" (ngModelChange)="checkFormValidity()">
+                                          formControlName="countryname"(ngModelChange)="checkFormValidity()" [matAutocomplete]="auto" >
                                         <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
                                             <mat-option [value]="">---</mat-option>
                                             <mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
@@ -142,7 +133,7 @@
                                         <mat-label class="text-capitalize">Fuel Code</mat-label>
 
                                         <mat-select formControlName='fuelCode' (ngModelChange)="checkFormValidity()">
-
+                                            <mat-option [value]="">---</mat-option>
                                             <mat-option *ngFor="let code of fuellist" [value]="code.code">
                                                 {{code.name}}
                                             </mat-option>
@@ -154,7 +145,7 @@
                                         <mat-label class="text-capitalize">Device Type Code</mat-label>
 
                                         <mat-select formControlName='deviceTypeCode'  (ngModelChange)="checkFormValidity()">
-
+                                            <mat-option [value]="">---</mat-option>
                                             <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
                                                 {{code.name}}
                                             </mat-option>
@@ -167,7 +158,7 @@
                                         <mat-label class="text-capitalize">Off Taker</mat-label>
 
                                         <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()">
-
+                                            <mat-option [value]="">---</mat-option>
                                             <mat-option *ngFor="let code of offtaker" [value]="code">
                                                 {{code}}
                                             </mat-option>
@@ -176,16 +167,16 @@
                                 </div>
                                 <div class="col-md-3">
                                     <mat-form-field>
-                                        <mat-label>capacity(Kw)</mat-label>
-                                        <input matInput (ngModelChange)="checkFormValidity()" formControlName='capacity' #input>
+                                        <mat-label>Capacity(Kw)</mat-label>
+                                        <input matInput  formControlName='capacity' (ngModelChange)="checkFormValidity()" #input>
                                     </mat-form-field>
                                 </div>
                                 <div class="col-md-3">
                                     <mat-form-field>
                                       <mat-label class="text-capitalize">SDG Benefits</mat-label>
-                        
-                                      <mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>
-                        
+                                     
+                                      <mat-select formControlName="SDGBenefits"  (ngModelChange)="checkFormValidity()" multiple>
+                                        <mat-option [value]="">---</mat-option>
                                         <mat-option *ngFor="let sdgb of sdgblist" [value]="sdgb.value">{{sdgb.value}}</mat-option>
                         
                                       </mat-select>
@@ -209,7 +200,7 @@
                                         <mat-label class="text-capitalize">Commissioning End Date </mat-label>
                                       
                                         <input matInput [ngxMatDatetimePicker]="picker3" placeholder="Choose a date"
-                                            formControlName="end_date" [min]="filterendminDate" autocomplete="off" (ngModelChange)="checkFormValidity()">
+                                            formControlName="end_date" [min]="filterendminDate"  (ngModelChange)="checkFormValidity()" autocomplete="off" >
                                         <mat-datepicker-toggle matSuffix [for]="$any(picker3)"></mat-datepicker-toggle>
                                         <ngx-mat-datetime-picker #picker3 [showSpinners]="true" [showSeconds]="false"
                                             [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
@@ -227,7 +218,7 @@
                                     </div>
                                     <div class="">
                                         <button class="btn-dark btn text-capitalize px-4"
-                                            (click)="reset()">Reset</button>
+                                            (click)="reset()" [disabled]="!isAnyFieldFilled">Reset</button>
                                     </div>
 
 
@@ -235,26 +226,12 @@
 
                             </div>
                         </form>
-                        <div class="content mat-elevation-z8 text-center" *ngIf="loading">
-                            <!-- <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner> -->
+                        <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
 
+                        <div class="content mat-elevation-z8 text-center" *ngIf="!loading">
+                            
                             <table mat-table [dataSource]="dataSource" matSort>
-                                <!--         
-                                    <ng-container matColumnDef="select">
-                                        <th mat-header-cell *matHeaderCellDef>
-                                            <mat-checkbox (change)="$event ? toggleAllRows() : null"
-                                                [checked]="selection.hasValue() && isAllSelected()"
-                                                [indeterminate]="selection.hasValue() && !isAllSelected()"
-                                                [aria-label]="checkboxLabel()">
-                                            </mat-checkbox>
-                                        </th>
-                                        <td mat-cell *matCellDef="let row">
-                                            <mat-checkbox (click)="$event.stopPropagation()"
-                                                (change)="$event ? selection.toggle(row) : null"
-                                                [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
-                                            </mat-checkbox>
-                                        </td>
-                                    </ng-container> -->
+                               
                                 <ng-container matColumnDef="select">
                                     <mat-header-cell *matHeaderCellDef>
                                         <mat-checkbox color="primary" (change)="$event ? masterToggle() : null"

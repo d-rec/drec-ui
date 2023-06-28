@@ -13,7 +13,7 @@ export class DeviceService {
   GetDevicesForAdmin(): Observable<any> {
     return this.httpClient.get(this.url + 'device')
   }
-  GetMyDevices(deviceurl: any, searchData?: any): Observable<any> {
+  GetMyDevices(deviceurl: any, searchData?: any,pagenumber?:number): Observable<any> {
     // return this.httpClient.get(this.url + 'device/my')
     console.log(deviceurl);
     console.log(searchData);
@@ -21,7 +21,7 @@ export class DeviceService {
     console.log(searchUrl);
     if(searchData!=undefined){
       if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null)) {
-        searchUrl += `pagenumber=${searchData.pagenumber}`;
+        searchUrl += `pagenumber=${pagenumber}`;
       }
       if (!(typeof searchData.countryCode === undefined || searchData.countryCode === "" || searchData.countryCode === null||searchData.countryCode === undefined)) {
         searchUrl += `&country=${searchData.countryCode}`;
@@ -78,9 +78,9 @@ export class DeviceService {
   GetUnreserveDevices(): Observable<any> {
     return this.httpClient.get(this.url + 'device/ungrouped/buyerreservation')
   }
-  getfilterData(searchData: any): Observable<any> {
+  getfilterData(searchData: any,pagenumber:number): Observable<any> {
     //    return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/search/paged`, { params: params, observe: 'response' });
-    let searchUrl = `${this.url}device/ungrouped/buyerreservation?pagenumber=` + searchData.pagenumber;
+    let searchUrl = `${this.url}device/ungrouped/buyerreservation?pagenumber=` +pagenumber;
 
     if (!(typeof searchData.countryCode === "undefined" || searchData.countryCode === "" || searchData.countryCode === null)) {
       searchUrl += `&country=${searchData.countryCode}`;
