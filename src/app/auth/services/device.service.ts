@@ -118,4 +118,9 @@ export class DeviceService {
   getcertifieddevicelogdate(externalId: any, groupId: any): Observable<any> {
     return this.httpClient.get(this.url + 'device/certifiedlog/first&lastdate?externalId=' + externalId + '&groupUid=' + groupId)
   }
+  GetDeviceAutocomplete(searchInput:StaticRange): Observable<any>{
+    let searchUrl = `${this.url}device/my/autocomplete?externalId=`+ searchInput;
+    return this.httpClient.get(searchUrl);
+    
+  }
 }

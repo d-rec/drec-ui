@@ -29,16 +29,13 @@
                     <div class="col-md-3">
 
                         <mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">ExternalId</mat-label>
-
-                            <mat-select formControlName='externalId' 
-                                (ngModelChange)="ExternaIdonChangeEvent($event)">
-
-                                <mat-option *ngFor="let device of data" [value]="device">
-                                    {{device.externalId}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
+                            <input matInput formControlName='externalId'  [matAutocomplete]="auto" placeholder="Search" (input)="search()" [value]="selectedResult?.externalId">
+                            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onSelect($event.option.value)">
+                              <mat-option *ngFor="let result of autocompleteResults" [value]="result">
+                                {{ result.externalId }}
+                              </mat-option>
+                            </mat-autocomplete>
+                          </mat-form-field>
                     </div>
                     <div class="col-md-3">
                         <!-- <mat-form-field appearance="outline">
