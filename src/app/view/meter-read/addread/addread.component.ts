@@ -67,7 +67,7 @@ export class AddreadComponent implements OnInit {
       },
     })
     this.addreads.push(read);
-    this.DisplayList();
+   // this.DisplayList();
     //this.TimeZoneList();
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3) => {
@@ -105,15 +105,13 @@ export class AddreadComponent implements OnInit {
     this.selectedResult = result;
     console.log(this.selectedResult);
     console.log(result);
-    this.addreads.reset();
-    this.readForm.controls['type'].setValue(null)
     this.devicecreateddate = result.createdAt;
     this.commissioningDate = result.commissioningDate;
 
     this.historyAge = new Date(this.devicecreateddate);
     this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
     //@ts-ignore
-    this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == event.countryCode)?.timezones;
+    this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == result.countryCode)?.timezones;
     console.log(this.timezonedata);
     this.readForm.controls['timezone'].setValue(null);
     this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
@@ -121,6 +119,8 @@ export class AddreadComponent implements OnInit {
       map(value => this._filter(value || '')),
     );
     console.log(this.filteredOptions);
+    this.addreads.reset();
+    this.readForm.controls['type'].setValue(null)
     this.readService.Getlastread(result.externalId).subscribe({
       next: data => {
         console.log(data),
@@ -131,6 +131,19 @@ export class AddreadComponent implements OnInit {
         console.error('error caught in component', err)
       }
     })
+  }
+  private _filter(value: string): string[] {
+    console.log(this.timezonedata)
+    const filterValue = value.toLowerCase();
+    console.log(filterValue)
+    console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
+    if (!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
+      this.showerror = true;
+    } else {
+      this.showerror = false;
+    }
+
+    return this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue))
   }
   DisplayList() {
     const deviceurl = 'device/my';
@@ -152,36 +165,36 @@ export class AddreadComponent implements OnInit {
   //   )
   // }
  
-  ExternaIdonChangeEvent(event: any) {
-    console.log(event);
-    this.addreads.reset();
-    this.readForm.controls['type'].setValue(null)
-    this.devicecreateddate = event.createdAt;
-    this.commissioningDate = event.commissioningDate;
+  // ExternaIdonChangeEvent(event: any) {
+  //   console.log(event);
+  //   this.addreads.reset();
+  //   this.readForm.controls['type'].setValue(null)
+  //   this.devicecreateddate = event.createdAt;
+  //   this.commissioningDate = event.commissioningDate;
 
-    this.historyAge = new Date(this.devicecreateddate);
-    this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
-    //@ts-ignore
-    this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == event.countryCode)?.timezones;
-    console.log(this.timezonedata);
-    this.readForm.controls['timezone'].setValue(null);
-    this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter(value || '')),
-    );
-    console.log(this.filteredOptions);
-    this.readService.Getlastread(event.externalId).subscribe({
-      next: data => {
-        console.log(data),
-          this.lastreaddate = data.enddate;
-        this.lastreadvalue = data.value;
-      },
-      error: err => {                      //Error callback
-        console.error('error caught in component', err)
-      }
-    })
+  //   this.historyAge = new Date(this.devicecreateddate);
+  //   this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
+  //   //@ts-ignore
+  //   this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == event.countryCode)?.timezones;
+  //   console.log(this.timezonedata);
+  //   this.readForm.controls['timezone'].setValue(null);
+  //   this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
+  //     startWith(''),
+  //     map(value => this._filter(value || '')),
+  //   );
+  //   console.log(this.filteredOptions);
+  //   this.readService.Getlastread(event.externalId).subscribe({
+  //     next: data => {
+  //       console.log(data),
+  //         this.lastreaddate = data.enddate;
+  //       this.lastreadvalue = data.value;
+  //     },
+  //     error: err => {                      //Error callback
+  //       console.error('error caught in component', err)
+  //     }
+  //   })
 
-  }
+  // }
   onChangeEvent(event: any) {
     console.log(event);
     if (event === 'Delta' || event === 'Aggregate') {
@@ -201,19 +214,7 @@ export class AddreadComponent implements OnInit {
     this.endmaxdate = this.devicecreateddate;
     this.endminDate = event;
   }
-  private _filter(value: string): string[] {
-    console.log(this.timezonedata)
-    const filterValue = value.toLowerCase();
-    console.log(filterValue)
-    console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
-    if (!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
-      this.showerror = true;
-    } else {
-      this.showerror = false;
-    }
-
-    return this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue))
-  }
+ 
   getErrorcheckdatavalidation() {
     return this.readForm.controls["reads"].get('endtimestamp')?.hasError('required') ? 'This field is required' :
       this.readForm.controls["reads"].get('endtimestamp')?.hasError('notSame') ? ' Please add a valid endtimestamp' : '';
