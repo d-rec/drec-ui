@@ -37,7 +37,6 @@
 					<div class="col-md-3">
 						<mat-form-field>
 							<mat-label class="text-capitalize">Fuel Code</mat-label>
-
 							<mat-select formControlName='fuelCode' (ngModelChange)="checkFormValidity()">
 								<mat-option [value]="">---</mat-option>
 								<mat-option *ngFor="let code of fuellist" [value]="code.code">
@@ -50,7 +49,6 @@
 					<div class="col-md-3">
 						<mat-form-field>
 							<mat-label class="text-capitalize">Off Taker</mat-label>
-
 							<mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()">
 								<mat-option [value]="">---</mat-option>
 								<mat-option *ngFor="let code of offtaker" [value]="code">
@@ -63,7 +61,6 @@
 					<div class="col-md-3">
 						<mat-form-field>
 							<mat-label class="text-capitalize">SDG Benefits</mat-label>
-
 							<mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>
 								<mat-option [value]="">---</mat-option>
 								<mat-option *ngFor="let sdgb of sdgblist"
@@ -74,7 +71,6 @@
 					</div>
 					<div class="col-md-1">
 						<h5>Certificate Date: </h5>
-
 					</div>
 					<div class="col-md-3">
 						<mat-form-field>

@@ -12,7 +12,7 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService } from '../../../auth/services/device.service';
 import { Router } from '@angular/router';
-import { Observable,Subscription,debounceTime } from 'rxjs';
+import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
 
@@ -60,7 +60,7 @@ export class AlldevicesComponent {
   subscription: Subscription;
   selectedCountry: any;
   isAnyFieldFilled: boolean = false;
-
+  showerror: boolean = false;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService, private formBuilder: FormBuilder, private router: Router) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
@@ -79,20 +79,20 @@ export class AlldevicesComponent {
   ngOnInit(): void {
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
-       
+
         this.fuellist = data1;
         this.fuellistLoaded = true;
       });
     this.authService.GetMethod('device/device-type').subscribe(
       (data2) => {
-       
+
         this.devicetypelist = data2;
         this.devicetypeLoded = true;
       }
     );
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3) => {
-        
+
         this.countrylist = data3;
         this.countrycodeLoded = true;
       }
@@ -102,13 +102,12 @@ export class AlldevicesComponent {
         this.sdgblist = data;
       }
     )
- 
+
     console.log("myreservation");
     setTimeout(() => {
       this.loading = false;
       this.applycountryFilter();
       this.getDeviceListData(this.p);
-     
     }, 1000)
   }
 
@@ -117,14 +116,38 @@ export class AlldevicesComponent {
       this.subscription.unsubscribe();
     }
   }
- 
+
   // checkFormValidity(): void {
   //   console.log("115");
   //   const formValues = this.FilterForm.value;
   //   console.log(formValues)
   //   this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
-    
+
   // }
+
+  applycountryFilter() {
+    this.FilterForm.controls['countryname'];
+    this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
+  }
+
+  private _filter(value: any): string[] {
+
+    const filterValue = value.toLowerCase();
+    if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
+      this.showerror = true;
+      // const updatedFormValues = this.FilterForm.value;
+     // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
+      this.isAnyFieldFilled = true;
+    } else {
+      this.showerror = false;
+    }
+    return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
+
+  }
+
   checkFormValidity(): void {
     let isUserInteraction = true; // Flag to track user interaction
 
@@ -135,17 +158,20 @@ export class AlldevicesComponent {
         const countryValue = formValues.countryname;
         console.log(countryValue)
         if (countryValue === undefined) {
+          if (this.showerror) {
+            this.isAnyFieldFilled = false;
+          }
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
-         
+
         }
         const fuelCodeValue = formValues.fuelCode;
-        if (fuelCodeValue != null && fuelCodeValue === undefined) {
+        if (fuelCodeValue === undefined) {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
         console.log(formValues.deviceTypeCode);
-        if ( formValues.offTaker === undefined) {
+        if (formValues.offTaker === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
         console.log(formValues.deviceTypeCode);
@@ -167,26 +193,11 @@ export class AlldevicesComponent {
 
     // Other code...
   }
-  applycountryFilter() {
-    this.FilterForm.controls['countryname'];
-    this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter(value || '')),
-    );
-   
-  }
-
-  private _filter(value: any): string[] {
-    
-  const filterValue = value.toLowerCase();
-    return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
-
-  }
   selectCountry(event: any) {
     console.log(event)
-    this.subscription =  this.filteredOptions.subscribe(options => {
-    const selectedCountry = options.find(option => option.country === event.option.value);
-    if (selectedCountry) {
+    this.subscription = this.filteredOptions.subscribe(options => {
+      const selectedCountry = options.find(option => option.country === event.option.value);
+      if (selectedCountry) {
         this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
       }
     });
@@ -219,7 +230,7 @@ export class AlldevicesComponent {
       this.deviceurl = 'device/my?';
     }
     //this.FilterForm.controls['pagenumber'].setValue(page);
-    this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value,page).subscribe(
+    this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe(
       (data) => {
         console.log(data)
         //@ts-ignore

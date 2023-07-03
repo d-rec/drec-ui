@@ -126,8 +126,9 @@ export class AddReservationComponent {
   
     console.log("myreservation");
     setTimeout(() => {
-      this. displayList(this.p);
       this.applycountryFilter();
+      this.displayList(this.p);
+      
     }, 1000)
     
   }
@@ -136,8 +137,6 @@ export class AddReservationComponent {
       this.subscription.unsubscribe();
     }
   }
- 
-
   
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
@@ -153,8 +152,7 @@ export class AddReservationComponent {
       return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
   
     }
-  selectCountry(event: any) {
-   
+  selectCountry(event: any) {  
     this.subscription =  this.filteredOptions.subscribe(options => {
     const selectedCountry = options.find(option => option.country === event.option.value);
     if (selectedCountry) {
@@ -164,7 +162,6 @@ export class AddReservationComponent {
   }
   checkFormValidity(): void {
     let isUserInteraction = true; // Flag to track user interaction
-
     this.FilterForm.valueChanges.pipe(
       debounceTime(500) // Debounce the stream for 500 milliseconds
     ).subscribe((formValues) => {
