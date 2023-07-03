@@ -76,6 +76,7 @@ export class CertifiedDevicesDeveloperComponent {
   fuellist: any;
   devicetypelist: any;
   subscription: Subscription;
+  showerror:boolean=false;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -161,7 +162,12 @@ export class CertifiedDevicesDeveloperComponent {
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
-
+    if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
+      this.showerror = true;
+     
+    } else {
+      this.showerror = false;
+    }
     return this.countrylist.filter((option: { country: string; }) => option.country.toLowerCase().includes(filterValue));
   }
 
@@ -213,13 +219,9 @@ export class CertifiedDevicesDeveloperComponent {
         if ( fuelCodeValue === undefined) {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
-        console.log(formValues.deviceTypeCode);
+       
         if ( formValues.offTaker === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
-        }
-        console.log(formValues.deviceTypeCode);
-        if (formValues.deviceTypeCode === undefined) {
-          this.FilterForm.controls['deviceTypeCode'].setValue(null);
         }
         if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
           this.FilterForm.controls['SDGBenefits'].setValue(null);
