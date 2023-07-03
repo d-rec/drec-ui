@@ -140,7 +140,7 @@ export class AlldevicesComponent {
       this.showerror = true;
       // const updatedFormValues = this.FilterForm.value;
      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
-      this.isAnyFieldFilled = true;
+     // this.isAnyFieldFilled = false;
     } else {
       this.showerror = false;
     }
@@ -158,9 +158,7 @@ export class AlldevicesComponent {
         const countryValue = formValues.countryname;
         console.log(countryValue)
         if (countryValue === undefined) {
-          if (this.showerror) {
-            this.isAnyFieldFilled = false;
-          }
+         
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);

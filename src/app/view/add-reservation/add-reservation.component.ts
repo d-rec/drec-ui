@@ -63,6 +63,7 @@ export class AddReservationComponent {
   totalPages: number;
   subscription: Subscription;
   isAnyFieldFilled: boolean = false;
+  showerror:boolean=false;
   reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };
   constructor(private authService: AuthbaseService, private router: Router,
     public dialog: MatDialog, private bottomSheet: MatBottomSheet,
@@ -148,7 +149,12 @@ export class AddReservationComponent {
 
   private _filter(value: any): string[] {
     const filterValue = value.toLowerCase();
-
+    if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
+      this.showerror = true;
+     
+    } else {
+      this.showerror = false;
+    }
       return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
   
     }

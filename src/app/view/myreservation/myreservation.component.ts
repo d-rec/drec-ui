@@ -79,6 +79,7 @@ export class MyreservationComponent implements OnInit {
   subscription: Subscription;
   totalPages: number;
   isAnyFieldFilled: boolean = false;
+  showerror:boolean=false;
   constructor(private authService: AuthbaseService,
     private reservationService: ReservationService,
     private router: Router, private formBuilder: FormBuilder,
@@ -166,8 +167,12 @@ export class MyreservationComponent implements OnInit {
   private _filter(value: any): string[] {
     console.log(value)
     const filterValue = value.toLowerCase();
-    // if (this.countrycodeLoded === true) {
-    //   console.log(this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0))
+    if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
+      this.showerror = true;
+    
+    } else {
+      this.showerror = false;
+    }
     return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
 
   }

@@ -18,28 +18,27 @@
 
 			<form [formGroup]="FilterForm">
 				<div class="example-container1 row">
-				
+
 					<div class="col-md-3">
 						<mat-form-field>
 							<mat-label class="text-capitalize">Select country Code</mat-label>
-							<input type="text"  aria-label="text" matInput
-								formControlName="countryname" (ngModelChange)="checkFormValidity()"
-								[matAutocomplete]="auto" multiple>
+							<input type="text" aria-label="text" matInput formControlName="countryname"
+								(ngModelChange)="checkFormValidity()" [matAutocomplete]="auto" multiple>
 							<mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
 								<mat-option [value]="">---</mat-option>
 								<mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
 									{{code.country}}
 								</mat-option>
 							</mat-autocomplete>
-
 						</mat-form-field>
+						<mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected </mat-error>
 					</div>
 					<div class="col-md-3">
 						<mat-form-field>
 							<mat-label class="text-capitalize">Fuel Code</mat-label>
 
 							<mat-select formControlName='fuelCode' (ngModelChange)="checkFormValidity()">
-                                <mat-option [value]="">---</mat-option>
+								<mat-option [value]="">---</mat-option>
 								<mat-option *ngFor="let code of fuellist" [value]="code.code">
 									{{code.name}}
 								</mat-option>
@@ -52,7 +51,7 @@
 							<mat-label class="text-capitalize">Off Taker</mat-label>
 
 							<mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()">
-                                <mat-option [value]="">---</mat-option>
+								<mat-option [value]="">---</mat-option>
 								<mat-option *ngFor="let code of offtaker" [value]="code">
 									{{code}}
 								</mat-option>
@@ -65,7 +64,7 @@
 							<mat-label class="text-capitalize">SDG Benefits</mat-label>
 
 							<mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>
-                                <mat-option [value]="">---</mat-option>
+								<mat-option [value]="">---</mat-option>
 								<mat-option *ngFor="let sdgb of sdgblist"
 									[value]="sdgb.value">{{sdgb.value}}</mat-option>
 
@@ -141,7 +140,7 @@
 			</form>
 
 			<mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
-			<ng-container  *ngIf="!loading">
+			<ng-container *ngIf="!loading">
 
 				<mat-card class="innermat-card example-card1 border" *ngFor="let item of obs| async;let i=index">
 					<mat-card-header class="">
@@ -150,11 +149,12 @@
 								<div class="position-relative">
 									<a matTooltip="Link to Certificate" [matTooltipPosition]="'right'"
 										aria-label="Button that displays a tooltip when focused or hovered over"
-										style="text-align: right;" href={{item.energyurl}}
-										target="_blank" class="certificate-text d-flex text-capitalize">
+										style="text-align: right;" href={{item.energyurl}} target="_blank"
+										class="certificate-text d-flex text-capitalize">
 										<mat-icon class="mt-1 ">card_membership</mat-icon>
 										<div class="certificate-id-text">
-											<div class="id-text" *ngIf="item?.blockchainCertificateId">{{item?.blockchainCertificateId}}</div>
+											<div class="id-text" *ngIf="item?.blockchainCertificateId">
+												{{item?.blockchainCertificateId}}</div>
 											<div class="id-text" *ngIf="item?.id">{{item?.id}}</div>
 										</div>
 									</a>
@@ -247,17 +247,19 @@
 				</mat-card>
 
 				<br>
-			
-			<!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
+
+				<!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
 				aria-label="Select page">
 			</mat-paginator> -->
 
-			<button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()" [disabled]="p === 1">Previous</button>
-			Total Pages:{{totalPages}}
-			<button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()" [disabled]="p === totalPages">Next</button>
-			
-			<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
-		</ng-container>
+				<button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
+					[disabled]="p === 1">Previous</button>
+				Total Pages:{{totalPages}}
+				<button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
+					[disabled]="p === totalPages">Next</button>
+
+				<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
+			</ng-container>
 		</mat-card-content>
 	</mat-card>
 
