@@ -218,10 +218,10 @@ export class CertificateDetailsComponent {
         if ( formValues.offTaker === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
-        console.log(formValues.deviceTypeCode);
-        if (formValues.deviceTypeCode === undefined) {
-          this.FilterForm.controls['deviceTypeCode'].setValue(null);
-        }
+        // console.log(formValues.deviceTypeCode);
+        // if (formValues.deviceTypeCode === undefined) {
+        //   this.FilterForm.controls['deviceTypeCode'].setValue(null);
+        // }
         if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
           this.FilterForm.controls['SDGBenefits'].setValue(null);
         }
