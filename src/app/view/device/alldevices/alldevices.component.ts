@@ -169,11 +169,11 @@ export class AlldevicesComponent {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
         console.log(formValues.deviceTypeCode);
-        if (formValues.offTaker === undefined) {
+        if (formValues.offTaker != null&&formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
         console.log(formValues.deviceTypeCode);
-        if (formValues.deviceTypeCode === undefined) {
+        if (formValues.deviceTypeCode != null&&formValues.deviceTypeCode[0] === undefined) {
           this.FilterForm.controls['deviceTypeCode'].setValue(null);
         }
         if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {

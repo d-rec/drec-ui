@@ -5,7 +5,7 @@
 
       <div>
         <mat-card-title>
-          <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">My All Devices
+          <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">My Devices
           </h2>
         </mat-card-title>
       </div>
@@ -58,7 +58,7 @@
             <mat-form-field>
               <mat-label class="text-capitalize">Device Type Code</mat-label>
 
-              <mat-select formControlName='deviceTypeCode' (ngModelChange)="checkFormValidity()">
+              <mat-select formControlName='deviceTypeCode' (ngModelChange)="checkFormValidity()" multiple>
                 <mat-option [value]="">---</mat-option>
                 <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
                   {{code.name}}
@@ -71,7 +71,7 @@
             <mat-form-field>
               <mat-label class="text-capitalize">Off Taker</mat-label>
 
-              <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()">
+              <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()" multiple>
                 <mat-option [value]="">---</mat-option>
                 <mat-option *ngFor="let code of offtaker" [value]="code">
                   {{code}}

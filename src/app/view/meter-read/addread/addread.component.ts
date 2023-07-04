@@ -7,7 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
-import {getValidmsgTimezoneFormat} from '../../../utils/getTimezone_msg'
+import { getValidmsgTimezoneFormat } from '../../../utils/getTimezone_msg'
 @Component({
   selector: 'app-addread',
   templateUrl: './addread.component.html',
@@ -15,7 +15,7 @@ import {getValidmsgTimezoneFormat} from '../../../utils/getTimezone_msg'
 })
 export class AddreadComponent implements OnInit {
   autocompleteResults: any[] = [];
- // searchControl: FormControl = new FormControl();
+  // searchControl: FormControl = new FormControl();
   filteredResults: Observable<any[]>;
   startmaxDate = new Date();
   startminDate = new Date();
@@ -29,6 +29,7 @@ export class AddreadComponent implements OnInit {
   public stepSecond = 1;
   data: any;
   showerror: boolean;
+  showerrorexternalid: boolean;
   timezonedata: any = [];
   countrylist: any;
   hidestarttime: boolean = true;
@@ -57,7 +58,7 @@ export class AddreadComponent implements OnInit {
       value: [null, Validators.required],
     }, {
       validators: (control) => {
-        console.log(control);
+       
         if (control.value.starttimestamp > control.value.endtimestamp) {
           console.log('49');
           //@ts-ignore
@@ -67,26 +68,35 @@ export class AddreadComponent implements OnInit {
       },
     })
     this.addreads.push(read);
-   // this.DisplayList();
+    // this.DisplayList();
     //this.TimeZoneList();
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3) => {
         this.countrylist = data3;
       }
     );
-    
+
   }
 
- 
+
   get addreads() {
     return this.readForm.controls["reads"] as FormArray;
   }
   search(): void {
     const input = this.readForm.controls['externalId'].value;
-    if (input) {
+    console.log(input)
+    if (input && input!='') {
       this.deviceservice.GetDeviceAutocomplete(input).subscribe(
         (response) => {
-          this.autocompleteResults = response;
+          console.log('response', response)
+          if (response.length > 0) {
+            this.showerrorexternalid = false;
+            this.autocompleteResults = response;
+          } else {
+            this.autocompleteResults =[];
+            this.showerrorexternalid = true;
+          }
+
         },
         (error) => {
           console.error('Error fetching autocomplete results:', error);
@@ -94,17 +104,25 @@ export class AddreadComponent implements OnInit {
       );
     } else {
       this.autocompleteResults = [];
+      this.timezonedata=[];
+      this.readForm.controls['externalId'].setValue(null);
+     this.readForm.controls['timezone'].setValue(null);
+      this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
+        startWith(''),
+        map(value => this._filter(value || '')),
+      );
     }
   }
-  displayFn(result: any): string {
-    return result ? result.label : '';
-  }
+  // displayFn(result: any): string {
+  //   return result ? result.label : '';
+  // }
   lastreadvalue: number;
   lastreaddate: any;
   onSelect(result: any): void {
     this.selectedResult = result;
     console.log(this.selectedResult);
     console.log(result);
+    this.readForm.controls['externalId'].setValue(result.externalId);
     this.devicecreateddate = result.createdAt;
     this.commissioningDate = result.commissioningDate;
 
@@ -137,7 +155,7 @@ export class AddreadComponent implements OnInit {
     const filterValue = value.toLowerCase();
     console.log(filterValue)
     console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
-    if (!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
+    if ((!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)&&filterValue!='')) {
       this.showerror = true;
     } else {
       this.showerror = false;
@@ -164,7 +182,7 @@ export class AddreadComponent implements OnInit {
   //     }
   //   )
   // }
- 
+
   // ExternaIdonChangeEvent(event: any) {
   //   console.log(event);
   //   this.addreads.reset();
@@ -214,7 +232,7 @@ export class AddreadComponent implements OnInit {
     this.endmaxdate = this.devicecreateddate;
     this.endminDate = event;
   }
- 
+
   getErrorcheckdatavalidation() {
     return this.readForm.controls["reads"].get('endtimestamp')?.hasError('required') ? 'This field is required' :
       this.readForm.controls["reads"].get('endtimestamp')?.hasError('notSame') ? ' Please add a valid endtimestamp' : '';
@@ -225,7 +243,7 @@ export class AddreadComponent implements OnInit {
   }
   onSubmit(): void {
 
-    let externalId = this.readForm.value.externalId.externalId;
+    let externalId = this.readForm.value.externalId;
     console.log(externalId);
     console.log(this.readForm.value);
 
@@ -274,14 +292,20 @@ export class AddreadComponent implements OnInit {
       next: (data: any) => {
         console.log(data)
         this.readForm.reset();
+        this.selectedResult=null;
+        const formControls = this.readForm.controls;
+        Object.keys(formControls).forEach(key => {
+          const control = formControls[key];
+          control.setErrors(null);
+        });
         this.toastrService.success('Successfully!', 'Read Added!!');
       },
       error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
         console.error('error caught in component', err)
-       //@ts-ignore
-        let message =  getValidmsgTimezoneFormat(err.error.message);
+        //@ts-ignore
+        let message = getValidmsgTimezoneFormat(err.error.message);
         console.error(message)
-       
+
         this.toastrService.error(message, 'error!');
       }
     });
