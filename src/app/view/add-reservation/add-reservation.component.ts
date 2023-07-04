@@ -184,7 +184,7 @@ export class AddReservationComponent {
         if (fuelCodeValue != null && fuelCodeValue === undefined) {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
-        if (formValues.offTaker != null && formValues.offTaker === undefined) {
+        if (formValues.offTaker != null && formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
         if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
