@@ -14,8 +14,8 @@ import { DeviceService } from '../../../auth/services/device.service';
 import { Router } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-
-
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {DeviceDetailsComponent} from '../device-details/device-details.component'
 
 @Component({
   selector: 'app-alldevices',
@@ -24,15 +24,17 @@ import { map, startWith } from 'rxjs/operators';
 })
 
 export class AlldevicesComponent {
+  title = 'matDialog';
+  dataFromDialog: any;
   displayedColumns = [
     'onboarding_date',
-    'projectName',
+    // 'projectName',
     'externalId',
     'countryCode',
-    'fuelCode',
+    // 'fuelCode',
     'commissioningDate',
     'capacity',
-    'SDGBenefits',
+    // 'SDGBenefits',
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -61,7 +63,10 @@ export class AlldevicesComponent {
   selectedCountry: any;
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
-  constructor(private authService: AuthbaseService, private deviceService: DeviceService, private formBuilder: FormBuilder, private router: Router) {
+  constructor(private authService: AuthbaseService, private deviceService: DeviceService,
+     private formBuilder: FormBuilder, 
+     private router: Router,
+     private dialog: MatDialog) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
@@ -246,7 +251,7 @@ export class AlldevicesComponent {
     if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
       //@ts-ignore
       this.data.devices.forEach(ele => {
-        //@ts-ignore
+         //@ts-ignore
         ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
         //@ts-ignore
         ele['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == ele.deviceTypeCode)?.name;
@@ -263,7 +268,7 @@ export class AlldevicesComponent {
 
     }
 
-  }
+  }                              
   UpdateDevice(externalId: any) {
     this.router.navigate(['/device/edit/' + externalId], { queryParams: { fromdevices: true } });
   }
@@ -286,5 +291,27 @@ export class AlldevicesComponent {
       this.p++;
       this.getDeviceListData(this.p);;
     }
+  }
+  // showPrompt(deviceId:number): void {
+  //   const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+  //     width: '500px',
+  //     height: '400px',
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((data) => {
+  //     this.dataFromDialog = data.form;
+  //     if (data.clicked === 'submit') {
+  //       console.log('Sumbit button clicked');
+  //     }
+  //   });
+  // }
+  alertDialog(deviceId:number): void {
+    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+      data: {
+        deviceid: deviceId,
+      },
+      width: '900px',
+     height: '400px',
+    });
   }
 }
