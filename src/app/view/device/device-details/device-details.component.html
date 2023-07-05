@@ -1,0 +1,170 @@
+<div class="form-container">
+    <!-- <h2 mat-dialog-title>Angular material dialog prompt</h2> -->
+    <h2 style="text-align: center;color:#f2be1a; font-size: 20px;" class="text-capitalize">
+        <b>Device Details</b>
+    </h2>
+    <mat-icon aria-hidden="false" (click)="dialogRef.close(false)" style="margin-left: 860px;margin-top:-20px;"> close </mat-icon>
+    <hr>
+    <mat-dialog-content>
+        <div class='content'>
+            <div class='column col-4'>
+                <div class='row '>
+                    <p><b> Device Name</b>:&nbsp;
+                       {{device_details.externalId}}
+                    </p>
+                </div>
+            </div>
+            <div class='column col-4'>
+                <div class='row '>
+                    <p><b> Project Name</b>:&nbsp;
+                       {{device_details.projectName}}
+                    </p>
+                </div>
+            </div>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>Capacity
+                        </b>:&nbsp;{{device_details.capacity}}
+                </div>
+            </div>
+        </div>
+        <div class='content '>
+
+            <div class='column col-4'>
+                <div class='row '>
+                    <p><b> Country</b>:&nbsp;
+                      {{device_details.countryname}}
+                    </p>
+                </div>
+            </div>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b> Commissioning
+                            Date</b>:&nbsp;{{device_details.commissioningDate| date:'EEE d MMM y'}}</p>
+                </div>
+            </div>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>OnBoarding Date</b>:&nbsp;{{device_details.createdAt| date:'EEE d MMM y'}}
+
+                </div>
+            </div>
+        </div>
+        <div class='content'>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b> Off Takers</b>:&nbsp;{{device_details.offTaker}}
+                    </p>
+                </div>
+            </div>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>Fuel Code</b>:&nbsp;{{device_details.fuelname}}
+                    </p>
+                </div>
+            </div>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>Device Type Code</b>:&nbsp;{{device_details.devicetypename}}</p>
+                </div>
+
+            </div>
+            
+        </div>
+        <div class='content'>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>SDGBenefits</b>:&nbsp;{{device_details.SDGBenefits}}</p>
+
+                </div>
+            </div>
+            
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b> Energy Storage</b>:&nbsp;{{device_details.energyStorage}}</p>
+                </div>
+
+            </div>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>Energy StorageCapacity</b>:&nbsp; {{device_details.energyStorageCapacity}}</p>
+
+                </div>
+            </div>
+        </div>
+        <div class='content'>
+
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>Address</b>:&nbsp;{{device_details.address}}
+                    </p>
+                </div>
+            </div>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>Latitude</b>:&nbsp;{{device_details.latitude}}</p>
+                </div>
+
+            </div>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>Llongitude</b>:&nbsp;{{device_details.longitude}}</p>
+
+                </div>
+            </div>
+        </div>
+        <div class='content'>
+
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>Timezone</b>:&nbsp;{{device_details.timezone}}
+                    </p>
+                </div>
+            </div>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>Version</b>:&nbsp;{{device_details.version}}</p>
+                </div>
+
+            </div>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>Yield Value</b>:&nbsp;{{device_details.yieldValue}}</p>
+
+                </div>
+            </div>
+        </div>
+        <div class='content'>
+
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b>
+                        meterReadtype</b>:&nbsp;{{device_details.meterReadtype}}
+                    </p>
+                </div>
+            </div>
+            <div class='column col-4'>
+                <div class='row'>
+                    <p><b> Device
+                            Description</b>:&nbsp;{{device_details.deviceDescription}}
+                </div>
+            </div>
+            <!-- <div class='column col-4'>
+                <div class='row'>
+                    <p><b>yieldValue</b>:&nbsp;</p>
+
+                </div>
+            </div> -->
+        </div>
+        <br>
+
+    </mat-dialog-content>
+    <mat-dialog-actions>
+        <!-- <button mat-raised-button (click)="dialogRef.close(false)" color="primary">
+        Close
+      </button>
+      <button mat-raised-button color="primary" (click)="submit(form.value)">
+        Submit
+      </button> -->
+    </mat-dialog-actions>
+</div>

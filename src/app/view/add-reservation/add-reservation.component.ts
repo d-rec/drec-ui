@@ -14,6 +14,7 @@ import { MatBottomSheet, MatBottomSheetConfig, MatBottomSheetRef } from '@angula
 import { MeterReadTableComponent } from '../meter-read/meter-read-table/meter-read-table.component'
 import { Observable,Subscription,debounceTime  } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import {DeviceDetailsComponent} from '../device/device-details/device-details.component'
 @Component({
   selector: 'app-add-reservation',
   templateUrl: './add-reservation.component.html',
@@ -375,5 +376,14 @@ console.log(this.FilterForm.value)
       this.p++;
       this.displayList(this.p);;
     }
+  }
+  alertDialog(deviceId:number): void {
+    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+      data: {
+        deviceid: deviceId,
+      },
+      width: '900px',
+     height: '400px',
+    });
   }
 }

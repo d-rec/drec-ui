@@ -136,7 +136,7 @@ export class CertificateDetailsComponent {
     setTimeout(() => {
       this.applycountryFilter();
       this.DisplayList(this.p);
-    }, 1000);
+    },1500);
     this.getBlockchainProperties();
    
     this.selectAccountAddressFromMetamask();
