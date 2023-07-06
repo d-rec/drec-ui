@@ -27,7 +27,7 @@ export interface Student {
 }
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { Observable ,Subscription,debounceTime} from 'rxjs';
+import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DateAdapter } from '@angular/material/core';
@@ -72,11 +72,12 @@ export class CertificateDetailsComponent {
   FilterForm: FormGroup;
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   endminDate = new Date();
-  sdgblist:any;
+  sdgblist: any;
   fuellist: any;
   devicetypelist: any;
   subscription: Subscription;
-  showerror:boolean=false;
+  showerror: boolean = false;
+  countrycodeLoded: boolean = false;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -95,8 +96,8 @@ export class CertificateDetailsComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-      fromAmountread:[null],
-      toAmountread:[null],
+      fromAmountread: [null],
+      toAmountread: [null],
       pagenumber: [this.p]
     });
 
@@ -110,13 +111,13 @@ export class CertificateDetailsComponent {
       (data1) => {
         // display list in the console
         this.fuellist = data1;
-       // this.fuellistLoaded = true;
+        // this.fuellistLoaded = true;
       });
     this.authService.GetMethod('device/device-type').subscribe(
       (data2) => {
         // display list in the console
         this.devicetypelist = data2;
-       // this.devicetypeLoded = true;
+        // this.devicetypeLoded = true;
       }
     );
     this.authService.GetMethod('countrycode/list').subscribe(
@@ -124,7 +125,7 @@ export class CertificateDetailsComponent {
         // display list in the console
         // console.log(data)
         this.countrylist = data3;
-      //  this.countrycodeLoded = true;
+        this.countrycodeLoded = true;
       }
     )
     this.authService.GetMethod('sdgbenefit/code').subscribe(
@@ -134,14 +135,16 @@ export class CertificateDetailsComponent {
       }
     )
     setTimeout(() => {
-      this.applycountryFilter();
-      this.DisplayList(this.p);
-    },1500);
+      if (this.countrycodeLoded) {
+        this.applycountryFilter();
+        this.DisplayList(this.p);
+      }
+    }, 1500);
     this.getBlockchainProperties();
-   
+
     this.selectAccountAddressFromMetamask();
     console.log("drt46")
-   
+
   }
   ngOnDestroy() {
     if (this.subscription) {
@@ -158,13 +161,13 @@ export class CertificateDetailsComponent {
       startWith(''),
       map(value => this._filter(value || '')),
     );
-   
+
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
-    
+
     } else {
       this.showerror = false;
     }
@@ -173,15 +176,15 @@ export class CertificateDetailsComponent {
 
   selectCountry(event: any) {
     console.log(event)
-    this.subscription =  this.filteredOptions.subscribe(options => {
-    const selectedCountry = options.find((option:any) => option.country === event.option.value);
-    console.log(selectedCountry)
-    if (selectedCountry) {
+    this.subscription = this.filteredOptions.subscribe(options => {
+      const selectedCountry = options.find((option: any) => option.country === event.option.value);
+      console.log(selectedCountry)
+      if (selectedCountry) {
         this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
       }
     });
   }
- 
+
   // ngAfterViewInit() {
   //   this.dataSource.paginator = this.paginator;
   //   this.dataSource.sort = this.sort;
@@ -208,14 +211,14 @@ export class CertificateDetailsComponent {
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
-         
+
         }
         const fuelCodeValue = formValues.fuelCode;
-        if ( fuelCodeValue === undefined) {
+        if (fuelCodeValue === undefined) {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
         console.log(formValues.deviceTypeCode);
-        if ( formValues.offTaker === undefined) {
+        if (formValues.offTaker === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
         // console.log(formValues.deviceTypeCode);
@@ -255,12 +258,12 @@ export class CertificateDetailsComponent {
     }
   }
   DisplayListFilter() {
-    this.loading=true;
+    this.loading = true;
     this.p = 1;
     this.DisplayList(this.p);
   }
   // CertificateClaimed:boolean=false;
-  DisplayList(page:number) {
+  DisplayList(page: number) {
     console.log("certifed list")
     // console.log(this.group_uid);
     this.FilterForm.controls['pagenumber'].setValue(page);
@@ -309,7 +312,7 @@ export class CertificateDetailsComponent {
         console.log(this.dataSource);
         this.obs = this.dataSource.connect();
         this.totalRows = data.totalCount;
-        this.totalPages=data.totalPages;
+        this.totalPages = data.totalPages;
         console.log(this.totalRows);
       }
 
@@ -386,7 +389,7 @@ export class CertificateDetailsComponent {
       this.DisplayList(this.p);
     }
   }
-  
+
   nextPage(): void {
     if (this.p < this.totalPages) {
       this.p++;

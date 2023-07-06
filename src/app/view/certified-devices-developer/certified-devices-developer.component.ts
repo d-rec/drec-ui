@@ -77,6 +77,7 @@ export class CertifiedDevicesDeveloperComponent {
   devicetypelist: any;
   subscription: Subscription;
   showerror:boolean=false;
+  countrycodeLoded: boolean = false;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -124,7 +125,9 @@ export class CertifiedDevicesDeveloperComponent {
         // display list in the console
         // console.log(data)
         this.countrylist = data3;
-      //  this.countrycodeLoded = true;
+       this.countrycodeLoded = true;
+       this.applycountryFilter();
+       this.DisplayList(this.p);
       }
     )
     this.authService.GetMethod('sdgbenefit/code').subscribe(
@@ -134,8 +137,10 @@ export class CertifiedDevicesDeveloperComponent {
       }
     )
     setTimeout(() => {
+      if (this.countrycodeLoded) {
       this.applycountryFilter();
       this.DisplayList(this.p);
+      }
     }, 1000);
     this.getBlockchainProperties();
    
