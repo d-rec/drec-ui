@@ -1,7 +1,7 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { Component, ViewChild, TemplateRef } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator,PageEvent } from '@angular/material/paginator';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router } from '@angular/router';
@@ -12,9 +12,9 @@ import { DeviceService } from '../../auth/services/device.service'
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatBottomSheet, MatBottomSheetConfig, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MeterReadTableComponent } from '../meter-read/meter-read-table/meter-read-table.component'
-import { Observable,Subscription,debounceTime  } from 'rxjs';
+import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import {DeviceDetailsComponent} from '../device/device-details/device-details.component'
+import { DeviceDetailsComponent } from '../device/device-details/device-details.component'
 @Component({
   selector: 'app-add-reservation',
   templateUrl: './add-reservation.component.html',
@@ -60,11 +60,12 @@ export class AddReservationComponent {
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   frequency = ['hourly', 'daily', 'weekly', 'monthly']
   dialogRef: any;
-  sdgblist:any;
+  sdgblist: any;
   totalPages: number;
   subscription: Subscription;
   isAnyFieldFilled: boolean = false;
-  showerror:boolean=false;
+  showerror: boolean = false;
+  // countrycodeLoded: boolean = false;
   reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };
   constructor(private authService: AuthbaseService, private router: Router,
     public dialog: MatDialog, private bottomSheet: MatBottomSheet,
@@ -124,22 +125,23 @@ export class AddReservationComponent {
         this.countrycodeLoded = true;
       }
     )
-   // this.getcountryListData();
-  
+    // this.getcountryListData();
+
     console.log("myreservation");
     setTimeout(() => {
-      this.applycountryFilter();
-      this.displayList(this.p);
-      
+      if (this.countrycodeLoded) {
+        this.applycountryFilter();
+        this.displayList(this.p);
+      }
     }, 1000)
-    
+
   }
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
   }
-  
+
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
@@ -152,17 +154,17 @@ export class AddReservationComponent {
     const filterValue = value.toLowerCase();
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
-     
+
     } else {
       this.showerror = false;
     }
-      return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
-  
-    }
-  selectCountry(event: any) {  
-    this.subscription =  this.filteredOptions.subscribe(options => {
-    const selectedCountry = options.find(option => option.country === event.option.value);
-    if (selectedCountry) {
+    return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
+
+  }
+  selectCountry(event: any) {
+    this.subscription = this.filteredOptions.subscribe(options => {
+      const selectedCountry = options.find(option => option.country === event.option.value);
+      if (selectedCountry) {
         this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
       }
     });
@@ -179,7 +181,7 @@ export class AddReservationComponent {
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
-         
+
         }
         const fuelCodeValue = formValues.fuelCode;
         if (fuelCodeValue != null && fuelCodeValue === undefined) {
@@ -194,7 +196,7 @@ export class AddReservationComponent {
         // Other code...
       }
     });
-console.log(this.FilterForm.value)
+    console.log(this.FilterForm.value)
     setTimeout(() => {
       const updatedFormValues = this.FilterForm.value;
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
@@ -223,11 +225,11 @@ console.log(this.FilterForm.value)
     this.FilterForm.reset();
     this.FilterForm.controls['countryCode'].setValue(null);
     this.loading = false;
-    this.p=1;
+    this.p = 1;
     this.selection.clear();
     this.displayList(this.p);
-   this.isAnyFieldFilled=false;
-    
+    this.isAnyFieldFilled = false;
+
   }
 
   isAllSelected() {
@@ -253,21 +255,21 @@ console.log(this.FilterForm.value)
   }
   // getcountryListData() {
 
-    
+
   // }
 
-  applyFilter(){
+  applyFilter() {
     this.loading = true;
-    this.p=1;
+    this.p = 1;
     console.log(this.p);
     this.displayList(this.p);
   }
-  displayList(page:number) {
+  displayList(page: number) {
     // this.data=this.selection.selected;
     console.log(this.FilterForm.value);
     console.log(this.p);
-  //  this.FilterForm.controls['pagenumber'].setValue(page);
-    this.deviceservice.getfilterData(this.FilterForm.value,page).subscribe(
+    //  this.FilterForm.controls['pagenumber'].setValue(page);
+    this.deviceservice.getfilterData(this.FilterForm.value, page).subscribe(
       (data) => {
         this.loading = false;
         if (this.selection.selected.length > 0) {
@@ -304,7 +306,7 @@ console.log(this.FilterForm.value)
         console.log(this.totalRows);
         this.totalPages = data.totalPages
         //this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;   
+        this.dataSource.sort = this.sort;
         //@ts-ignore
       }
     )
@@ -347,7 +349,7 @@ console.log(this.FilterForm.value)
         this.FilterForm.reset();
         //  this.getDeviceListData();
         this.toastrService.success('Successfully!!', 'Reservation Added');
-        this.dialogRef.close(); 
+        this.dialogRef.close();
         this.router.navigate(['/myreservation']);
       },
       error: err => {                          //Error callback
@@ -357,7 +359,7 @@ console.log(this.FilterForm.value)
     });
 
   }
-  
+
   // pageChangeEvent(event: PageEvent) {
   //   console.log(event);
   //   this.p = event.pageIndex + 1;
@@ -377,13 +379,13 @@ console.log(this.FilterForm.value)
       this.displayList(this.p);;
     }
   }
-  alertDialog(deviceId:number): void {
+  alertDialog(deviceId: number): void {
     const dialogRef = this.dialog.open(DeviceDetailsComponent, {
       data: {
         deviceid: deviceId,
       },
       width: '900px',
-     height: '400px',
+      height: '400px',
     });
   }
 }

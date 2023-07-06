@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import {DeviceDetailsComponent} from '../device-details/device-details.component'
+import { DeviceDetailsComponent } from '../device-details/device-details.component'
 
 @Component({
   selector: 'app-alldevices',
@@ -64,9 +64,9 @@ export class AlldevicesComponent {
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService,
-     private formBuilder: FormBuilder, 
-     private router: Router,
-     private dialog: MatDialog) {
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private dialog: MatDialog) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
@@ -110,9 +110,11 @@ export class AlldevicesComponent {
 
     console.log("myreservation");
     setTimeout(() => {
-      this.loading = false;
-      this.applycountryFilter();
-      this.getDeviceListData(this.p);
+      if (this.countrycodeLoded) {
+        this.loading = false;
+        this.applycountryFilter();
+        this.getDeviceListData(this.p);
+      }
     }, 1000)
   }
 
@@ -144,8 +146,8 @@ export class AlldevicesComponent {
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
       // const updatedFormValues = this.FilterForm.value;
-     // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
-     // this.isAnyFieldFilled = false;
+      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
+      // this.isAnyFieldFilled = false;
     } else {
       this.showerror = false;
     }
@@ -163,7 +165,7 @@ export class AlldevicesComponent {
         const countryValue = formValues.countryname;
         console.log(countryValue)
         if (countryValue === undefined) {
-         
+
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
@@ -174,11 +176,11 @@ export class AlldevicesComponent {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
         console.log(formValues.deviceTypeCode);
-        if (formValues.offTaker != null&&formValues.offTaker[0] === undefined) {
+        if (formValues.offTaker != null && formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
         console.log(formValues.deviceTypeCode);
-        if (formValues.deviceTypeCode != null&&formValues.deviceTypeCode[0] === undefined) {
+        if (formValues.deviceTypeCode != null && formValues.deviceTypeCode[0] === undefined) {
           this.FilterForm.controls['deviceTypeCode'].setValue(null);
         }
         if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
@@ -251,7 +253,7 @@ export class AlldevicesComponent {
     if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
       //@ts-ignore
       this.data.devices.forEach(ele => {
-         //@ts-ignore
+        //@ts-ignore
         ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
         //@ts-ignore
         ele['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == ele.deviceTypeCode)?.name;
@@ -268,7 +270,7 @@ export class AlldevicesComponent {
 
     }
 
-  }                              
+  }
   UpdateDevice(externalId: any) {
     this.router.navigate(['/device/edit/' + externalId], { queryParams: { fromdevices: true } });
   }
@@ -305,13 +307,13 @@ export class AlldevicesComponent {
   //     }
   //   });
   // }
-  alertDialog(deviceId:number): void {
+  alertDialog(deviceId: number): void {
     const dialogRef = this.dialog.open(DeviceDetailsComponent, {
       data: {
         deviceid: deviceId,
       },
       width: '900px',
-     height: '400px',
+      height: '400px',
     });
   }
 }
