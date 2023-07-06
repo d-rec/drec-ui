@@ -137,8 +137,9 @@ export class CertificateDetailsComponent {
     setTimeout(() => {
       if (this.countrycodeLoded) {
         this.applycountryFilter();
-        this.DisplayList(this.p);
+        
       }
+      this.DisplayList(this.p);
     }, 1500);
     this.getBlockchainProperties();
 

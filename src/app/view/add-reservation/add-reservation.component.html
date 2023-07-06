@@ -8,7 +8,7 @@
             </div>
 
         </mat-card-header>
-<hr>
+        <hr>
         <mat-card-content class="mat-body-cont">
             <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()">
                 <div class="example-container1 row">
@@ -16,8 +16,7 @@
 
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Name</mat-label>
-                            <input matInput  type="test" formControlName='name' min="1"
-                                autocomplete="off">
+                            <input matInput type="test" formControlName='name' min="1" autocomplete="off">
 
                         </mat-form-field>
                     </div>
@@ -26,15 +25,15 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Target Capacity(MWH)</mat-label>
 
-                            <input matInput  type="number" formControlName='targetCapacityInMegaWattHour' min="1" autocomplete="off">
+                            <input matInput type="number" formControlName='targetCapacityInMegaWattHour' min="1"
+                                autocomplete="off">
                         </mat-form-field>
                     </div>
                     <div class="col-md-3">
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Start Date </mat-label>
-                            <input matInput [ngxMatDatetimePicker]="picker" 
-                                formControlName="reservationStartDate" autocomplete="off"
-                                (ngModelChange)="onEndChangeEvent($event)">
+                            <input matInput [ngxMatDatetimePicker]="picker" formControlName="reservationStartDate"
+                                autocomplete="off" (ngModelChange)="onEndChangeEvent($event)">
                             <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
                             <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
                                 [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
@@ -45,14 +44,14 @@
                     <div class="col-md-3">
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">End Date </mat-label>
-                            <input matInput [ngxMatDatetimePicker]="picker1" 
-                                formControlName="reservationEndDate" [min]="endminDate" autocomplete="off">
+                            <input matInput [ngxMatDatetimePicker]="picker1" formControlName="reservationEndDate"
+                                [min]="endminDate" autocomplete="off">
                             <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
                             <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
                                 [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
                                 [disableMinute]="false" [hideTime]="false">
                             </ngx-mat-datetime-picker>
-                           
+
                         </mat-form-field>
                     </div>
                 </div>
@@ -61,7 +60,7 @@
 
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Frequency</mat-label>
-                            <mat-select formControlName='frequency' >
+                            <mat-select formControlName='frequency'>
                                 <mat-option *ngFor="let f of frequency" [value]="f">
                                     {{f}}
                                 </mat-option>
@@ -71,7 +70,7 @@
                     <div class="col-md-3">
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Blockchain Address</mat-label>
-                            <input matInput  type="text" formControlName='blockchainAddress' autocomplete="off">
+                            <input matInput type="text" formControlName='blockchainAddress' autocomplete="off">
                         </mat-form-field>
                     </div>
                     <div class="col-md-4">
@@ -100,22 +99,25 @@
                     <mat-card-content class="pt-3">
                         <h3>Use Filters To Select Devices </h3>
                         <form [formGroup]="FilterForm">
-                            <div class="example-container1 row">                             
+                            <div class="example-container1 row">
                                 <div class="col-md-3">
                                     <mat-form-field>
                                         <mat-label class="text-capitalize">Select Country Code</mat-label>
-                                        <input type="text" aria-label="text" matInput
-                                          formControlName="countryname"(ngModelChange)="checkFormValidity()" [matAutocomplete]="auto" >
-                                        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
+                                        <input type="text" aria-label="text" matInput formControlName="countryname"
+                                            (ngModelChange)="checkFormValidity()" [matAutocomplete]="auto">
+                                        <mat-autocomplete #auto="matAutocomplete"
+                                            (optionSelected)="selectCountry($event)">
                                             <mat-option [value]="">---</mat-option>
-                                            <mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
-                                            {{ code.country }}
-                                          </mat-option>
+                                            <mat-option *ngFor="let code of filteredOptions | async"
+                                                [value]="code.country">
+                                                {{ code.country }}
+                                            </mat-option>
                                         </mat-autocomplete>
-                                      </mat-form-field>
-                                      <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected </mat-error>
+                                    </mat-form-field>
+                                    <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected
+                                    </mat-error>
                                 </div>
-                                <div class="col-md-3">
+                                <!-- <div class="col-md-3">
                                     <mat-form-field>
                                         <mat-label class="text-capitalize">Fuel Code</mat-label>
 
@@ -126,12 +128,13 @@
                                             </mat-option>
                                         </mat-select>
                                     </mat-form-field>
-                                </div>
+                                </div> -->
                                 <div class="col-md-3">
                                     <mat-form-field>
                                         <mat-label class="text-capitalize">Device Type Code</mat-label>
 
-                                        <mat-select formControlName='deviceTypeCode'  (ngModelChange)="checkFormValidity()"  multiple>
+                                        <mat-select formControlName='deviceTypeCode'
+                                            (ngModelChange)="checkFormValidity()" multiple>
                                             <mat-option [value]="">---</mat-option>
                                             <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
                                                 {{code.name}}
@@ -144,7 +147,8 @@
                                     <mat-form-field>
                                         <mat-label class="text-capitalize">Off Taker</mat-label>
 
-                                        <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()"  multiple>
+                                        <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()"
+                                            multiple>
                                             <mat-option [value]="">---</mat-option>
                                             <mat-option *ngFor="let code of offtaker" [value]="code">
                                                 {{code}}
@@ -155,23 +159,31 @@
                                 <div class="col-md-3">
                                     <mat-form-field>
                                         <mat-label>Capacity(Kw)</mat-label>
-                                        <input matInput  formControlName='capacity' (ngModelChange)="checkFormValidity()" #input>
+                                        <input matInput formControlName='capacity' (ngModelChange)="checkFormValidity()"
+                                            #input>
                                     </mat-form-field>
                                 </div>
                                 <div class="col-md-3">
                                     <mat-form-field>
-                                      <mat-label class="text-capitalize">SDG Benefits</mat-label>
-                                     
-                                      <mat-select formControlName="SDGBenefits"  (ngModelChange)="checkFormValidity()" multiple>
-                                        <mat-option [value]="">---</mat-option>
-                                        <mat-option *ngFor="let sdgb of sdgblist" [value]="sdgb.value">{{sdgb.value}}</mat-option>
-                        
-                                      </mat-select>
+                                        <mat-label class="text-capitalize">SDG Benefits</mat-label>
+
+                                        <mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()"
+                                            multiple>
+                                            <mat-option [value]="">---</mat-option>
+                                            <mat-option *ngFor="let sdgb of sdgblist"
+                                                [value]="sdgb.value">{{sdgb.value}}</mat-option>
+
+                                        </mat-select>
                                     </mat-form-field>
-                                  </div>
-                                  <div class="col-md-3">
+                                </div>
+                                <div class="col-md-1">
+                                    <h6>Commissioning Date: </h6>
+
+                                </div>
+
+                                <div class="col-md-3">
                                     <mat-form-field>
-                                        <mat-label class="text-capitalize">Commissioning Start Date </mat-label>
+                                        <mat-label class="text-capitalize">Start Date </mat-label>
                                         <input matInput [ngxMatDatetimePicker]="picker2" placeholder="Choose a date"
                                             formControlName="start_date" autocomplete="off"
                                             (ngModelChange)="onfilterEndChangeEvent($event);checkFormValidity()">
@@ -184,10 +196,11 @@
                                 </div>
                                 <div class="col-md-3">
                                     <mat-form-field>
-                                        <mat-label class="text-capitalize">Commissioning End Date </mat-label>
-                                      
+                                        <mat-label class="text-capitalize">End Date </mat-label>
+
                                         <input matInput [ngxMatDatetimePicker]="picker3" placeholder="Choose a date"
-                                            formControlName="end_date" [min]="filterendminDate"  (ngModelChange)="checkFormValidity()" autocomplete="off" >
+                                            formControlName="end_date" [min]="filterendminDate"
+                                            (ngModelChange)="checkFormValidity()" autocomplete="off">
                                         <mat-datepicker-toggle matSuffix [for]="$any(picker3)"></mat-datepicker-toggle>
                                         <ngx-mat-datetime-picker #picker3 [showSpinners]="true" [showSeconds]="false"
                                             [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
@@ -204,8 +217,8 @@
                                             (click)="applyFilter()" [disabled]="!isAnyFieldFilled">Filter</button>
                                     </div>
                                     <div class="">
-                                        <button class="btn-dark btn text-capitalize px-4"
-                                            (click)="reset()" [disabled]="!isAnyFieldFilled">Reset</button>
+                                        <button class="btn-dark btn text-capitalize px-4" (click)="reset()"
+                                            [disabled]="!isAnyFieldFilled">Reset</button>
                                     </div>
 
 
@@ -216,9 +229,9 @@
                         <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
 
                         <div class="content mat-elevation-z8 text-center" *ngIf="!loading">
-                            
+
                             <table mat-table [dataSource]="dataSource" matSort>
-                               
+
                                 <ng-container matColumnDef="select">
                                     <mat-header-cell *matHeaderCellDef>
                                         <mat-checkbox color="primary" (change)="$event ? masterToggle() : null"
@@ -254,9 +267,9 @@
                                     <td mat-cell *matCellDef="let element"> {{element.countryname}} </td>
                                 </ng-container>
 
-                                <ng-container matColumnDef="fuelCode">
-                                    <th mat-header-cell *matHeaderCellDef mat-sort-header> FuelCode </th>
-                                    <td mat-cell *matCellDef="let element"> {{element.fuelname}} </td>
+                                <ng-container matColumnDef="commissioningDate">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header>Commissioning Date </th>
+                                    <td mat-cell *matCellDef="let element"> {{element.commissioningDate| date:'dd MMM yyyy'}} </td>
                                 </ng-container>
                                 <!-- Status Column -->
                                 <ng-container matColumnDef="status">
@@ -267,10 +280,10 @@
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Action </th>
                                     <td mat-cell *matCellDef="let element; let i=index;"> <a
                                             (click)="openBottomSheet(element)">View Read</a>
-                                            <a class="edit-icon"  (click)="alertDialog(element.id)">
-                                                Device Detail
-                                              </a> 
-                                        </td>
+                                        <a class="edit-icon" (click)="alertDialog(element.id)">
+                                            Device Detail
+                                        </a>
+                                    </td>
                                 </ng-container>
 
                                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -285,11 +298,13 @@
                             aria-label="Select page">
                             </mat-paginator> -->
                             <hr>
-                            <button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()" [disabled]="p === 1">Previous</button>&nbsp;&nbsp;
-			
+                            <button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
+                                [disabled]="p === 1">Previous</button>&nbsp;&nbsp;
+
                             Total Pages:{{totalPages}}
-                              <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()" [disabled]="p === totalPages">Next</button>
-                            
+                            <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
+                                [disabled]="p === totalPages">Next</button>
+
                         </div>
                     </mat-card-content>
                 </mat-card>

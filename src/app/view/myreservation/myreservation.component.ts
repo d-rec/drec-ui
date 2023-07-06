@@ -10,7 +10,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { ReservationService } from '../../auth/services/reservation.service';
-import { Router } from '@angular/router';
+import { Router,NavigationEnd  } from '@angular/router';
 import { Observable, Subscription, take,debounceTime  } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
@@ -40,17 +40,17 @@ export class MyreservationComponent implements OnInit {
 
   ];
   displayedColumns1 = [
+    'createdAt',
     'projectName',
+    'Name',
     'countryCode',
     'capacity',
-    'createdAt',
     'offTaker',
     'deviceTypeCode',
-    'fuelCode',
+    // 'fuelCode',
     'commissioningDate',
     'SDGBenefits',
 
-    // 'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -87,8 +87,7 @@ export class MyreservationComponent implements OnInit {
 
   ) { }
   ngOnInit() {
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
       countryname: [],
@@ -177,37 +176,6 @@ export class MyreservationComponent implements OnInit {
 
   }
 
-  // checkFormValidity(): void {
-  //   // console.log("115");
-  //   let formValues = this.FilterForm.value;
-  //   const countryValue = formValues.countryname;
-  //   if (countryValue != null && countryValue === undefined) {
-  //     this.FilterForm.controls['countryCode'].setValue(null);
-  //   }
-  //   const fuelCodeValue = formValues.fuelCode;
-  //   if (fuelCodeValue != null && fuelCodeValue[0] === undefined) {
-  //     this.FilterForm.controls['fuelCode'].setValue(null);
-
-  //   }
-  //   if (formValues.offTaker != null && formValues.offTaker[0] === undefined) {
-  //     this.FilterForm.controls['offTaker'].setValue(null);
-  //   }
-  //   if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
-  //     this.FilterForm.controls['SDGBenefits'].setValue(null);
-  //   }
-
-  //   formValues = this.FilterForm.value;
-  //   setTimeout(() => {
-  //     const updatedFormValues = this.FilterForm.value;
-
-  //     const isAllValuesNull = Object.values(updatedFormValues).some(value => !!value);
-  //     console.log(isAllValuesNull);
-  //     this.isAnyFieldFilled = isAllValuesNull;
-  //     console.log(this.isAnyFieldFilled);
-  //   }, 500);
-
-  // }
-
   checkFormValidity(): void {
     let isUserInteraction = true; // Flag to track user interaction
 
@@ -216,7 +184,6 @@ export class MyreservationComponent implements OnInit {
     ).subscribe((formValues) => {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
-        console.log(countryValue)
         if (countryValue === undefined) {
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
@@ -317,7 +284,7 @@ export class MyreservationComponent implements OnInit {
 
   }
   DisplayDeviceList(row: any) {
-    this.FilterForm.reset();
+    //this.FilterForm.reset();
     this.showdevicesinfo = true;
 
     this.group_info = row;
@@ -345,30 +312,11 @@ export class MyreservationComponent implements OnInit {
 
     });
 
-
-    console.log(this.dataSource1);
-    //this.dataSource1.paginator = this.paginator1;
-    //this.dataSource1.sort = this.sort1;
-    // this.DevicesList.forEach(ele => {
-
-    //   if (ele.deviceIds != null) {
-    //     ele['numberOfdevices'] = ele.deviceIds.length;
-    //   } else {
-    //     ele['numberOfdevices'] = 0;
-    //   }
-
-
-    // })
-
   }
-  // pageChangeEvent(event: PageEvent) {
-  //   console.log(event);
-  //   this.p = event.pageIndex + 1;
 
-  //   this.DisplayList();
-  // }
-  Gobacklist() {
+  Gobacklist(): void {
     window.scrollTo(0, 0);
+  this.showdevicesinfo = false;
     this.p = 1;
     this.DisplayList(this.p)
   }

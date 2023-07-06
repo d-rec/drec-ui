@@ -89,7 +89,8 @@ export class AllMetereadsComponent implements OnInit {
     this.selectedResult = result;
     console.log(this.selectedResult);
     console.log(result);
-    this.externalId = result.externalId;
+   // this.readForm.controls['externalId'].setValue(result.externalId);
+    this.externalId = result;
   }
   reset() {
     this.FilterForm.reset();
