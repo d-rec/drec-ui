@@ -19,7 +19,7 @@
 			<form [formGroup]="FilterForm">
 				<div class="example-container1 row">
 				
-					<div class="col-md-3">
+					<div class="col-md-4">
 						<mat-form-field>
 							<mat-label class="text-capitalize">Select country Code</mat-label>
 							<input type="text"  aria-label="text" matInput
@@ -35,7 +35,7 @@
 						</mat-form-field>
 						<mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected </mat-error>
 					</div>
-					<div class="col-md-3">
+					<!-- <div class="col-md-3">
 						<mat-form-field>
 							<mat-label class="text-capitalize">Fuel Code</mat-label>
 							<mat-select formControlName='fuelCode' (ngModelChange)="checkFormValidity()">
@@ -45,9 +45,9 @@
 								</mat-option>
 							</mat-select>
 						</mat-form-field>
-					</div>
+					</div> -->
 					
-					<div class="col-md-3">
+					<div class="col-md-4">
 						<mat-form-field>
 							<mat-label class="text-capitalize">Off Taker</mat-label>
 							<mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()">
@@ -59,7 +59,7 @@
 						</mat-form-field>
 					</div>
 
-					<div class="col-md-3">
+					<div class="col-md-4">
 						<mat-form-field>
 							<mat-label class="text-capitalize">SDG Benefits</mat-label>
 							<mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>

@@ -28,7 +28,8 @@ export class AddReservationComponent {
     'projectName',
     'externalId',
     'countryCode',
-    'fuelCode',
+    // 'fuelCode',
+    'commissioningDate',
     'status',
     'viewread'
 
@@ -130,9 +131,9 @@ export class AddReservationComponent {
     console.log("myreservation");
     setTimeout(() => {
       if (this.countrycodeLoded) {
-        this.applycountryFilter();
-        this.displayList(this.p);
+        this.applycountryFilter();      
       }
+      this.displayList(this.p);
     }, 1000)
 
   }

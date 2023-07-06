@@ -42,7 +42,7 @@
             </mat-form-field>
             <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected </mat-error>
           </div>
-          <div class="col-md-3">
+          <!-- <div class="col-md-3">
             <mat-form-field>
               <mat-label class="text-capitalize">Fuel Code</mat-label>
 
@@ -53,7 +53,7 @@
                 </mat-option>
               </mat-select>
             </mat-form-field>
-          </div>
+          </div> -->
           <div class="col-md-3">
             <mat-form-field>
               <mat-label class="text-capitalize">Device Type Code</mat-label>
@@ -79,7 +79,7 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div class="col-md-2">
+          <div class="col-md-3">
             <mat-form-field>
               <mat-label>Capacity(Kw)</mat-label>
               <input matInput type="number" (ngModelChange)="checkFormValidity()" formControlName='capacity' #input>

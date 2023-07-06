@@ -139,8 +139,8 @@ export class CertifiedDevicesDeveloperComponent {
     setTimeout(() => {
       if (this.countrycodeLoded) {
       this.applycountryFilter();
-      this.DisplayList(this.p);
       }
+      this.DisplayList(this.p);
     }, 1000);
     this.getBlockchainProperties();
    

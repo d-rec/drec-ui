@@ -110,11 +110,11 @@ export class AlldevicesComponent {
 
     console.log("myreservation");
     setTimeout(() => {
-      if (this.countrycodeLoded) {
-        this.loading = false;
-        this.applycountryFilter();
-        this.getDeviceListData(this.p);
+      if (this.countrycodeLoded) { 
+        this.applycountryFilter(); 
       }
+      this.loading = false;
+      this.getDeviceListData(this.p);
     }, 1000)
   }
 

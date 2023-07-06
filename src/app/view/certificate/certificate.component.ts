@@ -110,7 +110,7 @@ export class CertificateComponent implements OnDestroy {
     console.log("myreservation");
     setTimeout(() => {
       this.DisplayList();
-    }, 3000);
+    },2000);
     this.getBlockchainProperties();
     this.AllCountryList();
     this.claimData.controls['countryCode'];
