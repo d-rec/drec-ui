@@ -6,6 +6,19 @@
     <mat-icon aria-hidden="false" (click)="dialogRef.close(false)" style="margin-left: 860px;margin-top:-20px;"> close </mat-icon>
     <hr>
     <mat-dialog-content>
+        <div *ngIf="loading; else content">
+
+            <div class="spinner__loading">
+              <div>
+                <mat-progress-spinner
+                  diameter="60"
+                  [value]="value"
+                  mode="determinate">
+                  </mat-progress-spinner>
+              </div>
+            </div>
+          </div>
+          <ng-template #content>
         <div class='content'>
             <div class='column col-4'>
                 <div class='row '>
@@ -40,12 +53,12 @@
             <div class='column col-4'>
                 <div class='row'>
                     <p><b> Commissioning
-                            Date</b>:&nbsp;{{device_details.commissioningDate| date:'EEE d MMM y'}}</p>
+                            Date</b>:&nbsp;{{device_details.commissioningDate| date:'dd MMM y hh:mm'}}</p>
                 </div>
             </div>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>OnBoarding Date</b>:&nbsp;{{device_details.createdAt| date:'EEE d MMM y'}}
+                    <p><b>OnBoarding Date</b>:&nbsp;{{device_details.createdAt| date:'dd MMM y hh:mm'}}
 
                 </div>
             </div>
@@ -150,7 +163,7 @@
                 </div>
             </div> -->
         </div>
-        <br>
+          </ng-template>
 
     </mat-dialog-content>
     <mat-dialog-actions>

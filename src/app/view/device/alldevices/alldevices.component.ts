@@ -164,7 +164,7 @@ export class AlldevicesComponent {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
         console.log(countryValue)
-        if (countryValue === undefined) {
+        if (countryValue === undefined||countryValue==='') {
 
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
@@ -194,13 +194,18 @@ export class AlldevicesComponent {
       const updatedFormValues = this.FilterForm.value;
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
       this.isAnyFieldFilled = isAllValuesNull;
+      if(!this.isAnyFieldFilled){
+        this.getDeviceListData(this.p)
+      }
     }, 500);
 
     // Other code...
   }
   selectCountry(event: any) {
     console.log(event)
+   
     this.subscription = this.filteredOptions.subscribe(options => {
+     
       const selectedCountry = options.find(option => option.country === event.option.value);
       if (selectedCountry) {
         this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);

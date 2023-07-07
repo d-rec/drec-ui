@@ -134,7 +134,7 @@ export class AddReservationComponent {
         this.applycountryFilter();      
       }
       this.displayList(this.p);
-    }, 1000)
+    },2000)
 
   }
   ngOnDestroy() {
@@ -177,16 +177,19 @@ export class AddReservationComponent {
     ).subscribe((formValues) => {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
-        console.log(countryValue)
-        if (countryValue === undefined) {
+      
+        if (countryValue === undefined ||countryValue==='') {
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
 
         }
-        const fuelCodeValue = formValues.fuelCode;
-        if (fuelCodeValue != null && fuelCodeValue === undefined) {
-          this.FilterForm.controls['fuelCode'].setValue(null);
+       // const fuelCodeValue = formValues.fuelCode;
+        // if (fuelCodeValue != null && fuelCodeValue === undefined) {
+        //   this.FilterForm.controls['fuelCode'].setValue(null);
+        // }
+        if (formValues.deviceTypeCode != null && formValues.deviceTypeCode[0] === undefined) {
+          this.FilterForm.controls['deviceTypeCode'].setValue(null);
         }
         if (formValues.offTaker != null && formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
@@ -202,6 +205,9 @@ export class AddReservationComponent {
       const updatedFormValues = this.FilterForm.value;
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
       this.isAnyFieldFilled = isAllValuesNull;
+      if(!this.isAnyFieldFilled){
+        this.displayList(this.p)
+      }
     }, 500);
 
     // Other code...

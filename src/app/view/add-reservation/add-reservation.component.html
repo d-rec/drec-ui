@@ -158,7 +158,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <mat-form-field>
-                                        <mat-label>Capacity(Kw)</mat-label>
+                                        <mat-label>Capacity(kW)</mat-label>
                                         <input matInput formControlName='capacity' (ngModelChange)="checkFormValidity()"
                                             #input>
                                     </mat-form-field>
@@ -273,7 +273,7 @@
                                 </ng-container>
                                 <!-- Status Column -->
                                 <ng-container matColumnDef="status">
-                                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Capacity(Kw) </th>
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Capacity(kW) </th>
                                     <td mat-cell *matCellDef="let element"> {{element.capacity}} </td>
                                 </ng-container>
                                 <ng-container matColumnDef="viewread">
@@ -303,7 +303,7 @@
 
                             Total Pages:{{totalPages}}
                             <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
-                                [disabled]="p === totalPages">Next</button>
+                                [disabled]="p >= totalPages">Next</button>
 
                         </div>
                     </mat-card-content>

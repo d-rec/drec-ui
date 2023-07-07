@@ -98,7 +98,7 @@ export class CertificateDetailsComponent {
       end_date: [null],
       fromAmountread: [null],
       toAmountread: [null],
-      pagenumber: [this.p]
+     // pagenumber: [this.p]
     });
 
   }
@@ -208,7 +208,7 @@ export class CertificateDetailsComponent {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
         console.log(countryValue)
-        if (countryValue === undefined) {
+        if (countryValue === undefined||countryValue==='') {
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
@@ -218,8 +218,7 @@ export class CertificateDetailsComponent {
         if (fuelCodeValue === undefined) {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
-        console.log(formValues.deviceTypeCode);
-        if (formValues.offTaker === undefined) {
+        if (formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
         // console.log(formValues.deviceTypeCode);
@@ -237,6 +236,9 @@ export class CertificateDetailsComponent {
       const updatedFormValues = this.FilterForm.value;
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
       this.isAnyFieldFilled = isAllValuesNull;
+      if(!this.isAnyFieldFilled){
+        this.DisplayList(this.p)
+      }
     }, 500);
 
     // Other code...
@@ -267,8 +269,8 @@ export class CertificateDetailsComponent {
   DisplayList(page: number) {
     console.log("certifed list")
     // console.log(this.group_uid);
-    this.FilterForm.controls['pagenumber'].setValue(page);
-    this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value).subscribe(
+    //this.FilterForm.controls['pagenumber'].setValue(page);
+    this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value,page).subscribe(
       (data: any) => {
         this.loading = false;
         // display list in the console 

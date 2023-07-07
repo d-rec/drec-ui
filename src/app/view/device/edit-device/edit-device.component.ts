@@ -4,7 +4,8 @@ import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService } from '../../../auth/services/device.service'
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-
+import { Observable ,Subscription} from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 @Component({
   selector: 'app-edit-device',
   templateUrl: './edit-device.component.html',
@@ -42,12 +43,13 @@ export class EditDeviceComponent implements OnInit {
   offTaker: any;
   gridInterconnection: any;
   impactStory: any;
-
+  showerror:boolean=false
   deviceDescription: any;
   energyStorage: boolean = true;
   energyStorageCapacity: any;
   frommydevice: boolean = false;
   frombulk: boolean = false;
+  filteredCountryList: Observable<any[]>
   offteker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   devicediscription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
 
@@ -105,8 +107,29 @@ export class EditDeviceComponent implements OnInit {
     this.showaddmore = true;
     this.shownomore = false;
     this.myform.valueChanges.subscribe(console.log);
+    setTimeout(() => {
+      this.myform.controls['countryCode'];
+    this.filteredCountryList = this.myform.controls['countryCode'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
+    }, 1000);
 
-
+  }
+  private _filter(value: string): any[] {
+    const filterValue = value.toLowerCase();
+   
+    if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
+      this.showerror= true;
+    //  toppings.at(i).get('countryCode').setValue(null);
+    } else {
+      this.showerror= false;
+    }
+  //@ts-ignore
+    return this.countrylist.filter(code => code.country.toLowerCase().includes(filterValue));
+  }
+  getCountryCodeControl(): FormControl {
+    return this.myform.get('countryCode') as FormControl;
   }
   checkValidation(input: string) {
     const validation = this.myform.get(input)?.invalid && (this.myform.get(input)?.dirty || this.myform.get(input)?.touched)
@@ -202,7 +225,8 @@ export class EditDeviceComponent implements OnInit {
         this.address = data.address;
         this.latitude = data.latitude;
         this.longitude = data.longitude;
-        this.countryCode = data.countryCode;
+        //@ts-ignore
+        this.countryCode = this.countrylist.find(countrycode => countrycode.alpha3 == data.countryCode)?.country ;
         this.fuelCode = data.fuelCode;
         this.deviceTypeCode = data.deviceTypeCode;
         this.capacity = data.capacity;
