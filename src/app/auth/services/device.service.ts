@@ -63,6 +63,9 @@ export class DeviceService {
   GetDevicesInfo(id: number): Observable<any> {
     return this.httpClient.get(this.url + 'device/' + id)
   }
+  GetDevicesInfoByExternalId(ExternalId: any): Observable<any> {
+    return this.httpClient.get(this.url + 'device/externalId/' + ExternalId)
+  }
   getDeviceInfoBYexternalId(externalid: string): Observable<any> {
     return this.httpClient.get(this.url + 'device/externalId/' + externalid)
   }

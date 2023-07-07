@@ -81,7 +81,7 @@
           </div>
           <div class="col-md-3">
             <mat-form-field>
-              <mat-label>Capacity(Kw)</mat-label>
+              <mat-label>Capacity(kW)</mat-label>
               <input matInput type="number" (ngModelChange)="checkFormValidity()" formControlName='capacity' #input>
             </mat-form-field>
           </div>
@@ -171,10 +171,10 @@
           <!-- Status Column -->
           <ng-container matColumnDef="commissioningDate">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">Commissioning Date </th>
-            <td mat-cell *matCellDef="let element"> {{element.commissioningDate| date:'EEE dd MMM y'}} </td>
+            <td mat-cell *matCellDef="let element"> {{element.commissioningDate| date:'dd MMM y'}} </td>
           </ng-container>
           <ng-container matColumnDef="capacity">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> Capacity(Kw) </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> Capacity(kW) </th>
             <td mat-cell *matCellDef="let element"> {{element.capacity}} </td>
           </ng-container>
           <ng-container matColumnDef="SDGBenefits">
@@ -187,7 +187,7 @@
               <!-- <button>certificate</button> -->
               <a class="edit-icon" (click)="UpdateDevice(row.externalId)"><mat-icon class="primary">edit</mat-icon></a>
               <!-- <a  [routerLink]="['../edit']" [queryParams]="{id:row.externalId}"><mat-icon>add</mat-icon></a> -->
-              <a class="edit-icon"  (click)="alertDialog(row.id)">
+              <a class="edit-icon"  (click)="alertDialog(row.externalId)">
                 <mat-icon class="primary">visibility</mat-icon>
               </a>  </td>
           </ng-container>

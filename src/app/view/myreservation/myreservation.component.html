@@ -76,9 +76,24 @@
                                     </mat-select>
                                 </mat-form-field>
                             </div>
+                            <div class="col-md-3 d-flex flex-column">
+                                <span>Reservation Status:</span>
+                                <mat-radio-group formControlName='reservationActive'
+                                    (ngModelChange)="checkFormValidity()">
+                                    <mat-radio-button value="All">All</mat-radio-button>
+                                    <mat-radio-button value="Active" class="ms-2">Active</mat-radio-button>
+                                    <!-- <mat-radio-button value="Deactive" class="ms-2">Deactive</mat-radio-button> -->
+                                </mat-radio-group>
+
+
+                            </div>
+                            <div class="col-md-1">
+                                <h5><b>Rservation Date:</b> </h5>
+        
+                            </div>
                             <div class="col-md-3">
                                 <mat-form-field>
-                                    <mat-label class="text-capitalize">Start Date </mat-label>
+                                    <mat-label class="text-capitalize">Start  </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
                                         formControlName="reservationStartDate" autocomplete="off"
                                         (ngModelChange)="onEndChangeEvent($event);checkFormValidity()">
@@ -106,19 +121,7 @@
                                 </mat-form-field>
 
                             </div>
-                            <div class="col-md-6 d-flex flex-column">
-                                <span>Reservation Status:</span>
-                                <mat-radio-group formControlName='reservationActive'
-                                    (ngModelChange)="checkFormValidity()">
-
-
-                                    <mat-radio-button value="All">All</mat-radio-button>
-                                    <mat-radio-button value="Active" class="ms-2">Active</mat-radio-button>
-                                    <!-- <mat-radio-button value="Deactive" class="ms-2">Deactive</mat-radio-button> -->
-                                </mat-radio-group>
-
-
-                            </div>
+                           
                             <div class="col-md-12 mb-3  d-flex justify-content-end">
                                 <div class="">
                                     <button class="btn-primary me-2 btn text-capitalize px-4"
@@ -202,13 +205,13 @@
                     <ng-container matColumnDef="reservationStartDate">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Start </th>
                         <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-                            {{row.reservationStartDate| date:'EEE d MMM y hh:mm:ss'}} </td>
+                            {{row.reservationStartDate| date:'dd MMM y hh:mm'}} </td>
                     </ng-container>
                     <!-- Fruit Column -->
                     <ng-container matColumnDef="reservationEndDate">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> End </th>
                         <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-                            {{row.reservationEndDate| date:'EEE d MMM y hh:mm:ss'}} </td>
+                            {{row.reservationEndDate| date:'dd MMM y hh:mm'}} </td>
                     </ng-container>
                     <ng-container matColumnDef="targetVolumeInMegaWattHour">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Target </th>

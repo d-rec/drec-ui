@@ -50,7 +50,7 @@
 					<div class="col-md-4">
 						<mat-form-field>
 							<mat-label class="text-capitalize">Off Taker</mat-label>
-							<mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()">
+							<mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()" multiple>
 								<mat-option [value]="">---</mat-option>
 								<mat-option *ngFor="let code of offtaker" [value]="code">
 									{{code}}
@@ -232,6 +232,13 @@
 										<td mat-cell *matCellDef="let element" class="table-data">
 											{{element.readvalue_watthour }} </td>
 									</ng-container>
+									<!-- <ng-container matColumnDef="Action">
+										<th mat-header-cell *matHeaderCellDef> Read Value </th>
+										<td mat-cell *matCellDef="let element" class="table-data">
+											<a class="edit-icon"  (click)="deviceDetaileDialog(element.externalId)">
+												<mat-icon class="primary">visibility</mat-icon>
+											  </a></td>
+									</ng-container> -->
 
 
 									<tr mat-header-row *matHeaderRowDef="innerDisplayedColumns"></tr>

@@ -1,15 +1,15 @@
 import { Component, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, NgForm } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import {DeviceService } from '../../../auth/services/device.service'
+import { DeviceService } from '../../../auth/services/device.service'
 import { AuthbaseService } from '../../../auth/authbase.service';
 export interface Device {
-  netId:	number
-  registry:	string
-  issuer:	string
-  rpcNode:	string
-  rpcNodeFallback:	string
-  privateIssuer:	string
+  netId: number
+  registry: string
+  issuer: string
+  rpcNode: string
+  rpcNodeFallback: string
+  privateIssuer: string
 }
 @Component({
   selector: 'app-device-details',
@@ -21,9 +21,11 @@ export class DeviceDetailsComponent {
   form: FormGroup;
   id: number;
   device_details: any = {};
-  fuellist:any;
-  devicetypelist:any
-  countrylist:any
+  fuellist: any;
+  devicetypelist: any
+  countrylist: any
+  loading : boolean = true;
+  value = 0;
   constructor(
     private fb: FormBuilder,
     @Inject(MAT_DIALOG_DATA) data: { deviceid: number },
@@ -58,26 +60,29 @@ export class DeviceDetailsComponent {
       }
     )
   }
-  name:any;
+  name: any;
   ngOnInit(): void {
 
-  
-    //setTimeout(() => {
-    this.deviceService.GetDevicesInfo(this.id ).subscribe(
-      (data) => {
-        this.device_details = data;
-        this.name= this.device_details.externalId
-         //@ts-ignore
-         this.device_details['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === this.device_details.fuelCode)?.name;
-         //@ts-ignore
-         this.device_details['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == this.device_details.deviceTypeCode)?.name;
-         //@ts-ignore
-        this.device_details['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == this.device_details.countryCode)?.country;
-      console.log(this.device_details);
-      
-      }
-    )
-    //},1000)
+    setTimeout(() => {
+      this.deviceService.GetDevicesInfo(this.id).subscribe(
+        (data) => {
+          if (data) {
+            this.loading = false;
+            this.device_details = data;
+            this.name = this.device_details.externalId
+            //@ts-ignore
+            this.device_details['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === this.device_details.fuelCode)?.name;
+            //@ts-ignore
+            this.device_details['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == this.device_details.deviceTypeCode)?.name;
+            //@ts-ignore
+            this.device_details['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == this.device_details.countryCode)?.country;
+            console.log(this.device_details);
+          }
+
+
+        }
+      )
+    }, 500)
   }
 
   submit() {
