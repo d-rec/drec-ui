@@ -1,0 +1,53 @@
+<div class="body-bg">
+    <mat-card>
+        <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+            <div>
+                <h2 class="pb-0 mb-0 fw-bold text-capitalize">Yield Update Form
+                </h2>
+            </div>
+        </mat-card-header>
+        <hr class="mb-0 pb-0">
+        <form [formGroup]="updayeyieldForm" (ngSubmit)="onSubmit()">
+        <mat-card-content>       
+                <div class="example-container row">
+                    <div class="col-md-3">
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Select country Code</mat-label>
+                            <input type="text" matInput formControlName='countryName' [matAutocomplete]="auto"  [(ngModel)]="countryName">
+                            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
+                                <mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
+                                    {{code.country}}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                        <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected </mat-error>
+                    </div>
+                <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">Value</mat-label>
+                        <input matInput type="number" formControlName='yieldValue'  [(ngModel)]="yieldValue"
+                            min="1" autocomplete="off">                      
+                    </mat-form-field>
+                </div>
+                <div class="col-md-3">                 
+                        <mat-radio-group formControlName='status'  [(ngModel)]="status">
+                            <span>Status:</span>
+                            <br>
+                            <mat-radio-button [value]=true checked>Yes</mat-radio-button>
+                            <mat-radio-button [value]=false>No</mat-radio-button>
+                        </mat-radio-group>                  
+                </div>
+            </div>
+           
+        </mat-card-content>
+        <mat-card-footer>
+            <div class="example-container mt-3  ">
+                <div class="col-12 d-flex justify-content-end">
+                    <button type="submit" class="btn-primary btn text-capitalize px-4"
+                        [disabled]="updayeyieldForm.invalid">Update</button>
+                </div>
+            </div>
+        </mat-card-footer>
+    </form>
+    </mat-card>
+</div>
