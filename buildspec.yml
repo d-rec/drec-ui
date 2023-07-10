@@ -1,4 +1,8 @@
 version: 0.2
+env:
+  parameter-store:
+    docker_username: /powertrust/docker/username
+    docker_password: /powertrust/docker/password
 phases:
   install:
     # runtime-versions:
@@ -23,6 +27,7 @@ phases:
       - export KUBECONFIG=$HOME/.kube/config
   build:
     commands:
+      - echo $docker_password | docker login --username $docker_username --password-stdin
       - docker build -t $IMAGE:$BUILD_NUMBER -f Dockerfile .
       - docker tag $IMAGE:$BUILD_NUMBER 895706603967.dkr.ecr.eu-west-1.amazonaws.com/$IMAGE:$environment-$BUILD_NUMBER
   post_build:
