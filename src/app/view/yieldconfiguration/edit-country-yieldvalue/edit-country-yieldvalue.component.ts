@@ -92,6 +92,7 @@ export class EditCountryYieldvalueComponent {
         console.log(data);
         this.countryName = data.countryName;
         this.countryCode = data.countryCode;
+        this.updayeyieldForm.controls['countryCode'].setValue(this.countryCode);
         this.yieldValue = data.yieldValue;
         if (data.status === 'Y') {
           this.status = true;
@@ -117,7 +118,7 @@ export class EditCountryYieldvalueComponent {
             control.setErrors(null);
           });
           this.router.navigate(['/admin/yield/list']);
-          this.toastrService.success('Successfully!!', 'Yield Value added ');
+          this.toastrService.success('Successfully!!', 'Yield Value Updated ');
         }
       }, error: err => {                          //Error callback
         console.error('error caught in component', err)
