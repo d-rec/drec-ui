@@ -26,7 +26,7 @@ export class YieldConfigurationService {
 
   }
   public PatchYieldInfo(id: any, data: any): Observable<any> {
-    return this.httpClient.patch<any>(environment.API_URL+'yield/config/'+id, data)
+    return this.httpClient.patch<any>(environment.API_URL+'yield/config/update/'+id, data)
 
   }
 }
