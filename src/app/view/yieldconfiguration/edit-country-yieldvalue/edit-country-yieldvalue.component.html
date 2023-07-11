@@ -13,7 +13,7 @@
                     <div class="col-md-3">
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Select country Code</mat-label>
-                            <input type="text" matInput formControlName='countryName' [matAutocomplete]="auto"  [(ngModel)]="countryName">
+                            <input type="text" matInput formControlName='countryName' [matAutocomplete]="auto"  [(ngModel)]="countryName" readonly>
                             <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
                                 <mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
                                     {{code.country}}

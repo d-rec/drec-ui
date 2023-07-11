@@ -8,11 +8,16 @@
         <mat-icon>list</mat-icon>
         <span>Organization</span>
       </button>
-      <button mat-button class="menu-button" routerLinkActive="active" routerLink="/organization/information"
+      <button mat-button class="menu-button" routerLinkActive="active" routerLink="/admin/dashboard"
       *ngIf="loginuser.role ==='Admin' && !showmenu">
       <mat-icon>list</mat-icon>
       <span>Dashboard</span>
     </button>
+    <button mat-button class="menu-button" routerLinkActive="active" routerLink="/device/AllList"
+    *ngIf="loginuser.role ==='Admin' && !showmenu">
+    <mat-icon>list</mat-icon>
+    <span>All Devices</span>
+  </button>
     <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role ==='Admin'">
       <mat-expansion-panel-header class="mdc-button d-flex align-items-center">
         <mat-icon>list</mat-icon>
