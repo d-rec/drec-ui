@@ -67,11 +67,7 @@
           <!-- <mat-icon>list</mat-icon> -->
           <span> Bulk Upload</span>
         </a>
-        <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/device/certifiedin_reservation"
-         *ngIf="!showmenu" >
-          <!-- <mat-icon>list</mat-icon> -->
-          <span> Certified Devices</span>
-        </a>
+        
         </mat-nav-list>
       </mat-expansion-panel>
       <mat-expansion-panel [class.mat-elevation-z0]="true"  *ngIf="loginuser.role ==='OrganizationAdmin'">
@@ -94,7 +90,11 @@
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add MeterRead</span>
           </a>
-         
+          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/device/certifiedin_reservation"
+          *ngIf="!showmenu" >
+           <!-- <mat-icon>list</mat-icon> -->
+           <span> Certified MeterReads</span>
+         </a>
         </mat-nav-list>
       </mat-expansion-panel>
       <!-- <button mat-button class="menu-button" routerLinkActive="active" routerLink="/add/read"
