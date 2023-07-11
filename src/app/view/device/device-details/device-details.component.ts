@@ -3,14 +3,17 @@ import { FormGroup, FormBuilder, Validators, NgForm } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DeviceService } from '../../../auth/services/device.service'
 import { AuthbaseService } from '../../../auth/authbase.service';
-export interface Device {
-  netId: number
-  registry: string
-  issuer: string
-  rpcNode: string
-  rpcNodeFallback: string
-  privateIssuer: string
-}
+import { Observable } from 'rxjs';
+import { Device } from '../../../models/device.model'
+
+// export interface Device {
+//   netId: number
+//   registry: string
+//   issuer: string
+//   rpcNode: string
+//   rpcNodeFallback: string
+//   privateIssuer: string
+// }
 @Component({
   selector: 'app-device-details',
   templateUrl: './device-details.component.html',
@@ -24,11 +27,12 @@ export class DeviceDetailsComponent {
   fuellist: any;
   devicetypelist: any
   countrylist: any
-  loading : boolean = true;
+  loading: boolean = true;
   value = 0;
+  viewoptionfrom: string;
   constructor(
     private fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) data: { deviceid: number },
+    @Inject(MAT_DIALOG_DATA) data: { deviceid: any, from: 'string' },
     public dialogRef: MatDialogRef<DeviceDetailsComponent>,
     private deviceService: DeviceService,
     private authService: AuthbaseService,
@@ -39,6 +43,7 @@ export class DeviceDetailsComponent {
     //   country: [''],
     // });
     this.id = data.deviceid;
+    this.viewoptionfrom = data.from
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
 
@@ -64,8 +69,21 @@ export class DeviceDetailsComponent {
   ngOnInit(): void {
 
     setTimeout(() => {
-      this.deviceService.GetDevicesInfo(this.id).subscribe(
-        (data) => {
+      // let service: Observable<Device>;
+
+      // if (this.viewoptionfrom === 'list') {
+      //   service = this.deviceService.GetDevicesInfo(this.id);
+      // } else if (this.viewoptionfrom === 'certificate') {
+      //   service = this.deviceService.GetDevicesInfoByExternalId(this.id);
+      // } else {
+      //   // Handle the case when this.viewoptionfrom is neither 'list' nor 'certificate'
+      //   // Assign a default value or handle the situation accordingly
+      //   // For example:
+      //   throw new Error("Invalid view option");
+      // }
+      
+      this.deviceService.GetDevicesInfo(this.id).subscribe({
+        next: (data : Device)=> {
           if (data) {
             this.loading = false;
             this.device_details = data;
@@ -80,14 +98,16 @@ export class DeviceDetailsComponent {
           }
 
 
-        }
-      )
-    }, 500)
-  }
+        }, error: err => {  
+        console.log(err)
+      },
+    })
+  }, 500)
+}
 
-  submit() {
-    this.dialogRef.close({
-      clicked: 'submit'
-    });
-  }
+submit() {
+  this.dialogRef.close({
+    clicked: 'submit'
+  });
+}
 }

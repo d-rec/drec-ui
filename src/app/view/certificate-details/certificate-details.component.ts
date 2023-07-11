@@ -33,6 +33,8 @@ import * as moment from 'moment';
 import { DateAdapter } from '@angular/material/core';
 import { DeviceService } from '../../auth/services/device.service';
 import { CertificateService } from '../../auth/services/certificate.service'
+import { DeviceDetailsComponent } from '../device/device-details/device-details.component'
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 @Component({
   selector: 'app-certificate-details',
   templateUrl: './certificate-details.component.html',
@@ -43,7 +45,7 @@ export class CertificateDetailsComponent {
   @Input() dataFromComponentA: any;
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
   displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
-  innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour'];
+  innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour','Action'];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
@@ -85,6 +87,7 @@ export class CertificateDetailsComponent {
     private deviceService: DeviceService,
     private certificateService: CertificateService,
     private formBuilder: FormBuilder,
+    private dialog: MatDialog
   ) {
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
@@ -398,6 +401,16 @@ export class CertificateDetailsComponent {
       this.p++;
       this.DisplayList(this.p);;
     }
+  }
+  deviceDetaileDialog(deviceId: string): void {
+    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+      data: {
+        deviceid: deviceId,
+        from:'certificate'
+      },
+      width: '900px',
+      height: '400px',
+    });
   }
 }
 
