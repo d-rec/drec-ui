@@ -402,11 +402,10 @@ export class CertificateDetailsComponent {
       this.DisplayList(this.p);;
     }
   }
-  deviceDetaileDialog(deviceId: string): void {
+  deviceDetaileDialog(deviceId: number): void {
     const dialogRef = this.dialog.open(DeviceDetailsComponent, {
       data: {
-        deviceid: deviceId,
-        from:'certificate'
+        deviceid: deviceId
       },
       width: '900px',
       height: '400px',
