@@ -316,6 +316,7 @@ export class AlldevicesComponent {
     const dialogRef = this.dialog.open(DeviceDetailsComponent, {
       data: {
         deviceid: deviceId,
+        from:'list'
       },
       width: '900px',
       height: '400px',
