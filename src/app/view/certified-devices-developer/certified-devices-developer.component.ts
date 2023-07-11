@@ -48,7 +48,7 @@ export class CertifiedDevicesDeveloperComponent {
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
   displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
   innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour',
-  //'Action'
+ 'Action'
 ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -412,13 +412,14 @@ export class CertifiedDevicesDeveloperComponent {
     }
   }
 
-  // deviceDetaileDialog(deviceId: number): void {
-  //   const dialogRef = this.dialog.open(DeviceDetailsComponent, {
-  //     data: {
-  //       deviceid: deviceId,
-  //     },
-  //     width: '900px',
-  //     height: '400px',
-  //   });
-  // }
+  deviceDetaileDialog(deviceId: string): void {
+    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+      data: {
+        deviceid: deviceId,
+        from:'certificate'
+      },
+      width: '900px',
+      height: '400px',
+    });
+  }
 }
