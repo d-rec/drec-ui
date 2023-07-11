@@ -32,18 +32,14 @@ export class DeviceDetailsComponent {
   viewoptionfrom: string;
   constructor(
     private fb: FormBuilder,
-    @Inject(MAT_DIALOG_DATA) data: { deviceid: any, from: 'string' },
+    @Inject(MAT_DIALOG_DATA) data: { deviceid: number },
     public dialogRef: MatDialogRef<DeviceDetailsComponent>,
     private deviceService: DeviceService,
     private authService: AuthbaseService,
   ) {
-    // this.form = this.fb.group({
-    //   name: ['', Validators.required],
-    //   address: ['', Validators.required],
-    //   country: [''],
-    // });
+    
     this.id = data.deviceid;
-    this.viewoptionfrom = data.from
+  
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
 
@@ -69,19 +65,7 @@ export class DeviceDetailsComponent {
   ngOnInit(): void {
 
     setTimeout(() => {
-      // let service: Observable<Device>;
-
-      // if (this.viewoptionfrom === 'list') {
-      //   service = this.deviceService.GetDevicesInfo(this.id);
-      // } else if (this.viewoptionfrom === 'certificate') {
-      //   service = this.deviceService.GetDevicesInfoByExternalId(this.id);
-      // } else {
-      //   // Handle the case when this.viewoptionfrom is neither 'list' nor 'certificate'
-      //   // Assign a default value or handle the situation accordingly
-      //   // For example:
-      //   throw new Error("Invalid view option");
-      // }
-      
+   
       this.deviceService.GetDevicesInfo(this.id).subscribe({
         next: (data : Device)=> {
           if (data) {
