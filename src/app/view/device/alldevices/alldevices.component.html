@@ -10,7 +10,7 @@
         </mat-card-title>
       </div>
       <div>
-        <button class="btn btn-dark justify-content-end px-4  d-flex align-items-center" routerLink="/device/add">
+        <button class="btn btn-dark justify-content-end px-4  d-flex align-items-center" routerLink="/device/add" *ngIf="loginuser.role !='Admin'">
           <mat-icon class="align-middle me-2">add_circle</mat-icon>New Devices</button>
 
       </div>
@@ -82,7 +82,7 @@
           <div class="col-md-3">
             <mat-form-field>
               <mat-label>Capacity(kW)</mat-label>
-              <input matInput type="number" (ngModelChange)="checkFormValidity()" formControlName='capacity' #input>
+              <input matInput type="number" [min]=1 (ngModelChange)="checkFormValidity()" formControlName='capacity' #input>
             </mat-form-field>
           </div>
           <div class="col-md-3">
