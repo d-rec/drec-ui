@@ -159,7 +159,7 @@
                                 <div class="col-md-3">
                                     <mat-form-field>
                                         <mat-label>Capacity(kW)</mat-label>
-                                        <input matInput formControlName='capacity' (ngModelChange)="checkFormValidity()"
+                                        <input matInput formControlName='capacity' [min]=1 (ngModelChange)="checkFormValidity()"
                                             #input>
                                     </mat-form-field>
                                 </div>
