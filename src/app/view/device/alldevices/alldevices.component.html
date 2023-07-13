@@ -28,7 +28,7 @@
       <form [formGroup]="FilterForm">
         <div class="example-container1 row">
           <div class="col-md-3">
-            <mat-form-field>
+            <mat-form-field appearance="outline">
               <mat-label class="text-capitalize">Select Country Code</mat-label>
               <input type="text"  aria-label="text" matInput
                 formControlName="countryname" [matAutocomplete]="auto" (ngModelChange)="checkFormValidity()">
@@ -55,7 +55,7 @@
             </mat-form-field>
           </div> -->
           <div class="col-md-3">
-            <mat-form-field>
+            <mat-form-field appearance="outline">
               <mat-label class="text-capitalize">Device Type Code</mat-label>
 
               <mat-select formControlName='deviceTypeCode' (ngModelChange)="checkFormValidity()" multiple>
@@ -68,7 +68,7 @@
           </div>
 
           <div class="col-md-3">
-            <mat-form-field>
+            <mat-form-field appearance="outline">
               <mat-label class="text-capitalize">Off Taker</mat-label>
 
               <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()" multiple>
@@ -80,13 +80,13 @@
             </mat-form-field>
           </div>
           <div class="col-md-3">
-            <mat-form-field>
+            <mat-form-field appearance="outline">
               <mat-label>Capacity(kW)</mat-label>
               <input matInput type="number" [min]=1 (ngModelChange)="checkFormValidity()" formControlName='capacity' #input>
             </mat-form-field>
           </div>
           <div class="col-md-3">
-            <mat-form-field>
+            <mat-form-field appearance="outline">
               <mat-label class="text-capitalize">SDG Benefits</mat-label>
 
               <mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>
@@ -96,7 +96,7 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div class="col-md-1">
+          <!-- <div class="col-md-1">
 						<h6>Commissioning Date: </h6>
 
 					</div>
@@ -124,10 +124,19 @@
                     [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
                     [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
                 </ngx-mat-datetime-picker>
-                <!-- <mat-error *ngIf="checkValidation('endtimestamp')">
+                 <mat-error *ngIf="checkValidation('endtimestamp')">
                <b> {{getErrorcheckdatavalidation()}}</b>
-              </mat-error> -->
+              </mat-error>
             </mat-form-field>
+        </div> -->
+        <div class="col-md-6">
+          <mat-form-field appearance="outline">
+            <mat-label>Date Range</mat-label>
+            <input matInput [matDatepicker]="picker" placeholder="Start Date" formControlName="start_date" name="startDate">
+            <input matInput [matDatepicker]="picker" placeholder="End Date" formControlName="end_date" name="endDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
         </div>
           <div class="col-md-12 mb-3  d-flex justify-content-end">
             <div class="">
