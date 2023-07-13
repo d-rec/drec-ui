@@ -376,3 +376,29 @@ border-left-color:$primary!important ;
     border: 1px solid $primary !important;
     color: $gray !important;
 }
+
+// pagination buttons 
+.pagenation-btns{
+    position: sticky !important;
+    left: 0px;
+  }
+// action buttons cursor 
+.action-icons{
+  cursor: pointer;
+  mat-icon{
+    font-size: 18px;
+  }
+}
+
+.add-reservation{
+    .mat-mdc-checkbox.mat-primary{
+        --mdc-checkbox-selected-checkmark-color: black;
+        --mdc-checkbox-selected-focus-icon-color: #f2be1a;
+        --mdc-checkbox-selected-hover-icon-color: #f2be1a;
+        --mdc-checkbox-selected-icon-color: #f2be1a;
+        --mdc-checkbox-selected-pressed-icon-color: #f2be1a;
+    }
+    .mat-mdc-checkbox.mat-primary .mdc-checkbox--selected~.mdc-checkbox__ripple{
+        background: #f2be1a;
+    }
+}

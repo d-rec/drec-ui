@@ -70,57 +70,56 @@
 							</mat-select>
 						</mat-form-field>
 					</div>
-					<div class="col-md-1">
-						<h5>Certificate Date: </h5>
+					<div class="row h6-margin-remove align-items-center">
+						<div class="col-md-3">
+							<h6>Certificate Date: </h6>
+							<mat-form-field>
+								<mat-label class="text-capitalize">From </mat-label>
+								<input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
+									formControlName="start_date" autocomplete="off"
+									(ngModelChange)="onEndChangeEvent($event);checkFormValidity()">
+								<mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+								<ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+									[stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
+									[disableMinute]="false" [hideTime]="false">
+								</ngx-mat-datetime-picker>
+							</mat-form-field>
+						</div>
+						<div class="col-md-3">
+							<h6>&nbsp;</h6>
+							<mat-form-field>
+								<mat-label class="text-capitalize">To </mat-label>
+	
+								<input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
+									formControlName="end_date" [min]="endminDate" autocomplete="off"
+									(ngModelChange)="checkFormValidity()">
+								<mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
+								<ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+									[stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
+									[disableMinute]="false" [hideTime]="false">
+								</ngx-mat-datetime-picker>
+	
+							</mat-form-field>
+						</div>
+						<div class="col-md-2">
+							<h6>Read Amount: </h6>
+							<mat-form-field>
+								<mat-label class="text-capitalize">From </mat-label>
+								<input matInput type="number" (ngModelChange)="checkFormValidity()"
+									formControlName='fromAmountread' #input>
+							</mat-form-field>
+	
+						</div>
+						<div class="col-md-2">
+							<h6>&nbsp;</h6>
+							<mat-form-field>
+								<mat-label class="text-capitalize">To </mat-label>
+								<input matInput type="number" (ngModelChange)="checkFormValidity()"
+									formControlName='toAmountread' #input>
+							</mat-form-field>
+						</div>
 					</div>
-					<div class="col-md-3">
-						<mat-form-field>
-							<mat-label class="text-capitalize">From </mat-label>
-							<input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-								formControlName="start_date" autocomplete="off"
-								(ngModelChange)="onEndChangeEvent($event);checkFormValidity()">
-							<mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-							<ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
-								[stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
-								[disableMinute]="false" [hideTime]="false">
-							</ngx-mat-datetime-picker>
-						</mat-form-field>
-					</div>
-					<div class="col-md-3">
-						<mat-form-field>
-							<mat-label class="text-capitalize">To </mat-label>
 
-							<input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
-								formControlName="end_date" [min]="endminDate" autocomplete="off"
-								(ngModelChange)="checkFormValidity()">
-							<mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
-							<ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
-								[stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
-								[disableMinute]="false" [hideTime]="false">
-							</ngx-mat-datetime-picker>
-
-						</mat-form-field>
-					</div>
-					<div class="col-md-1">
-						<h5>Read Amount: </h5>
-
-					</div>
-					<div class="col-md-2">
-
-						<mat-form-field>
-							<mat-label class="text-capitalize">From </mat-label>
-							<input matInput type="number" (ngModelChange)="checkFormValidity()"
-								formControlName='fromAmountread' #input>
-						</mat-form-field>
-
-					</div>
-					<div class="col-md-2">
-						<mat-form-field>
-							<mat-label class="text-capitalize">To </mat-label>
-							<input matInput type="number" (ngModelChange)="checkFormValidity()"
-								formControlName='toAmountread' #input>
-						</mat-form-field>
-					</div>
 					<div class="col-md-12 mb-3  d-flex justify-content-end">
 						<div class="">
 							<button class="btn-primary me-2 btn text-capitalize px-4" (click)="DisplayListFilter()"
