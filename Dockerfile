@@ -15,7 +15,7 @@ RUN npm run build -- --configuration=$BUILD_ENVIRONMENT
 FROM nginx:alpine AS nginx
 
 RUN rm -rf /usr/share/nginx/html/*
-COPY nginx/default.conf.template /etc/nginx/conf.d/default.conf.template
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
 WORKDIR /usr/share/nginx/html
 
