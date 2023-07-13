@@ -16,12 +16,16 @@
             <mat-card>
 
                 <mat-card-content>
+                    <h2 style="text-align: center;color:#f2be1a; font-size: 16px;"
+							class="text-capitalize mt-0 pt-0 mb-2 pb-0">
+							<b>Select fields to filter reservation list</b>
+						</h2>
                     <form [formGroup]="FilterForm">
                         <div class="example-container1 row">
 
                             <div class="col-md-3">
                                 <input type="hidden" formControlName='countryCode' #input>
-                                <mat-form-field>
+                                <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Select country Code</mat-label>
 
                                     <input type="text" aria-label="text" matInput formControlName="countryname"
@@ -51,7 +55,7 @@
                             </div> -->
 
                             <div class="col-md-3">
-                                <mat-form-field>
+                                <mat-form-field appearance="outline" >
                                     <mat-label class="text-capitalize">Off Taker</mat-label>
 
                                     <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()"
@@ -64,7 +68,7 @@
                                 </mat-form-field>
                             </div>
                             <div class="col-md-3">
-                                <mat-form-field>
+                                <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">SDG Benefits</mat-label>
 
                                     <mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()"
@@ -88,11 +92,11 @@
 
                             </div>
                             <div class="col-md-1">
-                                <h5><b>Rservation Date:</b> </h5>
+                                <h5><b>Reservation Date:</b> </h5>
         
                             </div>
                             <div class="col-md-3">
-                                <mat-form-field>
+                                <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Start  </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
                                         formControlName="reservationStartDate" autocomplete="off"
@@ -106,7 +110,7 @@
                             </div>
                             <div class="col-md-3">
 
-                                <mat-form-field>
+                                <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">End Date </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
                                         formControlName="reservationEndDate" [min]="endminDate" autocomplete="off">
