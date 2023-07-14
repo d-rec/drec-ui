@@ -461,4 +461,15 @@ mat-progress-spinner{
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 5;
+  }mat-slider {
+    width: 300px;
+  }
+  
+  .example-label-container {
+    display: flex;
+    justify-content: space-between;
+    margin: -5px 10px 0;
+    max-width: 284px;
+  }.sliderexample-margin {
+    margin: 10px 0px 0px 20px
   }

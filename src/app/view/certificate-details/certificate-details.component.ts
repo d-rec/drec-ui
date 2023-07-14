@@ -1,7 +1,7 @@
 
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, ViewChild, TemplateRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, ViewChild,ElementRef, TemplateRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input, OnDestroy } from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, group, state, style, transition, trigger } from '@angular/animations';
@@ -17,14 +17,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ReservationService } from '../../auth/services/reservation.service';
 
 import { MeterReadService } from '../../auth/services/meter-read.service'
-export interface Student {
-  firstName: string;
-  lastName: string;
-  studentEmail: string;
-  course: string;
-  yearOfStudy: number;
 
-}
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable, Subscription, debounceTime } from 'rxjs';
@@ -48,6 +41,8 @@ export class CertificateDetailsComponent {
   innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour','Action'];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild('startThumb') startThumb: ElementRef<HTMLInputElement>;
+  @ViewChild('endThumb') endThumb: ElementRef<HTMLInputElement>;
   dataSource: MatTableDataSource<any>;
   obs: Observable<any>;
   data: any;
@@ -80,6 +75,9 @@ export class CertificateDetailsComponent {
   subscription: Subscription;
   showerror: boolean = false;
   countrycodeLoded: boolean = false;
+  startvalue: number = 1000;
+  endvalue: number = 5000001;
+
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -246,9 +244,38 @@ export class CertificateDetailsComponent {
 
     // Other code...
   }
+
+  onstartreadChangeEvent(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    const value = inputElement.value;
+    console.log('Start Value Changed:', value);
+    // Additional logic here
+    this.FilterForm.controls['fromAmountread'].setValue(value);
+    this.checkFormValidity();
+  }
+  onendreadChangeEvent(event: Event) {
+    console.log(event);
+    const inputElement = event.target as HTMLInputElement;
+    const value = inputElement.value;
+    //this.endminDate = event;
+    this.FilterForm.controls['toAmountread'].setValue(value);
+    this.checkFormValidity();
+  }
+  onSliderChange(event: any): void {
+    const startValue = this.startThumb.nativeElement.value;
+    const endValue = this.endThumb.nativeElement.value;
+    console.log('Start Value:', startValue);
+    console.log('End Value:', endValue);
+
+    // Additional logic here
+  }
   reset() {
     this.FilterForm.reset();
     this.FilterForm.controls['countryCode'].setValue(null);
+    this.FilterForm.controls['fromAmountread'].setValue(null);
+    this.FilterForm.controls['toAmountread'].setValue(null);
+    this.startvalue = 1000;
+    this.endvalue = 5000001;
     this.loading = false;
     this.isAnyFieldFilled = false;
     this.p = 1;
@@ -277,7 +304,7 @@ export class CertificateDetailsComponent {
       (data: any) => {
         this.loading = false;
         // display list in the console 
-
+        if (data.certificatelog.length > 0) {
         // this.data = data;
         //@ts-ignore
         this.data = data.certificatelog.filter(ele => ele !== null)
@@ -320,6 +347,11 @@ export class CertificateDetailsComponent {
         this.totalRows = data.totalCount;
         this.totalPages = data.totalPages;
         console.log(this.totalRows);
+      } else {
+        this.data = [];
+        this.dataSource = new MatTableDataSource(this.data);
+        this.obs = this.dataSource.connect();
+      }
       }
 
     )
