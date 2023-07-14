@@ -74,11 +74,12 @@
 									</mat-select>
 								</mat-form-field>
 							</div>
-							<div class="col-md-1">
-								<h5>Certificate Date: </h5>
-							</div>
-							<div class="col-md-3" appearance="outline">
-								<mat-form-field>
+							<!-- <div class="col-md-1">
+								<h6>Certificate Date: </h6>
+							</div> -->
+							<div class="col-md-3 h6-margin-remove" appearance="outline">
+								<h6>Certificate Date: </h6>
+								<mat-form-field appearance="outline">
 									<mat-label class="text-capitalize">From </mat-label>
 									<input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
 										formControlName="start_date" autocomplete="off"
@@ -90,7 +91,8 @@
 									</ngx-mat-datetime-picker>
 								</mat-form-field>
 							</div>
-							<div class="col-md-3">
+							<div class="col-md-3 h6-margin-remove">
+								<h6>&nbsp;</h6>
 								<mat-form-field appearance="outline">
 									<mat-label class="text-capitalize">To </mat-label>
 
