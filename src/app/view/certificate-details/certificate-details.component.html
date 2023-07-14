@@ -16,7 +16,7 @@
 					<form [formGroup]="FilterForm">
 						<div class="example-container1 row">
 
-							<div class="col-md-3">
+							<div class="col-md-4">
 								<mat-form-field appearance="outline">
 									<mat-label class="text-capitalize">Select country Code</mat-label>
 									<input type="text" aria-label="text" matInput formControlName="countryname"
@@ -57,7 +57,7 @@
 								</mat-form-field>
 							</div>
 
-							<div class="col-md-3">
+							<div class="col-md-4">
 								<mat-form-field appearance="outline">
 									<mat-label class="text-capitalize">SDG Benefits</mat-label>
 
@@ -124,6 +124,42 @@
 									<input matInput type="number" (ngModelChange)="checkFormValidity()"
 										formControlName='toAmountread' #input>
 								</mat-form-field>
+							</div> -->
+
+							<div class="col-md-1">
+								<h5>Certificate Date: </h5>
+							</div>
+
+							<div class="col-md-4">
+
+								<mat-form-field appearance="outline">
+									<mat-label>Enter a date range</mat-label>
+									<mat-date-range-input [rangePicker]="$any(picker)">
+										<input matStartDate formControlName="start_date"
+											(ngModelChange)="checkFormValidity()" />
+										<input matEndDate formControlName="end_date"
+											(ngModelChange)="checkFormValidity()" />
+									</mat-date-range-input>
+									<mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+									<mat-date-range-picker #picker></mat-date-range-picker>
+
+								</mat-form-field>
+							</div>
+							<div class="col-md-1">
+								<h5>Select Read Volume(Wh): </h5>
+							</div>
+
+							<div class="col-md-4">
+								<!-- <div class="example-label-container">
+								  <label id="example-name-label" class="example-name-label">Select Read Volume</label>
+								</div> -->
+								<mat-slider class="sliderexample-margin" [max]="5000000" [min]="1000" [step]="10"
+									[discrete]="true">
+									<input matSliderStartThumb (input)="onstartreadChangeEvent($event)"
+										[(ngModel)]="startvalue" [ngModelOptions]="{standalone: true}" />
+									<input matSliderEndThumb (input)="onendreadChangeEvent($event)"
+										[(ngModel)]="endvalue" [ngModelOptions]="{standalone: true}" />
+								</mat-slider>
 							</div>
 							<div class="col-md-12 mb-3  d-flex justify-content-end">
 								<div class="">
@@ -150,125 +186,127 @@
 
 			<mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
 			<ng-container *ngIf="!loading">
-				<mat-card class="innermat-card example-card1 border" *ngFor="let item of obs| async;let i=index">
-					<mat-card-header class="">
-						<div class="col-12">
-							<mat-card-title class=" d-flex justify-content-between align-items-center">
-								<div class="position-relative">
-									<a matTooltip="Link to Certificate" [matTooltipPosition]="'right'"
-										aria-label="Button that displays a tooltip when focused or hovered over"
-										style="text-align: right;" href={{item.energyurl}} target="_blank"
-										class="certificate-text d-flex text-capitalize">
-										<mat-icon class="mt-1 ">card_membership</mat-icon>
-										<div class="certificate-id-text">
-											<div class="id-text" *ngIf="item?.blockchainCertificateId">
-												{{item?.blockchainCertificateId}}</div>
-											<div class="id-text" *ngIf="item?.id">{{item?.id}}</div>
-										</div>
-									</a>
-								</div>
-								<div class=" ">
-								</div>
-							</mat-card-title>
-						</div>
+				<div *ngIf="data?.length">
+					<mat-card class="innermat-card example-card1 border" *ngFor="let item of obs| async;let i=index">
+						<mat-card-header class="">
+							<div class="col-12">
+								<mat-card-title class=" d-flex justify-content-between align-items-center">
+									<div class="position-relative">
+										<a matTooltip="Link to Certificate" [matTooltipPosition]="'right'"
+											aria-label="Button that displays a tooltip when focused or hovered over"
+											style="text-align: right;" href={{item.energyurl}} target="_blank"
+											class="certificate-text d-flex text-capitalize">
+											<mat-icon class="mt-1 ">card_membership</mat-icon>
+											<div class="certificate-id-text">
+												<div class="id-text" *ngIf="item?.blockchainCertificateId">
+													{{item?.blockchainCertificateId}}</div>
+												<div class="id-text" *ngIf="item?.id">{{item?.id}}</div>
+											</div>
+										</a>
+									</div>
+									<div class=" ">
+									</div>
+								</mat-card-title>
+							</div>
 
-					</mat-card-header>
-					<mat-card-content>
-						<div class='content'>
-							<div class='column'>
-								<div class='row '>
-									<p><b>Generation Start Date</b>:&nbsp;
-										<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
-										{{item.generationStartTimeinUTC|date:'long'}}
-									</p>
+						</mat-card-header>
+						<mat-card-content>
+							<div class='content'>
+								<div class='column'>
+									<div class='row '>
+										<p><b>Generation Start Date</b>:&nbsp;
+											<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
+											{{item.generationStartTimeinUTC|date:'long'}}
+										</p>
+									</div>
+								</div>
+								<div class='column'>
+									<div class='row'>
+										<p><b>Generation End
+												Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+											{{item.generationEndTimeinUTC |date:'long'}}</p>
+									</div>
+								</div>
+								<div class='column'>
+									<div class='row'>
+										<p *ngFor="let item1 of item.owners | keyvalue"><b>Owned Volume:</b>:
+											&nbsp;{{item1.value}}(Wh)</p>
+
+									</div>
+									<div class='row' *ngIf="item.CertificateClaimed">
+										<p *ngFor="let item1 of item.claimers | keyvalue"><b>Claimed Volume:</b>:
+											&nbsp;{{item1.value}}(Wh)</p>
+
+									</div>
 								</div>
 							</div>
-							<div class='column'>
-								<div class='row'>
-									<p><b>Generation End
-											Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-										{{item.generationEndTimeinUTC |date:'long'}}</p>
-								</div>
-							</div>
-							<div class='column'>
-								<div class='row'>
-									<p *ngFor="let item1 of item.owners | keyvalue"><b>Owned Volume:</b>:
-										&nbsp;{{item1.value}}(Wh)</p>
+							<mat-accordion>
 
-								</div>
-								<div class='row' *ngIf="item.CertificateClaimed">
-									<p *ngFor="let item1 of item.claimers | keyvalue"><b>Claimed Volume:</b>:
-										&nbsp;{{item1.value}}(Wh)</p>
-
-								</div>
-							</div>
-						</div>
-						<mat-accordion>
-
-							<mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
-								<mat-expansion-panel-header>
-									<mat-panel-title>
-										<h3 class="fs-text mt-3">Per Single Device Contribution For Certificate</h3>
-									</mat-panel-title>
-									<!-- <mat-panel-description>
+								<mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+									<mat-expansion-panel-header>
+										<mat-panel-title>
+											<h3 class="fs-text mt-3">Per Single Device Contribution For Certificate</h3>
+										</mat-panel-title>
+										<!-- <mat-panel-description>
 					  Currently I am {{panelOpenState ? 'open' : 'closed'}}
 					</mat-panel-description> -->
-								</mat-expansion-panel-header>
-								<table mat-table [dataSource]="item.perDeviceCertificateLog" class="mt-2">
-									<ng-container matColumnDef="certificate_issuance_startdate">
-										<th mat-header-cell *matHeaderCellDef>StartDate </th>
-										<td mat-cell *matCellDef="let element" class="table-data">
-											{{element.certificate_issuance_startdate|date:'long'}}</td>
-									</ng-container>
+									</mat-expansion-panel-header>
+									<table mat-table [dataSource]="item.perDeviceCertificateLog" class="mt-2">
+										<ng-container matColumnDef="certificate_issuance_startdate">
+											<th mat-header-cell *matHeaderCellDef>StartDate </th>
+											<td mat-cell *matCellDef="let element" class="table-data">
+												{{element.certificate_issuance_startdate|date:'long'}}</td>
+										</ng-container>
 
-									<ng-container matColumnDef="certificate_issuance_enddate">
-										<th mat-header-cell *matHeaderCellDef> EndDate</th>
-										<td mat-cell *matCellDef="let element" class="table-data">
-											{{element.certificate_issuance_enddate|date:'long'}}</td>
-									</ng-container>
+										<ng-container matColumnDef="certificate_issuance_enddate">
+											<th mat-header-cell *matHeaderCellDef> EndDate</th>
+											<td mat-cell *matCellDef="let element" class="table-data">
+												{{element.certificate_issuance_enddate|date:'long'}}</td>
+										</ng-container>
 
-									<ng-container matColumnDef="externalId">
-										<th mat-header-cell *matHeaderCellDef> Device Name </th>
-										<td mat-cell *matCellDef="let element" class="table-data"> {{element.externalId
-											}}
-										</td>
-									</ng-container>
-									<ng-container matColumnDef="readvalue_watthour">
-										<th mat-header-cell *matHeaderCellDef> Read Value </th>
-										<td mat-cell *matCellDef="let element" class="table-data">
-											{{element.readvalue_watthour }} </td>
-									</ng-container>
-									<ng-container matColumnDef="Action">
-										<th mat-header-cell *matHeaderCellDef>Action </th>
-										<td mat-cell *matCellDef="let element" class="table-data">
-											<a class="edit-icon" (click)="deviceDetaileDialog(element.deviceId)">
-												<mat-icon class="primary">visibility</mat-icon>
-											</a>
-										</td>
-									</ng-container>
+										<ng-container matColumnDef="externalId">
+											<th mat-header-cell *matHeaderCellDef> Device Name </th>
+											<td mat-cell *matCellDef="let element" class="table-data">
+												{{element.externalId
+												}}
+											</td>
+										</ng-container>
+										<ng-container matColumnDef="readvalue_watthour">
+											<th mat-header-cell *matHeaderCellDef> Read Value </th>
+											<td mat-cell *matCellDef="let element" class="table-data">
+												{{element.readvalue_watthour }} </td>
+										</ng-container>
+										<ng-container matColumnDef="Action">
+											<th mat-header-cell *matHeaderCellDef>Action </th>
+											<td mat-cell *matCellDef="let element" class="table-data">
+												<a class="edit-icon" (click)="deviceDetaileDialog(element.deviceId)">
+													<mat-icon class="primary">visibility</mat-icon>
+												</a>
+											</td>
+										</ng-container>
 
-									<tr mat-header-row *matHeaderRowDef="innerDisplayedColumns"></tr>
-									<tr mat-row *matRowDef="let row; columns: innerDisplayedColumns;"></tr>
-								</table>
-							</mat-expansion-panel>
-						</mat-accordion>
+										<tr mat-header-row *matHeaderRowDef="innerDisplayedColumns"></tr>
+										<tr mat-row *matRowDef="let row; columns: innerDisplayedColumns;"></tr>
+									</table>
+								</mat-expansion-panel>
+							</mat-accordion>
 
 
-					</mat-card-content>
-				</mat-card>
+						</mat-card-content>
+					</mat-card>
 
-				<br>
+					<br>
 
-				<!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
+					<!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
 				aria-label="Select page">
 			</mat-paginator> -->
 
-				<button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
-					[disabled]="p === 1">Previous</button>
-				Total Pages:{{totalPages}}
-				<button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
-					[disabled]="p === totalPages">Next</button>
-
+					<button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
+						[disabled]="p === 1">Previous</button>
+					Total Pages:{{totalPages}}
+					<button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
+						[disabled]="p === totalPages">Next</button>
+				</div>
 				<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
 			</ng-container>
 		</mat-card-content>

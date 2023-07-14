@@ -2,7 +2,7 @@
 
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, ViewChild, TemplateRef,ElementRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, ViewChild, TemplateRef, ElementRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input, OnDestroy } from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, group, state, style, transition, trigger } from '@angular/animations';
@@ -13,7 +13,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { BlockchainDrecService } from '../../auth/services/blockchain-drec.service';
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
-import { ethers } from 'ethers';
+import { errors, ethers } from 'ethers';
 import { ToastrService } from 'ngx-toastr';
 import { ReservationService } from '../../auth/services/reservation.service';
 
@@ -28,7 +28,7 @@ export interface Student {
 }
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { Observable ,Subscription,debounceTime} from 'rxjs';
+import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DateAdapter } from '@angular/material/core';
@@ -36,7 +36,8 @@ import { DeviceService } from '../../auth/services/device.service';
 import { CertificateService } from '../../auth/services/certificate.service'
 import { DeviceDetailsComponent } from '../device/device-details/device-details.component'
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-
+import { MatDatepicker } from '@angular/material/datepicker';
+import { MatDateRangePicker } from '@angular/material/datepicker';
 
 @Component({
   selector: 'app-certified-devices-developer',
@@ -44,14 +45,17 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./certified-devices-developer.component.scss']
 })
 export class CertifiedDevicesDeveloperComponent {
+  startDate: Date;
+  endDate: Date;
   @Input() dataFromComponentA: any;
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
   displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
   innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour',
- 'Action'
-];
-@ViewChild('startThumb') startThumb: ElementRef<HTMLInputElement>;
-@ViewChild('endThumb') endThumb: ElementRef<HTMLInputElement>;
+    'Action'
+  ];
+  //@ViewChild(MatDateRangePicker) picker: MatDateRangePicker<Date>;
+  @ViewChild('startThumb') startThumb: ElementRef<HTMLInputElement>;
+  @ViewChild('endThumb') endThumb: ElementRef<HTMLInputElement>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
@@ -80,14 +84,16 @@ export class CertifiedDevicesDeveloperComponent {
   FilterForm: FormGroup;
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   endminDate = new Date();
-  sdgblist:any;
+  sdgblist: any;
   fuellist: any;
   devicetypelist: any;
   subscription: Subscription;
-  showerror:boolean=false;
+  showerror: boolean = false;
   countrycodeLoded: boolean = false;
   startValueControl: FormControl;
   endValueControl: FormControl;
+  startvalue: number = 1000;
+  endvalue: number = 5000001;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -98,7 +104,7 @@ export class CertifiedDevicesDeveloperComponent {
     private dialog: MatDialog
   ) {
     this.startValueControl = new FormControl(25); // Set initial start value
-  this.endValueControl = new FormControl(75);
+    this.endValueControl = new FormControl(75);
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
       countryname: [],
@@ -109,9 +115,9 @@ export class CertifiedDevicesDeveloperComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-      fromAmountread:[],
-      toAmountread:[],
-     // pagenumber: [this.p]
+      fromAmountread: [null],
+      toAmountread: [null],
+      // pagenumber: [this.p]
     });
 
   }
@@ -124,13 +130,13 @@ export class CertifiedDevicesDeveloperComponent {
       (data1) => {
         // display list in the console
         this.fuellist = data1;
-       // this.fuellistLoaded = true;
+        // this.fuellistLoaded = true;
       });
     this.authService.GetMethod('device/device-type').subscribe(
       (data2) => {
         // display list in the console
         this.devicetypelist = data2;
-       // this.devicetypeLoded = true;
+        // this.devicetypeLoded = true;
       }
     );
     this.authService.GetMethod('countrycode/list').subscribe(
@@ -138,9 +144,9 @@ export class CertifiedDevicesDeveloperComponent {
         // display list in the console
         // console.log(data)
         this.countrylist = data3;
-       this.countrycodeLoded = true;
-       this.applycountryFilter();
-       this.DisplayList(this.p);
+        this.countrycodeLoded = true;
+        this.applycountryFilter();
+        // this.DisplayList(this.p);
       }
     )
     this.authService.GetMethod('sdgbenefit/code').subscribe(
@@ -151,15 +157,15 @@ export class CertifiedDevicesDeveloperComponent {
     )
     setTimeout(() => {
       if (this.countrycodeLoded) {
-      this.applycountryFilter();
+        this.applycountryFilter();
       }
       this.DisplayList(this.p);
     }, 1000);
     this.getBlockchainProperties();
-   
+
     this.selectAccountAddressFromMetamask();
     console.log("drt46")
-   
+
   }
   // formatLabel(value: number): string {
   //   if (value >= 1000) {
@@ -183,13 +189,13 @@ export class CertifiedDevicesDeveloperComponent {
       startWith(''),
       map(value => this._filter(value || '')),
     );
-   
+
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
-     
+
     } else {
       this.showerror = false;
     }
@@ -197,15 +203,15 @@ export class CertifiedDevicesDeveloperComponent {
   }
 
   selectCountry(event: any) {
-    console.log(event)
-    this.subscription =  this.filteredOptions.subscribe(options => {
-    const selectedCountry = options.find((option:any) => option.country === event.option.value);
-    if (selectedCountry) {
+
+    this.subscription = this.filteredOptions.subscribe(options => {
+      const selectedCountry = options.find((option: any) => option.country === event.option.value);
+      if (selectedCountry) {
         this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
       }
     });
   }
- 
+
   // ngAfterViewInit() {
   //   this.dataSource.paginator = this.paginator;
   //   this.dataSource.sort = this.sort;
@@ -244,33 +250,39 @@ export class CertifiedDevicesDeveloperComponent {
   onSliderChange(event: any): void {
     const startValue = this.startThumb.nativeElement.value;
     const endValue = this.endThumb.nativeElement.value;
-
     console.log('Start Value:', startValue);
     console.log('End Value:', endValue);
 
     // Additional logic here
   }
+  formatLabel(value: number): string {
+    if (value >= 1000) {
+      return Math.round(value / 1000) + 'k';
+    }
+
+    return `${value}`;
+  }
   checkFormValidity(): void {
     let isUserInteraction = true; // Flag to track user interaction
 
     this.FilterForm.valueChanges.pipe(
-      debounceTime(500) // Debounce the stream for 500 milliseconds
+      debounceTime(1000) // Debounce the stream for 500 milliseconds
     ).subscribe((formValues) => {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
-      
-        if (countryValue === undefined ||countryValue==='') {
-          console.log('234');
+
+        if (countryValue === undefined || countryValue === '') {
+
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
-         
+
         }
         const fuelCodeValue = formValues.fuelCode;
-        if ( fuelCodeValue === undefined) {
+        if (fuelCodeValue === undefined) {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
-       
-        if ( formValues.offTaker != null&&formValues.offTaker[0] === undefined) {
+
+        if (formValues.offTaker != null && formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
         if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
@@ -282,21 +294,25 @@ export class CertifiedDevicesDeveloperComponent {
 
     setTimeout(() => {
       const updatedFormValues = this.FilterForm.value;
-      console.log(updatedFormValues)
+
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
       this.isAnyFieldFilled = isAllValuesNull;
-      if(!this.isAnyFieldFilled){
-        this.p=1;
+      if (!this.isAnyFieldFilled) {
+        this.p = 1;
         this.DisplayList(this.p)
       }
-    }, 500);
+    }, 1000);
 
     // Other code...
   }
   reset() {
     this.FilterForm.reset();
     this.FilterForm.controls['countryCode'].setValue(null);
-   // this.loading = false;
+    this.FilterForm.controls['fromAmountread'].setValue(null);
+    this.FilterForm.controls['toAmountread'].setValue(null);
+    this.startvalue = 1000;
+    this.endvalue = 5000001;
+    // this.loading = false;
     this.isAnyFieldFilled = false;
     this.p = 1;
     this.DisplayList(this.p);
@@ -311,62 +327,72 @@ export class CertifiedDevicesDeveloperComponent {
     }
   }
   DisplayListFilter() {
-    this.loading=true;
+    this.loading = true;
     this.p = 1;
     this.DisplayList(this.p);
   }
   // CertificateClaimed:boolean=false;
-  DisplayList(page:number) {
+  DisplayList(page: number) {
     console.log("certifed list")
-    // console.log(this.group_uid);
-    //this.FilterForm.controls['pagenumber'].setValue(page);
-    this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value,page).subscribe(
+
+    this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value, page).subscribe(
       (data: any) => {
+
         this.loading = false;
         // display list in the console 
 
         // this.data = data;
-        //@ts-ignore
-        this.data = data.certificatelog.filter(ele => ele !== null)
-        //@ts-ignore
-        this.data.forEach(ele => {
 
-          ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
-          ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
-          //converting blockchain address to lower case
-          if (ele.claims != null && (ele.claims.length > 0)) {
-            ele['CertificateClaimed'] = true;
-          }
-          for (let key in ele.owners) {
-            if (key !== key.toLowerCase()) {
-              ele.owners[key.toLowerCase()] = ele.owners[key];
-              delete ele.owners[key];
-              // if(ele.owner[key].value=0){
-
-              // }
-            }
-          }
-
-          if (ele.creationBlockHash != "") {
-            ele.creationBlockHash
-            ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.id + '/token-transfers'
-          }
+        if (data.certificatelog.length > 0) {
           //@ts-ignore
-          else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
+          this.data = data.certificatelog.filter(ele => ele !== null)
+          //@ts-ignore
+          this.data.forEach(ele => {
 
-            //@ts-ignore
-            ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
+            ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
+            ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
+            //converting blockchain address to lower case
+            if (ele.claims != null && (ele.claims.length > 0)) {
+              ele['CertificateClaimed'] = true;
+            }
+            for (let key in ele.owners) {
+              if (key !== key.toLowerCase()) {
+                ele.owners[key.toLowerCase()] = ele.owners[key];
+                delete ele.owners[key];
+                // if(ele.owner[key].value=0){
 
-            ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.blockchainCertificateId + '/token-transfers'
-          }
-        })
+                // }
+              }
+            }
 
-        this.dataSource = new MatTableDataSource(this.data);
-        console.log(this.dataSource);
-        this.obs = this.dataSource.connect();
-        this.totalRows = data.totalCount;
-        this.totalPages=data.totalPages;
-        console.log(this.totalRows);
+            // if (ele.creationBlockHash != "") {
+            //   ele.creationBlockHash
+            //   ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.id + '/token-transfers'
+            // }
+            // //@ts-ignore
+            // else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
+
+            //   //@ts-ignore
+            //   ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
+
+            //   ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.blockchainCertificateId + '/token-transfers'
+            // }
+          })
+
+          this.dataSource = new MatTableDataSource(this.data);
+          this.obs = this.dataSource.connect();
+          this.totalRows = data.totalCount;
+          this.totalPages = data.totalPages;
+          console.log(this.totalRows);
+        } else {
+          this.data = [];
+          this.dataSource = new MatTableDataSource(this.data);
+          this.obs = this.dataSource.connect();
+        }
+
+      }, errors => {
+        console.log(errors)
+        this.data = [];
       }
 
     )
@@ -442,7 +468,7 @@ export class CertifiedDevicesDeveloperComponent {
       this.DisplayList(this.p);
     }
   }
-  
+
   nextPage(): void {
     if (this.p < this.totalPages) {
       this.p++;
