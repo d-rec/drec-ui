@@ -74,7 +74,7 @@
 								<h5>Certificate Date: </h5>
 
 							</div> -->
-							<div class="col-md-3 h6-margin-remove">
+							<!-- <div class="col-md-3 h6-margin-remove">
 								<h6>Certificate Date: </h6>
 								<mat-form-field appearance="outline">
 									<mat-label class="text-capitalize">From </mat-label>
@@ -103,12 +103,12 @@
 									</ngx-mat-datetime-picker>
 
 								</mat-form-field>
-							</div>
+							</div> -->
 							<!-- <div class="col-md-1">
 
 
 							</div> -->
-							<div class="col-md-2 h6-margin-remove">
+							<!-- <div class="col-md-2 h6-margin-remove">
 								<h6>Read Amount: </h6>
 								<mat-form-field appearance="outline">
 									<mat-label class="text-capitalize">From </mat-label>
@@ -124,14 +124,10 @@
 									<input matInput type="number" (ngModelChange)="checkFormValidity()"
 										formControlName='toAmountread' #input>
 								</mat-form-field>
-							</div> -->
+							</div>  -->
 
-							<div class="col-md-1">
-								<h5>Certificate Date: </h5>
-							</div>
-
-							<div class="col-md-4">
-
+							<div class="col-md-4  h6-margin-remove">
+								<h6>Certificate Date: </h6>
 								<mat-form-field appearance="outline">
 									<mat-label>Enter a date range</mat-label>
 									<mat-date-range-input [rangePicker]="$any(picker)">
@@ -142,19 +138,18 @@
 									</mat-date-range-input>
 									<mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
 									<mat-date-range-picker #picker></mat-date-range-picker>
-
+									
 								</mat-form-field>
 							</div>
-							<div class="col-md-1">
-								<h5>Select Read Volume(Wh): </h5>
-							</div>
+				
 
-							<div class="col-md-4">
+							<div class="col-md-4  h6-margin-remove">
+								<h6>Select Read Volume(Wh): </h6>
 								<!-- <div class="example-label-container">
 								  <label id="example-name-label" class="example-name-label">Select Read Volume</label>
 								</div> -->
 								<mat-slider class="sliderexample-margin" [max]="5000000" [min]="1000" [step]="10"
-									[discrete]="true">
+									[discrete]="true" >
 									<input matSliderStartThumb (input)="onstartreadChangeEvent($event)"
 										[(ngModel)]="startvalue" [ngModelOptions]="{standalone: true}" />
 									<input matSliderEndThumb (input)="onendreadChangeEvent($event)"

@@ -17,9 +17,9 @@
 
                 <mat-card-content>
                     <h2 style="text-align: center;color:#f2be1a; font-size: 16px;"
-							class="text-capitalize mt-0 pt-0 mb-2 pb-0">
-							<b>Select fields to filter reservation list</b>
-						</h2>
+                        class="text-capitalize mt-0 pt-0 mb-2 pb-0">
+                        <b>Select fields to filter reservation list</b>
+                    </h2>
                     <form [formGroup]="FilterForm">
                         <div class="example-container1 row">
 
@@ -38,7 +38,8 @@
                                     </mat-autocomplete>
 
                                 </mat-form-field>
-                                <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected </mat-error>
+                                <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected
+                                </mat-error>
                             </div>
                             <!-- <div class="col-md-3">
                                 <mat-form-field>
@@ -55,7 +56,7 @@
                             </div> -->
 
                             <div class="col-md-3">
-                                <mat-form-field appearance="outline" >
+                                <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Off Taker</mat-label>
 
                                     <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()"
@@ -91,10 +92,22 @@
 
 
                             </div>
-                            <div class="col-md-12 h6-margin-remove">
+                            <div class="col-md-4 h6-margin-remove">
                                 <h6>Rservation Date:</h6>
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Enter a date range</mat-label>
+                                    <mat-date-range-input [rangePicker]="$any(picker)">
+                                        <input matStartDate formControlName="start_date"
+                                            (ngModelChange)="checkFormValidity()" />
+                                        <input matEndDate formControlName="end_date"
+                                            (ngModelChange)="checkFormValidity()" />
+                                    </mat-date-range-input>
+                                    <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                                    <mat-date-range-picker #picker></mat-date-range-picker>
+
+                                </mat-form-field>
                             </div>
-                            <div class="col-md-3">
+                            <!-- <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Start  </mat-label>
                                     <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
@@ -118,13 +131,13 @@
                                         [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
                                         [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
                                     </ngx-mat-datetime-picker>
-                                    <!-- <mat-error *ngIf="checkValidation('endtimestamp')">
+                                    <mat-error *ngIf="checkValidation('endtimestamp')">
                                    <b> {{getErrorcheckdatavalidation()}}</b>
-                                  </mat-error> -->
+                                  </mat-error>
                                 </mat-form-field>
 
-                            </div>
-                           
+                            </div> -->
+
                             <div class="col-md-12 mb-3  d-flex justify-content-end">
                                 <div class="">
                                     <button class="btn-primary me-2 btn text-capitalize px-4"
@@ -167,9 +180,10 @@
                                     (click)="DisplayCertificatepage(row)">
                                     <mat-icon class=" mt-2 cursor-pointer">card_membership</mat-icon></a>
                                 &nbsp;&nbsp;
-                                <a matTooltip="Devices" [matTooltipPosition]="'above'"class="action-icons edit-icon"
+                                <a matTooltip="Devices" [matTooltipPosition]="'above'" class="action-icons edit-icon"
                                     aria-label="Button that displays a tooltip when focused or hovered over"
-                                    (click)="DisplayDeviceList(row)"><mat-icon class=" mt-2 cursor-pointer">devices</mat-icon> </a>
+                                    (click)="DisplayDeviceList(row)"><mat-icon
+                                        class=" mt-2 cursor-pointer">devices</mat-icon> </a>
                             </tr>
                             <!-- <button>certificate</button> -->
 
@@ -241,18 +255,18 @@
                     </tr>
 
                 </table>
-         
+
                 <div *ngIf="totalPages!=0" style="padding: 10px;" class="pagenation-btns">
                     <button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
-                    [disabled]="p === 1">Previous</button>
-                Total Pages:{{totalPages}}
-                <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
-                    [disabled]="p === totalPages">Next</button>
-                   </div>
+                        [disabled]="p === 1">Previous</button>
+                    Total Pages:{{totalPages}}
+                    <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
+                        [disabled]="p === totalPages">Next</button>
+                </div>
             </div>
 
 
-             <!-- </div> -->
+            <!-- </div> -->
             <mat-card-footer></mat-card-footer>
         </mat-card-content>
     </mat-card>
@@ -393,7 +407,7 @@
                     </ng-container>
 
                     <!-- Fruit Column -->
-                  
+
                     <!-- Fruit Column -->
                     <ng-container matColumnDef="commissioningDate">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Commissioning Date </th>
@@ -403,7 +417,7 @@
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> OffTaker </th>
                         <td mat-cell *matCellDef="let row"> {{row.offTaker}} </td>
                     </ng-container>
-                   
+
                     <ng-container matColumnDef="deviceTypeCode">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Device Code </th>
                         <td mat-cell *matCellDef="let row"> {{row.devicetypename}} </td>
