@@ -167,9 +167,11 @@
                                             #input>
                                     </mat-form-field>
                                 </div>
-                                <div class="col-md-3" >
-                                    <mat-form-field appearance="outline">
-                                        <mat-label class="text-capitalize">SDG Benefits</mat-label>
+                                <div class="row h6-margin-remove align-items-center">
+                                    <div class="col-md-3">
+                                        <h6>&nbsp;</h6>
+                                        <mat-form-field appearance="outline">
+                                            <mat-label class="text-capitalize">SDG Benefits</mat-label>
 
                                             <mat-select formControlName="SDGBenefits"
                                                 (ngModelChange)="checkFormValidity()" multiple>
@@ -237,7 +239,8 @@
                                     <mat-form-field appearance="outline">
                                         <mat-label class="text-capitalize">End Date </mat-label>
 
-
+                                    </mat-form-field>
+                                </div>
                                 <div class="col-md-12 mb-3  d-flex justify-content-end">
                                     <div class="">
                                         <button class="btn-primary me-2 btn text-capitalize px-4"
