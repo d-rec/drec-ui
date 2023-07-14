@@ -64,8 +64,7 @@ export class DeviceDetailsComponent {
   name: any;
   ngOnInit(): void {
 
-    setTimeout(() => {
-   
+    setTimeout(() => {  
       this.deviceService.GetDevicesInfo(this.id).subscribe({
         next: (data : Device)=> {
           if (data) {
@@ -80,13 +79,11 @@ export class DeviceDetailsComponent {
             this.device_details['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == this.device_details.countryCode)?.country;
             console.log(this.device_details);
           }
-
-
         }, error: err => {  
         console.log(err)
       },
     })
-  }, 500)
+  },1000)
 }
 
 submit() {

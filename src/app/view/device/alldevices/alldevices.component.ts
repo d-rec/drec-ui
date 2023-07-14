@@ -63,6 +63,7 @@ export class AlldevicesComponent {
   selectedCountry: any;
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
+  showlist:boolean=false;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService,
     private formBuilder: FormBuilder,
     private router: Router,
@@ -110,12 +111,12 @@ export class AlldevicesComponent {
 
     console.log("myreservation");
     setTimeout(() => {
-      if (this.countrycodeLoded) { 
-        this.applycountryFilter(); 
+      if (this.countrycodeLoded) {
+        this.applycountryFilter();
       }
       this.loading = false;
       this.getDeviceListData(this.p);
-    },2000)
+    }, 2000)
   }
 
   ngOnDestroy() {
@@ -164,7 +165,7 @@ export class AlldevicesComponent {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
         console.log(countryValue)
-        if (countryValue === undefined||countryValue==='') {
+        if (countryValue === undefined || countryValue === '') {
 
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
@@ -194,7 +195,7 @@ export class AlldevicesComponent {
       const updatedFormValues = this.FilterForm.value;
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
       this.isAnyFieldFilled = isAllValuesNull;
-      if(!this.isAnyFieldFilled){
+      if (!this.isAnyFieldFilled) {
         this.getDeviceListData(this.p)
       }
     }, 500);
@@ -203,9 +204,9 @@ export class AlldevicesComponent {
   }
   selectCountry(event: any) {
     console.log(event)
-   
+
     this.subscription = this.filteredOptions.subscribe(options => {
-     
+
       const selectedCountry = options.find(option => option.country === event.option.value);
       if (selectedCountry) {
         this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
@@ -243,6 +244,7 @@ export class AlldevicesComponent {
     this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe(
       (data) => {
         console.log(data)
+        this.showlist=true
         //@ts-ignore
         if (data.devices) {
           this.loading = false;
@@ -250,12 +252,17 @@ export class AlldevicesComponent {
           this.data = data;
           this.DisplayList()
         }
+      }, error => {
+        console.log(error);
+        this.data = [];
+        this.showlist=false
       }
     )
   }
 
   DisplayList() {
     if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
+      
       //@ts-ignore
       this.data.devices.forEach(ele => {
         //@ts-ignore
