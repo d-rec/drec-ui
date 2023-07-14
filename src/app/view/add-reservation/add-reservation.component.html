@@ -23,7 +23,7 @@
                     <div class="col-md-3">
 
                         <mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">Target Capacity(MWH)</mat-label>
+                            <mat-label >Target Capacity(MWh)</mat-label>
 
                             <input matInput type="number" formControlName='targetCapacityInMegaWattHour' min="1"
                                 autocomplete="off">
@@ -97,11 +97,15 @@
                     </mat-card-header>
                     <!-- <hr> -->
                     <mat-card-content class="pt-3">
-                        <h3>Use Filters To Select Devices </h3>
+                        
+			<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-2 pb-0">
+				<b>Use Filters To Select Devices</b>
+			</h2>
+
                         <form [formGroup]="FilterForm">
                             <div class="example-container1 row">
                                 <div class="col-md-3">
-                                    <mat-form-field>
+                                    <mat-form-field appearance="outline">
                                         <mat-label class="text-capitalize">Select Country Code</mat-label>
                                         <input type="text" aria-label="text" matInput formControlName="countryname"
                                             (ngModelChange)="checkFormValidity()" [matAutocomplete]="auto">
@@ -130,7 +134,7 @@
                                     </mat-form-field>
                                 </div> -->
                                 <div class="col-md-3">
-                                    <mat-form-field>
+                                    <mat-form-field appearance="outline">
                                         <mat-label class="text-capitalize">Device Type Code</mat-label>
 
                                         <mat-select formControlName='deviceTypeCode'
@@ -144,7 +148,7 @@
                                 </div>
 
                                 <div class="col-md-3">
-                                    <mat-form-field>
+                                    <mat-form-field appearance="outline">
                                         <mat-label class="text-capitalize">Off Taker</mat-label>
 
                                         <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()"
@@ -157,17 +161,15 @@
                                     </mat-form-field>
                                 </div>
                                 <div class="col-md-3">
-                                    <mat-form-field>
+                                    <mat-form-field appearance="outline">
                                         <mat-label>Capacity(kW)</mat-label>
-                                        <input matInput formControlName='capacity' (ngModelChange)="checkFormValidity()"
+                                        <input matInput formControlName='capacity' [min]=1 (ngModelChange)="checkFormValidity()"
                                             #input>
                                     </mat-form-field>
                                 </div>
-                                <div class="row h6-margin-remove align-items-center">
-                                    <div class="col-md-3">
-                                        <h6>&nbsp;</h6>
-                                        <mat-form-field>
-                                            <mat-label class="text-capitalize">SDG Benefits</mat-label>
+                                <div class="col-md-3" >
+                                    <mat-form-field appearance="outline">
+                                        <mat-label class="text-capitalize">SDG Benefits</mat-label>
 
                                             <mat-select formControlName="SDGBenefits"
                                                 (ngModelChange)="checkFormValidity()" multiple>
@@ -218,6 +220,22 @@
 
                                 </div>
 
+                                <div class="col-md-3">
+                                    <mat-form-field appearance="outline">
+                                        <mat-label class="text-capitalize">Start Date </mat-label>
+                                        <input matInput [ngxMatDatetimePicker]="picker2" placeholder="Choose a date"
+                                            formControlName="start_date" autocomplete="off"
+                                            (ngModelChange)="onfilterEndChangeEvent($event);checkFormValidity()">
+                                        <mat-datepicker-toggle matSuffix [for]="$any(picker2)"></mat-datepicker-toggle>
+                                        <ngx-mat-datetime-picker #picker2 [showSpinners]="true" [showSeconds]="false"
+                                            [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
+                                            [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
+                                        </ngx-mat-datetime-picker>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-md-3">
+                                    <mat-form-field appearance="outline">
+                                        <mat-label class="text-capitalize">End Date </mat-label>
 
 
                                 <div class="col-md-12 mb-3  d-flex justify-content-end">
@@ -262,11 +280,11 @@
                                     <td mat-cell *matCellDef="let row;let i=index"> {{row.createdAt| date:'dd MMM yyyy hh:mm'}} </td>
                                 </ng-container>
                                 <ng-container matColumnDef="projectName">
-                                    <th mat-header-cell *matHeaderCellDef mat-sort-header> projectName </th>
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header>ProjectName </th>
                                     <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
                                 </ng-container>
                                 <ng-container matColumnDef="externalId">
-                                    <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header> ExternalId </th>
                                     <td mat-cell *matCellDef="let element"> {{element.externalId}} </td>
                                 </ng-container>
 
