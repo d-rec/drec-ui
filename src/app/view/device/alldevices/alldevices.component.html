@@ -129,13 +129,23 @@
               </mat-error>
             </mat-form-field>
         </div> -->
-        <div class="col-md-6">
+        <div class="col-md-2">
+          <h5 style="margin-top: 15px;">Commissioning Date: </h5>
+        </div>
+
+        <div class="col-md-4">
+
           <mat-form-field appearance="outline">
-            <mat-label>Date Range</mat-label>
-            <input matInput [matDatepicker]="picker" placeholder="Start Date" formControlName="start_date" name="startDate">
-            <input matInput [matDatepicker]="picker" placeholder="End Date" formControlName="end_date" name="endDate">
-            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
+            <mat-label>Enter a date range</mat-label>
+            <mat-date-range-input [rangePicker]="$any(picker)">
+              <input matStartDate formControlName="start_date"
+                (ngModelChange)="checkFormValidity()" />
+              <input matEndDate formControlName="end_date"
+                (ngModelChange)="checkFormValidity()" />
+            </mat-date-range-input>
+            <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+
           </mat-form-field>
         </div>
           <div class="col-md-12 mb-3  d-flex justify-content-end">
@@ -152,9 +162,10 @@
 
         </div>
       </form>
+      <hr>
       <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
-      <div class="content mat-elevation-z8 text-center">
-        <table mat-table [dataSource]="dataSource"  matSort>
+      <div class="content mat-elevation-z8 text-center" *ngIf="showlist">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
           <!-- Position Column -->
           <ng-container matColumnDef="onboarding_date">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> OnBoarding Date </th>
@@ -219,6 +230,9 @@
         </div>
         
       </div>
+     <div *ngIf="!showlist"style="text-align: center;color: #f2be1a;">No Device </div>
+
+   
     </mat-card-content>
     <mat-card-footer></mat-card-footer>
   </mat-card>
