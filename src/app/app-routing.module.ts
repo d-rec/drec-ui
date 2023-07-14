@@ -55,7 +55,12 @@ const routes: Routes = [
       },
       {
         path: 'add/reservation', component:AddReservationComponent
-      }
+      },
+      {
+        path: 'admin',
+        loadChildren: () =>
+          import('./view/admin/admin.module').then((m) => m.AdminModule),
+      },
     ]
   }
 ];

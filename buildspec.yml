@@ -1,0 +1,35 @@
+version: 0.2
+env:
+  parameter-store:
+    docker_username: /powertrust/docker/username
+    docker_password: /powertrust/docker/password
+phases:
+  install:
+    # runtime-versions:
+    #   nodejs: 18
+    #   docker: 18
+    commands:
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+      - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      - chmod +x ./kubectl
+      - curl -Lo aws-iam-authenticator https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.5.9/aws-iam-authenticator_0.5.9_linux_amd64
+      - chmod +x ./aws-iam-authenticator
+      - export PATH=$PWD/:$PATH
+  pre_build:
+    commands:
+      - IMAGE="drec-ui"
+      - BUILD_NUMBER=$(cat version)
+      - aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin 895706603967.dkr.ecr.eu-west-1.amazonaws.com
+      - export KUBECONFIG=$HOME/.kube/config
+  build:
+    commands:
+      - echo $docker_password | docker login --username $docker_username --password-stdin
+      - docker build -t $IMAGE:$BUILD_NUMBER -f Dockerfile --build-arg build_environment=$environment .
+      - docker tag $IMAGE:$BUILD_NUMBER 895706603967.dkr.ecr.eu-west-1.amazonaws.com/$IMAGE:$environment-$BUILD_NUMBER
+  post_build:
+    commands:
+      - docker push 895706603967.dkr.ecr.eu-west-1.amazonaws.com/$IMAGE:$environment-$BUILD_NUMBER
+      - aws eks update-kubeconfig --name drec
+      - template=`cat "$IMAGE-$environment.yaml" | sed "s/{{BUILD_NUMBER}}/$environment-$BUILD_NUMBER/g"`
+      - echo "$template" | kubectl apply -f -
