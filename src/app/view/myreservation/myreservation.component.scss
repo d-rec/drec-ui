@@ -1,23 +1,53 @@
 $white: #fff;
 $secondary: #010101;
-.body-bg
-{
-    padding: 35px 30px 35px 30px;
-    background: #f2f2f2;
-    z-index: 0;
-    .mat-mdc-card
-    {
-        box-shadow: 3px 0px 33px rgba(0,0,0,0.1)!important;
-        border: none!important;
-        position: relative;
+.body-bg {
+  padding: 35px 30px 35px 30px;
+  background: #f2f2f2;
+  z-index: 0;
+  .mat-mdc-card {
+    box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1) !important;
+    border: none !important;
+    position: relative;
+  }
+  
+    // this is for table
+  .mat-elevation-z8 {
+    width: 100%;
+    overflow: scroll;
+    mat-paginator {
+      display: initial !important;
     }
-}.mat-form-filte{
-    padding: 0px 10px;
-    position: absolute;
-    top: 6px;
-    right: 10px;
-    width: fit-content;
-    // margin-top: -50px !important;
+  }
+  .thead-width {
+    table {
+      width: 1256px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+      .action-icons {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .example-container1 {
+
+    .h6-margin-remove {
+      h6 {
+        margin: 0px !important;
+        font-size: 14px;
+        padding-left: 3px;
+      }
+    }
+
+
+  }
+}
+.mat-form-filte {
+  padding: 0px 10px;
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  width: fit-content;
+  // margin-top: -50px !important;
 }
 .mat-body-cont{
     padding: 0px 16px 23px !important;
@@ -97,20 +127,3 @@ $secondary: #010101;
   //   }
     
   // }
-
-   // this is for table 
-.mat-elevation-z8{
-  width: 100%;
-  overflow: scroll;
-  mat-paginator{
-    display: initial !important;
-  }
-
-
-}
-.thead-width{
-  table{
-    width: 1256px;
-  }
-  
-}
