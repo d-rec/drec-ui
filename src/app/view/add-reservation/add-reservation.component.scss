@@ -1,28 +1,59 @@
 .body-bg {
-    padding: 35px 30px 35px 30px;
-    background: #f2f2f2;
-  
-    .mat-mdc-card {
-      box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1) !important;
-      border: none !important;
-    }
-  }table {
-    width: 100%;
-  }
-  .nested-card-header{
-    padding: 16px 10px 16px !important;
-    background: #e6e6e6 !important;
-  }
+  padding: 35px 30px 35px 30px;
+  background: #f2f2f2;
   .nested-card {
-      
     padding: 0px !important;
+    .nested-card-header{
+      padding: 16px 10px 16px !important;
+      background: #e6e6e6 !important;
+    }
   }
-::-webkit-scrollbar{
-    display: none !important;
+  .example-container1{
+    .h6-margin-remove{
+      h6{
+        // margin: 0px !important;
+        font-size: 14px;
+        padding-left: 3px;
+      }
+    }
+    .thead-width{
+      table{
+        width: 1256px !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+        mat-header-cell{
+          height: 56px;
+        }
+
+      }
+      
+    }
+    .mat-elevation-z8 {
+      // overflow-x: scroll;
+      // width: fit-content;
+      overflow: scroll;
+      min-width: 100% !important;
+      .p-10{
+        padding: 10px;
+      }  
+    
+    }
+
+  }
+
+
+
 }
+
+
+
+// ::-webkit-scrollbar{
+//     display: none !important;
+// }
 // ::-webkit-scrollbar-thumb{
 //     background-color: #f2be1a !important;
 // }
+
+// mat dialog //
 .mat-dialog-title{
   position: sticky;
   top: 0;
@@ -35,4 +66,18 @@
   background: white;
   display: flex;
   justify-content: end;
+}
+
+// mat progress spinner
+// mat-progress-spinner{
+//   position: absolute;
+//   // top: 50%;
+//   left: 50%;
+//   transform: translate(-50%, -50%);
+//   z-index: 5;
+//   }
+
+.mat-mdc-card {
+  box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
 }
