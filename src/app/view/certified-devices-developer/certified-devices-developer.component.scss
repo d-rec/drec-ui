@@ -1,38 +1,46 @@
-mat-card-content{
+mat-card-content {
+  padding: 10px;
+}
+.content {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  p {
+    font-size: 13px;
+  }
+}
+.body-bg {
+  padding: 35px 30px 35px 30px;
+  background: #f2f2f2;
+  mat-card-content {
     padding: 10px;
   }
-  .content {
-    display: flex;
-    flex-direction: row;
-    height: 100%;
-    width: 100%;
-    p{
-      font-size: 13px;
-    }
-
-  }
-  .body-bg{
-    padding: 35px 30px 35px 30px;
-      background: #f2f2f2;
-      mat-card-content{
-        padding: 10px;
+  .example-card {
+    .h6-margin-remove {
+      h6 {
+        margin: 0px !important;
+        font-size: 14px;
+        padding-left: 3px;
       }
     }
-  .column {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    padding: 5px;
   }
-  .innermat-card{
-      
-    background: #ffffff;
-    box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1);
-  }
-  .mat-mdc-card{
-    padding: 20px;
-    box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1) !important;
-  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding: 5px;
+}
+.innermat-card {
+  background: #ffffff;
+  box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1);
+}
+.mat-mdc-card {
+  padding: 20px;
+  box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1) !important;
+}
 
 mat-progress-spinner{
 position: absolute;
@@ -40,4 +48,15 @@ top: 50%;
 left: 50%;
 transform: translate(-50%, -50%);
 z-index: 5;
+}mat-slider {
+  width: 300px;
+}
+
+.example-label-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 10px 0;
+  max-width: 284px;
+}.sliderexample-margin {
+  margin: 15px 0px 0px 10px
 }

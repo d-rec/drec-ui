@@ -10,8 +10,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { ReservationService } from '../../auth/services/reservation.service';
-import { Router,NavigationEnd  } from '@angular/router';
-import { Observable, Subscription, take,debounceTime  } from 'rxjs';
+import { Router, NavigationEnd } from '@angular/router';
+import { Observable, Subscription, take, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
@@ -79,7 +79,7 @@ export class MyreservationComponent implements OnInit {
   subscription: Subscription;
   totalPages: number;
   isAnyFieldFilled: boolean = false;
-  showerror:boolean=false;
+  showerror: boolean = false;
   constructor(private authService: AuthbaseService,
     private reservationService: ReservationService,
     private router: Router, private formBuilder: FormBuilder,
@@ -87,7 +87,7 @@ export class MyreservationComponent implements OnInit {
 
   ) { }
   ngOnInit() {
-    
+
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
       countryname: [],
@@ -168,7 +168,7 @@ export class MyreservationComponent implements OnInit {
     const filterValue = value.toLowerCase();
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
-    
+
     } else {
       this.showerror = false;
     }
@@ -184,16 +184,14 @@ export class MyreservationComponent implements OnInit {
     ).subscribe((formValues) => {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
-        if (countryValue === undefined) {
-          console.log('234')
+        if (countryValue === undefined || countryValue === '') {
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
-         
         }
         const fuelCodeValue = formValues.fuelCode;
-      if (fuelCodeValue != null && fuelCodeValue[0] === undefined) {
-        this.FilterForm.controls['fuelCode'].setValue(null);
-      }
+        if (fuelCodeValue != null && fuelCodeValue[0] === undefined) {
+          this.FilterForm.controls['fuelCode'].setValue(null);
+        }
         if (formValues.offTaker != null && formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
@@ -206,8 +204,14 @@ export class MyreservationComponent implements OnInit {
 
     setTimeout(() => {
       const updatedFormValues = this.FilterForm.value;
+      console.log(updatedFormValues);
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
       this.isAnyFieldFilled = isAllValuesNull;
+      console.log(this.isAnyFieldFilled);
+      if (!this.isAnyFieldFilled) {
+        this.DisplayList(this.p)
+      }
+
     }, 500);
 
     // Other code...
@@ -241,13 +245,13 @@ export class MyreservationComponent implements OnInit {
   }
   DisplayList(page: number) {
     console.log(this.FilterForm.value)
-  //  this.FilterForm.controls['pagenumber'].setValue(page);
+    //  this.FilterForm.controls['pagenumber'].setValue(page);
     if (this.FilterForm.value.reservationActive === "All") {
       this.FilterForm.removeControl('reservationActive');
     }
     if (!(this.FilterForm.value.reservationStartDate != null && this.FilterForm.value.reservationEndDate === null)) {
 
-      this.reservationService.getReservationData(this.FilterForm.value,page).subscribe(
+      this.reservationService.getReservationData(this.FilterForm.value, page).subscribe(
         (data) => {
           this.showdevicesinfo = false;
 
@@ -316,7 +320,7 @@ export class MyreservationComponent implements OnInit {
 
   Gobacklist(): void {
     window.scrollTo(0, 0);
-  this.showdevicesinfo = false;
+    this.showdevicesinfo = false;
     this.p = 1;
     this.DisplayList(this.p)
   }

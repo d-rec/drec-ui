@@ -68,37 +68,26 @@
                         <div class="example-container1 row">
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">project Name</mat-label>
-                                    <input matInput autocomplete="off" placeholder="projectName"
+                                    <mat-label class="text-capitalize">Project Name</mat-label>
+                                    <input matInput autocomplete="off" 
                                         formControlName='projectName' [(ngModel)]="projectName">
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <!-- <mat-hint>Hint</mat-hint> -->
                                 </mat-form-field>
                             </div>
 
-
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">Select country Code</mat-label>
-                                    <mat-select formControlName='countryCode' [(ngModel)]="countryCode">
-                                        <mat-option *ngFor="let code of countrylist" [value]="code.alpha3">
-                                            {{code.country}}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                                <!-- <mat-form-field>
-                                            <mat-select formControlName='countryCode' placeholder="Bank" #singleSelect>
-                                              <mat-option>
-                                                <ngx-mat-select-search [formControl]="bankFilterCtrl"></ngx-mat-select-search>
-                                              </mat-option>
-                                        
-                                              <mat-option *ngFor="let code of countrylist | async" [value]="code.alpha3">
-                                                {{code.country}}
-                                              </mat-option>
-                                            </mat-select>
-                                          </mat-form-field> -->
-                            </div>
-
+                                 <mat-label class="text-capitalize">Select country Code</mat-label>
+                                 <input type="text" matInput formControlName='countryCode' [(ngModel)]="countryCode" [matAutocomplete]="auto">
+                                 <mat-autocomplete #auto="matAutocomplete">
+                                   <mat-option *ngFor="let code of filteredCountryList| async" [value]="code.country">
+                                     {{code.country}}
+                                   </mat-option>
+                                 </mat-autocomplete>
+                               </mat-form-field>
+                               <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected </mat-error>
+                             </div>
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">commissioning Date</mat-label>
@@ -116,8 +105,8 @@
                         <div class="example-container1 row">
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">capacity</mat-label>
-                                    <input matInput placeholder="capacity" type="number" [(ngModel)]="capacity"
+                                    <mat-label >Capacity(kW)</mat-label>
+                                    <input matInput  type="number" [(ngModel)]="capacity"
                                         formControlName='capacity' [min]=1>
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <!-- <mat-hint>Hint</mat-hint> -->
@@ -141,7 +130,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Fuel Code</mat-label>
 
-                                    <mat-select formControlName='fuelCode' placeholder="fuelCode" [(ngModel)]="fuelCode">
+                                    <mat-select formControlName='fuelCode' [(ngModel)]="fuelCode">
 
                                         <mat-option *ngFor="let code of fuellist" [value]="code.code">
                                             {{code.name}}
@@ -154,7 +143,7 @@
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Device Type Code</mat-label>
 
-                                    <mat-select formControlName='deviceTypeCode' placeholder="deviceTypeCode"
+                                    <mat-select formControlName='deviceTypeCode' 
                                     [(ngModel)]="deviceTypeCode">
 
                                         <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
@@ -168,7 +157,7 @@
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">impact Story</mat-label>
-                                    <input matInput placeholder="impactStory" formControlName='impactStory'
+                                    <input matInput  formControlName='impactStory'
                                     [(ngModel)]="impactStory">
                                 </mat-form-field>
                             </div>
@@ -176,35 +165,23 @@
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Device Description</mat-label>
-
-                                    <mat-select formControlName='deviceDescription' [(ngModel)]="deviceDescription"
-                                        placeholder="deviceDescription">
-
+                                    <mat-select formControlName='deviceDescription' [(ngModel)]="deviceDescription">
                                         <mat-option *ngFor="let code of devicediscription" [value]="code">
                                             {{code}}
                                         </mat-option>
                                     </mat-select>
                                 </mat-form-field>
-
                             </div>
 
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">SDG Benefits</mat-label>
-
                                     <mat-select formControlName="SDGBenefits" [(ngModel)]="SDGBenefits" multiple>
-
-                                        <mat-option *ngFor="let sdgb of sdgblist"
+                                      <mat-option *ngFor="let sdgb of sdgblist"
                                             [value]="sdgb.name">{{sdgb.value}}</mat-option>
-
                                     </mat-select>
                                 </mat-form-field>
                             </div>
-
-                            <!-- <mat-form-field appearance="outline">
-                                        <mat-label>Version</mat-label>
-                                        <input matInput placeholder="version" formControlName='version'>
-                                    </mat-form-field> -->
 
                             <div class="col-md-3">
                                 <button

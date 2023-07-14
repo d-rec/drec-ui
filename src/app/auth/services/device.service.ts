@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 //import {environment} from '../../../environments/environment.dev';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
+import { Device } from '../../models/device.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -60,8 +61,11 @@ export class DeviceService {
     return this.httpClient.get(searchUrl);
 
   }
-  GetDevicesInfo(id: number): Observable<any> {
-    return this.httpClient.get(this.url + 'device/' + id)
+  GetDevicesInfo(id: number): Observable<Device> {
+    return this.httpClient.get<Device>(this.url + 'device/' + id)
+  }
+  GetDevicesInfoByExternalId(ExternalId: any): Observable<Device> {
+    return this.httpClient.get<Device>(this.url + 'device/externalId/' + ExternalId)
   }
   getDeviceInfoBYexternalId(externalid: string): Observable<any> {
     return this.httpClient.get(this.url + 'device/externalId/' + externalid)

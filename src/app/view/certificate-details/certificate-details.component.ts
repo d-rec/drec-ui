@@ -33,6 +33,8 @@ import * as moment from 'moment';
 import { DateAdapter } from '@angular/material/core';
 import { DeviceService } from '../../auth/services/device.service';
 import { CertificateService } from '../../auth/services/certificate.service'
+import { DeviceDetailsComponent } from '../device/device-details/device-details.component'
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 @Component({
   selector: 'app-certificate-details',
   templateUrl: './certificate-details.component.html',
@@ -43,7 +45,7 @@ export class CertificateDetailsComponent {
   @Input() dataFromComponentA: any;
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
   displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
-  innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour'];
+  innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour','Action'];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
@@ -85,6 +87,7 @@ export class CertificateDetailsComponent {
     private deviceService: DeviceService,
     private certificateService: CertificateService,
     private formBuilder: FormBuilder,
+    private dialog: MatDialog
   ) {
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
@@ -98,7 +101,7 @@ export class CertificateDetailsComponent {
       end_date: [null],
       fromAmountread: [null],
       toAmountread: [null],
-      pagenumber: [this.p]
+     // pagenumber: [this.p]
     });
 
   }
@@ -208,7 +211,7 @@ export class CertificateDetailsComponent {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
         console.log(countryValue)
-        if (countryValue === undefined) {
+        if (countryValue === undefined||countryValue==='') {
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
@@ -218,8 +221,7 @@ export class CertificateDetailsComponent {
         if (fuelCodeValue === undefined) {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
-        console.log(formValues.deviceTypeCode);
-        if (formValues.offTaker === undefined) {
+        if (formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
         // console.log(formValues.deviceTypeCode);
@@ -237,6 +239,9 @@ export class CertificateDetailsComponent {
       const updatedFormValues = this.FilterForm.value;
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
       this.isAnyFieldFilled = isAllValuesNull;
+      if(!this.isAnyFieldFilled){
+        this.DisplayList(this.p)
+      }
     }, 500);
 
     // Other code...
@@ -267,8 +272,8 @@ export class CertificateDetailsComponent {
   DisplayList(page: number) {
     console.log("certifed list")
     // console.log(this.group_uid);
-    this.FilterForm.controls['pagenumber'].setValue(page);
-    this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value).subscribe(
+    //this.FilterForm.controls['pagenumber'].setValue(page);
+    this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value,page).subscribe(
       (data: any) => {
         this.loading = false;
         // display list in the console 
@@ -396,6 +401,15 @@ export class CertificateDetailsComponent {
       this.p++;
       this.DisplayList(this.p);;
     }
+  }
+  deviceDetaileDialog(deviceId: number): void {
+    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+      data: {
+        deviceid: deviceId
+      },
+      width: '900px',
+      height: '400px',
+    });
   }
 }
 

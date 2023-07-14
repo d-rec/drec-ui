@@ -1,22 +1,38 @@
 <div class="form-container">
+    <div class="close-icon-container d-flex justify-content-between align-items-center border-bottom mb-2 pb-2">
+        <h2 class="text-capitalize device-details-heading">Device Details
+        </h2>
+        <mat-icon aria-hidden="false" (click)="dialogRef.close(false)" class="close-icon"> close </mat-icon>
+    </div>
+   
     <!-- <h2 mat-dialog-title>Angular material dialog prompt</h2> -->
-    <h2 style="text-align: center;color:#f2be1a; font-size: 20px;" class="text-capitalize">
-        <b>Device Details</b>
-    </h2>
-    <mat-icon aria-hidden="false" (click)="dialogRef.close(false)" style="margin-left: 860px;margin-top:-20px;"> close </mat-icon>
-    <hr>
+  
+    <!-- <hr> -->
     <mat-dialog-content>
+        <div *ngIf="loading; else content">
+
+            <div class="spinner__loading">
+              <div>
+                <mat-progress-spinner
+                  diameter="60"
+                  [value]="value"
+                  mode="determinate">
+                  </mat-progress-spinner>
+              </div>
+            </div>
+          </div>
+          <ng-template #content>
         <div class='content'>
             <div class='column col-4'>
                 <div class='row '>
-                    <p><b> Device Name</b>:&nbsp;
+                    <p><b> Device Name</b>:&nbsp; <br>
                        {{device_details.externalId}}
                     </p>
                 </div>
             </div>
             <div class='column col-4'>
                 <div class='row '>
-                    <p><b> Project Name</b>:&nbsp;
+                    <p><b> Project Name</b>:&nbsp;<br>
                        {{device_details.projectName}}
                     </p>
                 </div>
@@ -24,7 +40,7 @@
             <div class='column col-4'>
                 <div class='row'>
                     <p><b>Capacity
-                        </b>:&nbsp;{{device_details.capacity}}
+                        </b>:&nbsp;<br>{{device_details.capacity}}
                 </div>
             </div>
         </div>
@@ -32,7 +48,7 @@
 
             <div class='column col-4'>
                 <div class='row '>
-                    <p><b> Country</b>:&nbsp;
+                    <p><b> Country</b>:&nbsp;<br>
                       {{device_details.countryname}}
                     </p>
                 </div>
@@ -40,12 +56,12 @@
             <div class='column col-4'>
                 <div class='row'>
                     <p><b> Commissioning
-                            Date</b>:&nbsp;{{device_details.commissioningDate| date:'EEE d MMM y'}}</p>
+                            Date</b>:&nbsp;<br>{{device_details.commissioningDate| date:'dd MMM y hh:mm'}}</p>
                 </div>
             </div>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>OnBoarding Date</b>:&nbsp;{{device_details.createdAt| date:'EEE d MMM y'}}
+                    <p><b>OnBoarding Date</b>:&nbsp;<br>{{device_details.createdAt| date:'dd MMM y hh:mm'}}
 
                 </div>
             </div>
@@ -53,19 +69,19 @@
         <div class='content'>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b> Off Takers</b>:&nbsp;{{device_details.offTaker}}
+                    <p><b> Off Takers</b>:&nbsp;<br>{{device_details.offTaker}}
                     </p>
                 </div>
             </div>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>Fuel Code</b>:&nbsp;{{device_details.fuelname}}
+                    <p><b>Fuel Code</b>:&nbsp;<br>{{device_details.fuelname}}
                     </p>
                 </div>
             </div>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>Device Type Code</b>:&nbsp;{{device_details.devicetypename}}</p>
+                    <p><b>Device Type Code</b>:&nbsp;<br>{{device_details.devicetypename}}</p>
                 </div>
 
             </div>
@@ -74,20 +90,20 @@
         <div class='content'>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>SDGBenefits</b>:&nbsp;{{device_details.SDGBenefits}}</p>
+                    <p><b>SDGBenefits</b>:&nbsp;<br>{{device_details.SDGBenefits}}</p>
 
                 </div>
             </div>
             
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b> Energy Storage</b>:&nbsp;{{device_details.energyStorage}}</p>
+                    <p><b> Energy Storage</b>:&nbsp;<br>{{device_details.energyStorage}}</p>
                 </div>
 
             </div>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>Energy StorageCapacity</b>:&nbsp; {{device_details.energyStorageCapacity}}</p>
+                    <p><b>Energy StorageCapacity</b>:&nbsp; <br>{{device_details.energyStorageCapacity}}</p>
 
                 </div>
             </div>
@@ -96,51 +112,51 @@
 
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>Address</b>:&nbsp;{{device_details.address}}
+                    <p><b>Address</b>:&nbsp;<br>{{device_details.address}}
                     </p>
                 </div>
             </div>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>Latitude</b>:&nbsp;{{device_details.latitude}}</p>
+                    <p><b>Latitude</b>:&nbsp;<br>{{device_details.latitude}}</p>
                 </div>
             </div>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>Longitude</b>:&nbsp;{{device_details.longitude}}</p>
+                    <p><b>Longitude</b>:&nbsp;<br>{{device_details.longitude}}</p>
                 </div>
             </div>
         </div>
         <div class='content'>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>Timezone</b>:&nbsp;{{device_details.timezone}}
+                    <p><b>Timezone</b>:&nbsp;<br>{{device_details.timezone}}
                     </p>
                 </div>
             </div>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>Version</b>:&nbsp;{{device_details.version}}</p>
+                    <p><b>Version</b>:&nbsp;<br>{{device_details.version}}</p>
                 </div>
             </div>
             <div class='column col-4'>
                 <div class='row'>
-                    <p><b>Yield Value</b>:&nbsp;{{device_details.yieldValue}}</p>
+                    <p><b>Yield Value</b>:&nbsp;<br>{{device_details.yieldValue}}</p>
                 </div>
             </div>
         </div>
         <div class='content'>
-            <div class='column col-4'>
+            <div class='col-4'>
                 <div class='row'>
                     <p><b>
-                        meterReadtype</b>:&nbsp;{{device_details.meterReadtype}}
+                        meterReadtype</b>:&nbsp;<br>{{device_details.meterReadtype}}
                     </p>
                 </div>
             </div>
             <div class='column col-4'>
                 <div class='row'>
                     <p><b> Device
-                            Description</b>:&nbsp;{{device_details.deviceDescription}}
+                            Description</b>:&nbsp;<br>{{device_details.deviceDescription}}
                 </div>
             </div>
             <!-- <div class='column col-4'>
@@ -150,15 +166,15 @@
                 </div>
             </div> -->
         </div>
-        <br>
+          </ng-template>
 
     </mat-dialog-content>
-    <mat-dialog-actions>
-        <!-- <button mat-raised-button (click)="dialogRef.close(false)" color="primary">
+    <!-- <mat-dialog-actions>
+      <button mat-raised-button (click)="dialogRef.close(false)" color="primary">
         Close
       </button>
       <button mat-raised-button color="primary" (click)="submit(form.value)">
         Submit
-      </button> -->
-    </mat-dialog-actions>
+      </button>
+    </mat-dialog-actions> -->
 </div>
