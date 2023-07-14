@@ -2,7 +2,7 @@
 
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, ViewChild, TemplateRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, ViewChild, TemplateRef,ElementRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input, OnDestroy } from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, group, state, style, transition, trigger } from '@angular/animations';
@@ -48,8 +48,10 @@ export class CertifiedDevicesDeveloperComponent {
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
   displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
   innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour',
-  //'Action'
+ 'Action'
 ];
+@ViewChild('startThumb') startThumb: ElementRef<HTMLInputElement>;
+@ViewChild('endThumb') endThumb: ElementRef<HTMLInputElement>;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
@@ -84,6 +86,8 @@ export class CertifiedDevicesDeveloperComponent {
   subscription: Subscription;
   showerror:boolean=false;
   countrycodeLoded: boolean = false;
+  startValueControl: FormControl;
+  endValueControl: FormControl;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -93,6 +97,8 @@ export class CertifiedDevicesDeveloperComponent {
     private formBuilder: FormBuilder,
     private dialog: MatDialog
   ) {
+    this.startValueControl = new FormControl(25); // Set initial start value
+  this.endValueControl = new FormControl(75);
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
       countryname: [],
@@ -103,8 +109,8 @@ export class CertifiedDevicesDeveloperComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-      fromAmountread:[null],
-      toAmountread:[null],
+      fromAmountread:[],
+      toAmountread:[],
      // pagenumber: [this.p]
     });
 
@@ -155,6 +161,13 @@ export class CertifiedDevicesDeveloperComponent {
     console.log("drt46")
    
   }
+  // formatLabel(value: number): string {
+  //   if (value >= 1000) {
+  //     return Math.round(value / 1000) + 'MWh';
+  //   }
+
+  //   return `${value}`;
+  // }
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
@@ -212,6 +225,31 @@ export class CertifiedDevicesDeveloperComponent {
   //   this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
   //   console.log(this.isAnyFieldFilled);
   // }
+  onstartreadChangeEvent(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    const value = inputElement.value;
+    console.log('Start Value Changed:', value);
+    // Additional logic here
+    this.FilterForm.controls['fromAmountread'].setValue(value);
+    this.checkFormValidity();
+  }
+  onendreadChangeEvent(event: Event) {
+    console.log(event);
+    const inputElement = event.target as HTMLInputElement;
+    const value = inputElement.value;
+    //this.endminDate = event;
+    this.FilterForm.controls['toAmountread'].setValue(value);
+    this.checkFormValidity();
+  }
+  onSliderChange(event: any): void {
+    const startValue = this.startThumb.nativeElement.value;
+    const endValue = this.endThumb.nativeElement.value;
+
+    console.log('Start Value:', startValue);
+    console.log('End Value:', endValue);
+
+    // Additional logic here
+  }
   checkFormValidity(): void {
     let isUserInteraction = true; // Flag to track user interaction
 
@@ -232,7 +270,7 @@ export class CertifiedDevicesDeveloperComponent {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
        
-        if ( formValues.offTaker[0] === undefined) {
+        if ( formValues.offTaker != null&&formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
         if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
@@ -412,13 +450,13 @@ export class CertifiedDevicesDeveloperComponent {
     }
   }
 
-  // deviceDetaileDialog(deviceId: number): void {
-  //   const dialogRef = this.dialog.open(DeviceDetailsComponent, {
-  //     data: {
-  //       deviceid: deviceId,
-  //     },
-  //     width: '900px',
-  //     height: '400px',
-  //   });
-  // }
+  deviceDetaileDialog(deviceId: number): void {
+    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+      data: {
+        deviceid: deviceId
+      },
+      width: '900px',
+      height: '400px',
+    });
+  }
 }

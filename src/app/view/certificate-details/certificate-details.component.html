@@ -3,37 +3,35 @@
 		<mat-card-header>
 			<mat-card-title>
 				<h2 class="pb-0 mb-0 fw-bold text-capitalize">All Certificate</h2>
-
-
 			</mat-card-title>
-
 		</mat-card-header>
 		<hr>
 		<mat-card-content>
+			<mat-card class="example-card">
+				<mat-card-content>
+					<h2 style="text-align: center;color:#f2be1a; font-size: 16px;"
+						class="text-capitalize mt-0 pt-0 mb-2 pb-0">
+						<b>Select fields to filter certificates</b>
+					</h2>
+					<form [formGroup]="FilterForm">
+						<div class="example-container1 row">
 
-			<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-2 pb-0">
-				<b>All certificate of those reservations </b>
-			</h2>
-
-
-			<form [formGroup]="FilterForm">
-				<div class="example-container1 row">
-
-					<div class="col-md-3">
-						<mat-form-field>
-							<mat-label class="text-capitalize">Select country Code</mat-label>
-							<input type="text" aria-label="text" matInput formControlName="countryname"
-								(ngModelChange)="checkFormValidity()" [matAutocomplete]="auto" multiple>
-							<mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
-								<mat-option [value]="">---</mat-option>
-								<mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
-									{{code.country}}
-								</mat-option>
-							</mat-autocomplete>
-						</mat-form-field>
-						<mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected </mat-error>
-					</div>
-					<!-- <div class="col-md-3">
+							<div class="col-md-3">
+								<mat-form-field appearance="outline">
+									<mat-label class="text-capitalize">Select country Code</mat-label>
+									<input type="text" aria-label="text" matInput formControlName="countryname"
+										(ngModelChange)="checkFormValidity()" [matAutocomplete]="auto" multiple>
+									<mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
+										<mat-option [value]="">---</mat-option>
+										<mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
+											{{code.country}}
+										</mat-option>
+									</mat-autocomplete>
+								</mat-form-field>
+								<mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected
+								</mat-error>
+							</div>
+							<!-- <div class="col-md-3">
 						<mat-form-field>
 							<mat-label class="text-capitalize">Fuel Code</mat-label>
 
@@ -46,26 +44,28 @@
 						</mat-form-field>
 					</div> -->
 
-					<div class="col-md-4">
-						<mat-form-field>
-							<mat-label class="text-capitalize">Off Taker</mat-label>
-							<mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()" multiple>
-								<mat-option [value]="">---</mat-option>
-								<mat-option *ngFor="let code of offtaker" [value]="code">
-									{{code}}
-								</mat-option>
-							</mat-select>
-						</mat-form-field>
-					</div>
+							<div class="col-md-4">
+								<mat-form-field appearance="outline">
+									<mat-label class="text-capitalize">Off Taker</mat-label>
+									<mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()"
+										multiple>
+										<mat-option [value]="">---</mat-option>
+										<mat-option *ngFor="let code of offtaker" [value]="code">
+											{{code}}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
 
-					<div class="col-md-3">
-						<mat-form-field>
-							<mat-label class="text-capitalize">SDG Benefits</mat-label>
+							<div class="col-md-3">
+								<mat-form-field appearance="outline">
+									<mat-label class="text-capitalize">SDG Benefits</mat-label>
 
-							<mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>
-								<mat-option [value]="">---</mat-option>
-								<mat-option *ngFor="let sdgb of sdgblist"
-									[value]="sdgb.value">{{sdgb.value}}</mat-option>
+									<mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()"
+										multiple>
+										<mat-option [value]="">---</mat-option>
+										<mat-option *ngFor="let sdgb of sdgblist"
+											[value]="sdgb.value">{{sdgb.value}}</mat-option>
 
 							</mat-select>
 						</mat-form-field>
@@ -73,7 +73,7 @@
 					<div class="row h6-margin-remove align-items-center">
 						<div class="col-md-3">
 							<h6>Certificate Date: </h6>
-							<mat-form-field>
+							<mat-form-field  appearance="outline">
 								<mat-label class="text-capitalize">From </mat-label>
 								<input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
 									formControlName="start_date" autocomplete="off"
@@ -87,7 +87,7 @@
 						</div>
 						<div class="col-md-3">
 							<h6>&nbsp;</h6>
-							<mat-form-field>
+							<mat-form-field  appearance="outline">
 								<mat-label class="text-capitalize">To </mat-label>
 	
 								<input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
@@ -103,7 +103,7 @@
 						</div>
 						<div class="col-md-2">
 							<h6>Read Amount: </h6>
-							<mat-form-field>
+							<mat-form-field  appearance="outline">
 								<mat-label class="text-capitalize">From </mat-label>
 								<input matInput type="number" (ngModelChange)="checkFormValidity()"
 									formControlName='fromAmountread' #input>
@@ -112,7 +112,7 @@
 						</div>
 						<div class="col-md-2">
 							<h6>&nbsp;</h6>
-							<mat-form-field>
+							<mat-form-field  appearance="outline">
 								<mat-label class="text-capitalize">To </mat-label>
 								<input matInput type="number" (ngModelChange)="checkFormValidity()"
 									formControlName='toAmountread' #input>
@@ -133,16 +133,17 @@
 							<button class="btn-dark btn text-capitalize px-4" [disabled]="!isAnyFieldFilled"
 								(click)="reset()">Reset</button>
 						</div>
+					</form>
+				</mat-card-content>
+			</mat-card>
+			<hr>
 
-
-					</div>
-
-				</div>
-			</form>
+			<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-2 pb-0">
+				<b>All certificate of those reservations </b>
+			</h2>
 
 			<mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
 			<ng-container *ngIf="!loading">
-
 				<mat-card class="innermat-card example-card1 border" *ngFor="let item of obs| async;let i=index">
 					<mat-card-header class="">
 						<div class="col-12">
@@ -161,16 +162,12 @@
 									</a>
 								</div>
 								<div class=" ">
-
 								</div>
 							</mat-card-title>
-
 						</div>
 
 					</mat-card-header>
-
 					<mat-card-content>
-
 						<div class='content'>
 							<div class='column'>
 								<div class='row '>
@@ -235,7 +232,14 @@
 										<td mat-cell *matCellDef="let element" class="table-data">
 											{{element.readvalue_watthour }} </td>
 									</ng-container>
-
+									<ng-container matColumnDef="Action">
+										<th mat-header-cell *matHeaderCellDef>Action </th>
+										<td mat-cell *matCellDef="let element" class="table-data">
+											<a class="edit-icon" (click)="deviceDetaileDialog(element.deviceId)">
+												<mat-icon class="primary">visibility</mat-icon>
+											</a>
+										</td>
+									</ng-container>
 
 									<tr mat-header-row *matHeaderRowDef="innerDisplayedColumns"></tr>
 									<tr mat-row *matRowDef="let row; columns: innerDisplayedColumns;"></tr>

@@ -92,12 +92,6 @@ export class AddDevicesComponent {
     })
     this.deviceForms.push(device);
 
-    // this.filteredCountryList = this.getCountryCodeControls().map(control =>
-    //   control.valueChanges.pipe(
-    //     startWith(''),
-    //     map(value => this._filter(value))
-    //   )
-    // );
     setTimeout(() => {
       this.filteredCountryList[0] = this.getCountryCodeControl(0).valueChanges.pipe(
         startWith(''),

@@ -3,14 +3,17 @@ import { FormGroup, FormBuilder, Validators, NgForm } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DeviceService } from '../../../auth/services/device.service'
 import { AuthbaseService } from '../../../auth/authbase.service';
-export interface Device {
-  netId: number
-  registry: string
-  issuer: string
-  rpcNode: string
-  rpcNodeFallback: string
-  privateIssuer: string
-}
+import { Observable } from 'rxjs';
+import { Device } from '../../../models/device.model'
+
+// export interface Device {
+//   netId: number
+//   registry: string
+//   issuer: string
+//   rpcNode: string
+//   rpcNodeFallback: string
+//   privateIssuer: string
+// }
 @Component({
   selector: 'app-device-details',
   templateUrl: './device-details.component.html',
@@ -24,8 +27,9 @@ export class DeviceDetailsComponent {
   fuellist: any;
   devicetypelist: any
   countrylist: any
-  loading : boolean = true;
+  loading: boolean = true;
   value = 0;
+  viewoptionfrom: string;
   constructor(
     private fb: FormBuilder,
     @Inject(MAT_DIALOG_DATA) data: { deviceid: number },
@@ -33,12 +37,9 @@ export class DeviceDetailsComponent {
     private deviceService: DeviceService,
     private authService: AuthbaseService,
   ) {
-    // this.form = this.fb.group({
-    //   name: ['', Validators.required],
-    //   address: ['', Validators.required],
-    //   country: [''],
-    // });
+    
     this.id = data.deviceid;
+  
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
 
@@ -64,8 +65,9 @@ export class DeviceDetailsComponent {
   ngOnInit(): void {
 
     setTimeout(() => {
-      this.deviceService.GetDevicesInfo(this.id).subscribe(
-        (data) => {
+   
+      this.deviceService.GetDevicesInfo(this.id).subscribe({
+        next: (data : Device)=> {
           if (data) {
             this.loading = false;
             this.device_details = data;
@@ -80,14 +82,16 @@ export class DeviceDetailsComponent {
           }
 
 
-        }
-      )
-    }, 500)
-  }
+        }, error: err => {  
+        console.log(err)
+      },
+    })
+  }, 500)
+}
 
-  submit() {
-    this.dialogRef.close({
-      clicked: 'submit'
-    });
-  }
+submit() {
+  this.dialogRef.close({
+    clicked: 'submit'
+  });
+}
 }
