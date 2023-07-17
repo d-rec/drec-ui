@@ -93,50 +93,21 @@
 
                             </div>
                             <div class="col-md-4 h6-margin-remove">
-                                <h6>Rservation Date:</h6>
+                                <h6>Reservation Date:</h6>
                                 <mat-form-field appearance="outline">
-                                    <mat-label>Enter a date range</mat-label>
-                                    <mat-date-range-input [rangePicker]="$any(picker)">
-                                        <input matStartDate formControlName="start_date"
-                                            (ngModelChange)="checkFormValidity()" />
-                                        <input matEndDate formControlName="end_date"
-                                            (ngModelChange)="checkFormValidity()" />
-                                    </mat-date-range-input>
-                                    <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-                                    <mat-date-range-picker #picker></mat-date-range-picker>
-
-                                </mat-form-field>
+									<mat-label>Enter a date range</mat-label>
+									<mat-date-range-input [rangePicker]="$any(picker)">
+										<input matStartDate formControlName="reservationStartDate"
+											(ngModelChange)="checkFormValidity()" />
+										<input matEndDate formControlName="reservationEndDate"
+											(ngModelChange)="checkFormValidity()" />
+									</mat-date-range-input>
+									<mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+									<mat-date-range-picker #picker></mat-date-range-picker>
+									
+								</mat-form-field>
                             </div>
-                            <!-- <div class="col-md-3">
-                                <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">Start  </mat-label>
-                                    <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-                                        formControlName="reservationStartDate" autocomplete="off"
-                                        (ngModelChange)="onEndChangeEvent($event);checkFormValidity()">
-                                    <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-                                    <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
-                                        [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
-                                        [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
-                                    </ngx-mat-datetime-picker>
-                                </mat-form-field>
-                            </div>
-                            <div class="col-md-3">
-
-                                <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">End Date </mat-label>
-                                    <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
-                                        formControlName="reservationEndDate" [min]="endminDate" autocomplete="off">
-                                    <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
-                                    <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false"
-                                        [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
-                                        [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
-                                    </ngx-mat-datetime-picker>
-                                    <mat-error *ngIf="checkValidation('endtimestamp')">
-                                   <b> {{getErrorcheckdatavalidation()}}</b>
-                                  </mat-error>
-                                </mat-form-field>
-
-                            </div> -->
+                           
 
                             <div class="col-md-12 mb-3  d-flex justify-content-end">
                                 <div class="">

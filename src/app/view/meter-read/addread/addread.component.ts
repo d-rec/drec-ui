@@ -7,6 +7,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
+import * as momentTimeZone from 'moment-timezone';
 import { getValidmsgTimezoneFormat } from '../../../utils/getTimezone_msg'
 @Component({
   selector: 'app-addread',
@@ -58,7 +59,7 @@ export class AddreadComponent implements OnInit {
       value: [null, Validators.required],
     }, {
       validators: (control) => {
-       
+
         if (control.value.starttimestamp > control.value.endtimestamp) {
           console.log('49');
           //@ts-ignore
@@ -85,7 +86,7 @@ export class AddreadComponent implements OnInit {
   search(): void {
     const input = this.readForm.controls['externalId'].value;
     console.log(input)
-    if (input && input!='') {
+    if (input && input != '') {
       this.deviceservice.GetDeviceAutocomplete(input).subscribe(
         (response) => {
           console.log('response', response)
@@ -93,7 +94,7 @@ export class AddreadComponent implements OnInit {
             this.showerrorexternalid = false;
             this.autocompleteResults = response;
           } else {
-            this.autocompleteResults =[];
+            this.autocompleteResults = [];
             this.showerrorexternalid = true;
           }
 
@@ -104,9 +105,9 @@ export class AddreadComponent implements OnInit {
       );
     } else {
       this.autocompleteResults = [];
-      this.timezonedata=[];
+      this.timezonedata = [];
       this.readForm.controls['externalId'].setValue(null);
-     this.readForm.controls['timezone'].setValue(null);
+      this.readForm.controls['timezone'].setValue(null);
       this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
         startWith(''),
         map(value => this._filter(value || '')),
@@ -150,12 +151,29 @@ export class AddreadComponent implements OnInit {
       }
     })
   }
+  onTimezoneSelect(timezone: any): void {
+    console.log(timezone);
+    console.log(momentTimeZone
+      .tz(new Date(this.devicecreateddate),timezone)
+     .format('YYYY-MM-DDTHH:mm:ssZ'));
+
+   this.devicecreateddate =  momentTimeZone
+     .tz(new Date(this.devicecreateddate),timezone)
+    .format('YYYY-MM-DDTHH:mm:ss');
+    console.log(this.devicecreateddate);
+    this.commissioningDate =  momentTimeZone
+    .tz(new Date(this.commissioningDate),timezone)
+   .format('YYYY-MM-DDTHH:mm:ss');
+   console.log(this.commissioningDate);
+    //momentTimeZone.tz(this.devicecreateddate, timezone);
+   
+  }
   private _filter(value: string): string[] {
     console.log(this.timezonedata)
     const filterValue = value.toLowerCase();
     console.log(filterValue)
     console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
-    if ((!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)&&filterValue!='')) {
+    if ((!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
     } else {
       this.showerror = false;
@@ -215,12 +233,21 @@ export class AddreadComponent implements OnInit {
   // }
   onChangeEvent(event: any) {
     console.log(event);
+    console.log(new Date(this.devicecreateddate));
     if (event === 'Delta' || event === 'Aggregate') {
+      
       this.endmaxdate = new Date();
+
       this.endminDate = this.devicecreateddate;
+      console.log(this.endminDate);
       this.hidestarttime = false;
     } else {
-      this.startminDate = this.historyAge;
+      if(new Date(this.commissioningDate).getTime()>new Date(this.historyAge).getTime()){
+        this.startminDate = this.commissioningDate;
+      }else{
+        this.startminDate = this.historyAge;
+      }
+      
       this.startmaxDate = this.devicecreateddate;
       this.endmaxdate = this.devicecreateddate;
       this.endminDate = this.historyAge;
@@ -292,7 +319,7 @@ export class AddreadComponent implements OnInit {
       next: (data: any) => {
         console.log(data)
         this.readForm.reset();
-        this.selectedResult=null;
+        this.selectedResult = null;
         const formControls = this.readForm.controls;
         Object.keys(formControls).forEach(key => {
           const control = formControls[key];

@@ -229,7 +229,7 @@
 										<ng-container matColumnDef="Action">
 											<th mat-header-cell *matHeaderCellDef>Action </th>
 											<td mat-cell *matCellDef="let element" class="table-data">
-												<a class="edit-icon" (click)="deviceDetaileDialog(element.deviceId)"
+												<a class="edit-icon action-icons" (click)="deviceDetaileDialog(element.deviceId)"
 													*ngIf="element.externalId!='Other Devices'">
 													<mat-icon class="primary">visibility</mat-icon>
 												</a>
