@@ -402,3 +402,27 @@ border-left-color:$primary!important ;
         background: #f2be1a;
     }
 }
+
+.certificate-details {
+
+    // This is for slider max min in certificate
+    .mat-mdc-slider.mat-primary {
+        --mdc-slider-handle-color: #f2be1a;
+        --mdc-slider-focus-handle-color: #f2be1a;
+        --mdc-slider-hover-handle-color: #f2be1a;
+        --mdc-slider-active-track-color: #f2be1a;
+        --mdc-slider-inactive-track-color: #f2be1a;
+        --mdc-slider-with-tick-marks-active-container-color: #fff;
+        --mdc-slider-with-tick-marks-inactive-container-color: #f2be1a;
+        --mat-mdc-slider-ripple-color: #f2be1a;
+        --mat-mdc-slider-hover-ripple-color: rgba(242, 190, 26, 0.05);
+        --mat-mdc-slider-focus-ripple-color: rgba(242, 190, 26, 0.2);
+    }
+}
+
+.mat-column-reservationStartDate{
+    min-width: 105px;
+}
+.mat-column-reservationEndDate{
+    min-width: 105px;
+}
