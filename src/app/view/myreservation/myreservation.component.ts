@@ -1,5 +1,5 @@
 
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators ,FormControl} from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -96,7 +96,7 @@ export class MyreservationComponent implements OnInit {
       SDGBenefits: [],
       reservationStartDate: [null],
       reservationEndDate: [null],
-      reservationActive: [],
+      reservationActive: [null],
       // pagenumber: [this.p]
     });
 
@@ -236,8 +236,12 @@ export class MyreservationComponent implements OnInit {
   }
 
   reset() {
+    this.FilterForm.addControl('reservationActive',new FormControl())
     this.FilterForm.reset();
     this.FilterForm.controls['countryCode'].setValue(null);
+    this.FilterForm.controls['reservationActive'].setValue(null);
+    
+    console.log(this.FilterForm.value)
     this.isLoadingResults = true;
     this.isAnyFieldFilled = false;
     this.p = 1;
@@ -247,7 +251,8 @@ export class MyreservationComponent implements OnInit {
     console.log(this.FilterForm.value)
     //  this.FilterForm.controls['pagenumber'].setValue(page);
     if (this.FilterForm.value.reservationActive === "All") {
-      this.FilterForm.removeControl('reservationActive');
+     this.FilterForm.removeControl('reservationActive');
+      //this.FilterForm.controls['reservationActive'].setValue(null);
     }
     if (!(this.FilterForm.value.reservationStartDate != null && this.FilterForm.value.reservationEndDate === null)) {
 

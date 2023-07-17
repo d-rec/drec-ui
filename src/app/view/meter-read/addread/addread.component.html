@@ -53,8 +53,8 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Select Timezone</mat-label>
                             <input type="text" placeholder="Please Enter Timezone" aria-label="text" matInput
-                                formControlName="timezone" [matAutocomplete]="auto1">
-                            <mat-autocomplete #auto1="matAutocomplete">
+                                formControlName="timezone" [matAutocomplete]="auto1" >
+                            <mat-autocomplete #auto1="matAutocomplete" (optionSelected)="onTimezoneSelect($event.option.value)">
                                 <mat-option *ngFor="let code of filteredOptions | async" [value]="code.name">
                                     {{code.name}}
                                 </mat-option>
@@ -90,9 +90,6 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-
-
-
                 </div>
                 <div formArrayName='reads'>
                     <div *ngFor="let read of addreads.controls; let i=index" [formGroupName]="i">
