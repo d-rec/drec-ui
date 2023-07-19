@@ -97,7 +97,7 @@ export class AddDevicesComponent {
         startWith(''),
         map(value => this._filter(value || '',0))
       );
-    }, 1000);
+    },1000);
     
   }
   ngOnDestroy() {

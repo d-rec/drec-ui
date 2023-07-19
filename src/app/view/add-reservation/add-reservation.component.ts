@@ -49,7 +49,7 @@ export class AddReservationComponent {
   fuellistLoaded: boolean = false;
   devicetypeLoded: boolean = false;
   countrycodeLoded: boolean = false;
-  loading: boolean = false;
+  loading: boolean = true;
   selection = new SelectionModel<any>(true, []);
   reservationForm: FormGroup;
   filteredOptions: Observable<any[]>;
