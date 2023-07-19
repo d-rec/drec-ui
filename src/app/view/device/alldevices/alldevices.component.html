@@ -206,9 +206,9 @@
             <th mat-header-cell *matHeaderCellDef class="text-left">Action</th>
             <td mat-cell *matCellDef="let row; let i=index;">
               <!-- <button>certificate</button> -->
-              <a class="edit-icon action-icons" (click)="UpdateDevice(row.externalId)"   *ngIf="loginuser.role !='Admin'"><mat-icon class="primary">edit</mat-icon></a>
+              <a class="edit-icon action-icons" matTooltip="Edit" [matTooltipPosition]="'above'" (click)="UpdateDevice(row.externalId)"   *ngIf="loginuser.role !='Admin'"><mat-icon class="primary">edit</mat-icon></a>&nbsp;
               <!-- <a  [routerLink]="['../edit']" [queryParams]="{id:row.externalId}"><mat-icon>add</mat-icon></a> -->
-              <a class="edit-icon action-icons"  (click)="alertDialog(row.id)">
+              <a class="edit-icon action-icons" matTooltip="Device" [matTooltipPosition]="'right'" (click)="alertDialog(row.id)">
                 <mat-icon class="primary">visibility</mat-icon>
               </a>  </td>
           </ng-container>
