@@ -21,7 +21,7 @@ export class AddreadComponent implements OnInit {
   startmaxDate = new Date();
   startminDate = new Date();
   endminDate = new Date();
-  endmaxdate: any;
+  endmaxdate=new Date();
   historyAge: any;
   devicecreateddate: any;
   readForm: FormGroup;
@@ -150,35 +150,39 @@ export class AddreadComponent implements OnInit {
         console.error('error caught in component', err)
       }
     })
+    this.endmaxdate = new Date();
   }
   onTimezoneSelect(timezone: any): void {
     console.log(timezone);
     console.log(momentTimeZone
-      .tz(new Date(this.devicecreateddate),timezone)
-     .format('YYYY-MM-DDTHH:mm:ssZ'));
+      .tz(new Date(this.devicecreateddate), timezone)
+      .format('YYYY-MM-DDTHH:mm:ssZ'));
 
-   this.devicecreateddate =  momentTimeZone
-     .tz(new Date(this.devicecreateddate),timezone)
-    .format('YYYY-MM-DDTHH:mm:ss');
+    this.devicecreateddate = momentTimeZone
+      .tz(new Date(this.devicecreateddate), timezone)
+      .format('YYYY-MM-DDTHH:mm:ss');
     console.log(this.devicecreateddate);
-    this.commissioningDate =  momentTimeZone
-    .tz(new Date(this.commissioningDate),timezone)
-   .format('YYYY-MM-DDTHH:mm:ss');
-   console.log(this.commissioningDate);
+    this.commissioningDate = momentTimeZone
+      .tz(new Date(this.commissioningDate), timezone)
+      .format('YYYY-MM-DDTHH:mm:ss');
+    console.log(this.commissioningDate);
     //momentTimeZone.tz(this.devicecreateddate, timezone);
-   
+    this.endmaxdate =new Date(momentTimeZone
+      .tz(new Date(), timezone)
+      .format('YYYY-MM-DDTHH:mm:ss'));
+      console.log(this.endmaxdate)
   }
   private _filter(value: string): string[] {
-    console.log(this.timezonedata)
+  //  console.log(this.timezonedata)
     const filterValue = value.toLowerCase();
-    console.log(filterValue)
-    console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
+  //  console.log(filterValue)
+   // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if ((!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
     } else {
       this.showerror = false;
     }
-
+    this.endmaxdate = new Date();
     return this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue))
   }
   DisplayList() {
@@ -235,22 +239,21 @@ export class AddreadComponent implements OnInit {
     console.log(event);
     console.log(new Date(this.devicecreateddate));
     if (event === 'Delta' || event === 'Aggregate') {
-      
-      this.endmaxdate = new Date();
-
       this.endminDate = this.devicecreateddate;
       console.log(this.endminDate);
       this.hidestarttime = false;
     } else {
-      if(new Date(this.commissioningDate).getTime()>new Date(this.historyAge).getTime()){
+      if (new Date(this.commissioningDate).getTime() > new Date(this.historyAge).getTime()) {
         this.startminDate = this.commissioningDate;
-      }else{
+        this.endminDate = this.commissioningDate;
+      } else {
         this.startminDate = this.historyAge;
+        this.endminDate = this.historyAge;
       }
-      
+
       this.startmaxDate = this.devicecreateddate;
       this.endmaxdate = this.devicecreateddate;
-      this.endminDate = this.historyAge;
+
       this.hidestarttime = true;
     }
   }

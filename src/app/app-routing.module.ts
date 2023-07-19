@@ -6,7 +6,7 @@ import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import {RedemptionReportComponent} from './view/redemption-report/redemption-report.component';
-
+import {ConfirmemailComponent} from './view/confirmemail/confirmemail.component'
 import {CertificateDetailsComponent} from './view/certificate-details/certificate-details.component'
 import {
   MyreservationComponent
@@ -23,6 +23,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
+      { path: 'confirm-email', component: ConfirmemailComponent },
     ]
   },
   {

@@ -24,6 +24,7 @@ import { AddReservationComponent } from './view/add-reservation/add-reservation.
 import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-developer/certified-devices-developer.component';
 //import { TimezonePipe } from './utils/timezone.pipe';
 import { PipesModule } from './pipes.module';
+import { ConfirmemailComponent } from './view/confirmemail/confirmemail.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import { PipesModule } from './pipes.module';
     AddReservationComponent,
 
     CertifiedDevicesDeveloperComponent,
+    ConfirmemailComponent,
 
   ],
   imports: [
@@ -59,7 +61,7 @@ import { PipesModule } from './pipes.module';
       timeOut: 15000, // 15 seconds
       progressBar: true,
     }),
-   
+
   ],
   providers: [{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },],
   bootstrap: [AppComponent]

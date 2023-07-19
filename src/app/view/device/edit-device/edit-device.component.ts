@@ -75,7 +75,7 @@ export class EditDeviceComponent implements OnInit {
     this.DisplaySDGBList();
     this.DisplayfuelList();
     this.DisplaytypeList();
-    this.getDeviceinfo();
+   
     this.date = new Date();
     this.myform = this.fb.group({
       externalId: [null, [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
@@ -113,6 +113,7 @@ export class EditDeviceComponent implements OnInit {
       startWith(''),
       map(value => this._filter(value || '')),
     );
+    this.getDeviceinfo();
     }, 1000);
 
   }
