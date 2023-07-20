@@ -25,6 +25,8 @@ import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-dev
 //import { TimezonePipe } from './utils/timezone.pipe';
 import { PipesModule } from './pipes.module';
 import { ConfirmemailComponent } from './view/confirmemail/confirmemail.component';
+import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
+import { ResetPasswordComponent } from './view/reset-password/reset-password.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +47,8 @@ import { ConfirmemailComponent } from './view/confirmemail/confirmemail.componen
 
     CertifiedDevicesDeveloperComponent,
     ConfirmemailComponent,
+    ForgetPasswordComponent,
+    ResetPasswordComponent,
 
   ],
   imports: [
