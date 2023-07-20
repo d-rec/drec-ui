@@ -196,8 +196,8 @@
                         <ng-template matStepContent>
 
                         <mat-form-field appearance="fill" class="mt-0 mb-4">
-                            <mat-label class="mat-labels-cont">Enter your password</mat-label>
-                            <input matInput [type]="hide ? 'password' : 'text'" placeholder="Password *"
+                            <mat-label class="mat-labels-cont">Password*</mat-label>
+                            <input matInput [type]="hide ? 'password' : 'text'"
                                 formControlName="password">
                             <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
                                 [attr.aria-pressed]="hide" class="icon-eye">
@@ -211,9 +211,9 @@
                             <br>
                         </mat-form-field>
                         <mat-form-field class="mb-4">
-                            <mat-label class="mat-labels-cont">Enter your confirmPassword</mat-label>
+                            <mat-label class="mat-labels-cont">Confirm Password *</mat-label>
                             <input  [type]="hide1 ? 'password' : 'text'" matInput
-                                placeholder="confirm Password *" formControlName="confirmPassword"  >
+                               formControlName="confirmPassword"  >
                             <button mat-icon-button matSuffix (click)="hide1 = !hide1" [attr.aria-label]="'Hide password'"
                                 [attr.aria-pressed]="hide1" class="icon-eye">
                                 <mat-icon>{{hide1 ? 'visibility_off' : 'visibility'}}</mat-icon>

@@ -13,4 +13,10 @@ export class UserService {
   public UserConfirmEmail(token: any): Observable<any> {
     return this.httpClient.put<any>(this.url + 'user/confirm-email/' + token,{});
   }
+  public UserForgetPassword(data: any): Observable<any> {
+    return this.httpClient.post<any>(this.url + 'user/forget-password' ,data);
+  }
+  public UserResetPassword(token:any,data: any): Observable<any> {
+    return this.httpClient.put<any>(this.url + 'user/reset/password/'+token ,data);
+  }
 }

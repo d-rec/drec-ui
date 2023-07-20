@@ -11,7 +11,11 @@ import {CertificateDetailsComponent} from './view/certificate-details/certificat
 import {
   MyreservationComponent
 } from './view/myreservation/myreservation.component'
-import {AddReservationComponent} from './view/add-reservation/add-reservation.component'
+import {AddReservationComponent} from './view/add-reservation/add-reservation.component';
+import {ForgetPasswordComponent} from './view/forget-password/forget-password.component';
+import {
+ResetPasswordComponent
+} from './view/reset-password/reset-password.component'
 const routes: Routes = [
 
 
@@ -23,7 +27,9 @@ const routes: Routes = [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      { path: 'confirm-email', component: ConfirmemailComponent },
+      //{ path: 'confirm-email', component: ConfirmemailComponent },
+      { path: 'forget-password', component: ForgetPasswordComponent },
+      { path: 'reset-password', component: ResetPasswordComponent },
     ]
   },
   {
