@@ -5,3 +5,6 @@ export * from './organization.service';
 export * from './reservation.service';
 export * from './user.service';
 export * from './yieldConfiguration.service';
+export * from './fileupload.service';
+export * from './blockchain-drec.service';
+export * from './admin.service';

@@ -3,17 +3,50 @@
     <!-- {{options.value.fixed ? 'Fixed' : 'Non-fixed'}} Sidenav -->
     <mat-nav-list>
 
-      <button mat-button class="menu-button" routerLinkActive="active" routerLink="/organization/information"
+      <!-- <button mat-button class="menu-button" routerLinkActive="active" routerLink="/organization/information"
         *ngIf="loginuser.role ==='OrganizationAdmin' && !showmenu">
         <mat-icon>list</mat-icon>
         <span>Organization</span>
-      </button>
+      </button> -->
+      
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/admin/dashboard"
       *ngIf="loginuser.role ==='Admin' && !showmenu">
-      <mat-icon>list</mat-icon>
+      <mat-icon>dashboard</mat-icon>
       <span>Dashboard</span>
     </button>
-    <button mat-button class="menu-button" routerLinkActive="active" routerLink="/device/AllList"
+    <mat-expansion-panel [class.mat-elevation-z0]="true" >
+      <mat-expansion-panel-header class="mdc-button ">
+        <mat-icon>list</mat-icon>
+        Account
+      </mat-expansion-panel-header>
+      <mat-nav-list>
+        <!-- <a mat-list-item class="menu-button" routerLinkActive="active"routerLink="/device/AllList" *ngIf="loginuser.role ==='OrganizationAdmin'">
+              <mat-icon>list</mat-icon>
+              <span>My Devices</span>
+            </a> -->
+        <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active" routerLink="/admin/All_organization"
+          *ngIf="loginuser.role ==='Admin'">
+          <!-- <mat-icon>list</mat-icon> -->
+          <span>All Organizations</span>
+        </a>
+       
+        <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active" routerLink="/admin/All_users"
+        *ngIf="loginuser.role ==='Admin'" >
+         <span>All Users</span>
+       </a>
+       
+       <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active" routerLink="/device/certifiedin_reservation"
+        *ngIf="!showmenu && loginuser.role ==='OrganizationAdmin'" >
+         <span> Invite User</span>
+       </a>
+       <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active" routerLink="/device/certifiedin_reservation"
+       *ngIf="!showmenu && loginuser.role ==='OrganizationAdmin'" >
+        <span> Invitation</span>
+      </a>
+     
+      </mat-nav-list>
+    </mat-expansion-panel>
+    <button mat-button class="menu-button" routerLinkActive="active" routerLink="/admin/All_devices"
     *ngIf="loginuser.role ==='Admin' && !showmenu">
     <mat-icon>list</mat-icon>
     <span>All Devices</span>
@@ -90,7 +123,7 @@
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add MeterRead</span>
           </a>
-          <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active" routerLink="/device/certifiedin_reservation"
+          <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active" routerLink="/device/certifiedin_reservation"
           *ngIf="!showmenu" >
            <!-- <mat-icon>list</mat-icon> -->
            <span> Certified MeterReads</span>

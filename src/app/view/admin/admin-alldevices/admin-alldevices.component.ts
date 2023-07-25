@@ -10,31 +10,32 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
-import { DeviceService } from '../../../auth/services/device.service';
+import { DeviceService, AdminService } from '../../../auth/services';
 import { Router } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { DeviceDetailsComponent } from '../device-details/device-details.component'
-
+import { DeviceDetailsComponent } from '../../device/device-details/device-details.component'
+import { ToastrService } from 'ngx-toastr';
 @Component({
-  selector: 'app-alldevices',
-  templateUrl: './alldevices.component.html',
-  styleUrls: ['./alldevices.component.scss']
+  selector: 'app-admin-alldevices',
+  templateUrl: './admin-alldevices.component.html',
+  styleUrls: ['./admin-alldevices.component.scss']
 })
-
-export class AlldevicesComponent {
+export class AdminAlldevicesComponent {
   title = 'matDialog';
   dataFromDialog: any;
   displayedColumns = [
     'onboarding_date',
     // 'projectName',
+    'developerExternalId',
     'externalId',
     'countryCode',
     // 'fuelCode',
     'commissioningDate',
     'capacity',
-    // 'SDGBenefits',
+    'IREC_Status',
+    'IREC_ID',
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -63,11 +64,12 @@ export class AlldevicesComponent {
   selectedCountry: any;
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
-  showlist:boolean=false;
-  constructor(private authService: AuthbaseService, private deviceService: DeviceService,
+  showlist: boolean = false;
+  constructor(private authService: AuthbaseService, private deviceService: DeviceService, private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
-    private dialog: MatDialog) {
+    private dialog: MatDialog,
+    private toastrService: ToastrService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
@@ -235,14 +237,14 @@ export class AlldevicesComponent {
   }
 
   getDeviceListData(page: number) {
-   
-      this.deviceurl = 'device/my?';
-   
+
+    this.deviceurl = 'device?';
+
     //this.FilterForm.controls['pagenumber'].setValue(page);
     this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe(
       (data) => {
         console.log(data)
-        this.showlist=true
+        this.showlist = true
         //@ts-ignore
         if (data.devices) {
           this.loading = false;
@@ -253,14 +255,14 @@ export class AlldevicesComponent {
       }, error => {
         console.log(error);
         this.data = [];
-        this.showlist=false
+        this.showlist = false
       }
     )
   }
 
   DisplayList() {
     if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
-      
+
       //@ts-ignore
       this.data.devices.forEach(ele => {
         //@ts-ignore
@@ -325,5 +327,25 @@ export class AlldevicesComponent {
       width: '900px',
       height: '400px',
     });
+  }
+
+  DeviceregistationI_REC(deviceid: number) {
+    this.adminService.AddIrecDevice(deviceid).subscribe({
+      next: (data: any) => {
+
+        if (data.status) {
+          this.toastrService.success(data.message, 'I-REC ID-' + data.IREC_ID);
+          this.getDeviceListData(this.p);
+
+        } else {
+          this.toastrService.warning('Failure',data.message);
+        }
+
+      }, error: err => {
+        this.toastrService.warning('Failure',err);
+      }
+    });
+    ;
+
   }
 }
