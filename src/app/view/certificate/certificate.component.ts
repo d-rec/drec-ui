@@ -296,9 +296,6 @@ export class CertificateComponent implements OnDestroy {
             if (key !== key.toLowerCase()) {
               ele.owners[key.toLowerCase()] = ele.owners[key];
               delete ele.owners[key];
-              // if(ele.owner[key].value=0){
-
-              // }
             }
           }
 

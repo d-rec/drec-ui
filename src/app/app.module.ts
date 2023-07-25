@@ -27,6 +27,7 @@ import { PipesModule } from './pipes.module';
 import { ConfirmemailComponent } from './view/confirmemail/confirmemail.component';
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
 import { ResetPasswordComponent } from './view/reset-password/reset-password.component';
+import { AllUsersComponent } from './view/all-users/all-users.component';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { ResetPasswordComponent } from './view/reset-password/reset-password.com
     ConfirmemailComponent,
     ForgetPasswordComponent,
     ResetPasswordComponent,
+    AllUsersComponent,
 
   ],
   imports: [

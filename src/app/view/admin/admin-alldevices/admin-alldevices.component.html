@@ -1,0 +1,278 @@
+<div class="body-bg  alldevice-component">
+
+  <mat-card>
+    <mat-card-header class="d-flex mb-3 justify-content-between mat-crd-hide align-items-center ">
+
+      <div>
+        <mat-card-title>
+          <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">My Devices
+          </h2>
+        </mat-card-title>
+      </div>
+      <div>
+        <button class="btn btn-dark justify-content-end px-4  d-flex align-items-center" routerLink="/device/add"
+          *ngIf="loginuser.role !='Admin'">
+          <mat-icon class="align-middle me-2">add_circle</mat-icon>New Devices</button>
+
+      </div>
+    </mat-card-header>
+    <hr class="mt-0 pt-0">
+
+    <mat-card-content class="mat-body-cont text-center">
+      <!-- <mat-form-field>
+          <mat-label>Filter</mat-label>
+          <input matInput (keyup)="applyFilter($event)" placeholder="Search" #input>
+        </mat-form-field> -->
+
+      <h3 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize">Use Filters For Device
+        Search</h3>
+      <form [formGroup]="FilterForm">
+        <div class="example-container1 row">
+          <div class="col-md-3">
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">Select Country Code</mat-label>
+              <input type="text" aria-label="text" matInput formControlName="countryname" [matAutocomplete]="auto"
+                (ngModelChange)="checkFormValidity()">
+              <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
+                <mat-option [value]="">---</mat-option>
+                <mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
+                  {{ code.country }}
+                </mat-option>
+              </mat-autocomplete>
+
+            </mat-form-field>
+            <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected </mat-error>
+          </div>
+          <!-- <div class="col-md-3">
+              <mat-form-field>
+                <mat-label class="text-capitalize">Fuel Code</mat-label>
+  
+                <mat-select formControlName='fuelCode' (ngModelChange)="checkFormValidity()">
+                  <mat-option [value]="">---</mat-option>
+                  <mat-option *ngFor="let code of fuellist" [value]="code.code">
+                    {{code.name}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div> -->
+          <div class="col-md-3">
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">Device Type Code</mat-label>
+
+              <mat-select formControlName='deviceTypeCode' (ngModelChange)="checkFormValidity()" multiple>
+                <mat-option [value]="">---</mat-option>
+                <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
+                  {{code.name}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="col-md-3">
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">Off Taker</mat-label>
+
+              <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()" multiple>
+                <mat-option [value]="">---</mat-option>
+                <mat-option *ngFor="let code of offtaker" [value]="code">
+                  {{code}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-3">
+            <mat-form-field appearance="outline">
+              <mat-label>Capacity(kW)</mat-label>
+              <input matInput type="number" [min]=1 (ngModelChange)="checkFormValidity()" formControlName='capacity'
+                #input>
+            </mat-form-field>
+          </div>
+          <div class="col-md-3">
+            <h6>&nbsp;</h6>
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">SDG Benefits</mat-label>
+
+              <mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>
+                <mat-option [value]="">---</mat-option>
+                <mat-option *ngFor="let sdgb of sdgblist" [value]="sdgb.value">{{sdgb.value}}</mat-option>
+
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <!-- <div class="col-md-1">
+                          <h6>Commissioning Date: </h6>
+  
+                      </div>
+            <div class="col-md-3">
+              <mat-form-field>
+                  <mat-label class="text-capitalize">From </mat-label>
+                  <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
+                      formControlName="start_date" autocomplete="off"
+                      (ngModelChange)="onEndChangeEvent($event);checkFormValidity()">
+                  <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                  <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
+                      [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
+                      [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
+                  </ngx-mat-datetime-picker>
+              </mat-form-field>
+          </div>
+          <div class="col-md-3">
+              <mat-form-field>
+                  <mat-label class="text-capitalize">To </mat-label>
+                
+                  <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
+                      formControlName="end_date" [min]="endminDate" autocomplete="off" (ngModelChange)="checkFormValidity()">
+                  <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
+                  <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false"
+                      [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
+                      [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
+                  </ngx-mat-datetime-picker>
+                   <mat-error *ngIf="checkValidation('endtimestamp')">
+                 <b> {{getErrorcheckdatavalidation()}}</b>
+                </mat-error>
+              </mat-form-field>
+          </div> -->
+          <!-- <div class="col-md-2">
+  
+          </div> -->
+
+          <div class="col-md-4 h6-margin-remove">
+            <h6>Commissioning Date: </h6>
+            <mat-form-field appearance="outline">
+              <mat-label>Enter a date range</mat-label>
+              <mat-date-range-input [rangePicker]="$any(picker)">
+                <input matStartDate formControlName="start_date" (ngModelChange)="checkFormValidity()" />
+                <input matEndDate formControlName="end_date" (ngModelChange)="checkFormValidity()" />
+              </mat-date-range-input>
+              <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+              <mat-date-range-picker #picker></mat-date-range-picker>
+
+            </mat-form-field>
+          </div>
+          <div class="col-md-12 mb-3  d-flex justify-content-end">
+            <div class="">
+              <button class="btn-primary me-2 btn text-capitalize px-4" (click)="DisplayListFilter()"
+                [disabled]="!isAnyFieldFilled">Filter</button>
+            </div>
+            <div class="">
+              <button class="btn-dark btn text-capitalize px-4" [disabled]="!isAnyFieldFilled"
+                (click)="reset()">Reset</button>
+            </div>
+
+
+          </div>
+
+        </div>
+      </form>
+      <hr>
+      <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
+      <div class="content mat-elevation-z8 text-center" *ngIf="showlist">
+        <table mat-table [dataSource]="dataSource" class="" matSort>
+          <!-- Position Column -->
+          <ng-container matColumnDef="onboarding_date">
+            <th mat-header-cell *matHeaderCellDef class="text-left"> OnBoarding Date </th>
+            <td mat-cell *matCellDef="let row;let i=index"> {{row.createdAt| date:' dd MMM y hh:mm'}} </td>
+          </ng-container>
+          <!-- <ng-container matColumnDef="projectName" class="text-left">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Project Name </th>
+              <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
+            </ng-container> -->
+          <ng-container matColumnDef="externalId" class="text-left">
+            <th mat-header-cell *matHeaderCellDef> ExternalId(internalId) </th>
+            <td mat-cell *matCellDef="let element"> {{element.externalId}} </td>
+          </ng-container>
+          <ng-container matColumnDef="developerExternalId" class="text-left">
+            <th mat-header-cell *matHeaderCellDef>Developer ExternalId </th>
+            <td mat-cell *matCellDef="let element"> {{element.developerExternalId}} </td>
+          </ng-container>
+          <ng-container matColumnDef="countryCode">
+            <th mat-header-cell *matHeaderCellDef class="text-left"> Country </th>
+            <td mat-cell *matCellDef="let element"> {{element.countryname}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="IREC_ID">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> IREC ID </th>
+            <td mat-cell *matCellDef="let element"> {{element.IREC_ID}} </td>
+          </ng-container>
+
+
+          <ng-container matColumnDef="IREC_Status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> IREC Status </th>
+            <td mat-cell *matCellDef="let element"> {{element.IREC_Status}} </td>
+          </ng-container>
+          <!-- Status Column -->
+          <ng-container matColumnDef="commissioningDate">
+            <th mat-header-cell *matHeaderCellDef class="text-left">Commissioning Date </th>
+            <td mat-cell *matCellDef="let element"> {{element.commissioningDate| date:'dd MMM y'}} </td>
+          </ng-container>
+          <ng-container matColumnDef="capacity">
+            <th mat-header-cell *matHeaderCellDef class="text-left"> Capacity(kW) </th>
+            <td mat-cell *matCellDef="let element"> {{element.capacity}} </td>
+          </ng-container>
+          <ng-container matColumnDef="SDGBenefits">
+            <th mat-header-cell *matHeaderCellDef> SDGBenefits </th>
+            <td mat-cell *matCellDef="let row"> {{row.SDGBenefits}} </td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-left">Action</th>
+            <td mat-cell *matCellDef="let row; let i=index;">
+              <!-- <button>certificate</button> -->
+              <a class="edit-icon action-icons" matTooltip="Edit" [matTooltipPosition]="'left'"
+                (click)="UpdateDevice(row.externalId)" *ngIf="loginuser.role !='Admin'"><mat-icon
+                  class="primary">edit</mat-icon></a>&nbsp;
+              <!-- <a  [routerLink]="['../edit']" [queryParams]="{id:row.externalId}"><mat-icon>add</mat-icon></a> -->
+              <a class="edit-icon action-icons" matTooltip="Device" [matTooltipPosition]="'right'"
+                (click)="alertDialog(row.id)">
+                <mat-icon class="primary">visibility</mat-icon>
+              </a>
+              <a class="edit-icon action-icons" matTooltip="" [matTooltipPosition]="'right'"
+                (click)="DeviceregistationI_REC(row.id)" *ngIf="row.IREC_Status==='NotRegistered'">
+                <!-- <mat-icon class="primary">add</mat-icon> -->
+                Add To I-REC
+              </a>
+              <a class="edit-icon action-icons" matTooltip="Add Detail To I-REC" [matTooltipPosition]="'right'"
+                (click)="alertDialog(row.id)" *ngIf="row.IREC_Status==='DeviceNameCreated'">
+                <!-- <mat-icon class="primary">add</mat-icon> -->
+                Add Detail To I-REC
+              </a>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;">
+          </tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">No data found </td>
+          </tr>
+        </table>
+        <!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
+            aria-label="Select page">
+          </mat-paginator> -->
+        <!-- <hr> -->
+        <div class="d-flex justify-content-start align-items-center  p-10 ">
+          <button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
+            [disabled]="p === 1">Previous</button>&nbsp;&nbsp;
+
+          Total Pages:{{totalPages}}
+          <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
+            [disabled]="p === totalPages">Next</button>
+        </div>
+
+      </div>
+      <div *ngIf="!showlist" style="text-align: center;color: #f2be1a;">No Device </div>
+
+
+    </mat-card-content>
+    <mat-card-footer></mat-card-footer>
+  </mat-card>
+</div>
+
+<ng-template let-data #mypopupDialog class="Position-relative ng-template-add-reservation">
+  <h2 mat-dialog-title class="mat-dialog-title"> Reservation</h2>
+  <div mat-dialog-content>
+
+  </div>
+  <div mat-dialog-actions class=" continue-button">
+
+  </div>
+
+</ng-template>

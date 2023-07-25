@@ -29,7 +29,7 @@ export class RegisterComponent implements OnInit {
 
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   constructor(private authService: AuthbaseService, private _formBuilder: FormBuilder,
-    private toastrService: ToastrService,private router: Router, ) {
+    private toastrService: ToastrService, private router: Router,) {
 
   }
 
@@ -127,40 +127,40 @@ export class RegisterComponent implements OnInit {
         console.log(data)
 
         this.toastrService.success('Successfully!!', 'User Registration');
-      const loginobj={
-        username:this.registerForm.value.email,
-        password:this.registerForm.value.password
+        const loginobj = {
+          username: this.registerForm.value.email,
+          password: this.registerForm.value.password
         }
-        this.authService.login('auth/login', loginobj).subscribe(
-          (data) => {
-    
+        this.authService.login('auth/login', loginobj).subscribe({
+          next: data => {
+
             if (data["accessToken"] != null) {
               sessionStorage.setItem('access-token', data["accessToken"]);
               let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
               console.log(jwtObj);
               //sessionStorage.setItem('loginuser', jwtObj);
               sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-    //var obj = JSON.parse(sessionStorage.loginuser);
-            
+              //var obj = JSON.parse(sessionStorage.loginuser);
+
               if (jwtObj.role === 'Buyer') {
                 this.router.navigate(['/myreservation']);
               } else {
                 this.router.navigate(['/device/AllList']);
               }
-              this.toastrService.success('login user ' + jwtObj.email+ '!', 'login Success');
+              this.toastrService.success('login user ' + jwtObj.email + '!', 'login Success');
             } else {
               console.log("check your credentials !!")
               this.toastrService.info('Message Failure!', 'check your credentials !!');
               this.router.navigate(['/login']);
             }
           },
-          (error) => {                              //Error callback
-            console.error('error caught in component', error)
+          error: err => {                           //Error callback
+            console.error('error caught in component', err)
             this.toastrService.error('check your credentials!', 'login Fail!!');
-    
-    
+
+
           }
-        )
+        })
         this.registerForm.reset();
         const formControls = this.registerForm.controls;
 
@@ -168,7 +168,7 @@ export class RegisterComponent implements OnInit {
           const control = formControls[key];
           control.setErrors(null);
         });
-       // this.router.navigate(['/confirm-email']);
+        // this.router.navigate(['/confirm-email']);
 
       },
       error: err => {                          //Error callback
