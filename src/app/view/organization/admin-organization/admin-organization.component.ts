@@ -87,11 +87,11 @@ export class AdminOrganizationComponent {
   ngOnInit(): void {
    
     console.log("myreservation");
-    setTimeout(() => {
+    // setTimeout(() => {
       
-      this.loading = false;
+     
       this.getDeviceListData(this.p);
-    }, 2000)
+    // },1000)
   }
 
   ngOnDestroy() {
@@ -106,6 +106,7 @@ export class AdminOrganizationComponent {
       (data) => {
         console.log(data)
         this.showlist=true
+        this.loading = false;
         //@ts-ignore
       this.data = data;//.filter(ele => ele.organizationType === 'Developer');
         console.log(this.data);

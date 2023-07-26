@@ -19,7 +19,6 @@
   
       <mat-card-content class="mat-body-cont text-center">
      
-        <hr>
         <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
         <div class="content mat-elevation-z8 text-center" *ngIf="showlist">
           <table mat-table [dataSource]="dataSource" class="" matSort>
@@ -80,7 +79,7 @@
           </div>
           
         </div>
-       <div *ngIf="!showlist"style="text-align: center;color: #f2be1a;">No Device </div>
+       <div *ngIf="!showlist"style="text-align: center;color: #f2be1a;">No Organizations </div>
   
      
       </mat-card-content>
