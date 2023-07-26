@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { ParseTreeResult } from '@angular/compiler';
 import { ToastrService } from 'ngx-toastr';
-import { DeviceService } from '../../auth/services/device.service'
+import { DeviceService,ReservationService } from '../../auth/services'
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatBottomSheet, MatBottomSheetConfig, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MeterReadTableComponent } from '../meter-read/meter-read-table/meter-read-table.component'
@@ -68,7 +68,7 @@ export class AddReservationComponent {
   showerror: boolean = false;
   // countrycodeLoded: boolean = false;
   reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };
-  constructor(private authService: AuthbaseService, private router: Router,
+  constructor(private authService: AuthbaseService, private reservationService: ReservationService,private router: Router,
     public dialog: MatDialog, private bottomSheet: MatBottomSheet,
     private formBuilder: FormBuilder, private toastrService: ToastrService, private deviceservice: DeviceService) {
     this.loginuser = sessionStorage.getItem('loginuser');
@@ -82,7 +82,7 @@ export class AddReservationComponent {
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: [true],
       authorityToExceed: [true],
       frequency: [null, Validators.required],
-      blockchainAddress: [null]
+      // blockchainAddress: [null]
     });
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
@@ -348,7 +348,7 @@ export class AddReservationComponent {
   onContinue(result: any) {
     this.reservationForm.controls['continueWithReservationIfOneOrMoreDevicesUnavailableForReservation'].setValue(result.continewwithunavilableonedevice);
     this.reservationForm.controls['continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'].setValue(result.continueWithTCLessDTC);
-    this.authService.PostAuth('device-group', this.reservationForm.value).subscribe({
+    this.authService.PostAuth('buyer-reservation', this.reservationForm.value).subscribe({
       next: data => {
         console.log(data)
         this.reservationForm.reset();
