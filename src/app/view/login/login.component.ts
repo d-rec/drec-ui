@@ -44,6 +44,8 @@ export class LoginComponent {
         
           if (jwtObj.role === 'Buyer') {
             this.router.navigate(['/myreservation']);
+          } else if (jwtObj.role === 'Admin') {
+            this.router.navigate(['/admin/All_devices']);
           } else {
             this.router.navigate(['/device/AllList']);
           }
