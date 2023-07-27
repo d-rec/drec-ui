@@ -12,10 +12,10 @@ import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService } from '../../../auth/services/device.service';
 import { Router } from '@angular/router';
-import { Observable,Subscription } from 'rxjs';
+import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-
-
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { DeviceDetailsComponent } from '../device-details/device-details.component'
 
 @Component({
   selector: 'app-alldevices',
@@ -24,15 +24,17 @@ import { map, startWith } from 'rxjs/operators';
 })
 
 export class AlldevicesComponent {
+  title = 'matDialog';
+  dataFromDialog: any;
   displayedColumns = [
     'onboarding_date',
-    'projectName',
+    // 'projectName',
     'externalId',
     'countryCode',
-    'fuelCode',
+    // 'fuelCode',
     'commissioningDate',
     'capacity',
-    'SDGBenefits',
+    // 'SDGBenefits',
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -60,8 +62,12 @@ export class AlldevicesComponent {
   subscription: Subscription;
   selectedCountry: any;
   isAnyFieldFilled: boolean = false;
-
-  constructor(private authService: AuthbaseService, private deviceService: DeviceService, private formBuilder: FormBuilder, private router: Router) {
+  showerror: boolean = false;
+  showlist:boolean=false;
+  constructor(private authService: AuthbaseService, private deviceService: DeviceService,
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private dialog: MatDialog) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
@@ -73,26 +79,26 @@ export class AlldevicesComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-      pagenumber: [this.p]
+      //pagenumber: [this.p]
     });
   }
   ngOnInit(): void {
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
-       
+
         this.fuellist = data1;
         this.fuellistLoaded = true;
       });
     this.authService.GetMethod('device/device-type').subscribe(
       (data2) => {
-       
+
         this.devicetypelist = data2;
         this.devicetypeLoded = true;
       }
     );
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3) => {
-        
+
         this.countrylist = data3;
         this.countrycodeLoded = true;
       }
@@ -102,14 +108,15 @@ export class AlldevicesComponent {
         this.sdgblist = data;
       }
     )
- 
+
     console.log("myreservation");
     setTimeout(() => {
+      if (this.countrycodeLoded) {
+        this.applycountryFilter();
+      }
       this.loading = false;
-      this.applycountryFilter();
       this.getDeviceListData(this.p);
-     
-    }, 1000)
+    }, 2000)
   }
 
   ngOnDestroy() {
@@ -117,32 +124,91 @@ export class AlldevicesComponent {
       this.subscription.unsubscribe();
     }
   }
- 
-  checkFormValidity(): void {
-    console.log("115");
-    const formValues = this.FilterForm.value;
-    this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
-    
-  }
+
+  // checkFormValidity(): void {
+  //   console.log("115");
+  //   const formValues = this.FilterForm.value;
+  //   console.log(formValues)
+  //   this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
+
+  // }
+
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '')),
     );
-   
   }
 
   private _filter(value: any): string[] {
-  const filterValue = value.toLowerCase();
+
+    const filterValue = value.toLowerCase();
+    if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
+      this.showerror = true;
+      // const updatedFormValues = this.FilterForm.value;
+      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
+      // this.isAnyFieldFilled = false;
+    } else {
+      this.showerror = false;
+    }
     return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
 
   }
+
+  checkFormValidity(): void {
+    let isUserInteraction = true; // Flag to track user interaction
+
+    this.FilterForm.valueChanges.pipe(
+      debounceTime(500) // Debounce the stream for 500 milliseconds
+    ).subscribe((formValues) => {
+      if (isUserInteraction) {
+        const countryValue = formValues.countryname;
+        console.log(countryValue)
+        if (countryValue === undefined || countryValue === '') {
+
+          console.log('234')
+          this.FilterForm.controls['countryname'].setValue(null);
+          this.FilterForm.controls['countryCode'].setValue(null);
+
+        }
+        const fuelCodeValue = formValues.fuelCode;
+        if (fuelCodeValue === undefined) {
+          this.FilterForm.controls['fuelCode'].setValue(null);
+        }
+        console.log(formValues.deviceTypeCode);
+        if (formValues.offTaker != null && formValues.offTaker[0] === undefined) {
+          this.FilterForm.controls['offTaker'].setValue(null);
+        }
+        console.log(formValues.deviceTypeCode);
+        if (formValues.deviceTypeCode != null && formValues.deviceTypeCode[0] === undefined) {
+          this.FilterForm.controls['deviceTypeCode'].setValue(null);
+        }
+        if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
+          this.FilterForm.controls['SDGBenefits'].setValue(null);
+        }
+        // Other code...
+      }
+    });
+
+    setTimeout(() => {
+      const updatedFormValues = this.FilterForm.value;
+      const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
+      this.isAnyFieldFilled = isAllValuesNull;
+      if (!this.isAnyFieldFilled) {
+        this.getDeviceListData(this.p)
+      }
+    }, 500);
+
+    // Other code...
+  }
   selectCountry(event: any) {
     console.log(event)
-    this.subscription =  this.filteredOptions.subscribe(options => {
-    const selectedCountry = options.find(option => option.country === event.option.value);
-    if (selectedCountry) {
+
+    this.subscription = this.filteredOptions.subscribe(options => {
+
+      const selectedCountry = options.find(option => option.country === event.option.value);
+      if (selectedCountry) {
         this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
       }
     });
@@ -169,15 +235,14 @@ export class AlldevicesComponent {
   }
 
   getDeviceListData(page: number) {
-    if (this.loginuser.role === 'Admin') {
-      this.deviceurl = 'device?';
-    } else {
+   
       this.deviceurl = 'device/my?';
-    }
-    this.FilterForm.controls['pagenumber'].setValue(page);
-    this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value).subscribe(
+   
+    //this.FilterForm.controls['pagenumber'].setValue(page);
+    this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe(
       (data) => {
         console.log(data)
+        this.showlist=true
         //@ts-ignore
         if (data.devices) {
           this.loading = false;
@@ -185,12 +250,17 @@ export class AlldevicesComponent {
           this.data = data;
           this.DisplayList()
         }
+      }, error => {
+        console.log(error);
+        this.data = [];
+        this.showlist=false
       }
     )
   }
 
   DisplayList() {
     if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
+      
       //@ts-ignore
       this.data.devices.forEach(ele => {
         //@ts-ignore
@@ -233,5 +303,27 @@ export class AlldevicesComponent {
       this.p++;
       this.getDeviceListData(this.p);;
     }
+  }
+  // showPrompt(deviceId:number): void {
+  //   const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+  //     width: '500px',
+  //     height: '400px',
+  //   });
+
+  //   dialogRef.afterClosed().subscribe((data) => {
+  //     this.dataFromDialog = data.form;
+  //     if (data.clicked === 'submit') {
+  //       console.log('Sumbit button clicked');
+  //     }
+  //   });
+  // }
+  alertDialog(deviceId: number): void {
+    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+      data: {
+        deviceid: deviceId
+      },
+      width: '900px',
+      height: '400px',
+    });
   }
 }

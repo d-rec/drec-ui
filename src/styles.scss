@@ -46,7 +46,46 @@ body {
     height: 100%;
     font-family: 'Poppins', sans-serif !important;
 }
+.body-bg {
+    padding: 30px 20px 30px 20px;
+    background: #f2f2f2;
+    table{
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    }
+  
+    .mat-mdc-card {
+      box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1) !important;
+      border: none !important;
+      position: relative;
+    }
+    .mat-form-filte{
+        padding: 0px 10px;
+        position: absolute;
+        top: 6px;
+        right: 10px;
+        width: fit-content;
+        // margin-top: -50px !important;
+    }
+    .mat-body-cont{
+        padding: 0px 16px 23px !important;
 
+    }
+    .but-cont{
+        padding: 0px 16px !important;
+    }
+    // .mat-mdc-form-field-focus-overlay{
+    //     background-color: white !important;
+
+    // }
+    .h6-margin-remove{
+      h6{
+        // margin: 0px !important;
+        font-size: 14px;
+        padding-left: 3px;
+        text-align: left;
+      }
+    }
+  }
 // body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .drec-login {
     .mdc-text-field--filled:not(.mdc-text-field--disabled) {
@@ -359,6 +398,7 @@ border-left-color:$primary!important ;
 .edit-icon {
 
     color: $primary;
+    cursor: pointer;
 }
 .edit-icon:hover {
 
@@ -375,4 +415,54 @@ border-left-color:$primary!important ;
     background-color: $primary !important;
     border: 1px solid $primary !important;
     color: $gray !important;
+}
+
+// pagination buttons 
+.pagenation-btns{
+    position: sticky !important;
+    left: 0px;
+  }
+// action buttons cursor 
+.action-icons{
+  cursor: pointer;
+  mat-icon{
+    font-size: 18px;
+  }
+}
+
+.add-reservation{
+    .mat-mdc-checkbox.mat-primary{
+        --mdc-checkbox-selected-checkmark-color: black;
+        --mdc-checkbox-selected-focus-icon-color: #f2be1a;
+        --mdc-checkbox-selected-hover-icon-color: #f2be1a;
+        --mdc-checkbox-selected-icon-color: #f2be1a;
+        --mdc-checkbox-selected-pressed-icon-color: #f2be1a;
+    }
+    .mat-mdc-checkbox.mat-primary .mdc-checkbox--selected~.mdc-checkbox__ripple{
+        background: #f2be1a;
+    }
+}
+
+
+// This is for slider max min in certificate
+.mat-mdc-slider.mat-primary {
+    --mdc-slider-handle-color: #f2be1a;
+    --mdc-slider-focus-handle-color: #f2be1a;
+    --mdc-slider-hover-handle-color: #f2be1a;
+    --mdc-slider-active-track-color: #f2be1a;
+    --mdc-slider-inactive-track-color: #f2be1a;
+    --mdc-slider-with-tick-marks-active-container-color: #fff;
+    --mdc-slider-with-tick-marks-inactive-container-color: #f2be1a;
+    --mat-mdc-slider-ripple-color: #f2be1a;
+    --mat-mdc-slider-hover-ripple-color: rgba(242, 190, 26, 0.05);
+    --mat-mdc-slider-focus-ripple-color: rgba(242, 190, 26, 0.2);
+}
+
+
+// This is for reservation table start date end date
+.mat-column-reservationStartDate{
+    min-width: 105px;
+}
+.mat-column-reservationEndDate{
+    min-width: 105px;
 }

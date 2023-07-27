@@ -62,32 +62,21 @@
                                     </div>
 
                                     <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">Select country Code</mat-label>
-                                            <mat-select formControlName='countryCode'>
-                                                <mat-option *ngFor="let code of countrylist" [value]="code.alpha3">
-                                                    {{code.country}}
-                                                </mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
-
-                                        
-                                        <!-- <mat-form-field>
-                                            <mat-select formControlName='countryCode' placeholder="Bank" #singleSelect>
-                                              <mat-option>
-                                                <ngx-mat-select-search [formControl]="bankFilterCtrl"></ngx-mat-select-search>
-                                              </mat-option>
-                                        
-                                              <mat-option *ngFor="let code of countrylist | async" [value]="code.alpha3">
-                                                {{code.country}}
-                                              </mat-option>
-                                            </mat-select>
-                                          </mat-form-field> -->
+                                       <mat-form-field appearance="outline">
+                                        <mat-label class="text-capitalize">Select country Code</mat-label>
+                                        <input type="text" matInput formControlName='countryCode' [matAutocomplete]="auto">
+                                        <mat-autocomplete #auto="matAutocomplete">
+                                          <mat-option *ngFor="let code of filteredCountryList[i] | async" [value]="code.country">
+                                            {{code.country}}
+                                          </mat-option>
+                                        </mat-autocomplete>
+                                      </mat-form-field>
+                                      <mat-error *ngIf="showerror[i]" style="margin-top: -15px;"> Invalid Country Selected </mat-error>
                                     </div>
 
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">commissioning Date</mat-label>
+                                            <mat-label class="text-capitalize">Commissioning Date</mat-label>
                                             <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
                                                 formControlName="commissioningDate" [max]="maxDate">
                                             <mat-datepicker-toggle matSuffix
@@ -102,7 +91,7 @@
                                 <div class="example-container1 row">
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">Capacity(kW)</mat-label>
+                                            <mat-label >Capacity(kW)</mat-label>
                                             <input matInput  type="number"
                                                 formControlName='capacity' [min]=1 autocomplete="off">
                                             <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->

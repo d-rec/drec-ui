@@ -12,8 +12,8 @@ export class CertificateService {
   GetRedemptionMethod() : Observable<any>{
     return this.httpClient.get(this.url+'certificate-log/redemption-report')
   }
-  GetDevoloperCertificateMethod(searchData:any) : Observable<any>{
-    let searchUrl = this.url+'certificate-log/issuer/certifiedfordeveloper?pageNumber='+searchData.pagenumber;
+  GetDevoloperCertificateMethod(searchData:any ,pagenumber:number) : Observable<any>{
+    let searchUrl = this.url+'certificate-log/issuer/certifiedlogOfdevices?pageNumber='+pagenumber;
     if(searchData!=undefined){
       // if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null)) {
       //   searchUrl += `pagenumber=${searchData.pagenumber}`;

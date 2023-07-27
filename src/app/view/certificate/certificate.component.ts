@@ -110,7 +110,7 @@ export class CertificateComponent implements OnDestroy {
     console.log("myreservation");
     setTimeout(() => {
       this.DisplayList();
-    }, 3000);
+    },2000);
     this.getBlockchainProperties();
     this.AllCountryList();
     this.claimData.controls['countryCode'];
@@ -296,9 +296,6 @@ export class CertificateComponent implements OnDestroy {
             if (key !== key.toLowerCase()) {
               ele.owners[key.toLowerCase()] = ele.owners[key];
               delete ele.owners[key];
-              // if(ele.owner[key].value=0){
-
-              // }
             }
           }
 

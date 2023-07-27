@@ -11,268 +11,259 @@
 		<hr>
 		<mat-card-content>
 
-			<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-2 pb-0">
-				<b>All certificate of those reservation in which my devices reserve </b>
-			</h2>
+			<mat-card class="example-card">
 
+				<mat-card-content>
+					<h2 style="text-align: center;color:#f2be1a; font-size: 16px;"
+						class="text-capitalize mt-0 pt-0 mb-2 pb-0">
+						<b>Select fields to filter certificates</b>
+					</h2>
+					<form [formGroup]="FilterForm">
+						<div class="example-container1 row">
 
-			<form [formGroup]="FilterForm">
-				<div class="example-container1 row">
-					<!-- <div class="col-md-3">
-						  <mat-form-field>
-							  <mat-label class="text-capitalize">Select country Code</mat-label>
-							  <mat-select formControlName='countryCode'>
-								  <mat-option *ngFor="let code of countrylist" [value]="code.alpha3">
-									  {{code.country}}
-								  </mat-option>
-							  </mat-select>
-						  </mat-form-field>
-					  </div> -->
-					<div class="col-md-3">
-						<mat-form-field>
-							<mat-label class="text-capitalize">Select Country Code</mat-label>
-							<input type="text" placeholder="Please Enter countryCode" aria-label="text" matInput
-								formControlName="countryCode" [matAutocomplete]="auto"
-								(ngModelChange)="checkFormValidity()">
-							<mat-autocomplete #auto="matAutocomplete">
-								<mat-option *ngFor="let code of filteredOptions | async" [value]="code.alpha3">
-									{{code.country}}
-								</mat-option>
-							</mat-autocomplete>
-						</mat-form-field>
-					</div>
-					<div class="col-md-3">
+							<div class="col-md-4">
+								<mat-form-field appearance="outline">
+									<mat-label class="text-capitalize">Select country Code</mat-label>
+									<input type="text" aria-label="text" matInput formControlName="countryname"
+										(ngModelChange)="checkFormValidity()" [matAutocomplete]="auto" multiple>
+									<mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
+										<mat-option [value]="">---</mat-option>
+										<mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
+											{{code.country}}
+										</mat-option>
+									</mat-autocomplete>
+
+								</mat-form-field>
+								<mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected
+								</mat-error>
+							</div>
+							<!-- <div class="col-md-3">
 						<mat-form-field>
 							<mat-label class="text-capitalize">Fuel Code</mat-label>
-
 							<mat-select formControlName='fuelCode' (ngModelChange)="checkFormValidity()">
-
+								<mat-option [value]="">---</mat-option>
 								<mat-option *ngFor="let code of fuellist" [value]="code.code">
 									{{code.name}}
 								</mat-option>
 							</mat-select>
 						</mat-form-field>
-					</div>
-					<!-- <div class="col-md-3">
-					<mat-form-field>
-					  <mat-label class="text-capitalize">Device Type Code</mat-label>
-		
-					  <mat-select formControlName='deviceTypeCode' (ngModelChange)="checkFormValidity()">
-		
-						<mat-option *ngFor="let code of devicetypelist" [value]="code.code">
-						  {{code.name}}
-						</mat-option>
-					  </mat-select>
-					</mat-form-field>
-				  </div> -->
+					</div> -->
 
-					<div class="col-md-3">
-						<mat-form-field>
-							<mat-label class="text-capitalize">Off Taker</mat-label>
+							<div class="col-md-4">
+								<mat-form-field appearance="outline">
+									<mat-label class="text-capitalize">Off Taker</mat-label>
+									<mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()"
+										multiple>
+										<mat-option [value]="">---</mat-option>
+										<mat-option *ngFor="let code of offtaker" [value]="code">
+											{{code}}
+										</mat-option>
+									</mat-select>
+								</mat-form-field>
+							</div>
 
-							<mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()">
+							<div class="col-md-4">
+								<mat-form-field appearance="outline">
+									<mat-label class="text-capitalize">SDG Benefits</mat-label>
+									<mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()"
+										multiple>
+										<mat-option [value]="">---</mat-option>
+										<mat-option *ngFor="let sdgb of sdgblist"
+											[value]="sdgb.value">{{sdgb.value}}</mat-option>
 
-								<mat-option *ngFor="let code of offtaker" [value]="code">
-									{{code}}
-								</mat-option>
-							</mat-select>
-						</mat-form-field>
-					</div>
+									</mat-select>
+								</mat-form-field>
+							</div>
+							<!-- <div class="col-md-1">
+								<h5>Certificate Date: </h5>
+							</div> -->
 
-					<div class="col-md-3">
-						<mat-form-field>
-							<mat-label class="text-capitalize">SDG Benefits</mat-label>
+							<div class="col-md-4  h6-margin-remove">
+								<h6>Certificate Date: </h6>
+								<mat-form-field appearance="outline">
+									<mat-label>Enter a date range</mat-label>
+									<mat-date-range-input [rangePicker]="$any(picker)">
+										<input matStartDate formControlName="start_date"
+											(ngModelChange)="checkFormValidity()" />
+										<input matEndDate formControlName="end_date"
+											(ngModelChange)="checkFormValidity()" />
+									</mat-date-range-input>
+									<mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+									<mat-date-range-picker #picker></mat-date-range-picker>
+									
+								</mat-form-field>
+							</div>
+				
 
-							<mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()" multiple>
+							<!-- <div class="col-md-4  h6-margin-remove">
+								<h6>Select Read Volume(Wh): </h6>
+								
+								<mat-slider class="sliderexample-margin" [max]="5000000" [min]="1000" [step]="10"
+									[discrete]="true" >
+									<input matSliderStartThumb (input)="onstartreadChangeEvent($event)"
+										[(ngModel)]="startvalue" [ngModelOptions]="{standalone: true}" />
+									<input matSliderEndThumb (input)="onendreadChangeEvent($event)"
+										[(ngModel)]="endvalue" [ngModelOptions]="{standalone: true}" />
+								</mat-slider>
+							</div> -->
 
-								<mat-option *ngFor="let sdgb of sdgblist"
-									[value]="sdgb.value">{{sdgb.value}}</mat-option>
+							<div class="col-md-12 mb-3  d-flex justify-content-end">
+								<div class="">
+									<button class="btn-primary me-2 btn text-capitalize px-4"
+										(click)="DisplayListFilter()" [disabled]="!isAnyFieldFilled">Filter</button>
+								</div>
+								<div class="">
+									<button class="btn-dark btn text-capitalize px-4" [disabled]="!isAnyFieldFilled"
+										(click)="reset()">Reset</button>
+								</div>
 
-							</mat-select>
-						</mat-form-field>
-					</div>
-					<div class="col-md-3">
-						<mat-form-field>
-							<mat-label class="text-capitalize">Certificate Start Date </mat-label>
-							<input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-								formControlName="start_date" autocomplete="off"
-								(ngModelChange)="onEndChangeEvent($event);checkFormValidity()">
-							<mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-							<ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
-								[stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
-								[disableMinute]="false" [hideTime]="false">
-							</ngx-mat-datetime-picker>
-						</mat-form-field>
-					</div>
-					<div class="col-md-3">
-						<mat-form-field>
-							<mat-label class="text-capitalize">Certificate End Date </mat-label>
 
-							<input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
-								formControlName="end_date" [min]="endminDate" autocomplete="off"
-								(ngModelChange)="checkFormValidity()">
-							<mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
-							<ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
-								[stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
-								[disableMinute]="false" [hideTime]="false">
-							</ngx-mat-datetime-picker>
+							</div>
 
-						</mat-form-field>
-					</div>
-					<div class="col-md-1">
-						<h5>Read Amount: </h5>
-
-					</div>
-					<div class="col-md-2">
-
-						<mat-form-field>
-							<mat-label class="text-capitalize">From </mat-label>
-							<input matInput type="number" (ngModelChange)="checkFormValidity()"
-								formControlName='fromAmountread' #input>
-						</mat-form-field>
-
-					</div>
-					<div class="col-md-2">
-						<mat-form-field>
-							<mat-label class="text-capitalize">To </mat-label>
-							<input matInput type="number" (ngModelChange)="checkFormValidity()"
-								formControlName='toAmountread' #input>
-						</mat-form-field>
-					</div>
-					<div class="col-md-12 mb-3  d-flex justify-content-end">
-						<div class="">
-							<button class="btn-primary me-2 btn text-capitalize px-4" (click)="DisplayListFilter()"
-								[disabled]="!isAnyFieldFilled">Filter</button>
 						</div>
-						<div class="">
-							<button class="btn-dark btn text-capitalize px-4" [disabled]="!isAnyFieldFilled"
-								(click)="reset()">Reset</button>
-						</div>
-
-
-					</div>
-
-				</div>
-			</form>
-
+					</form>
+				</mat-card-content>
+			</mat-card>
+			<hr>
+			<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-2 pb-0">
+				<b>All certificate of those reservation in which my devices reserve </b>
+			</h2>
 			<mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
-			<ng-container  *ngIf="!loading">
+			<ng-container *ngIf="!loading">
+				<div *ngIf="data?.length">
+					<mat-card class="innermat-card example-card1 border" *ngFor="let item of obs| async;let i=index">
+						<mat-card-header class="">
+							<div class="col-12">
+								<mat-card-title class=" d-flex justify-content-between align-items-center">
+									<div>
+										{{i+1}}
+										<!-- <a matTooltip="Link to Certificate" [matTooltipPosition]="'right'"
+							aria-label="Button that displays a tooltip when focused or hovered over"
+							style="text-align: right;" href={{item.energyurl}}
+							target="_blank" class="certificate-text d-flex text-capitalize">
+							<mat-icon class="mt-1">card_membership</mat-icon>
+							<div class="certificate-id-text">
+								<div class="id-text" *ngIf="item?.blockchainCertificateId">{{item?.blockchainCertificateId}}</div>
+								<div class="id-text" *ngIf="item?.id">{{item?.id}}</div>
+							</div>
+						</a> -->
+									</div>
+									<div class=" ">
 
-				<mat-card class="innermat-card example-card1 border" *ngFor="let item of obs| async;let i=index">
-					<mat-card-header class="">
-						<div class="col-12">
-							<mat-card-title class=" d-flex justify-content-between align-items-center">
-								<div>
-									{{i+1}}
-									<!-- <a matTooltip="Link to Certificate" [matTooltipPosition]="'right'"
-										aria-label="Button that displays a tooltip when focused or hovered over"
-										style="text-align: right;" href={{item.energyurl}}
-										target="_blank" class="certificate-text d-flex text-capitalize">
-										<mat-icon class="mt-1">card_membership</mat-icon>
-										<div class="certificate-id-text">
-											<div class="id-text" *ngIf="item?.blockchainCertificateId">{{item?.blockchainCertificateId}}</div>
-											<div class="id-text" *ngIf="item?.id">{{item?.id}}</div>
-										</div>
-									</a> -->
+									</div>
+								</mat-card-title>
+
+							</div>
+
+						</mat-card-header>
+
+						<mat-card-content>
+
+							<div class='content'>
+								<div class='column'>
+									<div class='row '>
+										<p><b>Generation Start Date</b>:&nbsp;
+											<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
+											{{item.generationStartTimeinUTC|date:'long'}}
+										</p>
+									</div>
 								</div>
-								<div class=" ">
-
+								<div class='column'>
+									<div class='row'>
+										<p><b>Generation End
+												Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+											{{item.generationEndTimeinUTC |date:'long'}}</p>
+									</div>
 								</div>
-							</mat-card-title>
+								<div class='column'>
+									<div class='row'>
+										<p *ngFor="let item1 of item.owners | keyvalue"><b>Owned Volume:</b>:
+											&nbsp;{{item1.value}}(Wh)</p>
 
-						</div>
+									</div>
+									<div class='row' *ngIf="item.CertificateClaimed">
+										<p *ngFor="let item1 of item.claimers | keyvalue"><b>Claimed Volume:</b>:
+											&nbsp;{{item1.value}}(Wh)</p>
 
-					</mat-card-header>
-
-					<mat-card-content>
-
-						<div class='content'>
-							<div class='column'>
-								<div class='row '>
-									<p><b>Generation Start Date</b>:&nbsp;
-										<!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
-										{{item.generationStartTimeinUTC|date:'long'}}
-									</p>
+									</div>
 								</div>
 							</div>
-							<div class='column'>
-								<div class='row'>
-									<p><b>Generation End
-											Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-										{{item.generationEndTimeinUTC |date:'long'}}</p>
-								</div>
-							</div>
-							<div class='column'>
-								<div class='row'>
-									<p *ngFor="let item1 of item.owners | keyvalue"><b>Owned Volume:</b>:
-										&nbsp;{{item1.value}}(Wh)</p>
+							<mat-accordion>
 
-								</div>
-								<div class='row' *ngIf="item.CertificateClaimed">
-									<p *ngFor="let item1 of item.claimers | keyvalue"><b>Claimed Volume:</b>:
-										&nbsp;{{item1.value}}(Wh)</p>
+								<mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+									<mat-expansion-panel-header>
+										<mat-panel-title>
+											<h3 class="fs-text mt-3">Per Single Device Contribution For Certificate</h3>
+										</mat-panel-title>
+										<!-- <mat-panel-description>
+		  Currently I am {{panelOpenState ? 'open' : 'closed'}}
+		</mat-panel-description> -->
+									</mat-expansion-panel-header>
+									<table mat-table [dataSource]="item.perDeviceCertificateLog" class="mt-2">
+										<ng-container matColumnDef="certificate_issuance_startdate">
+											<th mat-header-cell *matHeaderCellDef>StartDate </th>
+											<td mat-cell *matCellDef="let element" class="table-data">
+												{{element.certificate_issuance_startdate|date:'long'}}</td>
+										</ng-container>
 
-								</div>
-							</div>
-						</div>
-						<mat-accordion>
+										<ng-container matColumnDef="certificate_issuance_enddate">
+											<th mat-header-cell *matHeaderCellDef> EndDate</th>
+											<td mat-cell *matCellDef="let element" class="table-data">
+												{{element.certificate_issuance_enddate|date:'long'}}</td>
+										</ng-container>
 
-							<mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
-								<mat-expansion-panel-header>
-									<mat-panel-title>
-										<h3 class="fs-text mt-3">Per Single Device Contribution For Certificate</h3>
-									</mat-panel-title>
-									<!-- <mat-panel-description>
-					  Currently I am {{panelOpenState ? 'open' : 'closed'}}
-					</mat-panel-description> -->
-								</mat-expansion-panel-header>
-								<table mat-table [dataSource]="item.perDeviceCertificateLog" class="mt-2">
-									<ng-container matColumnDef="certificate_issuance_startdate">
-										<th mat-header-cell *matHeaderCellDef>StartDate </th>
-										<td mat-cell *matCellDef="let element" class="table-data">
-											{{element.certificate_issuance_startdate|date:'long'}}</td>
-									</ng-container>
-
-									<ng-container matColumnDef="certificate_issuance_enddate">
-										<th mat-header-cell *matHeaderCellDef> EndDate</th>
-										<td mat-cell *matCellDef="let element" class="table-data">
-											{{element.certificate_issuance_enddate|date:'long'}}</td>
-									</ng-container>
-
-									<ng-container matColumnDef="externalId">
-										<th mat-header-cell *matHeaderCellDef> Device Name </th>
-										<td mat-cell *matCellDef="let element" class="table-data"> {{element.externalId
-											}}
-										</td>
-									</ng-container>
-									<ng-container matColumnDef="readvalue_watthour">
-										<th mat-header-cell *matHeaderCellDef> Read Value </th>
-										<td mat-cell *matCellDef="let element" class="table-data">
-											{{element.readvalue_watthour }} </td>
-									</ng-container>
+										<ng-container matColumnDef="externalId">
+											<th mat-header-cell *matHeaderCellDef> Device Name </th>
+											<td mat-cell *matCellDef="let element" class="table-data">
+												{{element.externalId
+												}}
+											</td>
+										</ng-container>
+										<ng-container matColumnDef="readvalue_watthour">
+											<th mat-header-cell *matHeaderCellDef> Read Value </th>
+											<td mat-cell *matCellDef="let element" class="table-data">
+												{{element.readvalue_watthour }} </td>
+										</ng-container>
+										<ng-container matColumnDef="Action">
+											<th mat-header-cell *matHeaderCellDef>Action </th>
+											<td mat-cell *matCellDef="let element" class="table-data">
+												<a class="edit-icon action-icons" matTooltip="Device Info" [matTooltipPosition]="'above'" (click)="deviceDetaileDialog(element.deviceId)"
+													*ngIf="element.externalId!='Other Devices'">
+													<mat-icon class="primary">visibility</mat-icon>
+												</a>
+											</td>
+										</ng-container>
 
 
-									<tr mat-header-row *matHeaderRowDef="innerDisplayedColumns"></tr>
-									<tr mat-row *matRowDef="let row; columns: innerDisplayedColumns;"></tr>
-								</table>
-							</mat-expansion-panel>
-						</mat-accordion>
+										<tr mat-header-row *matHeaderRowDef="innerDisplayedColumns"></tr>
+										<tr mat-row *matRowDef="let row; columns: innerDisplayedColumns;"></tr>
+									</table>
+								</mat-expansion-panel>
+							</mat-accordion>
 
 
-					</mat-card-content>
-				</mat-card>
+						</mat-card-content>
 
-				<br>
-			
-			<!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
+
+					</mat-card>
+					
+					<hr>
+					<button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
+						[disabled]="p === 1">Previous</button>&nbsp;&nbsp;
+					Total Pages:{{totalPages}}&nbsp;&nbsp;
+					<button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
+						[disabled]="p === totalPages">Next</button>
+				</div>
+
+
+				<!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
 				aria-label="Select page">
 			</mat-paginator> -->
 
-			<button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()" [disabled]="p === 1">Previous</button>
-			<button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()" [disabled]="p === totalPages">Next</button>
-			
-			<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
-		</ng-container>
+
+
+				<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
+			</ng-container>
 		</mat-card-content>
 	</mat-card>
 

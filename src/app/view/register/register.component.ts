@@ -29,7 +29,7 @@ export class RegisterComponent implements OnInit {
 
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   constructor(private authService: AuthbaseService, private _formBuilder: FormBuilder,
-    private toastrService: ToastrService,) {
+    private toastrService: ToastrService, private router: Router,) {
 
   }
 
@@ -108,6 +108,14 @@ export class RegisterComponent implements OnInit {
     const validation = this.registerForm.get(input)?.invalid && (this.registerForm.get(input)?.dirty || this.registerForm.get(input)?.touched)
     return validation;
   }
+  padBase64(token: any) {
+    const base64 = token.replace('-', '+').replace('_', '/');
+    return base64;
+  }
+  b64DecodeUnicode(token: any) {
+    const base64Payload = window.atob(token);
+    return base64Payload;
+  }
   onSubmit(formData: FormGroup): void {
     console.log(this.registerForm.value)
     // const email = formData.value.email;
@@ -117,13 +125,50 @@ export class RegisterComponent implements OnInit {
     this.authService.PostAuth('user/registerWithOrganization', this.registerForm.value).subscribe({
       next: data => {
         console.log(data)
+
+        this.toastrService.success('Successfully!!', 'User Registration');
+        const loginobj = {
+          username: this.registerForm.value.email,
+          password: this.registerForm.value.password
+        }
+        this.authService.login('auth/login', loginobj).subscribe({
+          next: data => {
+
+            if (data["accessToken"] != null) {
+              sessionStorage.setItem('access-token', data["accessToken"]);
+              let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
+              console.log(jwtObj);
+              //sessionStorage.setItem('loginuser', jwtObj);
+              sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
+              //var obj = JSON.parse(sessionStorage.loginuser);
+
+              if (jwtObj.role === 'Buyer') {
+                this.router.navigate(['/myreservation']);
+              } else {
+                this.router.navigate(['/device/AllList']);
+              }
+              this.toastrService.success('login user ' + jwtObj.email + '!', 'login Success');
+            } else {
+              console.log("check your credentials !!")
+              this.toastrService.info('Message Failure!', 'check your credentials !!');
+              this.router.navigate(['/login']);
+            }
+          },
+          error: err => {                           //Error callback
+            console.error('error caught in component', err)
+            this.toastrService.error('check your credentials!', 'login Fail!!');
+
+
+          }
+        })
         this.registerForm.reset();
         const formControls = this.registerForm.controls;
+
         Object.keys(formControls).forEach(key => {
           const control = formControls[key];
           control.setErrors(null);
         });
-        this.toastrService.success('Successfully!!', 'User Registration');
+        // this.router.navigate(['/confirm-email']);
 
       },
       error: err => {                          //Error callback

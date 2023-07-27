@@ -29,16 +29,15 @@
                     <div class="col-md-3">
 
                         <mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">ExternalId</mat-label>
-
-                            <mat-select formControlName='externalId' 
-                                (ngModelChange)="ExternaIdonChangeEvent($event)">
-
-                                <mat-option *ngFor="let device of data" [value]="device">
-                                    {{device.externalId}}
-                                </mat-option>
-                            </mat-select>
-                        </mat-form-field>
+                            <mat-label class="text-capitalize">External ID</mat-label>
+                            <input matInput formControlName='externalId'  [matAutocomplete]="auto" placeholder="Search External ID" (input)="search()" [value]="selectedResult?.externalId">
+                            <mat-autocomplete #auto="matAutocomplete"  (optionSelected)="onSelect($event.option.value)">
+                              <mat-option *ngFor="let result of autocompleteResults" [value]="result">
+                                {{ result.externalId }}
+                              </mat-option>
+                            </mat-autocomplete>
+                          </mat-form-field>
+                          <mat-error *ngIf="showerrorexternalid" style="margin-top: -15px;"> Invalid externalId  </mat-error>
                     </div>
                     <div class="col-md-3">
                         <!-- <mat-form-field appearance="outline">
@@ -54,8 +53,8 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Select Timezone</mat-label>
                             <input type="text" placeholder="Please Enter Timezone" aria-label="text" matInput
-                                formControlName="timezone" [matAutocomplete]="auto">
-                            <mat-autocomplete #auto="matAutocomplete">
+                                formControlName="timezone" [matAutocomplete]="auto1" >
+                            <mat-autocomplete #auto1="matAutocomplete" (optionSelected)="onTimezoneSelect($event.option.value)">
                                 <mat-option *ngFor="let code of filteredOptions | async" [value]="code.name">
                                     {{code.name}}
                                 </mat-option>
@@ -91,9 +90,6 @@
                             </mat-select>
                         </mat-form-field>
                     </div>
-
-
-
                 </div>
                 <div formArrayName='reads'>
                     <div *ngFor="let read of addreads.controls; let i=index" [formGroupName]="i">
