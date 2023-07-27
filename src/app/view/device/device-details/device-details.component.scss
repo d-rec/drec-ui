@@ -1,0 +1,46 @@
+.form-container{
+  .device-details-heading{
+    text-align: center;
+    color: #f2be1a;
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0px;
+  }
+  .close-icon-container{
+    padding: 16px 16px 0px 16px;
+    .close-icon{
+      margin-left: auto;
+      cursor: pointer;
+      font-size: 22px;
+  
+    }
+  }
+  // ::-webkit-scrollbar{
+  //   display: none !important;
+  // }
+  .mat-mdc-dialog-content{
+    max-height: 49vh;
+
+  }
+
+}
+.content {
+    display: flex;
+    flex-direction: row;
+    // height: 100%;
+    width: 100%;
+    p{
+      font-size: 13px;
+    }
+  }
+  
+  .column {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 5px;
+  }
+  .spinner__loading {
+    display: flex;
+    justify-content: center;
+  }

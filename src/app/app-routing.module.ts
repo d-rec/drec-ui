@@ -6,12 +6,16 @@ import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import {RedemptionReportComponent} from './view/redemption-report/redemption-report.component';
-
+import {ConfirmemailComponent} from './view/confirmemail/confirmemail.component'
 import {CertificateDetailsComponent} from './view/certificate-details/certificate-details.component'
 import {
   MyreservationComponent
 } from './view/myreservation/myreservation.component'
-import {AddReservationComponent} from './view/add-reservation/add-reservation.component'
+import {AddReservationComponent} from './view/add-reservation/add-reservation.component';
+import {ForgetPasswordComponent} from './view/forget-password/forget-password.component';
+import {
+ResetPasswordComponent
+} from './view/reset-password/reset-password.component'
 const routes: Routes = [
 
 
@@ -23,6 +27,9 @@ const routes: Routes = [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
+      //{ path: 'confirm-email', component: ConfirmemailComponent },
+      { path: 'forgot-password', component: ForgetPasswordComponent },
+      { path: 'reset-password', component: ResetPasswordComponent },
     ]
   },
   {
@@ -55,7 +62,12 @@ const routes: Routes = [
       },
       {
         path: 'add/reservation', component:AddReservationComponent
-      }
+      },
+      {
+        path: 'admin',
+        loadChildren: () =>
+          import('./view/admin/admin.module').then((m) => m.AdminModule),
+      },
     ]
   }
 ];
