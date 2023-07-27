@@ -5,6 +5,11 @@
                 <h2 class="pb-0 mb-0 fw-bold text-capitalize">Yield Update Form
                 </h2>
             </div>
+            <div>
+                <button class="btn btn-dark justify-content-end px-4  d-flex align-items-center" routerLink="/admin/yield/list">
+                  <mat-icon class="align-middle me-2">arrow_back</mat-icon>Go Back </button>
+        
+              </div>
         </mat-card-header>
         <hr class="mb-0 pb-0">
         <form [formGroup]="updayeyieldForm" (ngSubmit)="onSubmit()">

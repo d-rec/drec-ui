@@ -19,10 +19,7 @@
     <hr class="mt-0 pt-0">
 
     <mat-card-content class="mat-body-cont text-center">
-      <!-- <mat-form-field>
-          <mat-label>Filter</mat-label>
-          <input matInput (keyup)="applyFilter($event)" placeholder="Search" #input>
-        </mat-form-field> -->
+    
 
       <h3 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize">Use Filters For Device
         Search</h3>
@@ -165,14 +162,18 @@
         </div>
       </form>
       <hr>
+      <mat-form-field>
+        <mat-label>Filter</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Search" #input>
+      </mat-form-field>
       <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
       <div class="content mat-elevation-z8 text-center" *ngIf="showlist">
         <table mat-table [dataSource]="dataSource" class="" matSort>
           <!-- Position Column -->
-          <ng-container matColumnDef="onboarding_date">
+          <!-- <ng-container matColumnDef="onboarding_date">
             <th mat-header-cell *matHeaderCellDef class="text-left"> OnBoarding Date </th>
             <td mat-cell *matCellDef="let row;let i=index"> {{row.createdAt| date:' dd MMM y hh:mm'}} </td>
-          </ng-container>
+          </ng-container> -->
           <!-- <ng-container matColumnDef="projectName" class="text-left">
               <th mat-header-cell *matHeaderCellDef mat-sort-header> Project Name </th>
               <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
@@ -189,7 +190,10 @@
             <th mat-header-cell *matHeaderCellDef class="text-left"> Country </th>
             <td mat-cell *matCellDef="let element"> {{element.countryname}} </td>
           </ng-container>
-
+          <ng-container matColumnDef="fuelCode">
+            <th mat-header-cell *matHeaderCellDef class="text-left"> Fuel Code </th>
+            <td mat-cell *matCellDef="let element"> {{element.fuelCode}} </td>
+          </ng-container>
           <ng-container matColumnDef="IREC_ID">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> IREC ID </th>
             <td mat-cell *matCellDef="let element"> {{element.IREC_ID}} </td>
@@ -201,10 +205,10 @@
             <td mat-cell *matCellDef="let element"> {{element.IREC_Status}} </td>
           </ng-container>
           <!-- Status Column -->
-          <ng-container matColumnDef="commissioningDate">
+          <!-- <ng-container matColumnDef="commissioningDate">
             <th mat-header-cell *matHeaderCellDef class="text-left">Commissioning Date </th>
             <td mat-cell *matCellDef="let element"> {{element.commissioningDate| date:'dd MMM y'}} </td>
-          </ng-container>
+          </ng-container> -->
           <ng-container matColumnDef="capacity">
             <th mat-header-cell *matHeaderCellDef class="text-left"> Capacity(kW) </th>
             <td mat-cell *matCellDef="let element"> {{element.capacity}} </td>
@@ -213,28 +217,28 @@
             <th mat-header-cell *matHeaderCellDef> SDGBenefits </th>
             <td mat-cell *matCellDef="let row"> {{row.SDGBenefits}} </td>
           </ng-container>
+         
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="text-left">Action</th>
+            <th mat-header-cell *matHeaderCellDef> Actions </th>
             <td mat-cell *matCellDef="let row; let i=index;">
-              <!-- <button>certificate</button> -->
-              <a class="edit-icon action-icons" matTooltip="Edit" [matTooltipPosition]="'left'"
-                (click)="UpdateDevice(row.externalId)" *ngIf="loginuser.role !='Admin'"><mat-icon
-                  class="primary">edit</mat-icon></a>&nbsp;
-              <!-- <a  [routerLink]="['../edit']" [queryParams]="{id:row.externalId}"><mat-icon>add</mat-icon></a> -->
-              <a class="edit-icon action-icons" matTooltip="Device" [matTooltipPosition]="'right'"
-                (click)="alertDialog(row.id)">
-                <mat-icon class="primary">visibility</mat-icon>
+              <button mat-icon-button class="edit-icon action-icons" [matMenuTriggerFor]="actionsMenu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #actionsMenu="matMenu">
+                <a mat-menu-item class="edit-icon action-icons" (click)="alertDialog(row.id)">Device Info
+                <!-- <mat-icon class="primary">visibility</mat-icon> -->
               </a>
-              <a class="edit-icon action-icons" matTooltip="" [matTooltipPosition]="'right'"
-                (click)="DeviceregistationI_REC(row.id)" *ngIf="row.IREC_Status==='NotRegistered'">
+                <a mat-menu-item class="edit-icon action-icons" (click)="DeviceregistationI_REC(row.id)" *ngIf="row.IREC_Status==='NotRegistered'">
                 <!-- <mat-icon class="primary">add</mat-icon> -->
                 Add To I-REC
               </a>
-              <a class="edit-icon action-icons" matTooltip="Add Detail To I-REC" [matTooltipPosition]="'right'"
-                (click)="alertDialog(row.id)" *ngIf="row.IREC_Status==='DeviceNameCreated'">
+              <a mat-menu-item class="edit-icon action-icons"  (click)="alertDialog(row.id)" *ngIf="row.IREC_Status==='DeviceNameCreated'">
                 <!-- <mat-icon class="primary">add</mat-icon> -->
                 Add Detail To I-REC
               </a>
+            
+                <!-- Add more action buttons as needed -->
+              </mat-menu>
             </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -252,9 +256,13 @@
           <button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
             [disabled]="p === 1">Previous</button>&nbsp;&nbsp;
 
-          Total Pages:{{totalPages}}
+          Total Pages:{{totalPages}}&nbsp;&nbsp;
           <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
             [disabled]="p === totalPages">Next</button>
+            <p style="width: 150px;
+            height: 25px;
+            margin-left: 450px;
+            padding: 10px 5px 0px 0px"><b>Page Number:</b>{{p}}</p>
         </div>
 
       </div>

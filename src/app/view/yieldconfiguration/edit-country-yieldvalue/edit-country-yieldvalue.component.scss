@@ -7,3 +7,21 @@
       border: none !important;
     }
   }
+  p {
+    font-family: Lato;
+  }
+  
+  .output {
+    background-color: rgb(253, 253, 253);
+    padding: 0px 10px 10px 10px;
+    margin-bottom: 40px;
+    margin-top: 20px;
+  
+    box-shadow: 2px 2px 2px #000;
+  }
+  
+  .example-container {
+    background-color: white;
+    padding: 10px 20px 20px 20px;
+  
+  }

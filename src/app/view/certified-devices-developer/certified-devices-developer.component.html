@@ -95,11 +95,9 @@
 							</div>
 				
 
-							<div class="col-md-4  h6-margin-remove">
+							<!-- <div class="col-md-4  h6-margin-remove">
 								<h6>Select Read Volume(Wh): </h6>
-								<!-- <div class="example-label-container">
-								  <label id="example-name-label" class="example-name-label">Select Read Volume</label>
-								</div> -->
+								
 								<mat-slider class="sliderexample-margin" [max]="5000000" [min]="1000" [step]="10"
 									[discrete]="true" >
 									<input matSliderStartThumb (input)="onstartreadChangeEvent($event)"
@@ -107,7 +105,7 @@
 									<input matSliderEndThumb (input)="onendreadChangeEvent($event)"
 										[(ngModel)]="endvalue" [ngModelOptions]="{standalone: true}" />
 								</mat-slider>
-							</div>
+							</div> -->
 
 							<div class="col-md-12 mb-3  d-flex justify-content-end">
 								<div class="">
@@ -229,7 +227,7 @@
 										<ng-container matColumnDef="Action">
 											<th mat-header-cell *matHeaderCellDef>Action </th>
 											<td mat-cell *matCellDef="let element" class="table-data">
-												<a class="edit-icon action-icons" matTooltip="Device" [matTooltipPosition]="'above'" (click)="deviceDetaileDialog(element.deviceId)"
+												<a class="edit-icon action-icons" matTooltip="Device Info" [matTooltipPosition]="'above'" (click)="deviceDetaileDialog(element.deviceId)"
 													*ngIf="element.externalId!='Other Devices'">
 													<mat-icon class="primary">visibility</mat-icon>
 												</a>
@@ -251,8 +249,8 @@
 					
 					<hr>
 					<button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
-						[disabled]="p === 1">Previous</button>
-					Total Pages:{{totalPages}}
+						[disabled]="p === 1">Previous</button>&nbsp;&nbsp;
+					Total Pages:{{totalPages}}&nbsp;&nbsp;
 					<button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
 						[disabled]="p === totalPages">Next</button>
 				</div>
