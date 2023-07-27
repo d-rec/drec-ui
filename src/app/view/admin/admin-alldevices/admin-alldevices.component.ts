@@ -26,13 +26,13 @@ export class AdminAlldevicesComponent {
   title = 'matDialog';
   dataFromDialog: any;
   displayedColumns = [
-    'onboarding_date',
+    //'onboarding_date',
     // 'projectName',
     'developerExternalId',
     'externalId',
     'countryCode',
-    // 'fuelCode',
-    'commissioningDate',
+    'fuelCode',
+   // 'commissioningDate',
     'capacity',
     'IREC_Status',
     'IREC_ID',
@@ -235,7 +235,14 @@ export class AdminAlldevicesComponent {
     this.p = 1;
     this.getDeviceListData(this.p);
   }
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
 
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
   getDeviceListData(page: number) {
 
     this.deviceurl = 'device?';
@@ -342,7 +349,7 @@ export class AdminAlldevicesComponent {
         }
 
       }, error: err => {
-        this.toastrService.warning('Failure',err);
+        this.toastrService.error('Failure',err);
       }
     });
     ;

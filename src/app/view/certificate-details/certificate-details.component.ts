@@ -97,8 +97,8 @@ export class CertificateDetailsComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-      fromAmountread: [null],
-      toAmountread: [null],
+      // fromAmountread: [null],
+      // toAmountread: [null],
      // pagenumber: [this.p]
     });
 

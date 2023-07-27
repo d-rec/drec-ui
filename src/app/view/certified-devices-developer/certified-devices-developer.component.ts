@@ -115,8 +115,8 @@ export class CertifiedDevicesDeveloperComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-      fromAmountread: [null],
-      toAmountread: [null],
+      // fromAmountread: [null],
+      // toAmountread: [null],
       // pagenumber: [this.p]
     });
 
@@ -231,22 +231,22 @@ export class CertifiedDevicesDeveloperComponent {
   //   this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
   //   console.log(this.isAnyFieldFilled);
   // }
-  onstartreadChangeEvent(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-    const value = inputElement.value;
-    console.log('Start Value Changed:', value);
-    // Additional logic here
-    this.FilterForm.controls['fromAmountread'].setValue(value);
-    this.checkFormValidity();
-  }
-  onendreadChangeEvent(event: Event) {
-    console.log(event);
-    const inputElement = event.target as HTMLInputElement;
-    const value = inputElement.value;
-    //this.endminDate = event;
-    this.FilterForm.controls['toAmountread'].setValue(value);
-    this.checkFormValidity();
-  }
+  // onstartreadChangeEvent(event: Event): void {
+  //   const inputElement = event.target as HTMLInputElement;
+  //   const value = inputElement.value;
+  //   console.log('Start Value Changed:', value);
+  //   // Additional logic here
+  //   this.FilterForm.controls['fromAmountread'].setValue(value);
+  //   this.checkFormValidity();
+  // }
+  // onendreadChangeEvent(event: Event) {
+  //   console.log(event);
+  //   const inputElement = event.target as HTMLInputElement;
+  //   const value = inputElement.value;
+  //   //this.endminDate = event;
+  //   this.FilterForm.controls['toAmountread'].setValue(value);
+  //   this.checkFormValidity();
+  // }
   onSliderChange(event: any): void {
     const startValue = this.startThumb.nativeElement.value;
     const endValue = this.endThumb.nativeElement.value;
