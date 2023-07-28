@@ -31,5 +31,5 @@ phases:
     commands:
       - docker push 895706603967.dkr.ecr.eu-west-1.amazonaws.com/$IMAGE:$environment-$BUILD_NUMBER
       - aws eks update-kubeconfig --name drec
-      - template=`cat "$IMAGE-$environment.yaml" | sed "s/{{BUILD_NUMBER}}/$BUILD_NUMBER/g"`
+      - template=`cat "$IMAGE-$environment.yaml" | sed "s/{{BUILD_NUMBER}}/$environment-$BUILD_NUMBER/g"`
       - echo "$template" | kubectl apply -f -
