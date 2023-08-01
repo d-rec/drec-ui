@@ -4,7 +4,7 @@ import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService } from '../../../auth/services/device.service'
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable ,Subscription} from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 @Component({
   selector: 'app-edit-device',
@@ -13,7 +13,7 @@ import { map, startWith } from 'rxjs/operators';
 })
 export class EditDeviceComponent implements OnInit {
 
-  myform: FormGroup;
+  updatedeviceform: FormGroup;
   countrylist: any;
   fuellist: any;
   devicetypelist: any;
@@ -43,7 +43,7 @@ export class EditDeviceComponent implements OnInit {
   offTaker: any;
   gridInterconnection: any;
   impactStory: any;
-  showerror:boolean=false
+  showerror: boolean = false
   deviceDescription: any;
   energyStorage: boolean = true;
   energyStorageCapacity: any;
@@ -75,18 +75,18 @@ export class EditDeviceComponent implements OnInit {
     this.DisplaySDGBList();
     this.DisplayfuelList();
     this.DisplaytypeList();
-   
+
     this.date = new Date();
-    this.myform = this.fb.group({
+    this.updatedeviceform = this.fb.group({
       externalId: [null, [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
       //newexternalId: [null, Validators.required],
       projectName: [null],
-      address: [null],
-      latitude: [null, Validators.pattern(this.numberregex)],
-      longitude: [null, Validators.pattern(this.numberregex)],
+      address: [null, [Validators.required]],
+      latitude: [null, [Validators.required, Validators.pattern(this.numberregex)]],
+      longitude: [null, [Validators.required, Validators.pattern(this.numberregex)]],
       countryCode: [null, Validators.required],
-      fuelCode: [null],
-      deviceTypeCode: [null],
+      fuelCode: [null, [Validators.required]],
+      deviceTypeCode: [null, [Validators.required]],
       capacity: [null, Validators.required],
       commissioningDate: [new Date(), Validators.required],
       gridInterconnection: [true],
@@ -106,39 +106,39 @@ export class EditDeviceComponent implements OnInit {
     this.addmoredetals = false;
     this.showaddmore = true;
     this.shownomore = false;
-    this.myform.valueChanges.subscribe(console.log);
+    this.updatedeviceform.valueChanges.subscribe(console.log);
     setTimeout(() => {
-      this.myform.controls['countryCode'];
-    this.filteredCountryList = this.myform.controls['countryCode'].valueChanges.pipe(
-      startWith(''),
-      map(value => this._filter(value || '')),
-    );
-    this.getDeviceinfo();
+      this.updatedeviceform.controls['countryCode'];
+      this.filteredCountryList = this.updatedeviceform.controls['countryCode'].valueChanges.pipe(
+        startWith(''),
+        map(value => this._filter(value || '')),
+      );
+      this.getDeviceinfo();
     }, 1000);
 
   }
   private _filter(value: string): any[] {
     const filterValue = value.toLowerCase();
-   
+
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
-      this.showerror= true;
-    //  toppings.at(i).get('countryCode').setValue(null);
+      this.showerror = true;
+      //  toppings.at(i).get('countryCode').setValue(null);
     } else {
-      this.showerror= false;
+      this.showerror = false;
     }
-  //@ts-ignore
+    //@ts-ignore
     return this.countrylist.filter(code => code.country.toLowerCase().includes(filterValue));
   }
   getCountryCodeControl(): FormControl {
-    return this.myform.get('countryCode') as FormControl;
+    return this.updatedeviceform.get('countryCode') as FormControl;
   }
   checkValidation(input: string) {
-    const validation = this.myform.get(input)?.invalid && (this.myform.get(input)?.dirty || this.myform.get(input)?.touched)
+    const validation = this.updatedeviceform.get(input)?.invalid && (this.updatedeviceform.get(input)?.dirty || this.updatedeviceform.get(input)?.touched)
     return validation;
   }
   emaiErrors() {
-    return this.myform.get('externalId')?.hasError('required') ? 'This field is required' :
-      this.myform.get('externalId')?.hasError('pattern') ? 'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between' : ''
+    return this.updatedeviceform.get('externalId')?.hasError('required') ? 'This field is required' :
+      this.updatedeviceform.get('externalId')?.hasError('pattern') ? 'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between' : ''
 
   }
   DisplayList() {
@@ -193,9 +193,9 @@ export class EditDeviceComponent implements OnInit {
   }
   hideeditExternalid() {
     this.shownewExternalidInput = false;
-    this.myform.value.externalId = this.externalId;
+    this.updatedeviceform.value.externalId = this.externalId;
     this.showcancelicon = false;
-    console.log(this.myform);
+    console.log(this.updatedeviceform);
   }
   addmore() {
     this.addmoredetals = true;
@@ -227,7 +227,7 @@ export class EditDeviceComponent implements OnInit {
         this.latitude = data.latitude;
         this.longitude = data.longitude;
         //@ts-ignore
-        this.countryCode = this.countrylist.find(countrycode => countrycode.alpha3 == data.countryCode)?.country ;
+        this.countryCode = this.countrylist.find(countrycode => countrycode.alpha3 == data.countryCode)?.country;
         this.fuelCode = data.fuelCode;
         this.deviceTypeCode = data.deviceTypeCode;
         this.capacity = data.capacity;
@@ -260,31 +260,31 @@ export class EditDeviceComponent implements OnInit {
   }
   onSubmit() {
 
-    console.log(this.myform);
-    if (this.myform.value.externalId === null) {
-      this.myform.removeControl('externalId');
+    console.log(this.updatedeviceform);
+    if (this.updatedeviceform.value.externalId === null) {
+      this.updatedeviceform.removeControl('externalId');
     }
-    console.log(this.myform);
-    this.deviceService.Patchdevices(this.externalid, this.myform.value).subscribe({
+    console.log(this.updatedeviceform);
+    this.deviceService.Patchdevices(this.externalid, this.updatedeviceform.value).subscribe({
       next: (data: any) => {
         console.log(data)
         // this.deviceForms.reset();
-        this.toastrService.success('Updated Successfully !!', 'Device! ' + this.myform.value.externalId);
+        this.toastrService.success('Updated Successfully !!', 'Device! ' + this.updatedeviceform.value.externalId);
         this.router.navigate(['device/AllList']);
       },
       error: (err: any): void => {                          //Error callback
         console.error('error caught in component', err.error.message)
-        this.toastrService.error('some error occurred in add due to ' + err.error.message, 'Device!' + this.myform.value.externalId,);
+        this.toastrService.error('some error occurred in add due to ' + err.error.message, 'Device!' + this.updatedeviceform.value.externalId,);
       }
     });
     // })
   }
   reset() {
-    if(this.frombulk){
+    if (this.frombulk) {
       this.router.navigate(['/device/bulk_upload']);
-    }else{
+    } else {
       this.router.navigate(['/device/AllList']);
     }
-    
+
   }
 }

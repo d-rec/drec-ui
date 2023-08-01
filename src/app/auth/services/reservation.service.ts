@@ -57,4 +57,8 @@ export class ReservationService {
 GetMethodById(groupId:any) : Observable<any>{
     return this.httpClient.get(this.url+'buyer-reservation/'+groupId)
   }
+  public PostAuth(routePath: string, data: any): Observable<any> {
+    return this.httpClient.post<any>(this.url + routePath, data)
+
+  }
 }
