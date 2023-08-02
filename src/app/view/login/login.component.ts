@@ -47,6 +47,7 @@ export class LoginComponent {
           } else if (jwtObj.role === 'Admin') {
             this.router.navigate(['/admin/All_devices']);
           } else {
+            console.log("50developer")
             this.router.navigate(['/device/AllList']);
           }
           this.toastrService.success('login user ' + jwtObj.email+ '!', 'login Success');
