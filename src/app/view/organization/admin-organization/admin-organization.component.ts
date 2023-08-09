@@ -90,7 +90,7 @@ export class AdminOrganizationComponent {
     // setTimeout(() => {
       
      
-      this.getDeviceListData(this.p);
+      this.getAllOrganization(this.p);
     // },1000)
   }
 
@@ -100,7 +100,7 @@ export class AdminOrganizationComponent {
     }
   }
 
-  getDeviceListData(page: number) {
+  getAllOrganization(page: number) {
     //this.FilterForm.controls['pagenumber'].setValue(page);
     this.adminService.GetAllOrganization().subscribe(
       (data) => {
@@ -127,14 +127,14 @@ export class AdminOrganizationComponent {
   previousPage(): void {
     if (this.p > 1) {
       this.p--;
-      this.getDeviceListData(this.p);
+      this.getAllOrganization(this.p);
     }
   }
 
   nextPage(): void {
     if (this.p < this.totalPages) {
       this.p++;
-      this.getDeviceListData(this.p);;
+      this.getAllOrganization(this.p);;
     }
   }
 

@@ -1,10 +1,10 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { AuthbaseService } from '../../../auth/authbase.service';
-import { DeviceService } from '../../../auth/services/device.service';
+import { DeviceService, AdminService } from '../../../auth/services';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable ,Subscription} from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { startWith, map } from 'rxjs/operators';
 //import * as moment from 'moment';
 @Component({
@@ -13,6 +13,7 @@ import { startWith, map } from 'rxjs/operators';
   styleUrls: ['./add-devices.component.scss']
 })
 export class AddDevicesComponent {
+  loginuser: any;
   myform: FormGroup;
   countrylist: any;
   fuellist: any;
@@ -21,7 +22,7 @@ export class AddDevicesComponent {
   addmoredetals: any[] = [];
   shownomore: any[] = [];
   showaddmore: any[] = [];
-  showerror:any[]=[];
+  showerror: any[] = [];
   maxDate = new Date();
   public date: any;
   public sdgblist: any;
@@ -30,6 +31,7 @@ export class AddDevicesComponent {
   public showSeconds = false;
   public touchUi = false;
   public enableMeridian = false;
+  orglist: any;
   // public minDate: moment.Moment;
   //public maxDate: moment.Moment;
   public stepHour = 1;
@@ -39,16 +41,24 @@ export class AddDevicesComponent {
   filteredCountryList: Observable<any[]>[] = [];
   subscription: Subscription;
   //public color: ThemePalette = 'primary';
+  orgId: number;
   offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
   devicedescription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
   constructor(private fb: FormBuilder, private authService: AuthbaseService,
     private deviceService: DeviceService,
     private router: Router,
-    private toastrService: ToastrService) {
-     
+    private toastrService: ToastrService,
+    private adminService: AdminService) {
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
 
   ngOnInit() {
+    if (this.loginuser.role === 'Admin') {
+      this.adminService.GetAllOrganization().subscribe(
+        (data) => {
+          this.orglist = data;
+        })
+    }
 
     this.DisplayList();
     this.DisplaySDGBList();
@@ -69,12 +79,12 @@ export class AddDevicesComponent {
     const device = this.fb.group({
       externalId: [null, [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
       projectName: [null],
-      address: [null,[Validators.required]],
-      latitude: [null, [Validators.required,Validators.pattern(this.numberregex)]],
-      longitude: [null, [Validators.required,Validators.pattern(this.numberregex)]],
+      address: [null, [Validators.required]],
+      latitude: [null, [Validators.required, Validators.pattern(this.numberregex)]],
+      longitude: [null, [Validators.required, Validators.pattern(this.numberregex)]],
       countryCode: [null, Validators.required],
-      fuelCode: [null,[Validators.required]],
-      deviceTypeCode: [null,[Validators.required]],
+      fuelCode: [null, [Validators.required]],
+      deviceTypeCode: [null, [Validators.required]],
       capacity: [null, Validators.required],
       commissioningDate: [new Date(), Validators.required],
       gridInterconnection: [true],
@@ -95,10 +105,10 @@ export class AddDevicesComponent {
     setTimeout(() => {
       this.filteredCountryList[0] = this.getCountryCodeControl(0).valueChanges.pipe(
         startWith(''),
-        map(value => this._filter(value || '',0))
+        map(value => this._filter(value || '', 0))
       );
-    },1000);
-    
+    }, 1000);
+
   }
   ngOnDestroy() {
     if (this.subscription) {
@@ -108,7 +118,7 @@ export class AddDevicesComponent {
   get deviceForms() {
     return this.myform.get('devices') as FormArray
   }
- 
+
   DisplayList() {
 
     this.authService.GetMethod('countrycode/list').subscribe(
@@ -152,7 +162,7 @@ export class AddDevicesComponent {
       }
     )
   }
- 
+
 
   // selectCountry(event: any,i:number) {
   //   console.log(event);
@@ -212,21 +222,21 @@ export class AddDevicesComponent {
     this.showaddmore[this.deviceForms.length - 1] = true;
     this.showinput[this.deviceForms.length - 1] = true;
     const index = this.deviceForms.length - 1;
-  this.filteredCountryList[index] = this.getCountryCodeControl(index).valueChanges.pipe(
-    startWith(''),
-    map(value => this._filter(value || '',index))
-  );
+    this.filteredCountryList[index] = this.getCountryCodeControl(index).valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '', index))
+    );
   }
-  private _filter(value: string,i:number): any[] {
+  private _filter(value: string, i: number): any[] {
     const filterValue = value.toLowerCase();
     const toppings: any = this.myform.get('devices') as FormArray;
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror[i] = true;
-    //  toppings.at(i).get('countryCode').setValue(null);
+      //  toppings.at(i).get('countryCode').setValue(null);
     } else {
       this.showerror[i] = false;
     }
-  //@ts-ignore
+    //@ts-ignore
     return this.countrylist.filter(code => code.country.toLowerCase().includes(filterValue));
   }
   addmore(i: number) {
@@ -251,24 +261,27 @@ export class AddDevicesComponent {
   deleteDevice(i: number) {
     this.deviceForms.removeAt(i)
   }
- 
+
 
   getCountryCodeControl(index: number): FormControl {
     return this.deviceForms.at(index).get('countryCode') as FormControl;
   }
-//   private _filter(value: string): any[] {
-//     const filterValue = value.toLowerCase();
-// //@ts-ignore
-//     return this.countrylist.filter(code => code.country.toLowerCase().includes(filterValue));
-//   }
+  //   private _filter(value: string): any[] {
+  //     const filterValue = value.toLowerCase();
+  // //@ts-ignore
+  //     return this.countrylist.filter(code => code.country.toLowerCase().includes(filterValue));
+  //   }
   onSubmit() {
 
     const formArray = this.myform.get('devices') as FormArray;
     let deviceArray = this.myform.value.devices;
     deviceArray.forEach((element: any, index: number) => {
+      if (this.orgId != null) {
+        element['organizationId'] = this.orgId;
+      }
       //@ts-ignore
       const selectedCountry = this.countrylist.find(option => option.country === element.countryCode);
-     element['countryCode']=selectedCountry.alpha3;
+      element['countryCode'] = selectedCountry.alpha3;
       this.deviceService.Postdevices(element).subscribe({
         next: data => {
 
@@ -286,7 +299,13 @@ export class AddDevicesComponent {
           // Check if formDataArray is empty
           if (deviceArray.length === 0) {
             // Navigate to the list UI page
-            this.router.navigate(['/device/AllList']);
+            if(this.loginuser.role==='Admin'){
+              this.router.navigate(['/admin/All_devices']);
+            }else{
+              this.router.navigate(['/device/AllList']);
+            }
+            
+
           }
         },
         error: err => {                          //Error callback

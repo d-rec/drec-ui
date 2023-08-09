@@ -1,0 +1,30 @@
+
+mat-progress-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+}
+
+.mat-elevation-z8{
+  width: 100%;
+  overflow: scroll;
+  mat-paginator{
+    display: initial !important;
+  }
+  .p-10{
+    padding: 10px;
+  } 
+}
+.example-container1{
+  .h6-margin-remove{
+    h6{
+      // margin: 0px !important;
+      font-size: 14px;
+      padding-left: 3px;
+    }
+  }
+
+}
+

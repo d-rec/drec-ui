@@ -332,7 +332,7 @@ export class AlldevicesComponent {
   openDialog(device: any) {
     const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        title: 'Confirm Remove Devcie',
+        title: 'Confirm Remove Device',
         message: 'Are you sure, you want to remove Device: ' + device.externalId
       }
     });
