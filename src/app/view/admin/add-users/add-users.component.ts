@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, Validators, FormGroupDirective, } from '@angular/forms';
-import { AuthbaseService } from '../../auth/authbase.service';
+import { AuthbaseService } from '../../../auth/authbase.service';
 import { Router } from '@angular/router';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 
 import { ToastrService } from 'ngx-toastr';
 @Component({
-  selector: 'app-register',
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss'],
+  selector: 'app-add-users',
+  templateUrl: './add-users.component.html',
+  styleUrls: ['./add-users.component.scss'],
   providers: [
     {
       provide: STEPPER_GLOBAL_OPTIONS,
@@ -16,7 +16,7 @@ import { ToastrService } from 'ngx-toastr';
     },
   ],
 })
-export class RegisterComponent implements OnInit {
+export class AddUsersComponent {
   registerForm: FormGroup;
   fieldRequired: string = "This field is required"
   orgtype: any[] = [
@@ -131,36 +131,7 @@ export class RegisterComponent implements OnInit {
           username: this.registerForm.value.email,
           password: this.registerForm.value.password
         }
-        this.authService.login('auth/login', loginobj).subscribe({
-          next: data => {
-
-            if (data["accessToken"] != null) {
-              sessionStorage.setItem('access-token', data["accessToken"]);
-              let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
-              console.log(jwtObj);
-              //sessionStorage.setItem('loginuser', jwtObj);
-              sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-              //var obj = JSON.parse(sessionStorage.loginuser);
-
-              if (jwtObj.role === 'Buyer') {
-                this.router.navigate(['/myreservation']);
-              } else {
-                this.router.navigate(['/device/AllList']);
-              }
-              this.toastrService.success('login user ' + jwtObj.email + '!', 'login Success');
-            } else {
-              console.log("check your credentials !!")
-              this.toastrService.info('Message Failure!', 'check your credentials !!');
-              this.router.navigate(['/login']);
-            }
-          },
-          error: err => {                           //Error callback
-            console.error('error caught in component', err)
-            this.toastrService.error('check your credentials!', 'login Fail!!');
-
-
-          }
-        })
+     
         this.registerForm.reset();
         const formControls = this.registerForm.controls;
 
@@ -168,6 +139,8 @@ export class RegisterComponent implements OnInit {
           const control = formControls[key];
           control.setErrors(null);
         });
+
+        this.router.navigate(['/admin/All_users']);
         // this.router.navigate(['/confirm-email']);
 
       },

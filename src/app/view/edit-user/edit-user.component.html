@@ -1,0 +1,67 @@
+<div class="form-container">
+    <mat-card class="mb-3">
+
+
+        <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+
+            <div >
+                <h2 class="text-capitalize device-details-heading">{{data.title}}
+                </h2>
+                <mat-icon aria-hidden="false" (click)="dialogRef.close(false)" class="close-icon"> close </mat-icon>
+            </div>
+
+
+        </mat-card-header>
+        <hr>
+        <form [formGroup]="updateForm" (ngSubmit)="onUpdate()">
+            <mat-card-content>
+                <div class="example-container1 row">
+
+                    <div class="col-md-3">
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">First Name</mat-label>
+                            <input autofocus type="text" matInput formControlName="firstName">
+                        </mat-form-field>
+
+
+                    </div>
+                    <div class="col-md-3"><mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Last Name</mat-label>
+                            <input autofocus type="text" matInput formControlName="lastName">
+
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-3"><mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">EmainID</mat-label>
+                            <input autofocus type="email" matInput formControlName="email">
+
+                        </mat-form-field></div>
+                        <div class="col-md-3"><mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Status</mat-label>
+                            <mat-select formControlName='status'>
+
+                                <mat-option *ngFor="let code of userstatus" [value]="code">
+                                    {{code}}
+                                </mat-option>
+                            </mat-select>
+
+                        </mat-form-field></div>
+                </div>
+
+            </mat-card-content>
+            <mat-card-footer>
+                <div class="example-container mt-3 row">
+                    <div class="col-12 d-flex justify-content-end">
+                        <button type="submit"
+                            class="btn-primary btn text-capitalize px-4" [disabled]="updateForm.invalid">Update</button>&nbsp;&nbsp;
+                        <button class="btn btn-dark" (click)="dialogRef.close(false)">
+                            Cancel
+                        </button>
+                    </div>
+
+                </div>
+            </mat-card-footer>
+        </form>
+    </mat-card>
+</div>
