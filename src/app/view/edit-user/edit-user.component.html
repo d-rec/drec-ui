@@ -33,20 +33,14 @@
                     </div>
 
                     <div class="col-md-3"><mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">EmainID</mat-label>
+                            <mat-label class="text-capitalize">Email</mat-label>
                             <input autofocus type="email" matInput formControlName="email">
 
                         </mat-form-field></div>
-                        <div class="col-md-3"><mat-form-field appearance="outline">
-                            <mat-label class="text-capitalize">Status</mat-label>
-                            <mat-select formControlName='status'>
-
-                                <mat-option *ngFor="let code of userstatus" [value]="code">
-                                    {{code}}
-                                </mat-option>
-                            </mat-select>
-
-                        </mat-form-field></div>
+                        <div class="col-md-3">
+                           
+                            <input autofocus type="hidden"  formControlName="status">
+                       </div>
                 </div>
 
             </mat-card-content>
@@ -55,9 +49,7 @@
                     <div class="col-12 d-flex justify-content-end">
                         <button type="submit"
                             class="btn-primary btn text-capitalize px-4" [disabled]="updateForm.invalid">Update</button>&nbsp;&nbsp;
-                        <button class="btn btn-dark" (click)="dialogRef.close(false)">
-                            Cancel
-                        </button>
+                        
                     </div>
 
                 </div>

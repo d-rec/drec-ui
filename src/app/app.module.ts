@@ -30,6 +30,8 @@ import { ResetPasswordComponent } from './view/reset-password/reset-password.com
 import { AllUsersComponent } from './view/all-users/all-users.component';
 import { ConfirmDialogComponent } from './view/confirm-dialog/confirm-dialog.component';
 import { EditUserComponent } from './view/edit-user/edit-user.component';
+import { UserProfileComponent } from './view/user-profile/user-profile.component';
+import { UserInvitationComponent } from './view/user-invitation/user-invitation.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +57,8 @@ import { EditUserComponent } from './view/edit-user/edit-user.component';
     AllUsersComponent,
     ConfirmDialogComponent,
     EditUserComponent,
+    UserProfileComponent,
+    UserInvitationComponent,
 
   ],
   imports: [

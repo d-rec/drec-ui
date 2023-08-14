@@ -16,6 +16,7 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component'
 import {EditUserComponent} from '../edit-user/edit-user.component';
 import { ToastrService } from 'ngx-toastr';
+import { errors } from 'ethers';
 @Component({
   selector: 'app-all-users',
   templateUrl: './all-users.component.html',
@@ -89,7 +90,7 @@ export class AllUsersComponent {
     confirmDialog.afterClosed().subscribe(result => {
       if (result === true) {
         // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
-        this.deleteUser(user.id)
+        this.getAllUsers()
       }
     });
   }
@@ -98,7 +99,7 @@ export class AllUsersComponent {
     const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
       data: {
         title: 'Confirm Remove User',
-        message: 'Are you sure, you want to remove Uaer: ' + user.firstName + '' + user.lastName
+        message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName
       }
     });
     confirmDialog.afterClosed().subscribe(result => {
@@ -120,6 +121,9 @@ export class AllUsersComponent {
           this.toastrService.error(response.message, 'Fialure')
         }
   
+      },(err) =>{
+        console.log(err)
+        this.toastrService.error(err.error.message, 'Fialure')
       })
   
     

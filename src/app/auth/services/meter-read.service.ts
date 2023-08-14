@@ -9,42 +9,46 @@ import { Observable } from 'rxjs';
 export class MeterReadService {
   url: String = environment.API_URL;
   constructor(private httpClient: HttpClient) { }
-  GetMethod() : Observable<any>{
-    return this.httpClient.get(this.url+'certificate-log/redemption-report')
+  GetMethod(): Observable<any> {
+    return this.httpClient.get(this.url + 'certificate-log/redemption-report')
   }
-  PostRead(exterenalId:string,data: any): Observable<any> {
-    return this.httpClient.post<any>(this.url + 'meter-reads/new/'+exterenalId, data)
+  PostRead(exterenalId: string, data: any, orgId?: number): Observable<any> {
+    let addUrl = `${this.url}meter-reads/new/` + exterenalId;
+    if (orgId != undefined) {
+      addUrl += `?organizationId=${orgId}`;
+    }
+    return this.httpClient.post<any>(addUrl, data)
 
   }
-  GetRead(exterenalId:string,data: any): Observable<any> {
+  GetRead(exterenalId: string, data: any): Observable<any> {
     console.log(data)
-   // return this.httpClient.get<any>(this.url + 'meter-reads/new/'+exterenalId+'? data)
-   let searchUrl = `${this.url}meter-reads/new/`+exterenalId+`?readType=meterReads&`;
+    // return this.httpClient.get<any>(this.url + 'meter-reads/new/'+exterenalId+'? data)
+    let searchUrl = `${this.url}meter-reads/new/` + exterenalId + `?readType=meterReads&`;
 
-   if (!(typeof data.start === "undefined" || data.start === ""||data.start === null)) {
-     searchUrl += `start=${new Date(data.start).toISOString()}`;
-   }
+    if (!(typeof data.start === "undefined" || data.start === "" || data.start === null)) {
+      searchUrl += `start=${new Date(data.start).toISOString()}`;
+    }
 
-   if (!(typeof data.end === "undefined" || data.end === ""||data.end === null)) {
-     searchUrl += `&end=${new Date(data.end).toISOString()}`;
-     
-   }
+    if (!(typeof data.end === "undefined" || data.end === "" || data.end === null)) {
+      searchUrl += `&end=${new Date(data.end).toISOString()}`;
 
-   // if (!(typeof searchData.Distance === "undefined" || searchData.Distance === ""))
-   // {
-   //   searchUrl+=`&Distance=${searchData.Distance}`;
-   // }
+    }
 
-   if (!(typeof data.pagenumber === "undefined" || data.pagenumber === ""||data.pagenumber === null)) {
-     searchUrl += `&pagenumber=${data.pagenumber}`;
-   }
+    // if (!(typeof searchData.Distance === "undefined" || searchData.Distance === ""))
+    // {
+    //   searchUrl+=`&Distance=${searchData.Distance}`;
+    // }
 
-   // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
-   //   searchUrl += `&GroupId=${searchData.GroupId}`;
-   // }
-   return this.httpClient.get(searchUrl);
+    if (!(typeof data.pagenumber === "undefined" || data.pagenumber === "" || data.pagenumber === null)) {
+      searchUrl += `&pagenumber=${data.pagenumber}`;
+    }
+
+    // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
+    //   searchUrl += `&GroupId=${searchData.GroupId}`;
+    // }
+    return this.httpClient.get(searchUrl);
   }
-  Getlastread(exterenalId:string): Observable<any> {
-    return this.httpClient.get(this.url+'meter-reads/latestread/'+exterenalId)
+  Getlastread(exterenalId: string): Observable<any> {
+    return this.httpClient.get(this.url + 'meter-reads/latestread/' + exterenalId)
   }
 }
