@@ -78,7 +78,7 @@ export class EditDeviceComponent implements OnInit {
 
     this.date = new Date();
     this.updatedeviceform = this.fb.group({
-      externalId: [null, [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
+      externalId: [null, [ Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
       //newexternalId: [null, Validators.required],
       projectName: [null],
       address: [null, [Validators.required]],
@@ -136,7 +136,7 @@ export class EditDeviceComponent implements OnInit {
     const validation = this.updatedeviceform.get(input)?.invalid && (this.updatedeviceform.get(input)?.dirty || this.updatedeviceform.get(input)?.touched)
     return validation;
   }
-  emaiErrors() {
+  externalIdErrors() {
     return this.updatedeviceform.get('externalId')?.hasError('required') ? 'This field is required' :
       this.updatedeviceform.get('externalId')?.hasError('pattern') ? 'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between' : ''
 

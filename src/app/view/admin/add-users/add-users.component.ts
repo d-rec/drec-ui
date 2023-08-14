@@ -48,7 +48,7 @@ export class AddUsersComponent {
         orgAddress: new FormControl(null),
         email: new FormControl(null, [Validators.required, Validators.pattern(this.emailregex)]),
         password: new FormControl(null, [Validators.required, this.checkPassword]),
-        confirmPassword: new FormControl("", [Validators.required, this.checkconfirmPassword]),
+       confirmPassword: new FormControl("", [Validators.required, this.checkconfirmPassword]),
 
       },
       {
@@ -122,7 +122,11 @@ export class AddUsersComponent {
     // const password = formData.value.password;
     // const username = formData.value.username;
     //this.auth.post(email, password, username);
-    this.authService.PostAuth('user/register', this.registerForm.value).subscribe({
+    var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
+    
+    this.registerForm.controls['password'].setValue(randPassword);
+    this.registerForm.controls['confirmPassword'].setValue(randPassword);
+    this.authService.PostAuth('admin/user/register', this.registerForm.value).subscribe({
       next: data => {
         console.log(data)
 

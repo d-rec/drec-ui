@@ -22,6 +22,11 @@ export class AdminService {
   public removeUser(userId:number):Observable<any>{
     return this.httpClient.delete<any>(this.url+'admin/user/'+userId)
   }
+  GetDeviceAutocomplete(searchInput: StaticRange,orgId:number): Observable<any> {
+    let searchUrl = `${this.url}admin/devices/autocomplete?externalId=` + searchInput+`&organizationId=`+orgId;
+    return this.httpClient.get(searchUrl);
+
+  }
   public AddIrecDevice(deviceId:any): Observable<any> {
     return this.httpClient.post<any>(this.url + 'admin/add/device-into-Irec/'+deviceId ,{});
   }
