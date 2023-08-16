@@ -265,6 +265,9 @@ export class EditDeviceComponent implements OnInit {
       this.updatedeviceform.removeControl('externalId');
     }
     console.log(this.updatedeviceform);
+    //@ts-ignore
+    const selectedCountry = this.countrylist.find(option => option.country === this.updatedeviceform.value.countryCode);
+    this.updatedeviceform.value['countryCode'] = selectedCountry.alpha3;
     this.deviceService.Patchdevices(this.externalid, this.updatedeviceform.value).subscribe({
       next: (data: any) => {
         console.log(data)

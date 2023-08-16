@@ -21,6 +21,9 @@ const routes: Routes = [
     path: 'All_users', component: AllUsersComponent
   },
   {
+    path: 'AllOrganization_users/:id', component: AllUsersComponent
+  },
+  {
     path: 'All_devices', component: AdminAlldevicesComponent
   },
   {

@@ -45,7 +45,7 @@ export class AllMetereadsComponent implements OnInit {
   filteredResults: Observable<any[]>;
   orgId: number;
   orglist: any;
-
+  showerrorexternalid:boolean;
 
   constructor(private service: MeterReadService, private formBuilder: FormBuilder,
     private deviceservice: DeviceService,
@@ -84,6 +84,7 @@ export class AllMetereadsComponent implements OnInit {
         this.adminService.GetDeviceAutocomplete(input, this.orgId).subscribe(
           (response) => {
             this.autocompleteResults = response;
+            this.showerrorexternalid=false;
           },
           (error) => {
             console.error('Error fetching autocomplete results:', error);
@@ -92,6 +93,7 @@ export class AllMetereadsComponent implements OnInit {
       } else {
         this.deviceservice.GetDeviceAutocomplete(input,).subscribe(
           (response) => {
+            this.showerrorexternalid=false;
             this.autocompleteResults = response;
           },
           (error) => {
@@ -102,6 +104,7 @@ export class AllMetereadsComponent implements OnInit {
 
     } else {
       this.autocompleteResults = [];
+      this.showerrorexternalid=true;
     }
   }
   displayFn(result: any): string {

@@ -131,4 +131,8 @@ export class DeviceService {
     let searchUrl = `${this.url}device/` + id;
     return this.httpClient.delete(searchUrl);
   }
+  addByAdminbulkDevices(organizationId:number,data: any):Observable<any>{
+    
+    return this.httpClient.post<any>(this.url+'device/addByAdmin/process-creation-bulk-devices-csv/'+organizationId, data)
+  }
 }

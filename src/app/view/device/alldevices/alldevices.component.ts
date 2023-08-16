@@ -359,7 +359,7 @@ export class AlldevicesComponent {
         this.getDeviceListData(this.p);
       } else {
 
-        this.toastrService.error(response.message, 'Fialure')
+        this.toastrService.error(response.message, 'Failure')
       }
 
     })

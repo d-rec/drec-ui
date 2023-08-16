@@ -12,8 +12,14 @@ export class MeterReadService {
   GetMethod(): Observable<any> {
     return this.httpClient.get(this.url + 'certificate-log/redemption-report')
   }
-  PostRead(exterenalId: string, data: any, orgId?: number): Observable<any> {
+  PostRead(exterenalId: string, data: any): Observable<any> {
     let addUrl = `${this.url}meter-reads/new/` + exterenalId;
+   
+    return this.httpClient.post<any>(addUrl, data)
+
+  }
+  PostReadByAdmin(exterenalId: string, data: any, orgId?: number): Observable<any> {
+    let addUrl = `${this.url}meter-reads/addByAdmin/new/` + exterenalId;
     if (orgId != undefined) {
       addUrl += `?organizationId=${orgId}`;
     }
