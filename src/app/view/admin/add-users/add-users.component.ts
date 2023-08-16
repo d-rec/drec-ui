@@ -130,7 +130,7 @@ export class AddUsersComponent {
       next: data => {
         console.log(data)
 
-        this.toastrService.success('Successfully!!', 'User Registration');
+        this.toastrService.success('Successful!!', 'Registration ');
         const loginobj = {
           username: this.registerForm.value.email,
           password: this.registerForm.value.password

@@ -13,7 +13,7 @@ import { AddReservationComponent } from './view/add-reservation/add-reservation.
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
 import { ResetPasswordComponent } from './view/reset-password/reset-password.component'
 import {UserProfileComponent} from './view/user-profile/user-profile.component'
-
+import {UserInvitationComponent} from './view/user-invitation/user-invitation.component'
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', data: { title: 'First Component' }, pathMatch: 'full' },
@@ -68,6 +68,7 @@ const routes: Routes = [
       {
         path: 'user/profile', component: UserProfileComponent
       }
+      
     ]
   }
 ];

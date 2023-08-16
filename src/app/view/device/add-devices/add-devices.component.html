@@ -18,8 +18,9 @@
         <form [formGroup]="myform" (ngSubmit)="onSubmit()">
             <mat-card-content>
 
-                <p>Select Organization</p>
+                
                 <div class="col-md-3" *ngIf="loginuser.role ==='Admin'">
+                    <p>Select Organization</p>
                     <mat-form-field appearance="outline">
                         <mat-label class="text-capitalize">Organization</mat-label>
 

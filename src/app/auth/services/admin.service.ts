@@ -16,6 +16,9 @@ export class AdminService {
   public GetAllUsers(): Observable<any> {
     return this.httpClient.get<any>(this.url + 'admin/users' );
   }
+  public GetAllOrgnaizationUsers(organizationsId:number): Observable<any> {
+    return this.httpClient.get<any>(this.url + 'admin/organizations/user/'+organizationsId );
+  }
   public updateUser(userId:number,data:any):Observable<any>{
     return this.httpClient.put<any>(this.url+'admin/users/'+userId,data)
   }

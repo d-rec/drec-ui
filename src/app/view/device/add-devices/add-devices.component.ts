@@ -103,6 +103,8 @@ export class AddDevicesComponent {
     this.deviceForms.push(device);
 
     setTimeout(() => {
+      //this.FilterForm.controls['countryname'];
+      this.deviceForms.at(0).get('countryCode') as FormControl
       this.filteredCountryList[0] = this.getCountryCodeControl(0).valueChanges.pipe(
         startWith(''),
         map(value => this._filter(value || '', 0))

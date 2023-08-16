@@ -27,6 +27,7 @@ export class AdminOrganizationComponent {
     'orgemail',
     'type',
     'status',
+    'no of users',
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;

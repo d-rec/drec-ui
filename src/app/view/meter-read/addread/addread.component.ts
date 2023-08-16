@@ -106,6 +106,7 @@ export class AddreadComponent implements OnInit {
         this.adminService.GetDeviceAutocomplete(input, this.orgId).subscribe(
           (response) => {
             this.autocompleteResults = response;
+            this.showerrorexternalid=false;
           },
           (error) => {
             console.error('Error fetching autocomplete results:', error);
@@ -115,6 +116,7 @@ export class AddreadComponent implements OnInit {
         this.deviceservice.GetDeviceAutocomplete(input,).subscribe(
           (response) => {
             this.autocompleteResults = response;
+            this.showerrorexternalid=false;
           },
           (error) => {
             console.error('Error fetching autocomplete results:', error);
@@ -123,6 +125,7 @@ export class AddreadComponent implements OnInit {
       }
     } else {
       this.autocompleteResults = [];
+     this.showerrorexternalid=true;
       this.timezonedata = [];
       this.readForm.controls['externalId'].setValue(null);
       this.readForm.controls['timezone'].setValue(null);
@@ -342,8 +345,8 @@ export class AddreadComponent implements OnInit {
       })
       myobj['reads'] = newreads
     }
-   
-    this.readService.PostRead(externalId, myobj,this.orgId).subscribe({
+   if(this.loginuser.role==='Admin'){
+    this.readService.PostReadByAdmin(externalId, myobj,this.orgId).subscribe({
       next: (data: any) => {
         console.log(data)
         this.readForm.reset();
@@ -364,6 +367,30 @@ export class AddreadComponent implements OnInit {
         this.toastrService.error(message, 'error!');
       }
     });
+   }else{
+    this.readService.PostRead(externalId, myobj).subscribe({
+      next: (data: any) => {
+        console.log(data)
+        this.readForm.reset();
+        this.selectedResult = null;
+        const formControls = this.readForm.controls;
+        Object.keys(formControls).forEach(key => {
+          const control = formControls[key];
+          control.setErrors(null);
+        });
+        this.toastrService.success('Successfully!', 'Read Added!!');
+      },
+      error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
+        console.error('error caught in component', err)
+        //@ts-ignore
+        let message = getValidmsgTimezoneFormat(err.error.message);
+        console.error(message)
+
+        this.toastrService.error(message, 'error!');
+      }
+    });
+   }
+    
   }
 
 }

@@ -39,28 +39,49 @@ export class AllUsersComponent {
   totalRows: number;
   totalPages: number = 1;
   p: number = 1;
+  orgnaizatioId:number;
   constructor(private authService: AuthbaseService, private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
     private dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
-    private toastrService: ToastrService) { }
+    private toastrService: ToastrService) {
+      if(this.activatedRoute.snapshot.params['id']){
+        this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
+      }
+     }
   ngOnInit(): void {
     this.getAllUsers();
   }
   getAllUsers() {
-    this.adminService.GetAllUsers().subscribe((data) => {
-      console.log(data)
-      this.showlist = true
-      this.loading = false
-      //@ts-ignore
-      this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-      console.log(this.data);
-      this.dataSource = new MatTableDataSource(this.data);
-      this.totalRows = this.data.totalCount
-      console.log(this.totalRows);
-      this.totalPages = this.data.totalPages
-    })
+    if(this.orgnaizatioId!=null||this.orgnaizatioId!=undefined){
+      this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId).subscribe((data) => {
+        console.log(data)
+        this.showlist = true
+        this.loading = false
+        //@ts-ignore
+        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+        console.log(this.data);
+        this.dataSource = new MatTableDataSource(this.data);
+        this.totalRows = this.data.totalCount
+        console.log(this.totalRows);
+        this.totalPages = this.data.totalPages
+      })
+    }else{
+      this.adminService.GetAllUsers().subscribe((data) => {
+        console.log(data)
+        this.showlist = true
+        this.loading = false
+        //@ts-ignore
+        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+        console.log(this.data);
+        this.dataSource = new MatTableDataSource(this.data);
+        this.totalRows = this.data.totalCount
+        console.log(this.totalRows);
+        this.totalPages = this.data.totalPages
+      })
+    }
+   
   }
   previousPage(): void {
     if (this.p > 1) {
