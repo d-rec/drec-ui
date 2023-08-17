@@ -24,6 +24,9 @@ export class DeviceService {
       if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null)) {
         searchUrl += `pagenumber=${pagenumber}`;
       }
+      if (!(typeof searchData.organizationId === undefined || searchData.organizationId === "" || searchData.organizationId === null || searchData.organizationId === undefined)) {
+        searchUrl += `&OrganizationId=${searchData.organizationId}`;
+      }
       if (!(typeof searchData.countryCode === undefined || searchData.countryCode === "" || searchData.countryCode === null || searchData.countryCode === undefined)) {
         searchUrl += `&country=${searchData.countryCode}`;
       }

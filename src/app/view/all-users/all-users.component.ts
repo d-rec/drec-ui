@@ -139,12 +139,12 @@ export class AllUsersComponent {
           this.getAllUsers();
         } else {
   
-          this.toastrService.error(response.message, 'Fialure')
+          this.toastrService.error(response.message, 'Failure')
         }
   
       },(err) =>{
         console.log(err)
-        this.toastrService.error(err.error.message, 'Fialure')
+        this.toastrService.error(err.error.message, 'Failure')
       })
   
     
