@@ -272,7 +272,7 @@ export class EditDeviceComponent implements OnInit {
       next: (data: any) => {
         console.log(data)
         // this.deviceForms.reset();
-        this.toastrService.success('Updated Successfully !!', 'Device! ' + this.updatedeviceform.value.externalId);
+        this.toastrService.success('Updated Successfully !!', 'Device! ' + data.externalId);
         this.router.navigate(['device/AllList']);
       },
       error: (err: any): void => {                          //Error callback

@@ -36,8 +36,8 @@ export class UserProfileComponent {
     private activatedRoute: ActivatedRoute,
     private userService: UserService
   ) {
-     this.usertoken = sessionStorage.getItem('access-token');
-    // this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+    // this.usertoken = sessionStorage.getItem('access-token');
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     //this.userid = this.activatedRoute.snapshot.params['id'];
     this.userService.userProfile().subscribe((data) => {
       this.userinfo = data
@@ -61,14 +61,14 @@ export class UserProfileComponent {
     });
     this.resetpasswordform = new FormGroup(
       {
-        newpassword: new FormControl('', [Validators.required, this.checkPassword]),
+        newPassword: new FormControl('', [Validators.required, this.checkPassword]),
         confirmPassword: new FormControl('', [Validators.required, this.checkconfirmPassword]),
 
       },
       {
         validators: (control) => {
 
-          if (control.value.newpassword !== control.value.confirmPassword) {
+          if (control.value.newPassword !== control.value.confirmPassword) {
             //@ts-ignore
             control.get("confirmPassword").setErrors({ notSame: true });
           }
@@ -89,8 +89,8 @@ export class UserProfileComponent {
     return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'requirements': true } : null;
   }
   getErrorPassword() {
-    return this.resetpasswordform.get('newpassword')?.hasError('required') ? 'This field is required (Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
-      this.resetpasswordform.get('newpassword')?.hasError('requirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' : '';
+    return this.resetpasswordform.get('newPassword')?.hasError('required') ? 'This field is required (Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
+      this.resetpasswordform.get('newPassword')?.hasError('requirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' : '';
   }
   checkconfirmPassword(control: any) {
     // console.log(this.resetpasswordform.value)
@@ -124,10 +124,10 @@ export class UserProfileComponent {
   }
   onResetPasswordUpdate() {
 
-    this.userService.resetPassword(this.usertoken,this.resetpasswordform.value).subscribe((data) => {
+    this.userService.resetPassword(this.loginuser.email,this.resetpasswordform.value).subscribe((data) => {
       console.log(data);
 
-      this.toastrService.success("User Rest Password Updated", "Successfully")
+      this.toastrService.success("Password Updated", "Successfully")
       // this.dialogRef.close;
 
     })
