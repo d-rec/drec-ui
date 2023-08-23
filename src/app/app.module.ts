@@ -31,8 +31,8 @@ import { AllUsersComponent } from './view/all-users/all-users.component';
 import { ConfirmDialogComponent } from './view/confirm-dialog/confirm-dialog.component';
 import { EditUserComponent } from './view/edit-user/edit-user.component';
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
-import { UserInvitationComponent } from './view/user-invitation/user-invitation.component';
-
+//import { UserInvitationComponent } from./view/organization/user-invitation/user-invitation.componentnt';
+import {AdminModule} from './view/admin/admin.module'
 @NgModule({
   declarations: [
     AppComponent,
@@ -58,7 +58,7 @@ import { UserInvitationComponent } from './view/user-invitation/user-invitation.
     ConfirmDialogComponent,
     EditUserComponent,
     UserProfileComponent,
-    UserInvitationComponent,
+   // UserInvitationComponent,
 
   ],
   imports: [
@@ -70,6 +70,7 @@ import { UserInvitationComponent } from './view/user-invitation/user-invitation.
     ReactiveFormsModule,
     HttpClientModule,
     PipesModule,
+    AdminModule,
     ToastrModule.forRoot({
       closeButton: true,
       timeOut: 15000, // 15 seconds

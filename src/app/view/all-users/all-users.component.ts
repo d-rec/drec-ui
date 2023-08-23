@@ -14,9 +14,10 @@ import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component'
-import {EditUserComponent} from '../edit-user/edit-user.component';
+import { EditUserComponent } from '../edit-user/edit-user.component';
 import { ToastrService } from 'ngx-toastr';
 import { errors } from 'ethers';
+import {InvitationformComponent} from '../admin/invitationform/invitationform.component'
 @Component({
   selector: 'app-all-users',
   templateUrl: './all-users.component.html',
@@ -39,22 +40,31 @@ export class AllUsersComponent {
   totalRows: number;
   totalPages: number = 1;
   p: number = 1;
-  orgnaizatioId:number;
+  orgnaizatioId: number;
+  showorg: boolean = false
+  orgdetails: any
   constructor(private authService: AuthbaseService, private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
     private dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
     private toastrService: ToastrService) {
-      if(this.activatedRoute.snapshot.params['id']){
-        this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
-      }
-     }
+    if (this.activatedRoute.snapshot.params['id']) {
+      this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
+      this.showorg = true;
+      this.adminService.GetOrganizationById(this.orgnaizatioId).subscribe((data) => {
+        console.log('org', data)
+
+        this.orgdetails = data
+
+      })
+    }
+  }
   ngOnInit(): void {
     this.getAllUsers();
   }
   getAllUsers() {
-    if(this.orgnaizatioId!=null||this.orgnaizatioId!=undefined){
+    if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
       this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId).subscribe((data) => {
         console.log(data)
         this.showlist = true
@@ -67,7 +77,7 @@ export class AllUsersComponent {
         console.log(this.totalRows);
         this.totalPages = this.data.totalPages
       })
-    }else{
+    } else {
       this.adminService.GetAllUsers().subscribe((data) => {
         console.log(data)
         this.showlist = true
@@ -81,7 +91,7 @@ export class AllUsersComponent {
         this.totalPages = this.data.totalPages
       })
     }
-   
+
   }
   previousPage(): void {
     if (this.p > 1) {
@@ -131,22 +141,38 @@ export class AllUsersComponent {
     });
   }
   deleteUser(id: number) {
-  
-      this.adminService.removeUser(id).subscribe((response) => {
-        console.log(response);
-        if (response.success) {
-          this.toastrService.success(response.message, 'Successfully')
-          this.getAllUsers();
-        } else {
-  
-          this.toastrService.error(response.message, 'Failure')
-        }
-  
-      },(err) =>{
-        console.log(err)
-        this.toastrService.error(err.error.message, 'Failure')
-      })
-  
-    
+
+    this.adminService.removeUser(id).subscribe((response) => {
+      console.log(response);
+      if (response.success) {
+        this.toastrService.success('User Deleted', 'Successful')
+        this.getAllUsers();
+      } else {
+
+        this.toastrService.error(response.message, 'Failure')
+      }
+
+    }, (err) => {
+      console.log(err)
+      this.toastrService.error(err.error.message, 'Failure')
+    })
+
+
+  }
+
+  openinviteDialog() {
+    const confirmDialog = this.dialog.open(InvitationformComponent, {
+      data: {
+        title: 'User invite in '+this.orgdetails.name,
+        message: 'Are you sure, you want to  Device: ',
+        orginfo:this.orgdetails
+      }
+    });
+    confirmDialog.afterClosed().subscribe(result => {
+      if (result === true) {
+        // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
+        //this.deleteDevice(device.id)
+      }
+    });
   }
 }

@@ -6,12 +6,14 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AdminAlldevicesComponent } from './admin-alldevices/admin-alldevices.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { AddUsersComponent } from './add-users/add-users.component';
+import { InvitationformComponent } from './invitationform/invitationform.component';
 
 @NgModule({
   declarations: [
     DashboardComponent,
     AdminAlldevicesComponent,
-    AddUsersComponent
+    AddUsersComponent,
+    InvitationformComponent
   ],
   imports: [
     CommonModule,
