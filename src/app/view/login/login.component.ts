@@ -46,7 +46,8 @@ export class LoginComponent {
           //var obj = JSON.parse(sessionStorage.loginuser);
           this.userService.userProfile().subscribe({
             next: data1 => {
-              if (data1.status != 'Pending' && data1.organizationId != null) {
+              console.log(data1)
+              if (data1.status != 'Pending' && data1.organization != null) {
                 if (jwtObj.role === 'Buyer') {
                   this.router.navigate(['/myreservation']);
                 } else if (jwtObj.role === 'Admin') {
