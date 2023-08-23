@@ -13,6 +13,9 @@ export class AdminService {
   public GetAllOrganization(): Observable<any> {
     return this.httpClient.get<any>(this.url + 'admin/organizations' );
   }
+  public GetOrganizationById(orgId:number): Observable<any> {
+    return this.httpClient.get<any>(this.url + 'admin/organizations/'+orgId );
+  }
   public GetAllUsers(): Observable<any> {
     return this.httpClient.get<any>(this.url + 'admin/users' );
   }

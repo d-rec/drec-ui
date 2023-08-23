@@ -13,7 +13,7 @@ import { AddReservationComponent } from './view/add-reservation/add-reservation.
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
 import { ResetPasswordComponent } from './view/reset-password/reset-password.component'
 import {UserProfileComponent} from './view/user-profile/user-profile.component'
-import {UserInvitationComponent} from './view/user-invitation/user-invitation.component'
+import {UserInvitationComponent} from './view/organization/user-invitation/user-invitation.component'
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', data: { title: 'First Component' }, pathMatch: 'full' },
@@ -24,7 +24,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      //{ path: 'confirm-email', component: ConfirmemailComponent },
+      { path: 'confirm-email', component: ConfirmemailComponent },
       { path: 'forgot-password', component: ForgetPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
     ]

@@ -9,29 +9,30 @@
         <span>Dashboard</span>
       </button>
       <!--1st  -->
-      <mat-expansion-panel [class.mat-elevation-z0]="true" >
+      <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header class="mdc-button ">
           <mat-icon>account_circle</mat-icon>
           Organization
         </mat-expansion-panel-header>
         <mat-nav-list>
           <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active"
-          routerLink="/organization/my/information" >
-          <span>My Organizations</span>
-        </a>
+            routerLink="/organization/my/information">
+            <span>My Organizations</span>
+          </a>
+          <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active"
+            routerLink="/admin/add_user" *ngIf="loginuser.role ==='Admin'">
+            <span>Add Organizations</span>
+          </a>
           <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active"
             routerLink="/admin/All_organization" *ngIf="loginuser.role ==='Admin'">
             <span>All Organizations</span>
           </a>
 
           <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active"
-            routerLink="/admin/All_users" >
+            routerLink="/admin/All_users">
             <span>All Users</span>
           </a>
-          <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active"
-            routerLink="/admin/add_user" *ngIf="loginuser.role ==='Admin'">
-            <span>Add User</span>
-          </a>
+
 
           <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active"
             routerLink="/organization/user/invitation" *ngIf="!showmenu &&  loginuser.role !='Admin'">
@@ -160,13 +161,14 @@
           Account Setting
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active" routerLink="/user/profile" *ngIf="!showmenu">
+          <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active"
+            routerLink="/user/profile" *ngIf="!showmenu">
 
             <span>Profile</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
-     
+
       <mat-divider></mat-divider>
       <!-- <button class="menu-button" mat-button (click)="logout()"><mat-icon>power_settings_new</mat-icon>Logout</button> -->
     </mat-nav-list>
