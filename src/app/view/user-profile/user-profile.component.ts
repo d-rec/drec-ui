@@ -116,7 +116,7 @@ export class UserProfileComponent {
     this.userService.updatProfile(this.updateForm.value).subscribe((data) => {
       console.log(data);
 
-      this.toastrService.success("User Updated", "Successfully")
+      this.toastrService.success("User Updated", "Successful")
       // this.dialogRef.close;
 
     })

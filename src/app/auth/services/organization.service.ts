@@ -16,4 +16,8 @@ export class OrganizationService {
   {
     return this.httpClient.get<OrganizationInformation>(environment.API_URL+'Organization/me')
   }
+  changeOrguserRole(orgId:number, userId:number,datarole:any):Observable<any>{
+    return this.httpClient.get<OrganizationInformation>(environment.API_URL+'/Organization/'+orgId
+    +'/change-role/'+userId,datarole)
+  }
 }
