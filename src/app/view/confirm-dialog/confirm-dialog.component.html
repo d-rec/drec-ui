@@ -2,7 +2,42 @@
 <div mat-dialog-content>
   {{data.message}}
 </div>
+<div *ngIf="showchangeform">
+
+  <mat-card>
+
+    <form [formGroup]="roleForm" >
+      <mat-card-content>
+        <div class="example-container1 row">
+          
+          <div class="col-md-3">
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">Organization User</mat-label>
+
+              <mat-select [(ngModel)]="userId" [ngModelOptions]="{standalone: true}">
+
+                  <mat-option *ngFor="let code of alluserlist" [value]="code.id">
+                      {{code.firstName}} {{code.lastName}}
+                  </mat-option>
+              </mat-select>
+          </mat-form-field>
+          </div>
+          <div class="col-md-3">
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">Role</mat-label>
+              <input autofocus type="text" matInput formControlName="role" [(ngModel)]="role ">
+            </mat-form-field>
+
+
+          </div>
+        </div>
+
+      </mat-card-content>
+
+    </form>
+  </mat-card>
+</div>
 <div style="float:right;margin:20px;">
-  <input style="margin:0px 10px;" type="button" value="Confirm" [mat-dialog-close]="true">
-  <input type="button" value="Cancel"  [mat-dialog-close]="false">
+  <input style="margin:0px 10px;" type="button" value="Confirm" [mat-dialog-close]="true" (click)="onUpdateorgadminrole()">
+  <input type="button" value="Cancel" [mat-dialog-close]="false">
 </div>

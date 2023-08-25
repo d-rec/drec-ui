@@ -127,18 +127,38 @@ export class AllUsersComponent {
   }
 
   openDialog(user: any) {
-    const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        title: 'Confirm Remove User',
-        message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName
-      }
-    });
-    confirmDialog.afterClosed().subscribe(result => {
-      if (result === true) {
-        // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
-        this.deleteUser(user.id)
-      }
-    });
+console.log(user)
+    if(user.role==='OrganizationAdmin'){
+      const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: 'Confirm Remove User',
+          message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName+ ', if yes please assign this role to other user of this orgzanization',
+        data:user,
+        showchangeform:true,
+        }
+      });
+      confirmDialog.afterClosed().subscribe(result => {
+        if (result === true) {
+          // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
+          this.deleteUser(user.id)
+        }
+      });
+
+    }else{
+      const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: 'Confirm Remove User',
+          message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName
+        }
+      });
+      confirmDialog.afterClosed().subscribe(result => {
+        if (result === true) {
+          // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
+          this.deleteUser(user.id)
+        }
+      });
+    }
+   
   }
   deleteUser(id: number) {
 
