@@ -31,7 +31,12 @@ const routes: Routes = [
   },
   {
     path: 'edit_user/:id', component: EditUserComponent
-  }
+  },
+  {
+    path: 'permission',
+    loadChildren: () =>
+      import('../permission/permission.module').then((m) => m.PermissionModule),
+  },
 ];
 
 @NgModule({

@@ -22,6 +22,7 @@ export class UserInvitationComponent {
   readdata: any;
   inviteForm: FormGroup;
   invitaionlist:any;
+  userstatus:any;
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   orgtype: any[] = [
     { value: 'Developer', viewValue: 'Developer' },
@@ -43,16 +44,23 @@ export class UserInvitationComponent {
     private userService: UserService,
     private inveiteService: InvitationService,) {
       this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+      this.userstatus = sessionStorage.getItem('status')
+      console.log(this.userstatus)
+      
      }
 
   ngOnInit() {
-    this.getinvitationList();
+    
     this.inviteForm = this.fb.group({
       firstName: [null],
       lastName: [null],
       email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
       role: [null, [Validators.required]],
     });
+    if(this.userstatus=!'Pending'){
+      this.displayedColumns= ['sender', 'email', 'status']
+    }
+    this.getinvitationList();
   }
   onSubmit() {
     this.inveiteService.Postuserinvitation(this.inviteForm.value).subscribe((response) => {

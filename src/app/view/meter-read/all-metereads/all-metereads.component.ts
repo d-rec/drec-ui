@@ -69,7 +69,7 @@ export class AllMetereadsComponent implements OnInit {
     this.DisplayList();
 
     this.FilterForm = this.formBuilder.group({
-      externalId: [Validators.required],
+      externalId: [null,Validators.required],
       start: [null, Validators.required],
       end: [null, Validators.required],
       pagenumber: [this.p]
@@ -108,22 +108,40 @@ export class AllMetereadsComponent implements OnInit {
     }
   }
   displayFn(result: any): string {
-    return result ? result.label : '';
+    console.log(result)
+    return result ;
   }
   lastreadvalue: number;
   lastreaddate: any;
+  // onSelect(result: any): void {
+  //   console.log(result)
+  //   this.selectedResult = result;
+  //   console.log(this.selectedResult);
+  //   console.log(result);
+  //   this.FilterForm.controls['externalId'].setValue(result.externalId);
+  //   if(this.loginuser.role==='Admin'){
+  //     this.externalId = result.id;
+  //   }else{
+  //     this.externalId = result.exterenalId;
+  //   }
+    
+  // }
   onSelect(result: any): void {
-    console.log(result)
     this.selectedResult = result;
     console.log(this.selectedResult);
     console.log(result);
     this.FilterForm.controls['externalId'].setValue(result.externalId);
-    if(this.loginuser.role==='Admin'){
+    
+    let deivceid;
+    if (this.loginuser.role==='Admin'){
       this.externalId = result.id;
     }else{
-      this.externalId = result.exterenalId;
+
+      this.externalId = result.externalId;
+      console.log(this.externalId)
     }
     
+   
   }
   reset() {
     this.FilterForm.reset();
