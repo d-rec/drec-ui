@@ -47,6 +47,7 @@ export class LoginComponent {
           this.userService.userProfile().subscribe({
             next: data1 => {
               console.log(data1)
+              sessionStorage.setItem('status', data1.status);
               if (data1.status != 'Pending' && data1.organization != null) {
                 if (jwtObj.role === 'Buyer') {
                   this.router.navigate(['/myreservation']);

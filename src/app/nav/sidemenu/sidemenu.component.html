@@ -128,6 +128,29 @@
 
         </mat-nav-list>
       </mat-expansion-panel>
+      <!--   add Permission-->
+      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role ==='Admin'">
+        <mat-expansion-panel-header class="mdc-button d-flex align-items-center">
+          <mat-icon>list</mat-icon>
+          Permission
+        </mat-expansion-panel-header>
+        <mat-nav-list class="p-0">
+          <!-- <a mat-list-item class="menu-button" routerLinkActive="active"routerLink="/device/AllList" *ngIf="loginuser.role ==='OrganizationAdmin'">
+              <mat-icon>list</mat-icon>
+              <span>My Devices</span>
+            </a> -->
+          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/admin/permission/acl_module">
+            <!-- <mat-icon>list</mat-icon> -->
+            <span>ACL Module</span>
+          </a>
+          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/admin/permission/user_role/list">
+            <!-- <mat-icon>list</mat-icon> -->
+            <span>User Role Permission </span>
+          </a>
+
+
+        </mat-nav-list>
+      </mat-expansion-panel>
 
       <!--6th  -->
 

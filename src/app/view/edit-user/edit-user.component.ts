@@ -53,12 +53,16 @@ export class EditUserComponent {
   // }
   onUpdate() {
 
-    this.adminService.updateUser(this.data.userinfo.id, this.updateForm.value).subscribe((data) => {
-      console.log(data);
+    this.adminService.updateUser(this.data.userinfo.id, this.updateForm.value).subscribe({
+      next: data => {
+        console.log(data);
 
-      this.toastrService.success("User Updated", "Successfully")
-      this.dialogRef.close();
+        this.toastrService.success("User Updated", "Successful")
+        this.dialogRef.close();
 
+      }, error: err => {
+        this.toastrService.error(err.error.message, "Error")
+      }
     })
 
   }
