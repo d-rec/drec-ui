@@ -16,8 +16,14 @@ export class AdminService {
   public GetOrganizationById(orgId:number): Observable<any> {
     return this.httpClient.get<any>(this.url + 'admin/organizations/'+orgId );
   }
-  public GetAllUsers(): Observable<any> {
-    return this.httpClient.get<any>(this.url + 'admin/users' );
+  public GetAllUsers(searchData?:any): Observable<any> {
+    let searchUrl = `${this.url}admin/users`;
+    if (searchData != undefined) {
+      if (!(typeof searchData.organizationName === undefined || searchData.organizationName === "" || searchData.organizationName === null)) {
+        searchUrl += `?organizationName=${searchData.organizationName}`;
+      }
+    }
+    return this.httpClient.get(searchUrl);
   }
   public GetAllOrgnaizationUsers(organizationsId:number): Observable<any> {
     return this.httpClient.get<any>(this.url + 'admin/organizations/user/'+organizationsId );

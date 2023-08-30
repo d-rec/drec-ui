@@ -24,6 +24,7 @@ import {InvitationformComponent} from '../admin/invitationform/invitationform.co
   styleUrls: ['./all-users.component.scss']
 })
 export class AllUsersComponent {
+  FilterForm:FormGroup;
   displayedColumns = [
     'name',
     'orgemail',
@@ -43,6 +44,8 @@ export class AllUsersComponent {
   orgnaizatioId: number;
   showorg: boolean = false
   orgdetails: any
+  loginuser:any;
+  orglist:any;
   constructor(private authService: AuthbaseService, private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
@@ -59,8 +62,26 @@ export class AllUsersComponent {
 
       })
     }
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
   ngOnInit(): void {
+    this.FilterForm = this.formBuilder.group({
+      organizationName: [],
+      
+      //pagenumber: [this.p]
+    });
+    if (this.loginuser.role === 'Admin') {
+      this.adminService.GetAllOrganization().subscribe(
+        (data) => {
+          this.orglist = data;
+        })
+    }
+
+    this.getAllUsers();
+  }
+  reset() {
+    this.FilterForm.reset();
+  
     this.getAllUsers();
   }
   getAllUsers() {
@@ -78,7 +99,7 @@ export class AllUsersComponent {
         this.totalPages = this.data.totalPages
       })
     } else {
-      this.adminService.GetAllUsers().subscribe((data) => {
+      this.adminService.GetAllUsers(this.FilterForm.value).subscribe((data) => {
         console.log(data)
         this.showlist = true
         this.loading = false
@@ -132,7 +153,7 @@ console.log(user)
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
           title: 'Confirm Remove User',
-          message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName+ ', if yes please assign this role to other user of this orgzanization',
+          message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName+ ', if yes please assign this role to other user of this organization',
         data:user,
         showchangeform:true,
         }
