@@ -47,20 +47,20 @@ export class AddUsersComponent {
         organizationType: new FormControl(null),
         orgAddress: new FormControl(null),
         email: new FormControl(null, [Validators.required, Validators.pattern(this.emailregex)]),
-        password: new FormControl(null, [Validators.required, this.checkPassword]),
-       confirmPassword: new FormControl("", [Validators.required, this.checkconfirmPassword]),
+        password: new FormControl(null),
+       confirmPassword: new FormControl(null),
 
       },
-      {
-        validators: (control) => {
+      // {
+      //   validators: (control) => {
 
-          if (control.value.password !== control.value.confirmPassword) {
-            //@ts-ignore
-            control.get("confirmPassword").setErrors({ notSame: true });
-          }
-          return null;
-        },
-      }
+      //     if (control.value.password !== control.value.confirmPassword) {
+      //       //@ts-ignore
+      //       control.get("confirmPassword").setErrors({ notSame: true });
+      //     }
+      //     return null;
+      //   },
+      // }
     );
 
 
@@ -70,40 +70,40 @@ export class AddUsersComponent {
       this.registerForm.get('email')?.hasError('pattern') ? 'Not a valid emailaddress' : ''
 
   }
-  checkPassword(control: any) {
-    let enteredPassword = control.value
-    let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
-    return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'requirements': true } : null;
-  }
-  getErrorPassword() {
-    return this.registerForm.get('password')?.hasError('required') ? 'This field is required (Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
-      this.registerForm.get('password')?.hasError('requirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' : '';
-  }
-  checkconfirmPassword(control: any) {
-    // console.log(this.registerForm.value)
-
-    let enteredPassword = control.value;;
-    let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
-    // console.log(this.registerForm.value.password);
-    //this.registerForm.value.password = this.registerForm.value.password?:'';
-    return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'Confirmrequirements': true } :
-      (!enteredPassword && enteredPassword) ? { 'matchrequirements': true } : null;
-  }
-  getErrorcheckconfirmPassword() {
-    return this.registerForm.get('confirmPassword')?.hasError('required') ? 'This field is required (Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
-      this.registerForm.get('confirmPassword')?.hasError('Confirmrequirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
-        this.registerForm.get('confirmPassword')?.hasError('notSame') ? ' confirmPassword Does not match' : '';
-  }
-
-  // checksecretKey(control: any) {
-  //   let enteredsecretKey = control.value
-  //   let secretKeyCheck = /^(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}$/;
-  //   return (!secretKeyCheck.test(enteredsecretKey) && enteredsecretKey) ? { 'keyrequirements': true } : null;
+  // checkPassword(control: any) {
+  //   let enteredPassword = control.value
+  //   let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
+  //   return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'requirements': true } : null;
   // }
-  getErrorsecretKey() {
-    return this.registerForm.get('secretKey')?.hasError('required') ? 'Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key' :
-      this.registerForm.get('secretKey')?.hasError('keyrequirements') ? 'Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key' : '';
-  }
+  // getErrorPassword() {
+  //   return this.registerForm.get('password')?.hasError('required') ? 'This field is required (Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
+  //     this.registerForm.get('password')?.hasError('requirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' : '';
+  // }
+  // checkconfirmPassword(control: any) {
+  //   // console.log(this.registerForm.value)
+
+  //   let enteredPassword = control.value;;
+  //   let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
+  //   // console.log(this.registerForm.value.password);
+  //   //this.registerForm.value.password = this.registerForm.value.password?:'';
+  //   return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'Confirmrequirements': true } :
+  //     (!enteredPassword && enteredPassword) ? { 'matchrequirements': true } : null;
+  // }
+  // getErrorcheckconfirmPassword() {
+  //   return this.registerForm.get('confirmPassword')?.hasError('required') ? 'This field is required (Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
+  //     this.registerForm.get('confirmPassword')?.hasError('Confirmrequirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' :
+  //       this.registerForm.get('confirmPassword')?.hasError('notSame') ? ' confirmPassword Does not match' : '';
+  // }
+
+  // // checksecretKey(control: any) {
+  // //   let enteredsecretKey = control.value
+  // //   let secretKeyCheck = /^(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}$/;
+  // //   return (!secretKeyCheck.test(enteredsecretKey) && enteredsecretKey) ? { 'keyrequirements': true } : null;
+  // // }
+  // getErrorsecretKey() {
+  //   return this.registerForm.get('secretKey')?.hasError('required') ? 'Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key' :
+  //     this.registerForm.get('secretKey')?.hasError('keyrequirements') ? 'Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key' : '';
+  // }
   checkValidation(input: string) {
     const validation = this.registerForm.get(input)?.invalid && (this.registerForm.get(input)?.dirty || this.registerForm.get(input)?.touched)
     return validation;
@@ -122,11 +122,11 @@ export class AddUsersComponent {
     // const password = formData.value.password;
     // const username = formData.value.username;
     //this.auth.post(email, password, username);
-    var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
+    //var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
     
-    this.registerForm.controls['password'].setValue(randPassword);
-    this.registerForm.controls['confirmPassword'].setValue(randPassword);
-    this.authService.PostAuth('admin/user/register', this.registerForm.value).subscribe({
+    this.registerForm.controls['password'].setValue('pass@123');
+    this.registerForm.controls['confirmPassword'].setValue('pass@123');
+    this.authService.PostAuth('admin/users', this.registerForm.value).subscribe({
       next: data => {
         console.log(data)
 

@@ -10,9 +10,11 @@
         </mat-card-title>
       </div>
       <div>
-        <button class="btn btn-dark justify-content-end px-4  align-items-center" (click)="openinviteDialog()" *ngIf="showorg">
+        <button class="btn btn-dark justify-content-end px-4  align-items-center" (click)="openinviteDialog()"
+          *ngIf="showorg">
           <mat-icon class="align-middle me-2">add_circle</mat-icon>Invite User</button>&nbsp;
-        <button class="btn btn-dark justify-content-end px-4  align-items-center" routerLink="/admin/All_organization" *ngIf="showorg">
+        <button class="btn btn-dark justify-content-end px-4  align-items-center" routerLink="/admin/All_organization"
+          *ngIf="showorg">
           <mat-icon class="align-middle me-2">arrow_back</mat-icon>Go Back</button>
       </div>
     </mat-card-header>
@@ -29,7 +31,7 @@
           <div class='content'>
             <div class='column col-4'>
               <div class='row '>
-                <p><b> Name</b>:&nbsp;
+                <p><b> Organization Name</b>:&nbsp;
                   <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
                   {{orgdetails.name}}
                 </p>
@@ -54,7 +56,39 @@
         </mat-card-content>
         <hr>
       </mat-card>
+      <mat-card *ngIf="!showorg">
+        <form [formGroup]="FilterForm">
+          <mat-card-content>
+            <h3 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize">Filter User list By
+              Select Organization</h3>
+            <div class="example-container1 row">
+              <div class="col-md-3">
 
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">Organization</mat-label>
+
+                  <mat-select formControlName="organizationName">
+
+                    <mat-option *ngFor="let code of orglist" [value]="code.name">
+                      {{code.name}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-12 mb-3  d-flex ">
+                <div class="">
+                  <button class="btn-primary me-2 btn text-capitalize px-4" (click)="getAllUsers()">Filter</button>
+                </div>
+                <div class="">
+                  <button class="btn-dark btn text-capitalize px-4" (click)="reset()">Reset</button>
+                </div>
+
+
+              </div>
+            </div>
+          </mat-card-content>
+        </form>
+      </mat-card>
       <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
       <div class="content mat-elevation-z8 text-center" *ngIf="showlist">
         <table mat-table [dataSource]="dataSource" class="" matSort>
