@@ -55,7 +55,7 @@ export class UserProfileComponent {
     console.log(this.userstatus);
     this.updateForm = this.fb.group({
       firstName: [null, Validators.required],
-      lastName: [null],
+      lastName: [null,Validators.required],
       email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
       status: [null],
     });

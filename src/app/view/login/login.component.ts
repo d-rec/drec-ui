@@ -63,14 +63,10 @@ export class LoginComponent {
 
               }
 
-
-
             }, error: err => {
               this.toastrService.error('Error!', err.error.message);
             }
-
           })
-
         } else {
           console.log("check your credentials !!")
           this.toastrService.info('Message Failure!', 'check your credentials !!');
@@ -80,8 +76,6 @@ export class LoginComponent {
       (error) => {                              //Error callback
         console.error('error caught in component', error)
         this.toastrService.error('check your credentials!', 'login Fail!!');
-
-
       }
     )
   }
