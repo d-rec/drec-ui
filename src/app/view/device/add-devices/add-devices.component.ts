@@ -53,28 +53,49 @@ export class AddDevicesComponent {
   }
 
   ngOnInit() {
-    if (this.loginuser.role === 'Admin') {
-      this.adminService.GetAllOrganization().subscribe(
-        (data) => {
-          this.orglist = data;
-        })
-    }
-
-    this.DisplayList();
-    this.DisplaySDGBList();
-    this.DisplayfuelList();
-    this.DisplaytypeList();
-    this.date = new Date();
-    this.myform = this.fb.group({
-
-      devices: this.fb.array([
-      ])
-    })
+    this.loadData();
+    this.initializeForm();
     this.showinput[0] = true;
     this.addmoredetals[0] = false;
     this.showaddmore[0] = true;
     this.showerror[0] = false;
     this.shownomore[0] = false;
+   
+  
+    setTimeout(() => {
+      this.setupCountryAutocomplete(0); // Call it with the appropriate index
+    }, 1500);
+  }
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+
+
+  private loadData() {
+    if (this.loginuser.role === 'Admin') {
+      this.adminService.GetAllOrganization().subscribe(
+        (data) => {
+          this.orglist = data;
+  
+          // Once data is loaded, call any other functions that depend on it
+         
+          this.date = new Date();
+        }
+      );
+    }
+    this.DisplayList();
+    this.DisplaySDGBList();
+    this.DisplayfuelList();
+    this.DisplaytypeList();
+    // Load other data as needed
+  }
+
+  private initializeForm() {
+    this.myform = this.fb.group({
+      devices: this.fb.array([])
+    });
     this.myform.valueChanges.subscribe(console.log);
     const device = this.fb.group({
       externalId: [null, [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
@@ -102,21 +123,16 @@ export class AddDevicesComponent {
     })
     this.deviceForms.push(device);
 
-    setTimeout(() => {
-      //this.FilterForm.controls['countryname'];
-      this.deviceForms.at(0).get('countryCode') as FormControl
-      this.filteredCountryList[0] = this.getCountryCodeControl(0).valueChanges.pipe(
-        startWith(''),
-        map(value => this._filter(value || '', 0))
-      );
-    }, 1500);
-
+    // Other form initialization code
   }
-  ngOnDestroy() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
+  
+  private setupCountryAutocomplete(index: number) {
+    this.filteredCountryList[index] = this.getCountryCodeControl(index).valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '', index))
+    );
   }
+  
   get deviceForms() {
     return this.myform.get('devices') as FormArray
   }
@@ -164,7 +180,6 @@ export class AddDevicesComponent {
       }
     )
   }
-
 
   // selectCountry(event: any,i:number) {
   //   console.log(event);
