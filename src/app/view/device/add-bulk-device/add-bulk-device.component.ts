@@ -8,7 +8,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 
-import { DeviceService } from '../../../auth/services/device.service'
+import { DeviceService, AdminService } from '../../../auth/services'
 import { Router, ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-add-bulk-device',
@@ -42,13 +42,25 @@ export class AddBulkDeviceComponent implements OnInit {
   ];
   constructor(private uploadService: FileuploadService,
     private deviceService: DeviceService, private router: Router,
-    private toastrService: ToastrService) { }
+    private toastrService: ToastrService,
+    private adminService: AdminService) {
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+  }
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   dataSource1: MatTableDataSource<any>;
   data: any;
+  orglist: any;
+  orgId: number;
+  loginuser: any;
   ngOnInit(): void {
+    if (this.loginuser.role === 'Admin') {
+      this.adminService.GetAllOrganization().subscribe(
+        (data) => {
+          this.orglist = data;
+        })
+    }
     this.JobDisplayList();
 
   }
@@ -70,11 +82,10 @@ export class AddBulkDeviceComponent implements OnInit {
     } else {
       this.fileName = 'Please click here to select file';
     }
-    event.target.value='';
+    event.target.value = '';
   }
 
-  openFileExplorer()
-  {
+  openFileExplorer() {
     console.log("came here")
     console.log(this.currentFile);
     document.getElementById("fileInput")?.click();
@@ -90,21 +101,40 @@ export class AddBulkDeviceComponent implements OnInit {
           console.log(event);
           let obj: any = {};
           obj['fileName'] = event[0];
-          this.uploadService.addbulkDevices(obj).subscribe({
-            next: (data: any) => {
-              console.log(data)
-              this.JobDisplayList();
-              // this.selectFile()
-              // this.readForm.reset();
-              this.currentFile = null;
-              this.fileName = 'Please click here to Select File';
-              this.toastrService.success('Successfully!', 'Devices Uploaded in Bulk!!');
-            },
-            error: (err) => {                          //Error callback
-              console.error('error caught in component', err)
-              this.toastrService.error('error!', err.error.message);
-            }
-          });
+          if (this.loginuser.role === 'Admin') {
+            this.deviceService.addByAdminbulkDevices(this.orgId, obj).subscribe({
+              next: (data: any) => {
+                console.log(data)
+                this.JobDisplayList();
+                // this.selectFile()
+                // this.readForm.reset();
+                this.currentFile = null;
+                this.fileName = 'Please click here to Select File';
+                this.toastrService.success('Successfully!', 'Devices Uploaded in Bulk!!');
+              },
+              error: (err) => {                          //Error callback
+                console.error('error caught in component', err)
+                this.toastrService.error('error!', err.error.message);
+              }
+            });
+          } else {
+            this.uploadService.addbulkDevices(obj).subscribe({
+              next: (data: any) => {
+                console.log(data)
+                this.JobDisplayList();
+                // this.selectFile()
+                // this.readForm.reset();
+                this.currentFile = null;
+                this.fileName = 'Please click here to Select File';
+                this.toastrService.success('Successful', 'Devices uploaded in bulk');
+              },
+              error: (err) => {                          //Error callback
+                console.error('error caught in component', err)
+                this.toastrService.error('error!', err.error.message);
+              }
+            });
+          }
+
           // if (event.type === HttpEventType.UploadProgress) {
           //   this.progress = Math.round((100 * event.loaded) / event.total);
           // } else if (event instanceof HttpResponse) {

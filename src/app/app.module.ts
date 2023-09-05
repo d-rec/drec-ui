@@ -28,7 +28,12 @@ import { ConfirmemailComponent } from './view/confirmemail/confirmemail.componen
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
 import { ResetPasswordComponent } from './view/reset-password/reset-password.component';
 import { AllUsersComponent } from './view/all-users/all-users.component';
-
+import { ConfirmDialogComponent } from './view/confirm-dialog/confirm-dialog.component';
+import { EditUserComponent } from './view/edit-user/edit-user.component';
+import { UserProfileComponent } from './view/user-profile/user-profile.component';
+//import { UserInvitationComponent } from./view/organization/user-invitation/user-invitation.componentnt';
+import {AdminModule} from './view/admin/admin.module';
+import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component'
 @NgModule({
   declarations: [
     AppComponent,
@@ -51,6 +56,11 @@ import { AllUsersComponent } from './view/all-users/all-users.component';
     ForgetPasswordComponent,
     ResetPasswordComponent,
     AllUsersComponent,
+    ConfirmDialogComponent,
+    EditUserComponent,
+    UserProfileComponent,
+    UserAcceptInvitationComponent,
+   // UserInvitationComponent,
 
   ],
   imports: [
@@ -62,6 +72,7 @@ import { AllUsersComponent } from './view/all-users/all-users.component';
     ReactiveFormsModule,
     HttpClientModule,
     PipesModule,
+    AdminModule,
     ToastrModule.forRoot({
       closeButton: true,
       timeOut: 15000, // 15 seconds

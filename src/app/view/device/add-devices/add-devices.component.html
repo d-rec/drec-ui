@@ -18,6 +18,21 @@
         <form [formGroup]="myform" (ngSubmit)="onSubmit()">
             <mat-card-content>
 
+                
+                <div class="col-md-3" *ngIf="loginuser.role ==='Admin'">
+                    <p>Select Organization</p>
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">Organization</mat-label>
+
+                        <mat-select [(ngModel)]="orgId" [ngModelOptions]="{standalone: true}">
+
+                            <mat-option *ngFor="let code of orglist" [value]="code.id">
+                                {{code.name}}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
                 <div formArrayName='devices'>
                     <div *ngFor="let phone of deviceForms.controls; let i=index" [formGroupName]="i">
                         <mat-card>
@@ -204,7 +219,7 @@
                                             </mat-select>
                                         </mat-form-field>
                                     </div>
-                                   
+
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Device Description</mat-label>

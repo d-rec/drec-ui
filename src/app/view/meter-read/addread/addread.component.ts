@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
-import { MeterReadService, DeviceService } from '../../../auth/services';
+import { MeterReadService, DeviceService, AdminService } from '../../../auth/services';
 import { AuthbaseService } from '../../../auth/authbase.service'
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -21,7 +21,7 @@ export class AddreadComponent implements OnInit {
   startmaxDate = new Date();
   startminDate = new Date();
   endminDate = new Date();
-  endmaxdate=new Date();
+  endmaxdate = new Date();
   historyAge: any;
   devicecreateddate: any;
   readForm: FormGroup;
@@ -39,11 +39,26 @@ export class AddreadComponent implements OnInit {
   commissioningDate: any;
   selectedResult: any;
   filteredOptions: Observable<any[]>;
+  orgId: number;
+  orglist: any;
+  loginuser: any;
   constructor(private fb: FormBuilder, private readService: MeterReadService,
     private deviceservice: DeviceService,
     private authService: AuthbaseService,
-    private router: Router, private toastrService: ToastrService) { }
+    private router: Router, private toastrService: ToastrService,
+    private adminService: AdminService) {
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+  }
+
+
   ngOnInit() {
+
+    if (this.loginuser.role === 'Admin') {
+      this.adminService.GetAllOrganization().subscribe(
+        (data) => {
+          this.orglist = data;
+        })
+    }
     this.readForm = this.fb.group({
       timezone: new FormControl(),
       externalId: [null, Validators.required],
@@ -87,24 +102,30 @@ export class AddreadComponent implements OnInit {
     const input = this.readForm.controls['externalId'].value;
     console.log(input)
     if (input && input != '') {
-      this.deviceservice.GetDeviceAutocomplete(input).subscribe(
-        (response) => {
-          console.log('response', response)
-          if (response.length > 0) {
-            this.showerrorexternalid = false;
+      if (this.loginuser.role === 'Admin') {
+        this.adminService.GetDeviceAutocomplete(input, this.orgId).subscribe(
+          (response) => {
             this.autocompleteResults = response;
-          } else {
-            this.autocompleteResults = [];
-            this.showerrorexternalid = true;
+            this.showerrorexternalid=false;
+          },
+          (error) => {
+            console.error('Error fetching autocomplete results:', error);
           }
-
-        },
-        (error) => {
-          console.error('Error fetching autocomplete results:', error);
-        }
-      );
+        );
+      } else {
+        this.deviceservice.GetDeviceAutocomplete(input,).subscribe(
+          (response) => {
+            this.autocompleteResults = response;
+            this.showerrorexternalid=false;
+          },
+          (error) => {
+            console.error('Error fetching autocomplete results:', error);
+          }
+        );
+      }
     } else {
       this.autocompleteResults = [];
+     this.showerrorexternalid=true;
       this.timezonedata = [];
       this.readForm.controls['externalId'].setValue(null);
       this.readForm.controls['timezone'].setValue(null);
@@ -140,7 +161,13 @@ export class AddreadComponent implements OnInit {
     console.log(this.filteredOptions);
     this.addreads.reset();
     this.readForm.controls['type'].setValue(null)
-    this.readService.Getlastread(result.externalId).subscribe({
+    let deivceid;
+    if (this.loginuser.role==='Admin'){
+      deivceid=result.id;
+    }else{
+      deivceid=result.exterenalId;
+    }
+    this.readService.Getlastread(deivceid).subscribe({
       next: data => {
         console.log(data),
           this.lastreaddate = data.enddate;
@@ -167,16 +194,16 @@ export class AddreadComponent implements OnInit {
       .format('YYYY-MM-DDTHH:mm:ss');
     console.log(this.commissioningDate);
     //momentTimeZone.tz(this.devicecreateddate, timezone);
-    this.endmaxdate =new Date(momentTimeZone
+    this.endmaxdate = new Date(momentTimeZone
       .tz(new Date(), timezone)
       .format('YYYY-MM-DDTHH:mm:ss'));
-      console.log(this.endmaxdate)
+    console.log(this.endmaxdate)
   }
   private _filter(value: string): string[] {
-  //  console.log(this.timezonedata)
+    //  console.log(this.timezonedata)
     const filterValue = value.toLowerCase();
-  //  console.log(filterValue)
-   // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
+    //  console.log(filterValue)
+    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if ((!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
     } else {
@@ -318,6 +345,29 @@ export class AddreadComponent implements OnInit {
       })
       myobj['reads'] = newreads
     }
+   if(this.loginuser.role==='Admin'){
+    this.readService.PostReadByAdmin(externalId, myobj,this.orgId).subscribe({
+      next: (data: any) => {
+        console.log(data)
+        this.readForm.reset();
+        this.selectedResult = null;
+        const formControls = this.readForm.controls;
+        Object.keys(formControls).forEach(key => {
+          const control = formControls[key];
+          control.setErrors(null);
+        });
+        this.toastrService.success('Successfully!', 'Read Added!!');
+      },
+      error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
+        console.error('error caught in component', err)
+        //@ts-ignore
+        let message = getValidmsgTimezoneFormat(err.error.message);
+        console.error(message)
+
+        this.toastrService.error(message, 'error!');
+      }
+    });
+   }else{
     this.readService.PostRead(externalId, myobj).subscribe({
       next: (data: any) => {
         console.log(data)
@@ -339,6 +389,8 @@ export class AddreadComponent implements OnInit {
         this.toastrService.error(message, 'error!');
       }
     });
+   }
+    
   }
 
 }

@@ -18,8 +18,23 @@
       <mat-card-content class="mat-body-cont text-center" >
 
         <form [formGroup]="FilterForm" *ngIf="showfilterform">
+            <div class="example-container1 row" *ngIf="loginuser.role ==='Admin'">
+                <p>Select Organization</p>
+            <div class="col-md-3" >
+                <mat-form-field appearance="outline">
+                    <mat-label class="text-capitalize">Organization</mat-label>
+
+                    <mat-select [(ngModel)]="orgId" [ngModelOptions]="{standalone: true}">
+
+                        <mat-option *ngFor="let code of orglist" [value]="code.id">
+                            {{code.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            </div>
             <div class="example-container1 row">
-              <div class="col-md-4" *ngIf="loginuser.role ==='OrganizationAdmin'">
+              <div class="col-md-4" >
                 <!-- <mat-form-field appearance="outline">
                     <mat-label class="text-capitalize">ExternalId</mat-label>
                     <input [(ngModel)]="exterenalId"  type="text"> 
@@ -30,17 +45,32 @@
                         </mat-option>
                     </mat-select>
                 </mat-form-field> -->
-                <mat-form-field appearance="outline">
-                    <mat-label class="text-capitalize">ExternalId</mat-label>
-                    <input matInput formControlName='externalId'  [matAutocomplete]="auto" placeholder="Search" (input)="search()" [value]="selectedResult">
-                    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onSelect($event.option.value)">
-                      <mat-option *ngFor="let result of autocompleteResults" [value]="result.externalId">
+               
+
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">External ID</mat-label>
+                        <input matInput formControlName='externalId'  [matAutocomplete]="auto" placeholder="Search External ID" (input)="search()" [value]="selectedResult?.externalId">
+                        <mat-autocomplete #auto="matAutocomplete"  (optionSelected)="onSelect($event.option.value)">
+                          <mat-option *ngFor="let result of autocompleteResults" [value]="result">
+                            {{ result.externalId }}
+                          </mat-option>
+                        </mat-autocomplete>
+                      </mat-form-field>
+                      <mat-error *ngIf="showerrorexternalid" style="margin-top: -15px;"> Invalid externalId  </mat-error>
+       
+                  <!-- <mat-form-field appearance="outline">
+                    <mat-label class="text-capitalize">External ID</mat-label>
+                    <input matInput formControlName='externalId'  [matAutocomplete]="auto" placeholder="Search External ID" (input)="search()" [value]="selectedResult?.externalId">
+                    <mat-autocomplete #auto="matAutocomplete"  (optionSelected)="onSelect($event.option.value)">
+                      <mat-option *ngFor="let result of autocompleteResults" [value]="result">
                         {{ result.externalId }}
                       </mat-option>
                     </mat-autocomplete>
                   </mat-form-field>
+                  <mat-error *ngIf="showerrorexternalid" style="margin-top: -15px;"> Invalid externalId 
+                 </mat-error> -->
             </div>
-            <div class="col-md-4" *ngIf="loginuser.role !='OrganizationAdmin'">
+            <!-- <div class="col-md-4" *ngIf="loginuser.role !='OrganizationAdmin'">
               <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize">ExternalId</mat-label>
                 
@@ -50,7 +80,7 @@
                       </mat-option>
                   </mat-select>
               </mat-form-field>
-          </div>
+          </div> -->
                 <div class="col-md-4">
                     <mat-form-field appearance="outline">
                         <mat-label class="text-capitalize">Start Date </mat-label>

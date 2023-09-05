@@ -192,14 +192,14 @@
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Enter a date range</mat-label>
-                                        <mat-date-range-input [rangePicker]="$any(picker)">
+                                        <mat-date-range-input [rangePicker]="$any(picker2)">
                                             <input matStartDate formControlName="start_date"
                                                 (ngModelChange)="checkFormValidity()" />
                                             <input matEndDate formControlName="end_date"
                                                 (ngModelChange)="checkFormValidity()" />
                                         </mat-date-range-input>
-                                        <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-                                        <mat-date-range-picker #picker></mat-date-range-picker>
+                                        <mat-datepicker-toggle matSuffix [for]="$any(picker2)"></mat-datepicker-toggle>
+                                        <mat-date-range-picker #picker2></mat-date-range-picker>
 
                                     </mat-form-field>
 
