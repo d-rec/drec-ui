@@ -1,11 +1,12 @@
-import { Component, Inject, ViewChild } from '@angular/core';
+import { Component, Inject, ViewChild, ElementRef } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
-import { AdminService, UserService, InvitationService } from '../../../auth/services';
+import { AdminService, UserService, InvitationService, OrganizationService } from '../../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
+import { MatTabGroup } from '@angular/material/tabs';
 @Component({
   selector: 'app-user-invitation',
   templateUrl: './user-invitation.component.html',
@@ -16,13 +17,16 @@ export class UserInvitationComponent {
   paginator!: MatPaginator;
 
   displayedColumns: string[] = ['sender', 'email', 'status', 'Action'];//... set columns here
-
+  @ViewChild(MatTabGroup) tabGroup: MatTabGroup;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
+  dataSource1: MatTableDataSource<any>;
   readdata: any;
   inviteForm: FormGroup;
   invitaionlist: any;
   userstatus: any;
+  orginviteuser: any;
+  showorginviteuser: boolean = false;
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   orgtype: any[] = [
     { value: 'Developer', viewValue: 'Developer' },
@@ -42,6 +46,7 @@ export class UserInvitationComponent {
     private toastrService: ToastrService,
     private activatedRoute: ActivatedRoute,
     private userService: UserService,
+    private orgService: OrganizationService,
     private inveiteService: InvitationService,) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.userstatus = sessionStorage.getItem('status')
@@ -57,21 +62,30 @@ export class UserInvitationComponent {
       email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
       role: [null, [Validators.required]],
     });
-    if (this.userstatus = !'Pending') {
+    console.log(this.userstatus = !'Pending')
+    if (this.userstatus ==='Active') {
+      console.log(this.userstatus)
       this.displayedColumns = ['sender', 'email', 'status']
+      this.getorginviteuserlist();
+    }else{
+      this.getinvitationList();
     }
-    this.getinvitationList();
+
+   
   }
   onSubmit() {
     this.inveiteService.Postuserinvitation(this.inviteForm.value).subscribe({
       next: response => {
         console.log(response);
+        this.inviteForm.reset();
         if (response.success) {
+          this.tabGroup.selectedIndex = 1;
           this.toastrService.success('Invitation Sent')
-
+          this.displayedColumns = ['sender', 'email', 'status']
+          this.getorginviteuserlist();
         }
       }, error: err => {
-        this.toastrService.success('Fail',err.message)
+        this.toastrService.success('Fail', err.message)
       }
     })
 
@@ -86,6 +100,17 @@ export class UserInvitationComponent {
       }, error: err => {
 
       }
+    })
+  }
+
+  getorginviteuserlist() {
+    this.orgService.getOrganizationInformation().subscribe((data) => {
+      console.log('org', data);
+      //@ts-ignore
+      this.orginviteuser = data.invitations
+      this.dataSource1=new MatTableDataSource(this.orginviteuser);
+
+      this.showorginviteuser = true;
     })
   }
 }
