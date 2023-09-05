@@ -26,6 +26,19 @@
           </div> -->
         </div>
         <div class="example-container1 row">
+          <div class="col-md-3" *ngIf="loginuser.role ==='Admin'">
+            
+            <mat-form-field appearance="outline">
+                <mat-label class="text-capitalize">Organization</mat-label>
+
+                <mat-select [(ngModel)]="orgId" [ngModelOptions]="{standalone: true}">
+
+                    <mat-option *ngFor="let code of orglist" [value]="code.id">
+                        {{code.name}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
           <div class="col-md-3">
             <mat-form-field appearance="outline">
               <div>

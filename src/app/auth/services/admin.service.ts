@@ -13,8 +13,31 @@ export class AdminService {
   public GetAllOrganization(): Observable<any> {
     return this.httpClient.get<any>(this.url + 'admin/organizations' );
   }
-  public GetAllUsers(): Observable<any> {
-    return this.httpClient.get<any>(this.url + 'admin/users' );
+  public GetOrganizationById(orgId:number): Observable<any> {
+    return this.httpClient.get<any>(this.url + 'admin/organizations/'+orgId );
+  }
+  public GetAllUsers(searchData?:any): Observable<any> {
+    let searchUrl = `${this.url}admin/users`;
+    if (searchData != undefined) {
+      if (!(typeof searchData.organizationName === undefined || searchData.organizationName === "" || searchData.organizationName === null)) {
+        searchUrl += `?organizationName=${searchData.organizationName}`;
+      }
+    }
+    return this.httpClient.get(searchUrl);
+  }
+  public GetAllOrgnaizationUsers(organizationsId:number): Observable<any> {
+    return this.httpClient.get<any>(this.url + 'admin/organizations/user/'+organizationsId );
+  }
+  public updateUser(userId:number,data:any):Observable<any>{
+    return this.httpClient.put<any>(this.url+'admin/users/'+userId,data)
+  }
+  public removeUser(userId:number):Observable<any>{
+    return this.httpClient.delete<any>(this.url+'admin/user/'+userId)
+  }
+  GetDeviceAutocomplete(searchInput: StaticRange,orgId:number): Observable<any> {
+    let searchUrl = `${this.url}admin/devices/autocomplete?externalId=` + searchInput+`&organizationId=`+orgId;
+    return this.httpClient.get(searchUrl);
+
   }
   public AddIrecDevice(deviceId:any): Observable<any> {
     return this.httpClient.post<any>(this.url + 'admin/add/device-into-Irec/'+deviceId ,{});

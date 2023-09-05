@@ -1,0 +1,75 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+    {{data.message}}
+</div>
+
+<mat-card>
+
+    <form [formGroup]="aclModuleForm">
+        <mat-card-content>
+            <div class="example-container1 row">
+
+                <!-- <div class="col-md-3">
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">Organization User</mat-label>
+
+              <mat-select [(ngModel)]="userId" [ngModelOptions]="{standalone: true}">
+
+                  <mat-option *ngFor="let code of alluserlist" [value]="code.id">
+                      {{code.firstName}} {{code.lastName}}
+                  </mat-option>
+              </mat-select>
+          </mat-form-field>
+          </div> -->
+                <div class="col-md-4">
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">Name</mat-label>
+                        <input matInput autofocus type="text" formControlName="name">
+                    </mat-form-field>
+
+                </div>
+                <!-- <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">Status</mat-label>
+                        <input autofocus type="text" matInput formControlName="status">
+                    </mat-form-field>
+
+
+                </div> -->
+                <div class="col-md-4">
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">Description</mat-label>
+                        <input autofocus type="text" matInput formControlName="description">
+                    </mat-form-field>
+
+
+                </div>
+                <div class="col-md-4">
+                    <!-- <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">Permission</mat-label>
+                        <input autofocus type="text" matInput formControlName="permission">
+                    </mat-form-field> -->
+
+
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">Permission</mat-label>
+
+                        <mat-select formControlName="permissions" multiple>
+
+                            <mat-option *ngFor="let permission of aclModulePermission" [value]="permission">{{permission}}</mat-option>
+
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            
+            </div>
+
+        </mat-card-content>
+
+    </form>
+</mat-card>
+
+<div style="float:right;margin:20px;">
+    <input style="margin:0px 10px;" type="button" value="Submit" [mat-dialog-close]="true" (click)="onSubmit()">
+    <input type="button" value="Cancel" [mat-dialog-close]="false">
+</div>

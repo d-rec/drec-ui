@@ -404,6 +404,11 @@ border-left-color:$primary!important ;
 
     color: $primary;
 }
+.delete-icon {
+
+    color: $danger;
+    cursor: pointer;
+}
 // this is for spinner 
 .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle, .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic{
     stroke:  $primary !important;

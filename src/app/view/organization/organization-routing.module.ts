@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {InformationComponent} from './information/information.component'
+import {UserInvitationComponent} from './user-invitation/user-invitation.component'
 const routes: Routes = [
   {
     path: '',
@@ -8,8 +9,11 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'information',
+    path: 'my/information',
     component: InformationComponent
+  },
+  {
+    path: 'user/invitation', component: UserInvitationComponent
   }
 
 ];

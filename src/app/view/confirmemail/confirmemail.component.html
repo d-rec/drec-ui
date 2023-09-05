@@ -107,8 +107,9 @@
     </mat-card-header>
    
       <mat-card-content>
-      <p *ngIf="fromregister">Thankyou for registration in D-REC, Please check email and confirm Your email address</p>
-      <p *ngIf="!fromregister">Welcome to in D-REC, Your {{message}} and now you use login</p>
+      <p *ngIf="fromregister&&success">Thankyou for registration in D-REC, Please check email and confirm Your email address</p>
+      <p *ngIf="!fromregister&&success">Welcome to in D-REC, Your {{message}} </p>
+      <p *ngIf="!success">Your {{message}} ,your token has expired</p>
     </mat-card-content>
       <div class="p-3">
         <button routerLink="/login" class="btn-primary btn   btn-block">Login</button>
