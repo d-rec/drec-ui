@@ -28,7 +28,7 @@ export class UserProfileComponent {
   hide = true;
   hide1 = true;
   matchconfirm: boolean = false;
-  usertoken:any;
+  usertoken: any;
   constructor(private fb: FormBuilder,
     private adminService: AdminService,
     private router: Router,
@@ -45,7 +45,7 @@ export class UserProfileComponent {
       this.firstName = this.userinfo.firstName
       this.lastName = this.userinfo.lastName
       this.email = this.userinfo.email
-  // this.status = this, this.userinfo.status
+      // this.status = this, this.userinfo.status
     });
     console.log(this.userinfo)
 
@@ -55,9 +55,9 @@ export class UserProfileComponent {
     console.log(this.userstatus);
     this.updateForm = this.fb.group({
       firstName: [null, Validators.required],
-      lastName: [null,Validators.required],
+      lastName: [null, Validators.required],
       email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
-      status: [null],
+      status: ['Active'],
     });
     this.resetpasswordform = new FormGroup(
       {
@@ -113,18 +113,27 @@ export class UserProfileComponent {
   }
   onUpdate() {
 
-    this.userService.updatProfile(this.updateForm.value).subscribe((data) => {
-      console.log(data);
+    this.userService.updatProfile(this.updateForm.value).
+    subscribe({
+      next: data => {
+        console.log(data);
 
-      this.toastrService.success("User Updated", "Successful")
-      // this.dialogRef.close;
+        this.toastrService.success("User Updated", "Successful")
+        //this.dialogRef.close();
 
+      }, error: err => {
+        this.updateForm.reset();
+
+        this.updateForm.patchValue(this.userinfo);
+
+        this.toastrService.error(err.error.message, "Error")
+      }
     })
 
   }
   onResetPasswordUpdate() {
 
-    this.userService.resetPassword(this.loginuser.email,this.resetpasswordform.value).subscribe((data) => {
+    this.userService.resetPassword(this.loginuser.email, this.resetpasswordform.value).subscribe((data) => {
       console.log(data);
 
       this.toastrService.success("Password Updated", "Successfully")

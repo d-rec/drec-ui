@@ -32,7 +32,8 @@ import { ConfirmDialogComponent } from './view/confirm-dialog/confirm-dialog.com
 import { EditUserComponent } from './view/edit-user/edit-user.component';
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
 //import { UserInvitationComponent } from./view/organization/user-invitation/user-invitation.componentnt';
-import {AdminModule} from './view/admin/admin.module'
+import {AdminModule} from './view/admin/admin.module';
+import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component'
 @NgModule({
   declarations: [
     AppComponent,
@@ -58,6 +59,7 @@ import {AdminModule} from './view/admin/admin.module'
     ConfirmDialogComponent,
     EditUserComponent,
     UserProfileComponent,
+    UserAcceptInvitationComponent,
    // UserInvitationComponent,
 
   ],
