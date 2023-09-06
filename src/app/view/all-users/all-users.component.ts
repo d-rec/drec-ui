@@ -8,7 +8,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
-import { AdminService } from '../../auth/services/admin.service';
+import { AdminService, OrganizationService } from '../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -17,14 +17,14 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { EditUserComponent } from '../edit-user/edit-user.component';
 import { ToastrService } from 'ngx-toastr';
 import { errors } from 'ethers';
-import {InvitationformComponent} from '../admin/invitationform/invitationform.component'
+import { InvitationformComponent } from '../admin/invitationform/invitationform.component'
 @Component({
   selector: 'app-all-users',
   templateUrl: './all-users.component.html',
   styleUrls: ['./all-users.component.scss']
 })
 export class AllUsersComponent {
-  FilterForm:FormGroup;
+  FilterForm: FormGroup;
   displayedColumns = [
     'name',
     'orgemail',
@@ -44,9 +44,14 @@ export class AllUsersComponent {
   orgnaizatioId: number;
   showorg: boolean = false
   orgdetails: any
-  loginuser:any;
-  orglist:any;
-  constructor(private authService: AuthbaseService, private adminService: AdminService,
+  loginuser: any;
+  orglist: any;
+  showorguser: boolean = true;
+
+
+  constructor(private authService: AuthbaseService,
+    private orgService: OrganizationService,
+    private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
     private dialog: MatDialog,
@@ -67,7 +72,7 @@ export class AllUsersComponent {
   ngOnInit(): void {
     this.FilterForm = this.formBuilder.group({
       organizationName: [],
-      
+
       //pagenumber: [this.p]
     });
     if (this.loginuser.role === 'Admin') {
@@ -81,36 +86,61 @@ export class AllUsersComponent {
   }
   reset() {
     this.FilterForm.reset();
-  
+
     this.getAllUsers();
   }
   getAllUsers() {
-    if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
-      this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId).subscribe((data) => {
-        console.log(data)
-        this.showlist = true
-        this.loading = false
-        //@ts-ignore
-        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-        console.log(this.data);
-        this.dataSource = new MatTableDataSource(this.data);
-        this.totalRows = this.data.totalCount
-        console.log(this.totalRows);
-        this.totalPages = this.data.totalPages
-      })
+    if (this.loginuser.role === "Admin") {
+      if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
+        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId).subscribe((data) => {
+          console.log(data)
+          this.showlist = true
+          this.loading = false
+          //@ts-ignore
+          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+          console.log(this.data);
+          this.dataSource = new MatTableDataSource(this.data);
+          this.totalRows = this.data.totalCount
+          console.log(this.totalRows);
+          this.totalPages = this.data.totalPages
+        })
+      } else {
+        this.adminService.GetAllUsers(this.FilterForm.value).subscribe((data) => {
+          console.log(data)
+          this.showlist = true
+          this.loading = false
+          //@ts-ignore
+          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+          console.log(this.data);
+          this.dataSource = new MatTableDataSource(this.data);
+          this.totalRows = this.data.totalCount
+          console.log(this.totalRows);
+          this.totalPages = this.data.totalPages
+        })
+      }
+
     } else {
-      this.adminService.GetAllUsers(this.FilterForm.value).subscribe((data) => {
-        console.log(data)
-        this.showlist = true
-        this.loading = false
-        //@ts-ignore
-        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-        console.log(this.data);
-        this.dataSource = new MatTableDataSource(this.data);
-        this.totalRows = this.data.totalCount
-        console.log(this.totalRows);
-        this.totalPages = this.data.totalPages
-      })
+      this.showorg=true
+      this.orgService.getOrganizationUser().subscribe({
+        next: (data) => {
+
+          console.log(data)
+          this.showlist = true
+          this.loading = false
+          //@ts-ignore
+          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+          console.log(this.data);
+          this.dataSource = new MatTableDataSource(this.data);
+          this.totalRows = this.data.totalCount
+          console.log(this.totalRows);
+          this.totalPages = this.data.totalPages
+
+        }, error: err => {
+          console.log(err)
+        }
+      });
+
+
     }
 
   }
@@ -148,14 +178,14 @@ export class AllUsersComponent {
   }
 
   openDialog(user: any) {
-console.log(user)
-    if(user.role==='OrganizationAdmin'){
+    console.log(user)
+    if (user.role === 'OrganizationAdmin') {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
           title: 'Confirm Remove User',
-          message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName+ ', if yes please assign this role to other user of this organization',
-        data:user,
-        showchangeform:true,
+          message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName + ', if yes please assign this role to other user of this organization',
+          data: user,
+          showchangeform: true,
         }
       });
       confirmDialog.afterClosed().subscribe(result => {
@@ -165,7 +195,7 @@ console.log(user)
         }
       });
 
-    }else{
+    } else {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
           title: 'Confirm Remove User',
@@ -179,7 +209,7 @@ console.log(user)
         }
       });
     }
-   
+
   }
   deleteUser(id: number) {
 
@@ -204,9 +234,9 @@ console.log(user)
   openinviteDialog() {
     const confirmDialog = this.dialog.open(InvitationformComponent, {
       data: {
-        title: 'User invite in '+this.orgdetails.name,
+        title: 'User invite in ' + this.orgdetails.name,
         message: 'Are you sure, you want to  Device: ',
-        orginfo:this.orgdetails
+        orginfo: this.orgdetails
       }
     });
     confirmDialog.afterClosed().subscribe(result => {

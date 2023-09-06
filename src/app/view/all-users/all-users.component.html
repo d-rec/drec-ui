@@ -11,10 +11,10 @@
       </div>
       <div>
         <button class="btn btn-dark justify-content-end px-4  align-items-center" (click)="openinviteDialog()"
-          *ngIf="showorg">
+          *ngIf="showorg &&!showorguser">
           <mat-icon class="align-middle me-2">add_circle</mat-icon>Invite User</button>&nbsp;
         <button class="btn btn-dark justify-content-end px-4  align-items-center" routerLink="/admin/All_organization"
-          *ngIf="showorg">
+          *ngIf="showorg &&!showorguser">
           <mat-icon class="align-middle me-2">arrow_back</mat-icon>Go Back</button>
       </div>
     </mat-card-header>
@@ -22,7 +22,7 @@
 
     <mat-card-content class="mat-body-cont text-center">
 
-      <mat-card *ngIf="showorg">
+      <mat-card *ngIf="showorg &&!showorguser">
         <mat-card-content>
           <h2 style="text-align: center;color:#f2be1a; font-size: 25px;" class="text-capitalize">
             <b>Organization details</b>
@@ -56,7 +56,7 @@
         </mat-card-content>
         <hr>
       </mat-card>
-      <mat-card *ngIf="!showorg">
+      <mat-card *ngIf="!showorg || !showorguser">
         <form [formGroup]="FilterForm">
           <mat-card-content>
             <h3 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize">Filter User list By

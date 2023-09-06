@@ -35,7 +35,7 @@
 
 
           <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active"
-            routerLink="/organization/user/invitation" *ngIf="!showmenu &&  loginuser.role !='Admin'">
+            routerLink="/organization/user/invitation" *ngIf="!showmenu &&  loginuser.role !='Admin'||'User'" >
             <span> Invitation</span>
           </a>
 
@@ -60,7 +60,7 @@
             <span>All Devices</span>
           </button>
           <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/device/AllList"
-            *ngIf="loginuser.role ==='OrganizationAdmin'">
+            *ngIf="loginuser.role ==='OrganizationAdmin'||'User'">
             <!-- <mat-icon>list</mat-icon> -->
             <span>My Devices</span>
           </a>
@@ -94,7 +94,7 @@
             <!-- <mat-icon>list</mat-icon> -->
             <span>All Reads</span>
           </a>
-          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/reads/add">
+          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/reads/add" *ngIf="loginuser.role !='User'">
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add MeterRead</span>
           </a>
@@ -178,7 +178,7 @@
         <span>Add Reservation</span>
       </button>
       <!--9th  -->
-      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role!='Buyer'">
+      <mat-expansion-panel [class.mat-elevation-z0]="true" >
         <mat-expansion-panel-header class="mdc-button ">
           <mat-icon>account_circle</mat-icon>
           Account Setting

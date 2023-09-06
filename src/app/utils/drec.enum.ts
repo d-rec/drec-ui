@@ -4,6 +4,12 @@ export  const UserStatus = [
    // 'Suspended',
      //'Deleted',
 ]
+export  enum UserEnumStatus {
+    Pending= 'Pending',
+    Active= 'Active',
+   // 'Suspended',
+     //'Deleted',
+}
 export enum Role {
     User = 'User',
     DeviceOwner = 'DeviceOwner',
@@ -28,3 +34,9 @@ export enum ReadType {
     ReadMeter = 'Aggregate',
 
 }
+export enum OrganizationStatus {
+    Submitted = 'Submitted',
+    Denied = 'Denied',
+    Active = 'Active',
+  }
+  
