@@ -61,17 +61,17 @@
             <span>All Devices</span>
           </button>
           <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/device/AllList"
-            *ngIf="loginuser.role ==='OrganizationAdmin'||'User'">
+          *ngIf="loginuser.role === 'OrganizationAdmin' || loginuser.role === 'User' || loginuser.role !== 'Admin'">
             <!-- <mat-icon>list</mat-icon> -->
             <span>My Devices</span>
           </a>
           <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/device/add"
-            *ngIf="loginuser.role ==='OrganizationAdmin'||'Admin'">
+          *ngIf="loginuser.role !='User'">
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add Devices</span>
           </a>
           <a mat-button class="menu-button inside-menu-button" routerLinkActive="active"
-            routerLink="/device/bulk_upload" *ngIf="loginuser.role ==='OrganizationAdmin'||'Admin'">
+            routerLink="/device/bulk_upload" *ngIf="loginuser.role !='User'">
             <!-- <mat-icon>list</mat-icon> -->
             <span> Bulk Upload</span>
           </a>

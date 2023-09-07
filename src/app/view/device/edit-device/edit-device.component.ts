@@ -50,7 +50,7 @@ export class EditDeviceComponent implements OnInit {
   frommydevice: boolean = false;
   frombulk: boolean = false;
   filteredCountryList: Observable<any[]>
-  offteker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
+  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
   devicediscription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
 
   constructor(private fb: FormBuilder, private authService: AuthbaseService,

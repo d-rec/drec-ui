@@ -58,7 +58,7 @@ export class AddReservationComponent {
   FilterForm: FormGroup;
   p: number = 1;
   totalRows = 0;
-  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
+  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
   frequency = ['hourly', 'daily', 'weekly', 'monthly']
   dialogRef: any;
   sdgblist: any;
