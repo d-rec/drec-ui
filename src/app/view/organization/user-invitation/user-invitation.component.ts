@@ -27,6 +27,7 @@ export class UserInvitationComponent {
   userstatus: any;
   orginviteuser: any;
   showorginviteuser: boolean = false;
+  loading: boolean = false;
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   orgtype: any[] = [
     { value: 'OrganizationAdmin', viewValue: 'Developer' },
@@ -35,7 +36,7 @@ export class UserInvitationComponent {
   ];
   orgtypebuyer: any[] = [
 
-    { value: 'Buyer', viewValue: 'Buyer' },
+    { value: 'SubBuyer', viewValue: 'SubBuyer' },
 
     { value: 'User', viewValue: 'User' }
   ];
@@ -78,7 +79,9 @@ export class UserInvitationComponent {
       next: response => {
         console.log(response);
         this.inviteForm.reset();
+        this.loading=true;
         if (response.success) {
+          this.loading=false;
           this.tabGroup.selectedIndex = 1;
           this.toastrService.success('Invitation Sent')
           this.displayedColumns = ['sender', 'email', 'status']

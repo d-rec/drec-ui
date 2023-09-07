@@ -23,7 +23,7 @@ export class InvitationformComponent {
   ];
   orgtypebuyer: any[] = [
 
-    { value: 'Buyer', viewValue: 'Buyer' },
+    { value: 'SubBuyer', viewValue: 'SubBuyer' },
 
     { value: 'User', viewValue: 'User' }
   ];

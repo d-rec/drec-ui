@@ -16,9 +16,9 @@ export class UserAcceptInvitationComponent {
   success: boolean = true;
   invitaionId: number;
   useremail: string;
-  constructor(private authService: AuthbaseService, 
+  constructor(private authService: AuthbaseService,
     private inviteService: InvitationService,
-    private userService: UserService, 
+    private userService: UserService,
     private router: Router,
     private toastrService: ToastrService, private activatedRoute: ActivatedRoute) {
 
@@ -64,56 +64,10 @@ export class UserAcceptInvitationComponent {
     this.inviteService.acceptinvitaion(this.invitaionId, useronj).subscribe({
       next: data => {
         if (data.success) {
-          let loginForm = {
-            username: this.useremail,
-            password: 'pass@123'
-          }
+
           this.toastrService.success('Successful!', 'Invitation Accepted !!');
-          this.authService.login('auth/login', loginForm).subscribe(
-            (data) => {
-      
-              if (data["accessToken"] != null) {
-                sessionStorage.setItem('access-token', data["accessToken"]);
-                let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
-                console.log(jwtObj);
-                //sessionStorage.setItem('loginuser', jwtObj);
-                sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-                //var obj = JSON.parse(sessionStorage.loginuser);
-                this.userService.userProfile().subscribe({
-                  next: data1 => {
-                    console.log(data1)
-                    sessionStorage.setItem('status', data1.status);
-                    if (data1.status != 'Pending' && data1.organization != null) {
-                      if (jwtObj.role === 'Buyer') {
-                        this.router.navigate(['/myreservation']);
-                      } else if (jwtObj.role === 'Admin') {
-                        this.router.navigate(['/admin/All_devices']);
-                      } else {
-                        console.log("50developer")
-                        this.router.navigate(['/device/AllList']);
-                      }
-                      this.toastrService.success('login user ' + jwtObj.email + '!', 'login Success');
-                    }else{
-                      this.router.navigate(['/organization/user/invitation']);
-      
-                    }
-      
-                  }, error: err => {
-                    this.toastrService.error('Error!', err.error.message);
-                  }
-                })
-              } else {
-                console.log("check your credentials !!")
-                this.toastrService.info('Message Failure!', 'check your credentials !!');
-                this.router.navigate(['/login']);
-              }
-            },
-            (error) => {                              //Error callback
-              console.error('error caught in component', error)
-              this.toastrService.error('check your credentials!', 'login Fail!!');
-            }
-          )
-         // this.router.navigate(['/login']);
+
+          this.router.navigate(['/login']);
         }
 
       }, error: err => {
