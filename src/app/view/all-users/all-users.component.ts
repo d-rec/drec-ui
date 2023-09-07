@@ -94,6 +94,7 @@ export class AllUsersComponent {
       if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
         this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId).subscribe((data) => {
           console.log(data)
+          this.showorguser=false;
           this.showlist = true
           this.loading = false
           //@ts-ignore

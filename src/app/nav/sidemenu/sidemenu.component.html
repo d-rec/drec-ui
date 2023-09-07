@@ -35,7 +35,8 @@
 
 
           <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active"
-            routerLink="/organization/user/invitation" *ngIf="!showmenu &&  loginuser.role !='Admin'||'User'" >
+            routerLink="/organization/user/invitation" *ngIf="!showmenu &&  loginuser.role != 'Admin'||!'User'"
+            >
             <span> Invitation</span>
           </a>
 
