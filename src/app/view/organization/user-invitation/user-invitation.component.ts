@@ -29,7 +29,7 @@ export class UserInvitationComponent {
   showorginviteuser: boolean = false;
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   orgtype: any[] = [
-    { value: 'Developer', viewValue: 'Developer' },
+    { value: 'OrganizationAdmin', viewValue: 'Developer' },
     { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
     { value: 'User', viewValue: 'User' }
   ];
@@ -85,7 +85,7 @@ export class UserInvitationComponent {
           this.getorginviteuserlist();
         }
       }, error: err => {
-        this.toastrService.success('Fail', err.message)
+        this.toastrService.error('Fail', err.error.message)
       }
     })
 
