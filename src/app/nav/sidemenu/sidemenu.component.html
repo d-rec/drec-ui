@@ -158,7 +158,7 @@
       <!--6th  -->
 
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/myreservation"
-        *ngIf="loginuser.role ==='Buyer' ||'SubBuyer'">
+      *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'">
         <mat-icon>list</mat-icon>
         <span>My Reservations</span>
       </button>
@@ -170,13 +170,13 @@
       </button>
       <!--7th  -->
       <button mat-button class="menu-button text-start" routerLinkActive="active" routerLink="/redemption-report"
-        *ngIf="loginuser.role ==='Buyer' ||'SubBuyer'">
+      *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'">
         <mat-icon>list</mat-icon>
         <span class="text-start">Redemption Report</span>
       </button>
       <!--8th  -->
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/add/reservation"
-        *ngIf="loginuser.role ==='Buyer'||'SubBuyer'">
+      *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'">
         <mat-icon>add_circle</mat-icon>
         <span>Add Reservation</span>
       </button>
