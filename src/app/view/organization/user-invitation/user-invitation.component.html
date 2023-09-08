@@ -49,7 +49,7 @@
                                         <div class="col-md-3">
     
                                             <mat-form-field appearance="outline" class="mt-0" *ngIf="loginuser.role==='OrganizationAdmin'">
-                                                <mat-label class="mat-labels-cont text-capitalize">organization Type*</mat-label>
+                                                <mat-label class="mat-labels-cont text-capitalize">Role</mat-label>
                                                 <mat-select formControlName="role" class="value-fs">
                                                    
                                                     <mat-option *ngFor="let org of orgtype" [value]="org.value">
@@ -60,13 +60,15 @@
                                                 
                                             </mat-form-field>
                                              <mat-form-field appearance="outline" class="mt-0" *ngIf="loginuser.role==='Buyer'">
-                                                <mat-label class="mat-labels-cont text-capitalize">organization Type*</mat-label>
+                                                <mat-label class="mat-labels-cont text-capitalize">Role</mat-label>
                                                 <mat-select formControlName="role" class="value-fs">
                                                     
-                                                    <mat-option  [value]="'Buyer'" >
-                                                        Buyer 
+                                                    <mat-option *ngFor="let org of orgtypebuyer" [value]="org.value">
+                                                        {{org.viewValue}}
                                                     </mat-option>
+                                                   
                                                 </mat-select>
+                                              
                                                 
                                             </mat-form-field>
                                         </div>
