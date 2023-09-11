@@ -108,7 +108,8 @@ export class AllUsersComponent {
       } else {
         this.adminService.GetAllUsers(this.FilterForm.value).subscribe((data) => {
           console.log(data)
-          this.showlist = true
+          this.showlist = true;
+          this.showorguser=false;
           this.loading = false
           //@ts-ignore
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');

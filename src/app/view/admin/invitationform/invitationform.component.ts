@@ -17,7 +17,7 @@ export class InvitationformComponent {
   invitaionlist:any;
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   orgtype: any[] = [
-    { value: 'OrganizationAdmin', viewValue: 'Developer' },
+    // { value: 'OrganizationAdmin', viewValue: 'Developer' },
     { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
     { value: 'User', viewValue: 'User' }
   ];
