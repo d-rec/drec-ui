@@ -39,9 +39,13 @@ export class AddreadComponent implements OnInit {
   commissioningDate: any;
   selectedResult: any;
   filteredOptions: Observable<any[]>;
-  orgId: number;
+ 
   orglist: any;
   loginuser: any;
+  filteredOrgList: any[] = [];
+  //public color: ThemePalette = 'primary';
+  orgname: string;
+  orgId: number;
   constructor(private fb: FormBuilder, private readService: MeterReadService,
     private deviceservice: DeviceService,
     private authService: AuthbaseService,
@@ -56,7 +60,9 @@ export class AddreadComponent implements OnInit {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          this.orglist = data;
+         //@ts-ignore
+         this.orglist =  data.filter(org => org.organizationType != "Buyer");
+         this.filteredOrgList = this.orglist;
         })
     }
     this.readForm = this.fb.group({
@@ -97,6 +103,26 @@ export class AddreadComponent implements OnInit {
 
   get addreads() {
     return this.readForm.controls["reads"] as FormArray;
+  }
+  filterOrgList() {
+    console.log("99")
+    this.filteredOrgList = this.orglist.filter((org:any )=> {
+     
+        return org.name.toLowerCase().includes(this.orgname.toLowerCase());
+       
+      
+      
+    });
+  }
+  selectOrg(event: any) {
+    console.log(event)
+
+    //@ts-ignore
+      const selectedCountry = this.orglist.find(option => option.name === event.option.value);
+      if (selectedCountry) {
+        this.orgId=selectedCountry.id;
+      }
+   
   }
   search(): void {
     const input = this.readForm.controls['externalId'].value;
