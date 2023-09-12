@@ -85,8 +85,8 @@ export class AllUsersComponent {
 
     setTimeout(() => {
       // if (this.countrycodeLoded) {
-        this.applycountryFilter();
-     // }
+        this.applyorgFilter();   
+          // }
       this.loading = false;
       this.getAllUsers();
     }, 2000)
@@ -97,7 +97,7 @@ export class AllUsersComponent {
       this.subscription.unsubscribe();
     }
   }
-  applycountryFilter() {
+  applyorgFilter() {
     this.FilterForm.controls['organizationName'];
     this.filteredOptions = this.FilterForm.controls['organizationName'].valueChanges.pipe(
       startWith(''),
