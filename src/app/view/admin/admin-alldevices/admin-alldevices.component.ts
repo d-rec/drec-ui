@@ -94,7 +94,8 @@ export class AdminAlldevicesComponent {
   ngOnInit(): void {
     this.adminService.GetAllOrganization().subscribe(
       (data) => {
-        this.orglist = data;
+        //@ts-ignore
+        this.orglist = data.filter(org => org.organizationType != "Buyer");;
       })
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {

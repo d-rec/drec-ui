@@ -62,7 +62,7 @@
             <h3 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize">Filter User list By
               Select Organization</h3>
             <div class="example-container1 row">
-              <div class="col-md-3">
+              <!-- <div class="col-md-3">
 
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize">Organization</mat-label>
@@ -74,6 +74,22 @@
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
+              </div> -->
+
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">Select Organization</mat-label>
+                  <input type="text" aria-label="text" matInput formControlName="organizationName" [matAutocomplete]="auto"
+                   >
+                  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectOrg($event)">
+                    <!-- <mat-option [value]="">---</mat-option> -->
+                    <mat-option *ngFor="let code of filteredOptions | async" [value]="code.name">
+                      {{ code.name }}
+                    </mat-option>
+                  </mat-autocomplete>
+    
+                </mat-form-field>
+                <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid roganization</mat-error>
               </div>
               <div class="col-md-12 mb-3  d-flex ">
                 <div class="">

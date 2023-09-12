@@ -47,8 +47,9 @@ export class AllUsersComponent {
   loginuser: any;
   orglist: any;
   showorguser: boolean = true;
-
-
+  filteredOptions: Observable<any[]>;
+  subscription: Subscription;
+  showerror: boolean = false;
   constructor(private authService: AuthbaseService,
     private orgService: OrganizationService,
     private adminService: AdminService,
@@ -82,11 +83,59 @@ export class AllUsersComponent {
         })
     }
 
-    this.getAllUsers();
+    setTimeout(() => {
+      // if (this.countrycodeLoded) {
+        this.applycountryFilter();
+     // }
+      this.loading = false;
+      this.getAllUsers();
+    }, 2000)
+   
+  }
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+  }
+  applycountryFilter() {
+    this.FilterForm.controls['organizationName'];
+    this.filteredOptions = this.FilterForm.controls['organizationName'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value || '')),
+    );
+  }
+
+  private _filter(value: any): string[] {
+
+    const filterValue = value.toLowerCase();
+    if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
+      this.showerror = true;
+      // const updatedFormValues = this.FilterForm.value;
+      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
+      // this.isAnyFieldFilled = false;
+    } else {
+      this.showerror = false;
+    }
+    return this.orglist.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
+
+  }
+
+  selectOrg(event: any) {
+    console.log(event)
+
+    this.subscription = this.filteredOptions.subscribe(options => {
+
+      const selectedorg = options.find(option => option.name === event.option.value);
+      if (selectedorg) {
+        this.FilterForm.controls['organizationName'].setValue(selectedorg.name);
+      }
+    });
   }
   reset() {
     this.FilterForm.reset();
 
+    this.FilterForm.controls['organizationName'].setValue(null);
+    this.loading = true;
     this.getAllUsers();
   }
   getAllUsers() {

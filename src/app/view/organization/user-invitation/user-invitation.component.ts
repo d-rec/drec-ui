@@ -63,14 +63,18 @@ export class UserInvitationComponent {
       email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
       role: [null, [Validators.required]],
     });
-    console.log(this.userstatus = !'Pending')
-    if (this.userstatus ==='Active') {
-      console.log(this.userstatus)
-      this.displayedColumns = ['sender', 'email', 'status']
-      this.getorginviteuserlist();
-    }else{
-      this.getinvitationList();
-    }
+    console.log(this.userstatus)
+    console.log(this.userstatus !='Pending')
+    setTimeout(() => {
+      if (this.userstatus=== 'Active' && this.loginuser.role=== 'OrganizationAdmin') {
+        console.log(this.userstatus)
+        this.displayedColumns = ['sender', 'email', 'status']
+        this.getorginviteuserlist();
+      }else{
+        this.getinvitationList();
+      }
+    }, 1000);
+   
 
    
   }
