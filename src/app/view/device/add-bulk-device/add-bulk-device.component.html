@@ -29,15 +29,17 @@
           <div class="col-md-3" *ngIf="loginuser.role ==='Admin'">
             
             <mat-form-field appearance="outline">
-                <mat-label class="text-capitalize">Organization</mat-label>
+              <mat-label class="text-capitalize">Organization</mat-label>
 
-                <mat-select [(ngModel)]="orgId" [ngModelOptions]="{standalone: true}">
+              <input matInput [(ngModel)]="orgname" [ngModelOptions]="{ standalone: true }"
+                  [matAutocomplete]="orgAuto" (input)="filterOrgList()">
 
-                    <mat-option *ngFor="let code of orglist" [value]="code.id">
-                        {{code.name}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
+              <mat-autocomplete #orgAuto="matAutocomplete" (optionSelected)="selectOrg($event)">
+                  <mat-option *ngFor="let code of filteredOrgList" [value]="code.name">
+                      {{ code.name }}
+                  </mat-option>
+              </mat-autocomplete>
+          </mat-form-field>
         </div>
           <div class="col-md-3">
             <mat-form-field appearance="outline">

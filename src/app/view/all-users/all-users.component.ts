@@ -79,7 +79,10 @@ export class AllUsersComponent {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          this.orglist = data;
+          this.orglist = data.organizations
+          console.log(this.orglist)
+        
+          
         })
     }
 
@@ -163,7 +166,7 @@ export class AllUsersComponent {
           //@ts-ignore
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');
           console.log(this.data);
-          this.dataSource = new MatTableDataSource(this.data);
+          this.dataSource = new MatTableDataSource(this.data.users);
           this.totalRows = this.data.totalCount
           console.log(this.totalRows);
           this.totalPages = this.data.totalPages

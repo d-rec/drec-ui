@@ -24,7 +24,7 @@ export class AdminOrganizationComponent {
   dataFromDialog: any;
   displayedColumns = [
     'name',
-    'orgemail',
+    // 'orgemail',
     'type',
     'status',
     'no of users',
@@ -109,7 +109,7 @@ export class AdminOrganizationComponent {
         this.showlist=true
         this.loading = false;
         //@ts-ignore
-      this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+      this.data = data.organizations;//.filter(ele => ele.organizationType === 'Developer');
         console.log(this.data);
         this.dataSource = new MatTableDataSource(this.data);
         this.totalRows = this.data.totalCount

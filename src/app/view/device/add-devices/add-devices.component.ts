@@ -82,7 +82,7 @@ export class AddDevicesComponent {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
           //@ts-ignore
-          this.orglist =  data.filter(org => org.organizationType != "Buyer");
+          this.orglist =   data.organizations.filter(org => org.organizationType != "Buyer");
           console.log(this.orglist)
          // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
