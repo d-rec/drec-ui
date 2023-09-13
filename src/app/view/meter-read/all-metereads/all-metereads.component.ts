@@ -7,6 +7,7 @@ import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@ang
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MeterReadTableComponent } from '../meter-read-table/meter-read-table.component'
 import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 @Component({
   selector: 'app-all-metereads',
   templateUrl: './all-metereads.component.html',
@@ -49,7 +50,9 @@ export class AllMetereadsComponent implements OnInit {
   orgId: any;
   orglist: any;
   showerrorexternalid: boolean;
-
+  showerror: boolean;
+  filteredexternalIdOptions: Observable<any[]>;
+  devicelist: any = [];
   constructor(private service: MeterReadService, private formBuilder: FormBuilder,
     private deviceservice: DeviceService,
     private adminService: AdminService
@@ -67,9 +70,11 @@ export class AllMetereadsComponent implements OnInit {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
           //@ts-ignore
-          this.orglist = data.filter(org => org.organizationType != "Buyer");
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
           this.filteredOrgList = this.orglist;
         })
+    } else {
+      this.gedevicefororg();
     }
     this.DisplayList();
 
@@ -80,7 +85,15 @@ export class AllMetereadsComponent implements OnInit {
       pagenumber: [this.p]
     });
 
-
+    setTimeout(() => {
+      if (this.loginuser.role != 'Admin') {
+      this.FilterForm.controls['externalId'];
+      this.filteredexternalIdOptions = this.FilterForm.controls['externalId'].valueChanges.pipe(
+        startWith(''),
+        map(value => this._externalIdfilter(value || '')),
+      );}
+      //  this.getDeviceinfo();
+    }, 1000);
   }
   filterOrgList() {
     console.log("99")
@@ -99,8 +112,64 @@ export class AllMetereadsComponent implements OnInit {
       const selectedCountry = this.orglist.find(option => option.name === event.option.value);
       if (selectedCountry) {
         this.orgId=selectedCountry.id;
+        this.gedeviceforadmin(this.orgId);
       }
    
+  }
+  gedeviceforadmin(orgid: number) {
+    const deviceurl = 'device?OrganizationId=' + orgid;
+    this.deviceservice.GetMyDevices(deviceurl).subscribe({
+      next: data => {
+        console.log(data)
+        this.devicelist = data.devices
+        this.FilterForm.controls['externalId'];
+        this.filteredexternalIdOptions = this.FilterForm.controls['externalId'].valueChanges.pipe(
+          startWith(''),
+          map(value => this._externalIdfilterbyAdmin(value || '')),
+        );
+        console.log(this.filteredexternalIdOptions);
+
+      }
+    })
+  }
+  gedevicefororg() {
+    const deviceurl = 'device/my';
+    this.deviceservice.GetMyDevices(deviceurl).subscribe({
+      next: data => {
+        console.log(data)
+        this.devicelist = data;
+      }
+    })
+  }
+
+  _externalIdfilter(value: string): string[] {
+    console.log(value)
+    const filterValue = value.toLowerCase();
+    //  console.log(filterValue)
+    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
+    if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+      this.showerror = true;
+    } else {
+      this.showerror = false;
+    }
+    //  this.endmaxdate = new Date();
+    return this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue))
+
+  }
+
+  _externalIdfilterbyAdmin(value: string): string[] {
+    console.log(value)
+    const filterValue = value.toLowerCase();
+    //  console.log(filterValue)
+    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
+    if ((!(this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+      this.showerror = true;
+    } else {
+      this.showerror = false;
+    }
+    //  this.endmaxdate = new Date();
+    return this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue))
+
   }
   search(): void {
     const input = this.FilterForm.controls['externalId'].value;
