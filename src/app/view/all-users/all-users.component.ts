@@ -91,7 +91,7 @@ export class AllUsersComponent {
         this.applyorgFilter();   
           // }
       this.loading = false;
-      this.getAllUsers();
+      this.getAllUsers(this.p);
     }, 2000)
    
   }
@@ -140,9 +140,10 @@ export class AllUsersComponent {
     this.FilterForm.controls['organizationName'].setValue(null);
     this.loading = true;
     this.applyorgFilter();
-    this.getAllUsers();
+    this.getAllUsers(this.p);
   }
-  getAllUsers() {
+  getAllUsers(page:number) {
+    const limit=20;
     if (this.loginuser.role === "Admin") {
       if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
         this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId).subscribe((data) => {
@@ -159,7 +160,7 @@ export class AllUsersComponent {
           this.totalPages = this.data.totalPages
         })
       } else {
-        this.adminService.GetAllUsers(this.FilterForm.value).subscribe((data) => {
+        this.adminService.GetAllUsers(page,limit,this.FilterForm.value).subscribe((data) => {
           console.log(data)
           this.showlist = true;
           this.showorguser=false;
@@ -202,14 +203,14 @@ export class AllUsersComponent {
   previousPage(): void {
     if (this.p > 1) {
       this.p--;
-      this.getAllUsers();
+      this.getAllUsers(this.p);
     }
   }
 
   nextPage(): void {
     if (this.p < this.totalPages) {
       this.p++;
-      this.getAllUsers();;
+      this.getAllUsers(this.p);;
     }
   }
   openUpdateDialog(user: any) {
@@ -227,7 +228,7 @@ export class AllUsersComponent {
     confirmDialog.afterClosed().subscribe(result => {
       if (result === true) {
         // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
-        this.getAllUsers()
+        this.getAllUsers(this.p)
       }
     });
   }
@@ -272,7 +273,7 @@ export class AllUsersComponent {
       console.log(response);
       if (response.success) {
         this.toastrService.success('User Deleted', 'Successful')
-        this.getAllUsers();
+        this.getAllUsers(this.p);
       } else {
 
         this.toastrService.error(response.message, 'Failure')
