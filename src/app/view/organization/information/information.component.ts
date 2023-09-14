@@ -7,6 +7,10 @@ import { OrganizationService } from '../../../auth/services'
 })
 export class InformationComponent {
   orgdetails: any;
+  orgname:string='';
+  organizationType:string='';
+  status:string='';
+
   constructor(
     private orgService: OrganizationService
   ) {
@@ -15,8 +19,11 @@ export class InformationComponent {
   ngOnInit() {
     this.orgService.getOrganizationInformation().subscribe((data) => {
       console.log('org', data)
-
-      this.orgdetails = data
+      
+      this.orgdetails = data;
+      this.orgname=this.orgdetails.name;
+      this.organizationType=this.orgdetails.organizationType;
+      this.status=this.orgdetails.status;
 
     })
   }

@@ -224,13 +224,14 @@ export class AllMetereadsComponent implements OnInit {
     this.selectedResult = result;
     console.log(this.selectedResult);
     console.log(result);
-    this.FilterForm.controls['externalId'].setValue(result.externalId);
+   
 
     let deivceid;
     if (this.loginuser.role === 'Admin') {
+      this.FilterForm.controls['externalId'].setValue(result.developerExternalId);
       this.externalId = result.id;
     } else {
-
+      this.FilterForm.controls['externalId'].setValue(result.externalId);
       this.externalId = result.externalId;
       console.log(this.externalId)
     }

@@ -61,7 +61,7 @@
                         <mat-form-field appearance="outline" *ngIf="loginuser.role==='Admin'">
                             <mat-label class="text-capitalize">External ID</mat-label>
                             <input matInput formControlName='externalId' [matAutocomplete]="auto"
-                                placeholder="Search External ID" [value]="selectedResult?.externalId">
+                                placeholder="Search External ID" [value]="selectedResult?.developerExternalId">
 
 
                             <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSelect($event.option.value)">
