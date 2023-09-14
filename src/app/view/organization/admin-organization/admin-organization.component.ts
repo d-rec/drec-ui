@@ -103,15 +103,16 @@ export class AdminOrganizationComponent {
 
   getAllOrganization(page: number) {
     //this.FilterForm.controls['pagenumber'].setValue(page);
-    this.adminService.GetAllOrganization().subscribe(
+    const limit=20;
+    this.adminService.GetAllOrganization(page,limit).subscribe(
       (data) => {
         console.log(data)
         this.showlist=true
         this.loading = false;
         //@ts-ignore
-      this.data = data.organizations;//.filter(ele => ele.organizationType === 'Developer');
+      this.data = data;//.filter(ele => ele.organizationType === 'Developer');
         console.log(this.data);
-        this.dataSource = new MatTableDataSource(this.data);
+        this.dataSource = new MatTableDataSource(this.data.organizations);
         this.totalRows = this.data.totalCount
         console.log(this.totalRows);
         this.totalPages = this.data.totalPages
