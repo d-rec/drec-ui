@@ -239,7 +239,7 @@ export class AddreadComponent implements OnInit {
     this.selectedResult = result;
     console.log(this.selectedResult);
     console.log(result);
-    this.readForm.controls['externalId'].setValue(result.externalId);
+   
     this.devicecreateddate = result.createdAt;
     this.commissioningDate = result.commissioningDate;
 
@@ -258,9 +258,11 @@ export class AddreadComponent implements OnInit {
     this.readForm.controls['type'].setValue(null)
     let deivceid;
     if (this.loginuser.role === 'Admin') {
+      this.readForm.controls['externalId'].setValue(result.developerExternalId);
       deivceid = result.id;
     } else {
-      deivceid = result.exterenalId;
+      this.readForm.controls['externalId'].setValue(result.externalId);
+      deivceid = result.externalId;
     }
     this.readService.Getlastread(deivceid).subscribe({
       next: data => {

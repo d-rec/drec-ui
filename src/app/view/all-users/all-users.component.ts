@@ -139,6 +139,7 @@ export class AllUsersComponent {
 
     this.FilterForm.controls['organizationName'].setValue(null);
     this.loading = true;
+    this.applyorgFilter();
     this.getAllUsers();
   }
   getAllUsers() {

@@ -16,7 +16,7 @@ export class UserInvitationComponent {
   @ViewChild(MatPaginator)
   paginator!: MatPaginator;
 
-  displayedColumns: string[] = ['sender', 'email', 'status', 'Action'];//... set columns here
+  displayedColumns: string[] = ['sender', 'email', 'status'];//... set columns here
   @ViewChild(MatTabGroup) tabGroup: MatTabGroup;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
@@ -66,13 +66,14 @@ export class UserInvitationComponent {
     console.log(this.userstatus)
     console.log(this.userstatus !='Pending')
     setTimeout(() => {
-      if (this.userstatus=== 'Active' && this.loginuser.role=== 'OrganizationAdmin') {
-        console.log(this.userstatus)
-        this.displayedColumns = ['sender', 'email', 'status']
+      // if (this.userstatus=== 'Active' && this.loginuser.role=== 'OrganizationAdmin') {
+      //   console.log(this.userstatus)
+      //   this.displayedColumns = ['sender', 'email', 'status']
         this.getorginviteuserlist();
-      }else{
-        this.getinvitationList();
-      }
+      
+      // }else{
+      //   this.getinvitationList();
+      // }
     }, 1000);
    
 
