@@ -20,8 +20,14 @@ export class OrganizationService {
     return this.httpClient.get<OrganizationInformation>(environment.API_URL+'/Organization/'+orgId
     +'/change-role/'+userId,datarole)
   }
-  getOrganizationUser():Observable<IPublicOrganization>
+  getOrganizationUser(pagenumber?:number,limit?:number):Observable<IPublicOrganization>
   {
-    return this.httpClient.get<IPublicOrganization>(environment.API_URL+'Organization/users')
+    let searchUrl = `${environment.API_URL}Organization/users`;
+    if (pagenumber != undefined && limit != undefined ) {
+      if (!(typeof pagenumber === undefined || pagenumber === null)) {
+        searchUrl += `?pageNumber=${pagenumber}&limit=${limit}` ;
+      }
+    }
+    return this.httpClient.get<IPublicOrganization>(searchUrl)
   }
 }

@@ -36,8 +36,15 @@ export class AdminService {
     }
     return this.httpClient.get(searchUrl);
   }
-  public GetAllOrgnaizationUsers(organizationsId: number): Observable<any> {
-    return this.httpClient.get<any>(this.url + 'admin/organizations/user/' + organizationsId);
+  public GetAllOrgnaizationUsers(organizationsId: number,pagenumber?:number,limit?:number): Observable<any> {
+   
+    let searchUrl = `${this.url}admin/organizations/user/${organizationsId}`;
+    if (pagenumber != undefined && limit != undefined ) {
+      if (!(typeof pagenumber === undefined || pagenumber === null)) {
+        searchUrl += `?pageNumber=${pagenumber}&limit=${limit}` ;
+      }
+    }
+    return this.httpClient.get<any>(searchUrl);
   }
   public updateUser(userId: number, data: any): Observable<any> {
     return this.httpClient.put<any>(this.url + 'admin/users/' + userId, data)

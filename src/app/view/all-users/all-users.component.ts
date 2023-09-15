@@ -146,7 +146,7 @@ export class AllUsersComponent {
     const limit=20;
     if (this.loginuser.role === "Admin") {
       if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
-        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId).subscribe((data) => {
+        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId,page,limit).subscribe((data) => {
           console.log(data)
           this.showorguser=false;
           this.showlist = true
@@ -154,7 +154,7 @@ export class AllUsersComponent {
           //@ts-ignore
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');
           console.log(this.data);
-          this.dataSource = new MatTableDataSource(this.data);
+          this.dataSource = new MatTableDataSource(this.data.users);
           this.totalRows = this.data.totalCount
           console.log(this.totalRows);
           this.totalPages = this.data.totalPages
@@ -177,7 +177,7 @@ export class AllUsersComponent {
 
     } else {
       this.showorg=true
-      this.orgService.getOrganizationUser().subscribe({
+      this.orgService.getOrganizationUser(page,limit).subscribe({
         next: (data) => {
 
           console.log(data)
@@ -186,7 +186,7 @@ export class AllUsersComponent {
           //@ts-ignore
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');
           console.log(this.data);
-          this.dataSource = new MatTableDataSource(this.data);
+          this.dataSource = new MatTableDataSource(this.data.users);
           this.totalRows = this.data.totalCount
           console.log(this.totalRows);
           this.totalPages = this.data.totalPages
