@@ -26,8 +26,9 @@ import { InvitationformComponent } from '../admin/invitationform/invitationform.
 export class AllUsersComponent {
   FilterForm: FormGroup;
   displayedColumns = [
+    'organization',
     'name',
-    'orgemail',
+    'email',
     'type',
     'status',
     'actions',
@@ -235,7 +236,7 @@ export class AllUsersComponent {
 
   openDialog(user: any) {
     console.log(user)
-    if (user.role === 'OrganizationAdmin') {
+    if (user.role === 'OrganizationAdmin'||user.role === 'Buyer') {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
           title: 'Confirm Remove User',
@@ -291,7 +292,7 @@ export class AllUsersComponent {
     const confirmDialog = this.dialog.open(InvitationformComponent, {
       data: {
         title: 'User invite in ' + this.orgdetails.name,
-        message: 'Are you sure, you want to  Device: ',
+        message: 'Are you sure, you want to  Invite: ',
         orginfo: this.orgdetails
       }
     });
