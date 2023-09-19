@@ -10,24 +10,37 @@ import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@ang
 export class ConfirmDialogComponent {
   title: string;
   message: string;
+  loading: boolean = true;
   showchangeform: boolean = false;
   user: any;
   alluserlist: any
-  roleForm:FormGroup
-  userId:number;
-  role:string='OrganizationAdmin'
+  roleForm: FormGroup
+  userId: number;
+  dailogmessage:string;
+  role: string = 'OrganizationAdmin'
   constructor(private fb: FormBuilder,
     public dialogRef: MatDialogRef<ConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private adminService: AdminService,
     private organizationService: OrganizationService) {
     if (data.showchangeform) {
-      this.showchangeform = true;
+      this.dailogmessage=data.message;
       this.user = data.data;
+      //this.showchangeform = data.showchangeform;
+    }
+    else{
+      this.loading=false;
+      this.message=data.message;
     }
   }
   ngOnInit() {
-    this.getAlluseroforg();
+    setTimeout(() => {
+    if (this.data.showchangeform) {
+        this.getAlluseroforg();
+      }
+
+    }, 500);
+
     this.roleForm = this.fb.group({
       role: [null, Validators.required],
     })
@@ -37,19 +50,30 @@ export class ConfirmDialogComponent {
     this.adminService.GetAllOrgnaizationUsers(this.user.organization.id).subscribe({
       next: data => {
 
-        this.alluserlist = data
+        this.alluserlist = data.users;
+        if(this.alluserlist.length>1){
+          this.message=this.dailogmessage
+          this.showchangeform = true;
+        
+        }else{
+          this.loading=false;
+          this.message='Are you sure, you want to remove User: ' +this.user.firstName + '' + this.user.lastName
+      
+        }
+
       }
     })
   }
   onUpdateorgadminrole() {
+    if (this.showchangeform) {
+      this.organizationService.changeOrguserRole(this.user.organization.id, this.user.id, this.roleForm.value).subscribe((data) => {
+        console.log(data);
 
-    this.organizationService.changeOrguserRole(this.user.organization.id,this.user.id,this.roleForm.value).subscribe((data) => {
-      console.log(data);
+        //this.toastrService.success("User Updated", "Successfully")
+        // this.dialogRef.close;
 
-      //this.toastrService.success("User Updated", "Successfully")
-      // this.dialogRef.close;
-
-    })
+      })
+    }
 
   }
 }
