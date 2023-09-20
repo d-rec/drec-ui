@@ -6,7 +6,7 @@ import { MeterReadService, DeviceService, AdminService } from '../../../auth/ser
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MeterReadTableComponent } from '../meter-read-table/meter-read-table.component'
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 @Component({
   selector: 'app-all-metereads',
@@ -111,6 +111,7 @@ export class AllMetereadsComponent implements OnInit {
     //@ts-ignore
       const selectedCountry = this.orglist.find(option => option.name === event.option.value);
       if (selectedCountry) {
+        this.filteredexternalIdOptions=of([]);
         this.orgId=selectedCountry.id;
         this.gedeviceforadmin(this.orgId);
       }
