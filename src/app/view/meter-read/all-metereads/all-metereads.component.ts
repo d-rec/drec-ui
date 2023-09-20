@@ -112,6 +112,9 @@ export class AllMetereadsComponent implements OnInit {
       const selectedCountry = this.orglist.find(option => option.name === event.option.value);
       if (selectedCountry) {
         this.filteredexternalIdOptions=of([]);
+        this.FilterForm.reset();
+        this.filter = false;
+        this.externalId = null;
         this.orgId=selectedCountry.id;
         this.gedeviceforadmin(this.orgId);
       }
@@ -150,8 +153,10 @@ export class AllMetereadsComponent implements OnInit {
     // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
+      this.showerrorexternalid = true;
     } else {
       this.showerror = false;
+      this.showerrorexternalid = false;
     }
     //  this.endmaxdate = new Date();
     return this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue))
@@ -165,8 +170,10 @@ export class AllMetereadsComponent implements OnInit {
     // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if ((!(this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
+      this.showerrorexternalid = true;
     } else {
       this.showerror = false;
+      this.showerrorexternalid = false;
     }
     //  this.endmaxdate = new Date();
     return this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue))

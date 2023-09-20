@@ -168,8 +168,10 @@ export class AddreadComponent implements OnInit {
     // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
+      this.showerrorexternalid = true;
     } else {
       this.showerror = false;
+      this.showerrorexternalid = false;
     }
     //  this.endmaxdate = new Date();
     return this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue))
@@ -183,8 +185,10 @@ export class AddreadComponent implements OnInit {
     // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if ((!(this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
+      this.showerrorexternalid = true;
     } else {
       this.showerror = false;
+      this.showerrorexternalid = false;
     }
     //  this.endmaxdate = new Date();
     return this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue))
