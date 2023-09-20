@@ -10,11 +10,16 @@ export class AdminService {
   url: String = environment.API_URL;
   constructor(private httpClient: HttpClient) { }
 
-  public GetAllOrganization(pagenumber?:number,limit?:number): Observable<any> {
+  public GetAllOrganization(pagenumber?:number,limit?:number,searchData?: any): Observable<any> {
     let searchUrl = `${this.url}admin/organizations`;
     if (pagenumber != undefined && limit != undefined ) {
       if (!(typeof pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}` ;
+      }
+    }
+    if (searchData != undefined) {
+      if (!(typeof searchData.organizationName === undefined || searchData.organizationName === "" || searchData.organizationName === null)) {
+        searchUrl += `&organizationName=${searchData.organizationName}`;
       }
     }
     return this.httpClient.get<any>(searchUrl);
