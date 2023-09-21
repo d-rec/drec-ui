@@ -4,10 +4,10 @@
 
         <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
 
-            <div >
-                <h2 class="text-capitalize device-details-heading">{{data.title}}
+            <div  class="d-flex align-items-center w-100 justify-content-between">
+                <h2 class="text-capitalize device-details-heading m-0">{{data.title}}
                 </h2>
-                <mat-icon aria-hidden="false" (click)="dialogRef.close(false)" class="close-icon"> close </mat-icon>
+                <mat-icon aria-hidden="false" (click)="dialogRef.close(false)" class="close-icon cursor-pointer"> close </mat-icon>
             </div>
 
 
@@ -42,18 +42,19 @@
                             <input autofocus type="hidden"  formControlName="status">
                        </div>
                 </div>
+                <mat-card-footer>
+                    <div class="example-container my-2">
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="submit"
+                                class="btn-primary btn" [disabled]="updateForm.invalid">Update</button>
+                            
+                        </div>
+    
+                    </div>
+                </mat-card-footer>
 
             </mat-card-content>
-            <mat-card-footer>
-                <div class="example-container mt-3 row">
-                    <div class="col-12 d-flex justify-content-end">
-                        <button type="submit"
-                            class="btn-primary btn text-capitalize px-4" [disabled]="updateForm.invalid">Update</button>&nbsp;&nbsp;
-                        
-                    </div>
 
-                </div>
-            </mat-card-footer>
         </form>
     </mat-card>
 </div>
