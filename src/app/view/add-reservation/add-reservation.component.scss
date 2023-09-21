@@ -69,13 +69,13 @@
 }
 
 // mat progress spinner
-// mat-progress-spinner{
-//   position: absolute;
-//   // top: 50%;
-//   left: 50%;
-//   transform: translate(-50%, -50%);
-//   z-index: 5;
-//   }
+mat-progress-spinner{
+  position: absolute;
+  // top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  }
 
 .mat-mdc-card {
   box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1) !important;
