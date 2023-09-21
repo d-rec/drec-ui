@@ -1,24 +1,28 @@
-<h1 mat-dialog-title>{{data.title}}</h1>
+<h1 mat-dialog-title>{{ data.title }}</h1>
 <div mat-dialog-content>
-  {{message}}
+  {{ message }}
 </div>
 
 <mat-card>
-  <mat-progress-spinner [mode]="'indeterminate'" style="width: 50px;height: 50px;" *ngIf="loading"></mat-progress-spinner>
-
+  <mat-progress-spinner
+    [mode]="'indeterminate'"
+    style="width: 50px; height: 50px"
+    *ngIf="loading"
+  ></mat-progress-spinner>
 
   <form [formGroup]="roleForm" *ngIf="showchangeform">
     <mat-card-content>
       <div class="example-container1 row">
-
         <div class="col-md-3">
           <mat-form-field appearance="outline">
             <mat-label class="text-capitalize">Organization User</mat-label>
 
-            <mat-select [(ngModel)]="userId" [ngModelOptions]="{standalone: true}">
-
+            <mat-select
+              [(ngModel)]="userId"
+              [ngModelOptions]="{ standalone: true }"
+            >
               <mat-option *ngFor="let code of alluserlist" [value]="code.id">
-                {{code.firstName}} {{code.lastName}}
+                {{ code.firstName }} {{ code.lastName }}
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -26,20 +30,30 @@
         <div class="col-md-3">
           <mat-form-field appearance="outline">
             <mat-label class="text-capitalize">Role</mat-label>
-            <input autofocus type="text" matInput formControlName="role" [(ngModel)]="role ">
+            <input
+              autofocus
+              type="text"
+              matInput
+              formControlName="role"
+              [(ngModel)]="role"
+            />
           </mat-form-field>
-
-
         </div>
       </div>
-
     </mat-card-content>
-
   </form>
 </mat-card>
 
-<div style="float:right;margin:20px;">
-  <input style="margin:0px 10px;" type="button" value="Confirm" [mat-dialog-close]="true"
-    (click)="onUpdateorgadminrole()">
-  <input type="button" value="Cancel" [mat-dialog-close]="false">
+<div style="float: right; margin: 20px">
+  <button
+    type="submit"
+    class="btn-primary btn me-2"
+    [mat-dialog-close]="true"
+    (click)="onUpdateorgadminrole()"
+  >
+    Confirm
+  </button>
+  <button type="submit" class="btn-dark btn" [mat-dialog-close]="false">
+    Cancel
+  </button>
 </div>
