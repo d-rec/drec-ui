@@ -54,6 +54,7 @@ export class ConfirmDialogComponent {
         if(this.alluserlist.length>1){
           this.message=this.dailogmessage
           this.showchangeform = true;
+          this.loading=false;
         
         }else{
           this.loading=false;
