@@ -39,6 +39,7 @@ export class AdminOrganizationComponent {
   pageSize: number = 20;
   countrylist: any;
   fuellist: any;
+  orglist: any;
   devicetypelist: any;
   fuellistLoaded: boolean = false;
   devicetypeLoded: boolean = false;
@@ -57,7 +58,7 @@ export class AdminOrganizationComponent {
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
   showlist: boolean = false;
-  orglist: any;
+  orglistload: boolean = false;
   constructor(private authService: AuthbaseService, private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
@@ -74,26 +75,34 @@ export class AdminOrganizationComponent {
       // }
     });
 
+    this.FilterForm = this.formBuilder.group({
+      organizationName: []
+    });
   }
-  ngOnInit(): void {
+  ngOnInit() {
+
     this.adminService.GetAllOrganization().subscribe(
       (data) => {
         this.orglist = data.organizations
+        this.orglistload = true;
         console.log(this.orglist)
 
 
-      })
-    this.FilterForm = this.formBuilder.group({
-      organizationName: [],
+      });
 
-      //pagenumber: [this.p]
-    });
-    console.log("myreservation");
     setTimeout(() => {
-      this.applyorgFilter();
+      console.log("93")
+      // if (this.countrycodeLoded) {
 
+      // }
+      this.loading = false;
       this.getAllOrganization(this.p);
-    }, 1000)
+      console.log(this.orglistload);
+      if (this.orglistload) {
+        this.applyorgFilter();
+      }
+
+    }, 2500)
   }
 
   ngOnDestroy() {
@@ -102,6 +111,7 @@ export class AdminOrganizationComponent {
     }
   }
   applyorgFilter() {
+    console.log("105")
     this.FilterForm.controls['organizationName'];
     this.filteredOptions = this.FilterForm.controls['organizationName'].valueChanges.pipe(
       startWith(''),
@@ -110,7 +120,8 @@ export class AdminOrganizationComponent {
   }
 
   private _filter(value: any): string[] {
-
+    console.log(value);
+    console.log(this.orglist)
     const filterValue = value.toLowerCase();
     if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
@@ -138,9 +149,9 @@ export class AdminOrganizationComponent {
   reset() {
     this.FilterForm.reset();
 
-    this.FilterForm.controls['organizationName'].setValue(null);
+    // this.FilterForm.controls['organizationName'].setValue(null);
     this.loading = true;
-    this.applyorgFilter();
+    // this.applyorgFilter();
     this.getAllOrganization(this.p);
   }
   getAllOrganization(page: number) {

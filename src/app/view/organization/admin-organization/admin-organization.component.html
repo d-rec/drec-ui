@@ -43,7 +43,7 @@
                     <mat-label class="text-capitalize">Select Organization</mat-label>
                     <input type="text" aria-label="text" matInput formControlName="organizationName" [matAutocomplete]="auto"
                      >
-                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectOrg($event)">
+                    <mat-autocomplete #auto="matAutocomplete" >
                       <!-- <mat-option [value]="">---</mat-option> -->
                       <mat-option *ngFor="let code of filteredOptions | async" [value]="code.name">
                         {{ code.name }}
@@ -51,7 +51,7 @@
                     </mat-autocomplete>
       
                   </mat-form-field>
-                  <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid roganization</mat-error>
+                  <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid organization name</mat-error>
                 </div>
                 <div class="col-md-12 mb-3  d-flex ">
                   <div class="">

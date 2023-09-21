@@ -40,7 +40,7 @@ export class InvitationformComponent {
 
     public dialogRef: MatDialogRef<InvitationformComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
-    this.data = data;
+    this.data = data.orginfo;
     if (data.orginfo.organizationType === 'Developer') {
       this.role = 'OrganizationAdmin';
     }
