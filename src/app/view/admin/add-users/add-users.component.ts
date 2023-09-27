@@ -122,10 +122,10 @@ export class AddUsersComponent {
     // const password = formData.value.password;
     // const username = formData.value.username;
     //this.auth.post(email, password, username);
-    //var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
+    var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
     
-    this.registerForm.controls['password'].setValue('pass@123');
-    this.registerForm.controls['confirmPassword'].setValue('pass@123');
+    this.registerForm.controls['password'].setValue(randPassword);
+    this.registerForm.controls['confirmPassword'].setValue(randPassword);
     this.authService.PostAuth('admin/users', this.registerForm.value).subscribe({
       next: data => {
         console.log(data)
