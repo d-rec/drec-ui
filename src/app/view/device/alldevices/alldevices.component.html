@@ -30,7 +30,7 @@
         <div class="example-container1 row">
           <div class="col-md-3">
             <mat-form-field appearance="outline">
-              <mat-label class="text-capitalize">Select Country Code</mat-label>
+              <mat-label class="text-capitalize">Select Country</mat-label>
               <input type="text" aria-label="text" matInput formControlName="countryname" [matAutocomplete]="auto"
                 (ngModelChange)="checkFormValidity()">
               <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
@@ -253,8 +253,6 @@
 
       </div>
       <div *ngIf="!showlist" style="text-align: center;color: #f2be1a;">No Device </div>
-
-
     </mat-card-content>
     <mat-card-footer></mat-card-footer>
   </mat-card>

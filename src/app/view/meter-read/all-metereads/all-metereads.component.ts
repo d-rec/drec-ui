@@ -6,7 +6,8 @@ import { MeterReadService, DeviceService, AdminService } from '../../../auth/ser
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MeterReadTableComponent } from '../meter-read-table/meter-read-table.component'
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 @Component({
   selector: 'app-all-metereads',
   templateUrl: './all-metereads.component.html',
@@ -43,10 +44,15 @@ export class AllMetereadsComponent implements OnInit {
   autocompleteResults: any[] = [];
   // searchControl: FormControl = new FormControl();
   filteredResults: Observable<any[]>;
-  orgId: number;
+  filteredOrgList: any[] = [];
+  //public color: ThemePalette = 'primary';
+  orgname: any;
+  orgId: any;
   orglist: any;
-  showerrorexternalid:boolean;
-
+  showerrorexternalid: boolean;
+  showerror: boolean;
+  filteredexternalIdOptions: Observable<any[]>;
+  devicelist: any = [];
   constructor(private service: MeterReadService, private formBuilder: FormBuilder,
     private deviceservice: DeviceService,
     private adminService: AdminService
@@ -63,18 +69,114 @@ export class AllMetereadsComponent implements OnInit {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          this.orglist = data;
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+          this.filteredOrgList = this.orglist;
         })
+    } else {
+      this.gedevicefororg();
     }
     this.DisplayList();
 
     this.FilterForm = this.formBuilder.group({
-      externalId: [null,Validators.required],
+      externalId: [null, Validators.required],
       start: [null, Validators.required],
       end: [null, Validators.required],
       pagenumber: [this.p]
     });
 
+    setTimeout(() => {
+      if (this.loginuser.role != 'Admin') {
+      this.FilterForm.controls['externalId'];
+      this.filteredexternalIdOptions = this.FilterForm.controls['externalId'].valueChanges.pipe(
+        startWith(''),
+        map(value => this._externalIdfilter(value || '')),
+      );}
+      //  this.getDeviceinfo();
+    }, 1000);
+  }
+  filterOrgList() {
+    console.log("99")
+    this.filteredOrgList = this.orglist.filter((org:any )=> {
+     
+        return org.name.toLowerCase().includes(this.orgname.toLowerCase());
+       
+      
+      
+    });
+  }
+  selectOrg(event: any) {
+    console.log(event)
+
+    //@ts-ignore
+      const selectedCountry = this.orglist.find(option => option.name === event.option.value);
+      if (selectedCountry) {
+        this.filteredexternalIdOptions=of([]);
+        this.FilterForm.reset();
+        this.filter = false;
+        this.externalId = null;
+        this.orgId=selectedCountry.id;
+        this.gedeviceforadmin(this.orgId);
+      }
+   
+  }
+  gedeviceforadmin(orgid: number) {
+    const deviceurl = 'device?OrganizationId=' + orgid;
+    this.deviceservice.GetMyDevices(deviceurl).subscribe({
+      next: data => {
+        console.log(data)
+        this.devicelist = data.devices
+        this.FilterForm.controls['externalId'];
+        this.filteredexternalIdOptions = this.FilterForm.controls['externalId'].valueChanges.pipe(
+          startWith(''),
+          map(value => this._externalIdfilterbyAdmin(value || '')),
+        );
+        console.log(this.filteredexternalIdOptions);
+
+      }
+    })
+  }
+  gedevicefororg() {
+    const deviceurl = 'device/my';
+    this.deviceservice.GetMyDevices(deviceurl).subscribe({
+      next: data => {
+        console.log(data)
+        this.devicelist = data;
+      }
+    })
+  }
+
+  _externalIdfilter(value: string): string[] {
+    console.log(value)
+    const filterValue = value.toLowerCase();
+    //  console.log(filterValue)
+    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
+    if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+      this.showerror = true;
+      this.showerrorexternalid = true;
+    } else {
+      this.showerror = false;
+      this.showerrorexternalid = false;
+    }
+    //  this.endmaxdate = new Date();
+    return this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue))
+
+  }
+
+  _externalIdfilterbyAdmin(value: string): string[] {
+    console.log(value)
+    const filterValue = value.toLowerCase();
+    //  console.log(filterValue)
+    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
+    if ((!(this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+      this.showerror = true;
+      this.showerrorexternalid = true;
+    } else {
+      this.showerror = false;
+      this.showerrorexternalid = false;
+    }
+    //  this.endmaxdate = new Date();
+    return this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue))
 
   }
   search(): void {
@@ -84,7 +186,7 @@ export class AllMetereadsComponent implements OnInit {
         this.adminService.GetDeviceAutocomplete(input, this.orgId).subscribe(
           (response) => {
             this.autocompleteResults = response;
-            this.showerrorexternalid=false;
+            this.showerrorexternalid = false;
           },
           (error) => {
             console.error('Error fetching autocomplete results:', error);
@@ -93,7 +195,7 @@ export class AllMetereadsComponent implements OnInit {
       } else {
         this.deviceservice.GetDeviceAutocomplete(input,).subscribe(
           (response) => {
-            this.showerrorexternalid=false;
+            this.showerrorexternalid = false;
             this.autocompleteResults = response;
           },
           (error) => {
@@ -104,12 +206,12 @@ export class AllMetereadsComponent implements OnInit {
 
     } else {
       this.autocompleteResults = [];
-      this.showerrorexternalid=true;
+      this.showerrorexternalid = true;
     }
   }
   displayFn(result: any): string {
     console.log(result)
-    return result ;
+    return result;
   }
   lastreadvalue: number;
   lastreaddate: any;
@@ -124,29 +226,32 @@ export class AllMetereadsComponent implements OnInit {
   //   }else{
   //     this.externalId = result.exterenalId;
   //   }
-    
+
   // }
   onSelect(result: any): void {
     this.selectedResult = result;
     console.log(this.selectedResult);
     console.log(result);
-    this.FilterForm.controls['externalId'].setValue(result.externalId);
-    
-    let deivceid;
-    if (this.loginuser.role==='Admin'){
-      this.externalId = result.id;
-    }else{
+   
 
+    let deivceid;
+    if (this.loginuser.role === 'Admin') {
+      this.FilterForm.controls['externalId'].setValue(result.developerExternalId);
+      this.externalId = result.id;
+    } else {
+      this.FilterForm.controls['externalId'].setValue(result.externalId);
       this.externalId = result.externalId;
       console.log(this.externalId)
     }
-    
-   
+
+
   }
   reset() {
     this.FilterForm.reset();
     this.filter = false;
     this.externalId = null;
+    this.orgname = null;
+    this.orgId = null;
     this.counterComponent.start(this.FilterForm, this.externalId, this.filter);
     this.autocompleteResults = [];
   }

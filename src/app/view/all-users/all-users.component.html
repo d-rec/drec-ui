@@ -11,10 +11,10 @@
       </div>
       <div>
         <button class="btn btn-dark justify-content-end px-4  align-items-center" (click)="openinviteDialog()"
-          *ngIf="showorg">
+          *ngIf="showorg &&!showorguser">
           <mat-icon class="align-middle me-2">add_circle</mat-icon>Invite User</button>&nbsp;
         <button class="btn btn-dark justify-content-end px-4  align-items-center" routerLink="/admin/All_organization"
-          *ngIf="showorg">
+          *ngIf="showorg &&!showorguser">
           <mat-icon class="align-middle me-2">arrow_back</mat-icon>Go Back</button>
       </div>
     </mat-card-header>
@@ -22,13 +22,13 @@
 
     <mat-card-content class="mat-body-cont text-center">
 
-      <mat-card *ngIf="showorg">
+      <mat-card *ngIf="showorg &&!showorguser">
         <mat-card-content>
-          <h2 style="text-align: center;color:#f2be1a; font-size: 25px;" class="text-capitalize">
+          <h2 style="text-align: center;color:#f2be1a; font-size: 20px;" class="text-capitalize">
             <b>Organization details</b>
           </h2>
 
-          <div class='content'>
+          <div class='content1'>
             <div class='column col-4'>
               <div class='row '>
                 <p><b> Organization Name</b>:&nbsp;
@@ -56,13 +56,13 @@
         </mat-card-content>
         <hr>
       </mat-card>
-      <mat-card *ngIf="!showorg">
+      <mat-card *ngIf="!showorg && !showorguser">
         <form [formGroup]="FilterForm">
           <mat-card-content>
             <h3 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize">Filter User list By
               Select Organization</h3>
             <div class="example-container1 row">
-              <div class="col-md-3">
+              <!-- <div class="col-md-3">
 
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize">Organization</mat-label>
@@ -74,10 +74,26 @@
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
+              </div> -->
+
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">Select Organization</mat-label>
+                  <input type="text" aria-label="text" matInput formControlName="organizationName" [matAutocomplete]="auto"
+                   >
+                  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectOrg($event)">
+                    <!-- <mat-option [value]="">---</mat-option> -->
+                    <mat-option *ngFor="let code of filteredOptions | async" [value]="code.name">
+                      {{ code.name }}
+                    </mat-option>
+                  </mat-autocomplete>
+    
+                </mat-form-field>
+                <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid roganization</mat-error>
               </div>
               <div class="col-md-12 mb-3  d-flex ">
                 <div class="">
-                  <button class="btn-primary me-2 btn text-capitalize px-4" (click)="getAllUsers()">Filter</button>
+                  <button class="btn-primary me-2 btn text-capitalize px-4" (click)="getAllUsers(p)">Filter</button>
                 </div>
                 <div class="">
                   <button class="btn-dark btn text-capitalize px-4" (click)="reset()">Reset</button>
@@ -94,17 +110,20 @@
         <table mat-table [dataSource]="dataSource" class="" matSort>
 
           <!-- Position Column -->
+          <ng-container matColumnDef="organization">
+            <th mat-header-cell *matHeaderCellDef class="text-left">Organization </th>
+            <td mat-cell *matCellDef="let row;let i=index"> {{row.organization?.name}} </td>
+          </ng-container>
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef class="text-left">Name </th>
             <td mat-cell *matCellDef="let row;let i=index"> {{row.firstName}} {{row.lastName}}</td>
           </ng-container>
-
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> Status </th>
             <td mat-cell *matCellDef="let element"> {{element.status}} </td>
           </ng-container>
 
-          <ng-container matColumnDef="orgemail">
+          <ng-container matColumnDef="email">
             <th mat-header-cell *matHeaderCellDef class="text-left"> Email </th>
             <td mat-cell *matCellDef="let element"> {{element.email}} </td>
           </ng-container>
@@ -129,11 +148,12 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef class="text-left">Action</th>
             <td mat-cell *matCellDef="let row; let i=index;">
-              <a class="edit-icon action-icons" (click)="openUpdateDialog(row)">
-                <mat-icon class="primary">edit</mat-icon></a>
-              <a class="delete-icon action-icons" (click)="openDialog(row)">
+              <a  class="edit-icon action-icons" (click)="openUpdateDialog(row)">
+                <mat-icon matTooltip="Edit"  [matTooltipPosition]="'above'" class="primary cursor-pointer">edit</mat-icon></a>
+                &nbsp;
+              <a  class="delete-icon action-icons" (click)="openDialog(row)">
 
-                <mat-icon class="primary">delete</mat-icon>
+                <mat-icon matTooltip="Delete"  [matTooltipPosition]="'above'" class=" cursor-pointer">delete</mat-icon>
               </a>
             </td>
           </ng-container>
@@ -148,12 +168,17 @@
             aria-label="Select page">
           </mat-paginator> -->
         <!-- <hr> -->
-        <!-- <div class="d-flex justify-content-start align-items-center  p-10 ">
-            <button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()" [disabled]="p === 1">Previous</button>&nbsp;&nbsp;
-              
-            Total Pages:{{totalPages}}
-              <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()" [disabled]="p === totalPages">Next</button>
-          </div> -->
+        <div class="d-flex justify-content-start align-items-center  p-10 ">
+          <button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()" [disabled]="p === 1">Previous</button>&nbsp;&nbsp;
+            
+          Total Pages:{{totalPages}}&nbsp;&nbsp;
+            <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()" [disabled]="p === totalPages">Next</button>
+            <p style="width: 150px;
+            height: 25px;
+            margin-left: 420px;
+            padding: 10px 5px 0px 0px"><b>Page Number:&nbsp;</b>{{p}}</p>
+      
+          </div>
 
       </div>
       <div *ngIf="!showlist" style="text-align: center;color: #f2be1a;">No User </div>
