@@ -18,19 +18,22 @@
         <form [formGroup]="myform" (ngSubmit)="onSubmit()">
             <mat-card-content>
 
-                
+
                 <div class="col-md-3" *ngIf="loginuser.role ==='Admin'">
-                    <p>Select Organization</p>
+                   
                     <mat-form-field appearance="outline">
                         <mat-label class="text-capitalize">Organization</mat-label>
 
-                        <mat-select [(ngModel)]="orgId" [ngModelOptions]="{standalone: true}">
+                        <input matInput [(ngModel)]="orgname" [ngModelOptions]="{ standalone: true }"
+                            [matAutocomplete]="orgAuto" (input)="filterOrgList()">
 
-                            <mat-option *ngFor="let code of orglist" [value]="code.id">
-                                {{code.name}}
+                        <mat-autocomplete #orgAuto="matAutocomplete" (optionSelected)="selectOrg($event)">
+                            <mat-option *ngFor="let code of filteredOrgList" [value]="code.name">
+                                {{ code.name }}
                             </mat-option>
-                        </mat-select>
+                        </mat-autocomplete>
                     </mat-form-field>
+
                 </div>
 
                 <div formArrayName='devices'>
@@ -77,7 +80,7 @@
 
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">Select country Code</mat-label>
+                                            <mat-label class="text-capitalize">Select country </mat-label>
                                             <input type="text" matInput formControlName='countryCode'
                                                 [matAutocomplete]="auto">
                                             <mat-autocomplete #auto="matAutocomplete">

@@ -4,6 +4,12 @@ export  const UserStatus = [
    // 'Suspended',
      //'Deleted',
 ]
+export  enum UserEnumStatus {
+    Pending= 'Pending',
+    Active= 'Active',
+   // 'Suspended',
+     //'Deleted',
+}
 export enum Role {
     User = 'User',
     DeviceOwner = 'DeviceOwner',
@@ -15,12 +21,15 @@ export enum Role {
 }
 export enum OffTaker {
     School = 'School',
+    Education="Education",
     HealthFacility = 'Health Facility',
     Residential = 'Residential',
     Commercial = 'Commercial',
     Industrial = 'Industrial',
     PublicSector = 'Public Sector',
-    Agriculture = 'Agriculture'
+    Agriculture = 'Agriculture',
+    Utility='Utility',
+    OffGridCommunity='Off-Grid Community'
 }
 export enum ReadType {
     History = 'History',
@@ -28,3 +37,9 @@ export enum ReadType {
     ReadMeter = 'Aggregate',
 
 }
+export enum OrganizationStatus {
+    Submitted = 'Submitted',
+    Denied = 'Denied',
+    Active = 'Active',
+  }
+  

@@ -381,6 +381,9 @@ border-left-color:$primary!important ;
     .mat-mdc-table .mdc-data-table__row{
         border-bottom: 1px solid rgba(0, 0, 0, 0.12)!important;
     }
+    .mat-column-externalId{
+        width: 16%;
+    }
    
 }
 .mat-mdc-dialog-surface.mdc-dialog__surface::-webkit-scrollbar{
@@ -408,6 +411,9 @@ border-left-color:$primary!important ;
 
     color: $danger;
     cursor: pointer;
+    &:hover{
+        color: $danger;
+    }
 }
 // this is for spinner 
 .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle, .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic{
@@ -433,6 +439,9 @@ border-left-color:$primary!important ;
   mat-icon{
     font-size: 18px;
   }
+}
+.cursor-pointer{
+    cursor: pointer;
 }
 
 .add-reservation{

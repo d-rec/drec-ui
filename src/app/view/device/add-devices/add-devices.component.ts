@@ -40,9 +40,11 @@ export class AddDevicesComponent {
   numberregex: RegExp = /[0-9]+(\.[0-9]*){0,1}/
   filteredCountryList: Observable<any[]>[] = [];
   subscription: Subscription;
+  filteredOrgList: any[] = [];
   //public color: ThemePalette = 'primary';
+  orgname: string;
   orgId: number;
-  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
+  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
   devicedescription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
   constructor(private fb: FormBuilder, private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -63,7 +65,9 @@ export class AddDevicesComponent {
    
   
     setTimeout(() => {
-      this.setupCountryAutocomplete(0); // Call it with the appropriate index
+      this.setupCountryAutocomplete(0); 
+      //this.filteredOrgList = this.orglist;
+      // Call it with the appropriate index
     }, 1500);
   }
   ngOnDestroy() {
@@ -77,8 +81,11 @@ export class AddDevicesComponent {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          this.orglist = data;
-  
+          //@ts-ignore
+          this.orglist =   data.organizations.filter(org => org.organizationType != "Buyer");
+          console.log(this.orglist)
+         // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
+          this.filteredOrgList = this.orglist;
           // Once data is loaded, call any other functions that depend on it
          
           this.date = new Date();
@@ -91,7 +98,26 @@ export class AddDevicesComponent {
     this.DisplaytypeList();
     // Load other data as needed
   }
+  filterOrgList() {
+    console.log("99")
+    this.filteredOrgList = this.orglist.filter((org:any )=> {
+     
+        return org.name.toLowerCase().includes(this.orgname.toLowerCase());
+       
+      
+      
+    });
+  }
+  selectOrg(event: any) {
+    console.log(event)
 
+    //@ts-ignore
+      const selectedCountry = this.orglist.find(option => option.name === event.option.value);
+      if (selectedCountry) {
+        this.orgId=selectedCountry.id;
+      }
+   
+  }
   private initializeForm() {
     this.myform = this.fb.group({
       devices: this.fb.array([])
@@ -256,6 +282,8 @@ export class AddDevicesComponent {
     //@ts-ignore
     return this.countrylist.filter(code => code.country.toLowerCase().includes(filterValue));
   }
+
+ 
   addmore(i: number) {
     this.addmoredetals[i] = true;
     this.shownomore[i] = true;
@@ -293,7 +321,7 @@ export class AddDevicesComponent {
     const formArray = this.myform.get('devices') as FormArray;
     let deviceArray = this.myform.value.devices;
     deviceArray.forEach((element: any, index: number) => {
-      if (this.orgId != null) {
+      if (this.orgname != null) {
         element['organizationId'] = this.orgId;
       }
       //@ts-ignore

@@ -59,7 +59,7 @@ export class AdminAlldevicesComponent {
   totalRows = 0;
   filteredOptions: Observable<any[]>;
   filteredOptions1: Observable<any[]>;
-  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
+  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
   endminDate = new Date();
   totalPages: number;
   subscription: Subscription;
@@ -94,7 +94,8 @@ export class AdminAlldevicesComponent {
   ngOnInit(): void {
     this.adminService.GetAllOrganization().subscribe(
       (data) => {
-        this.orglist = data;
+        //@ts-ignore
+        this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
       })
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {

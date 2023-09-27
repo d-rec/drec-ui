@@ -57,7 +57,7 @@ export class AlldevicesComponent {
   p: number = 1;
   totalRows = 0;
   filteredOptions: Observable<any[]>;
-  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
+  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
   endminDate = new Date();
   totalPages: number;
   subscription: Subscription;

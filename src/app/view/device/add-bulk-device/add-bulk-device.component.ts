@@ -52,16 +52,39 @@ export class AddBulkDeviceComponent implements OnInit {
   dataSource1: MatTableDataSource<any>;
   data: any;
   orglist: any;
+  filteredOrgList: any[] = [];
+  //public color: ThemePalette = 'primary';
+  orgname: string;
   orgId: number;
   loginuser: any;
   ngOnInit(): void {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          this.orglist = data;
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+          console.log(this.orglist)
+          this.filteredOrgList = this.orglist;
         })
     }
     this.JobDisplayList();
+
+  }
+
+  filterOrgList() {
+    console.log("99")
+    this.filteredOrgList = this.orglist.filter((org: any) => {
+      return org.name.toLowerCase().includes(this.orgname.toLowerCase());
+    });
+  }
+  selectOrg(event: any) {
+    console.log(event)
+
+    //@ts-ignore
+    const selectedCountry = this.orglist.find(option => option.name === event.option.value);
+    if (selectedCountry) {
+      this.orgId = selectedCountry.id;
+    }
 
   }
   reset() {

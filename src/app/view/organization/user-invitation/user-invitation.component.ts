@@ -16,7 +16,7 @@ export class UserInvitationComponent {
   @ViewChild(MatPaginator)
   paginator!: MatPaginator;
 
-  displayedColumns: string[] = ['sender', 'email', 'status', 'Action'];//... set columns here
+  displayedColumns: string[] = ['sender', 'email', 'status'];//... set columns here
   @ViewChild(MatTabGroup) tabGroup: MatTabGroup;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
@@ -27,15 +27,16 @@ export class UserInvitationComponent {
   userstatus: any;
   orginviteuser: any;
   showorginviteuser: boolean = false;
+  loading: boolean = false;
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   orgtype: any[] = [
-    { value: 'Developer', viewValue: 'Developer' },
+    // { value: 'OrganizationAdmin', viewValue: 'Developer' },
     { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
     { value: 'User', viewValue: 'User' }
   ];
   orgtypebuyer: any[] = [
 
-    { value: 'Buyer', viewValue: 'Buyer' },
+    { value: 'SubBuyer', viewValue: 'SubBuyer' },
 
     { value: 'User', viewValue: 'User' }
   ];
@@ -62,14 +63,19 @@ export class UserInvitationComponent {
       email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
       role: [null, [Validators.required]],
     });
-    console.log(this.userstatus = !'Pending')
-    if (this.userstatus ==='Active') {
-      console.log(this.userstatus)
-      this.displayedColumns = ['sender', 'email', 'status']
-      this.getorginviteuserlist();
-    }else{
-      this.getinvitationList();
-    }
+    console.log(this.userstatus)
+    console.log(this.userstatus !='Pending')
+    setTimeout(() => {
+      // if (this.userstatus=== 'Active' && this.loginuser.role=== 'OrganizationAdmin') {
+      //   console.log(this.userstatus)
+      //   this.displayedColumns = ['sender', 'email', 'status']
+        this.getorginviteuserlist();
+      
+      // }else{
+      //   this.getinvitationList();
+      // }
+    }, 1000);
+   
 
    
   }
@@ -78,14 +84,16 @@ export class UserInvitationComponent {
       next: response => {
         console.log(response);
         this.inviteForm.reset();
+        this.loading=true;
         if (response.success) {
+          this.loading=false;
           this.tabGroup.selectedIndex = 1;
           this.toastrService.success('Invitation Sent')
           this.displayedColumns = ['sender', 'email', 'status']
           this.getorginviteuserlist();
         }
       }, error: err => {
-        this.toastrService.success('Fail', err.message)
+        this.toastrService.error('Fail', err.error.message)
       }
     })
 

@@ -37,9 +37,9 @@ export class DeviceDetailsComponent {
     private deviceService: DeviceService,
     private authService: AuthbaseService,
   ) {
-    
+
     this.id = data.deviceid;
-  
+
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
 
@@ -53,6 +53,10 @@ export class DeviceDetailsComponent {
         // this.devicetypeLoded = true;
       }
     );
+
+  }
+  name: any;
+  ngOnInit(): void {
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3) => {
 
@@ -60,35 +64,35 @@ export class DeviceDetailsComponent {
         // this.countrycodeLoded = true;
       }
     )
-  }
-  name: any;
-  ngOnInit(): void {
+    setTimeout(() => {
 
-    setTimeout(() => {  
-      this.deviceService.GetDevicesInfo(this.id).subscribe({
-        next: (data : Device)=> {
-          if (data) {
-            this.loading = false;
-            this.device_details = data;
-            this.name = this.device_details.externalId
-            //@ts-ignore
-            this.device_details['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === this.device_details.fuelCode)?.name;
-            //@ts-ignore
-            this.device_details['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == this.device_details.deviceTypeCode)?.name;
-            //@ts-ignore
-            this.device_details['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == this.device_details.countryCode)?.country;
-            console.log(this.device_details);
-          }
-        }, error: err => {  
+      this.getdeviceinfo();
+    }, 1200)
+  }
+  getdeviceinfo() {
+    this.deviceService.GetDevicesInfo(this.id).subscribe({
+      next: (data: Device) => {
+        if (data) {
+          this.loading = false;
+          this.device_details = data;
+          this.name = this.device_details.externalId
+          //@ts-ignore
+          this.device_details['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === this.device_details.fuelCode)?.name;
+          //@ts-ignore
+          this.device_details['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == this.device_details.deviceTypeCode)?.name;
+          //@ts-ignore
+          this.device_details['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == this.device_details.countryCode)?.country;
+          console.log(this.device_details);
+        }
+      }, error: err => {
         console.log(err)
       },
     })
-  },1000)
-}
+  }
 
-submit() {
-  this.dialogRef.close({
-    clicked: 'submit'
-  });
-}
+  submit() {
+    this.dialogRef.close({
+      clicked: 'submit'
+    });
+  }
 }
