@@ -277,7 +277,7 @@ export class EditDeviceComponent implements OnInit {
       },
       error: (err: any): void => {                          //Error callback
         console.error('error caught in component', err.error.message)
-        this.toastrService.error('some error occurred in add due to ' + err.error.message, 'Device!' + this.updatedeviceform.value.externalId,);
+        this.toastrService.error('some error occurred in updated due to ,' + err.error.message, 'Device!' + this.externalid,);
       }
     });
     // })

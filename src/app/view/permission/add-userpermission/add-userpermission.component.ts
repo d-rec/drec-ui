@@ -48,6 +48,7 @@ export class UserpermissionComponent {
   { id: 3, name: "DeviceOwner" },
   { id: 4, name: "Buyer" },
   { id: 5, name: "User" },
+  { id: 6, name: "SubBuyer" },
     //{id:6,name:""},
     // {id:,name:""}
   ]
