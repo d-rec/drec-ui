@@ -1,0 +1,61 @@
+
+    <mat-card class="mb-3">
+<mat-card-header>
+  Edit permission
+  <mat-icon aria-hidden="false" (click)="dialogRef.close(false)" class="close-icon"> close </mat-icon>
+</mat-card-header>
+      <hr>
+      <mat-card-content>
+        <form [formGroup]="UserupdatePermissionForm" (ngSubmit)="updatepermission()">
+          <div class="example-container1 row">
+            <div class="col-md-4">
+
+              <mat-form-field appearance="outline">
+                <mat-label class="text-capitalize">UserRole</mat-label>
+                <mat-select [(ngModel)]="userrole"  [ngModelOptions]="{standalone: true}" [disabled]="true">
+                  <mat-option *ngFor="let role of rolelist" [value]="role.id">{{ role.name }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="col-md-4">
+              <mat-form-field appearance="outline">
+                <mat-label class="text-capitalize">ACL Module</mat-label>
+                <mat-select [(ngModel)]="modulename" [ngModelOptions]="{standalone: true}" [disabled]="true">
+                  <mat-option *ngFor="let module of datalist" [value]="module.id">{{ module.name }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <!-- <mat-form-field appearance="outline">
+                <mat-label class="text-capitalize">ACL Module</mat-label>
+                <input matInput [value]="modulename" readonly>
+              </mat-form-field> -->
+            </div>
+            <div class="col-md-4">
+              <!-- <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">Permission</mat-label>
+                  <input autofocus type="text" matInput formControlName="permission">
+              </mat-form-field> -->
+
+
+              <mat-form-field appearance="outline">
+                <mat-label class="text-capitalize">Permission</mat-label>
+
+                <mat-select formControlName="permissions" multiple>
+
+                  <mat-option *ngFor="let permission of Permission"
+                    [value]="permission">{{permission}}</mat-option>
+
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+    
+          <hr>
+          <button type="submit" class="btn-primary btn text-capitalize px-4"
+            [disabled]="UserupdatePermissionForm.invalid">
+            update
+          </button>
+        </form>
+      </mat-card-content>
+
+    </mat-card>

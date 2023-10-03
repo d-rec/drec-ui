@@ -1,0 +1,87 @@
+import { Component, Inject, ViewChild } from '@angular/core';
+import { SelectionModel } from '@angular/cdk/collections';
+import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { AuthbaseService } from '../../../auth/authbase.service';
+import { DeviceService, ACLModulePermisionService } from '../../../auth/services';
+import { Router } from '@angular/router';
+import { Observable, Subscription, debounceTime } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+import { MatDialog, MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { ToastrService } from 'ngx-toastr';
+import { UserpermissionComponent } from '../add-userpermission/add-userpermission.component'
+@Component({
+  selector: 'app-edit-permission',
+  templateUrl: './edit-permission.component.html',
+  styleUrls: ['./edit-permission.component.scss']
+})
+export class EditPermissionComponent {
+  UserupdatePermissionForm: FormGroup;
+  userrole: string;
+  datalist: any;
+  modulename: string
+  Permission: any = ['Read', 'Write', 'Delete', 'Update'];
+  rolelist: any = [{ id: 1, name: "Admin" },
+  { id: 2, name: "OrganizationAdmin" },
+  { id: 3, name: "DeviceOwner" },
+  { id: 4, name: "Buyer" },
+  { id: 5, name: "User" },
+  { id: 6, name: "SubBuyer" },
+    //{id:6,name:""},
+    // {id:,name:""}
+  ]
+  userpermissioninf: any;
+  userpermission: any=[];
+  constructor(private authService: AuthbaseService, private deviceService: DeviceService,
+    private formBuilder: FormBuilder,
+    private router: Router,
+    @Inject(MAT_DIALOG_DATA) data: { permission: any },
+    public dialogRef: MatDialogRef<UserpermissionComponent>,
+    private toastrService: ToastrService,
+    private aclpermissionServcie: ACLModulePermisionService) {
+
+    this.userpermissioninf = data.permission
+    console.log(this.userpermissioninf)
+    this.userrole=this.userpermissioninf.entityId;
+    this.modulename=this.userpermissioninf.aclmodulesId;
+    this.userpermission= this.userpermissioninf.permissions;
+  }
+  ngOnInit(
+
+  ) {
+    this.getaclmodulepermission();
+    this.UserupdatePermissionForm = this.formBuilder.group({
+
+      permissions: [this.userpermission, Validators.required],
+      status: 1,
+
+    })
+  }
+
+
+  getaclmodulepermission() {
+    this.aclpermissionServcie.getAcl_moduleList().subscribe({
+      next: data => {
+        this.datalist = data
+        //this.dataSource = new MatTableDataSource(data);
+      }, error: err => {
+
+      }
+    })
+
+  }
+  updatepermission() {
+    this.aclpermissionServcie.PutUserpermission(this.userpermissioninf.id, this.UserupdatePermissionForm.value).subscribe({
+      next: data => {
+
+        if(data){
+          this.toastrService.success('Successful', 'update')
+          this.dialogRef.close();
+        }
+
+      }
+    })
+
+  }
+}
+
