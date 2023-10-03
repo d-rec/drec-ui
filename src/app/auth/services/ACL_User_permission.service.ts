@@ -22,7 +22,7 @@ export class ACLModulePermisionService {
     return this.httpClient.post<any>(environment.API_URL + 'access-control-layer-module-service', data)
 
   }
-  public PatchYieldInfo(id: any, data: any): Observable<any> {
+  public PatchUserpermission(id: any, data: any): Observable<any> {
     return this.httpClient.patch<any>(environment.API_URL + 'access-control-layer-module-service/' + id, data)
 
   }
@@ -33,6 +33,10 @@ export class ACLModulePermisionService {
 }
   addUserACL_modulePermission(data: any): Observable<any> {
     return this.httpClient.post<any>(environment.API_URL + 'permission/module', data)
+
+  }
+  public PutUserpermission(id: any, data: any): Observable<any> {
+    return this.httpClient.put<any>(environment.API_URL + 'permission/update/' + id, data)
 
   }
 }

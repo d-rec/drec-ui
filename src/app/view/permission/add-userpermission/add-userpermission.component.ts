@@ -12,7 +12,7 @@ import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatDialog, MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-
+import {EditPermissionComponent} from '../edit-permission/edit-permission.component'
 import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-add-userpermission',
@@ -29,11 +29,13 @@ export class UserpermissionComponent {
     "Role",
     "Module Name",
     "permissions",
+    "Action"
   ];
   displayedColumns1 = [
     "select",
     "name",
     "permissions",
+    
   ];
   Permission: any = ['Read', 'Write', 'Delete', 'Update']
   selectuserpermission: any[] = [];
@@ -148,5 +150,22 @@ export class UserpermissionComponent {
     // } else {
     //   this.toastrService.error('Please select at least one device', 'Validation Error!');
     // }
+  }
+  UpdatePermission(row:number){
+   
+      const dialogRef = this.dialog.open(EditPermissionComponent, {
+        data: {
+          permission: row
+        },
+        width: '700px',
+        height: '300px',
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        if (result === true) {
+          // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
+          this.getuseraclmodulepermission();
+        }
+      });
+    
   }
 }
