@@ -50,8 +50,7 @@ export class LoginComponent {
               console.log(data1)
               sessionStorage.setItem('status', data1.status);
               if (data1.status != 'Pending' && data1.organization != null) {
-                if ( jwtObj.organization.organizationType==='Buyer'
-                  ) {
+                if ( data1.organization.organizationType==='Buyer' ) {
                   this.router.navigate(['/myreservation']);
                 } else if (jwtObj.role === 'Admin') {
                   this.router.navigate(['/admin/All_devices']);
