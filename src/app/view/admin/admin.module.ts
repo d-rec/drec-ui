@@ -7,13 +7,15 @@ import { AdminAlldevicesComponent } from './admin-alldevices/admin-alldevices.co
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { AddUsersComponent } from './add-users/add-users.component';
 import { InvitationformComponent } from './invitationform/invitationform.component';
+import { ApiuserComponent } from './apiuser/apiuser.component';
 
 @NgModule({
   declarations: [
     DashboardComponent,
     AdminAlldevicesComponent,
     AddUsersComponent,
-    InvitationformComponent
+    InvitationformComponent,
+    ApiuserComponent
   ],
   imports: [
     CommonModule,

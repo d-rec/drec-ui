@@ -33,7 +33,11 @@
             <span>All Users</span>
           </a>
 
-
+          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/admin/All_apiusers"
+          *ngIf="loginuser.role ==='Admin'">
+           
+            <span>All ApiUser</span>
+        </a>
           <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active"
             routerLink="/organization/user/invitation" *ngIf="!showmenu &&  loginuser.role != 'Admin'||!'User'">
             <span> Invitation</span>
@@ -150,7 +154,11 @@
             <!-- <mat-icon>list</mat-icon> -->
             <span>User Role Permission </span>
           </a>
-
+          <a mat-button class="menu-button max-height-content inside-menu-button" routerLinkActive="active"
+          routerLink="/admin/permission/api_user_role/list">
+          <!-- <mat-icon>list</mat-icon> -->
+          <span>ApiUser Permission </span>
+        </a>
 
         </mat-nav-list>
       </mat-expansion-panel>
@@ -180,7 +188,8 @@
         <mat-icon>add_circle</mat-icon>
         <span>Add Reservation</span>
       </button>
-      <!--9th  -->
+ <!--9th  -->
+      
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header class="mdc-button ">
           <mat-icon>account_circle</mat-icon>

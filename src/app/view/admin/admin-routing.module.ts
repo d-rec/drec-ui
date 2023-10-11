@@ -5,7 +5,8 @@ import {AdminOrganizationComponent} from '../organization/admin-organization/adm
 import {AdminAlldevicesComponent} from './admin-alldevices/admin-alldevices.component';
 import {AllUsersComponent} from '../all-users/all-users.component';
 import { AddUsersComponent} from './add-users/add-users.component';
-import {EditUserComponent} from '../edit-user/edit-user.component'
+import {EditUserComponent} from '../edit-user/edit-user.component';
+import {ApiuserComponent } from './apiuser/apiuser.component'
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent },
@@ -19,6 +20,9 @@ const routes: Routes = [
   },
   {
     path: 'All_users', component: AllUsersComponent
+  },
+  {
+    path: 'All_apiusers', component: ApiuserComponent
   },
   {
     path: 'AllOrganization_users/:id', component: AllUsersComponent
