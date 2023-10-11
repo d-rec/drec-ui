@@ -39,4 +39,18 @@ export class ACLModulePermisionService {
     return this.httpClient.put<any>(environment.API_URL + 'permission/update/' + id, data)
 
   }
+
+  getUserpermission(data: any): Observable<any> {
+    return this.httpClient.get<any>(environment.API_URL + 'permission/user/' + data.user_id)
+
+  }
+  getRolepermission(id: any): Observable<any> {
+    return this.httpClient.get<any>(environment.API_URL + 'permission/role/' + id)
+
+  }
+  public updateUserpermissionByAdmin(id: any, data: any): Observable<any> {
+    return this.httpClient.put<any>(environment.API_URL + 'permission/module/verify/ByAdmin/' + id, data)
+
+  }
+
 }

@@ -31,4 +31,7 @@ export class UserService {
   public resetPassword(token:any,data:any):Observable<any>{
     return this.httpClient.put<any>(this.url+'user/reset/password/'+token,data)
   }
+  public getuserById(id:number):Observable<any>{
+    return this.httpClient.get<any>(this.url+'user/'+id)
+  }
 }

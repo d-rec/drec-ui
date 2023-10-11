@@ -7,23 +7,23 @@ import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { AuthbaseService } from '../../auth/authbase.service';
-import { AdminService, OrganizationService } from '../../auth/services';
+import { AuthbaseService } from '../../../auth/authbase.service';
+import { AdminService, OrganizationService } from '../../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component'
-import { EditUserComponent } from '../edit-user/edit-user.component';
+import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component'
+import { EditUserComponent } from '../../edit-user/edit-user.component';
 import { ToastrService } from 'ngx-toastr';
 import { errors } from 'ethers';
-import { InvitationformComponent } from '../admin/invitationform/invitationform.component'
+import { InvitationformComponent } from '../../admin/invitationform/invitationform.component'
 @Component({
-  selector: 'app-all-users',
-  templateUrl: './all-users.component.html',
-  styleUrls: ['./all-users.component.scss']
+  selector: 'app-apiuser',
+  templateUrl: './apiuser.component.html',
+  styleUrls: ['./apiuser.component.scss']
 })
-export class AllUsersComponent {
+export class ApiuserComponent {
   FilterForm: FormGroup;
   displayedColumns = [
     'organization',
@@ -146,22 +146,8 @@ export class AllUsersComponent {
   getAllUsers(page:number) {
     const limit=20;
     if (this.loginuser.role === "Admin") {
-      if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
-        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId,page,limit).subscribe((data) => {
-          console.log(data)
-          this.showorguser=false;
-          this.showlist = true
-          this.loading = false
-          //@ts-ignore
-          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-          console.log(this.data);
-          this.dataSource = new MatTableDataSource(this.data.users);
-          this.totalRows = this.data.totalCount
-          console.log(this.totalRows);
-          this.totalPages = this.data.totalPages
-        })
-      } else {
-        this.adminService.GetAllUsers(page,limit,this.FilterForm.value).subscribe((data) => {
+    
+        this.adminService.GetAllApiUsers(page,limit,this.FilterForm.value).subscribe((data) => {
           console.log(data)
           this.showlist = true;
           this.showorguser=false;
@@ -175,31 +161,7 @@ export class AllUsersComponent {
           this.totalPages = this.data.totalPages
         })
       }
-
-    } else {
-      this.showorg=true
-      this.orgService.getOrganizationUser(page,limit).subscribe({
-        next: (data) => {
-
-          console.log(data)
-          this.showlist = true
-          this.loading = false
-          //@ts-ignore
-          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-          console.log(this.data);
-          this.dataSource = new MatTableDataSource(this.data.users);
-          this.totalRows = this.data.totalCount
-          console.log(this.totalRows);
-          this.totalPages = this.data.totalPages
-
-        }, error: err => {
-          console.log(err)
-        }
-      });
-
-
-    }
-
+  
   }
   previousPage(): void {
     if (this.p > 1) {
