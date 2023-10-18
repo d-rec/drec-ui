@@ -45,7 +45,7 @@ export class ApiUserPermissionComponent {
   p: number = 1;
   userId: number;
   showorg: boolean = false;
-  showuserdetails: boolean = false;
+  showuserdetails: boolean ;
   userdetails: any
   loginuser: any;
   apiuserlist: any;
@@ -67,8 +67,11 @@ export class ApiUserPermissionComponent {
     if (this.activatedRoute.snapshot.params['id']) {
       this.userId = this.activatedRoute.snapshot.params['id'];
       this.showgoback = true;
+      this.showuserdetails = true;
       this.getuserinfo();
 
+    }else{
+      this.showuserdetails = false;
     }
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -103,7 +106,7 @@ export class ApiUserPermissionComponent {
     this.userService.getuserById(this.userId).subscribe({
       next: data1 => {
         console.log(data1)
-        this.showuserdetails = true;
+        
         this.userdetails = data1
         this.permission_status = data1.permission_status
         this.getAllUserspermission();
