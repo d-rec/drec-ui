@@ -59,16 +59,17 @@ export class AdminAlldevicesComponent {
   totalRows = 0;
   filteredOptions: Observable<any[]>;
   filteredOptions1: Observable<any[]>;
-  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
+  offtaker = ['School', 'Education', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture', 'Utility', 'Off-Grid Community']
   endminDate = new Date();
   totalPages: number;
   subscription: Subscription;
   selectedCountry: any;
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
-  showorgerror:boolean=false;
+  showorgerror: boolean = false;
   showlist: boolean = false;
-  orglist:any;
+  orglist: any;
+  showapiuser_devices: boolean = false;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService, private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
@@ -76,7 +77,7 @@ export class AdminAlldevicesComponent {
     private toastrService: ToastrService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
-      organizationname:[],
+      organizationname: [],
       organizationId: [],
       countryCode: [],
       countryname: [],
@@ -92,6 +93,9 @@ export class AdminAlldevicesComponent {
     });
   }
   ngOnInit(): void {
+    if (this.loginuser.role === "ApiUser") {
+      this.showapiuser_devices = true;
+    }
     this.adminService.GetAllOrganization().subscribe(
       (data) => {
         //@ts-ignore
