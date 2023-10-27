@@ -131,14 +131,14 @@ export class LoginComponent implements OnInit {
             })
           } else {
             console.log("check your credentials !!")
-            this.toastrService.info('Message Failure!', 'check your credentials !!');
+            this.toastrService.info('Message Failure!', 'Check your credentials !!');
             this.router.navigate(['/login']);
           }
         },
         error: error => {                              //Error callback
           console.error('error caught in component', error)
           this.toastrService.error('Error:' + error.error.message +
-            ',check your credentials!', 'login Fail!!');
+            ',Check your credentials!', 'Login Fail!!');
         }
       }
       )
