@@ -7,6 +7,7 @@ import { AclModulePermissionComponent } from './acl-module-permission/acl-module
 import { UserpermissionComponent } from './add-userpermission/add-userpermission.component';
 import { EditPermissionComponent } from './edit-permission/edit-permission.component';
 import { ApiUserPermissionComponent } from './api-user-permission/api-user-permission.component';
+import { ApiuserPermissionFormComponent } from './apiuser-permission-form/apiuser-permission-form.component';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import { ApiUserPermissionComponent } from './api-user-permission/api-user-permi
     AclModulePermissionComponent,
     UserpermissionComponent,
     EditPermissionComponent,
-    ApiUserPermissionComponent
+    ApiUserPermissionComponent,
+    ApiuserPermissionFormComponent
     
   ],
   imports: [

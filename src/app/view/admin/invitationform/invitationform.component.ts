@@ -14,7 +14,7 @@ export class InvitationformComponent {
   title: string;
   message: string;
   inviteForm: FormGroup;
-  invitaionlist:any;
+  invitaionlist: any;
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   orgtype: any[] = [
     // { value: 'OrganizationAdmin', viewValue: 'Developer' },
@@ -77,21 +77,25 @@ export class InvitationformComponent {
 
   }
   onSubmit() {
-    this.inveiteService.Postuserinvitation(this.inviteForm.value,this.data.id).subscribe((response) => {
-      console.log(response);
-      if(response.success){
-        this.toastrService.success('Invitation Sent')
-        this.dialogRef.close()
+    this.inveiteService.Postuserinvitation(this.inviteForm.value, this.data.id).subscribe({
+      next: (response) => {
+        console.log(response);
+        if (response.success) {
+          this.toastrService.success('Invitation Sent')
+          this.dialogRef.close()
+        }
+      }, error: err => {
+        this.toastrService.success('Invitation Fail','Error:'+err.message)
       }
-    })
+    });
 
   }
-  getinvitationList(){
+  getinvitationList() {
     this.inveiteService.getinvitaion().subscribe({
-      next:data=>{
-        this.invitaionlist=data;
+      next: data => {
+        this.invitaionlist = data;
 
-      },error:err=>{
+      }, error: err => {
 
       }
     })

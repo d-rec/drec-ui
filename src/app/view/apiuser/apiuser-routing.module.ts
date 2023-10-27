@@ -14,6 +14,11 @@ const routes: Routes = [
   {
     path: 'All_devices', component: AdminAlldevicesComponent
   },
+  {
+    path: 'permission',
+    loadChildren: () =>
+      import('../permission/permission.module').then((m) => m.PermissionModule),
+  },
 ];
 
 @NgModule({

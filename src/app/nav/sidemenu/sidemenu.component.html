@@ -1,8 +1,11 @@
 <mat-sidenav-container class="example-container">
   <mat-sidenav #sidenav mode="side" opened class="example-sidenav">
     <mat-nav-list>
-
-
+      <div style="padding:10px 10px 10px 10px;">
+        <p style="padding:0px 0px 0px 10px;font-size: 15px;color: darkgoldenrod;">{{loginuser.email}}</p>
+        <p style="padding:0px 0px 0px 10px;font-size: 15px; color: darkgoldenrod;">{{loginuser.role}}</p>
+      </div>
+      <mat-divider></mat-divider>
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/admin/dashboard"
         *ngIf="loginuser.role ==='Admin' && !showmenu">
         <mat-icon>dashboard</mat-icon>
@@ -33,11 +36,11 @@
             <span>All Users</span>
           </a>
 
-          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/admin/All_apiusers"
-          *ngIf="loginuser.role ==='Admin'">
-           
+          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active"
+            routerLink="/admin/All_apiusers" *ngIf="loginuser.role ==='Admin'">
+
             <span>All ApiUser</span>
-        </a>
+          </a>
           <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active"
             routerLink="/organization/user/invitation" *ngIf="!showmenu &&  loginuser.role != 'Admin'||!'User'">
             <span> Invitation</span>
@@ -48,7 +51,8 @@
       <!--2st  -->
 
       <!--3rd  -->
-      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="!(loginuser.role == 'Buyer' || loginuser.role == 'SubBuyer')">
+      <mat-expansion-panel [class.mat-elevation-z0]="true"
+        *ngIf="!(loginuser.role == 'Buyer' || loginuser.role == 'SubBuyer')">
         <mat-expansion-panel-header class="mdc-button d-flex align-items-center">
           <mat-icon>devices</mat-icon>
           Device
@@ -84,7 +88,8 @@
 
       <!--4th  -->
 
-      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role != 'Buyer' && loginuser.role != 'SubBuyer'">
+      <mat-expansion-panel [class.mat-elevation-z0]="true"
+        *ngIf="loginuser.role != 'Buyer' && loginuser.role != 'SubBuyer'">
         <mat-expansion-panel-header class="mdc-button ">
           <mat-icon>list</mat-icon>
           MeterRead
@@ -155,41 +160,55 @@
             <span>User Role Permission </span>
           </a>
           <a mat-button class="menu-button max-height-content inside-menu-button" routerLinkActive="active"
-          routerLink="/admin/permission/api_user_role/list">
-          <!-- <mat-icon>list</mat-icon> -->
-          <span>ApiUser Permission </span>
-        </a>
+            routerLink="/admin/permission/api_user_role/list">
+            <!-- <mat-icon>list</mat-icon> -->
+            <span>ApiUser Permission </span>
+          </a>
+         
+        </mat-nav-list>
+      </mat-expansion-panel>
+      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role ==='ApiUser'">
+        <mat-expansion-panel-header class="mdc-button d-flex align-items-center">
+          <mat-icon>list</mat-icon>
+          Permission
+        </mat-expansion-panel-header>
+        <mat-nav-list class="p-0">
 
+          <a mat-button class="menu-button max-height-content inside-menu-button" routerLinkActive="active"
+            routerLink="/apiuser/permission/request/form">
+            <!-- <mat-icon>list</mat-icon> -->
+            <span>Permission Request</span>
+          </a>
         </mat-nav-list>
       </mat-expansion-panel>
 
       <!--6th  -->
 
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/myreservation"
-      *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'">
+        *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'||loginuser.role==='ApiUser'">
         <mat-icon>list</mat-icon>
-        <span>My Reservations</span>
+        <span>Reservations</span>
       </button>
       <!--6th  -->
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/All_certificate"
-        *ngIf="loginuser.role ==='Buyer' && !showmenu ||loginuser.role ==='SubBuyer' && !showmenu">
+        *ngIf="loginuser.role ==='Buyer' && !showmenu ||loginuser.role ==='SubBuyer' && !showmenu|| loginuser.role === 'ApiUser'&& !showmenu">
         <mat-icon>list</mat-icon>
         <span>Certificate</span>
       </button>
       <!--7th  -->
       <button mat-button class="menu-button text-start" routerLinkActive="active" routerLink="/redemption-report"
-      *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'">
+        *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'">
         <mat-icon>list</mat-icon>
         <span class="text-start">Redemption Report</span>
       </button>
       <!--8th  -->
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/add/reservation"
-      *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'">
+        *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer' || loginuser.role === 'ApiUser'">
         <mat-icon>add_circle</mat-icon>
         <span>Add Reservation</span>
       </button>
- <!--9th  -->
-      
+      <!--9th  -->
+
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header class="mdc-button ">
           <mat-icon>account_circle</mat-icon>
@@ -204,7 +223,7 @@
         </mat-nav-list>
       </mat-expansion-panel>
 
-      <mat-divider></mat-divider>
+
       <!-- <button class="menu-button" mat-button (click)="logout()"><mat-icon>power_settings_new</mat-icon>Logout</button> -->
     </mat-nav-list>
 
