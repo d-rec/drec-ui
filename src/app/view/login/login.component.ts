@@ -116,10 +116,13 @@ export class LoginComponent implements OnInit {
             sessionStorage.setItem('access-token', data["accessToken"]);
             let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
             console.log(jwtObj);
+            jwtObj['clientId']= this.clientid
+            jwtObj['clientSecret']=this.client_secret
             //sessionStorage.setItem('loginuser', jwtObj);
             sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
+           
             //var obj = JSON.parse(sessionStorage.loginuser);
-            this.userService.userProfile(this.clientid, this.client_secret).subscribe({
+            this.userService.userProfile().subscribe({
               next: data1 => {
                 console.log(data1)
                 sessionStorage.setItem('status', data1.status);

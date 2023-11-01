@@ -65,8 +65,7 @@ export class ApiuserPermissionFormComponent {
 
 
   isAllSelected() {
-    console.log("125")
-    console.log(this.selection.selected);
+   
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSource.data.length;
     return numSelected === numRows;
@@ -91,25 +90,35 @@ export class ApiuserPermissionFormComponent {
 
       let permissionrequest: any = []
       this.selection.selected.forEach(ele => {
-        permissionrequest.push({
-          "aclmodulesId": ele.id,
-          "permissions":ele.selectedPermissions
-        })
-      })
-      console.log(permissionrequest);
-      this.aclpermissionServcie.ApiUserPermissionRequest(permissionrequest, this.form.value.client_id, this.form.value.client_secret).subscribe({
-        next:data=>{
-          console.log(data)
-          this.toastrService.success('Successful','Request Sent')
-
-        },error:err=>{
-          this.toastrService.error('Error:'+err.error.message,'Request Fail')
+        if (ele.selectedPermissions.length === 0){
+          permissionrequest=[];
+        }else{
+          permissionrequest.push({
+            "aclmodulesId": ele.id,
+            "permissions":ele.selectedPermissions
+          })
         }
-
+       
       })
+      if(permissionrequest.length===0){
+        this.toastrService.warning('Warning','In selected module also need to select permission')
+      }else{
+        console.log(permissionrequest);
+        this.aclpermissionServcie.ApiUserPermissionRequest(permissionrequest, this.form.value.client_id, this.form.value.client_secret).subscribe({
+          next:data=>{
+            console.log(data)
+            this.toastrService.success('Successful','Request Sent')
+  
+          },error:err=>{
+            this.toastrService.error('Error:'+err.error.message,'Request Fail')
+          }
+  
+        })
+      }
+    
     
     } else {
-      this.toastrService.error('Please select at least one device', 'Validation Error!');
+      this.toastrService.error('Please select at least one module permission', 'Validation Error!');
     }
   }
 

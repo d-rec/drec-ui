@@ -16,8 +16,6 @@ export class SidemenuComponent implements OnInit{
    ngOnInit(){
     this.showmenu= environment.production;
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-    console.log(this.loginuser);
-   
    }
   logout(){
   

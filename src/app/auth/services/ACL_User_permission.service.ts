@@ -3,12 +3,12 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { YieldConfig } from '../../models/yieldvalue.model';
-
+import { getapiuser_header } from '../../utils/apiuser_clientinfo'
 @Injectable({
   providedIn: 'root'
 })
 export class ACLModulePermisionService {
-
+  headersData = getapiuser_header();
   constructor(private httpClient: HttpClient) { }
 
   /*  add ACL Module wise Permission*/
