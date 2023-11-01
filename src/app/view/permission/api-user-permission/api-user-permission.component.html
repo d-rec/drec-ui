@@ -10,59 +10,90 @@
                 </mat-card-title>
             </div>
             <div>
-                <button class="btn btn-dark justify-content-end px-4  align-items-center"  (click)="openupdate_permission_Dialog()"
-                  *ngIf="showorg && !fromselectid">
-                  <mat-icon class="align-middle me-2">add_circle</mat-icon>Update status</button>&nbsp;
-                <button class="btn btn-dark justify-content-end px-4  align-items-center" routerLink="/admin/All_apiusers"
-                  *ngIf="showgoback">
-                  <mat-icon class="align-middle me-2">arrow_back</mat-icon>Go Back</button>
-              </div>
-           
+                <button class="btn btn-dark justify-content-end px-4  align-items-center"
+                    (click)="openupdate_permission_Dialog()" *ngIf="showorg && !fromselectid">
+                    <mat-icon class="align-middle me-2">add_circle</mat-icon>Update status</button>&nbsp;
+                <button class="btn btn-dark justify-content-end px-4  align-items-center"
+                    routerLink="/admin/All_apiusers" *ngIf="showgoback">
+                    <mat-icon class="align-middle me-2">arrow_back</mat-icon>Go Back</button>
+            </div>
+
         </mat-card-header>
         <mat-card-content class="mat-body-cont text-center">
-          
+            <form [formGroup]="form" *ngIf="loginuser?.role==='ApiUser'&&showclientform">
+
+                <div class="example-container1 row" >
+                    <div class="col-md-3">
+
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Client Id</mat-label>
+                            <input matInput type="text" formControlName='client_id' autocomplete="off">
+
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Client Secret</mat-label>
+
+                            <input matInput type="text" formControlName='client_secret' autocomplete="off">
+                        </mat-form-field>
+                    </div>
+
+                </div>
+                <div class="example-container mb-3 me-2 row">
+                    <div class="col-12 d-flex justify-content-end">
+                      <button type="submit"  [disabled]="form.invalid" class="btn-primary btn text-capitalize px-4"
+                           (click)="submit()">Submit</button>
+   
+                   </div>
+               </div>
+            </form>
             <mat-card *ngIf="showuserdetails">
                 <mat-card-content>
-                  <h2 style="text-align: center;color:#f2be1a; font-size: 20px;" class="text-capitalize">
-                    <b>User Details</b>
-                  </h2>
-        
-                  <div class='content1'>
-                    <div class='column col-3'>
-                      <div class='row '>
-                        <p><b>  Name</b>:&nbsp;
-                          <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
-                          {{userdetails?.firstName}}  {{userdetails?.lastName}}
-                        </p>
-                      </div>
-                    </div>
-                    <div class='column col-3'>
-                      <div class='row'>
-                        <p><b>Role</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                          {{userdetails?.role}}</p>
-        
-                      </div>
-        
-                    </div>
-                    <div class='column col-3'>
-                      <div class='row'>
-                        <p><b>User Status</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                          {{userdetails?.status}}</p>
-                      </div>
-                    </div>
-        
-                    <div class='column col-3'>
-                        <div class='row'>
-                          <p><b>Permission Status</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                            {{userdetails?.permission_status
-                            }}</p>
+                
+                    <h2 style="text-align: center;color:#f2be1a; font-size: 20px;" class="text-capitalize">
+                        <b>User Details</b>
+                    </h2>
+
+                    <div class='content1'>
+                        <div class='column col-3'>
+                            <div class='row '>
+                                <p><b> Name</b>:&nbsp;
+                                    <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
+                                    {{userdetails?.firstName}} {{userdetails?.lastName}}
+                                </p>
+                            </div>
                         </div>
-                      </div>
-                  </div>
+                        <div class='column col-3'>
+                            <div class='row'>
+                                <p><b>Role</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                                    {{userdetails?.role}}</p>
+
+                            </div>
+
+                        </div>
+                        <div class='column col-3'>
+                            <div class='row'>
+                                <p><b>User
+                                        Status</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                                    {{userdetails?.status}}</p>
+                            </div>
+                        </div>
+
+                        <div class='column col-3'>
+                            <div class='row'>
+                                <p><b>Permission
+                                        Status</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                                    {{userdetails?.permission_status
+                                    }}</p>
+                            </div>
+                        </div>
+                    </div>
                 </mat-card-content>
                 <hr>
-              </mat-card>
-            <mat-card *ngIf="!showuserdetails">
+            </mat-card>
+            <mat-card *ngIf="!showuserdetails &&loginuser?.role!='ApiUser'">
                 <form [formGroup]="FilterForm">
                     <mat-card-content>
                         <h3 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize">Filter
@@ -76,12 +107,12 @@
                                     <!-- <input type="text" aria-label="text" matInput formControlName="organizationName"
                                         [matAutocomplete]="auto">
                                     <mat-autocomplete #auto="matAutocomplete" > -->
-                                        <!-- <mat-option [value]="">---</mat-option> -->
-                                        <mat-select formControlName='user_id' (ngModelChange)="selectOrg($event)">
+                                    <!-- <mat-option [value]="">---</mat-option> -->
+                                    <mat-select formControlName='user_id' (ngModelChange)="selectOrg($event)">
                                         <mat-option *ngFor="let user of apiuserlist" [value]="user.id">
                                             {{ user.firstName }} {{ user.lastName }}
                                         </mat-option>
-                                        </mat-select>
+                                    </mat-select>
 
                                 </mat-form-field>
                                 <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid

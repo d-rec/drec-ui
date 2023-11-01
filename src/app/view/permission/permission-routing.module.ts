@@ -11,7 +11,8 @@ const routes: Routes = [
   { path: 'user_role/list', component: UserpermissionComponent },
   { path: 'api_user_role/list', component: ApiUserPermissionComponent },
   { path: 'api_user_role/list/:id', component: ApiUserPermissionComponent },
-  { path: 'request/form', component: ApiuserPermissionFormComponent }
+  { path: 'request/form', component: ApiuserPermissionFormComponent },
+  { path: 'list', component: ApiUserPermissionComponent },
 
 ];
 

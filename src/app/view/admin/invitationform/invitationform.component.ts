@@ -82,10 +82,10 @@ export class InvitationformComponent {
         console.log(response);
         if (response.success) {
           this.toastrService.success('Invitation Sent')
-          this.dialogRef.close()
+          this.dialogRef.close(true)
         }
       }, error: err => {
-        this.toastrService.success('Invitation Fail','Error:'+err.message)
+        this.toastrService.error('Error:'+err.error.message,'Invitation Fail')
       }
     });
 

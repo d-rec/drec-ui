@@ -11,197 +11,74 @@
         <hr>
         <mat-card-content class="mat-body-cont">
             <div class="container">
-                <!-- form-array-table.component.html -->
-
+             
                 <div class="container">
-                    <!-- <form [formGroup]="form">
-                        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-                            <ng-container matColumnDef="select" sticky>
-                                <th>
-                                    <mat-header-cell *matHeaderCellDef>
-                                        <mat-checkbox color="primary" (change)="$event ? masterToggle() : null"
-                                            [checked]="selection.hasValue() && isAllSelected()"
-                                            [indeterminate]="selection.hasValue() && !isAllSelected()">
-                                        </mat-checkbox>
-                                    </mat-header-cell>
-                                </th>
-                                <td>
-                                    <mat-cell *cdkCellDef="let row">
-                                        <mat-checkbox color="primary" (click)="$event.stopPropagation()"
-                                            (change)="$event ? selection.toggle(row) : null"
-                                            [checked]="selection.isSelected(row)">
-                                        </mat-checkbox>
-                                    </mat-cell>
-                                </td>
-
-                            </ng-container>
-
-                            <ng-container matColumnDef="id">
-                                <th mat-header-cell *matHeaderCellDef>ID</th>
-                                <td mat-cell *matCellDef="let row; let i = index">{{datalist[i].id}}</td>
-                            </ng-container>
-
-                            <ng-container matColumnDef="moduleName">
-                                <th mat-header-cell *matHeaderCellDef>Module Name</th>
-                                <td mat-cell *matCellDef="let row; let i = index">{{datalist[i].name}}</td>
-                            </ng-container>
-
-                            <ng-container matColumnDef="permissions">
-                                <th mat-header-cell *matHeaderCellDef>Permissions</th>
-                                <td mat-cell *matCellDef="let row; let i = index">
-                                   
-                                        <label *ngFor="let permissions of row.permissions; let j = index">
-                                            <mat-checkbox   [value]="permissions"></mat-checkbox>
-                                            {{permissions}}</label>
-                                   
-                                </td>
-                            </ng-container>
-
-                            <tr mat-header-row *matHeaderRowDef="['select', 'id', 'moduleName', 'permissions']"></tr>
-                            <tr mat-row *matRowDef="let row; columns: ['select', 'id', 'moduleName', 'permissions'];">
-                            </tr>
-                        </table>
-                    </form> -->
-
-                    <!-- <form [formGroup]="form">
-                        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-                            <ng-container matColumnDef="select" sticky>
-                                <th>
-                                    <mat-header-cell *matHeaderCellDef>
-                                        <mat-checkbox color="primary" (change)="$event ? masterToggle() : null"
-                                            [checked]="selection.hasValue() && isAllSelected()"
-                                            [indeterminate]="selection.hasValue() && !isAllSelected()">
-                                        </mat-checkbox>
-                                    </mat-header-cell>
-                                </th>
-                                <td>
-                                    <mat-cell *cdkCellDef="let row">
-                                        <mat-checkbox color="primary" (click)="$event.stopPropagation()"
-                                            (change)="$event ? selection.toggle(row) : null"
-                                            [checked]="selection.isSelected(row)">
-                                        </mat-checkbox>
-                                    </mat-cell>
-                                </td>
-
-                            </ng-container>
-                          <ng-container matColumnDef="moduleId">
-                            <th mat-header-cell *matHeaderCellDef>Module Name</th>
-                            <td mat-cell *matCellDef="let element; let i = index">
-                             {{element.name}}
-                            </td>
-                          </ng-container>
-                          <ng-container matColumnDef="permissions">
-                            <th mat-header-cell *matHeaderCellDef>Permissions</th>
-                            <td mat-cell *matCellDef="let element; let i = index">
-                              <form [formGroup]="element">
-                                <label>
-                                  <input type="checkbox" formControlName="read"> Read
-                                </label>
-                                <label>
-                                  <input type="checkbox" formControlName="write"> Write
-                                </label>
-                                <label>
-                                  <input type="checkbox" formControlName="delete"> Delete
-                                </label>
-                                <label>
-                                  <input type="checkbox" formControlName="update"> Update
-                                </label>
-                               
-                              </form>
-                            </td>
-                          </ng-container>
-                          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-                        </table>
-                      </form> -->
-                      <!-- <form (ngSubmit)="onSubmit()">
-                        <table mat-table [dataSource]="formGroups">
-                            <ng-container matColumnDef="select" sticky>
-                                <th>
-                                    <mat-header-cell *matHeaderCellDef>
-                                        <mat-checkbox color="primary" (change)="$event ? masterToggle() : null"
-                                            [checked]="selection.hasValue() && isAllSelected()"
-                                            [indeterminate]="selection.hasValue() && !isAllSelected()">
-                                        </mat-checkbox>
-                                    </mat-header-cell>
-                                </th>
-                                <td>
-                                    <mat-cell *cdkCellDef="let row">
-                                        <mat-checkbox color="primary" (click)="$event.stopPropagation()"
-                                            (change)="$event ? selection.toggle(row) : null"
-                                            [checked]="selection.isSelected(row)">
-                                        </mat-checkbox>
-                                    </mat-cell>
-                                </td>
-
-                            </ng-container>
-                       
-                          <ng-container matColumnDef="name">
-                            <th mat-header-cell *matHeaderCellDef>Name</th>
-                            <td mat-cell *matCellDef="let formGroup">
-                              {{ formGroup.get('name').value }}
-                            </td>
-                          </ng-container>
+               
+                       <form [formGroup]="form">
+                        <div class="example-container1 row">
+                          <div class="col-md-3">
+      
+                              <mat-form-field appearance="outline">
+                                  <mat-label class="text-capitalize">Client Id</mat-label>
+                                  <input matInput type="text" formControlName='client_id' autocomplete="off">
+      
+                              </mat-form-field>
+                          </div>
+                          <div class="col-md-3">
+      
+                              <mat-form-field appearance="outline">
+                                  <mat-label class="text-capitalize">Client Secret</mat-label>
+      
+                                  <input matInput type="text" formControlName='client_secret' 
+                                      autocomplete="off">
+                              </mat-form-field>
+                          </div>
                          
-                          <ng-container matColumnDef="permissions">
-                            <th mat-header-cell *matHeaderCellDef>Select</th>
-                            <td mat-cell *matCellDef="let formGroup">
-                              <mat-checkbox formControlName="selected"></mat-checkbox>
-                            </td>
-                          </ng-container>
-                      
-                          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                          <tr mat-row *matRowDef="let formGroup; columns: displayedColumns"></tr>
-                        </table>
-                        <button type="submit" mat-raised-button color="primary">Submit</button>
-                      </form> -->
+                      </div>
+                       <table mat-table  [dataSource]="dataSource" class="mat-elevation-z8">
+                       
+                        <ng-container matColumnDef="select" sticky>
+                          <th>
+                              <mat-header-cell *matHeaderCellDef>
+                                  <mat-checkbox color="primary" (change)="$event ? masterToggle() : null"
+                                      [checked]="selection.hasValue() && isAllSelected()"
+                                      [indeterminate]="selection.hasValue() && !isAllSelected()">
+                                  </mat-checkbox>
+                              </mat-header-cell>
+                          </th>
+                          <td>
+                              <mat-cell *cdkCellDef="let row">
+                                  <mat-checkbox color="primary" (click)="$event.stopPropagation()"
+                                      (change)="$event ? selection.toggle(row) : null"
+                                      [checked]="selection.isSelected(row)">
+                                  </mat-checkbox>
+                              </mat-cell>
+                          </td>
 
-                      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-
-                        <!-- Select All Checkbox in Header -->
-                        <ng-container matColumnDef="selectAll">
-                           
-                                <th>
-                                    <mat-header-cell *matHeaderCellDef>
-                                        <mat-checkbox color="primary" (change)="$event ? masterToggle() : null"
-                                            [checked]="selection.hasValue() && isAllSelected()"
-                                            [indeterminate]="selection.hasValue() && !isAllSelected()">
-                                        </mat-checkbox>
-                                    </mat-header-cell>
-                                </th>
-                                <td>
-                                    <mat-cell *cdkCellDef="let row">
-                                        <mat-checkbox color="primary" (click)="$event.stopPropagation()"
-                                            (change)="$event ? selection.toggle(row) : null"
-                                            [checked]="selection.isSelected(row)">
-                                        </mat-checkbox>
-                                    </mat-cell>
-                                </td>
-
-                            
-                        </ng-container>
-                      
-                        <!-- Module Name Column -->
+                      </ng-container>
                         <ng-container matColumnDef="name">
-                          <th mat-header-cell *matHeaderCellDef> Module Name </th>
-                          <td mat-cell *matCellDef="let element"> {{ element.name }} </td>
-                        </ng-container>
-                      
-                        <!-- Permissions Column -->
-                        <ng-container matColumnDef="permissions">
-                          <th mat-header-cell *matHeaderCellDef> Permissions </th>
-                          <td mat-cell *matCellDef="let element; let i = index">
-                            <mat-checkbox *ngFor="let permission of element.permissions" [(ngModel)]="selectedPermissions[i]" [value]="permission">
-                              {{ permission }}
-                            </mat-checkbox>
+                          <th mat-header-cell *matHeaderCellDef>Module Name</th>
+                          <td mat-cell *matCellDef="let row">
+                            {{ row.name }}
                           </td>
                         </ng-container>
-                      
+                        <ng-container matColumnDef="permissions">
+                          <th mat-header-cell *matHeaderCellDef>Permissions</th>
+                          <td mat-cell *matCellDef="let row">
+                            <ng-container *ngFor="let permission of row.permissions; let j = index">
+                              <mat-checkbox color="primary"
+                                [checked]="row.selectedPermissions.includes(permission)"
+                                (change)="togglePermission(row, permission)"
+                              >
+                                {{ permission }}
+                              </mat-checkbox>
+                            </ng-container>
+                          </td>
+                        </ng-container>
                         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                       </table>
-                      
-
+                      </form>
                 </div>
 
             </div>
@@ -210,8 +87,8 @@
         <mat-card-footer>
             <div class="example-container mb-3 me-2 row">
                  <div class="col-12 d-flex justify-content-end">
-                   <button type="submit"  class="btn-primary btn text-capitalize px-4"
-                        (click)="onSubmit()">Submit</button>
+                   <button type="submit"  [disabled]="form.invalid" class="btn-primary btn text-capitalize px-4"
+                        (click)="submitPermissions()">Submit</button>
 
                 </div>
             </div>

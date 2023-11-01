@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient ,HttpHeaders} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -48,6 +48,18 @@ export class ACLModulePermisionService {
     return this.httpClient.get<any>(environment.API_URL + 'permission/role/' + id)
 
   }
+  ApiUserPermissionRequest(data:any,client_id?: string, client_secret?: string):Observable<any>
+{ let headers;
+  if (client_id != undefined && client_secret != undefined) {
+    headers = new HttpHeaders({
+
+      "client_id": client_id,
+      "client_secret": client_secret
+    });
+  }
+  return this.httpClient.post<any>(environment.API_URL + 'permission/module/apiuser/request',data,{ headers })
+
+}
   public updateUserpermissionByAdmin(id: any, data: any): Observable<any> {
     return this.httpClient.put<any>(environment.API_URL + 'permission/module/verify/ByAdmin/' + id, data)
 

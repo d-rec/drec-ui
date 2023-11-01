@@ -11,27 +11,44 @@ export class UserService {
   constructor(private httpClient: HttpClient) { }
 
   public UserConfirmEmail(token: any): Observable<any> {
-    return this.httpClient.put<any>(this.url + 'user/confirm-email/' + token,{});
+    return this.httpClient.put<any>(this.url + 'user/confirm-email/' + token, {});
   }
   public UserForgetPassword(data: any): Observable<any> {
-    return this.httpClient.post<any>(this.url + 'user/forget-password' ,data);
+    return this.httpClient.post<any>(this.url + 'user/forget-password', data);
   }
-  public UserResetPassword(token:any,data: any): Observable<any> {
-    return this.httpClient.put<any>(this.url + 'user/reset/password/'+token ,data);
+  public UserResetPassword(token: any, data: any): Observable<any> {
+    return this.httpClient.put<any>(this.url + 'user/reset/password/' + token, data);
   }
-  public userProfile():Observable<any>{
-    return this.httpClient.get<any>(this.url+'user/me')
+  public userProfile(client_id?: string, client_secret?: string): Observable<any> {
+    let headers;
+    if (client_id != undefined && client_secret != undefined) {
+      headers = new HttpHeaders({
+
+        "client_id": client_id,
+        "client_secret": client_secret
+      });
+    }
+
+    return this.httpClient.get<any>(this.url + 'user/me', { headers })
   }
-  public updatProfile(data:any):Observable<any>{
-    return this.httpClient.put<any>(this.url+'user/profile',data)
+  public updatProfile(data: any): Observable<any> {
+    return this.httpClient.put<any>(this.url + 'user/profile', data)
   }
-  public updatPassword(data:any):Observable<any>{
-    return this.httpClient.put<any>(this.url+'user/profile',data)
+  public updatPassword(data: any): Observable<any> {
+    return this.httpClient.put<any>(this.url + 'user/profile', data)
   }
-  public resetPassword(token:any,data:any):Observable<any>{
-    return this.httpClient.put<any>(this.url+'user/reset/password/'+token,data)
+  public resetPassword(token: any, data: any): Observable<any> {
+    return this.httpClient.put<any>(this.url + 'user/reset/password/' + token, data)
   }
-  public getuserById(id:number):Observable<any>{
-    return this.httpClient.get<any>(this.url+'user/'+id)
+  public getuserById(id: number,client_id?: string, client_secret?: string): Observable<any> {
+    let headers;
+    if (client_id != undefined && client_secret != undefined) {
+      headers = new HttpHeaders({
+
+        "client_id": client_id,
+        "client_secret": client_secret
+      });
+    }
+    return this.httpClient.get<any>(this.url + 'user/' + id,{ headers })
   }
 }

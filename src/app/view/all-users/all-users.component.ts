@@ -300,6 +300,7 @@ export class AllUsersComponent {
       if (result === true) {
         // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
         //this.deleteDevice(device.id)
+        this.p=1;
         this.getAllUsers(this.p);
       }
     });
