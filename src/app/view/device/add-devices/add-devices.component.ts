@@ -91,7 +91,21 @@ export class AddDevicesComponent {
           this.date = new Date();
         }
       );
+    }else if (this.loginuser.role === 'ApiUser') { 
+      this.adminService.GetApiUserAllOrganization().subscribe(
+        (data) => {
+          //@ts-ignore
+          this.orglist =   data.organizations.filter(org => org.organizationType != "Buyer");
+          console.log(this.orglist)
+         // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
+          this.filteredOrgList = this.orglist;
+          // Once data is loaded, call any other functions that depend on it
+         
+          this.date = new Date();
+        }
+      );
     }
+
     this.DisplayList();
     this.DisplaySDGBList();
     this.DisplayfuelList();
@@ -355,6 +369,9 @@ export class AddDevicesComponent {
         },
         error: err => {                          //Error callback
           console.error('error caught in component', err.error.message)
+          if (err.error.statusCode === 403) {
+            this.toastrService.error('You are Unauthorized')
+          }
           this.toastrService.error('some error occurred in add due to ' + err.error.message, 'Device!' + element.externalId,);
         }
       });

@@ -296,8 +296,25 @@ export class AdminAlldevicesComponent {
     this.deviceurl = 'device?';
 
     //this.FilterForm.controls['pagenumber'].setValue(page);
-    this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe(
-      (data) => {
+    // this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe(
+    //   (data) => {
+    //     console.log(data)
+    //     this.showlist = true
+    //     //@ts-ignore
+    //     if (data.devices) {
+    //       this.loading = false;
+    //       //@ts-ignore
+    //       this.data = data;
+    //       this.DisplayList()
+    //     }
+    //   }, error => {
+    //     console.log(error);
+    //     this.data = [];
+    //     this.showlist = false
+    //   }
+    // )
+    this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe({
+      next: data => {
         console.log(data)
         this.showlist = true
         //@ts-ignore
@@ -307,12 +324,15 @@ export class AdminAlldevicesComponent {
           this.data = data;
           this.DisplayList()
         }
-      }, error => {
-        console.log(error);
+      }, error: err => {
+        console.log(err);
+        if (err.error.statusCode === 403) {
+          this.toastrService.error('You are Unauthorized')
+        }
         this.data = [];
         this.showlist = false
       }
-    )
+    })
   }
 
   DisplayList() {

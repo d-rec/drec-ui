@@ -3,7 +3,7 @@
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit,Inject, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -14,7 +14,7 @@ import { DeviceService } from '../../../auth/services/device.service';
 import { Router } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { MatDialog, MatDialogRef, MatDialogModule,MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { DeviceDetailsComponent } from '../device-details/device-details.component'
 import { ToastrService } from 'ngx-toastr';
@@ -57,7 +57,7 @@ export class AlldevicesComponent {
   p: number = 1;
   totalRows = 0;
   filteredOptions: Observable<any[]>;
-  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
+  offtaker = ['School', 'Education', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture', 'Utility', 'Off-Grid Community']
   endminDate = new Date();
   totalPages: number;
   subscription: Subscription;
@@ -241,8 +241,8 @@ export class AlldevicesComponent {
     this.deviceurl = 'device/my?';
 
     //this.FilterForm.controls['pagenumber'].setValue(page);
-    this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe(
-      (data) => {
+    this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe({
+      next: data => {
         console.log(data)
         this.showlist = true
         //@ts-ignore
@@ -252,12 +252,17 @@ export class AlldevicesComponent {
           this.data = data;
           this.DisplayList()
         }
-      }, error => {
-        console.log(error);
+      }, error: err => {
+        console.log(err);
+        if(err.error.statusCode==='403'){
+this.toastrService.error('You are Unauthorized')
+        }
         this.data = [];
         this.showlist = false
       }
-    )
+    })
+
+
   }
 
   DisplayList() {
@@ -379,6 +384,6 @@ export class ConfirmDialogComponent {
   title: string;
   message: string;
   constructor(public dialogRef: MatDialogRef<ConfirmDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: any) { }
+    @Inject(MAT_DIALOG_DATA) public data: any) { }
 }
 

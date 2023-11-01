@@ -4,12 +4,15 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { Device } from '../../models/device.model';
+import { getapiuser_header } from '../../utils/apiuser_clientinfo'
 @Injectable({
   providedIn: 'root'
 })
 export class DeviceService {
 
   url: String = environment.API_URL;
+   headersData = getapiuser_header();
+  // headers:HttpHeaders  = new HttpHeaders(this.headersData);
   constructor(private httpClient: HttpClient) { }
   GetDevicesForAdmin(): Observable<any> {
     return this.httpClient.get(this.url + 'device')
@@ -74,7 +77,8 @@ export class DeviceService {
     return this.httpClient.get(this.url + 'device/externalId/' + externalid)
   }
   public Postdevices(data: any): Observable<any> {
-    return this.httpClient.post<any>(this.url + 'device', data)
+   let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.post<any>(this.url + 'device', data,{headers})
 
   }
   public Patchdevices(id: any, data: any): Observable<any> {

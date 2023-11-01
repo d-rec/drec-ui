@@ -207,11 +207,11 @@ export class RegisterComponent implements OnInit {
               //sessionStorage.setItem('loginuser', jwtObj);
               sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
               //var obj = JSON.parse(sessionStorage.loginuser);
-              this.userService.userProfile(this.response.client_id, this.response.client_secret).subscribe({
+              this.userService.userProfile().subscribe({
                 next:(data1:any)  => {
                   console.log(data1)
                   sessionStorage.setItem('status', data1.status);
-                  this.router.navigate(['/apiuser/All_devices']);
+                  this.router.navigate(['/apiuser/permission/request/forms']);
 
                 }, error: (err:any) => {
                   this.toastrService.error('Error!', err.error.message);

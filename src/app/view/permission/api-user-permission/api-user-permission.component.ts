@@ -58,7 +58,7 @@ export class ApiUserPermissionComponent {
   client_id: string;
   client_secret: string;
   form: FormGroup;
-  showclientform:boolean=true
+  showclientform: boolean = true
   constructor(private userService: UserService,
     private orgService: OrganizationService,
     private adminService: AdminService,
@@ -76,7 +76,17 @@ export class ApiUserPermissionComponent {
       this.getuserinfo();
 
     } else if (this.loginuser.role === 'ApiUser') {
-      // this.showuserdetails = true;
+      this.userId = this.loginuser.id;
+      this.showuserdetails = true;
+      this.userService.userProfile().subscribe({
+        next: data1 => {
+          console.log(data1)
+          this.showclientform = false;
+          this.userdetails = data1
+          this.permission_status = data1.permission_status
+          this.getAllUserspermission();
+        }
+      })
     }
     else {
       this.showuserdetails = false;
@@ -186,10 +196,10 @@ export class ApiUserPermissionComponent {
 
     this.userId = this.loginuser.id;
     this.showuserdetails = true;
-    this.userService.userProfile( this.form.value.client_id, this.form.value.client_secret).subscribe({
+    this.userService.userProfile().subscribe({
       next: data1 => {
         console.log(data1)
-        this.showclientform=false;
+        this.showclientform = false;
         this.userdetails = data1
         this.permission_status = data1.permission_status
         this.getAllUserspermission();
@@ -199,7 +209,7 @@ export class ApiUserPermissionComponent {
   getAllUserspermission() {
     const limit = 20;
     this.loading = true
-    if (this.loginuser.role === "Admin" ) {
+    if (this.loginuser.role === "Admin") {
       console.log(this.FilterForm.value);
       this.userpermissionService.getUserpermission(this.FilterForm.value).subscribe((data) => {
         console.log(data)
@@ -221,16 +231,16 @@ export class ApiUserPermissionComponent {
       })
 
 
-    }else if(this.loginuser.role === "ApiUser"){
+    } else if (this.loginuser.role === "ApiUser") {
       console.log(this.FilterForm.value);
-      const data={
+      const data = {
         user_id: this.userId
       }
       this.userpermissionService.getUserpermission(data).subscribe((data) => {
         console.log(data)
         this.loading = false
         if (data.length > 0) {
-        //this.showorg = true;
+          //this.showorg = true;
 
           this.showlist = true
 
@@ -247,7 +257,7 @@ export class ApiUserPermissionComponent {
 
     }
   }
- 
+
   openupdate_permission_Dialog() {
     const confirmDialog = this.dialog.open(PermissionUpdateComponent, {
       data: {
