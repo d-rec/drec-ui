@@ -1,4 +1,4 @@
-import { FormBuilder, FormGroup, FormControl, ReactiveFormsModule, FormsModule, } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl, ReactiveFormsModule, FormsModule, } from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, Inject, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
@@ -45,7 +45,7 @@ export class ApiUserPermissionComponent {
   p: number = 1;
   userId: number;
   showorg: boolean = false;
-  showuserdetails: boolean ;
+  showuserdetails: boolean;
   userdetails: any
   loginuser: any;
   apiuserlist: any;
@@ -54,7 +54,11 @@ export class ApiUserPermissionComponent {
   subscription: Subscription;
   showerror: boolean = false;
   permission_status: string;
-  fromselectid:boolean=false;
+  fromselectid: boolean = false;
+  client_id: string;
+  client_secret: string;
+  form: FormGroup;
+  showclientform:boolean=true
   constructor(private userService: UserService,
     private orgService: OrganizationService,
     private adminService: AdminService,
@@ -64,24 +68,35 @@ export class ApiUserPermissionComponent {
     private dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
     private toastrService: ToastrService) {
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     if (this.activatedRoute.snapshot.params['id']) {
       this.userId = this.activatedRoute.snapshot.params['id'];
       this.showgoback = true;
       this.showuserdetails = true;
       this.getuserinfo();
 
-    }else{
+    } else if (this.loginuser.role === 'ApiUser') {
+      // this.showuserdetails = true;
+    }
+    else {
       this.showuserdetails = false;
     }
-    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+
+    console.log(this.loginuser);
   }
   ngOnInit() {
+
+    this.form = this.formBuilder.group({
+      client_id: [null, Validators.required],
+      client_secret: [null, Validators.required],
+    });
     this.FilterForm = this.formBuilder.group({
       user_id: [this.userId],
       organizationName: [this.userId],
 
       //pagenumber: [this.p]
     });
+
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllApiUsers().subscribe(
         (data) => {
@@ -102,11 +117,13 @@ export class ApiUserPermissionComponent {
     // }, 2000)
 
   }
-  getuserinfo(){
+  getuserinfo() {
+
+
     this.userService.getuserById(this.userId).subscribe({
       next: data1 => {
         console.log(data1)
-        
+
         this.userdetails = data1
         this.permission_status = data1.permission_status
         this.getAllUserspermission();
@@ -148,7 +165,7 @@ export class ApiUserPermissionComponent {
     //   const selectedorg = options.find(option => option.id === event.option.value);
     //   console.log(selectedorg);
     //   if (selectedorg) {
-        this.fromselectid=true;
+    this.fromselectid = true;
     //     this.FilterForm.controls['user_id'].setValue(selectedorg.id);
     //     this.FilterForm.controls['organizationName'].setValue(selectedorg.firstName);
 
@@ -165,10 +182,24 @@ export class ApiUserPermissionComponent {
     this.showlist = false;
     // this.getAllUserspermission(this.p);
   }
+  submit() {
+
+    this.userId = this.loginuser.id;
+    this.showuserdetails = true;
+    this.userService.userProfile( this.form.value.client_id, this.form.value.client_secret).subscribe({
+      next: data1 => {
+        console.log(data1)
+        this.showclientform=false;
+        this.userdetails = data1
+        this.permission_status = data1.permission_status
+        this.getAllUserspermission();
+      }
+    })
+  }
   getAllUserspermission() {
     const limit = 20;
     this.loading = true
-    if (this.loginuser.role === "Admin") {
+    if (this.loginuser.role === "Admin" ) {
       console.log(this.FilterForm.value);
       this.userpermissionService.getUserpermission(this.FilterForm.value).subscribe((data) => {
         console.log(data)
@@ -177,7 +208,7 @@ export class ApiUserPermissionComponent {
           this.showorg = true;
 
           this.showlist = true
-         
+
           //@ts-ignore
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');
           console.log(this.data);
@@ -190,9 +221,33 @@ export class ApiUserPermissionComponent {
       })
 
 
+    }else if(this.loginuser.role === "ApiUser"){
+      console.log(this.FilterForm.value);
+      const data={
+        user_id: this.userId
+      }
+      this.userpermissionService.getUserpermission(data).subscribe((data) => {
+        console.log(data)
+        this.loading = false
+        if (data.length > 0) {
+        //this.showorg = true;
+
+          this.showlist = true
+
+          //@ts-ignore
+          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+          console.log(this.data);
+          this.dataSource = new MatTableDataSource(this.data);
+          this.totalRows = this.data.totalCount
+          console.log(this.totalRows);
+          this.totalPages = this.data.totalPages
+        }
+
+      })
+
     }
   }
-
+ 
   openupdate_permission_Dialog() {
     const confirmDialog = this.dialog.open(PermissionUpdateComponent, {
       data: {

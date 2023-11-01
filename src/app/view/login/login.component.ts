@@ -61,7 +61,7 @@ export class LoginComponent implements OnInit {
                     console.log("50developer")
                     this.router.navigate(['/device/AllList']);
                   }
-                  this.toastrService.success('login user ' + jwtObj.email + '!', 'login Success');
+                  this.toastrService.success('Login user ' + jwtObj.email + '!', 'Login Success');
                 } else {
 
                   this.inviteservice.getinvitaion().subscribe({
@@ -83,7 +83,7 @@ export class LoginComponent implements OnInit {
                       }).subscribe({
                         next: data => {
                           console.log(data);
-                          this.toastrService.success('accept sucessful!', 'Invitation ');
+                          this.toastrService.success('Accept Sucessful!', 'Invitation ');
                           this.onSubmit();
                         }
                       })
@@ -99,13 +99,13 @@ export class LoginComponent implements OnInit {
             })
           } else {
             console.log("check your credentials !!")
-            this.toastrService.info('Message Failure!', 'check your credentials !!');
+            this.toastrService.info('Message Failure!', 'Check Your Credentials !!');
             this.router.navigate(['/login']);
           }
         },
         (error) => {                              //Error callback
           console.error('error caught in component', error)
-          this.toastrService.error('check your credentials!', 'login Fail!!');
+          this.toastrService.error('Check Your Credential!', 'Login Fail!!');
         }
       )
     } else if (this.selectedOption === "Form2") {
@@ -119,7 +119,7 @@ export class LoginComponent implements OnInit {
             //sessionStorage.setItem('loginuser', jwtObj);
             sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
             //var obj = JSON.parse(sessionStorage.loginuser);
-            this.userService.userProfile().subscribe({
+            this.userService.userProfile(this.clientid, this.client_secret).subscribe({
               next: data1 => {
                 console.log(data1)
                 sessionStorage.setItem('status', data1.status);
