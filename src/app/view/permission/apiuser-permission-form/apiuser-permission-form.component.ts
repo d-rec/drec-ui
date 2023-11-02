@@ -7,7 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatCheckboxChange } from "@angular/material/checkbox";
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-apiuser-permission-form',
   templateUrl: './apiuser-permission-form.component.html',
@@ -20,9 +20,11 @@ export class ApiuserPermissionFormComponent {
   selectedModules: any[] = [];
   displayedColumns: string[] = ['select', 'name', 'permissions'];
   dataSource: MatTableDataSource<any>;
+  
   constructor(private fb: FormBuilder,
     private toastrService: ToastrService,
-    private aclpermissionServcie: ACLModulePermisionService) {
+    private aclpermissionServcie: ACLModulePermisionService,
+    private router: Router) {
 
 
     this.form = this.fb.group({
@@ -107,8 +109,10 @@ export class ApiuserPermissionFormComponent {
         this.aclpermissionServcie.ApiUserPermissionRequest(permissionrequest, this.form.value.client_id, this.form.value.client_secret).subscribe({
           next:data=>{
             console.log(data)
+            this.form.reset();
+            this.selection.clear();
             this.toastrService.success('Successful','Request Sent')
-  
+            this.router.navigate(['/apiuser/permission/list']);
           },error:err=>{
             this.toastrService.error('Error:'+err.error.message,'Request Fail')
           }

@@ -68,6 +68,7 @@
                             <ng-container *ngFor="let permission of row.permissions; let j = index">
                               <mat-checkbox color="primary"
                                 [checked]="row.selectedPermissions.includes(permission)"
+                                [disabled]="!selection.isSelected(row)"
                                 (change)="togglePermission(row, permission)"
                               >
                                 {{ permission }}

@@ -23,7 +23,7 @@ export class UserService {
   }
   public userProfile(): Observable<any> {
     let headers = new HttpHeaders(this.headersData);
-   
+   console.log(headers)
     return this.httpClient.get<any>(this.url + 'user/me', { headers })
   }
   public updatProfile(data: any): Observable<any> {
