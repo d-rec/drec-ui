@@ -1,7 +1,7 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { AuthbaseService } from '../../../auth/authbase.service';
-import { DeviceService, AdminService } from '../../../auth/services';
+import { DeviceService, AdminService,OrganizationService } from '../../../auth/services';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, Subscription } from 'rxjs';
@@ -50,7 +50,8 @@ export class AddDevicesComponent {
     private deviceService: DeviceService,
     private router: Router,
     private toastrService: ToastrService,
-    private adminService: AdminService) {
+    private adminService: AdminService,
+    private orgService: OrganizationService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
 
@@ -92,7 +93,7 @@ export class AddDevicesComponent {
         }
       );
     }else if (this.loginuser.role === 'ApiUser') { 
-      this.adminService.GetApiUserAllOrganization().subscribe(
+      this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
           //@ts-ignore
           this.orglist =   data.organizations.filter(org => org.organizationType != "Buyer");

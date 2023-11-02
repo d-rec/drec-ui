@@ -63,8 +63,8 @@ export class DeviceService {
         searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
       }
     }
-
-    return this.httpClient.get(searchUrl);
+    let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.get(searchUrl,{headers});
 
   }
   GetDevicesInfo(id: number): Observable<Device> {
