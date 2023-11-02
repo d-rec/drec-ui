@@ -289,7 +289,7 @@ export class PermissionUpdateComponent {
   title: string;
   message: string;
   permistion_updateForm: FormGroup;
-  Permissionstatus: any = ['Process', 'Active', 'Deactive']
+  Permissionstatus: any = [ 'Active', 'Deactive']
   api_userId: string;
   constructor(public dialogRef: MatDialogRef<PermissionUpdateComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -308,6 +308,7 @@ export class PermissionUpdateComponent {
     this.aclmoduleService.updateUserpermissionByAdmin(this.api_userId, this.permistion_updateForm.value).subscribe({
       next: data => {
         if (data) {
+
           this.toastrService.success('permission update Successfull')
         }
       }, error: err => {

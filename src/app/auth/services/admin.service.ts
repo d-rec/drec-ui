@@ -26,21 +26,7 @@ export class AdminService {
     }
     return this.httpClient.get<any>(searchUrl);
   }
-  public GetApiUserAllOrganization(pagenumber?: number, limit?: number, searchData?: any): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    let searchUrl = `${this.url}Organization/apiuser/all_organization`;
-    if (pagenumber != undefined && limit != undefined) {
-      if (!(typeof pagenumber === undefined || pagenumber === null)) {
-        searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;
-      }
-    }
-    if (searchData != undefined) {
-      if (!(typeof searchData.organizationName === undefined || searchData.organizationName === "" || searchData.organizationName === null)) {
-        searchUrl += `&organizationName=${searchData.organizationName}`;
-      }
-    }
-    return this.httpClient.get<any>(searchUrl,{headers});
-  }
+ 
   public GetOrganizationById(orgId: number): Observable<any> {
     return this.httpClient.get<any>(this.url + 'admin/organizations/' + orgId);
   }
