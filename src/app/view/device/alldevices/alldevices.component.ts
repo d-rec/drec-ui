@@ -254,8 +254,8 @@ export class AlldevicesComponent {
         }
       }, error: err => {
         console.log(err);
-        if(err.error.statusCode==='403'){
-this.toastrService.error('You are Unauthorized')
+        if (err.error.statusCode === '403') {
+          this.toastrService.error('You are Unauthorized')
         }
         this.data = [];
         this.showlist = false
