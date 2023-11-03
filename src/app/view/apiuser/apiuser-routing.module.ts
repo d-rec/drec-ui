@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import {AdminAlldevicesComponent} from '../admin/admin-alldevices/admin-alldevices.component';
+import {AlldevicesComponent} from '../device/alldevices/alldevices.component';
 import {AllUsersComponent} from '../all-users/all-users.component';
 const routes: Routes = [
 
@@ -12,7 +12,7 @@ const routes: Routes = [
     path: 'All_users', component: AllUsersComponent
   },
   {
-    path: 'All_devices', component: AdminAlldevicesComponent
+    path: 'All_devices', component: AlldevicesComponent
   },
   {
     path: 'permission',
