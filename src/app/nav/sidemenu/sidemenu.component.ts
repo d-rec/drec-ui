@@ -1,4 +1,4 @@
-import { Component,OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 @Component({
@@ -6,21 +6,27 @@ import { environment } from '../../../environments/environment';
   templateUrl: './sidemenu.component.html',
   styleUrls: ['./sidemenu.component.scss']
 })
-export class SidemenuComponent implements OnInit{
-  loginuser:any;
+export class SidemenuComponent implements OnInit {
+  loginuser: any;
   showmenu: Boolean;
-  constructor(  private router: Router) {
-  
+  devcieurl: string;
+  constructor(private router: Router) {
 
-   }
-   ngOnInit(){
-    this.showmenu= environment.production;
+
+  }
+  ngOnInit() {
+    this.showmenu = environment.production;
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-   }
-  logout(){
-  
+    if (this.loginuser?.role === 'ApiUser') {
+      this.devcieurl ='/apiuser/All_devices'
+    } else {
+      this.devcieurl ='/device/AllList'
+    }
+  }
+  logout() {
+
     sessionStorage.clear();
-     this.router.navigate(['/login']);
- 
-}
+    this.router.navigate(['/login']);
+
+  }
 }

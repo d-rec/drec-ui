@@ -67,7 +67,7 @@
             <!-- <mat-icon>list</mat-icon> -->
             <span>All Devices</span>
           </button>
-          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/device/AllList"
+          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink={{devcieurl}}
             *ngIf="loginuser.role === 'OrganizationAdmin' || loginuser.role === 'User' || loginuser.role !== 'Admin'">
             <!-- <mat-icon>list</mat-icon> -->
             <span>My Devices</span>

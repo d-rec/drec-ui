@@ -203,14 +203,10 @@ export class RegisterComponent implements OnInit {
             if (data["accessToken"] != null) {
               sessionStorage.setItem('access-token', data["accessToken"]);
               let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
-             
               jwtObj['clientId']= this.response.client_id
-              jwtObj['clientSecret']=this.response.client_secret
-              console.log(jwtObj);
-              //sessionStorage.setItem('loginuser', jwtObj);
+              jwtObj['clientSecret']=this.response.client_secret     
               sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-              //var obj = JSON.parse(sessionStorage.loginuser);
-              this.userService.userProfile().subscribe({
+              this.userService.userProfile(this.response.client_id, this.response.client_secret).subscribe({
                 next:(data1:any)  => {
                   console.log(data1)
                   sessionStorage.setItem('status', data1.status);

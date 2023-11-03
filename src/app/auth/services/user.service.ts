@@ -21,9 +21,20 @@ export class UserService {
   public UserResetPassword(token: any, data: any): Observable<any> {
     return this.httpClient.put<any>(this.url + 'user/reset/password/' + token, data);
   }
-  public userProfile(): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-   console.log(headers)
+  public userProfile(client_id?: string, client_secret?: string): Observable<any> {
+
+    let headers: HttpHeaders;
+    if (client_id != undefined && client_secret != undefined) {
+      headers = new HttpHeaders({
+
+        "client_id": client_id,
+        "client_secret": client_secret
+      });
+    } else {
+
+      headers = new HttpHeaders(this.headersData);
+    }
+    console.log(headers)
     return this.httpClient.get<any>(this.url + 'user/me', { headers })
   }
   public updatProfile(data: any): Observable<any> {
@@ -35,7 +46,7 @@ export class UserService {
   public resetPassword(token: any, data: any): Observable<any> {
     return this.httpClient.put<any>(this.url + 'user/reset/password/' + token, data)
   }
-  public getuserById(id: number,client_id?: string, client_secret?: string): Observable<any> {
+  public getuserById(id: number, client_id?: string, client_secret?: string): Observable<any> {
     let headers;
     if (client_id != undefined && client_secret != undefined) {
       headers = new HttpHeaders({
@@ -44,6 +55,6 @@ export class UserService {
         "client_secret": client_secret
       });
     }
-    return this.httpClient.get<any>(this.url + 'user/' + id,{ headers })
+    return this.httpClient.get<any>(this.url + 'user/' + id, { headers })
   }
 }

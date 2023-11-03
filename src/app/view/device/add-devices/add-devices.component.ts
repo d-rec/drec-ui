@@ -1,7 +1,7 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { AuthbaseService } from '../../../auth/authbase.service';
-import { DeviceService, AdminService,OrganizationService } from '../../../auth/services';
+import { DeviceService, AdminService, OrganizationService } from '../../../auth/services';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, Subscription } from 'rxjs';
@@ -44,7 +44,7 @@ export class AddDevicesComponent {
   //public color: ThemePalette = 'primary';
   orgname: string;
   orgId: number;
-  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
+  offtaker = ['School', 'Education', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture', 'Utility', 'Off-Grid Community']
   devicedescription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
   constructor(private fb: FormBuilder, private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -63,10 +63,10 @@ export class AddDevicesComponent {
     this.showaddmore[0] = true;
     this.showerror[0] = false;
     this.shownomore[0] = false;
-   
-  
+
+
     setTimeout(() => {
-      this.setupCountryAutocomplete(0); 
+      this.setupCountryAutocomplete(0);
       //this.filteredOrgList = this.orglist;
       // Call it with the appropriate index
     }, 1500);
@@ -83,25 +83,25 @@ export class AddDevicesComponent {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
           //@ts-ignore
-          this.orglist =   data.organizations.filter(org => org.organizationType != "Buyer");
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
           console.log(this.orglist)
-         // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
+          // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
           // Once data is loaded, call any other functions that depend on it
-         
+
           this.date = new Date();
         }
       );
-    }else if (this.loginuser.role === 'ApiUser') { 
+    } else if (this.loginuser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
           //@ts-ignore
-          this.orglist =   data.organizations.filter(org => org.organizationType != "Buyer");
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
           console.log(this.orglist)
-         // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
+          // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
           // Once data is loaded, call any other functions that depend on it
-         
+
           this.date = new Date();
         }
       );
@@ -115,23 +115,23 @@ export class AddDevicesComponent {
   }
   filterOrgList() {
     console.log("99")
-    this.filteredOrgList = this.orglist.filter((org:any )=> {
-     
-        return org.name.toLowerCase().includes(this.orgname.toLowerCase());
-       
-      
-      
+    this.filteredOrgList = this.orglist.filter((org: any) => {
+
+      return org.name.toLowerCase().includes(this.orgname.toLowerCase());
+
+
+
     });
   }
   selectOrg(event: any) {
     console.log(event)
 
     //@ts-ignore
-      const selectedCountry = this.orglist.find(option => option.name === event.option.value);
-      if (selectedCountry) {
-        this.orgId=selectedCountry.id;
-      }
-   
+    const selectedCountry = this.orglist.find(option => option.name === event.option.value);
+    if (selectedCountry) {
+      this.orgId = selectedCountry.id;
+    }
+
   }
   private initializeForm() {
     this.myform = this.fb.group({
@@ -166,14 +166,14 @@ export class AddDevicesComponent {
 
     // Other form initialization code
   }
-  
+
   private setupCountryAutocomplete(index: number) {
     this.filteredCountryList[index] = this.getCountryCodeControl(index).valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '', index))
     );
   }
-  
+
   get deviceForms() {
     return this.myform.get('devices') as FormArray
   }
@@ -298,7 +298,7 @@ export class AddDevicesComponent {
     return this.countrylist.filter(code => code.country.toLowerCase().includes(filterValue));
   }
 
- 
+
   addmore(i: number) {
     this.addmoredetals[i] = true;
     this.shownomore[i] = true;
@@ -359,13 +359,13 @@ export class AddDevicesComponent {
           // Check if formDataArray is empty
           if (deviceArray.length === 0) {
             // Navigate to the list UI page
-            if(this.loginuser.role==='Admin'){
+            if (this.loginuser.role === 'Admin') {
               this.router.navigate(['/admin/All_devices']);
-            }else{
+            } else if (this.loginuser.role === 'ApiUser') {
+              this.router.navigate(['/apiuser/All_devices']);
+            } else {
               this.router.navigate(['/device/AllList']);
             }
-            
-
           }
         },
         error: err => {                          //Error callback
