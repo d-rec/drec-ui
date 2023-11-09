@@ -109,10 +109,10 @@ export class AdminOrganizationComponent {
       if (this.loginuser.role === 'Admin') {
         this.getAllOrganization(this.p);
       }
-      else if(this.loginuser.role === 'ApiUser'){
+      else if (this.loginuser.role === 'ApiUser') {
         this.getApiuserAllOrganization(this.p);
       }
-     
+
       console.log(this.orglistload);
       if (this.orglistload) {
         this.applyorgFilter();
@@ -164,7 +164,7 @@ export class AdminOrganizationComponent {
   }
   reset() {
     this.FilterForm.reset();
-
+    this.p = 1
     // this.FilterForm.controls['organizationName'].setValue(null);
     this.loading = true;
     // this.applyorgFilter();

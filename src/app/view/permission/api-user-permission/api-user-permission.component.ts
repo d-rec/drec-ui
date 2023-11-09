@@ -21,6 +21,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
+import {EditPermissionComponent} from '../edit-permission/edit-permission.component'
 @Component({
   selector: 'app-api-user-permission',
   templateUrl: './api-user-permission.component.html',
@@ -32,6 +33,7 @@ export class ApiUserPermissionComponent {
     'module_name',
     'permission',
     'status',
+    'Action'
 
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -275,7 +277,24 @@ export class ApiUserPermissionComponent {
     });
   }
 
-
+  UpdatePermission(row:number){
+   
+    const dialogRef = this.dialog.open(EditPermissionComponent, {
+      data: {
+        upatefor: 'User ',
+        permission: row
+      },
+      width: '700px',
+      height: '300px',
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
+      //  this.getuseraclmodulepermission();
+      }
+    });
+  
+}
 }
 
 @Component({

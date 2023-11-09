@@ -3,27 +3,33 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 //import {environment} from '../../environments/environment.dev';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
+import { getapiuser_header } from '../../utils/apiuser_clientinfo'
 @Injectable({
   providedIn: 'root'
 })
 export class MeterReadService {
   url: String = environment.API_URL;
+  headersData = getapiuser_header();
   constructor(private httpClient: HttpClient) { }
   GetMethod(): Observable<any> {
     return this.httpClient.get(this.url + 'certificate-log/redemption-report')
   }
   PostRead(exterenalId: string, data: any): Observable<any> {
+    let headers: HttpHeaders;
+    headers = new HttpHeaders(this.headersData);
     let addUrl = `${this.url}meter-reads/new/` + exterenalId;
    
-    return this.httpClient.post<any>(addUrl, data)
+    return this.httpClient.post<any>(addUrl, data,{headers})
 
   }
   PostReadByAdmin(exterenalId: string, data: any, orgId?: number): Observable<any> {
+    let headers: HttpHeaders;
+    headers = new HttpHeaders(this.headersData);
     let addUrl = `${this.url}meter-reads/addByAdmin/new/` + exterenalId;
     if (orgId != undefined) {
       addUrl += `?organizationId=${orgId}`;
     }
-    return this.httpClient.post<any>(addUrl, data)
+    return this.httpClient.post<any>(addUrl, data,{headers})
 
   }
   GetRead(exterenalId: string, data: any): Observable<any> {
@@ -55,6 +61,8 @@ export class MeterReadService {
     return this.httpClient.get(searchUrl);
   }
   Getlastread(exterenalId: string): Observable<any> {
-    return this.httpClient.get(this.url + 'meter-reads/latestread/' + exterenalId)
+    let headers: HttpHeaders;
+    headers = new HttpHeaders(this.headersData);
+    return this.httpClient.get(this.url + 'meter-reads/latestread/' + exterenalId,{headers})
   }
 }

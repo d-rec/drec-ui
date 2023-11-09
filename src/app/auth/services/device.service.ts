@@ -24,7 +24,7 @@ export class DeviceService {
     let searchUrl = `${this.url}` + deviceurl;
     console.log(searchUrl);
     if (searchData != undefined) {
-      if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null)) {
+      if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null||searchData.pagenumber===undefined)) {
         searchUrl += `pagenumber=${pagenumber}`;
       }
       if (!(typeof searchData.organizationId === undefined || searchData.organizationId === "" || searchData.organizationId === null || searchData.organizationId === undefined)) {
@@ -34,32 +34,32 @@ export class DeviceService {
         searchUrl += `&country=${searchData.countryCode}`;
       }
 
-      if (!(typeof searchData.fuelCode === undefined || searchData.fuelCode === "" || searchData.fuelCode === null)) {
+      if (!(typeof searchData.fuelCode === undefined || searchData.fuelCode === "" || searchData.fuelCode === null|| searchData.fuelCode === undefined)) {
 
         searchUrl += `&fuelCode=${searchData.fuelCode}`;
 
       }
 
-      if (!(typeof searchData.deviceTypeCode === undefined || searchData.deviceTypeCode === "" || searchData.deviceTypeCode === null)) {
+      if (!(typeof searchData.deviceTypeCode === undefined || searchData.deviceTypeCode === "" || searchData.deviceTypeCode === null|| searchData.deviceTypeCode === undefined)) {
         searchUrl += `&deviceTypeCode=${searchData.deviceTypeCode}`;
       }
 
-      if (!(typeof searchData.capacity === undefined || searchData.capacity === "" || searchData.capacity === null)) {
+      if (!(typeof searchData.capacity === undefined || searchData.capacity === "" || searchData.capacity === null|| searchData.capacity === undefined)) {
         searchUrl += `&capacity=${searchData.capacity}`;
       }
-      if (!(typeof searchData.offTaker === undefined || searchData.offTaker === "" || searchData.offTaker === null)) {
+      if (!(typeof searchData.offTaker === undefined || searchData.offTaker === "" || searchData.offTaker === null|| searchData.offTaker === undefined)) {
         searchUrl += `&offTaker=${searchData.offTaker}`;
       }
-      if (!(typeof searchData.SDGBenefits === undefined || searchData.SDGBenefits === "" || searchData.SDGBenefits === null)) {
+      if (!(typeof searchData.SDGBenefits === undefined || searchData.SDGBenefits === "" || searchData.SDGBenefits === null||searchData.SDGBenefits === undefined)) {
         console.log(typeof searchData.SDGBenefits)
         console.log(searchData.SDGBenefits)
         searchUrl += `&SDGBenefits=${searchData.SDGBenefits}`;
       }
-      if (!(typeof searchData.start_date === "undefined" || searchData.start_date === "" || searchData.start_date === null)) {
+      if (!(typeof searchData.start_date === "undefined" || searchData.start_date === "" || searchData.start_date === null||searchData.start_date === undefined)) {
         searchUrl += `&start_date=${new Date(searchData.start_date).toISOString()}`;
       }
 
-      if (!(typeof searchData.end_date === "undefined" || searchData.end_date === "" || searchData.end_date === null)) {
+      if (!(typeof searchData.end_date === "undefined" || searchData.end_date === "" || searchData.end_date === null||searchData.start_date === undefined)) {
         searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
       }
     }
