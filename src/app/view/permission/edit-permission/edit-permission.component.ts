@@ -79,6 +79,9 @@ export class EditPermissionComponent {
           this.dialogRef.close();
         }
 
+      },error:err=>{
+        this.toastrService.error('Fial')
+
       }
     })
 
