@@ -10,7 +10,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
-import { DeviceService } from '../../../auth/services/device.service';
+import { DeviceService, OrganizationService } from '../../../auth/services';
 import { Router } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -65,10 +65,15 @@ export class AlldevicesComponent {
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
   showlist: boolean = false;
+  orglist: any;
+  orgname: string;
+  orgId: number;
+  filteredOrgList: Observable<any[]>;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService,
     private formBuilder: FormBuilder,
     private router: Router,
     private dialog: MatDialog,
+    private orgService: OrganizationService,
     private toastrService: ToastrService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
@@ -85,6 +90,19 @@ export class AlldevicesComponent {
     });
   }
   ngOnInit(): void {
+    if (this.loginuser.role === 'ApiUser') {
+
+      this.FilterForm.addControl('organizationname', this.formBuilder.control(''));
+      this.FilterForm.addControl('organizationId', this.formBuilder.control(''));
+      this.orgService.GetApiUserAllOrganization().subscribe(
+        (data) => {
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+          console.log(this.orglist)
+
+        }
+      );
+    }
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
 
@@ -114,7 +132,11 @@ export class AlldevicesComponent {
     console.log("myreservation");
     setTimeout(() => {
       if (this.countrycodeLoded) {
+
         this.applycountryFilter();
+      }
+      if (this.loginuser.role === 'ApiUser') {
+        this.applyorgFilter()
       }
       this.loading = false;
       this.getDeviceListData(this.p);
@@ -127,14 +149,28 @@ export class AlldevicesComponent {
     }
   }
 
-  // checkFormValidity(): void {
-  //   console.log("115");
-  //   const formValues = this.FilterForm.value;
-  //   console.log(formValues)
-  //   this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
 
-  // }
+  applyorgFilter() {
+    this.FilterForm.controls['organizationname'];
+    this.filteredOrgList = this.FilterForm.controls['organizationname'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._orgfilter(value || '')),
+    );
+  }
+  private _orgfilter(value: any): string[] {
 
+    const filterValue = value.toLowerCase();
+    if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
+      // this.showorgerror = true;
+      // const updatedFormValues = this.FilterForm.value;
+      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
+      // this.isAnyFieldFilled = false;
+    } else {
+      //this.showorgerror = false;
+    }
+    return this.orglist.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
+
+  }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
@@ -203,6 +239,17 @@ export class AlldevicesComponent {
     }, 500);
 
     // Other code...
+  }
+  selectorg(event: any) {
+    console.log(event)
+
+    this.subscription = this.filteredOrgList.subscribe(options => {
+
+      const selectedorg = options.find(option => option.name === event.option.value);
+      if (selectedorg) {
+        this.FilterForm.controls['organizationId'].setValue(selectedorg.id);
+      }
+    });
   }
   selectCountry(event: any) {
     console.log(event)

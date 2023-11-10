@@ -28,6 +28,35 @@
         Search</h3>
       <form [formGroup]="FilterForm">
         <div class="example-container1 row">
+          
+            <div class="col-md-3" *ngIf="FilterForm.get('organizationname')">
+                <!-- <mat-form-field appearance="outline">
+                    <mat-label class="text-capitalize">Organization</mat-label>
+
+                    <input matInput [(ngModel)]="orgname" [ngModelOptions]="{ standalone: true }"
+                        [matAutocomplete]="orgAuto" (input)="filterOrgList()" (ngModelChange)="checkFormValidity()">
+
+                    <mat-autocomplete #orgAuto="matAutocomplete" (optionSelected)="selectOrg($event)">
+                        <mat-option *ngFor="let code of filteredOrgList" [value]="code.name">
+                            {{ code.name }}
+                        </mat-option>
+                    </mat-autocomplete>
+                </mat-form-field> -->
+
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">Select Organization*</mat-label>
+                  <input type="text" aria-label="text" matInput formControlName="organizationname" [matAutocomplete]="auto1"
+                    (ngModelChange)="checkFormValidity()">
+                  <mat-autocomplete #auto1="matAutocomplete" (optionSelected)="selectorg($event)">
+                    <mat-option [value]="">---</mat-option>
+                    <mat-option *ngFor="let code of filteredOrgList | async" [value]="code.name">
+                      {{ code.name }}
+                    </mat-option>
+                  </mat-autocomplete>
+    
+                </mat-form-field>
+           
+        </div>
           <div class="col-md-3">
             <mat-form-field appearance="outline">
               <mat-label class="text-capitalize">Select Country</mat-label>
@@ -81,6 +110,7 @@
             </mat-form-field>
           </div>
           <div class="col-md-3">
+           
             <mat-form-field appearance="outline">
               <mat-label>Capacity(kW)</mat-label>
               <input matInput type="number" [min]=1 (ngModelChange)="checkFormValidity()" formControlName='capacity'
@@ -99,42 +129,7 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <!-- <div class="col-md-1">
-						<h6>Commissioning Date: </h6>
-
-					</div>
-          <div class="col-md-3">
-            <mat-form-field>
-                <mat-label class="text-capitalize">From </mat-label>
-                <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-                    formControlName="start_date" autocomplete="off"
-                    (ngModelChange)="onEndChangeEvent($event);checkFormValidity()">
-                <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-                <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
-                    [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
-                    [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
-                </ngx-mat-datetime-picker>
-            </mat-form-field>
-        </div>
-        <div class="col-md-3">
-            <mat-form-field>
-                <mat-label class="text-capitalize">To </mat-label>
-              
-                <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
-                    formControlName="end_date" [min]="endminDate" autocomplete="off" (ngModelChange)="checkFormValidity()">
-                <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
-                <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false"
-                    [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
-                    [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
-                </ngx-mat-datetime-picker>
-                 <mat-error *ngIf="checkValidation('endtimestamp')">
-               <b> {{getErrorcheckdatavalidation()}}</b>
-              </mat-error>
-            </mat-form-field>
-        </div> -->
-          <!-- <div class="col-md-2">
-
-        </div> -->
+        
 
           <div class="col-md-4 h6-margin-remove">
             <h6>Commissioning Date: </h6>

@@ -11,7 +11,7 @@ import { getapiuser_header } from '../../utils/apiuser_clientinfo'
 export class DeviceService {
 
   url: String = environment.API_URL;
-   headersData = getapiuser_header();
+  headersData = getapiuser_header();
   // headers:HttpHeaders  = new HttpHeaders(this.headersData);
   constructor(private httpClient: HttpClient) { }
   GetDevicesForAdmin(): Observable<any> {
@@ -22,11 +22,13 @@ export class DeviceService {
     console.log(deviceurl);
     console.log(searchData);
     let searchUrl = `${this.url}` + deviceurl;
+    if (!(typeof pagenumber === undefined ||pagenumber === null || pagenumber === undefined)) {
+      searchUrl += `pagenumber=${pagenumber}`;
+    }
     console.log(searchUrl);
     if (searchData != undefined) {
-      if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null||searchData.pagenumber===undefined)) {
-        searchUrl += `pagenumber=${pagenumber}`;
-      }
+
+
       if (!(typeof searchData.organizationId === undefined || searchData.organizationId === "" || searchData.organizationId === null || searchData.organizationId === undefined)) {
         searchUrl += `&OrganizationId=${searchData.organizationId}`;
       }
@@ -34,37 +36,37 @@ export class DeviceService {
         searchUrl += `&country=${searchData.countryCode}`;
       }
 
-      if (!(typeof searchData.fuelCode === undefined || searchData.fuelCode === "" || searchData.fuelCode === null|| searchData.fuelCode === undefined)) {
+      if (!(typeof searchData.fuelCode === undefined || searchData.fuelCode === "" || searchData.fuelCode === null || searchData.fuelCode === undefined)) {
 
         searchUrl += `&fuelCode=${searchData.fuelCode}`;
 
       }
 
-      if (!(typeof searchData.deviceTypeCode === undefined || searchData.deviceTypeCode === "" || searchData.deviceTypeCode === null|| searchData.deviceTypeCode === undefined)) {
+      if (!(typeof searchData.deviceTypeCode === undefined || searchData.deviceTypeCode === "" || searchData.deviceTypeCode === null || searchData.deviceTypeCode === undefined)) {
         searchUrl += `&deviceTypeCode=${searchData.deviceTypeCode}`;
       }
 
-      if (!(typeof searchData.capacity === undefined || searchData.capacity === "" || searchData.capacity === null|| searchData.capacity === undefined)) {
+      if (!(typeof searchData.capacity === undefined || searchData.capacity === "" || searchData.capacity === null || searchData.capacity === undefined)) {
         searchUrl += `&capacity=${searchData.capacity}`;
       }
-      if (!(typeof searchData.offTaker === undefined || searchData.offTaker === "" || searchData.offTaker === null|| searchData.offTaker === undefined)) {
+      if (!(typeof searchData.offTaker === undefined || searchData.offTaker === "" || searchData.offTaker === null || searchData.offTaker === undefined)) {
         searchUrl += `&offTaker=${searchData.offTaker}`;
       }
-      if (!(typeof searchData.SDGBenefits === undefined || searchData.SDGBenefits === "" || searchData.SDGBenefits === null||searchData.SDGBenefits === undefined)) {
+      if (!(typeof searchData.SDGBenefits === undefined || searchData.SDGBenefits === "" || searchData.SDGBenefits === null || searchData.SDGBenefits === undefined)) {
         console.log(typeof searchData.SDGBenefits)
         console.log(searchData.SDGBenefits)
         searchUrl += `&SDGBenefits=${searchData.SDGBenefits}`;
       }
-      if (!(typeof searchData.start_date === "undefined" || searchData.start_date === "" || searchData.start_date === null||searchData.start_date === undefined)) {
+      if (!(typeof searchData.start_date === "undefined" || searchData.start_date === "" || searchData.start_date === null || searchData.start_date === undefined)) {
         searchUrl += `&start_date=${new Date(searchData.start_date).toISOString()}`;
       }
 
-      if (!(typeof searchData.end_date === "undefined" || searchData.end_date === "" || searchData.end_date === null||searchData.start_date === undefined)) {
+      if (!(typeof searchData.end_date === "undefined" || searchData.end_date === "" || searchData.end_date === null || searchData.start_date === undefined)) {
         searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
       }
     }
     let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get(searchUrl,{headers});
+    return this.httpClient.get(searchUrl, { headers });
 
   }
   GetDevicesInfo(id: number): Observable<Device> {
@@ -77,8 +79,8 @@ export class DeviceService {
     return this.httpClient.get(this.url + 'device/externalId/' + externalid)
   }
   public Postdevices(data: any): Observable<any> {
-   let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.post<any>(this.url + 'device', data,{headers})
+    let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.post<any>(this.url + 'device', data, { headers })
 
   }
   public Patchdevices(id: any, data: any): Observable<any> {
@@ -138,8 +140,8 @@ export class DeviceService {
     let searchUrl = `${this.url}device/` + id;
     return this.httpClient.delete(searchUrl);
   }
-  addByAdminbulkDevices(organizationId:number,data: any):Observable<any>{
-    
-    return this.httpClient.post<any>(this.url+'device/addByAdmin/process-creation-bulk-devices-csv/'+organizationId, data)
+  addByAdminbulkDevices(organizationId: number, data: any): Observable<any> {
+
+    return this.httpClient.post<any>(this.url + 'device/addByAdmin/process-creation-bulk-devices-csv/' + organizationId, data)
   }
 }
