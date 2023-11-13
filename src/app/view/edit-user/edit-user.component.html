@@ -1,0 +1,60 @@
+<div class="form-container">
+    <mat-card class="mb-3">
+
+
+        <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+
+            <div  class="d-flex align-items-center w-100 justify-content-between">
+                <h2 class="text-capitalize device-details-heading m-0">{{data.title}}
+                </h2>
+                <mat-icon aria-hidden="false" (click)="dialogRef.close(false)" class="close-icon cursor-pointer"> close </mat-icon>
+            </div>
+
+
+        </mat-card-header>
+        <hr>
+        <form [formGroup]="updateForm" (ngSubmit)="onUpdate()">
+            <mat-card-content>
+                <div class="example-container1 row">
+
+                    <div class="col-md-3">
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">First Name</mat-label>
+                            <input autofocus type="text" matInput formControlName="firstName">
+                        </mat-form-field>
+
+
+                    </div>
+                    <div class="col-md-3"><mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Last Name</mat-label>
+                            <input autofocus type="text" matInput formControlName="lastName">
+
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-3"><mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Email</mat-label>
+                            <input autofocus type="email" matInput formControlName="email">
+
+                        </mat-form-field></div>
+                        <div class="col-md-3">
+                           
+                            <input autofocus type="hidden"  formControlName="status">
+                       </div>
+                </div>
+                <mat-card-footer>
+                    <div class="example-container my-2">
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="submit"
+                                class="btn-primary btn" [disabled]="updateForm.invalid">Update</button>
+                            
+                        </div>
+    
+                    </div>
+                </mat-card-footer>
+
+            </mat-card-content>
+
+        </form>
+    </mat-card>
+</div>

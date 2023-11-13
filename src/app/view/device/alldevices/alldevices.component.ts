@@ -3,7 +3,7 @@
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit,Inject, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -14,9 +14,10 @@ import { DeviceService } from '../../../auth/services/device.service';
 import { Router } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MatDialogModule,MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 import { DeviceDetailsComponent } from '../device-details/device-details.component'
-
+import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-alldevices',
   templateUrl: './alldevices.component.html',
@@ -56,18 +57,19 @@ export class AlldevicesComponent {
   p: number = 1;
   totalRows = 0;
   filteredOptions: Observable<any[]>;
-  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
+  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
   endminDate = new Date();
   totalPages: number;
   subscription: Subscription;
   selectedCountry: any;
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
-  showlist:boolean=false;
+  showlist: boolean = false;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService,
     private formBuilder: FormBuilder,
     private router: Router,
-    private dialog: MatDialog) {
+    private dialog: MatDialog,
+    private toastrService: ToastrService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
@@ -235,14 +237,14 @@ export class AlldevicesComponent {
   }
 
   getDeviceListData(page: number) {
-   
-      this.deviceurl = 'device/my?';
-   
+
+    this.deviceurl = 'device/my?';
+
     //this.FilterForm.controls['pagenumber'].setValue(page);
     this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe(
       (data) => {
         console.log(data)
-        this.showlist=true
+        this.showlist = true
         //@ts-ignore
         if (data.devices) {
           this.loading = false;
@@ -253,14 +255,14 @@ export class AlldevicesComponent {
       }, error => {
         console.log(error);
         this.data = [];
-        this.showlist=false
+        this.showlist = false
       }
     )
   }
 
   DisplayList() {
     if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
-      
+
       //@ts-ignore
       this.data.devices.forEach(ele => {
         //@ts-ignore
@@ -301,7 +303,7 @@ export class AlldevicesComponent {
   nextPage(): void {
     if (this.p < this.totalPages) {
       this.p++;
-      this.getDeviceListData(this.p);;
+      this.getDeviceListData(this.p);
     }
   }
   // showPrompt(deviceId:number): void {
@@ -326,4 +328,57 @@ export class AlldevicesComponent {
       height: '400px',
     });
   }
+
+  openDialog(device: any) {
+    const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: 'Confirm Remove Device',
+        message: 'Are you sure, you want to remove Device: ' + device.externalId
+      }
+    });
+    confirmDialog.afterClosed().subscribe(result => {
+      if (result === true) {
+        // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
+        this.deleteDevice(device.id)
+      }
+    });
+  }
+
+  // openDialog(): void {
+  //   this.dialog.open(DialogAnimationsExampleDialog, {
+  //     width: '250px',
+  //     enterAnimationDuration,
+  //     exitAnimationDuration,
+  //   });
+  // }
+  deleteDevice(id: number) {
+    this.deviceService.RemoveDevice(id).subscribe((response) => {
+      console.log(response);
+      if (response.success) {
+        this.toastrService.success(response.message, 'Successfully')
+        this.getDeviceListData(this.p);
+      } else {
+
+        this.toastrService.error(response.message, 'Failure')
+      }
+
+    })
+
+  }
 }
+
+
+
+@Component({
+  selector: 'deviceremove_dialog',
+  templateUrl: 'deviceremove_dialog.html',
+  standalone: true,
+  imports: [MatDialogModule, MatButtonModule],
+})
+export class ConfirmDialogComponent {
+  title: string;
+  message: string;
+  constructor(public dialogRef: MatDialogRef<ConfirmDialogComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: any) { }
+}
+

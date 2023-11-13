@@ -50,7 +50,7 @@ export class EditDeviceComponent implements OnInit {
   frommydevice: boolean = false;
   frombulk: boolean = false;
   filteredCountryList: Observable<any[]>
-  offteker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
+  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
   devicediscription = ['Solar Lantern', 'Solar Home System', 'Mini Grid', 'Rooftop Solar', 'Ground Mount Solar'];
 
   constructor(private fb: FormBuilder, private authService: AuthbaseService,
@@ -78,7 +78,7 @@ export class EditDeviceComponent implements OnInit {
 
     this.date = new Date();
     this.updatedeviceform = this.fb.group({
-      externalId: [null, [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
+      externalId: [null, [ Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
       //newexternalId: [null, Validators.required],
       projectName: [null],
       address: [null, [Validators.required]],
@@ -136,7 +136,7 @@ export class EditDeviceComponent implements OnInit {
     const validation = this.updatedeviceform.get(input)?.invalid && (this.updatedeviceform.get(input)?.dirty || this.updatedeviceform.get(input)?.touched)
     return validation;
   }
-  emaiErrors() {
+  externalIdErrors() {
     return this.updatedeviceform.get('externalId')?.hasError('required') ? 'This field is required' :
       this.updatedeviceform.get('externalId')?.hasError('pattern') ? 'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between' : ''
 
@@ -265,11 +265,14 @@ export class EditDeviceComponent implements OnInit {
       this.updatedeviceform.removeControl('externalId');
     }
     console.log(this.updatedeviceform);
+    //@ts-ignore
+    const selectedCountry = this.countrylist.find(option => option.country === this.updatedeviceform.value.countryCode);
+    this.updatedeviceform.value['countryCode'] = selectedCountry.alpha3;
     this.deviceService.Patchdevices(this.externalid, this.updatedeviceform.value).subscribe({
       next: (data: any) => {
         console.log(data)
         // this.deviceForms.reset();
-        this.toastrService.success('Updated Successfully !!', 'Device! ' + this.updatedeviceform.value.externalId);
+        this.toastrService.success('Updated Successfully !!', 'Device! ' + data.externalId);
         this.router.navigate(['device/AllList']);
       },
       error: (err: any): void => {                          //Error callback

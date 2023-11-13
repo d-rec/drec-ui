@@ -122,7 +122,7 @@ export class RegisterComponent implements OnInit {
     // const password = formData.value.password;
     // const username = formData.value.username;
     //this.auth.post(email, password, username);
-    this.authService.PostAuth('user/registerWithOrganization', this.registerForm.value).subscribe({
+    this.authService.PostAuth('user/register', this.registerForm.value).subscribe({
       next: data => {
         console.log(data)
 

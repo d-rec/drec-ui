@@ -2,13 +2,40 @@
     <mat-card>
         <mat-card-header>
             <mat-card-title>
-                <h2 class="pb-0 mb-0 fw-bold text-capitalize">organization information
+                <h2 class="pb-0 mb-0 fw-bold text-capitalize">organization Details
                     
                 </h2>
 
             </mat-card-title>
         </mat-card-header>
         <hr>
-        <mat-card-content></mat-card-content>
+        <mat-card-content>
+          
+            <div class='content'>
+              <div class='column col-4'>
+                <div class='row '>
+                  <p><b>Organization Name</b>:&nbsp;
+                    <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
+                    {{orgname}}
+                  </p>
+                </div>
+              </div>
+              <div class='column col-4'>
+                <div class='row'>
+                  <p><b>Organization Type</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                    {{organizationType}}</p>
+  
+                </div>
+  
+              </div>
+              <div class='column col-4'>
+                <div class='row'>
+                  <p><b> Status</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                    {{status}}</p>
+                </div>
+              </div>
+  
+            </div>
+          </mat-card-content>
     </mat-card>
 </div>

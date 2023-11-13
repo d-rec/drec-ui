@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
-import { MeterReadService, DeviceService } from '../../../auth/services';
+import { MeterReadService, DeviceService, AdminService } from '../../../auth/services';
 import { AuthbaseService } from '../../../auth/authbase.service'
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -21,7 +21,7 @@ export class AddreadComponent implements OnInit {
   startmaxDate = new Date();
   startminDate = new Date();
   endminDate = new Date();
-  endmaxdate=new Date();
+  endmaxdate = new Date();
   historyAge: any;
   devicecreateddate: any;
   readForm: FormGroup;
@@ -39,11 +39,35 @@ export class AddreadComponent implements OnInit {
   commissioningDate: any;
   selectedResult: any;
   filteredOptions: Observable<any[]>;
+  filteredexternalIdOptions: Observable<any[]>;
+  orglist: any;
+  loginuser: any;
+  filteredOrgList: any[] = [];
+  //public color: ThemePalette = 'primary';
+  orgname: string;
+  orgId: number;
+  devicelist: any = [];
   constructor(private fb: FormBuilder, private readService: MeterReadService,
     private deviceservice: DeviceService,
     private authService: AuthbaseService,
-    private router: Router, private toastrService: ToastrService) { }
+    private router: Router, private toastrService: ToastrService,
+    private adminService: AdminService) {
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+  }
+
+
   ngOnInit() {
+
+    if (this.loginuser.role === 'Admin') {
+      this.adminService.GetAllOrganization().subscribe(
+        (data) => {
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+          this.filteredOrgList = this.orglist;
+        })
+    } else {
+      this.gedevicefororg();
+    }
     this.readForm = this.fb.group({
       timezone: new FormControl(),
       externalId: [null, Validators.required],
@@ -76,43 +100,139 @@ export class AddreadComponent implements OnInit {
         this.countrylist = data3;
       }
     );
-
+    setTimeout(() => {
+      if (this.loginuser.role != 'Admin') {
+      this.readForm.controls['externalId'];
+      this.filteredexternalIdOptions = this.readForm.controls['externalId'].valueChanges.pipe(
+        startWith(''),
+        map(value => this._externalIdfilter(value || '')),
+      );}
+      //  this.getDeviceinfo();
+    }, 1000);
   }
 
 
   get addreads() {
     return this.readForm.controls["reads"] as FormArray;
   }
-  search(): void {
-    const input = this.readForm.controls['externalId'].value;
-    console.log(input)
-    if (input && input != '') {
-      this.deviceservice.GetDeviceAutocomplete(input).subscribe(
-        (response) => {
-          console.log('response', response)
-          if (response.length > 0) {
-            this.showerrorexternalid = false;
-            this.autocompleteResults = response;
-          } else {
-            this.autocompleteResults = [];
-            this.showerrorexternalid = true;
-          }
+  filterOrgList() {
+    console.log("99")
+    this.filteredOrgList = this.orglist.filter((org: any) => {
 
+      return org.name.toLowerCase().includes(this.orgname.toLowerCase());
+    });
+  }
+  selectOrg(event: any) {
+    console.log(event)
+
+    //@ts-ignore
+    const selectedCountry = this.orglist.find(option => option.name === event.option.value);
+    if (selectedCountry) {
+      this.orgId = selectedCountry.id;
+      this.gedeviceforadmin(this.orgId);
+
+    }
+
+  }
+
+  gedeviceforadmin(orgid: number) {
+    const deviceurl = 'device?OrganizationId=' + orgid;
+    this.deviceservice.GetMyDevices(deviceurl).subscribe({
+      next: data => {
+        console.log(data)
+        this.devicelist = data.devices
+        this.readForm.controls['externalId'];
+        this.filteredexternalIdOptions = this.readForm.controls['externalId'].valueChanges.pipe(
+          startWith(''),
+          map(value => this._externalIdfilterbyAdmin(value || '')),
+        );
+        console.log(this.filteredexternalIdOptions);
+
+      }
+    })
+  }
+  gedevicefororg() {
+    const deviceurl = 'device/my';
+    this.deviceservice.GetMyDevices(deviceurl).subscribe({
+      next: data => {
+        console.log(data)
+        this.devicelist = data;
+      }
+    })
+  }
+
+  _externalIdfilter(value: string): string[] {
+    console.log(value)
+    const filterValue = value.toLowerCase();
+    //  console.log(filterValue)
+    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
+    if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+      this.showerror = true;
+      this.showerrorexternalid = true;
+    } else {
+      this.showerror = false;
+      this.showerrorexternalid = false;
+    }
+    //  this.endmaxdate = new Date();
+    return this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue))
+
+  }
+
+  _externalIdfilterbyAdmin(value: string): string[] {
+    console.log(value)
+    const filterValue = value.toLowerCase();
+    //  console.log(filterValue)
+    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
+    if ((!(this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+      this.showerror = true;
+      this.showerrorexternalid = true;
+    } else {
+      this.showerror = false;
+      this.showerrorexternalid = false;
+    }
+    //  this.endmaxdate = new Date();
+    return this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue))
+
+  }
+  search() {
+    // const input = this.readForm.controls['externalId'].value;
+    //console.log(input)
+    //if (input && input != '') {
+    if (this.loginuser.role === 'Admin') {
+      const deviceurl = 'device?';
+      //this.adminService.GetDeviceAutocomplete(input, this.orgId).subscribe(
+      this.deviceservice.GetMyDevices(deviceurl, { organizationId: this.orgId }).subscribe(
+        (response) => {
+          this.autocompleteResults = response;
+          this.showerrorexternalid = false;
         },
         (error) => {
           console.error('Error fetching autocomplete results:', error);
         }
       );
     } else {
-      this.autocompleteResults = [];
-      this.timezonedata = [];
-      this.readForm.controls['externalId'].setValue(null);
-      this.readForm.controls['timezone'].setValue(null);
-      this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
-        startWith(''),
-        map(value => this._filter(value || '')),
+      const deviceurl = 'device/my?';
+      this.deviceservice.GetMyDevices(deviceurl).subscribe(
+        (response) => {
+          this.autocompleteResults = response;
+          this.showerrorexternalid = false;
+        },
+        (error) => {
+          console.error('Error fetching autocomplete results:', error);
+        }
       );
     }
+    // } else {
+    //   this.autocompleteResults = [];
+    //  this.showerrorexternalid=true;
+    //   this.timezonedata = [];
+    //   this.readForm.controls['externalId'].setValue(null);
+    //   this.readForm.controls['timezone'].setValue(null);
+    //   this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
+    //     startWith(''),
+    //     map(value => this._filter(value || '')),
+    //   );
+    // }
   }
   // displayFn(result: any): string {
   //   return result ? result.label : '';
@@ -123,7 +243,7 @@ export class AddreadComponent implements OnInit {
     this.selectedResult = result;
     console.log(this.selectedResult);
     console.log(result);
-    this.readForm.controls['externalId'].setValue(result.externalId);
+   
     this.devicecreateddate = result.createdAt;
     this.commissioningDate = result.commissioningDate;
 
@@ -140,7 +260,15 @@ export class AddreadComponent implements OnInit {
     console.log(this.filteredOptions);
     this.addreads.reset();
     this.readForm.controls['type'].setValue(null)
-    this.readService.Getlastread(result.externalId).subscribe({
+    let deivceid;
+    if (this.loginuser.role === 'Admin') {
+      this.readForm.controls['externalId'].setValue(result.developerExternalId);
+      deivceid = result.id;
+    } else {
+      this.readForm.controls['externalId'].setValue(result.externalId);
+      deivceid = result.externalId;
+    }
+    this.readService.Getlastread(deivceid).subscribe({
       next: data => {
         console.log(data),
           this.lastreaddate = data.enddate;
@@ -167,16 +295,16 @@ export class AddreadComponent implements OnInit {
       .format('YYYY-MM-DDTHH:mm:ss');
     console.log(this.commissioningDate);
     //momentTimeZone.tz(this.devicecreateddate, timezone);
-    this.endmaxdate =new Date(momentTimeZone
+    this.endmaxdate = new Date(momentTimeZone
       .tz(new Date(), timezone)
       .format('YYYY-MM-DDTHH:mm:ss'));
-      console.log(this.endmaxdate)
+    console.log(this.endmaxdate)
   }
   private _filter(value: string): string[] {
-  //  console.log(this.timezonedata)
+    //  console.log(this.timezonedata)
     const filterValue = value.toLowerCase();
-  //  console.log(filterValue)
-   // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
+    //  console.log(filterValue)
+    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if ((!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
     } else {
@@ -318,27 +446,52 @@ export class AddreadComponent implements OnInit {
       })
       myobj['reads'] = newreads
     }
-    this.readService.PostRead(externalId, myobj).subscribe({
-      next: (data: any) => {
-        console.log(data)
-        this.readForm.reset();
-        this.selectedResult = null;
-        const formControls = this.readForm.controls;
-        Object.keys(formControls).forEach(key => {
-          const control = formControls[key];
-          control.setErrors(null);
-        });
-        this.toastrService.success('Successfully!', 'Read Added!!');
-      },
-      error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
-        console.error('error caught in component', err)
-        //@ts-ignore
-        let message = getValidmsgTimezoneFormat(err.error.message);
-        console.error(message)
+    if (this.loginuser.role === 'Admin') {
+      this.readService.PostReadByAdmin(externalId, myobj, this.orgId).subscribe({
+        next: (data: any) => {
+          console.log(data)
+          this.readForm.reset();
+          this.selectedResult = null;
+          const formControls = this.readForm.controls;
+          Object.keys(formControls).forEach(key => {
+            const control = formControls[key];
+            control.setErrors(null);
+          });
+          this.toastrService.success('Successfully!', 'Read Added!!');
+        },
+        error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
+          console.error('error caught in component', err)
+          //@ts-ignore
+          let message = getValidmsgTimezoneFormat(err.error.message);
+          console.error(message)
 
-        this.toastrService.error(message, 'error!');
-      }
-    });
+          this.toastrService.error(message, 'error!');
+        }
+      });
+    } else {
+      this.readService.PostRead(externalId, myobj).subscribe({
+        next: (data: any) => {
+          console.log(data)
+          this.readForm.reset();
+          this.selectedResult = null;
+          const formControls = this.readForm.controls;
+          Object.keys(formControls).forEach(key => {
+            const control = formControls[key];
+            control.setErrors(null);
+          });
+          this.toastrService.success('Successfully!', 'Read Added!!');
+        },
+        error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
+          console.error('error caught in component', err)
+          //@ts-ignore
+          let message = getValidmsgTimezoneFormat(err.error.message);
+          console.error(message)
+
+          this.toastrService.error(message, 'error!');
+        }
+      });
+    }
+
   }
 
 }

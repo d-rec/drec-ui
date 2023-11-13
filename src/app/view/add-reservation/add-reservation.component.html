@@ -107,7 +107,7 @@
                             <div class="example-container1 row">
                                 <div class="col-md-3">
                                     <mat-form-field appearance="outline">
-                                        <mat-label class="text-capitalize">Select Country Code</mat-label>
+                                        <mat-label class="text-capitalize">Select Country </mat-label>
                                         <input type="text" aria-label="text" matInput formControlName="countryname"
                                             (ngModelChange)="checkFormValidity()" [matAutocomplete]="auto">
                                         <mat-autocomplete #auto="matAutocomplete"
@@ -192,14 +192,14 @@
 
                                     <mat-form-field appearance="outline">
                                         <mat-label>Enter a date range</mat-label>
-                                        <mat-date-range-input [rangePicker]="$any(picker)">
+                                        <mat-date-range-input [rangePicker]="$any(picker2)">
                                             <input matStartDate formControlName="start_date"
                                                 (ngModelChange)="checkFormValidity()" />
                                             <input matEndDate formControlName="end_date"
                                                 (ngModelChange)="checkFormValidity()" />
                                         </mat-date-range-input>
-                                        <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-                                        <mat-date-range-picker #picker></mat-date-range-picker>
+                                        <mat-datepicker-toggle matSuffix [for]="$any(picker2)"></mat-datepicker-toggle>
+                                        <mat-date-range-picker #picker2></mat-date-range-picker>
 
                                     </mat-form-field>
 
@@ -227,18 +227,23 @@
                             <table mat-table [dataSource]="dataSource" matSort>
 
                                 <ng-container matColumnDef="select" sticky>
-                                    <mat-header-cell *matHeaderCellDef>
-                                        <mat-checkbox color="primary" (change)="$event ? masterToggle() : null"
-                                            [checked]="selection.hasValue() && isAllSelected()"
-                                            [indeterminate]="selection.hasValue() && !isAllSelected()">
-                                        </mat-checkbox>
-                                    </mat-header-cell>
-                                    <mat-cell *cdkCellDef="let row">
-                                        <mat-checkbox color="primary" (click)="$event.stopPropagation()"
-                                            (change)="$event ? selection.toggle(row) : null"
-                                            [checked]="selection.isSelected(row)">
-                                        </mat-checkbox>
-                                    </mat-cell>
+                                    <th>
+                                        <mat-header-cell *matHeaderCellDef>
+                                            <mat-checkbox color="primary" (change)="$event ? masterToggle() : null"
+                                                [checked]="selection.hasValue() && isAllSelected()"
+                                                [indeterminate]="selection.hasValue() && !isAllSelected()">
+                                            </mat-checkbox>
+                                        </mat-header-cell>
+                                    </th>
+                                    <td>
+                                        <mat-cell *cdkCellDef="let row">
+                                            <mat-checkbox color="primary" (click)="$event.stopPropagation()"
+                                                (change)="$event ? selection.toggle(row) : null"
+                                                [checked]="selection.isSelected(row)">
+                                            </mat-checkbox>
+                                        </mat-cell>
+                                    </td>
+                                    
                                 </ng-container>
 
                                 <!-- Position Column -->
@@ -272,15 +277,15 @@
                                 </ng-container>
                                 <ng-container matColumnDef="viewread" stickyEnd>
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header> Action </th>
-                                    <td mat-cell *matCellDef="let element; let i=index;"> <a matTooltip="Read" [matTooltipPosition]="'above'"
-                                            (click)="openBottomSheet(element)" class="action-icons edit-icon">
-                                            <mat-icon class=" mt-2 cursor-pointer">visibility</mat-icon>
+                                    <td mat-cell *matCellDef="let element; let i=index;"> <a 
+                                            (click)="openBottomSheet(element)"  class="action-icons edit-icon">
+                                            <mat-icon matTooltip="Read" [matTooltipPosition]="'above'" class="  cursor-pointer">visibility</mat-icon>
                                             <!-- //View Read -->
 
                                         </a>
                                         &nbsp;
-                                        <a matTooltip="Device Info"  [matTooltipPosition]="'above'" class="edit-icon action-icons" (click)="alertDialog(element.id)">
-                                            <mat-icon class=" mt-2 cursor-pointer">devices</mat-icon>
+                                        <a  class="edit-icon action-icons" (click)="alertDialog(element.id)">
+                                            <mat-icon matTooltip="Device Info"  [matTooltipPosition]="'above'" class="  cursor-pointer">devices</mat-icon>
                                             <!-- Device Detail -->
                                         </a>
                                     </td>

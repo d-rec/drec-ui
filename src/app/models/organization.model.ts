@@ -1,3 +1,4 @@
+import {OrganizationStatus} from '../utils/drec.enum'
 export interface OrganizationInformation
 {
     id: number;
@@ -14,3 +15,23 @@ export interface OrganizationInformation
     blockchainAccountAddress: string;
     blockchainAccountSignedMessage: string;   
 }
+export class IPublicOrganization {
+    id: number;
+    name: string;
+    address: string;
+    zipCode: string;
+    city: string;
+    country: string;
+    organizationType: string;
+    
+    status: OrganizationStatus;
+  
+    blockchainAccountAddress?: string;
+    blockchainAccountSignedMessage?: string;
+  }
+  
+  export interface IFullOrganization extends IPublicOrganization {
+   
+    signatoryDocumentIds?: string[];
+    documentIds?: string[];
+  }

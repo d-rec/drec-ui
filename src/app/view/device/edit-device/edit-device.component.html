@@ -55,8 +55,8 @@
                                     <input matInput placeholder="name" formControlName='externalId'>
                                     <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                                     <!-- <mat-hint>Hint</mat-hint> -->
-                                    <mat-error class="pb-3" *ngIf="checkValidation('email')">
-                                        {{ emaiErrors() }}
+                                    <mat-error class="pb-3" *ngIf="checkValidation('externalId')">
+                                        {{ externalIdErrors() }}
 
                                     </mat-error>
                                 </mat-form-field>
@@ -212,7 +212,7 @@
                                     <mat-select formControlName='offTaker' placeholder="offTaker"
                                         [(ngModel)]="offTaker">
 
-                                        <mat-option *ngFor="let code of offteker" [value]="code">
+                                        <mat-option *ngFor="let code of offtaker" [value]="code">
                                             {{code}}
                                         </mat-option>
                                     </mat-select>
