@@ -1,0 +1,85 @@
+<mat-card class="mb-3">
+    <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+
+        <div >
+            <h2 class="text-capitalize device-details-heading">{{data.title}}
+            </h2>
+            <mat-icon aria-hidden="false" (click)="dialogRef.close(false)" class="close-icon"> close </mat-icon>
+        </div>
+
+
+    </mat-card-header>
+    <hr>
+    <mat-card-content>
+        <form [formGroup]="inviteForm" (ngSubmit)="onSubmit()">
+            <mat-card-content>
+                <div class="example-container1 row">
+
+                    <div class="col-md-3">
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">First Name</mat-label>
+                            <input autofocus type="text" matInput formControlName="firstName"
+                                >
+                        </mat-form-field>
+
+
+                    </div>
+                    <div class="col-md-3">
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Last Name</mat-label>
+                            <input autofocus type="text" matInput formControlName="lastName"
+                                >
+
+                        </mat-form-field>
+                    </div>
+
+                    <div class="col-md-3">
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Email</mat-label>
+                            <input autofocus type="email" matInput formControlName="email"
+                               >
+
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+
+                        <mat-form-field appearance="outline" class="mt-0" *ngIf="role==='OrganizationAdmin'">
+                            <mat-label class="mat-labels-cont text-capitalize">Role</mat-label>
+                            <mat-select formControlName="role" class="value-fs">
+                               
+                                <mat-option *ngFor="let org of orgtype" [value]="org.value">
+                                    {{org.viewValue}}
+                                </mat-option>
+                               
+                            </mat-select>
+                            
+                        </mat-form-field>
+                         <mat-form-field appearance="outline" class="mt-0" *ngIf="role==='Buyer'">
+                            <mat-label class="mat-labels-cont text-capitalize">Role</mat-label>
+                            <mat-select formControlName="role" class="value-fs">
+                                
+                                <mat-option  [value]="'Buyer'" >
+                                    Buyer 
+                                </mat-option>
+                            </mat-select>
+                            
+                        </mat-form-field>
+                    </div>
+                </div>
+
+            </mat-card-content>
+            <mat-card-footer>
+                <div class="example-container mt-3 row">
+                    <div class="col-12 d-flex justify-content-end">
+                        <button type="submit" class="btn-primary btn text-capitalize px-4"
+                            [disabled]="inviteForm.invalid">Submit</button>&nbsp;&nbsp;
+
+                    </div>
+
+                </div>
+            </mat-card-footer>
+        </form>
+
+    </mat-card-content>
+   
+</mat-card>

@@ -67,7 +67,7 @@ export class CertificateDetailsComponent {
   totalPages: number;
   p: number = 1;
   FilterForm: FormGroup;
-  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
+  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
   endminDate = new Date();
   sdgblist: any;
   fuellist: any;

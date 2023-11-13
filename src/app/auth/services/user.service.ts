@@ -19,4 +19,16 @@ export class UserService {
   public UserResetPassword(token:any,data: any): Observable<any> {
     return this.httpClient.put<any>(this.url + 'user/reset/password/'+token ,data);
   }
+  public userProfile():Observable<any>{
+    return this.httpClient.get<any>(this.url+'user/me')
+  }
+  public updatProfile(data:any):Observable<any>{
+    return this.httpClient.put<any>(this.url+'user/profile',data)
+  }
+  public updatPassword(data:any):Observable<any>{
+    return this.httpClient.put<any>(this.url+'user/profile',data)
+  }
+  public resetPassword(token:any,data:any):Observable<any>{
+    return this.httpClient.put<any>(this.url+'user/reset/password/'+token,data)
+  }
 }

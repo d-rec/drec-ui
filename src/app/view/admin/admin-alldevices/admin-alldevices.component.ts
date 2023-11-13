@@ -28,11 +28,12 @@ export class AdminAlldevicesComponent {
   displayedColumns = [
     //'onboarding_date',
     // 'projectName',
+    'organization',
     'developerExternalId',
     'externalId',
     'countryCode',
     'fuelCode',
-   // 'commissioningDate',
+    // 'commissioningDate',
     'capacity',
     'IREC_Status',
     'IREC_ID',
@@ -57,14 +58,17 @@ export class AdminAlldevicesComponent {
   p: number = 1;
   totalRows = 0;
   filteredOptions: Observable<any[]>;
-  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
+  filteredOptions1: Observable<any[]>;
+  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
   endminDate = new Date();
   totalPages: number;
   subscription: Subscription;
   selectedCountry: any;
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
+  showorgerror:boolean=false;
   showlist: boolean = false;
+  orglist:any;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService, private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
@@ -72,6 +76,8 @@ export class AdminAlldevicesComponent {
     private toastrService: ToastrService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
+      organizationname:[],
+      organizationId: [],
       countryCode: [],
       countryname: [],
       fuelCode: [],
@@ -81,10 +87,16 @@ export class AdminAlldevicesComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
+
       //pagenumber: [this.p]
     });
   }
   ngOnInit(): void {
+    this.adminService.GetAllOrganization().subscribe(
+      (data) => {
+        //@ts-ignore
+        this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+      })
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
 
@@ -116,6 +128,7 @@ export class AdminAlldevicesComponent {
       if (this.countrycodeLoded) {
         this.applycountryFilter();
       }
+      this.applyorgFilter()
       this.loading = false;
       this.getDeviceListData(this.p);
     }, 2000)
@@ -135,6 +148,27 @@ export class AdminAlldevicesComponent {
 
   // }
 
+  applyorgFilter() {
+    this.FilterForm.controls['organizationname'];
+    this.filteredOptions1 = this.FilterForm.controls['organizationname'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._orgfilter(value || '')),
+    );
+  }
+  private _orgfilter(value: any): string[] {
+
+    const filterValue = value.toLowerCase();
+    if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
+      this.showorgerror = true;
+      // const updatedFormValues = this.FilterForm.value;
+      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
+      // this.isAnyFieldFilled = false;
+    } else {
+      this.showorgerror = false;
+    }
+    return this.orglist.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
+
+  }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
@@ -165,14 +199,14 @@ export class AdminAlldevicesComponent {
       debounceTime(500) // Debounce the stream for 500 milliseconds
     ).subscribe((formValues) => {
       if (isUserInteraction) {
+        if (formValues.organizationId === undefined || formValues.organizationId === '') {
+          this.FilterForm.controls['organizationname'].setValue(null);
+          this.FilterForm.controls['organizationId'].setValue(null);
+        }
         const countryValue = formValues.countryname;
-        console.log(countryValue)
         if (countryValue === undefined || countryValue === '') {
-
-          console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
-
         }
         const fuelCodeValue = formValues.fuelCode;
         if (fuelCodeValue === undefined) {
@@ -215,7 +249,17 @@ export class AdminAlldevicesComponent {
       }
     });
   }
+  selectorg(event: any) {
+    console.log(event)
 
+    this.subscription = this.filteredOptions1.subscribe(options => {
+
+      const selectedorg = options.find(option => option.name === event.option.value);
+      if (selectedorg) {
+        this.FilterForm.controls['organizationId'].setValue(selectedorg.id);
+      }
+    });
+  }
 
   reset() {
     this.FilterForm.reset();
@@ -345,11 +389,11 @@ export class AdminAlldevicesComponent {
           this.getDeviceListData(this.p);
 
         } else {
-          this.toastrService.warning('Failure',data.message);
+          this.toastrService.warning('Failure', data.message);
         }
 
       }, error: err => {
-        this.toastrService.error('Failure',err);
+        this.toastrService.error('Failure', err);
       }
     });
     ;

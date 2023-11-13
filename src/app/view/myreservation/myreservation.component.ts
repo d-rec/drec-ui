@@ -70,7 +70,7 @@ export class MyreservationComponent implements OnInit {
   public sdgblist: any;
   p: number = 1;
   totalRows = 0;
-  offtaker = ['School', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture']
+  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
   filteredOptions: Observable<any[]>;
   endminDate = new Date();
   group_info: any;
