@@ -7,7 +7,7 @@
       </div>
       <mat-divider></mat-divider>
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/admin/dashboard"
-        *ngIf="loginuser.role ==='Admin' && !showmenu">
+        *ngIf="loginuser.role ==='Admin'">
         <mat-icon>dashboard</mat-icon>
         <span>Dashboard</span>
       </button>
@@ -42,9 +42,10 @@
             <span>All ApiUser</span>
           </a>
           <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active"
-            routerLink="/organization/user/invitation" *ngIf="!showmenu &&  loginuser.role != 'Admin'||!'User'">
+            routerLink="/organization/user/invitation" *ngIf="loginuser?.role === 'OrganizationAdmin'||loginuser?.role ==='DeviceOwner'||loginuser?.role ==='Buyer'||loginuser?.role ==='SubBuyer'">
             <span> Invitation</span>
           </a>
+          
 
         </mat-nav-list>
       </mat-expansion-panel>
@@ -63,7 +64,7 @@
                 <span>My Devices</span>
               </a> -->
           <button mat-button class="menu-button" routerLinkActive="active" routerLink="/admin/All_devices"
-            *ngIf="loginuser.role ==='Admin' && !showmenu">
+            *ngIf="loginuser.role ==='Admin'">
             <!-- <mat-icon>list</mat-icon> -->
             <span>All Devices</span>
           </button>
@@ -109,7 +110,7 @@
             <span>Add MeterRead</span>
           </a>
           <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active"
-            routerLink="/device/certifiedin_reservation" *ngIf="!showmenu && loginuser.role ==='OrganizationAdmin'">
+            routerLink="/device/certifiedin_reservation" *ngIf="loginuser.role ==='OrganizationAdmin'">
             <!-- <mat-icon>list</mat-icon> -->
             <span> Certified MeterReads</span>
           </a>
@@ -197,7 +198,7 @@
       </button>
       <!--6th  -->
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/All_certificate"
-        *ngIf="loginuser.role ==='Buyer' && !showmenu ||loginuser.role ==='SubBuyer' && !showmenu|| loginuser.role === 'ApiUser'&& !showmenu">
+        *ngIf="loginuser.role ==='Buyer' ||loginuser.role ==='SubBuyer'|| loginuser.role === 'ApiUser'">
         <mat-icon>list</mat-icon>
         <span>Certificate</span>
       </button>
@@ -222,7 +223,7 @@
         </mat-expansion-panel-header>
         <mat-nav-list>
           <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active"
-            routerLink="/user/profile" *ngIf="!showmenu">
+            routerLink="/user/profile" >
 
             <span>Profile</span>
           </a>

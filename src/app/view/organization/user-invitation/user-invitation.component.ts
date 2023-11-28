@@ -41,6 +41,11 @@ export class UserInvitationComponent {
     { value: 'User', viewValue: 'User' }
   ];
   loginuser: any;
+  filteredOrgList: any[] = [];
+  //public color: ThemePalette = 'primary';
+  orgname: string;
+  orgId: number;
+  orglist: any;
   constructor(private fb: FormBuilder,
     private adminService: AdminService,
     private router: Router,
@@ -56,7 +61,20 @@ export class UserInvitationComponent {
   }
 
   ngOnInit() {
+    if (this.loginuser.role === 'ApiUser') {
+      this.orgService.GetApiUserAllOrganization().subscribe(
+        (data) => {
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+          console.log(this.orglist)
+          // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
+          this.filteredOrgList = this.orglist;
+          // Once data is loaded, call any other functions that depend on it
 
+
+        }
+      );
+    }
     this.inviteForm = this.fb.group({
       firstName: [null],
       lastName: [null],
@@ -64,29 +82,49 @@ export class UserInvitationComponent {
       role: [null, [Validators.required]],
     });
     console.log(this.userstatus)
-    console.log(this.userstatus !='Pending')
+    console.log(this.userstatus != 'Pending')
     setTimeout(() => {
       // if (this.userstatus=== 'Active' && this.loginuser.role=== 'OrganizationAdmin') {
       //   console.log(this.userstatus)
       //   this.displayedColumns = ['sender', 'email', 'status']
-        this.getorginviteuserlist();
-      
+      this.getorginviteuserlist();
+
       // }else{
       //   this.getinvitationList();
       // }
     }, 1000);
-   
 
-   
+
+
+  }
+  filterOrgList() {
+    console.log("99")
+    this.filteredOrgList = this.orglist.filter((org: any) => {
+
+      return org.name.toLowerCase().includes(this.orgname.toLowerCase());
+
+
+
+    });
+  }
+  selectOrg(event: any) {
+    console.log(event)
+
+    //@ts-ignore
+    const selectedCountry = this.orglist.find(option => option.name === event.option.value);
+    if (selectedCountry) {
+      this.orgId = selectedCountry.id;
+    }
+
   }
   onSubmit() {
     this.inveiteService.Postuserinvitation(this.inviteForm.value).subscribe({
       next: response => {
         console.log(response);
         this.inviteForm.reset();
-        this.loading=true;
+        this.loading = true;
         if (response.success) {
-          this.loading=false;
+          this.loading = false;
           this.tabGroup.selectedIndex = 1;
           this.toastrService.success('Invitation Sent')
           this.displayedColumns = ['sender', 'email', 'status']
@@ -116,7 +154,7 @@ export class UserInvitationComponent {
       console.log('org', data);
       //@ts-ignore
       this.orginviteuser = data.invitations
-      this.dataSource1=new MatTableDataSource(this.orginviteuser);
+      this.dataSource1 = new MatTableDataSource(this.orginviteuser);
 
       this.showorginviteuser = true;
     })

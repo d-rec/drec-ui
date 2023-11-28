@@ -110,9 +110,9 @@
             </mat-form-field>
           </div>
           <div class="col-md-3">
-           
+            <h6 *ngIf="loginuser.role==='ApiUser'">&nbsp;</h6>
             <mat-form-field appearance="outline">
-              <mat-label>Capacity(kW)</mat-label>
+              <mat-label class="text-capitalize">Capacity(kW)</mat-label>
               <input matInput type="number" [min]=1 (ngModelChange)="checkFormValidity()" formControlName='capacity'
                 #input>
             </mat-form-field>
@@ -226,7 +226,7 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns;">
           </tr>
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell" colspan="4">No data found </td>
+            <td class="mat-cell" colspan="4">No Device found </td>
           </tr>
         </table>
         <!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"

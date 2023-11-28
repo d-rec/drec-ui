@@ -78,6 +78,7 @@ export class InvitationformComponent {
 
   }
   onSubmit() {
+    console.log("invite")
     this.inveiteService.Postuserinvitation(this.inviteForm.value, this.data.id).subscribe({
       next: (response) => {
         console.log(response);

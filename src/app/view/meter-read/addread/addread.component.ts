@@ -30,7 +30,7 @@ export class AddreadComponent implements OnInit {
   public stepSecond = 1;
   data: any;
   showerror: boolean;
-  showerrorexternalid: boolean;
+  showerrorexternalid: boolean=false;
   timezonedata: any = [];
   countrylist: any;
   hidestarttime: boolean = true;
@@ -88,7 +88,6 @@ export class AddreadComponent implements OnInit {
       externalId: [null, Validators.required],
       type: [null, Validators.required],
       unit: [null, Validators.required],
-
       reads: this.fb.array([
       ])
     })
