@@ -59,17 +59,29 @@ export class AllUsersComponent {
     private dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
     private toastrService: ToastrService) {
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     if (this.activatedRoute.snapshot.params['id']) {
       this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
+      console.log("orgnaizatioId", this.orgnaizatioId)
       this.showorg = true;
-      this.adminService.GetOrganizationById(this.orgnaizatioId).subscribe((data) => {
-        console.log('org', data)
+      if (this.loginuser.role === 'ApiUser') {
+        this.orgService.GetOrganizationById(this.orgnaizatioId).subscribe((data) => {
+          console.log('org', data)
 
-        this.orgdetails = data
+          this.orgdetails = data
 
-      })
+        })
+      } else {
+        this.adminService.GetOrganizationById(this.orgnaizatioId).subscribe((data) => {
+          console.log('org', data)
+
+          this.orgdetails = data
+
+        })
+      }
+
     }
-    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+
   }
   ngOnInit(): void {
     this.FilterForm = this.formBuilder.group({
@@ -82,19 +94,20 @@ export class AllUsersComponent {
         (data) => {
           this.orglist = data.organizations
           console.log(this.orglist)
-        
-          
+
+
         })
     }
 
     setTimeout(() => {
       // if (this.countrycodeLoded) {
-        this.applyorgFilter();   
-          // }
+      this.applyorgFilter();
+      // }
       this.loading = false;
+   
       this.getAllUsers(this.p);
     }, 2000)
-   
+
   }
   ngOnDestroy() {
     if (this.subscription) {
@@ -143,13 +156,13 @@ export class AllUsersComponent {
     this.applyorgFilter();
     this.getAllUsers(this.p);
   }
-  getAllUsers(page:number) {
-    const limit=20;
-    if (this.loginuser.role === "Admin") {
+  getAllUsers(page: number) {
+    const limit = 20;
+    if (this.loginuser.role === "Admin" || this.loginuser.role === "ApiUser") {
       if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
-        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId,page,limit).subscribe((data) => {
+        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId, page, limit).subscribe((data) => {
           console.log(data)
-          this.showorguser=false;
+          this.showorguser = false;
           this.showlist = true
           this.loading = false
           //@ts-ignore
@@ -160,11 +173,12 @@ export class AllUsersComponent {
           console.log(this.totalRows);
           this.totalPages = this.data.totalPages
         })
-      } else {
-        this.adminService.GetAllUsers(page,limit,this.FilterForm.value).subscribe((data) => {
+      }
+      else {
+        this.adminService.GetAllUsers(page, limit, this.FilterForm.value).subscribe((data) => {
           console.log(data)
           this.showlist = true;
-          this.showorguser=false;
+          this.showorguser = false;
           this.loading = false
           //@ts-ignore
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');
@@ -177,8 +191,8 @@ export class AllUsersComponent {
       }
 
     } else {
-      this.showorg=true
-      this.orgService.getOrganizationUser(page,limit).subscribe({
+      this.showorg = true
+      this.orgService.getOrganizationUser(page, limit).subscribe({
         next: (data) => {
 
           console.log(data)
@@ -236,7 +250,7 @@ export class AllUsersComponent {
 
   openDialog(user: any) {
     console.log(user)
-    if (user.role === 'OrganizationAdmin'||user.role === 'Buyer') {
+    if (user.role === 'OrganizationAdmin' || user.role === 'Buyer') {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
           title: 'Confirm Remove User',
@@ -300,7 +314,7 @@ export class AllUsersComponent {
       if (result === true) {
         // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
         //this.deleteDevice(device.id)
-        this.p=1;
+        this.p = 1;
         this.getAllUsers(this.p);
       }
     });

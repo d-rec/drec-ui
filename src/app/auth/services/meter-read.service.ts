@@ -34,22 +34,24 @@ export class MeterReadService {
   }
   GetRead(exterenalId: string, data: any): Observable<any> {
     console.log(data)
+    let headers: HttpHeaders;
+    headers = new HttpHeaders(this.headersData);
     // return this.httpClient.get<any>(this.url + 'meter-reads/new/'+exterenalId+'? data)
     let searchUrl = `${this.url}meter-reads/new/` + exterenalId + `?readType=meterReads&`;
 
-    if (!(typeof data.start === "undefined" || data.start === "" || data.start === null)) {
+    if (!(typeof data.start === "undefined" || data.start === "" || data.start === null|| data.start === undefined)) {
       searchUrl += `start=${new Date(data.start).toISOString()}`;
     }
 
-    if (!(typeof data.end === "undefined" || data.end === "" || data.end === null)) {
+    if (!(typeof data.end === "undefined" || data.end === "" || data.end === null|| data.end === undefined)) {
       searchUrl += `&end=${new Date(data.end).toISOString()}`;
 
     }
 
-    // if (!(typeof searchData.Distance === "undefined" || searchData.Distance === ""))
-    // {
-    //   searchUrl+=`&Distance=${searchData.Distance}`;
-    // }
+    if (!(typeof data.organizationId === "undefined" || data.organizationId === ""|| data.organizationId === null|| data.organizationId === undefined))
+    {
+      searchUrl+=`&organizationId=${data.organizationId}`;
+    }
 
     if (!(typeof data.pagenumber === "undefined" || data.pagenumber === "" || data.pagenumber === null)) {
       searchUrl += `&pagenumber=${data.pagenumber}`;
@@ -58,7 +60,7 @@ export class MeterReadService {
     // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
     //   searchUrl += `&GroupId=${searchData.GroupId}`;
     // }
-    return this.httpClient.get(searchUrl);
+    return this.httpClient.get(searchUrl,{headers});
   }
   Getlastread(exterenalId: string): Observable<any> {
     let headers: HttpHeaders;

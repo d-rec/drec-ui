@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, Inject } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
-import { MeterReadService, DeviceService, AdminService } from '../../../auth/services';
+import { MeterReadService, DeviceService, AdminService,OrganizationService } from '../../../auth/services';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MeterReadTableComponent } from '../meter-read-table/meter-read-table.component'
@@ -49,13 +49,14 @@ export class AllMetereadsComponent implements OnInit {
   orgname: any;
   orgId: any;
   orglist: any;
-  showerrorexternalid: boolean;
+  showerrorexternalid: boolean=false;
   showerror: boolean;
   filteredexternalIdOptions: Observable<any[]>;
   devicelist: any = [];
   constructor(private service: MeterReadService, private formBuilder: FormBuilder,
     private deviceservice: DeviceService,
-    private adminService: AdminService
+    private adminService: AdminService,
+    private orgService: OrganizationService
 
   ) {
 
@@ -73,7 +74,21 @@ export class AllMetereadsComponent implements OnInit {
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
           this.filteredOrgList = this.orglist;
         })
-    } else {
+    } else if (this.loginuser.role === 'ApiUser') {
+      this.orgService.GetApiUserAllOrganization().subscribe(
+        (data) => {
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+          console.log(this.orglist)
+          // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
+          this.filteredOrgList = this.orglist;
+          // Once data is loaded, call any other functions that depend on it
+
+          // this.date = new Date();
+        }
+      );
+    }
+    else {
       this.gedevicefororg();
     }
     this.DisplayList();
@@ -116,7 +131,13 @@ export class AllMetereadsComponent implements OnInit {
         this.filter = false;
         this.externalId = null;
         this.orgId=selectedCountry.id;
-        this.gedeviceforadmin(this.orgId);
+        if (this.loginuser.role === 'ApiUser') {
+          this.FilterForm.addControl('organizationId', this.formBuilder.control(''));
+          this.gedevicefororg();
+        } else {
+          this.gedeviceforadmin(this.orgId);
+        }
+       
       }
    
   }
@@ -137,13 +158,31 @@ export class AllMetereadsComponent implements OnInit {
     })
   }
   gedevicefororg() {
-    const deviceurl = 'device/my';
-    this.deviceservice.GetMyDevices(deviceurl).subscribe({
-      next: data => {
-        console.log(data)
-        this.devicelist = data;
-      }
-    })
+    if (this.loginuser.role === 'ApiUser') {
+      const deviceurl = 'device/my?';
+      const FilterForm = { organizationId: this.orgId }
+      this.deviceservice.GetMyDevices(deviceurl, FilterForm).subscribe({
+        next: data => {
+          console.log(data)
+          this.devicelist = data.devices;
+          this.FilterForm.controls['externalId'];
+          this.filteredexternalIdOptions = this.FilterForm.controls['externalId'].valueChanges.pipe(
+            startWith(''),
+            map(value => this._externalIdfilter(value || '')),
+          );
+          console.log(this.filteredexternalIdOptions);
+
+        }
+      })
+    } else {
+      const deviceurl = 'device/my';
+      this.deviceservice.GetMyDevices(deviceurl).subscribe({
+        next: data => {
+          console.log(data)
+          this.devicelist = data;
+        }
+      })
+    }
   }
 
   _externalIdfilter(value: string): string[] {
@@ -233,17 +272,16 @@ export class AllMetereadsComponent implements OnInit {
     console.log(this.selectedResult);
     console.log(result);
    
-
-    let deivceid;
     if (this.loginuser.role === 'Admin') {
       this.FilterForm.controls['externalId'].setValue(result.developerExternalId);
+      this.externalId = result.id;
+    } else if (this.loginuser.role === 'ApiUser') {
+      this.FilterForm.controls['externalId'].setValue(result.externalId);
       this.externalId = result.id;
     } else {
       this.FilterForm.controls['externalId'].setValue(result.externalId);
       this.externalId = result.externalId;
-      console.log(this.externalId)
     }
-
 
   }
   reset() {
@@ -289,6 +327,9 @@ export class AllMetereadsComponent implements OnInit {
     this.filter = true;
     console.log(this.externalId);
     this.FilterForm.controls['pagenumber'].setValue(this.p);
+    if (this.loginuser.role === 'ApiUser') {
+      this.FilterForm.controls['organizationId'].setValue(this.orgId);
+    }
     console.log(this.FilterForm)
     this.counterComponent.start(this.FilterForm, this.externalId, this.filter);
   }

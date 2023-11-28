@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { ParseTreeResult } from '@angular/compiler';
 import { ToastrService } from 'ngx-toastr';
-import { DeviceService,ReservationService } from '../../auth/services'
+import { DeviceService, ReservationService, OrganizationService } from '../../auth/services'
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatBottomSheet, MatBottomSheetConfig, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MeterReadTableComponent } from '../meter-read/meter-read-table/meter-read-table.component'
@@ -58,7 +58,7 @@ export class AddReservationComponent {
   FilterForm: FormGroup;
   p: number = 1;
   totalRows = 0;
-  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
+  offtaker = ['School', 'Education', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture', 'Utility', 'Off-Grid Community']
   frequency = ['hourly', 'daily', 'weekly', 'monthly']
   dialogRef: any;
   sdgblist: any;
@@ -66,12 +66,20 @@ export class AddReservationComponent {
   subscription: Subscription;
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
+  orgname: string;
+  orgId: number;
+  orglist: any;
+  filteredOrgList: any[] = [];
   // countrycodeLoded: boolean = false;
   reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };
-  constructor(private authService: AuthbaseService, private reservationService: ReservationService,private router: Router,
+  constructor(private authService: AuthbaseService, private reservationService: ReservationService, private router: Router,
     public dialog: MatDialog, private bottomSheet: MatBottomSheet,
-    private formBuilder: FormBuilder, private toastrService: ToastrService, private deviceservice: DeviceService) {
-    this.loginuser = sessionStorage.getItem('loginuser');
+    private formBuilder: FormBuilder,
+    private toastrService: ToastrService,
+    private deviceservice: DeviceService,
+    private orgService: OrganizationService) {
+    // this.loginuser = sessionStorage.getItem('loginuser');
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.reservationForm = this.formBuilder.group({
       name: [null, Validators.required],
       deviceIds: [Validators.required],
@@ -102,6 +110,17 @@ export class AddReservationComponent {
     });
   }
   ngOnInit() {
+    if (this.loginuser.role === 'ApiUser') {
+      this.orgService.GetApiUserAllOrganization().subscribe(
+        (data) => {
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Developer");
+          console.log(this.orglist)
+          // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
+          this.filteredOrgList = this.orglist;
+        }
+      );
+    }
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1: any) => {
 
@@ -131,10 +150,10 @@ export class AddReservationComponent {
     console.log("myreservation");
     setTimeout(() => {
       if (this.countrycodeLoded) {
-        this.applycountryFilter();      
+        this.applycountryFilter();
       }
       this.displayList(this.p);
-    },2000)
+    }, 2000)
 
   }
   ngOnDestroy() {
@@ -142,7 +161,26 @@ export class AddReservationComponent {
       this.subscription.unsubscribe();
     }
   }
+  filterOrgList() {
+    console.log("99")
+    this.filteredOrgList = this.orglist.filter((org: any) => {
 
+      return org.name.toLowerCase().includes(this.orgname.toLowerCase());
+
+
+
+    });
+  }
+  selectOrg(event: any) {
+    console.log(event)
+
+    //@ts-ignore
+    const selectedCountry = this.orglist.find(option => option.name === event.option.value);
+    if (selectedCountry) {
+      this.orgId = selectedCountry.id;
+    }
+
+  }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
@@ -177,14 +215,14 @@ export class AddReservationComponent {
     ).subscribe((formValues) => {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
-      
-        if (countryValue === undefined ||countryValue==='') {
+
+        if (countryValue === undefined || countryValue === '') {
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
 
         }
-       // const fuelCodeValue = formValues.fuelCode;
+        // const fuelCodeValue = formValues.fuelCode;
         // if (fuelCodeValue != null && fuelCodeValue === undefined) {
         //   this.FilterForm.controls['fuelCode'].setValue(null);
         // }
@@ -205,7 +243,7 @@ export class AddReservationComponent {
       const updatedFormValues = this.FilterForm.value;
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
       this.isAnyFieldFilled = isAllValuesNull;
-      if(!this.isAnyFieldFilled){
+      if (!this.isAnyFieldFilled) {
         this.displayList(this.p)
       }
     }, 500);
@@ -348,22 +386,43 @@ export class AddReservationComponent {
   onContinue(result: any) {
     this.reservationForm.controls['continueWithReservationIfOneOrMoreDevicesUnavailableForReservation'].setValue(result.continewwithunavilableonedevice);
     this.reservationForm.controls['continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'].setValue(result.continueWithTCLessDTC);
-    this.authService.PostAuth('buyer-reservation', this.reservationForm.value).subscribe({
-      next: data => {
-        console.log(data)
-        this.reservationForm.reset();
-        this.selection.clear();
-        this.FilterForm.reset();
-        //  this.getDeviceListData();
-        this.toastrService.success('Successfully!!', 'Reservation Added');
-        this.dialogRef.close();
-        this.router.navigate(['/myreservation']);
-      },
-      error: err => {                          //Error callback
-        console.error('error caught in component', err)
-        this.toastrService.error('error!', err.error.message);
-      }
-    });
+    if (this.loginuser?.role === 'ApiUser') {
+      console.log("orgId",this.orgId)
+      this.reservationService.AddReservation(this.reservationForm.value,this.orgId).subscribe({
+        next: data => {
+          console.log(data)
+          this.reservationForm.reset();
+          this.selection.clear();
+          this.FilterForm.reset();
+          //  this.getDeviceListData();
+          this.toastrService.success('Successfully!!', 'Reservation Added');
+          this.dialogRef.close();
+          this.router.navigate(['/myreservation']);
+        },
+        error: err => {                          //Error callback
+          console.error('error caught in component', err)
+          this.toastrService.error('error!', err.error.message);
+        }
+      });
+    }
+    else {
+      this.reservationService.AddReservation( this.reservationForm.value).subscribe({
+        next: data => {
+          console.log(data)
+          this.reservationForm.reset();
+          this.selection.clear();
+          this.FilterForm.reset();
+          //  this.getDeviceListData();
+          this.toastrService.success('Successfully!!', 'Reservation Added');
+          this.dialogRef.close();
+          this.router.navigate(['/myreservation']);
+        },
+        error: err => {                          //Error callback
+          console.error('error caught in component', err)
+          this.toastrService.error('error!', err.error.message);
+        }
+      });
+    }
 
   }
 

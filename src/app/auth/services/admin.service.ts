@@ -31,6 +31,7 @@ export class AdminService {
     return this.httpClient.get<any>(this.url + 'admin/organizations/' + orgId);
   }
   public GetAllUsers(pagenumber?: number, limit?: number, searchData?: any): Observable<any> {
+    let headers = new HttpHeaders(this.headersData);
     let searchUrl = `${this.url}admin/users`;
     if (pagenumber != undefined && limit != undefined) {
       if (!(typeof pagenumber === undefined || pagenumber === null)) {
@@ -42,17 +43,17 @@ export class AdminService {
         searchUrl += `&organizationName=${searchData.organizationName}`;
       }
     }
-    return this.httpClient.get(searchUrl);
+    return this.httpClient.get(searchUrl,{headers});
   }
   public GetAllOrgnaizationUsers(organizationsId: number, pagenumber?: number, limit?: number): Observable<any> {
-
+    let headers = new HttpHeaders(this.headersData);
     let searchUrl = `${this.url}admin/organizations/user/${organizationsId}`;
     if (pagenumber != undefined && limit != undefined) {
       if (!(typeof pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;
       }
     }
-    return this.httpClient.get<any>(searchUrl);
+    return this.httpClient.get<any>(searchUrl,{headers});
   }
   public updateUser(userId: number, data: any): Observable<any> {
     return this.httpClient.put<any>(this.url + 'admin/users/' + userId, data)

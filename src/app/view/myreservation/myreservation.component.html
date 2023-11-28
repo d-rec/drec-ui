@@ -222,7 +222,7 @@
 
                     <!-- Row shown when there is no matching data. -->
                     <tr class="mat-row" *matNoDataRow>
-                        <td class="mat-cell" colspan="10" style="text-align: center">No Data Found</td>
+                        <td class="mat-cell" colspan="10" style="text-align: center">No Reservation Found</td>
                     </tr>
 
                 </table>
@@ -233,6 +233,10 @@
                     Total Pages:&nbsp;{{totalPages}}&nbsp;&nbsp;&nbsp;&nbsp;
                     <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
                         [disabled]="p === totalPages">Next</button>
+                        <p style="width: 150px;
+                        height: 25px;
+                        margin-left: 420px;
+                        padding: 10px 5px 0px 0px"><b>Page Number:&nbsp;</b>{{p}}</p>
                 </div>
             </div>
 
@@ -400,7 +404,7 @@
                     <tr mat-header-row *matHeaderRowDef="displayedColumns1"></tr>
                     <tr mat-row *matRowDef="let row; columns: displayedColumns1;"></tr>
                     <tr class="mat-row" *matNoDataRow>
-                        <td class="mat-cell" colspan="4" style="text-align: center">No data found </td>
+                        <td class="mat-cell" colspan="4" style="text-align: center">No Reservation found </td>
                     </tr>
                 </table>
             </div>
