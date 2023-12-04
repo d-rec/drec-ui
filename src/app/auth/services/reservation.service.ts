@@ -23,6 +23,7 @@ export class ReservationService {
     if (!(orgId === null || orgId === undefined)) {
       searchUrl += `?orgId=${orgId}`;
     }
+     //@ts-ignore
     let headers = new HttpHeaders(this.headersData);
     return this.httpClient.post<any>(searchUrl, data, { headers })
   }

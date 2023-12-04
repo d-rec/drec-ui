@@ -21,7 +21,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
-import {EditPermissionComponent} from '../edit-permission/edit-permission.component'
+import {EditPermissionComponent} from '../edit-permission/edit-permission.component';
+import { getapiuser_header } from '../../../utils/apiuser_clientinfo'
 @Component({
   selector: 'app-api-user-permission',
   templateUrl: './api-user-permission.component.html',
@@ -78,17 +79,7 @@ export class ApiUserPermissionComponent {
       this.getuserinfo();
 
     } else if (this.loginuser.role === 'ApiUser') {
-      this.userId = this.loginuser.id;
-      this.showuserdetails = true;
-      this.userService.userProfile().subscribe({
-        next: data1 => {
-          console.log(data1)
-          this.showclientform = false;
-          this.userdetails = data1
-          this.permission_status = data1.permission_status
-          this.getAllUserspermission();
-        }
-      })
+     this.getapiUser();
     }
     else {
       this.showuserdetails = false;
@@ -129,8 +120,21 @@ export class ApiUserPermissionComponent {
     // }, 2000)
 
   }
+  async getapiUser(){
+    this.userId = this.loginuser.id;
+    this.showuserdetails = true;
+   // let headers:any = await getapiuser_header();
+    this.userService.userProfile().subscribe({
+      next: data1 => {
+        console.log(data1)
+        this.showclientform = false;
+        this.userdetails = data1
+        this.permission_status = data1.permission_status
+        this.getAllUserspermission();
+      }
+    })
+  }
   getuserinfo() {
-
 
     this.userService.getuserById(this.userId).subscribe({
       next: data1 => {

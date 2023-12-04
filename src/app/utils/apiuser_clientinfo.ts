@@ -1,6 +1,6 @@
-export const getapiuser_header = () => {
+export const getapiuser_header =  () => {
     let header:any = {};
-    let loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+    let loginuser = JSON.parse( sessionStorage.getItem('loginuser')!);
     console.log(loginuser)
     if (loginuser?.role === "ApiUser") {
         header = {
@@ -9,7 +9,8 @@ export const getapiuser_header = () => {
         }
 
     }
-    return header;
+    console.log("header",header)
+    return  header;
 }
 // export const getapiuser_header = () => {
 //     return new Promise((resolve) => {

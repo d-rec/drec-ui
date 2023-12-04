@@ -104,7 +104,7 @@ export class AllUsersComponent {
       this.applyorgFilter();
       // }
       this.loading = false;
-   
+
       this.getAllUsers(this.p);
     }, 2000)
 
@@ -160,34 +160,54 @@ export class AllUsersComponent {
     const limit = 20;
     if (this.loginuser.role === "Admin" || this.loginuser.role === "ApiUser") {
       if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
-        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId, page, limit).subscribe((data) => {
-          console.log(data)
-          this.showorguser = false;
-          this.showlist = true
-          this.loading = false
-          //@ts-ignore
-          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-          console.log(this.data);
-          this.dataSource = new MatTableDataSource(this.data.users);
-          this.totalRows = this.data.totalCount
-          console.log(this.totalRows);
-          this.totalPages = this.data.totalPages
-        })
+        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId, page, limit).subscribe({
+          next: (data) => {
+            console.log(data)
+            this.showorguser = false;
+            this.showlist = true
+            this.loading = false
+            //@ts-ignore
+            this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+            console.log(this.data);
+            this.dataSource = new MatTableDataSource(this.data.users);
+            this.totalRows = this.data.totalCount
+            console.log(this.totalRows);
+            this.totalPages = this.data.totalPages
+          }, error: err => {
+            console.log(err)
+            if (err.error.statusCode === 403) {
+              this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
+            } else {
+              this.toastrService.error('Error:' + err.error.message, 'Fail')
+            }
+
+          }
+        });
       }
       else {
-        this.adminService.GetAllUsers(page, limit, this.FilterForm.value).subscribe((data) => {
-          console.log(data)
-          this.showlist = true;
-          this.showorguser = false;
-          this.loading = false
-          //@ts-ignore
-          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-          console.log(this.data);
-          this.dataSource = new MatTableDataSource(this.data.users);
-          this.totalRows = this.data.totalCount
-          console.log(this.totalRows);
-          this.totalPages = this.data.totalPages
-        })
+        this.adminService.GetAllUsers(page, limit, this.FilterForm.value).subscribe({
+          next: (data) => {
+            console.log(data)
+            this.showlist = true;
+            this.showorguser = false;
+            this.loading = false
+            //@ts-ignore
+            this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+            console.log(this.data);
+            this.dataSource = new MatTableDataSource(this.data.users);
+            this.totalRows = this.data.totalCount
+            console.log(this.totalRows);
+            this.totalPages = this.data.totalPages
+          }, error: err => {
+            console.log(err)
+            if (err.error.statusCode === 403) {
+              this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
+            } else {
+              this.toastrService.error('Error:' + err.error.message, 'Fail')
+            }
+
+          }
+        });
       }
 
     } else {
@@ -208,6 +228,12 @@ export class AllUsersComponent {
 
         }, error: err => {
           console.log(err)
+          if (err.error.statusCode === 403) {
+            this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
+          } else {
+            this.toastrService.error('Error:' + err.error.message, 'Fail')
+          }
+
         }
       });
 
