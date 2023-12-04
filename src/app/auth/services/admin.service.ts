@@ -31,6 +31,7 @@ export class AdminService {
     return this.httpClient.get<any>(this.url + 'admin/organizations/' + orgId);
   }
   public GetAllUsers(pagenumber?: number, limit?: number, searchData?: any): Observable<any> {
+    //@ts-ignore
     let headers = new HttpHeaders(this.headersData);
     let searchUrl = `${this.url}admin/users`;
     if (pagenumber != undefined && limit != undefined) {
@@ -46,6 +47,7 @@ export class AdminService {
     return this.httpClient.get(searchUrl,{headers});
   }
   public GetAllOrgnaizationUsers(organizationsId: number, pagenumber?: number, limit?: number): Observable<any> {
+     //@ts-ignore
     let headers = new HttpHeaders(this.headersData);
     let searchUrl = `${this.url}admin/organizations/user/${organizationsId}`;
     if (pagenumber != undefined && limit != undefined) {

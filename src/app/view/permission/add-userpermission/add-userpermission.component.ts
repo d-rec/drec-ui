@@ -187,7 +187,7 @@ export class UserpermissionComponent {
         this.aclpermissionServcie.addUserACL_modulePermission(request).subscribe({
           next: data => {
             if (data) {
-              this.toastrService.success('SuccessFul')
+            
               const index1 = this.selection.selected.indexOf(ele);
               this.selection.selected.splice(index, 1);
               console.log(this.selection.selected)

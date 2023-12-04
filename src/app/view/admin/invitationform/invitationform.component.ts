@@ -4,6 +4,7 @@ import { AdminService, UserService, InvitationService } from '../../../auth/serv
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog, MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { getapiuser_header } from '../../../utils/apiuser_clientinfo'
 
 @Component({
   selector: 'app-invitationform',
@@ -15,6 +16,7 @@ export class InvitationformComponent {
   message: string;
   inviteForm: FormGroup;
   invitaionlist: any;
+
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   orgtype: any[] = [
     // { value: 'OrganizationAdmin', viewValue: 'Developer' },
@@ -41,7 +43,7 @@ export class InvitationformComponent {
     public dialogRef: MatDialogRef<InvitationformComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
     this.data = data.orginfo;
-    console.log("hgfyt",this.data)
+    console.log("hgfyt", this.data)
     if (data.orginfo.organizationType === 'Developer') {
       this.role = 'OrganizationAdmin';
     }
@@ -54,7 +56,7 @@ export class InvitationformComponent {
   ngOnInit() {
     console.log(this.data)
     // console.log(this.userstatus);
-    this.getinvitationList();
+    // this.getinvitationList();
     this.inviteForm = this.fb.group({
       firstName: [null],
       lastName: [null],
@@ -77,20 +79,24 @@ export class InvitationformComponent {
     });
 
   }
-  onSubmit() {
+  async onSubmit() {
     console.log("invite")
-    this.inveiteService.Postuserinvitation(this.inviteForm.value, this.data.id).subscribe({
-      next: (response) => {
-        console.log(response);
-        if (response.success) {
-          this.toastrService.success('Invitation Sent')
-          this.dialogRef.close(true)
-        }
-      }, error: err => {
-        this.toastrService.error('Error:'+err.error.message,'Invitation Fail')
-      }
-    });
 
+    const headers = getapiuser_header();
+    console.log(headers)
+    setTimeout(() => {
+      this.inveiteService.Postuserinvitation(this.inviteForm.value, this.data.id, headers).subscribe({
+        next: (response) => {
+          console.log(response);
+          if (response.success) {
+            this.toastrService.success('Invitation Sent')
+            this.dialogRef.close(true)
+          }
+        }, error: err => {
+          this.toastrService.error('Error:' + err.error.message, 'Invitation Fail')
+        }
+      });
+    }, 2000)
   }
   getinvitationList() {
     this.inveiteService.getinvitaion().subscribe({

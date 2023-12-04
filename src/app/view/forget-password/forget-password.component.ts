@@ -11,23 +11,44 @@ import { ToastrService } from 'ngx-toastr';
 export class ForgetPasswordComponent {
   ForgetpasswordForm: FormGroup = new FormGroup({
     email: new FormControl(''),
+    //  clientid: new FormControl(''),
+    // client_secret: new FormControl(''),
 
   });
   message: string;
-  showform:boolean=true;
+  showform: boolean = true;
+  selectedOption: string = "Yes";
   // loginForm: FormGroup;
   constructor(private authService: UserService, private router: Router, private toastrService: ToastrService) {
 
   }
+
+  ngOnInit() {
+    this.onInputChange()
+  }
+  onInputChange() {
+    // Handle the change event here
+    if (this.selectedOption === "Yes") {
+      this.ForgetpasswordForm.addControl('clientid', new FormControl());
+      this.ForgetpasswordForm.addControl('client_secret', new FormControl())
+
+    } else if (this.selectedOption === "No") {
+      this.ForgetpasswordForm.removeControl('clientid');
+      this.ForgetpasswordForm.removeControl('client_secret')
+    }
+    // console.log('Input changed:', event.target.value);
+  }
   onSubmit() {
     console.log(this.ForgetpasswordForm.value)
-    this.authService.UserForgetPassword(this.ForgetpasswordForm.value).subscribe(
-      (data) => {
-       
-          this.message =data.message
-          this.showform=false
-       
+    this.authService.UserForgetPassword(this.ForgetpasswordForm.value).subscribe({
+      next: data => {
+        this.message = data.message
+        this.showform = false
+        this.toastrService.success(data.message, 'Sent Successfull !!');
 
-      })
+      }, error: err => {
+        this.toastrService.error(err.error.message, 'Message Failure !!');
+      }
+    })
   }
 }

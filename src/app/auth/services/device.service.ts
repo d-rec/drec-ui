@@ -65,6 +65,7 @@ export class DeviceService {
         searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
       }
     }
+    //@ts-ignore
     let headers = new HttpHeaders(this.headersData);
     return this.httpClient.get(searchUrl, { headers });
 
@@ -79,6 +80,7 @@ export class DeviceService {
     return this.httpClient.get(this.url + 'device/externalId/' + externalid)
   }
   public Postdevices(data: any): Observable<any> {
+    //@ts-ignore
     let headers = new HttpHeaders(this.headersData);
     return this.httpClient.post<any>(this.url + 'device', data, { headers })
 
