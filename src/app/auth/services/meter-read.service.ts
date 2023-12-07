@@ -16,7 +16,6 @@ export class MeterReadService {
   }
   PostRead(exterenalId: string, data: any): Observable<any> {
     let headers: HttpHeaders;
-     //@ts-ignore
     headers = new HttpHeaders(this.headersData);
     let addUrl = `${this.url}meter-reads/new/` + exterenalId;
    
@@ -25,7 +24,6 @@ export class MeterReadService {
   }
   PostReadByAdmin(exterenalId: string, data: any, orgId?: number): Observable<any> {
     let headers: HttpHeaders;
-     //@ts-ignore
     headers = new HttpHeaders(this.headersData);
     let addUrl = `${this.url}meter-reads/addByAdmin/new/` + exterenalId;
     if (orgId != undefined) {
@@ -37,7 +35,6 @@ export class MeterReadService {
   GetRead(exterenalId: string, data: any): Observable<any> {
     console.log(data)
     let headers: HttpHeaders;
-     //@ts-ignore
     headers = new HttpHeaders(this.headersData);
     // return this.httpClient.get<any>(this.url + 'meter-reads/new/'+exterenalId+'? data)
     let searchUrl = `${this.url}meter-reads/new/` + exterenalId + `?readType=meterReads&`;
@@ -67,7 +64,6 @@ export class MeterReadService {
   }
   Getlastread(exterenalId: string): Observable<any> {
     let headers: HttpHeaders;
-     //@ts-ignore
     headers = new HttpHeaders(this.headersData);
     return this.httpClient.get(this.url + 'meter-reads/latestread/' + exterenalId,{headers})
   }
