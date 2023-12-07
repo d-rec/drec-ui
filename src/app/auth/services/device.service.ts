@@ -22,7 +22,7 @@ export class DeviceService {
     console.log(deviceurl);
     console.log(searchData);
     let searchUrl = `${this.url}` + deviceurl;
-    if (!(typeof pagenumber === undefined ||pagenumber === null || pagenumber === undefined)) {
+    if (!(typeof pagenumber === undefined || pagenumber === null || pagenumber === undefined)) {
       searchUrl += `pagenumber=${pagenumber}`;
     }
     console.log(searchUrl);
@@ -65,28 +65,30 @@ export class DeviceService {
         searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
       }
     }
-    //@ts-ignore
     let headers = new HttpHeaders(this.headersData);
     return this.httpClient.get(searchUrl, { headers });
 
   }
   GetDevicesInfo(id: number): Observable<Device> {
-    return this.httpClient.get<Device>(this.url + 'device/' + id)
+
+    let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.get<Device>(this.url + 'device/' + id, { headers })
   }
-  GetDevicesInfoByExternalId(ExternalId: any): Observable<Device> {
-    return this.httpClient.get<Device>(this.url + 'device/externalId/' + ExternalId)
-  }
+  // GetDevicesInfoByExternalId(ExternalId: any): Observable<Device> {
+  //   return this.httpClient.get<Device>(this.url + 'device/externalId/' + ExternalId)
+  // }
   getDeviceInfoBYexternalId(externalid: string): Observable<any> {
+
     return this.httpClient.get(this.url + 'device/externalId/' + externalid)
   }
   public Postdevices(data: any): Observable<any> {
-    //@ts-ignore
     let headers = new HttpHeaders(this.headersData);
     return this.httpClient.post<any>(this.url + 'device', data, { headers })
 
   }
   public Patchdevices(id: any, data: any): Observable<any> {
-    return this.httpClient.patch<any>(this.url + 'device/' + id, data)
+    let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.patch<any>(this.url + 'device/' + id, data,{ headers })
 
   }
 

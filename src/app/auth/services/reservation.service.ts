@@ -23,7 +23,6 @@ export class ReservationService {
     if (!(orgId === null || orgId === undefined)) {
       searchUrl += `?orgId=${orgId}`;
     }
-     //@ts-ignore
     let headers = new HttpHeaders(this.headersData);
     return this.httpClient.post<any>(searchUrl, data, { headers })
   }
@@ -59,7 +58,8 @@ export class ReservationService {
     // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
     //   searchUrl += `&GroupId=${searchData.GroupId}`;
     // }
-    return this.httpClient.get(searchUrl);
+    let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.get(searchUrl,{headers});
   }
   GetnextissuanceCycleinfo(group_uid: any): Observable<any> {
     return this.httpClient.get(this.url + 'buyer-reservation/current-information/' + group_uid)

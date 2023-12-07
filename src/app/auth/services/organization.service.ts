@@ -31,12 +31,10 @@ export class OrganizationService {
     return this.httpClient.get<IPublicOrganization>(searchUrl)
   }
   public GetOrganizationById(orgId: number): Observable<any> {
-     //@ts-ignore
     let headers = new HttpHeaders(this.headersData);
     return this.httpClient.get<any>(environment.API_URL+ 'Organization/' + orgId,{headers});
   }
   public GetApiUserAllOrganization(pagenumber?: number, limit?: number, searchData?: any): Observable<any> {
-    //@ts-ignore
     let headers = new HttpHeaders(this.headersData);
     let searchUrl = `${environment.API_URL}Organization/apiuser/all_organization`;
     if (pagenumber != undefined && limit != undefined) {
