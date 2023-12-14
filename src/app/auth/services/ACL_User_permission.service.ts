@@ -36,7 +36,8 @@ export class ACLModulePermisionService {
 
   }
   public PutUserpermission(id: any, data: any): Observable<any> {
-    return this.httpClient.put<any>(environment.API_URL + 'permission/update/' + id, data)
+    let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.put<any>(environment.API_URL + 'permission/update/' + id, data,{ headers })
 
   }
 

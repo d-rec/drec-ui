@@ -30,7 +30,7 @@ export class AddreadComponent implements OnInit {
   public stepSecond = 1;
   data: any;
   showerror: boolean;
-  showerrorexternalid: boolean=false;
+  showerrorexternalid: boolean = false;
   timezonedata: any = [];
   countrylist: any;
   hidestarttime: boolean = true;
@@ -47,6 +47,8 @@ export class AddreadComponent implements OnInit {
   orgname: string;
   orgId: number;
   devicelist: any = [];
+  showmeter_readformadmin: boolean;
+  showexternaiIdform:boolean=false;
   constructor(private fb: FormBuilder, private readService: MeterReadService,
     private deviceservice: DeviceService,
     private authService: AuthbaseService,
@@ -54,6 +56,12 @@ export class AddreadComponent implements OnInit {
     private adminService: AdminService,
     private orgService: OrganizationService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+
+    if (this.loginuser.role === 'Admin' || this.loginuser.role === 'ApiUser') {
+      this.showmeter_readformadmin = true;
+    } else {
+      this.showmeter_readformadmin = false;
+    }
   }
 
 
@@ -138,7 +146,7 @@ export class AddreadComponent implements OnInit {
   }
   selectOrg(event: any) {
     console.log(event)
-
+this.showexternaiIdform=true;
     //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
