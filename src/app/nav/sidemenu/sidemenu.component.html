@@ -23,7 +23,7 @@
             <span>My Organizations</span>
           </a>
           <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active"
-            routerLink="/admin/add_user" *ngIf="loginuser.role ==='Admin'||loginuser.role ==='ApiUser'">
+            routerLink={{adduserorg_url}} *ngIf="loginuser.role ==='Admin'||loginuser.role ==='ApiUser'">
             <span>Add Organizations</span>
           </a>
           <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active"
@@ -32,7 +32,7 @@
           </a>
 
           <a mat-button class="menu-button inside-menu-button certified-metarides" routerLinkActive="active"
-            routerLink="/admin/All_users">
+          routerLink={{Alluserurl}}>
             <span>All Users</span>
           </a>
 

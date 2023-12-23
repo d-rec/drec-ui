@@ -3,7 +3,7 @@ import { FormGroup, FormControl, FormBuilder, Validators, FormGroupDirective, } 
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { Router } from '@angular/router';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
-
+import {UserService} from '../../../auth/services';
 import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-add-users',
@@ -26,15 +26,18 @@ export class AddUsersComponent {
   hide = true;
   hide1 = true;
   matchconfirm: boolean = false;
-
+  loginuser: any
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   constructor(private authService: AuthbaseService, private _formBuilder: FormBuilder,
-    private toastrService: ToastrService, private router: Router,) {
+    private toastrService: ToastrService, 
+    private userService:UserService,
+    private router: Router,) {
      // this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
 
 
   ngOnInit() {
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.createForm();
   }
   createForm() {
@@ -93,7 +96,31 @@ export class AddUsersComponent {
     
     this.registerForm.controls['password'].setValue(randPassword);
     this.registerForm.controls['confirmPassword'].setValue(randPassword);
-   
+   if(this.loginuser.role==='ApiUser'){
+    this.userService.userregisterByApiUser(this.registerForm.value).subscribe({
+      next: data => {
+        console.log(data)
+
+        this.toastrService.success('Successful!!', 'Registration ');
+       
+        this.registerForm.reset();
+        const formControls = this.registerForm.controls;
+
+        Object.keys(formControls).forEach(key => {
+          const control = formControls[key];
+          control.setErrors(null);
+        });
+
+        this.router.navigate(['/apiuser/All_users']);
+        // this.router.navigate(['/confirm-email']);
+
+      },
+      error: err => {                          //Error callback
+        console.error('error caught in component', err)
+        this.toastrService.error('error!', err.error.message);
+      }
+    });
+   }else{
     this.authService.PostAuth('admin/users', this.registerForm.value).subscribe({
       next: data => {
         console.log(data)
@@ -121,6 +148,8 @@ export class AddUsersComponent {
         this.toastrService.error('error!', err.error.message);
       }
     });
+   }
+   
     // formDirective.resetForm();
 
   }

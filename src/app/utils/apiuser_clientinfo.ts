@@ -1,7 +1,7 @@
 export const getapiuser_header =  () => {
     let header:any = {};
     let loginuser = JSON.parse( sessionStorage.getItem('loginuser')!);
-    console.log(loginuser)
+  
     if (loginuser?.role === "ApiUser") {
         header = {
             "client_id": loginuser?.clientId,
@@ -9,7 +9,7 @@ export const getapiuser_header =  () => {
         }
 
     }
-    console.log("header",header)
+   
     return  header;
 }
 // export const getapiuser_header = () => {

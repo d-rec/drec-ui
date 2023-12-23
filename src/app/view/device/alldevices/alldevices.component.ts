@@ -242,9 +242,7 @@ export class AlldevicesComponent {
   }
   selectorg(event: any) {
     console.log(event)
-
     this.subscription = this.filteredOrgList.subscribe(options => {
-
       const selectedorg = options.find(option => option.name === event.option.value);
       if (selectedorg) {
         this.FilterForm.controls['organizationId'].setValue(selectedorg.id);
@@ -253,9 +251,7 @@ export class AlldevicesComponent {
   }
   selectCountry(event: any) {
     console.log(event)
-
     this.subscription = this.filteredOptions.subscribe(options => {
-
       const selectedCountry = options.find(option => option.country === event.option.value);
       if (selectedCountry) {
         this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
@@ -303,6 +299,8 @@ export class AlldevicesComponent {
         console.log(err);
         if (err.error.statusCode === '403') {
           this.toastrService.error('You are Unauthorized')
+        }else{
+          this.toastrService.error('Error',err.error.message)
         }
         this.data = [];
         this.showlist = false

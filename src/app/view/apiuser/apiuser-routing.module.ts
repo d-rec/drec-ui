@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import {AlldevicesComponent} from '../device/alldevices/alldevices.component';
 import {AllUsersComponent} from '../all-users/all-users.component';
+import { AddUsersComponent} from '../admin/add-users/add-users.component';
 const routes: Routes = [
 
 
@@ -13,6 +14,9 @@ const routes: Routes = [
   },
   {
     path: 'All_devices', component: AlldevicesComponent
+  },
+  {
+    path: 'add_user', component: AddUsersComponent
   },
   {
     path: 'permission',

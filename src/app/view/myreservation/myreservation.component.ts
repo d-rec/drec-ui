@@ -1,5 +1,5 @@
 
-import { FormBuilder, FormGroup, Validators ,FormControl} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -9,7 +9,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
-import { ReservationService } from '../../auth/services/reservation.service';
+import { ReservationService,OrganizationService } from '../../auth/services';
 import { Router, NavigationEnd } from '@angular/router';
 import { Observable, Subscription, take, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -70,7 +70,7 @@ export class MyreservationComponent implements OnInit {
   public sdgblist: any;
   p: number = 1;
   totalRows = 0;
-  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
+  offtaker = ['School', 'Education', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture', 'Utility', 'Off-Grid Community']
   filteredOptions: Observable<any[]>;
   endminDate = new Date();
   group_info: any;
@@ -80,12 +80,20 @@ export class MyreservationComponent implements OnInit {
   totalPages: number;
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
+  loginuser: any;
+  orgId: number;
+  orglist: any;
+  filteredOrgList: Observable<any[]>;
+  showorgerror: boolean = false;
   constructor(private authService: AuthbaseService,
     private reservationService: ReservationService,
+    private orgService: OrganizationService,
     private router: Router, private formBuilder: FormBuilder,
     private toastrService: ToastrService,
 
-  ) { }
+  ) {
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+  }
   ngOnInit() {
 
     this.FilterForm = this.formBuilder.group({
@@ -97,13 +105,27 @@ export class MyreservationComponent implements OnInit {
       reservationStartDate: [null],
       reservationEndDate: [null],
       reservationActive: [null],
+
       // pagenumber: [this.p]
     });
 
     console.log("myreservation");
     this.DisplaycountryList();
     this.DisplayfuelList();
-    this.DisplaytypeList();
+    this.DisplaytypeList(); 
+    if (this.loginuser.role === 'ApiUser') {
+      this.FilterForm.addControl('organizationname', this.formBuilder.control(''));
+      this.FilterForm.addControl('organizationId', this.formBuilder.control(''));
+      this.orgService.GetApiUserAllOrganization().subscribe(
+        (data) => {
+
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Developer");
+          this.applyorgFilter();
+
+        }
+      );
+    }
     this.DisplaySDGBList()
     this.DisplayList(this.p)
     // this.getcountryListData();
@@ -153,6 +175,36 @@ export class MyreservationComponent implements OnInit {
         this.sdgblist = data;
       }
     )
+  }
+  applyorgFilter() {
+    this.FilterForm.controls['organizationname'];
+    this.filteredOrgList = this.FilterForm.controls['organizationname'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._orgfilter(value || '')),
+    );
+  }
+  private _orgfilter(value: any): string[] {
+
+    const filterValue = value.toLowerCase();
+    if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
+      this.showorgerror = true;
+
+    } else {
+      this.showorgerror = false;
+    }
+    return this.orglist.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
+
+  }
+  selectorg(event: any) {
+    console.log(event)
+
+    this.subscription = this.filteredOrgList.subscribe(options => {
+
+      const selectedorg = options.find(option => option.name === event.option.value);
+      if (selectedorg) {
+        this.FilterForm.controls['organizationId'].setValue(selectedorg.id);
+      }
+    });
   }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
@@ -236,11 +288,16 @@ export class MyreservationComponent implements OnInit {
   }
 
   reset() {
-    this.FilterForm.addControl('reservationActive',new FormControl())
+    this.FilterForm.addControl('reservationActive', new FormControl())
     this.FilterForm.reset();
     this.FilterForm.controls['countryCode'].setValue(null);
     this.FilterForm.controls['reservationActive'].setValue(null);
-    
+    if (this.loginuser.role === 'ApiUser') { 
+      this.FilterForm.controls['organizationname'].setValue(null);
+      this.FilterForm.controls['organizationId'].setValue(null);
+    }
+
+  
     console.log(this.FilterForm.value)
     this.isLoadingResults = true;
     this.isAnyFieldFilled = false;
@@ -250,38 +307,74 @@ export class MyreservationComponent implements OnInit {
   DisplayList(page: number) {
     console.log(this.FilterForm.value)
     //  this.FilterForm.controls['pagenumber'].setValue(page);
-    if (this.FilterForm.value.reservationActive === "All") {
-     this.FilterForm.removeControl('reservationActive');
-      //this.FilterForm.controls['reservationActive'].setValue(null);
-    }
-    if (!(this.FilterForm.value.reservationStartDate != null && this.FilterForm.value.reservationEndDate === null)) {
+    if (this.loginuser.role === 'ApiUser') {
+      if (this.FilterForm.value.reservationActive === "All") {
+        this.FilterForm.removeControl('reservationActive');
+        //this.FilterForm.controls['reservationActive'].setValue(null);
+      }
+      if (!(this.FilterForm.value.reservationStartDate != null && this.FilterForm.value.reservationEndDate === null)) {
 
-      this.reservationService.getReservationData(this.FilterForm.value, page).subscribe(
-        (data) => {
-          this.showdevicesinfo = false;
+        this.reservationService.getReservationDataByadmin(this.FilterForm.value, page).subscribe(
+          (data) => {
+            this.showdevicesinfo = false;
 
-          this.data = data.groupedData;
-          //@ts-ignore
-          this.data.forEach(ele => {
+            this.data = data.groupedData;
+            //@ts-ignore
+            this.data.forEach(ele => {
 
-            if (ele.deviceIds != null) {
-              ele['numberOfdevices'] = ele.deviceIds.length;
-            } else {
-              ele['numberOfdevices'] = 0;
-            }
-          })
-          this.isLoadingResults = false;
-          this.dataSource = new MatTableDataSource(this.data);
-          console.log(this.dataSource);
-          this.totalRows = data.totalCount;
-          console.log(this.totalRows);
-          this.totalPages = data.totalPages
-          this.dataSource.sort = this.sort;
-        }
-      )
+              if (ele.deviceIds != null) {
+                ele['numberOfdevices'] = ele.deviceIds.length;
+              } else {
+                ele['numberOfdevices'] = 0;
+              }
+            })
+            this.isLoadingResults = false;
+            this.dataSource = new MatTableDataSource(this.data);
+            console.log(this.dataSource);
+            this.totalRows = data.totalCount;
+            console.log(this.totalRows);
+            this.totalPages = data.totalPages
+            this.dataSource.sort = this.sort;
+          }
+        )
+      } else {
+        this.toastrService.error("Filter error", "End date should be if in filter query you used with Start date");
+      }
     } else {
-      this.toastrService.error("Filter error", "End date should be if in filter query you used with Start date");
+      if (this.FilterForm.value.reservationActive === "All") {
+        this.FilterForm.removeControl('reservationActive');
+        //this.FilterForm.controls['reservationActive'].setValue(null);
+      }
+      if (!(this.FilterForm.value.reservationStartDate != null && this.FilterForm.value.reservationEndDate === null)) {
+
+        this.reservationService.getReservationData(this.FilterForm.value, page).subscribe(
+          (data) => {
+            this.showdevicesinfo = false;
+
+            this.data = data.groupedData;
+            //@ts-ignore
+            this.data.forEach(ele => {
+
+              if (ele.deviceIds != null) {
+                ele['numberOfdevices'] = ele.deviceIds.length;
+              } else {
+                ele['numberOfdevices'] = 0;
+              }
+            })
+            this.isLoadingResults = false;
+            this.dataSource = new MatTableDataSource(this.data);
+            console.log(this.dataSource);
+            this.totalRows = data.totalCount;
+            console.log(this.totalRows);
+            this.totalPages = data.totalPages
+            this.dataSource.sort = this.sort;
+          }
+        )
+      } else {
+        this.toastrService.error("Filter error", "End date should be if in filter query you used with Start date");
+      }
     }
+
   }
 
 
@@ -289,7 +382,7 @@ export class MyreservationComponent implements OnInit {
     console.log(typeof reservation_row.deviceIds);
     let changedeviceId = JSON.stringify(reservation_row.deviceIds)
     console.log(typeof changedeviceId);
-    this.router.navigate(['/certificate'], { queryParams: { id: reservation_row.id } });
+    this.router.navigate(['/certificate'], { queryParams: { id: reservation_row.id, group_uid: reservation_row.devicegroup_uid } });
 
   }
   DisplayDeviceList(row: any) {

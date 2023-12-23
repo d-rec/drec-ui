@@ -28,7 +28,8 @@ export class OrganizationService {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}` ;
       }
     }
-    return this.httpClient.get<IPublicOrganization>(searchUrl)
+    let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.get<IPublicOrganization>(searchUrl,{headers})
   }
   public GetOrganizationById(orgId: number): Observable<any> {
     let headers = new HttpHeaders(this.headersData);

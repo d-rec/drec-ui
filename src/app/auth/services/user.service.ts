@@ -11,7 +11,11 @@ export class UserService {
   url: String = environment.API_URL;
   headersData = getapiuser_header();
   constructor(private httpClient: HttpClient) { }
+  public userregisterByApiUser(data:any): Observable<any> {
+    let headers = new HttpHeaders(this.headersData);
+      return this.httpClient.post<any>(this.url +'user/register', data,{headers})
 
+  }
   public UserConfirmEmail(token: any): Observable<any> {
     return this.httpClient.put<any>(this.url + 'user/confirm-email/' + token, {});
   }
@@ -24,7 +28,7 @@ export class UserService {
         "client_secret": data.client_secret
       });
     }
-//@ts-ignore
+    //@ts-ignore
     return this.httpClient.post<any>(this.url + 'user/forget-password', data, { headers });
   }
   public UserResetPassword(token: any, data: any): Observable<any> {
@@ -36,8 +40,8 @@ export class UserService {
         "client_secret": data.client_secret
       });
     }
-//@ts-ignore
-    return this.httpClient.put<any>(this.url + 'user/reset/password/' + token, data,{headers});
+    //@ts-ignore
+    return this.httpClient.put<any>(this.url + 'user/reset/password/' + token, data, { headers });
   }
   public userProfile(client_id?: string, client_secret?: string): Observable<any> {
 

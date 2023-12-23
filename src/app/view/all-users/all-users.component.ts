@@ -42,7 +42,7 @@ export class AllUsersComponent {
   totalRows: number;
   totalPages: number = 1;
   p: number = 1;
-  orgnaizatioId: number;
+  orgnaizatioId: any;
   showorg: boolean = false
   orgdetails: any
   loginuser: any;
@@ -97,6 +97,15 @@ export class AllUsersComponent {
 
 
         })
+    } else if (this.loginuser.role === 'ApiUser') {
+      this.orgService.GetApiUserAllOrganization().subscribe(
+        (data) => {
+          this.orglist = data.organizations
+          // this.orglistload = true;
+          console.log(this.orglist)
+
+
+        });
     }
 
     setTimeout(() => {
@@ -145,101 +154,125 @@ export class AllUsersComponent {
       const selectedorg = options.find(option => option.name === event.option.value);
       if (selectedorg) {
         this.FilterForm.controls['organizationName'].setValue(selectedorg.name);
+
+        this.orgnaizatioId = selectedorg.id
       }
     });
   }
   reset() {
     this.FilterForm.reset();
-
     this.FilterForm.controls['organizationName'].setValue(null);
     this.loading = true;
+    this.orgnaizatioId = null;
     this.applyorgFilter();
     this.getAllUsers(this.p);
   }
   getAllUsers(page: number) {
     const limit = 20;
-    if (this.loginuser.role === "Admin" || this.loginuser.role === "ApiUser") {
+    console.log(this.orgnaizatioId);
+    if (this.loginuser.role === "Admin") {
       if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
-        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId, page, limit).subscribe({
-          next: (data) => {
-            console.log(data)
-            this.showorguser = false;
-            this.showlist = true
-            this.loading = false
-            //@ts-ignore
-            this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-            console.log(this.data);
-            this.dataSource = new MatTableDataSource(this.data.users);
-            this.totalRows = this.data.totalCount
-            console.log(this.totalRows);
-            this.totalPages = this.data.totalPages
-          }, error: err => {
-            console.log(err)
-            if (err.error.statusCode === 403) {
-              this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
-            } else {
-              this.toastrService.error('Error:' + err.error.message, 'Fail')
-            }
-
-          }
-        });
-      }
-      else {
-        this.adminService.GetAllUsers(page, limit, this.FilterForm.value).subscribe({
-          next: (data) => {
-            console.log(data)
-            this.showlist = true;
-            this.showorguser = false;
-            this.loading = false
-            //@ts-ignore
-            this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-            console.log(this.data);
-            this.dataSource = new MatTableDataSource(this.data.users);
-            this.totalRows = this.data.totalCount
-            console.log(this.totalRows);
-            this.totalPages = this.data.totalPages
-          }, error: err => {
-            console.log(err)
-            if (err.error.statusCode === 403) {
-              this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
-            } else {
-              this.toastrService.error('Error:' + err.error.message, 'Fail')
-            }
-
-          }
-        });
+        this.getAllUserByorganzationId(page, limit)
+      } else {
+        this.getadminAllUserList(page, limit)
       }
 
     } else {
       this.showorg = true
-      this.orgService.getOrganizationUser(page, limit).subscribe({
-        next: (data) => {
+      if (this.loginuser.role === "ApiUser") {
 
-          console.log(data)
+        if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
+          this.getAllUserByorganzationId(page, limit)
+        } else {
+          this.showorguser = false;
+          this.showorg = false
           this.showlist = true
-          this.loading = false
-          //@ts-ignore
-          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-          console.log(this.data);
-          this.dataSource = new MatTableDataSource(this.data.users);
-          this.totalRows = this.data.totalCount
-          console.log(this.totalRows);
-          this.totalPages = this.data.totalPages
-
-        }, error: err => {
-          console.log(err)
-          if (err.error.statusCode === 403) {
-            this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
-          } else {
-            this.toastrService.error('Error:' + err.error.message, 'Fail')
-          }
-
+          this.getOrganizationAllUser(page, limit)
         }
-      });
+      } else {
+        this.getOrganizationAllUser(page, limit)
+      }
 
 
     }
 
+  }
+  getadminAllUserList(page: number, limit: number) {
+    this.adminService.GetAllUsers(page, limit, this.FilterForm.value).subscribe({
+      next: (data) => {
+        console.log(data)
+        this.showlist = true;
+        this.showorguser = false;
+        this.loading = false
+        //@ts-ignore
+        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+        console.log(this.data);
+        this.dataSource = new MatTableDataSource(this.data.users);
+        this.totalRows = this.data.totalCount
+        console.log(this.totalRows);
+        this.totalPages = this.data.totalPages
+      }, error: err => {
+        console.log(err)
+        if (err.error.statusCode === 403) {
+          this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
+        } else {
+          this.toastrService.error('Error:' + err.error.message, 'Fail')
+        }
+
+      }
+    });
+  }
+  getOrganizationAllUser(page: number, limit: number) {
+    this.orgService.getOrganizationUser(page, limit).subscribe({
+      next: (data) => {
+
+        console.log(data)
+        this.showlist = true
+        this.loading = false
+        //@ts-ignore
+        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+        console.log(this.data);
+        this.dataSource = new MatTableDataSource(this.data.users);
+        this.totalRows = this.data.totalCount
+        console.log(this.totalRows);
+        this.totalPages = this.data.totalPages
+
+      }, error: err => {
+        console.log(err)
+        if (err.error.statusCode === 403) {
+          this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
+        } else {
+          this.toastrService.error('Error:' + err.error.message, 'Fail')
+        }
+
+      }
+    });
+
+  }
+  getAllUserByorganzationId(page: number, limit: number) {
+    this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId, page, limit).subscribe({
+      next: (data) => {
+        console.log(data)
+        this.showorguser = false;
+        this.showlist = true
+        this.loading = false
+        //@ts-ignore
+        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+        console.log(this.data);
+        this.dataSource = new MatTableDataSource(this.data.users);
+        this.totalRows = this.data.totalCount
+        console.log(this.totalRows);
+        this.totalPages = this.data.totalPages
+      }, error: err => {
+        console.log(err)
+        if (err.error.statusCode === 403) {
+          this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
+        } else {
+          this.toastrService.error('Error:' + err.error.message, 'Fail')
+        }
+
+      }
+    });
   }
   previousPage(): void {
     if (this.p > 1) {
