@@ -164,9 +164,7 @@ export class AdminAlldevicesComponent {
     const filterValue = value.toLowerCase();
     if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
       this.showorgerror = true;
-      // const updatedFormValues = this.FilterForm.value;
-      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
-      // this.isAnyFieldFilled = false;
+      
     } else {
       this.showorgerror = false;
     }

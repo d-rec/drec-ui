@@ -10,6 +10,8 @@ export class SidemenuComponent implements OnInit {
   loginuser: any;
   showmenu: Boolean;
   devcieurl: string;
+  Alluserurl:string;
+  adduserorg_url:string;
   constructor(private router: Router) {
 
 
@@ -18,9 +20,14 @@ export class SidemenuComponent implements OnInit {
     this.showmenu = environment.production;
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     if (this.loginuser?.role === 'ApiUser') {
+     
       this.devcieurl ='/apiuser/All_devices'
+      this.Alluserurl='./apiuser/All_users'
+      this.adduserorg_url='/apiuser/add_user'
     } else {
       this.devcieurl ='/device/AllList'
+      this.Alluserurl='./admin/All_users'
+      this.adduserorg_url='/admin/add_user'
     }
   }
   logout() {

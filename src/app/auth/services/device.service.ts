@@ -27,25 +27,18 @@ export class DeviceService {
     }
     console.log(searchUrl);
     if (searchData != undefined) {
-
-
       if (!(typeof searchData.organizationId === undefined || searchData.organizationId === "" || searchData.organizationId === null || searchData.organizationId === undefined)) {
-        searchUrl += `&OrganizationId=${searchData.organizationId}`;
+        searchUrl += `&organizationId=${searchData.organizationId}`;
       }
       if (!(typeof searchData.countryCode === undefined || searchData.countryCode === "" || searchData.countryCode === null || searchData.countryCode === undefined)) {
         searchUrl += `&country=${searchData.countryCode}`;
       }
-
       if (!(typeof searchData.fuelCode === undefined || searchData.fuelCode === "" || searchData.fuelCode === null || searchData.fuelCode === undefined)) {
-
         searchUrl += `&fuelCode=${searchData.fuelCode}`;
-
       }
-
       if (!(typeof searchData.deviceTypeCode === undefined || searchData.deviceTypeCode === "" || searchData.deviceTypeCode === null || searchData.deviceTypeCode === undefined)) {
         searchUrl += `&deviceTypeCode=${searchData.deviceTypeCode}`;
       }
-
       if (!(typeof searchData.capacity === undefined || searchData.capacity === "" || searchData.capacity === null || searchData.capacity === undefined)) {
         searchUrl += `&capacity=${searchData.capacity}`;
       }
@@ -78,7 +71,7 @@ export class DeviceService {
   //   return this.httpClient.get<Device>(this.url + 'device/externalId/' + ExternalId)
   // }
   getDeviceInfoBYexternalId(externalid: string): Observable<any> {
-
+    let headers = new HttpHeaders(this.headersData);
     return this.httpClient.get(this.url + 'device/externalId/' + externalid)
   }
   public Postdevices(data: any): Observable<any> {
@@ -93,7 +86,8 @@ export class DeviceService {
   }
 
   GetUnreserveDevices(): Observable<any> {
-    return this.httpClient.get(this.url + 'device/ungrouped/buyerreservation')
+    let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.get(this.url + 'device/ungrouped/buyerreservation',{headers})
   }
   getfilterData(searchData: any, pagenumber: number): Observable<any> {
     //    return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/search/paged`, { params: params, observe: 'response' });
@@ -130,10 +124,18 @@ export class DeviceService {
     if (!(typeof searchData.end_date === "undefined" || searchData.end_date === "" || searchData.end_date === null)) {
       searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
     }
-    return this.httpClient.get(searchUrl);
+    let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.get(searchUrl,{headers});
   }
-  getcertifieddevicelogdate(externalId: any, groupId: any): Observable<any> {
-    return this.httpClient.get(this.url + 'device/certifiedlog/first&lastdate?externalId=' + externalId + '&groupUid=' + groupId)
+  getcertifieddevicelogdate(groupId: any,pagenumber?: any): Observable<any> {
+    let searchUrl = `${this.url}device/certifiedlog/first&lastdate?groupUid=` + groupId;
+
+    if (!(typeof pagenumber === "undefined" || pagenumber === "" ||pagenumber === null)) {
+      searchUrl += `&pagenumber=${pagenumber}`;
+    }
+    let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.get(searchUrl,{headers})
+   
   }
   GetDeviceAutocomplete(searchInput: StaticRange): Observable<any> {
     let searchUrl = `${this.url}device/my/autocomplete?externalId=` + searchInput;
@@ -142,10 +144,11 @@ export class DeviceService {
   }
   RemoveDevice(id: number): Observable<any> {
     let searchUrl = `${this.url}device/` + id;
+    let headers = new HttpHeaders(this.headersData);
     return this.httpClient.delete(searchUrl);
   }
   addByAdminbulkDevices(organizationId: number, data: any): Observable<any> {
-
+    let headers = new HttpHeaders(this.headersData);
     return this.httpClient.post<any>(this.url + 'device/addByAdmin/process-creation-bulk-devices-csv/' + organizationId, data)
   }
 }

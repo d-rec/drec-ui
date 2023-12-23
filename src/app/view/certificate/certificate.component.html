@@ -95,6 +95,18 @@
 							</tbody>
 
 						</table>
+						<br>
+						<div class="d-flex justify-content-start align-items-center  p-10 " >
+							<button class="btn-primary me-2 btn text-capitalize px-4" (click)="histroynextIssuancepreviousPage()"
+									[disabled]="historyp === 1">Previous</button>&nbsp;&nbsp;
+								Total Pages:&nbsp;{{historynextissuance_total}}&nbsp;&nbsp;&nbsp;&nbsp;
+								<button class="btn-primary me-2 btn text-capitalize px-4" (click)="histroynextIssuancenextPage()"
+									[disabled]="historyp === historynextissuance_total">Next</button>
+									<p style="width: 150px;
+									height: 25px;
+									margin-left: 420px;
+									padding: 10px 5px 0px 0px"><b>Page Number:&nbsp;</b>{{historyp}}</p>
+						</div>
 					</div>
 					<hr>
 					<div>
@@ -138,7 +150,7 @@
 							<tbody>
 								<tr *ngFor="let d of alldevicescertifiedlogdatrange">
 
-									<td style="border: 1px solid black; padding: 5px;">{{d.extenalId}}</td>
+									<td style="border: 1px solid black; padding: 5px;">{{d.externalId}}</td>
 									<td style="border: 1px solid black; padding: 5px;">{{d.firstcertifiedstartdate|date:'long'}}
 									</td>
 									<td style="border: 1px solid black; padding: 5px;">{{d.lastcertifiedenddate|date:'long'}}</td>
@@ -148,7 +160,18 @@
 							</tbody>
 
 						</table>
-
+						<br>
+						<div class="d-flex justify-content-start align-items-center  p-10 " >
+							<button class="btn-primary me-2 btn text-capitalize px-4" (click)="certifiedDevicepreviousPage()"
+									[disabled]="certifiedp === 1">Previous</button>&nbsp;&nbsp;
+								Total Pages:&nbsp;{{historynextissuance_total}}&nbsp;&nbsp;&nbsp;&nbsp;
+								<button class="btn-primary me-2 btn text-capitalize px-4" (click)="certifiedDevicenextPage()"
+									[disabled]="certifiedp === historynextissuance_total">Next</button>
+									<p style="width: 150px;
+									height: 25px;
+									margin-left: 420px;
+									padding: 10px 5px 0px 0px"><b>Page Number:&nbsp;</b>{{certifiedp}}</p>
+						</div>
 					</div>
 				</mat-card-content>
 				<mat-card-content *ngIf="false">
@@ -263,6 +286,7 @@
 									</div>
 								</div>
 							</div>
+							
 							<h1 class="heading">Last Read record of devices</h1>
 							<!-- this is for fourth content  -->
 							<div class="flex-to-progress">
@@ -325,11 +349,12 @@
 									</div>
 									<div class="heading-content">
 										<p class="first-text">{{d.firstcertifiedstartdate|date:'long'}}</p>
-										<p class="middle-text">({{d.extenalId}})</p>
+										<p class="middle-text">({{d.externalId}})</p>
 										<p class="last-text">{{d.lastcertifiedenddate|date:'long'}}</p>
 									</div>
 								</div>
 							</div>
+							
 						</div>
 						<div class="bottom-content">
 							<ul class="bottom-nav">
@@ -343,9 +368,9 @@
 
 			</mat-card>
 			<mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
-			<ng-container *ngFor="let item of data">
-
-				<mat-card class="innermat-card example-card1 border">
+			<ng-container >
+<br>
+				<mat-card class="innermat-card example-card1 border" *ngFor="let item of data">
 					<mat-card-header class="">
 						<div class="col-12">
 							<mat-card-title class=" d-flex justify-content-between align-items-center ">
@@ -361,14 +386,14 @@
 										</div>
 									</a>
 								</div>
-								<div class=" ">
+								<!-- <div class=" ">
 									<button class=" btn-content-back btn d-flex justify-content-end btn-sm"
 										*ngIf="!item.CertificateClaimed"
 										(click)="selectCertificateForClaim(item)">Claim</button>
 									<button class=" btn-content-back btn d-flex justify-content-end btn-sm"
 										*ngIf="item.CertificateClaimed">Claimed</button>
 
-								</div>
+								</div> -->
 							</mat-card-title>
 
 						</div>
@@ -465,6 +490,18 @@
 				</mat-card>
 
 				<br>
+				<div class="d-flex justify-content-start align-items-center  p-10 " *ngIf="!loading">
+					<button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
+							[disabled]="p === 1">Previous</button>&nbsp;&nbsp;
+						Total Pages:&nbsp;{{totalPages}}&nbsp;&nbsp;&nbsp;&nbsp;
+						<button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
+							[disabled]="p === totalPages">Next</button>
+							<p style="width: 150px;
+							height: 25px;
+							margin-left: 420px;
+							padding: 10px 5px 0px 0px"><b>Page Number:&nbsp;</b>{{p}}</p>
+				</div>
+				
 			</ng-container>
 			<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
 		</mat-card-content>

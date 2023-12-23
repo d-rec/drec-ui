@@ -22,7 +22,23 @@
                     </h2>
                     <form [formGroup]="FilterForm">
                         <div class="example-container1 row">
+                            <div class="col-md-3" *ngIf="FilterForm.get('organizationname')">
+                                <input type="hidden" formControlName='countryCode' #input>
+                                <mat-form-field appearance="outline">
+									<mat-label class="text-capitalize">Select Organization*</mat-label>
+									<input type="text" matInput formControlName="organizationname"
+										[matAutocomplete]="auto1" (ngModelChange)="checkFormValidity()">
+									<mat-autocomplete #auto1="matAutocomplete" (optionSelected)="selectorg($event)">
+										<mat-option [value]="">---</mat-option>
+										<mat-option *ngFor="let code of filteredOrgList | async" [value]="code.name">
+											{{ code.name }}
+										</mat-option>
+									</mat-autocomplete>
 
+								</mat-form-field>
+								<mat-error *ngIf="showorgerror" style="margin-top: -15px;"> Invalid Organization
+									Selected </mat-error>
+                            </div>
                             <div class="col-md-3">
                                 <input type="hidden" formControlName='countryCode' #input>
                                 <mat-form-field appearance="outline">
