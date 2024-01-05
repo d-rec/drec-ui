@@ -151,7 +151,6 @@ export class CertificateDetailsComponent {
       this.DisplayList(this.p);
     }, 1500);
     this.getBlockchainProperties();
-
     this.selectAccountAddressFromMetamask();
     console.log("drt46")
 
