@@ -149,6 +149,6 @@ export class DeviceService {
   }
   addByAdminbulkDevices(organizationId: number, data: any): Observable<any> {
     let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.post<any>(this.url + 'device/addByAdmin/process-creation-bulk-devices-csv/' + organizationId, data)
+    return this.httpClient.post<any>(this.url + 'device/addByAdmin/process-creation-bulk-devices-csv/' + organizationId, data,{headers})
   }
 }

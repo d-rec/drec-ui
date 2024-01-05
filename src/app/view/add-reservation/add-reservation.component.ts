@@ -86,6 +86,7 @@ export class AddReservationComponent {
       targetCapacityInMegaWattHour: [null],
       reservationStartDate: [null, Validators.required],
       reservationEndDate: [null, Validators.required],
+      reservationExpiryDate: [null],
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: [true],
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: [true],
       authorityToExceed: [true],
@@ -294,6 +295,11 @@ export class AddReservationComponent {
     console.log(event);
     this.endminDate = event;
   }
+  expiryminDate= new Date();
+  onExpiryEvent(event: any) {
+    console.log(event);
+    this.expiryminDate = event;
+  }
   onfilterEndChangeEvent(event: any) {
     console.log(event);
     this.filterendminDate = event;
@@ -319,9 +325,7 @@ export class AddReservationComponent {
         this.loading = false;
         if (this.selection.selected.length > 0) {
           this.selection.selected.forEach((ele) => {
-
             const selectedIndex = data.devices.findIndex((row: any) => row.id === ele.id);
-
             if (selectedIndex !== -1) {
               // The selected ID exists, so remove it from the data list
               data.devices.splice(selectedIndex, 1);

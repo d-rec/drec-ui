@@ -188,7 +188,8 @@ export class UserpermissionComponent {
           next: data => {
             if (data) {
             
-              const index1 = this.selection.selected.indexOf(ele);
+              const index = this.selection.selected.indexOf(ele);
+              this.selection.selected[index].selectedPermissions=[];
               this.selection.selected.splice(index, 1);
               console.log(this.selection.selected)
               // Check if formDataArray is empty
@@ -197,7 +198,7 @@ export class UserpermissionComponent {
               this.selection.clear();
               this.toastrService.success('SuccessFul')
               this.UserPermissionForm.controls['entityType'].setValue('Role');
-              this.UserPermissionForm.controls['status'].setValue(1);
+             // this.UserPermissionForm.controls['status'].setValue(1);
               this.getuseraclmodulepermission();
               }
               

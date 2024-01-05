@@ -16,11 +16,12 @@ export class CertificateService {
   }
   GetDevoloperCertificateMethod(searchData: any, pagenumber: number): Observable<any> {
     let searchUrl = this.url + 'certificate-log/issuer/certifiedlogOfdevices?pageNumber=' + pagenumber;
+    console.log(searchData);
     if (searchData != undefined) {
       // if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null)) {
       //   searchUrl += `pagenumber=${searchData.pagenumber}`;
       // }
-      if (!(typeof searchData.organizationId === undefined || searchData.organizationId === "" || searchData.organizationId === null)) {
+      if (!(typeof searchData.organizationId === undefined || searchData.organizationId === "" || searchData.organizationId === null || searchData.organizationId === undefined)) {
         searchUrl += `&organizationId=${searchData.organizationId}`;
       }
       if (!(typeof searchData.countryCode === undefined || searchData.countryCode === "" || searchData.countryCode === null)) {
@@ -73,4 +74,24 @@ export class CertificateService {
 
     return this.httpClient.get(searchUrl, { headers });
   }
+  getcertifiedlogPerDevice(group_uid: string): Observable<any> {
+    let searchUrl = this.url + 'certificate-log/expoert_perdevice/' + group_uid;
+    // let headers = new HttpHeaders(this.headersData);
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      });
+    return this.httpClient.get(searchUrl, { responseType: 'blob' });
+  }
+
+
+  downloadCsv(group_uid: string): Observable<Blob> {
+    const apiUrl = this.url + 'certificate-log/expoert_perdevice/' + group_uid; // Replace with your API endpoint
+    // Set headers for the request    
+    const headers = new HttpHeaders({
+    'Content-Type': 'application/json',
+    });
+    // Make the API request with { responseType: 'blob' } to receive the file as a blob    
+    return this.httpClient.get(apiUrl, { headers, responseType: 'blob' });
+  }
 }
+

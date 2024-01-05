@@ -100,9 +100,6 @@ export class AddDevicesComponent {
           console.log(this.orglist)
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
-          // Once data is loaded, call any other functions that depend on it
-
-          this.date = new Date();
         }
       );
     }
