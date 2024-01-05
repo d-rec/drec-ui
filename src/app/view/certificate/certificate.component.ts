@@ -71,6 +71,14 @@ export class CertificateComponent implements OnDestroy {
   alldevicescertifiedlogdatrange: any = [];
   intervalId: any;
   reservationstatus: boolean;
+  p: number = 1;
+  totalRows = 0;
+  pageSize: number = 10;
+  totalPages: number;
+  historyp: number = 1
+  historynextissuance_total: number;
+  certifiedp: number = 1
+  certified_total: number;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -80,22 +88,11 @@ export class CertificateComponent implements OnDestroy {
 
     this.activatedRoute.queryParams.subscribe(params => {
       this.group_id = params['id'];
-
+      this.group_uid = params['group_uid'];
 
     });
 
-    this.reservationService.GetMethodById(this.group_id).subscribe(
-      (data: any) => {
-        console.log(data);
-        //@ts-ignore
-        this.group_name = data.name;
-        this.devicesId = data.deviceIds;
-        this.reservationstatus = data.reservationActive;
-        this.group_uid = data.devicegroup_uid
-
-      }
-
-    )
+    
   }
   ngOnInit() {
     this.claimData = this.fb.group({
@@ -106,11 +103,27 @@ export class CertificateComponent implements OnDestroy {
       periodEndDate: [new Date(), Validators.required], // date picker
       purpose: [null, Validators.required],//"claim testing from new UI" // ui text field
     })
+    this.reservationService.GetMethodById(this.group_id).subscribe(
+      (data: any) => {
+        console.log(data);
+        //@ts-ignore
+        this.group_name = data.name;
+        this.devicesId = data.deviceIds;
+        this.reservationstatus = data.reservationActive;
+        
+
+      }
+
+    )
     this.energyurl = environment.Explorer_URL + '/block/';
     console.log("myreservation");
     setTimeout(() => {
-      this.DisplayList();
-    },2000);
+      console.log(this.group_id);
+      if (this.group_uid != undefined) {
+        this.DisplayList(this.p);
+      }
+
+    }, 2500);
     this.getBlockchainProperties();
     this.AllCountryList();
     this.claimData.controls['countryCode'];
@@ -123,11 +136,11 @@ export class CertificateComponent implements OnDestroy {
     console.log("drt46")
     this.intervalId = setInterval(() => {
       if (this.reservationstatus) {
-        this.getnextissuancinfo();
+        this.getnextissuancinfo(this.historyp);
         this.getlastreadofdevices();
-        this.getcertifiedlogdaterange();
+        this.getcertifiedlogdaterange(this.certifiedp);
       }
-    }, 20000);
+    }, 100000);
 
 
 
@@ -136,16 +149,31 @@ export class CertificateComponent implements OnDestroy {
   ngOnDestroy(): void {
     clearInterval(this.intervalId);
   }
-  getnextissuancinfo() {
-    this.reservationService.GetnextissuanceCycleinfo(this.group_uid).subscribe(
+  getnextissuancinfo(historyp: number) {
+    this.reservationService.GetnextissuanceCycleinfo(this.group_uid, historyp).subscribe(
       (data: any) => {
         console.log(data);
         //@ts-ignore
-        this.history_nextissuanclist = data.AllDeviceshistnextissuansinfo;
+        this.history_nextissuanclist = data.historynextissuansinfo.AllDeviceshistnextissuansinfo;
+        this.historynextissuance_total = data.historynextissuansinfo.totalPages;
+
         this.ongoingnextissuance = data.ongoing_next_issuance
       }
 
     )
+  }
+  histroynextIssuancepreviousPage(): void {
+    if (this.historyp > 1) {
+      this.historyp--;
+      this.getnextissuancinfo(this.historyp);
+    }
+  }
+
+  histroynextIssuancenextPage(): void {
+    if (this.historyp < this.totalPages) {
+      this.historyp++;
+      this.getnextissuancinfo(this.historyp);;
+    }
   }
   alldevicesread: any = []
   getlastreadofdevices() {
@@ -186,47 +214,61 @@ export class CertificateComponent implements OnDestroy {
 
   }
 
-  getcertifiedlogdaterange() {
+  getcertifiedlogdaterange(certifiedp: number) {
     console.log(typeof this.devicesId)
-    if (typeof this.devicesId === 'string') {
-      this.deviceService.getcertifieddevicelogdate(this.devicesId, this.group_uid).subscribe({
-        next: data => {
-          console.log(data);
-          this.alldevicescertifiedlogdatrange = [];
-          if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
-            this.alldevicescertifiedlogdatrange.push(data)
-          }
-          console.log(this.alldevicescertifiedlogdatrange)
-        },
-        error: err => {                                //Error callback
-          console.error('error caught in component', err)
-          //.toastrService.error('device id has been updated', 'current external id not found!!');
+    // if (typeof this.devicesId === 'string') {
+    this.deviceService.getcertifieddevicelogdate(this.group_uid, certifiedp).subscribe({
+      next: data => {
+        console.log(data);
+        this.alldevicescertifiedlogdatrange = data.certifieddevices_startToend;
+        this.certified_total = data.totalPages;
+        // if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
+        //   this.alldevicescertifiedlogdatrange.push(data)
+        // }
+        console.log(this.alldevicescertifiedlogdatrange)
+      },
+      error: err => {                                //Error callback
+        console.error('error caught in component', err)
+        //.toastrService.error('device id has been updated', 'current external id not found!!');
 
-        }
-      });
-    } else {
-      this.alldevicescertifiedlogdatrange = [];
-      this.devicesId.forEach((elemant: any) => {
-        this.deviceService.getcertifieddevicelogdate(elemant, this.group_uid).subscribe({
-          next: data => {
-            console.log(data);
+      }
+    });
+    // } else {
+    //   this.alldevicescertifiedlogdatrange = [];
+    //   this.devicesId.forEach((elemant: any) => {
+    //     this.deviceService.getcertifieddevicelogdate(elemant, this.group_uid).subscribe({
+    //       next: data => {
+    //         console.log(data);
 
-            if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
-              this.alldevicescertifiedlogdatrange.push(data)
-            }
+    //         if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
+    //           this.alldevicescertifiedlogdatrange.push(data)
+    //         }
 
-            console.log(this.alldevicescertifiedlogdatrange)
-          },
-          error: err => {                               //Error callback
-            console.error('error caught in component', err)
-            //.toastrService.error('device id has been updated', 'current external id not found!!');
+    //         console.log(this.alldevicescertifiedlogdatrange)
+    //       },
+    //       error: err => {                               //Error callback
+    //         console.error('error caught in component', err)
+    //         //.toastrService.error('device id has been updated', 'current external id not found!!');
 
-          }
-        });
+    //       }
+    //     });
 
-      })
+    //   })
+    // }
+
+  }
+  certifiedDevicepreviousPage(): void {
+    if (this.certifiedp > 1) {
+      this.certifiedp--;
+      this.getcertifiedlogdaterange(this.certifiedp);
     }
+  }
 
+  certifiedDevicenextPage(): void {
+    if (this.certifiedp < this.totalPages) {
+      this.certifiedp++;
+      this.getcertifiedlogdaterange(this.certifiedp);;
+    }
   }
   openTemplateSheetMenu() {
     this.bottomSheet.open(this.TemplateBottomSheet);
@@ -272,17 +314,19 @@ export class CertificateComponent implements OnDestroy {
     }
   }
   // CertificateClaimed:boolean=false;
-  DisplayList() {
+  DisplayList(p: number) {
     console.log("certifed list")
     console.log(this.group_uid);
-    this.authService.GetMethod('certificate-log/issuer/certified/new/' + this.group_uid).subscribe(
+    this.authService.GetMethod('certificate-log/issuer/certified/new/' + this.group_uid + '?pageNumber=' + p).subscribe(
       (data: any) => {
         this.loading = false;
         // display list in the console 
 
         // this.data = data;
         //@ts-ignore
-        this.data = data.filter(ele => ele !== null)
+        this.data = data.certificatelog.filter(ele => ele !== null)
+        this.totalPages = data.totalPages
+          ;
         //@ts-ignore
         this.data.forEach(ele => {
 
@@ -317,7 +361,19 @@ export class CertificateComponent implements OnDestroy {
 
     )
   }
+  previousPage(): void {
+    if (this.p > 1) {
+      this.p--;
+      this.DisplayList(this.p);
+    }
+  }
 
+  nextPage(): void {
+    if (this.p < this.totalPages) {
+      this.p++;
+      this.DisplayList(this.p);;
+    }
+  }
   getWindowEthereumObject() {
     //@ts-ignore
     return window.ethereum;
