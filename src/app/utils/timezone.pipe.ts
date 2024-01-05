@@ -8,8 +8,6 @@ export class TimezonePipe implements PipeTransform {
   transform(value: any, timezone: string, format: string = 'medium'): any {
 
     const date = new Date(value);
-    console.log(date)
-    console.log(timezone)
     if (timezone === undefined || timezone === null) {
       timezone = "Asia/Kolkata"
     }
