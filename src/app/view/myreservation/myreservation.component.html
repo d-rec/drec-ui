@@ -95,19 +95,19 @@
                             <div class="col-md-4 h6-margin-remove">
                                 <h6>Reservation Date:</h6>
                                 <mat-form-field appearance="outline">
-									<mat-label>Enter a date range</mat-label>
-									<mat-date-range-input [rangePicker]="$any(picker)">
-										<input matStartDate formControlName="reservationStartDate"
-											(ngModelChange)="checkFormValidity()" />
-										<input matEndDate formControlName="reservationEndDate"
-											(ngModelChange)="checkFormValidity()" />
-									</mat-date-range-input>
-									<mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-									<mat-date-range-picker #picker></mat-date-range-picker>
-									
-								</mat-form-field>
+                                    <mat-label>Enter a date range</mat-label>
+                                    <mat-date-range-input [rangePicker]="$any(picker)">
+                                        <input matStartDate formControlName="reservationStartDate"
+                                            (ngModelChange)="checkFormValidity()" />
+                                        <input matEndDate formControlName="reservationEndDate"
+                                            (ngModelChange)="checkFormValidity()" />
+                                    </mat-date-range-input>
+                                    <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                                    <mat-date-range-picker #picker></mat-date-range-picker>
+
+                                </mat-form-field>
                             </div>
-                           
+
 
                             <div class="col-md-12 mb-3  d-flex justify-content-end">
                                 <div class="">
@@ -155,6 +155,11 @@
                                     aria-label="Button that displays a tooltip when focused or hovered over"
                                     (click)="DisplayDeviceList(row)"><mat-icon
                                         class=" mt-2 cursor-pointer">devices</mat-icon> </a>
+                                <a matTooltip="Export Per Devicelog" [matTooltipPosition]="'above'"
+                                    class="action-icons edit-icon"
+                                    aria-label="Button that displays a tooltip when focused or hovered over"
+                                    (click)="ExpoertPerDevice_csv(row)"><mat-icon
+                                        class=" mt-2 cursor-pointer">import_export</mat-icon> </a>
                             </tr>
                             <!-- <button>certificate</button> -->
 

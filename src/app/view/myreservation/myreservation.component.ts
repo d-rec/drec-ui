@@ -9,7 +9,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
-import { ReservationService } from '../../auth/services/reservation.service';
+import { ReservationService, CertificateService} from '../../auth/services';
 import { Router, NavigationEnd } from '@angular/router';
 import { Observable, Subscription, take, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -84,6 +84,7 @@ export class MyreservationComponent implements OnInit {
     private reservationService: ReservationService,
     private router: Router, private formBuilder: FormBuilder,
     private toastrService: ToastrService,
+    private certificateService:CertificateService
 
   ) { }
   ngOnInit() {
@@ -342,6 +343,26 @@ export class MyreservationComponent implements OnInit {
       this.DisplayList(this.p);;
     }
   }
+  ExpoertPerDevice_csv(row: any) {
+    this.certificateService.getcertifiedlogPerDevice(row.devicegroup_uid).subscribe({
+      next: (data: any) => {
+       // console.log(data.headers.keys());  // Log all headers
+        const blob = new Blob([data], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `certificate_logs_${currentDate}.csv`; // Replace with the desired file name
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);//
+      }, error: err => {
+        this.toastrService.error('Download fail', err.error.message)
+      }
+    })
+  }
+
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
