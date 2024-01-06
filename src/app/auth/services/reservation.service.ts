@@ -51,8 +51,8 @@ export class ReservationService {
     // }
     return this.httpClient.get(searchUrl);
   }
-  GetnextissuanceCycleinfo(group_uid:any) : Observable<any>{
-    return this.httpClient.get(this.url+'buyer-reservation/current-information/'+group_uid)
+  GetnextissuanceCycleinfo(group_uid:any,pagenumber?:number) : Observable<any>{
+    return this.httpClient.get(this.url+'buyer-reservation/current-information/'+group_uid+'?pagenumber='+pagenumber)
   }
 GetMethodById(groupId:any) : Observable<any>{
     return this.httpClient.get(this.url+'buyer-reservation/'+groupId)
