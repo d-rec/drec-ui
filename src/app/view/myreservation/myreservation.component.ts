@@ -290,7 +290,7 @@ export class MyreservationComponent implements OnInit {
     console.log(typeof reservation_row.deviceIds);
     let changedeviceId = JSON.stringify(reservation_row.deviceIds)
     console.log(typeof changedeviceId);
-    this.router.navigate(['/certificate'], { queryParams: { id: reservation_row.id } });
+    this.router.navigate(['/certificate'], { queryParams: { id: reservation_row.id,group_uid:reservation_row.devicegroup_uid } });
 
   }
   DisplayDeviceList(row: any) {
