@@ -352,13 +352,19 @@ export class MyreservationComponent implements OnInit {
         const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
         const a = document.createElement('a');
         a.href = url;
-        a.download = `certificate_logs_${currentDate}.csv`; // Replace with the desired file name
+        a.download = `${row.name}_${currentDate}.csv`; // Replace with the desired file name
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);//
       }, error: err => {
-        this.toastrService.error('Download fail', err.error.message)
+        console.log(err)
+        if(err.status===404){
+          this.toastrService.error('Download fail', 'Devices log Not found')
+        }else{
+          this.toastrService.error('Download fail', err.error.message)
+        }
+        
       }
     })
   }
