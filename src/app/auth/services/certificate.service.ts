@@ -16,6 +16,7 @@ export class CertificateService {
   }
   GetDevoloperCertificateMethod(searchData: any, pagenumber: number): Observable<any> {
     let searchUrl = this.url + 'certificate-log/issuer/certifiedlogOfdevices?pageNumber=' + pagenumber;
+    console.log(searchData);
     if (searchData != undefined) {
       // if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null)) {
       //   searchUrl += `pagenumber=${searchData.pagenumber}`;
@@ -83,3 +84,4 @@ export class CertificateService {
     return this.httpClient.get(searchUrl, { responseType: 'blob' });
   }
 }
+
