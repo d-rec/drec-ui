@@ -26,7 +26,7 @@
           </div> -->
         </div>
         <div class="example-container1 row">
-          <div class="col-md-3" *ngIf="loginuser.role ==='Admin'">
+          <div class="col-md-3" *ngIf="loginuser.role ==='Admin'||loginuser.role ==='ApiUser'">
             
             <mat-form-field appearance="outline">
               <mat-label class="text-capitalize">Organization</mat-label>

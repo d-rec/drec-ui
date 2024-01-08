@@ -86,6 +86,7 @@ export class AddReservationComponent {
       targetCapacityInMegaWattHour: [null],
       reservationStartDate: [null, Validators.required],
       reservationEndDate: [null, Validators.required],
+      reservationExpiryDate: [null],
       continueWithReservationIfOneOrMoreDevicesUnavailableForReservation: [true],
       continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration: [true],
       authorityToExceed: [true],
@@ -293,6 +294,11 @@ export class AddReservationComponent {
   onEndChangeEvent(event: any) {
     console.log(event);
     this.endminDate = event;
+  }
+  expiryminDate= new Date();
+  onExpiryEvent(event: any) {
+    console.log(event);
+    this.expiryminDate = event;
   }
   onfilterEndChangeEvent(event: any) {
     console.log(event);
