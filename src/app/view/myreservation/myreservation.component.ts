@@ -9,7 +9,11 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
+<<<<<<< HEAD
 import { ReservationService,OrganizationService,CertificateService  } from '../../auth/services';
+=======
+import { ReservationService, OrganizationService, CertificateService } from '../../auth/services';
+>>>>>>> 926850afb6d2fa5c5706e1d010723542ce60a1e4
 import { Router, NavigationEnd } from '@angular/router';
 import { Observable, Subscription, take, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -91,6 +95,10 @@ export class MyreservationComponent implements OnInit {
     private router: Router, private formBuilder: FormBuilder,
     private toastrService: ToastrService,
     private certificateService: CertificateService
+<<<<<<< HEAD
+=======
+
+>>>>>>> 926850afb6d2fa5c5706e1d010723542ce60a1e4
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -112,7 +120,7 @@ export class MyreservationComponent implements OnInit {
     console.log("myreservation");
     this.DisplaycountryList();
     this.DisplayfuelList();
-    this.DisplaytypeList(); 
+    this.DisplaytypeList();
     if (this.loginuser.role === 'ApiUser') {
       this.FilterForm.addControl('organizationname', this.formBuilder.control(''));
       this.FilterForm.addControl('organizationId', this.formBuilder.control(''));
@@ -124,7 +132,10 @@ export class MyreservationComponent implements OnInit {
           if (this.orglist.length > 0) {
             this.applyorgFilter();
           }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 926850afb6d2fa5c5706e1d010723542ce60a1e4
         }
       );
     }
@@ -294,12 +305,12 @@ export class MyreservationComponent implements OnInit {
     this.FilterForm.reset();
     this.FilterForm.controls['countryCode'].setValue(null);
     this.FilterForm.controls['reservationActive'].setValue(null);
-    if (this.loginuser.role === 'ApiUser') { 
+    if (this.loginuser.role === 'ApiUser') {
       this.FilterForm.controls['organizationname'].setValue(null);
       this.FilterForm.controls['organizationId'].setValue(null);
     }
 
-  
+
     console.log(this.FilterForm.value)
     this.isLoadingResults = true;
     this.isAnyFieldFilled = false;
@@ -437,7 +448,6 @@ export class MyreservationComponent implements OnInit {
       this.DisplayList(this.p);;
     }
   }
-
   ExpoertPerDevice_csv(row: any) {
     this.certificateService.getcertifiedlogPerDevice(row.devicegroup_uid).subscribe({
       next: (data: any) => {
