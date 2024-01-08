@@ -62,9 +62,22 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">End Date </mat-label>
                             <input matInput [ngxMatDatetimePicker]="picker1" formControlName="reservationEndDate"
-                                [min]="endminDate" autocomplete="off">
+                                [min]="endminDate" autocomplete="off" (ngModelChange)="onExpiryEvent($event)">
                             <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
                             <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+                                [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
+                                [disableMinute]="false" [hideTime]="false">
+                            </ngx-mat-datetime-picker>
+
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Expiry Date </mat-label>
+                            <input matInput [ngxMatDatetimePicker]="picker2" formControlName="reservationEndDate"
+                                [min]="expiryminDate" autocomplete="off">
+                            <mat-datepicker-toggle matSuffix [for]="$any(picker2)"></mat-datepicker-toggle>
+                            <ngx-mat-datetime-picker #picker2 [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
                                 [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
                                 [disableMinute]="false" [hideTime]="false">
                             </ngx-mat-datetime-picker>

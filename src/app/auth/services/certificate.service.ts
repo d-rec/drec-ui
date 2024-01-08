@@ -20,7 +20,7 @@ export class CertificateService {
       // if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null)) {
       //   searchUrl += `pagenumber=${searchData.pagenumber}`;
       // }
-      if (!(typeof searchData.organizationId === undefined || searchData.organizationId === "" || searchData.organizationId === null)) {
+      if (!(typeof searchData.organizationId === undefined || searchData.organizationId === "" || searchData.organizationId === null || searchData.organizationId === undefined)) {
         searchUrl += `&organizationId=${searchData.organizationId}`;
       }
       if (!(typeof searchData.countryCode === undefined || searchData.countryCode === "" || searchData.countryCode === null)) {
@@ -72,5 +72,14 @@ export class CertificateService {
     let headers = new HttpHeaders(this.headersData);
 
     return this.httpClient.get(searchUrl, { headers });
+  }
+
+  getcertifiedlogPerDevice(group_uid: string): Observable<any> {
+    let searchUrl = this.url + 'certificate-log/expoert_perdevice/' + group_uid;
+    // let headers = new HttpHeaders(this.headersData);
+    // const headers = new HttpHeaders({
+    //   'Content-Type': 'application/json',
+    //   });
+    return this.httpClient.get(searchUrl, { responseType: 'blob' });
   }
 }
