@@ -312,7 +312,7 @@ export class PermissionUpdateComponent {
   title: string;
   message: string;
   permistion_updateForm: FormGroup;
-  Permissionstatus: any = [ 'Active', 'Deactive']
+  Permissionstatus: any = [ 'Active', 'Inactive']
   api_userId: string;
   constructor(public dialogRef: MatDialogRef<PermissionUpdateComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,

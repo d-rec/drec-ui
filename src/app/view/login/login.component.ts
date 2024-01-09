@@ -126,7 +126,11 @@ export class LoginComponent implements OnInit {
               next: data1 => {
                 console.log(data1)
                 sessionStorage.setItem('status', data1.status);
-                this.router.navigate(['/apiuser/All_devices']);
+                setTimeout(() => {
+                  //  this.loading=false;
+                  this.router.navigate(['/apiuser/All_devices']);
+                },1000)
+               
 
               }, error: err => {
                 this.toastrService.error('Error!', err.error.message);

@@ -84,7 +84,8 @@ export class AdminOrganizationComponent {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          this.orglist = data.organizations
+          //@ts-ignore
+          this.orglist =data.organizations.filter(org => org.organizationType != "ApiUser");
           this.orglistload = true;
           console.log(this.orglist)
 
@@ -181,7 +182,8 @@ export class AdminOrganizationComponent {
         //@ts-ignore
         this.data = data;//.filter(ele => ele.organizationType === 'Developer');
         console.log(this.data);
-        this.dataSource = new MatTableDataSource(this.data.organizations);
+        //@ts-ignore
+        this.dataSource = new MatTableDataSource(this.data.organizations.filter(org => org.organizationType != "ApiUser"));
         this.totalRows = this.data.totalCount
         console.log(this.totalRows);
         this.totalPages = this.data.totalPages
