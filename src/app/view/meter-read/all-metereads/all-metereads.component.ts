@@ -275,10 +275,13 @@ export class AllMetereadsComponent implements OnInit {
     if (this.loginuser.role === 'Admin') {
       this.FilterForm.controls['externalId'].setValue(result.developerExternalId);
       this.externalId = result.id;
-    } else if (this.loginuser.role === 'ApiUser') {
-      this.FilterForm.controls['externalId'].setValue(result.externalId);
-      this.externalId = result.id;
-    } else {
+     } 
+     //else if (this.loginuser.role === 'ApiUser') {
+
+    //   this.FilterForm.controls['externalId'].setValue(result.externalId);
+    //   this.externalId = result.id;
+    // }
+     else {
       this.FilterForm.controls['externalId'].setValue(result.externalId);
       this.externalId = result.externalId;
     }
