@@ -75,7 +75,7 @@ export class EditPermissionComponent {
       next: data => {
 
         if(data){
-          this.toastrService.success('Successful', 'update')
+          this.toastrService.success('Updated successfully', 'Success');
           this.dialogRef.close();
         }
 
