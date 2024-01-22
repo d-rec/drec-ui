@@ -79,7 +79,7 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Select country </mat-label>
-                                            <input type="text" matInput formControlName='countryCode'
+                                            <input type="text" matInput formControlName='countryCodename'
                                                 [matAutocomplete]="auto">
                                             <mat-autocomplete #auto="matAutocomplete">
                                                 <mat-option *ngFor="let code of filteredCountryList[i] | async"
