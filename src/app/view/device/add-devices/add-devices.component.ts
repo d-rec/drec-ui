@@ -37,7 +37,7 @@ export class AddDevicesComponent {
   public stepHour = 1;
   public stepMinute = 1;
   public stepSecond = 1;
-  numberregex: RegExp = /[0-9]+(\.[0-9]*){0,1}/
+  numberregex: RegExp = /^[0-9]+(\.[0-9]*)?$/
   filteredCountryList: Observable<any[]>[] = [];
   subscription: Subscription;
   filteredOrgList: any[] = [];
@@ -141,7 +141,7 @@ export class AddDevicesComponent {
       address: [null, [Validators.required]],
       latitude: [null, [Validators.required, Validators.pattern(this.numberregex)]],
       longitude: [null, [Validators.required, Validators.pattern(this.numberregex)]],
-      countryCode: [null, Validators.required],
+      countryCodename: [null, Validators.required],
       fuelCode: [null, [Validators.required]],
       deviceTypeCode: [null, [Validators.required]],
       capacity: [null, Validators.required],
@@ -255,7 +255,7 @@ export class AddDevicesComponent {
       address: [null],
       latitude: [null, Validators.pattern(this.numberregex)],
       longitude: [null, Validators.pattern(this.numberregex)],
-      countryCode: [null, Validators.required],
+      countryCodename: [null, Validators.required],
       fuelCode: [null],
       deviceTypeCode: [null],
       capacity: [null, Validators.required],
@@ -321,7 +321,7 @@ export class AddDevicesComponent {
 
 
   getCountryCodeControl(index: number): FormControl {
-    return this.deviceForms.at(index).get('countryCode') as FormControl;
+    return this.deviceForms.at(index).get('countryCodename') as FormControl;
   }
   //   private _filter(value: string): any[] {
   //     const filterValue = value.toLowerCase();
@@ -337,7 +337,7 @@ export class AddDevicesComponent {
         element['organizationId'] = this.orgId;
       }
       //@ts-ignore
-      const selectedCountry = this.countrylist.find(option => option.country === element.countryCode);
+      const selectedCountry = this.countrylist.find(option => option.country === element.countryCodename);
       element['countryCode'] = selectedCountry.alpha3;
       this.deviceService.Postdevices(element).subscribe({
         next: data => {
@@ -350,7 +350,7 @@ export class AddDevicesComponent {
           //   formArray.removeAt(1);
           // }
 
-          const index1 = deviceArray.indexOf(element);
+          const index = deviceArray.indexOf(element);
           deviceArray.splice(index, 1);
           console.log(deviceArray)
           // Check if formDataArray is empty
@@ -370,7 +370,7 @@ export class AddDevicesComponent {
           if (err.error.statusCode === 403) {
             this.toastrService.error('You are Unauthorized')
           }
-          this.toastrService.error('some error occurred in add due to ' + err.error.message, 'Device!' + element.externalId,);
+          this.toastrService.error('some error occurred due to ' + err.error.message, 'Device!' + element.externalId,);
         }
       });
     })
