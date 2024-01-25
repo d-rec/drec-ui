@@ -82,19 +82,19 @@ export class AllUsersComponent {
         (data) => {
           this.orglist = data.organizations
           console.log(this.orglist)
-        
-          
+
+
         })
     }
 
     setTimeout(() => {
       // if (this.countrycodeLoded) {
-        this.applyorgFilter();   
-          // }
+      this.applyorgFilter();
+      // }
       this.loading = false;
       this.getAllUsers(this.p);
     }, 2000)
-   
+
   }
   ngOnDestroy() {
     if (this.subscription) {
@@ -143,13 +143,13 @@ export class AllUsersComponent {
     this.applyorgFilter();
     this.getAllUsers(this.p);
   }
-  getAllUsers(page:number) {
-    const limit=20;
+  getAllUsers(page: number) {
+    const limit = 20;
     if (this.loginuser.role === "Admin") {
       if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
-        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId,page,limit).subscribe((data) => {
+        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId, page, limit).subscribe((data) => {
           console.log(data)
-          this.showorguser=false;
+          this.showorguser = false;
           this.showlist = true
           this.loading = false
           //@ts-ignore
@@ -161,10 +161,10 @@ export class AllUsersComponent {
           this.totalPages = this.data.totalPages
         })
       } else {
-        this.adminService.GetAllUsers(page,limit,this.FilterForm.value).subscribe((data) => {
+        this.adminService.GetAllUsers(page, limit, this.FilterForm.value).subscribe((data) => {
           console.log(data)
           this.showlist = true;
-          this.showorguser=false;
+          this.showorguser = false;
           this.loading = false
           //@ts-ignore
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');
@@ -177,8 +177,8 @@ export class AllUsersComponent {
       }
 
     } else {
-      this.showorg=true
-      this.orgService.getOrganizationUser(page,limit).subscribe({
+      this.showorg = true
+      this.orgService.getOrganizationUser(page, limit).subscribe({
         next: (data) => {
 
           console.log(data)
@@ -236,22 +236,37 @@ export class AllUsersComponent {
 
   openDialog(user: any) {
     console.log(user)
-    if (user.role === 'OrganizationAdmin'||user.role === 'Buyer') {
-      const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
-        data: {
-          title: 'Confirm Remove User',
-          message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName + ', if yes please assign this role to other user of this organization',
-          data: user,
-          showchangeform: true,
-        }
-      });
-      confirmDialog.afterClosed().subscribe(result => {
-        if (result === true) {
-          // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
-          this.deleteUser(user.id)
-        }
-      });
+    if (this.loginuser.role === "Admin") {
+      if (user.role === 'OrganizationAdmin' || user.role === 'Buyer') {
+        const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+          data: {
+            title: 'Confirm Remove User',
+            message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName + ', if yes please assign this role to other user of this organization',
+            data: user,
+            showchangeform: true,
+          }
+        });
+        confirmDialog.afterClosed().subscribe(result => {
+          if (result === true) {
+            // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
+            this.admindeleteUser(user.id)
+          }
+        });
 
+      } else {
+        const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+          data: {
+            title: 'Confirm Remove User',
+            message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName
+          }
+        });
+        confirmDialog.afterClosed().subscribe(result => {
+          if (result === true) {
+            // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
+            this.admindeleteUser(user.id)
+          }
+        });
+      }
     } else {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
@@ -265,42 +280,61 @@ export class AllUsersComponent {
           this.deleteUser(user.id)
         }
       });
+    
+  }
+
+}
+admindeleteUser(id: number) {
+
+  this.adminService.removeUser(id).subscribe((response) => {
+    console.log(response);
+    if (response.success) {
+      this.toastrService.success('User Deleted', 'Successful')
+      this.getAllUsers(this.p);
+    } else {
+
+      this.toastrService.error(response.message, 'Failure')
     }
 
-  }
-  deleteUser(id: number) {
-
-    this.adminService.removeUser(id).subscribe((response) => {
-      console.log(response);
-      if (response.success) {
-        this.toastrService.success('User Deleted', 'Successful')
-        this.getAllUsers(this.p);
-      } else {
-
-        this.toastrService.error(response.message, 'Failure')
-      }
-
-    }, (err) => {
-      console.log(err)
-      this.toastrService.error(err.error.message, 'Failure')
-    })
+  }, (err) => {
+    console.log(err)
+    this.toastrService.error(err.error.message, 'Failure')
+  })
 
 
-  }
+}
+deleteUser(id: number) {
 
-  openinviteDialog() {
-    const confirmDialog = this.dialog.open(InvitationformComponent, {
-      data: {
-        title: 'User invite in ' + this.orgdetails.name,
-        message: 'Are you sure, you want to  Invite: ',
-        orginfo: this.orgdetails
-      }
-    });
-    confirmDialog.afterClosed().subscribe(result => {
-      if (result === true) {
-        // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
-        //this.deleteDevice(device.id)
-      }
-    });
-  }
+  this.orgService.removeUser(id).subscribe((response) => {
+    console.log(response);
+    if (response.success) {
+      this.toastrService.success('User Deleted', 'Successful')
+      this.getAllUsers(this.p);
+    } else {
+
+      this.toastrService.error(response.message, 'Failure')
+    }
+
+  }, (err) => {
+    console.log(err)
+    this.toastrService.error(err.error.message, 'Failure')
+  })
+
+
+}
+openinviteDialog() {
+  const confirmDialog = this.dialog.open(InvitationformComponent, {
+    data: {
+      title: 'User invite in ' + this.orgdetails.name,
+      message: 'Are you sure, you want to  Invite: ',
+      orginfo: this.orgdetails
+    }
+  });
+  confirmDialog.afterClosed().subscribe(result => {
+    if (result === true) {
+      // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
+      //this.deleteDevice(device.id)
+    }
+  });
+}
 }

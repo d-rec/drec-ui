@@ -30,4 +30,7 @@ export class OrganizationService {
     }
     return this.httpClient.get<IPublicOrganization>(searchUrl)
   }
+  public removeUser(userId: number): Observable<any> {
+    return this.httpClient.delete<any>(environment.API_URL+ 'Organization/user/' + userId)
+  }
 }
