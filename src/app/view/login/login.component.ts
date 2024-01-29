@@ -64,15 +64,15 @@ export class LoginComponent implements OnInit {
                   this.toastrService.success('Login user ' + jwtObj.email + '!', 'Login Success');
                 } else {
 
-                  this.inviteservice.getinvitaion().subscribe({
+                  this.inviteservice.getinvitationByemail().subscribe({
                     next: data => {
                       console.log(data);
-                      const invitationId = data[0].id
+                      const invitationId = data.id
                       //@ts-ignore
                       let loginuser = JSON.parse(sessionStorage.getItem('loginuser'));
 
                       // Update the role property of the loginuser object with the new value
-                      loginuser.role = data[0].role;
+                      loginuser.role = data.role;
                       console.log(loginuser);
 
                       // Save the updated loginuser object back to sessionStorage
