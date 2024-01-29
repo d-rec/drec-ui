@@ -1,0 +1,100 @@
+<div class="body-bg add-reservation">
+    <mat-card>
+        <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+
+            <div>
+                <h2 class="pb-0 mb-0 fw-bold text-capitalize">Module permission Request Form
+                </h2>
+            </div>
+
+        </mat-card-header>
+        <hr>
+        <mat-card-content class="mat-body-cont">
+            <div class="container">
+             
+                <div class="container">
+               
+                       <form [formGroup]="form">
+                        <div class="example-container1 row">
+                          <div class="col-md-3">
+      
+                              <mat-form-field appearance="outline">
+                                  <mat-label class="text-capitalize">Client Id</mat-label>
+                                  <input matInput type="text" formControlName='client_id' autocomplete="off">
+      
+                              </mat-form-field>
+                          </div>
+                          <div class="col-md-3">
+      
+                              <mat-form-field appearance="outline">
+                                  <mat-label class="text-capitalize">Client Secret</mat-label>
+      
+                                  <input matInput type="text" formControlName='client_secret' 
+                                      autocomplete="off">
+                              </mat-form-field>
+                          </div>
+                         
+                      </div>
+                       <table mat-table  [dataSource]="dataSource" class="mat-elevation-z8">
+                       
+                        <ng-container matColumnDef="select" sticky>
+                          <th>
+                              <mat-header-cell *matHeaderCellDef>
+                                  <mat-checkbox color="primary" (change)="$event ? masterToggle() : null"
+                                      [checked]="selection.hasValue() && isAllSelected()"
+                                      [indeterminate]="selection.hasValue() && !isAllSelected()">
+                                  </mat-checkbox>
+                              </mat-header-cell>
+                          </th>
+                          <td>
+                              <mat-cell *cdkCellDef="let row">
+                                  <mat-checkbox color="primary" (click)="$event.stopPropagation()"
+                                      (change)="$event ? selection.toggle(row) : null"
+                                      [checked]="selection.isSelected(row)">
+                                  </mat-checkbox>
+                              </mat-cell>
+                          </td>
+
+                      </ng-container>
+                        <ng-container matColumnDef="name">
+                          <th mat-header-cell *matHeaderCellDef>Module Name</th>
+                          <td mat-cell *matCellDef="let row">
+                            {{ row.name }}
+                          </td>
+                        </ng-container>
+                        <ng-container matColumnDef="permissions">
+                          <th mat-header-cell *matHeaderCellDef>Permissions</th>
+                          <td mat-cell *matCellDef="let row">
+                            <ng-container *ngFor="let permission of row.permissions; let j = index">
+                              <mat-checkbox color="primary"
+                                [checked]="row.selectedPermissions.includes(permission)"
+                                [disabled]="!selection.isSelected(row)"
+                                (change)="togglePermission(row, permission)"
+                              >
+                                {{ permission }}
+                              </mat-checkbox>
+                            </ng-container>
+                          </td>
+                        </ng-container>
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                      </table>
+                      </form>
+                </div>
+
+            </div>
+        </mat-card-content>
+        <br>
+        <mat-card-footer>
+            <div class="example-container mb-3 me-2 row">
+                 <div class="col-12 d-flex justify-content-end">
+                   <button type="submit"  [disabled]="form.invalid" class="btn-primary btn text-capitalize px-4"
+                        (click)="submitPermissions()">Submit</button>
+
+                </div>
+            </div>
+        </mat-card-footer>
+
+    </mat-card>
+
+</div>

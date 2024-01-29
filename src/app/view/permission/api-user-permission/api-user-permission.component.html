@@ -1,0 +1,226 @@
+<div class="body-bg  alldevice-component">
+
+    <mat-card>
+        <mat-card-header class="d-flex mb-3 justify-content-between mat-crd-hide align-items-center ">
+
+            <div>
+                <mat-card-title>
+                    <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">Api User Permission
+                    </h2>
+                </mat-card-title>
+            </div>
+            <div>
+                <button class="btn btn-dark justify-content-end px-4  align-items-center"
+                    (click)="openupdate_permission_Dialog()" *ngIf="showorg && !fromselectid">
+                    <mat-icon class="align-middle me-2">add_circle</mat-icon>Update status</button>&nbsp;
+                <button class="btn btn-dark justify-content-end px-4  align-items-center"
+                    routerLink="/admin/All_apiusers" *ngIf="showgoback">
+                    <mat-icon class="align-middle me-2">arrow_back</mat-icon>Go Back</button>
+            </div>
+
+        </mat-card-header>
+        <mat-card-content class="mat-body-cont text-center">
+            <!-- <form [formGroup]="form" *ngIf="loginuser?.role==='ApiUser'&&showclientform">
+
+                <div class="example-container1 row" >
+                    <div class="col-md-3">
+
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Client Id</mat-label>
+                            <input matInput type="text" formControlName='client_id' autocomplete="off">
+
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+
+                        <mat-form-field appearance="outline">
+                            <mat-label class="text-capitalize">Client Secret</mat-label>
+
+                            <input matInput type="text" formControlName='client_secret' autocomplete="off">
+                        </mat-form-field>
+                    </div>
+
+                </div>
+                <div class="example-container mb-3 me-2 row">
+                    <div class="col-12 d-flex justify-content-end">
+                      <button type="submit"  [disabled]="form.invalid" class="btn-primary btn text-capitalize px-4"
+                           (click)="submit()">Submit</button>
+   
+                   </div>
+               </div>
+            </form> -->
+            <mat-card *ngIf="showuserdetails">
+                <mat-card-content>
+                
+                    <h2 style="text-align: center;color:#f2be1a; font-size: 20px;" class="text-capitalize">
+                        <b>User Details</b>
+                    </h2>
+
+                    <div class='content1'>
+                        <div class='column col-3'>
+                            <div class='row '>
+                                <p><b> Name</b>:&nbsp;
+                                    <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
+                                    {{userdetails?.firstName}} {{userdetails?.lastName}}
+                                </p>
+                            </div>
+                        </div>
+                        <div class='column col-3'>
+                            <div class='row'>
+                                <p><b>Role</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                                    {{userdetails?.role}}</p>
+
+                            </div>
+
+                        </div>
+                        <div class='column col-3'>
+                            <div class='row'>
+                                <p><b>User
+                                        Status</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                                    {{userdetails?.status}}</p>
+                            </div>
+                        </div>
+
+                        <div class='column col-3'>
+                            <div class='row'>
+                                <p><b>Permission
+                                        Status</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                                    {{userdetails?.permission_status
+                                    }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </mat-card-content>
+                <hr>
+            </mat-card>
+            <mat-card *ngIf="!showuserdetails &&loginuser?.role!='ApiUser'">
+                <form [formGroup]="FilterForm">
+                    <mat-card-content>
+                        <h3 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize">Filter
+                            User Of ApiUser</h3>
+                        <div class="example-container1 row">
+
+
+                            <div class="col-md-3">
+                                <mat-form-field appearance="outline">
+                                    <mat-label class="text-capitalize">Select User</mat-label>
+                                    <!-- <input type="text" aria-label="text" matInput formControlName="organizationName"
+                                        [matAutocomplete]="auto">
+                                    <mat-autocomplete #auto="matAutocomplete" > -->
+                                    <!-- <mat-option [value]="">---</mat-option> -->
+                                    <mat-select formControlName='user_id' (ngModelChange)="selectOrg($event)">
+                                        <mat-option *ngFor="let user of apiuserlist" [value]="user.id">
+                                            {{ user.firstName }} {{ user.lastName }}
+                                        </mat-option>
+                                    </mat-select>
+
+                                </mat-form-field>
+                                <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid
+                                    Organization</mat-error>
+                            </div>
+                            <div class="col-md-12 mb-3  d-flex ">
+                                <div class="">
+                                    <button class="btn-primary me-2 btn text-capitalize px-4"
+                                        (click)="getAllUserspermission()">Filter</button>
+                                </div>
+                                <div class="">
+                                    <button class="btn-dark btn text-capitalize px-4" (click)="reset()">Reset</button>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </mat-card-content>
+                </form>
+            </mat-card>
+
+            <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
+            <div class="content mat-elevation-z8 text-center" *ngIf="showlist">
+                <table mat-table [dataSource]="dataSource" class="" matSort>
+
+                    <!-- Position Column -->
+                    <ng-container matColumnDef="module_name">
+                        <th mat-header-cell *matHeaderCellDef class="text-left">Module Name </th>
+                        <td mat-cell *matCellDef="let row;let i=index"> {{row.aclmodules?.name}} </td>
+                    </ng-container>
+                    <ng-container matColumnDef="permission">
+                        <th mat-header-cell *matHeaderCellDef class="text-left">Permission </th>
+                        <td mat-cell *matCellDef="let row;let i=index"> {{row.permissions}}</td>
+                    </ng-container>
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> Status </th>
+                        <td mat-cell *matCellDef="let element">
+                            <p *ngIf="element.status===1">Active</p>
+                            <p *ngIf="element.status===0">Inactive</p>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="Action">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Action </th>
+                        <td mat-cell *matCellDef="let row; let i=index;">
+                          <!-- <button>certificate</button> -->
+                          <a class="edit-icon action-icons" (click)="UpdatePermission(row)"><mat-icon class="primary">edit</mat-icon></a>
+                       
+                          <!-- <a class="edit-icon"  (click)="alertDialog(row.externalId)">
+                            <mat-icon class="primary">visibility</mat-icon>
+                          </a>   -->
+                      </td>
+                      </ng-container>
+                    <!-- Status Column -->
+                    <!-- <ng-container matColumnDef="commissioningDate">
+              <th mat-header-cell *matHeaderCellDef  class="text-left">Commissioning Date </th>
+              <td mat-cell *matCellDef="let element"> {{element.commissioningDate| date:'dd MMM y'}} </td>
+            </ng-container>
+            <ng-container matColumnDef="capacity">
+              <th mat-header-cell *matHeaderCellDef  class="text-left"> Capacity(kW) </th>
+              <td mat-cell *matCellDef="let element"> {{element.capacity}} </td>
+            </ng-container>
+            <ng-container matColumnDef="SDGBenefits">
+              <th mat-header-cell *matHeaderCellDef > SDGBenefits </th>
+              <td mat-cell *matCellDef="let row"> {{row.SDGBenefits}} </td> -->
+                    <!-- </ng-container> -->
+                    <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef class="text-left">Action</th>
+                        <td mat-cell *matCellDef="let row; let i=index;">
+                            <!-- <a class="edit-icon action-icons" (click)="openUpdateDialog(row)">
+                                <mat-icon matTooltip="Edit" [matTooltipPosition]="'above'"
+                                    class="primary cursor-pointer">edit</mat-icon></a>
+                            &nbsp;
+                            <a class="delete-icon action-icons" (click)="openDialog(row)">
+
+                                <mat-icon matTooltip="Delete" [matTooltipPosition]="'above'"
+                                    class=" cursor-pointer">delete</mat-icon>
+                            </a> -->
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;">
+                    </tr>
+                    <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell" colspan="4" style="text-align: center;color: #f2be1a;">No Permission </td>
+                    </tr>
+                </table>
+                <!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
+            aria-label="Select page">
+          </mat-paginator> -->
+                <!-- <hr> -->
+                <!-- <div class="d-flex justify-content-start align-items-center  p-10 ">
+                    <button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
+                        [disabled]="p === 1">Previous</button>&nbsp;&nbsp;
+
+                    Total Pages:{{totalPages}}&nbsp;&nbsp;
+                    <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
+                        [disabled]="p === totalPages">Next</button>
+                    <p style="width: 150px;
+            height: 25px;
+            margin-left: 420px;
+            padding: 10px 5px 0px 0px"><b>Page Number:&nbsp;</b>{{p}}</p>
+
+                </div> -->
+
+            </div>
+            <div *ngIf="!showlist" style="text-align: center;color: #f2be1a;">No Permission </div>
+
+        </mat-card-content>
+        <mat-card-footer></mat-card-footer>
+    </mat-card>
+</div>

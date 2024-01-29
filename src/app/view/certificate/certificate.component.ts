@@ -11,14 +11,12 @@ import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { BlockchainDrecService } from '../../auth/services/blockchain-drec.service';
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
 import { ethers } from 'ethers';
 import { ToastrService } from 'ngx-toastr';
-import { ReservationService } from '../../auth/services/reservation.service';
 import { issuerABI } from './issuer-abi';
 import { registryABI } from './registery-abi';
-import { MeterReadService } from '../../auth/services/meter-read.service'
+import { MeterReadService ,ReservationService,BlockchainDrecService,CertificateService} from '../../auth/services'
 export interface Student {
   firstName: string;
   lastName: string;
@@ -79,7 +77,13 @@ export class CertificateComponent implements OnDestroy {
   historynextissuance_total: number;
   certifiedp: number = 1
   certified_total: number;
-  constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
+  constructor(private blockchainDRECService: BlockchainDrecService,
+    private authService: AuthbaseService, 
+    private certificateauthService: CertificateService, 
+    private router: Router,
+     private activatedRoute: ActivatedRoute,
+      private toastrService: ToastrService,
+       private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
     private readService: MeterReadService,
@@ -317,8 +321,8 @@ export class CertificateComponent implements OnDestroy {
   DisplayList(p: number) {
     console.log("certifed list")
     console.log(this.group_uid);
-    this.authService.GetMethod('certificate-log/issuer/certified/new/' + this.group_uid + '?pageNumber=' + p).subscribe(
-      (data: any) => {
+    this.certificateauthService.getcertifiedlogByGooupUid( this.group_uid , p).subscribe({
+     next: (data: any) => {
         this.loading = false;
         // display list in the console 
 
@@ -357,7 +361,15 @@ export class CertificateComponent implements OnDestroy {
           }
         })
 
+      },error:err=>{
+        if (err.error.statusCode === 403) {
+          this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
+        } else {
+          this.toastrService.error('Error:' + err.error.message, 'Fail')
+        }
       }
+    }
+      
 
     )
   }
