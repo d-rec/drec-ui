@@ -54,4 +54,7 @@ export class OrganizationService {
     let headers = new HttpHeaders(this.headersData);
     return this.httpClient.delete<any>(environment.API_URL+ 'Organization/user/' + userId,{headers})
   }
+  public removeUser(userId: number): Observable<any> {
+    return this.httpClient.delete<any>(environment.API_URL+ 'Organization/user/' + userId)
+  }
 }

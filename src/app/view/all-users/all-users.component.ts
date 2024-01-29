@@ -169,6 +169,7 @@ export class AllUsersComponent {
   }
   getAllUsers(page: number) {
     const limit = 20;
+
     console.log(this.orgnaizatioId);
     if (this.loginuser.role === "Admin") {
       if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
@@ -180,7 +181,6 @@ export class AllUsersComponent {
     } else {
       this.showorg = true
       if (this.loginuser.role === "ApiUser") {
-
         if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
           this.getAllUserByorganzationId(page, limit)
         } else {
@@ -387,7 +387,6 @@ deleteUser(id: number) {
 
       this.toastrService.error(response.message, 'Failure')
     }
-
   }, (err) => {
     console.log(err)
     this.toastrService.error(err.error.message, 'Failure')
@@ -412,4 +411,5 @@ deleteUser(id: number) {
       }
     });
   }
+
 }
