@@ -17,9 +17,7 @@
         <hr class="mb-0 pb-0">
         <form [formGroup]="myform" (ngSubmit)="onSubmit()">
             <mat-card-content>
-
-
-                <div class="col-md-3" *ngIf="loginuser.role ==='Admin'">
+                <div class="col-md-3" *ngIf="loginuser.role ==='Admin'||loginuser.role ==='ApiUser'">
                    
                     <mat-form-field appearance="outline">
                         <mat-label class="text-capitalize">Organization</mat-label>
@@ -81,7 +79,7 @@
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Select country </mat-label>
-                                            <input type="text" matInput formControlName='countryCode'
+                                            <input type="text" matInput formControlName='countryCodename'
                                                 [matAutocomplete]="auto">
                                             <mat-autocomplete #auto="matAutocomplete">
                                                 <mat-option *ngFor="let code of filteredCountryList[i] | async"

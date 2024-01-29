@@ -1,0 +1,24 @@
+<mat-dialog-content>
+    <!-- Display the response content here -->
+    <div>
+        <mat-card>
+            <mat-card-header>
+
+                <div>
+                    <h3 class="pb-0 mb-0 fw-bold text-capitalize"> please copy and save as it is revealed only one time
+                    </h3>
+                </div>
+            </mat-card-header>
+            <hr>
+            <mat-card-content class="mat-body-cont">
+                <p><b>Client_id:</b>{{response?.client_id}} </p>
+                <p><b>Client_Secret:</b>{{response?.client_secret}}</p>
+            </mat-card-content>
+        </mat-card>
+
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+    <button mat-button [mat-dialog-close]="'close'" style="float: right; margin: 20px">Close</button>
+    <button mat-button (click)="copyToClipboard()" style="float: right; margin: 20px">Copy</button>
+</mat-dialog-actions>
