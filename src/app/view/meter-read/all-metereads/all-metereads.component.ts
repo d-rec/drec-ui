@@ -108,7 +108,7 @@ export class AllMetereadsComponent implements OnInit {
         map(value => this._externalIdfilter(value || '')),
       );}
       //  this.getDeviceinfo();
-    }, 1000);
+    }, 2000);
   }
   filterOrgList() {
     console.log("99")

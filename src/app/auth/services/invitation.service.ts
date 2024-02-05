@@ -25,6 +25,9 @@ export class InvitationService {
     public getinvitaion(): Observable<any> {
         return this.httpClient.get<any>(this.url + 'invitation')
     }
+    public getinvitationByemail():Observable<any>{
+        return this.httpClient.get<any>(this.url+'invitation/By_email')
+    }
     public acceptinvitaion(invitationId: number, data: any): Observable<any> {
         return this.httpClient.put<any>(this.url + 'invitation/' + invitationId, data)
     }

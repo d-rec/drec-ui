@@ -50,4 +50,11 @@ export class OrganizationService {
     }
     return this.httpClient.get<any>(searchUrl,{headers});
   }
+  public removeUser(userId: number): Observable<any> {
+    let headers = new HttpHeaders(this.headersData);
+    return this.httpClient.delete<any>(environment.API_URL+ 'Organization/user/' + userId,{headers})
+  }
+  public removeUser(userId: number): Observable<any> {
+    return this.httpClient.delete<any>(environment.API_URL+ 'Organization/user/' + userId)
+  }
 }
