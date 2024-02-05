@@ -77,6 +77,7 @@
                                                 </mat-select>
                                                 
                                             </mat-form-field>
+                                           
                                              <mat-form-field appearance="outline" class="mt-0" *ngIf="loginuser.role==='Buyer'">
                                                 <mat-label class="mat-labels-cont text-capitalize">Role</mat-label>
                                                 <mat-select formControlName="role" class="value-fs">
@@ -87,6 +88,17 @@
                                                    
                                                 </mat-select>
                                               
+                                                
+                                            </mat-form-field>
+                                            <mat-form-field appearance="outline" class="mt-0" *ngIf="loginuser.role==='DeviceOwner'||loginuser.role==='SubBuyer'">
+                                                <mat-label class="mat-labels-cont text-capitalize">Role</mat-label>
+                                                <mat-select formControlName="role" class="value-fs">
+                                                   
+                                                    <mat-option  value='User'>
+                                                      User
+                                                    </mat-option>
+                                                   
+                                                </mat-select>
                                                 
                                             </mat-form-field>
                                         </div>

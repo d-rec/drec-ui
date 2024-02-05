@@ -83,5 +83,14 @@ export class CertificateService {
     //   });
     return this.httpClient.get(searchUrl, { responseType: 'blob' });
   }
+
+  getcertifiedlogPerDevice(group_uid: string): Observable<any> {
+    let searchUrl = this.url + 'certificate-log/expoert_perdevice/' + group_uid;
+    // let headers = new HttpHeaders(this.headersData);
+    // const headers = new HttpHeaders({
+    //   'Content-Type': 'application/json',
+    //   });
+    return this.httpClient.get(searchUrl, { responseType: 'blob' });
+  }
 }
 

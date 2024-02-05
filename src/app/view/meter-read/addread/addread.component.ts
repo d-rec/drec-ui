@@ -131,7 +131,7 @@ export class AddreadComponent implements OnInit {
         );
       }
       //  this.getDeviceinfo();
-    }, 1000);
+    }, 2000);
   }
 
   get addreads() {
