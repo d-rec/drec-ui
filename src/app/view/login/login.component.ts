@@ -144,8 +144,8 @@ export class LoginComponent implements OnInit {
         },
         error: error => {                              //Error callback
           console.error('error caught in component', error)
-          this.toastrService.error('Error:' + error.error.message +
-            ',Check your credentials!', 'Login Fail!!');
+          this.toastrService.error('Error: ' +
+            'Check your credentials!', 'Login Fail!!');
         }
       }
       )
