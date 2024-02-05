@@ -14,6 +14,10 @@ export class HeaderComponent implements OnInit{
  
   ngOnInit() {
   this.isLoggedIn = this.authService.isLoggedIn();
+  if(!this.isLoggedIn){
+    this.router.navigate(['/login']);
+  }
+  
   console.log(this.isLoggedIn);
   }
   public onToggleSidenav = () => {

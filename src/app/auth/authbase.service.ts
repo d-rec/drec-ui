@@ -34,6 +34,11 @@ export class AuthbaseService {
     return this.httpClient.get(this.url + routePath)
   }
 
+  logout() {
+
+    return this.httpClient.post<any>(this.url +'logout',{})
+  }
+
   isLoggedIn(): boolean {
 
     const user = sessionStorage.getItem('access-token');

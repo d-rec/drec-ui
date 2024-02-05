@@ -17,6 +17,7 @@ export class LoginComponent implements OnInit {
   selectedOption: string;
   clientid: string;
   client_secret: string;
+  hide = true;
   // loginForm: FormGroup;
   constructor(private authService: AuthbaseService,
     private router: Router, private toastrService: ToastrService,
