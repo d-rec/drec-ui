@@ -116,8 +116,7 @@
 
         </mat-radio-group>
       </div>
-      <form class="example-form px-3" [formGroup]="loginForm" (ngSubmit)="onSubmit()"
-        *ngIf="selectedOption === 'Form1'">
+      <form class="example-form px-3" [formGroup]="loginForm" *ngIf="selectedOption === 'Form1'">
 
         <mat-form-field class="example-full-width">
           <mat-label class="mat-labels-cont">Username</mat-label>
@@ -125,12 +124,16 @@
         </mat-form-field>
         <mat-form-field class="example-full-width">
           <mat-label class="mat-labels-cont">Password</mat-label>
-          <input matInput type="password" formControlName="password" required>
+          <input matInput [type]="hide ? 'password' : 'text'" formControlName="password" required>
+          <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hide" class="icon-eye">
+            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
         </mat-form-field>
 
 
         <div class="p-3">
-          <button type="submit" class="btn-primary btn   btn-block">Login</button>
+          <button type="submit" class="btn-primary btn   btn-block" (click)="onSubmit()">Login</button>
         </div>
 
       </form>
@@ -171,7 +174,11 @@
               </mat-form-field>
               <mat-form-field class="example-full-width">
                 <mat-label class="mat-labels-cont">Password</mat-label>
-                <input matInput type="password" formControlName="password" required>
+                <input matInput [type]="hide ? 'password' : 'text'" formControlName="password" required>
+                <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+                  [attr.aria-pressed]="hide" class="icon-eye">
+                  <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
               </mat-form-field>
 
               <div class="d-flex mt-2">
