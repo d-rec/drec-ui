@@ -85,7 +85,9 @@ export class MeterReadTableComponent implements OnInit {
 
     console.log(this.exterenalId);
     this.FilterForm.controls['pagenumber'].setValue(this.p);
-
+    // if (this.loginuser.role === 'ApiUser') {
+    //   myobj['organizationId'] = this.orgId
+    // }
     this.service.GetRead(this.exterenalId, this.FilterForm.value)
       .subscribe((response: any) => {
         this.filter = true;

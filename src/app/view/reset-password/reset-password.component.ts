@@ -34,6 +34,7 @@ export class ResetPasswordComponent {
   fromregister: boolean = true;
   message: string;
   email: string;
+  role: string
   constructor(private authService: UserService, private router: Router,
     private toastrService: ToastrService, private activatedRoute: ActivatedRoute) {
     // this.accesstoken = this.activatedRoute.snapshot.params['id'];
@@ -42,13 +43,26 @@ export class ResetPasswordComponent {
       if (params['token'] != undefined) {
         this.accesstoken = params['token'];
         this.email = params['email'];
+        this.role = params['role']
         console.log(this.accesstoken);
+        if (this.role === "ApiUser") {
+          (this.resetpasswordForm as any).addControl('clientid', new FormControl());
+          (this.resetpasswordForm as any).addControl('client_secret', new FormControl());
+          
+        }
         this.fromregister = false;
         // this.getConfirmemail(this.accesstoken)
       }
     });
   }
- 
+  padBase64(token: any) {
+    const base64 = token.replace('-', '+').replace('_', '/');
+    return base64;
+  }
+  b64DecodeUnicode(token: any) {
+    const base64Payload = window.atob(token);
+    return base64Payload;
+  }
   checkPassword(control: any) {
     let enteredPassword = control.value
     let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
@@ -62,7 +76,7 @@ export class ResetPasswordComponent {
 
     let enteredPassword = control.value;
     let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
-   
+
     return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'Confirmrequirements': true } :
       (!enteredPassword && enteredPassword) ? { 'matchrequirements': true } : null;
   }
@@ -78,9 +92,9 @@ export class ResetPasswordComponent {
   onSubmit() {
 
     console.log(this.resetpasswordForm.value)
-    this.authService.UserResetPassword(this.accesstoken,this.resetpasswordForm.value).subscribe(
+    this.authService.UserResetPassword(this.accesstoken, this.resetpasswordForm.value).subscribe(
       (data) => {
-        this.toastrService.success('Successfully!!', 'Rest Password');
+        this.toastrService.success('Successfully!!', 'Reset Password');
         console.log(data);
         this.router.navigate(['/login']);
       })

@@ -59,16 +59,17 @@ export class AdminAlldevicesComponent {
   totalRows = 0;
   filteredOptions: Observable<any[]>;
   filteredOptions1: Observable<any[]>;
-  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
+  offtaker = ['School', 'Education', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture', 'Utility', 'Off-Grid Community']
   endminDate = new Date();
   totalPages: number;
   subscription: Subscription;
   selectedCountry: any;
   isAnyFieldFilled: boolean = false;
   showerror: boolean = false;
-  showorgerror:boolean=false;
+  showorgerror: boolean = false;
   showlist: boolean = false;
-  orglist:any;
+  orglist: any;
+  showapiuser_devices: boolean = false;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService, private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
@@ -76,7 +77,7 @@ export class AdminAlldevicesComponent {
     private toastrService: ToastrService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
-      organizationname:[],
+      organizationname: [],
       organizationId: [],
       countryCode: [],
       countryname: [],
@@ -92,6 +93,9 @@ export class AdminAlldevicesComponent {
     });
   }
   ngOnInit(): void {
+    if (this.loginuser.role === "ApiUser") {
+      this.showapiuser_devices = true;
+    }
     this.adminService.GetAllOrganization().subscribe(
       (data) => {
         //@ts-ignore
@@ -160,9 +164,7 @@ export class AdminAlldevicesComponent {
     const filterValue = value.toLowerCase();
     if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
       this.showorgerror = true;
-      // const updatedFormValues = this.FilterForm.value;
-      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
-      // this.isAnyFieldFilled = false;
+      
     } else {
       this.showorgerror = false;
     }
@@ -292,8 +294,25 @@ export class AdminAlldevicesComponent {
     this.deviceurl = 'device?';
 
     //this.FilterForm.controls['pagenumber'].setValue(page);
-    this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe(
-      (data) => {
+    // this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe(
+    //   (data) => {
+    //     console.log(data)
+    //     this.showlist = true
+    //     //@ts-ignore
+    //     if (data.devices) {
+    //       this.loading = false;
+    //       //@ts-ignore
+    //       this.data = data;
+    //       this.DisplayList()
+    //     }
+    //   }, error => {
+    //     console.log(error);
+    //     this.data = [];
+    //     this.showlist = false
+    //   }
+    // )
+    this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe({
+      next: data => {
         console.log(data)
         this.showlist = true
         //@ts-ignore
@@ -303,12 +322,15 @@ export class AdminAlldevicesComponent {
           this.data = data;
           this.DisplayList()
         }
-      }, error => {
-        console.log(error);
+      }, error: err => {
+        console.log(err);
+        if (err.error.statusCode === 403) {
+          this.toastrService.error('You are Unauthorized')
+        }
         this.data = [];
         this.showlist = false
       }
-    )
+    })
   }
 
   DisplayList() {

@@ -34,6 +34,8 @@ import { UserProfileComponent } from './view/user-profile/user-profile.component
 //import { UserInvitationComponent } from./view/organization/user-invitation/user-invitation.componentnt';
 import {AdminModule} from './view/admin/admin.module';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component'
+import {ApiuserClientReponseComponent} from './view/apiuser-client-reponse/apiuser-client-reponse.component'
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -61,7 +63,7 @@ import { UserAcceptInvitationComponent } from './view/user-accept-invitation/use
     UserProfileComponent,
     UserAcceptInvitationComponent,
    // UserInvitationComponent,
-
+   ApiuserClientReponseComponent
   ],
   imports: [
     BrowserModule,

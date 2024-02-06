@@ -18,7 +18,7 @@
       <mat-card-content class="mat-body-cont text-center" >
 
         <form [formGroup]="FilterForm" *ngIf="showfilterform">
-            <div class="example-container1 row" *ngIf="loginuser.role ==='Admin'">
+            <div class="example-container1 row" *ngIf="loginuser.role ==='Admin'||loginuser.role ==='ApiUser'">
                 <p>Select Organization</p>
             <div class="col-md-3" >
                 <mat-form-field appearance="outline">

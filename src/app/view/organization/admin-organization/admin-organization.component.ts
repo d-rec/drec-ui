@@ -8,7 +8,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
-import { AdminService } from '../../../auth/services/admin.service';
+import { AdminService, OrganizationService } from '../../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -63,7 +63,8 @@ export class AdminOrganizationComponent {
     private formBuilder: FormBuilder,
     private router: Router,
     private dialog: MatDialog,
-    private activatedRoute: ActivatedRoute) {
+    private activatedRoute: ActivatedRoute,
+    private orgService: OrganizationService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.activatedRoute.queryParams.subscribe(params => {
       console.log(params)
@@ -80,23 +81,39 @@ export class AdminOrganizationComponent {
     });
   }
   ngOnInit() {
+    if (this.loginuser.role === 'Admin') {
+      this.adminService.GetAllOrganization().subscribe(
+        (data) => {
+          //@ts-ignore
+          this.orglist =data.organizations.filter(org => org.organizationType != "ApiUser");
+          this.orglistload = true;
+          console.log(this.orglist)
 
-    this.adminService.GetAllOrganization().subscribe(
-      (data) => {
-        this.orglist = data.organizations
-        this.orglistload = true;
-        console.log(this.orglist)
+
+        });
+    } else if (this.loginuser.role === 'ApiUser') {
+      this.orgService.GetApiUserAllOrganization().subscribe(
+        (data) => {
+          this.orglist = data.organizations
+          this.orglistload = true;
+          console.log(this.orglist)
 
 
-      });
+        });
+    }
+
 
     setTimeout(() => {
       console.log("93")
-      // if (this.countrycodeLoded) {
 
-      // }
       this.loading = false;
-      this.getAllOrganization(this.p);
+      if (this.loginuser.role === 'Admin') {
+        this.getAllOrganization(this.p);
+      }
+      else if (this.loginuser.role === 'ApiUser') {
+        this.getApiuserAllOrganization(this.p);
+      }
+
       console.log(this.orglistload);
       if (this.orglistload) {
         this.applyorgFilter();
@@ -148,7 +165,7 @@ export class AdminOrganizationComponent {
   }
   reset() {
     this.FilterForm.reset();
-
+    this.p = 1
     // this.FilterForm.controls['organizationName'].setValue(null);
     this.loading = true;
     // this.applyorgFilter();
@@ -158,6 +175,31 @@ export class AdminOrganizationComponent {
     //this.FilterForm.controls['pagenumber'].setValue(page);
     const limit = 20;
     this.adminService.GetAllOrganization(page, limit, this.FilterForm.value).subscribe(
+      (data) => {
+        console.log(data)
+        this.showlist = true
+        this.loading = false;
+        //@ts-ignore
+        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+        console.log(this.data);
+        //@ts-ignore
+        this.dataSource = new MatTableDataSource(this.data.organizations.filter(org => org.organizationType != "ApiUser"));
+        this.totalRows = this.data.totalCount
+        console.log(this.totalRows);
+        this.totalPages = this.data.totalPages
+        // this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      }, error => {
+        console.log(error);
+        this.data = [];
+        this.showlist = false
+      }
+    )
+  }
+  getApiuserAllOrganization(page: number) {
+    //this.FilterForm.controls['pagenumber'].setValue(page);
+    const limit = 20;
+    this.orgService.GetApiUserAllOrganization(page, limit, this.FilterForm.value).subscribe(
       (data) => {
         console.log(data)
         this.showlist = true
@@ -178,7 +220,6 @@ export class AdminOrganizationComponent {
       }
     )
   }
-
   previousPage(): void {
     if (this.p > 1) {
       this.p--;

@@ -8,7 +8,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 
-import { DeviceService, AdminService } from '../../../auth/services'
+import { DeviceService, AdminService,OrganizationService } from '../../../auth/services'
 import { Router, ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-add-bulk-device',
@@ -43,7 +43,8 @@ export class AddBulkDeviceComponent implements OnInit {
   constructor(private uploadService: FileuploadService,
     private deviceService: DeviceService, private router: Router,
     private toastrService: ToastrService,
-    private adminService: AdminService) {
+    private adminService: AdminService,
+    private orgService: OrganizationService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -66,6 +67,16 @@ export class AddBulkDeviceComponent implements OnInit {
           console.log(this.orglist)
           this.filteredOrgList = this.orglist;
         })
+    }else if (this.loginuser.role === 'ApiUser') {
+      this.orgService.GetApiUserAllOrganization().subscribe(
+        (data) => {
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+          console.log(this.orglist)
+          // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
+          this.filteredOrgList = this.orglist;
+        }
+      );
     }
     this.JobDisplayList();
 
@@ -124,7 +135,7 @@ export class AddBulkDeviceComponent implements OnInit {
           console.log(event);
           let obj: any = {};
           obj['fileName'] = event[0];
-          if (this.loginuser.role === 'Admin') {
+          if (this.loginuser.role === 'Admin'||this.loginuser.role === 'ApiUser') {
             this.deviceService.addByAdminbulkDevices(this.orgId, obj).subscribe({
               next: (data: any) => {
                 console.log(data)
@@ -189,7 +200,7 @@ export class AddBulkDeviceComponent implements OnInit {
         // display list in the console 
         this.loading = false;
         this.data = data;
-        this.dataSource = new MatTableDataSource(this.data);
+        this.dataSource = new MatTableDataSource(this.data.csvJobs);
         this.dataSource.paginator = this.paginator
         this.dataSource.sort = this.sort;
       }

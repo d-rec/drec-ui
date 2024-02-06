@@ -3,8 +3,10 @@ import { FormGroup, FormControl, FormBuilder, Validators, FormGroupDirective, } 
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router } from '@angular/router';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
-
+import { ApiuserClientReponseComponent } from '../apiuser-client-reponse/apiuser-client-reponse.component'
 import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material/dialog';
+import { UserService, InvitationService } from '../../auth/services';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -21,7 +23,8 @@ export class RegisterComponent implements OnInit {
   fieldRequired: string = "This field is required"
   orgtype: any[] = [
     { value: 'Developer', viewValue: 'Developer' },
-    { value: 'Buyer', viewValue: 'Buyer' }
+    { value: 'Buyer', viewValue: 'Buyer' },
+    { value: 'ApiUser', viewValue: 'ApiUser' }
   ];
   hide = true;
   hide1 = true;
@@ -29,7 +32,8 @@ export class RegisterComponent implements OnInit {
 
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   constructor(private authService: AuthbaseService, private _formBuilder: FormBuilder,
-    private toastrService: ToastrService, private router: Router,) {
+    private toastrService: ToastrService, private router: Router, private dialog: MatDialog,
+    private userService: UserService) {
 
   }
 
@@ -116,59 +120,67 @@ export class RegisterComponent implements OnInit {
     const base64Payload = window.atob(token);
     return base64Payload;
   }
+  response: any
   onSubmit(formData: FormGroup): void {
+    console.log("registerForm")
     console.log(this.registerForm.value)
-    // const email = formData.value.email;
-    // const password = formData.value.password;
-    // const username = formData.value.username;
-    //this.auth.post(email, password, username);
+
     this.authService.PostAuth('user/register', this.registerForm.value).subscribe({
       next: data => {
         console.log(data)
 
-        this.toastrService.success('Successfully!!', 'User Registration');
+        // this.toastrService.success('Successfully!!', 'User Registration');
+        console.log(this.registerForm.value.organizationType)
         const loginobj = {
           username: this.registerForm.value.email,
           password: this.registerForm.value.password
         }
-        this.authService.login('auth/login', loginobj).subscribe({
-          next: data => {
+        if (this.registerForm.value.organizationType === "ApiUser") {
+          this.response = data;
+          this.showPopup(this.response, loginobj);
+        } else {
 
-            if (data["accessToken"] != null) {
-              sessionStorage.setItem('access-token', data["accessToken"]);
-              let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
-              console.log(jwtObj);
-              //sessionStorage.setItem('loginuser', jwtObj);
-              sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-              //var obj = JSON.parse(sessionStorage.loginuser);
+          this.authService.login('auth/login', loginobj).subscribe({
+            next: data => {
 
-              if (jwtObj.role === 'Buyer') {
-                this.router.navigate(['/myreservation']);
+              if (data["accessToken"] != null) {
+                sessionStorage.setItem('access-token', data["accessToken"]);
+                let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
+                console.log(jwtObj);
+                //sessionStorage.setItem('loginuser', jwtObj);
+                sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
+                //var obj = JSON.parse(sessionStorage.loginuser);
+
+                if (jwtObj.role === 'Buyer') {
+                  this.router.navigate(['/myreservation']);
+                } else {
+                  this.router.navigate(['/device/AllList']);
+                }
+                this.toastrService.success('login user ' + jwtObj.email + '!', 'login Success');
               } else {
-                this.router.navigate(['/device/AllList']);
+                console.log("check your credentials !!")
+                this.toastrService.info('Message Failure!', 'check your credentials !!');
+                this.router.navigate(['/login']);
               }
-              this.toastrService.success('login user ' + jwtObj.email + '!', 'login Success');
-            } else {
-              console.log("check your credentials !!")
-              this.toastrService.info('Message Failure!', 'check your credentials !!');
-              this.router.navigate(['/login']);
+            },
+            error: err => {                           //Error callback
+              console.error('error caught in component', err)
+              this.toastrService.error('check your credentials!', 'login Fail!!');
+
+
             }
-          },
-          error: err => {                           //Error callback
-            console.error('error caught in component', err)
-            this.toastrService.error('check your credentials!', 'login Fail!!');
+          })
+          this.registerForm.reset();
+          const formControls = this.registerForm.controls;
 
+          Object.keys(formControls).forEach(key => {
+            const control = formControls[key];
+            control.setErrors(null);
+          });
+          // this.router.navigate(['/confirm-email']);
 
-          }
-        })
-        this.registerForm.reset();
-        const formControls = this.registerForm.controls;
+        }
 
-        Object.keys(formControls).forEach(key => {
-          const control = formControls[key];
-          control.setErrors(null);
-        });
-        // this.router.navigate(['/confirm-email']);
 
       },
       error: err => {                          //Error callback
@@ -179,4 +191,55 @@ export class RegisterComponent implements OnInit {
     // formDirective.resetForm();
 
   }
+  showPopup(response: any, logininfo: any) {
+    const dialogRef = this.dialog.open(ApiuserClientReponseComponent, {
+      data: response, // Pass the response data to the modal
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === 'copy') {
+        this.authService.ApiUserlogin('auth/login', this.response.client_id, this.response.client_secret, logininfo).subscribe({
+          next: (data: any) => {
+            if (data["accessToken"] != null) {
+              sessionStorage.setItem('access-token', data["accessToken"]);
+              let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
+              jwtObj['clientId']= this.response.client_id
+              jwtObj['clientSecret']=this.response.client_secret     
+              sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
+              this.userService.userProfile(this.response.client_id, this.response.client_secret).subscribe({
+                next:(data1:any)  => {
+                  console.log(data1)
+                  sessionStorage.setItem('status', data1.status);
+                  this.router.navigate(['/apiuser/permission/request/form']);
+                 
+                }, error: (err:any) => {
+                  this.toastrService.error('Error!', err.error.message);
+                }
+              })
+            } else {
+              console.log("check your credentials !!")
+              this.toastrService.info('Message Failure!', 'Check your credentials !!');
+              this.router.navigate(['/login']);
+            }
+          },
+          error: error => {                              //Error callback
+            console.error('error caught in component', error)
+            this.toastrService.error('Error:' + error.error.message +
+              ',Check your credentials!', 'Login Fail!!');
+          }
+        }
+        )
+      
+      // this.copyToClipboard();
+    }
+    });
+}
+  // copyToClipboard() {
+  //   const textArea = document.createElement('textarea');
+  //   textArea.value = this.response.responseText; // Replace this with your actual response text
+  //   document.body.appendChild(textArea);
+  //   textArea.select();
+  //   document.execCommand('copy');
+  //   document.body.removeChild(textArea);
+  // }
 }
