@@ -34,9 +34,9 @@ export class AuthbaseService {
     return this.httpClient.get(this.url + routePath)
   }
 
-  logout() {
+  logout(routePath: string) {
 
-    return this.httpClient.post<any>(this.url +'logout',{})
+    return this.httpClient.post<any>(this.url + routePath,{})
   }
 
   isLoggedIn(): boolean {
