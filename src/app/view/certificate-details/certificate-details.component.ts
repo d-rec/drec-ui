@@ -1,7 +1,7 @@
 
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, ViewChild,ElementRef, TemplateRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, ViewChild, ElementRef, TemplateRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input, OnDestroy } from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, group, state, style, transition, trigger } from '@angular/animations';
@@ -14,18 +14,13 @@ import { BlockchainDrecService } from '../../auth/services/blockchain-drec.servi
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
 import { ethers } from 'ethers';
 import { ToastrService } from 'ngx-toastr';
-import { ReservationService } from '../../auth/services/reservation.service';
-
-import { MeterReadService } from '../../auth/services/meter-read.service'
-
+import { ReservationService, OrganizationService, MeterReadService, DeviceService, CertificateService } from '../../auth/services';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DateAdapter } from '@angular/material/core';
-import { DeviceService } from '../../auth/services/device.service';
-import { CertificateService } from '../../auth/services/certificate.service'
 import { DeviceDetailsComponent } from '../device/device-details/device-details.component'
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 @Component({
@@ -38,11 +33,12 @@ export class CertificateDetailsComponent {
   @Input() dataFromComponentA: any;
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
   displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
-  innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour','Action'];
+  innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour', 'Action'];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('startThumb') startThumb: ElementRef<HTMLInputElement>;
   @ViewChild('endThumb') endThumb: ElementRef<HTMLInputElement>;
+  loginuser: any
   dataSource: MatTableDataSource<any>;
   obs: Observable<any>;
   data: any;
@@ -67,7 +63,7 @@ export class CertificateDetailsComponent {
   totalPages: number;
   p: number = 1;
   FilterForm: FormGroup;
-  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
+  offtaker = ['School', 'Education', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture', 'Utility', 'Off-Grid Community']
   endminDate = new Date();
   sdgblist: any;
   fuellist: any;
@@ -77,7 +73,11 @@ export class CertificateDetailsComponent {
   countrycodeLoded: boolean = false;
   startvalue: number = 1000;
   endvalue: number = 5000001;
-
+  orgname: string;
+  orgId: number;
+  orglist: any;
+  filteredOrgList: Observable<any[]>;
+  showorgerror: boolean = false;
   constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
@@ -85,8 +85,11 @@ export class CertificateDetailsComponent {
     private deviceService: DeviceService,
     private certificateService: CertificateService,
     private formBuilder: FormBuilder,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private orgService: OrganizationService
   ) {
+
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
       countryname: [],
@@ -99,7 +102,7 @@ export class CertificateDetailsComponent {
       end_date: [null],
       // fromAmountread: [null],
       // toAmountread: [null],
-     // pagenumber: [this.p]
+      // pagenumber: [this.p]
     });
 
   }
@@ -107,7 +110,11 @@ export class CertificateDetailsComponent {
 
     this.energyurl = environment.Explorer_URL + '/block/';
     console.log("myreservation");
+    if (this.loginuser.role === 'ApiUser') {
+      this.FilterForm.addControl('organizationname', this.formBuilder.control(''));
+      this.FilterForm.addControl('organizationId', this.formBuilder.control(''));
 
+    }
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
         // display list in the console
@@ -138,12 +145,12 @@ export class CertificateDetailsComponent {
     setTimeout(() => {
       if (this.countrycodeLoded) {
         this.applycountryFilter();
-        
+
       }
+
       this.DisplayList(this.p);
     }, 1500);
     this.getBlockchainProperties();
-
     this.selectAccountAddressFromMetamask();
     console.log("drt46")
 
@@ -152,6 +159,56 @@ export class CertificateDetailsComponent {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+  }
+
+  showorglist(event: any) {
+    console.log(event)
+    //this.filteredOrgList=[];
+    this.orgService.GetApiUserAllOrganization().subscribe(
+      (data) => {
+        if (event === "Developer") {
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+          this.applyorgFilter();
+        } else {
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Developer");
+          this.applyorgFilter();
+        }
+        console.log(this.orglist)
+      }
+    );
+
+  }
+  applyorgFilter() {
+    this.FilterForm.controls['organizationname'];
+    this.filteredOrgList = this.FilterForm.controls['organizationname'].valueChanges.pipe(
+      startWith(''),
+      map(value => this._orgfilter(value || '')),
+    );
+  }
+  private _orgfilter(value: any): string[] {
+
+    const filterValue = value.toLowerCase();
+    if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
+      this.showorgerror = true;
+
+    } else {
+      this.showorgerror = false;
+    }
+    return this.orglist.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
+
+  }
+  selectorg(event: any) {
+    console.log(event)
+
+    this.subscription = this.filteredOrgList.subscribe(options => {
+
+      const selectedorg = options.find(option => option.name === event.option.value);
+      if (selectedorg) {
+        this.FilterForm.controls['organizationId'].setValue(selectedorg.id);
+      }
+    });
   }
   onEndChangeEvent(event: any) {
     console.log(event);
@@ -207,9 +264,13 @@ export class CertificateDetailsComponent {
       debounceTime(500) // Debounce the stream for 500 milliseconds
     ).subscribe((formValues) => {
       if (isUserInteraction) {
+        if (formValues.organizationId === undefined || formValues.organizationId === '') {
+          this.FilterForm.controls['organizationname'].setValue(null);
+          this.FilterForm.controls['organizationId'].setValue(null);
+        }
         const countryValue = formValues.countryname;
         console.log(countryValue)
-        if (countryValue === undefined||countryValue==='') {
+        if (countryValue === undefined || countryValue === '') {
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
@@ -237,7 +298,7 @@ export class CertificateDetailsComponent {
       const updatedFormValues = this.FilterForm.value;
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
       this.isAnyFieldFilled = isAllValuesNull;
-      if(!this.isAnyFieldFilled){
+      if (!this.isAnyFieldFilled) {
         this.DisplayList(this.p)
       }
     }, 500);
@@ -298,62 +359,71 @@ export class CertificateDetailsComponent {
   // CertificateClaimed:boolean=false;
   DisplayList(page: number) {
     console.log("certifed list")
-    // console.log(this.group_uid);
-    //this.FilterForm.controls['pagenumber'].setValue(page);
-    this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value,page).subscribe(
-      (data: any) => {
+
+    this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value, page).subscribe({
+      next: (data: any) => {
         this.loading = false;
         // display list in the console 
         if (data.certificatelog.length > 0) {
-        // this.data = data;
-        //@ts-ignore
-        this.data = data.certificatelog.filter(ele => ele !== null)
-        //@ts-ignore
-        this.data.forEach(ele => {
-
-          ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
-          ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
-          //converting blockchain address to lower case
-          if (ele.claims != null && (ele.claims.length > 0)) {
-            ele['CertificateClaimed'] = true;
-          }
-          for (let key in ele.owners) {
-            if (key !== key.toLowerCase()) {
-              ele.owners[key.toLowerCase()] = ele.owners[key];
-              delete ele.owners[key];
-              // if(ele.owner[key].value=0){
-
-              // }
-            }
-          }
-
-          if (ele.creationBlockHash != "") {
-            ele.creationBlockHash
-            ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.id + '/token-transfers'
-          }
+          // this.data = data;
           //@ts-ignore
-          else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
+          this.data = data.certificatelog.filter(ele => ele !== null)
+          //@ts-ignore
+          this.data.forEach(ele => {
 
+            ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
+            ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
+            //converting blockchain address to lower case
+            if (ele.claims != null && (ele.claims.length > 0)) {
+              ele['CertificateClaimed'] = true;
+            }
+            for (let key in ele.owners) {
+              if (key !== key.toLowerCase()) {
+                ele.owners[key.toLowerCase()] = ele.owners[key];
+                delete ele.owners[key];
+                // if(ele.owner[key].value=0){
+
+                // }
+              }
+            }
+
+            if (ele.creationBlockHash != "") {
+              ele.creationBlockHash
+              ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.id + '/token-transfers'
+            }
             //@ts-ignore
-            ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
+            else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
 
-            ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.blockchainCertificateId + '/token-transfers'
-          }
-        })
+              //@ts-ignore
+              ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
 
-        this.dataSource = new MatTableDataSource(this.data);
-        console.log(this.dataSource);
-        this.obs = this.dataSource.connect();
-        this.totalRows = data.totalCount;
-        this.totalPages = data.totalPages;
-        console.log(this.totalRows);
-      } else {
-        this.data = [];
-        this.dataSource = new MatTableDataSource(this.data);
-        this.obs = this.dataSource.connect();
+              ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.blockchainCertificateId + '/token-transfers'
+            }
+          })
+
+          this.dataSource = new MatTableDataSource(this.data);
+          console.log(this.dataSource);
+          this.obs = this.dataSource.connect();
+          this.totalRows = data.totalCount;
+          this.totalPages = data.totalPages;
+          console.log(this.totalRows);
+        } else {
+          this.loading = false;
+          this.data = [];
+          this.dataSource = new MatTableDataSource(this.data);
+          this.obs = this.dataSource.connect();
+        }
+
+      }, error: err => {
+        this.loading = false;
+
+        if (err.error.statusCode === '403') {
+          this.toastrService.error('You are Unauthorized')
+        } else {
+          this.toastrService.error('Error', err.error.message)
+        }
       }
-      }
-
+    }
     )
   }
 

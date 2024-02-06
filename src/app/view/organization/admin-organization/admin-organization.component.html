@@ -25,7 +25,7 @@
                 Select Organization</h3>
               <div class="example-container1 row">
                 <!-- <div class="col-md-3">
-  
+
                   <mat-form-field appearance="outline">
                     <mat-label class="text-capitalize">Organization</mat-label>
   
@@ -49,13 +49,13 @@
                         {{ code.name }}
                       </mat-option>
                     </mat-autocomplete>
-      
+
                   </mat-form-field>
                   <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid organization name</mat-error>
                 </div>
                 <div class="col-md-12 mb-3  d-flex ">
                   <div class="">
-                    <button class="btn-primary me-2 btn text-capitalize px-4" (click)="getAllOrganization(p)">Filter</button>
+                    <button class="btn-primary me-2 btn text-capitalize px-4" (click)="getAllOrganization(1)">Filter</button>
                   </div>
                   <div class="">
                     <button class="btn-dark btn text-capitalize px-4" (click)="reset()">Reset</button>
@@ -114,7 +114,7 @@
             <tr mat-row *matRowDef="let row; columns: displayedColumns;">
             </tr>
             <tr class="mat-row" *matNoDataRow>
-              <td class="mat-cell" colspan="4">No data found </td>
+              <td class="mat-cell" colspan="4">No Organization found </td>
           </tr>
           </table>
           <!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"

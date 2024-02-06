@@ -42,7 +42,7 @@ export class AllUsersComponent {
   totalRows: number;
   totalPages: number = 1;
   p: number = 1;
-  orgnaizatioId: number;
+  orgnaizatioId: any;
   showorg: boolean = false
   orgdetails: any
   loginuser: any;
@@ -59,17 +59,29 @@ export class AllUsersComponent {
     private dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
     private toastrService: ToastrService) {
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     if (this.activatedRoute.snapshot.params['id']) {
       this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
+      console.log("orgnaizatioId", this.orgnaizatioId)
       this.showorg = true;
-      this.adminService.GetOrganizationById(this.orgnaizatioId).subscribe((data) => {
-        console.log('org', data)
+      if (this.loginuser.role === 'ApiUser') {
+        this.orgService.GetOrganizationById(this.orgnaizatioId).subscribe((data) => {
+          console.log('org', data)
 
-        this.orgdetails = data
+          this.orgdetails = data
 
-      })
+        })
+      } else {
+        this.adminService.GetOrganizationById(this.orgnaizatioId).subscribe((data) => {
+          console.log('org', data)
+
+          this.orgdetails = data
+
+        })
+      }
+
     }
-    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+
   }
   ngOnInit(): void {
     this.FilterForm = this.formBuilder.group({
@@ -82,19 +94,29 @@ export class AllUsersComponent {
         (data) => {
           this.orglist = data.organizations
           console.log(this.orglist)
-        
-          
+
+
         })
+    } else if (this.loginuser.role === 'ApiUser') {
+      this.orgService.GetApiUserAllOrganization().subscribe(
+        (data) => {
+          this.orglist = data.organizations
+          // this.orglistload = true;
+          console.log(this.orglist)
+
+
+        });
     }
 
     setTimeout(() => {
       // if (this.countrycodeLoded) {
-        this.applyorgFilter();   
-          // }
+      this.applyorgFilter();
+      // }
       this.loading = false;
+
       this.getAllUsers(this.p);
     }, 2000)
-   
+
   }
   ngOnDestroy() {
     if (this.subscription) {
@@ -132,74 +154,125 @@ export class AllUsersComponent {
       const selectedorg = options.find(option => option.name === event.option.value);
       if (selectedorg) {
         this.FilterForm.controls['organizationName'].setValue(selectedorg.name);
+
+        this.orgnaizatioId = selectedorg.id
       }
     });
   }
   reset() {
     this.FilterForm.reset();
-
     this.FilterForm.controls['organizationName'].setValue(null);
     this.loading = true;
+    this.orgnaizatioId = null;
     this.applyorgFilter();
     this.getAllUsers(this.p);
   }
-  getAllUsers(page:number) {
-    const limit=20;
+  getAllUsers(page: number) {
+    const limit = 20;
+
+    console.log(this.orgnaizatioId);
     if (this.loginuser.role === "Admin") {
       if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
-        this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId,page,limit).subscribe((data) => {
-          console.log(data)
-          this.showorguser=false;
-          this.showlist = true
-          this.loading = false
-          //@ts-ignore
-          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-          console.log(this.data);
-          this.dataSource = new MatTableDataSource(this.data.users);
-          this.totalRows = this.data.totalCount
-          console.log(this.totalRows);
-          this.totalPages = this.data.totalPages
-        })
+        this.getAllUserByorganzationId(page, limit)
       } else {
-        this.adminService.GetAllUsers(page,limit,this.FilterForm.value).subscribe((data) => {
-          console.log(data)
-          this.showlist = true;
-          this.showorguser=false;
-          this.loading = false
-          //@ts-ignore
-          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-          console.log(this.data);
-          this.dataSource = new MatTableDataSource(this.data.users);
-          this.totalRows = this.data.totalCount
-          console.log(this.totalRows);
-          this.totalPages = this.data.totalPages
-        })
+        this.getadminAllUserList(page, limit)
       }
 
     } else {
-      this.showorg=true
-      this.orgService.getOrganizationUser(page,limit).subscribe({
-        next: (data) => {
-
-          console.log(data)
+      this.showorg = true
+      if (this.loginuser.role === "ApiUser") {
+        if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
+          this.getAllUserByorganzationId(page, limit)
+        } else {
+          this.showorguser = false;
+          this.showorg = false
           this.showlist = true
-          this.loading = false
-          //@ts-ignore
-          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-          console.log(this.data);
-          this.dataSource = new MatTableDataSource(this.data.users);
-          this.totalRows = this.data.totalCount
-          console.log(this.totalRows);
-          this.totalPages = this.data.totalPages
-
-        }, error: err => {
-          console.log(err)
+          this.getOrganizationAllUser(page, limit)
         }
-      });
+      } else {
+        this.getOrganizationAllUser(page, limit)
+      }
 
 
     }
 
+  }
+  getadminAllUserList(page: number, limit: number) {
+    this.adminService.GetAllUsers(page, limit, this.FilterForm.value).subscribe({
+      next: (data) => {
+        console.log(data)
+        this.showlist = true;
+        this.showorguser = false;
+        this.loading = false
+        //@ts-ignore
+        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+        console.log(this.data);
+        this.dataSource = new MatTableDataSource(this.data.users);
+        this.totalRows = this.data.totalCount
+        console.log(this.totalRows);
+        this.totalPages = this.data.totalPages
+      }, error: err => {
+        console.log(err)
+        if (err.error.statusCode === 403) {
+          this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
+        } else {
+          this.toastrService.error('Error:' + err.error.message, 'Fail')
+        }
+
+      }
+    });
+  }
+  getOrganizationAllUser(page: number, limit: number) {
+    this.orgService.getOrganizationUser(page, limit).subscribe({
+      next: (data) => {
+
+        console.log(data)
+        this.showlist = true
+        this.loading = false
+        //@ts-ignore
+        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+        console.log(this.data);
+        this.dataSource = new MatTableDataSource(this.data.users);
+        this.totalRows = this.data.totalCount
+        console.log(this.totalRows);
+        this.totalPages = this.data.totalPages
+
+      }, error: err => {
+        console.log(err)
+        if (err.error.statusCode === 403) {
+          this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
+        } else {
+          this.toastrService.error('Error:' + err.error.message, 'Fail')
+        }
+
+      }
+    });
+
+  }
+  getAllUserByorganzationId(page: number, limit: number) {
+    this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId, page, limit).subscribe({
+      next: (data) => {
+        console.log(data)
+        this.showorguser = false;
+        this.showlist = true
+        this.loading = false
+        //@ts-ignore
+        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+        console.log(this.data);
+        this.dataSource = new MatTableDataSource(this.data.users);
+        this.totalRows = this.data.totalCount
+        console.log(this.totalRows);
+        this.totalPages = this.data.totalPages
+      }, error: err => {
+        console.log(err)
+        if (err.error.statusCode === 403) {
+          this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
+        } else {
+          this.toastrService.error('Error:' + err.error.message, 'Fail')
+        }
+
+      }
+    });
   }
   previousPage(): void {
     if (this.p > 1) {
@@ -236,22 +309,37 @@ export class AllUsersComponent {
 
   openDialog(user: any) {
     console.log(user)
-    if (user.role === 'OrganizationAdmin'||user.role === 'Buyer') {
-      const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
-        data: {
-          title: 'Confirm Remove User',
-          message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName + ', if yes please assign this role to other user of this organization',
-          data: user,
-          showchangeform: true,
-        }
-      });
-      confirmDialog.afterClosed().subscribe(result => {
-        if (result === true) {
-          // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
-          this.deleteUser(user.id)
-        }
-      });
+    if (this.loginuser.role === "Admin") {
+      if (user.role === 'OrganizationAdmin' || user.role === 'Buyer') {
+        const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+          data: {
+            title: 'Confirm Remove User',
+            message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName + ', if yes please assign this role to other user of this organization',
+            data: user,
+            showchangeform: true,
+          }
+        });
+        confirmDialog.afterClosed().subscribe(result => {
+          if (result === true) {
+            // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
+            this.admindeleteUser(user.id)
+          }
+        });
 
+      } else {
+        const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+          data: {
+            title: 'Confirm Remove User',
+            message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName
+          }
+        });
+        confirmDialog.afterClosed().subscribe(result => {
+          if (result === true) {
+            // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
+            this.admindeleteUser(user.id)
+          }
+        });
+      }
     } else {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
@@ -265,29 +353,47 @@ export class AllUsersComponent {
           this.deleteUser(user.id)
         }
       });
+    
+  }
+
+}
+admindeleteUser(id: number) {
+
+  this.adminService.removeUser(id).subscribe((response) => {
+    console.log(response);
+    if (response.success) {
+      this.toastrService.success('User Deleted', 'Successful')
+      this.getAllUsers(this.p);
+    } else {
+
+      this.toastrService.error(response.message, 'Failure')
     }
 
-  }
-  deleteUser(id: number) {
-
-    this.adminService.removeUser(id).subscribe((response) => {
-      console.log(response);
-      if (response.success) {
-        this.toastrService.success('User Deleted', 'Successful')
-        this.getAllUsers(this.p);
-      } else {
-
-        this.toastrService.error(response.message, 'Failure')
-      }
-
-    }, (err) => {
-      console.log(err)
-      this.toastrService.error(err.error.message, 'Failure')
-    })
+  }, (err) => {
+    console.log(err)
+    this.toastrService.error(err.error.message, 'Failure')
+  })
 
 
-  }
+}
+deleteUser(id: number) {
 
+  this.orgService.removeUser(id).subscribe((response) => {
+    console.log(response);
+    if (response.success) {
+      this.toastrService.success('User Deleted', 'Successful')
+      this.getAllUsers(this.p);
+    } else {
+
+      this.toastrService.error(response.message, 'Failure')
+    }
+  }, (err) => {
+    console.log(err)
+    this.toastrService.error(err.error.message, 'Failure')
+  })
+
+
+}
   openinviteDialog() {
     const confirmDialog = this.dialog.open(InvitationformComponent, {
       data: {
@@ -300,7 +406,10 @@ export class AllUsersComponent {
       if (result === true) {
         // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
         //this.deleteDevice(device.id)
+        this.p = 1;
+        this.getAllUsers(this.p);
       }
     });
   }
+
 }

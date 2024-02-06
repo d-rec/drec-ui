@@ -69,7 +69,12 @@ const routes: Routes = [
       {
         path: 'user/profile', component: UserProfileComponent
       }
-      
+      ,
+      {
+        path: 'apiuser',
+        loadChildren: () =>
+          import('./view/apiuser/apiuser.module').then((m) => m.ApiuserModule),
+      },
     ]
   }
 ];

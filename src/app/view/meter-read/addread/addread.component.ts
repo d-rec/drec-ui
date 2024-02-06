@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
-import { MeterReadService, DeviceService, AdminService } from '../../../auth/services';
+import { MeterReadService, DeviceService, AdminService, OrganizationService } from '../../../auth/services';
 import { AuthbaseService } from '../../../auth/authbase.service'
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -30,7 +30,7 @@ export class AddreadComponent implements OnInit {
   public stepSecond = 1;
   data: any;
   showerror: boolean;
-  showerrorexternalid: boolean;
+  showerrorexternalid: boolean = false;
   timezonedata: any = [];
   countrylist: any;
   hidestarttime: boolean = true;
@@ -47,12 +47,21 @@ export class AddreadComponent implements OnInit {
   orgname: string;
   orgId: number;
   devicelist: any = [];
+  showmeter_readformadmin: boolean;
+  showexternaiIdform:boolean=false;
   constructor(private fb: FormBuilder, private readService: MeterReadService,
     private deviceservice: DeviceService,
     private authService: AuthbaseService,
     private router: Router, private toastrService: ToastrService,
-    private adminService: AdminService) {
+    private adminService: AdminService,
+    private orgService: OrganizationService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+
+    if (this.loginuser.role === 'Admin' || this.loginuser.role === 'ApiUser') {
+      this.showmeter_readformadmin = true;
+    } else {
+      this.showmeter_readformadmin = false;
+    }
   }
 
 
@@ -65,7 +74,21 @@ export class AddreadComponent implements OnInit {
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
           this.filteredOrgList = this.orglist;
         })
-    } else {
+    } else if (this.loginuser.role === 'ApiUser') {
+      this.orgService.GetApiUserAllOrganization().subscribe(
+        (data) => {
+          //@ts-ignore
+          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+          console.log(this.orglist)
+          // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
+          this.filteredOrgList = this.orglist;
+          // Once data is loaded, call any other functions that depend on it
+
+          // this.date = new Date();
+        }
+      );
+    }
+    else {
       this.gedevicefororg();
     }
     this.readForm = this.fb.group({
@@ -73,7 +96,6 @@ export class AddreadComponent implements OnInit {
       externalId: [null, Validators.required],
       type: [null, Validators.required],
       unit: [null, Validators.required],
-
       reads: this.fb.array([
       ])
     })
@@ -102,15 +124,15 @@ export class AddreadComponent implements OnInit {
     );
     setTimeout(() => {
       if (this.loginuser.role != 'Admin') {
-      this.readForm.controls['externalId'];
-      this.filteredexternalIdOptions = this.readForm.controls['externalId'].valueChanges.pipe(
-        startWith(''),
-        map(value => this._externalIdfilter(value || '')),
-      );}
+        this.readForm.controls['externalId'];
+        this.filteredexternalIdOptions = this.readForm.controls['externalId'].valueChanges.pipe(
+          startWith(''),
+          map(value => this._externalIdfilter(value || '')),
+        );
+      }
       //  this.getDeviceinfo();
-    }, 1000);
+    }, 2000);
   }
-
 
   get addreads() {
     return this.readForm.controls["reads"] as FormArray;
@@ -124,13 +146,16 @@ export class AddreadComponent implements OnInit {
   }
   selectOrg(event: any) {
     console.log(event)
-
+this.showexternaiIdform=true;
     //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
       this.orgId = selectedCountry.id;
-      this.gedeviceforadmin(this.orgId);
-
+      if (this.loginuser.role === 'ApiUser') {
+        this.gedevicefororg();
+      } else {
+        this.gedeviceforadmin(this.orgId);
+      }
     }
 
   }
@@ -151,14 +176,34 @@ export class AddreadComponent implements OnInit {
       }
     })
   }
+
   gedevicefororg() {
-    const deviceurl = 'device/my';
-    this.deviceservice.GetMyDevices(deviceurl).subscribe({
-      next: data => {
-        console.log(data)
-        this.devicelist = data;
-      }
-    })
+
+    if (this.loginuser.role === 'ApiUser') {
+      const deviceurl = 'device/my?';
+      const FilterForm = { organizationId: this.orgId }
+      this.deviceservice.GetMyDevices(deviceurl, FilterForm).subscribe({
+        next: data => {
+          console.log(data)
+          this.devicelist = data.devices;
+          this.readForm.controls['externalId'];
+          this.filteredexternalIdOptions = this.readForm.controls['externalId'].valueChanges.pipe(
+            startWith(''),
+            map(value => this._externalIdfilter(value || '')),
+          );
+          console.log(this.filteredexternalIdOptions);
+
+        }
+      })
+    } else {
+      const deviceurl = 'device/my';
+      this.deviceservice.GetMyDevices(deviceurl).subscribe({
+        next: data => {
+          console.log(data)
+          this.devicelist = data;
+        }
+      })
+    }
   }
 
   _externalIdfilter(value: string): string[] {
@@ -243,7 +288,7 @@ export class AddreadComponent implements OnInit {
     this.selectedResult = result;
     console.log(this.selectedResult);
     console.log(result);
-   
+
     this.devicecreateddate = result.createdAt;
     this.commissioningDate = result.commissioningDate;
 
@@ -263,6 +308,9 @@ export class AddreadComponent implements OnInit {
     let deivceid;
     if (this.loginuser.role === 'Admin') {
       this.readForm.controls['externalId'].setValue(result.developerExternalId);
+      deivceid = result.id;
+    } else if (this.loginuser.role === 'ApiUser') {
+      this.readForm.controls['externalId'].setValue(result.externalId);
       deivceid = result.id;
     } else {
       this.readForm.controls['externalId'].setValue(result.externalId);
@@ -406,6 +454,9 @@ export class AddreadComponent implements OnInit {
     console.log(this.readForm.value);
 
     const myobj: any = {}
+    if (this.loginuser.role === 'ApiUser') {
+      myobj['organizationId'] = this.orgId
+    }
     if ((this.readForm.value.timezone != null && this.readForm.value.timezone != '') && this.readForm.value.type === 'History') {
       myobj['timezone'] = this.readForm.value.timezone
       myobj['type'] = this.readForm.value.type

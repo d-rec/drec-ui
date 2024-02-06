@@ -105,29 +105,99 @@
       <h2 class="pb-0 mb-0 fw-bold">Login to account
       </h2>
     </mat-card-header>
-    <form class="example-form px-3" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <mat-card-content>
+
+    <mat-card-content>
+      <div class="example-form px-2">
+        Login Type:
+        <mat-radio-group [(ngModel)]="selectedOption">
+          <mat-radio-button value="Form1">Developer Or Buyer</mat-radio-button>
+          <!-- <mat-radio-button value="Buyer">Buyer</mat-radio-button> -->
+          <mat-radio-button value="Form2">ApiUser</mat-radio-button>
+
+        </mat-radio-group>
+      </div>
+      <form class="example-form px-3" [formGroup]="loginForm" (ngSubmit)="onSubmit()"
+        *ngIf="selectedOption === 'Form1'">
+
         <mat-form-field class="example-full-width">
           <mat-label class="mat-labels-cont">Username</mat-label>
-          <input matInput  formControlName="username" required>
+          <input matInput formControlName="username" required>
         </mat-form-field>
         <mat-form-field class="example-full-width">
           <mat-label class="mat-labels-cont">Password</mat-label>
-          <input matInput  type="password" formControlName="password" required>
+          <input matInput type="password" formControlName="password" required>
         </mat-form-field>
-      </mat-card-content>
-      <div class="p-3">
-        <button type="submit" class="btn-primary btn   btn-block">Login</button>
-      </div>
-      <div class="d-flex justify-content-between mb-2 px-3">
-       
-        <p class="mb-0 pb-0 font-siz-cont"><a routerLink="/forgot-password" class="text-warning">Forgot Password</a></p>
-      </div>
-      <div class="d-flex justify-content-between pb-4 mb-2 px-3">
-        
-        <p class="mb-0 pb-0 font-siz-cont">Don't have an account?</p>
-        <p class="mb-0 pb-0 font-siz-cont"><a routerLink="/register" class="text-warning">Register</a></p>
-      </div>
-    </form>
+
+
+        <div class="p-3">
+          <button type="submit" class="btn-primary btn   btn-block">Login</button>
+        </div>
+
+      </form>
+      <mat-stepper *ngIf="selectedOption === 'Form2'" class="example-form px-3">
+        <mat-step label="Client Info">
+          <form>
+            <!-- <ng-template matStepLabel></ng-template> -->
+            <ng-template matStepContent>
+              <mat-form-field class="example-full-width">
+                <mat-label class="mat-labels-cont">Client Id </mat-label>
+                <input autofocus type="text" matInput [(ngModel)]="clientid" [ngModelOptions]="{standalone: true}">
+
+              </mat-form-field>
+
+              <mat-form-field class="example-full-width">
+                <mat-label class="mat-labels-cont">Client Secret</mat-label>
+                <input autofocus type="text" matInput [(ngModel)]="client_secret" [ngModelOptions]="{standalone: true}">
+
+              </mat-form-field>
+
+              <div class="d-flex justify-content-end mt-2">
+                <button mat-button matStepperNext class="btn-primary btn   btn-block">Next</button>
+                <!-- <button type="submit" class="btn-primary btn   btn-block">Login</button> -->
+              </div>
+            </ng-template>
+
+
+          </form>
+        </mat-step>
+        <mat-step label="User Info">
+          <form [formGroup]="loginForm">
+            <!-- <ng-template matStepLabel></ng-template> -->
+            <ng-template matStepContent>
+
+              <mat-form-field class="example-full-width">
+                <mat-label class="mat-labels-cont">Username</mat-label>
+                <input matInput formControlName="username" required>
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <mat-label class="mat-labels-cont">Password</mat-label>
+                <input matInput type="password" formControlName="password" required>
+              </mat-form-field>
+
+              <div class="d-flex mt-2">
+                <button mat-button matStepperPrevious
+                  class="btn-primary btn btn-content-back me-2  btn-block">Back</button>
+                <button mat-button matStepperNext class="btn-primary btn  ms-2   btn-block"
+                  [disabled]="loginForm.invalid" (click)="onSubmit()">Submit</button>
+              </div>
+            </ng-template>
+          </form>
+
+        </mat-step>
+
+      </mat-stepper>
+
+    </mat-card-content>
+
+    <div class="d-flex justify-content-between mb-2 px-3">
+
+      <p class="mb-0 pb-0 font-siz-cont"><a routerLink="/forgot-password" class="text-warning">Forgot Password</a></p>
+    </div>
+    <div class="d-flex justify-content-between pb-4 mb-2 px-3">
+
+      <p class="mb-0 pb-0 font-siz-cont">Don't have an account?</p>
+      <p class="mb-0 pb-0 font-siz-cont"><a routerLink="/register" class="text-warning">Register</a></p>
+    </div>
+
   </mat-card>
 </div>

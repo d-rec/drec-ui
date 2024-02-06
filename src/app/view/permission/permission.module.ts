@@ -5,12 +5,18 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { PermissionRoutingModule } from './permission-routing.module';
 import { AclModulePermissionComponent } from './acl-module-permission/acl-module-permission.component';
 import { UserpermissionComponent } from './add-userpermission/add-userpermission.component';
+import { EditPermissionComponent } from './edit-permission/edit-permission.component';
+import { ApiUserPermissionComponent } from './api-user-permission/api-user-permission.component';
+import { ApiuserPermissionFormComponent } from './apiuser-permission-form/apiuser-permission-form.component';
 
 
 @NgModule({
   declarations: [
     AclModulePermissionComponent,
-    UserpermissionComponent
+    UserpermissionComponent,
+    EditPermissionComponent,
+    ApiUserPermissionComponent,
+    ApiuserPermissionFormComponent
     
   ],
   imports: [

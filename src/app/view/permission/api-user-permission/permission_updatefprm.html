@@ -1,0 +1,44 @@
+<h1 mat-dialog-title>{{data.title}}</h1>
+<div mat-dialog-content>
+    {{data.message}}
+</div>
+
+<mat-card>
+
+    <form [formGroup]="permistion_updateForm">
+        <mat-card-content>
+            <div class="example-container1 row">
+
+                <div class="col-md-6">
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">Name</mat-label>
+                        <input matInput autofocus type="text" [(ngModel)]="api_userId"
+                            [ngModelOptions]="{standalone: true}" readonly>
+                    </mat-form-field>
+
+                </div>
+
+                <div class="col-md-4">
+
+                    <mat-form-field appearance="outline">
+                        <mat-label class="text-capitalize">Permission</mat-label>
+
+                        <mat-select formControlName="status">
+
+                            <mat-option *ngFor="let status of Permissionstatus" [value]="status">{{status}}</mat-option>
+
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+
+            </div>
+
+        </mat-card-content>
+
+    </form>
+</mat-card>
+
+<div style="float:right;margin:20px;">
+    <input style="margin:0px 10px;" type="button" value="Submit" [mat-dialog-close]="true" (click)="onSubmit()">
+    <input type="button" value="Cancel" [mat-dialog-close]="false">
+</div>
