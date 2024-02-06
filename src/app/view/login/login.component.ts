@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit {
     return base64Payload;
   }
   onSubmit() {
-    if (this.selectedOption === "Form1") {
+   // if (this.selectedOption === "Form1") {
       this.authService.login('auth/login', this.loginForm.value).subscribe(
         (data) => {
 
@@ -109,48 +109,49 @@ export class LoginComponent implements OnInit {
           this.toastrService.error('Check Your Credential!', 'Login Fail!!');
         }
       )
-    } else if (this.selectedOption === "Form2") {
+   
+    // } else if (this.selectedOption === "Form2") {
 
-      this.authService.ApiUserlogin('auth/login', this.clientid, this.client_secret, this.loginForm.value).subscribe({
-        next: (data: any) => {
-          if (data["accessToken"] != null) {
-            sessionStorage.setItem('access-token', data["accessToken"]);
-            let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
+    //   this.authService.ApiUserlogin('auth/login', this.clientid, this.client_secret, this.loginForm.value).subscribe({
+    //     next: (data: any) => {
+    //       if (data["accessToken"] != null) {
+    //         sessionStorage.setItem('access-token', data["accessToken"]);
+    //         let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
            
-            jwtObj['clientId']= this.clientid
-            jwtObj['clientSecret']=this.client_secret
-            //sessionStorage.setItem('loginuser', jwtObj);
-            sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
+    //         jwtObj['clientId']= this.clientid
+    //         jwtObj['clientSecret']=this.client_secret
+    //         //sessionStorage.setItem('loginuser', jwtObj);
+    //         sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
            
-            //var obj = JSON.parse(sessionStorage.loginuser);
-            this.userService.userProfile(this.clientid, this.client_secret,).subscribe({
-              next: data1 => {
-                console.log(data1)
-                sessionStorage.setItem('status', data1.status);
-                setTimeout(() => {
-                  //  this.loading=false;
-                  this.router.navigate(['/apiuser/All_devices']);
-                },1000)
+    //         //var obj = JSON.parse(sessionStorage.loginuser);
+    //         this.userService.userProfile(this.clientid, this.client_secret,).subscribe({
+    //           next: data1 => {
+    //             console.log(data1)
+    //             sessionStorage.setItem('status', data1.status);
+    //             setTimeout(() => {
+    //               //  this.loading=false;
+    //               this.router.navigate(['/apiuser/All_devices']);
+    //             },1000)
                
 
-              }, error: err => {
-                this.toastrService.error('Error!', err.error.message);
-              }
-            })
-          } else {
-            console.log("check your credentials !!")
-            this.toastrService.info('Message Failure!', 'Check your credentials !!');
-            this.router.navigate(['/login']);
-          }
-        },
-        error: error => {                              //Error callback
-          console.error('error caught in component', error)
-          this.toastrService.error('Error: ' +
-            'Check your credentials!', 'Login Fail!!');
-        }
-      }
-      )
-    }
+    //           }, error: err => {
+    //             this.toastrService.error('Error!', err.error.message);
+    //           }
+    //         })
+    //       } else {
+    //         console.log("check your credentials !!")
+    //         this.toastrService.info('Message Failure!', 'Check your credentials !!');
+    //         this.router.navigate(['/login']);
+    //       }
+    //     },
+    //     error: error => {                              //Error callback
+    //       console.error('error caught in component', error)
+    //       this.toastrService.error('Error: ' +
+    //         'Check your credentials!', 'Login Fail!!');
+    //     }
+    //   }
+    //   )
+    // }
 
   }
 
