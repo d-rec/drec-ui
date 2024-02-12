@@ -128,13 +128,11 @@ export class CertifiedDevicesDeveloperComponent {
 
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
-        // display list in the console
         this.fuellist = data1;
         // this.fuellistLoaded = true;
       });
     this.authService.GetMethod('device/device-type').subscribe(
       (data2) => {
-        // display list in the console
         this.devicetypelist = data2;
         // this.devicetypeLoded = true;
       }
@@ -180,7 +178,6 @@ export class CertifiedDevicesDeveloperComponent {
     }
   }
   onEndChangeEvent(event: any) {
-    console.log(event);
     this.endminDate = event;
   }
   applycountryFilter() {
@@ -383,7 +380,6 @@ export class CertifiedDevicesDeveloperComponent {
           this.obs = this.dataSource.connect();
           this.totalRows = data.totalCount;
           this.totalPages = data.totalPages;
-          console.log(this.totalRows);
         } else {
           this.data = [];
           this.dataSource = new MatTableDataSource(this.data);
@@ -457,7 +453,6 @@ export class CertifiedDevicesDeveloperComponent {
     }
   }
   pageChangeEvent(event: PageEvent) {
-    console.log(event);
     this.p = event.pageIndex + 1;
     this.DisplayList(this.p);
   }

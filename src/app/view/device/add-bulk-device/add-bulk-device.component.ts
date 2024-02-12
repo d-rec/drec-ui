@@ -64,7 +64,7 @@ export class AddBulkDeviceComponent implements OnInit {
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-          console.log(this.orglist)
+   
           this.filteredOrgList = this.orglist;
         })
     }else if (this.loginuser.role === 'ApiUser') {
@@ -72,7 +72,7 @@ export class AddBulkDeviceComponent implements OnInit {
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-          console.log(this.orglist)
+        
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
         }
@@ -89,8 +89,6 @@ export class AddBulkDeviceComponent implements OnInit {
     });
   }
   selectOrg(event: any) {
-    console.log(event)
-
     //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
@@ -103,7 +101,6 @@ export class AddBulkDeviceComponent implements OnInit {
     this.fileName = 'Please click here to select file';
   }
   selectFile(event: any): void {
-    console.log(event)
     if (event.target.files && event.target.files[0]) {
       const file: File = event.target.files[0];
       this.currentFile = file;
@@ -121,7 +118,6 @@ export class AddBulkDeviceComponent implements OnInit {
 
   openFileExplorer() {
     console.log("came here")
-    console.log(this.currentFile);
     document.getElementById("fileInput")?.click();
   }
 
@@ -132,13 +128,11 @@ export class AddBulkDeviceComponent implements OnInit {
     if (this.currentFile) {
       this.uploadService.csvupload(this.currentFile).subscribe(
         (event: any) => {
-          console.log(event);
           let obj: any = {};
           obj['fileName'] = event[0];
           if (this.loginuser.role === 'Admin'||this.loginuser.role === 'ApiUser') {
             this.deviceService.addByAdminbulkDevices(this.orgId, obj).subscribe({
               next: (data: any) => {
-                console.log(data)
                 this.JobDisplayList();
                 // this.selectFile()
                 // this.readForm.reset();
@@ -154,7 +148,6 @@ export class AddBulkDeviceComponent implements OnInit {
           } else {
             this.uploadService.addbulkDevices(obj).subscribe({
               next: (data: any) => {
-                console.log(data)
                 this.JobDisplayList();
                 // this.selectFile()
                 // this.readForm.reset();
@@ -215,7 +208,6 @@ export class AddBulkDeviceComponent implements OnInit {
       (data) => {
 
         this.data = data.errorDetails.log.errorDetails;
-        console.log(this.data);
         // this.data = data;
         this.dataSource1 = new MatTableDataSource(this.data);
         this.dataSource1.paginator = this.paginator

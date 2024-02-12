@@ -214,11 +214,9 @@ export class AdminAlldevicesComponent {
         if (fuelCodeValue === undefined) {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
-        console.log(formValues.deviceTypeCode);
         if (formValues.offTaker != null && formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
-        console.log(formValues.deviceTypeCode);
         if (formValues.deviceTypeCode != null && formValues.deviceTypeCode[0] === undefined) {
           this.FilterForm.controls['deviceTypeCode'].setValue(null);
         }
@@ -241,8 +239,6 @@ export class AdminAlldevicesComponent {
     // Other code...
   }
   selectCountry(event: any) {
-    console.log(event)
-
     this.subscription = this.filteredOptions.subscribe(options => {
 
       const selectedCountry = options.find(option => option.country === event.option.value);
@@ -252,8 +248,6 @@ export class AdminAlldevicesComponent {
     });
   }
   selectorg(event: any) {
-    console.log(event)
-
     this.subscription = this.filteredOptions1.subscribe(options => {
 
       const selectedorg = options.find(option => option.name === event.option.value);
@@ -273,7 +267,6 @@ export class AdminAlldevicesComponent {
   }
 
   onEndChangeEvent(event: any) {
-    console.log(event);
     this.endminDate = event;
   }
 
@@ -313,7 +306,6 @@ export class AdminAlldevicesComponent {
     // )
     this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe({
       next: data => {
-        console.log(data)
         this.showlist = true
         //@ts-ignore
         if (data.devices) {
@@ -347,8 +339,7 @@ export class AdminAlldevicesComponent {
       })
 
       this.dataSource = new MatTableDataSource(this.data.devices);
-      this.totalRows = this.data.totalCount
-      console.log(this.totalRows);
+      this.totalRows = this.data.totalCount;
       this.totalPages = this.data.totalPages
       // this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;

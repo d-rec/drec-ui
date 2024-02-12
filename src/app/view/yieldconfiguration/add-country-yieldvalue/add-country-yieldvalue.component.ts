@@ -72,7 +72,7 @@ export class AddCountryYieldvalueComponent {
 
   }
   selectCountry(event: any) {
-    console.log(event)
+  
     this.subscription = this.filteredOptions.subscribe(options => {
       const selectedCountry = options.find(option => option.country === event.option.value);
       if (selectedCountry) {

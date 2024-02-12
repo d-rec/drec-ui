@@ -56,8 +56,7 @@ export class UserInvitationComponent {
     private inveiteService: InvitationService,) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.userstatus = sessionStorage.getItem('status')
-    console.log(this.userstatus)
-
+  
   }
 
   ngOnInit() {
@@ -66,7 +65,7 @@ export class UserInvitationComponent {
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-          console.log(this.orglist)
+        
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
           // Once data is loaded, call any other functions that depend on it
@@ -81,17 +80,11 @@ export class UserInvitationComponent {
       email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
       role: [null, [Validators.required]],
     });
-    console.log(this.userstatus)
-    console.log(this.userstatus != 'Pending')
+   
+  
     setTimeout(() => {
-      // if (this.userstatus=== 'Active' && this.loginuser.role=== 'OrganizationAdmin') {
-      //   console.log(this.userstatus)
-      //   this.displayedColumns = ['sender', 'email', 'status']
+      
       this.getorginviteuserlist();
-
-      // }else{
-      //   this.getinvitationList();
-      // }
     }, 1000);
 
 
@@ -108,7 +101,6 @@ export class UserInvitationComponent {
     });
   }
   selectOrg(event: any) {
-    console.log(event)
 
     //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
@@ -120,7 +112,7 @@ export class UserInvitationComponent {
   onSubmit() {
     this.inveiteService.Postuserinvitation(this.inviteForm.value).subscribe({
       next: response => {
-        console.log(response);
+      
         this.inviteForm.reset();
         this.loading = true;
         if (response.success) {
@@ -151,7 +143,7 @@ export class UserInvitationComponent {
 
   getorginviteuserlist() {
     this.orgService.getOrganizationInformation().subscribe((data) => {
-      console.log('org', data);
+   
       //@ts-ignore
       this.orginviteuser = data.invitations
       this.dataSource1 = new MatTableDataSource(this.orginviteuser);

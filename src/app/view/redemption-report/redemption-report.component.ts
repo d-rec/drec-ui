@@ -54,8 +54,6 @@ export class RedemptionReportComponent implements OnInit {
 
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data) => {
-        // display list in the console 
-
         this.fuellist = data;
 
       }
@@ -65,8 +63,7 @@ export class RedemptionReportComponent implements OnInit {
 
     this.authService.GetMethod('countrycode/list').subscribe(
       (data) => {
-        // display list in the console 
-        // console.log(data)
+       
         this.countrylist = data;
 
       }
@@ -75,12 +72,11 @@ export class RedemptionReportComponent implements OnInit {
   DisplayRedemptionList() {
     this.ReservationService.GetMethod().subscribe(
       (data) => {
-        // display list in the console 
-        console.log(data)
+    
         this.data = data;
         //@ts-ignore
         this.data.forEach(ele => {
-          console.log(ele.fuelCode);
+         
           if (ele.fuelCode != '') {
             let fuelname: any = [];
             //@ts-ignore
@@ -116,13 +112,12 @@ export class RedemptionReportComponent implements OnInit {
           let o = ele.offTakers.filter((str) => str !== ' ');
 
           console.log("result");
-          console.log(o);
           //@ts-ignore
           ele['offTakername'] = [...new Set(o.map((e) => e.trim()))].toString()
           //[... new Set(ele.offTakers)].toString();
 
         })
-        console.log(this.data);
+      
         this.dataSource = new MatTableDataSource(this.data);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;

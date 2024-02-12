@@ -23,17 +23,17 @@ export class UserAcceptInvitationComponent {
     private toastrService: ToastrService, private activatedRoute: ActivatedRoute) {
 
     this.activatedRoute.queryParams.subscribe(params => {
-      console.log(params)
+     
       if (params['email'] != undefined) {
         this.accesstoken = params['token'];
         this.invitaionId = params['invitaionId'];
         this.useremail = params['email'];
-        console.log(this.accesstoken);
+       
         this.fromregister = false;
         //this.getConfirmemail(this.accesstoken)
         sessionStorage.setItem('access-token', this.accesstoken);
         let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(this.accesstoken.split('.')[1])));
-        console.log(jwtObj);
+     
       }
     });
 

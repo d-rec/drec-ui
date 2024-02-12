@@ -33,7 +33,7 @@ export class MeterReadService {
 
   }
   GetRead(exterenalId: string, data: any): Observable<any> {
-    console.log(data)
+    
     let headers: HttpHeaders;
     headers = new HttpHeaders(this.headersData);
     // return this.httpClient.get<any>(this.url + 'meter-reads/new/'+exterenalId+'? data)

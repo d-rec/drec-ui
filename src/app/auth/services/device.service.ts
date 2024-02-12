@@ -18,14 +18,12 @@ export class DeviceService {
     return this.httpClient.get(this.url + 'device')
   }
   GetMyDevices(deviceurl: any, searchData?: any, pagenumber?: number): Observable<any> {
-    // return this.httpClient.get(this.url + 'device/my')
-    console.log(deviceurl);
-    console.log(searchData);
+
     let searchUrl = `${this.url}` + deviceurl;
     if (!(typeof pagenumber === undefined || pagenumber === null || pagenumber === undefined)) {
       searchUrl += `pagenumber=${pagenumber}`;
     }
-    console.log(searchUrl);
+   
     if (searchData != undefined) {
       if (!(typeof searchData.organizationId === undefined || searchData.organizationId === "" || searchData.organizationId === null || searchData.organizationId === undefined)) {
         searchUrl += `&organizationId=${searchData.organizationId}`;
@@ -46,8 +44,7 @@ export class DeviceService {
         searchUrl += `&offTaker=${searchData.offTaker}`;
       }
       if (!(typeof searchData.SDGBenefits === undefined || searchData.SDGBenefits === "" || searchData.SDGBenefits === null || searchData.SDGBenefits === undefined)) {
-        console.log(typeof searchData.SDGBenefits)
-        console.log(searchData.SDGBenefits)
+        
         searchUrl += `&SDGBenefits=${searchData.SDGBenefits}`;
       }
       if (!(typeof searchData.start_date === "undefined" || searchData.start_date === "" || searchData.start_date === null || searchData.start_date === undefined)) {
@@ -113,8 +110,7 @@ export class DeviceService {
       searchUrl += `&offTaker=${searchData.offTaker}`;
     }
     if (!(typeof searchData.SDGBenefits === undefined || searchData.SDGBenefits === "" || searchData.SDGBenefits === null)) {
-      console.log(typeof searchData.SDGBenefits)
-      console.log(searchData.SDGBenefits)
+     
       searchUrl += `&SDGBenefits=${searchData.SDGBenefits}`;
     }
     if (!(typeof searchData.start_date === "undefined" || searchData.start_date === "" || searchData.start_date === null)) {

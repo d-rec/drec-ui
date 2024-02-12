@@ -98,8 +98,7 @@ export class AlldevicesComponent {
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-          console.log(this.orglist)
-
+        
         }
       );
     }
@@ -202,7 +201,6 @@ export class AlldevicesComponent {
     ).subscribe((formValues) => {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
-        console.log(countryValue)
         if (countryValue === undefined || countryValue === '') {
 
           console.log('234')
@@ -214,11 +212,9 @@ export class AlldevicesComponent {
         if (fuelCodeValue === undefined) {
           this.FilterForm.controls['fuelCode'].setValue(null);
         }
-        console.log(formValues.deviceTypeCode);
         if (formValues.offTaker != null && formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
-        console.log(formValues.deviceTypeCode);
         if (formValues.deviceTypeCode != null && formValues.deviceTypeCode[0] === undefined) {
           this.FilterForm.controls['deviceTypeCode'].setValue(null);
         }
@@ -241,7 +237,7 @@ export class AlldevicesComponent {
     // Other code...
   }
   selectorg(event: any) {
-    console.log(event)
+
     this.subscription = this.filteredOrgList.subscribe(options => {
       const selectedorg = options.find(option => option.name === event.option.value);
       if (selectedorg) {
@@ -250,7 +246,7 @@ export class AlldevicesComponent {
     });
   }
   selectCountry(event: any) {
-    console.log(event)
+   
     this.subscription = this.filteredOptions.subscribe(options => {
       const selectedCountry = options.find(option => option.country === event.option.value);
       if (selectedCountry) {
@@ -270,7 +266,6 @@ export class AlldevicesComponent {
   }
 
   onEndChangeEvent(event: any) {
-    console.log(event);
     this.endminDate = event;
   }
 
@@ -282,11 +277,9 @@ export class AlldevicesComponent {
   getDeviceListData(page: number) {
 
     this.deviceurl = 'device/my?';
-
     //this.FilterForm.controls['pagenumber'].setValue(page);
     this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe({
       next: data => {
-        console.log(data)
         this.showlist = true
         //@ts-ignore
         if (data.devices) {
@@ -296,7 +289,7 @@ export class AlldevicesComponent {
           this.DisplayList()
         }
       }, error: err => {
-        console.log(err);
+       
         if (err.error.statusCode === '403') {
           this.toastrService.error('You are Unauthorized')
         }else{
@@ -324,8 +317,7 @@ export class AlldevicesComponent {
       })
 
       this.dataSource = new MatTableDataSource(this.data.devices);
-      this.totalRows = this.data.totalCount
-      console.log(this.totalRows);
+      this.totalRows = this.data.totalCount;
       this.totalPages = this.data.totalPages
       // this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
@@ -403,7 +395,6 @@ export class AlldevicesComponent {
   // }
   deleteDevice(id: number) {
     this.deviceService.RemoveDevice(id).subscribe((response) => {
-      console.log(response);
       if (response.success) {
         this.toastrService.success(response.message, 'Successfully')
         this.getDeviceListData(this.p);

@@ -16,10 +16,8 @@ export class ConfirmemailComponent implements OnInit {
     private toastrService: ToastrService, private activatedRoute: ActivatedRoute) {
     // this.accesstoken = this.activatedRoute.snapshot.params['id'];
     this.activatedRoute.queryParams.subscribe(params => {
-      console.log(params)
       if (params['token'] != undefined) {
         this.accesstoken =params['token'];
-        console.log(this.accesstoken);
         this.fromregister = false;
         this.getConfirmemail(this.accesstoken)
       }
@@ -37,13 +35,9 @@ export class ConfirmemailComponent implements OnInit {
     //   )
   }
   getConfirmemail(accesstoken:any) {
-    console.log(accesstoken)
     this.authService.UserConfirmEmail(accesstoken).subscribe({
       next: data2 =>
     {
-        console.log(data2)
-        // display list in the console 
-        
         this.message=data2.message;
 
         this.toastrService.success(' Successful !!', 'Email Confirmed! ');
