@@ -123,14 +123,8 @@ export class RegisterComponent implements OnInit {
   response: any
   onSubmit(formData: FormGroup): void {
     console.log("registerForm")
-    console.log(this.registerForm.value)
-
-    this.authService.PostAuth('user/register', this.registerForm.value).subscribe({
+   this.authService.PostAuth('user/register', this.registerForm.value).subscribe({
       next: data => {
-        console.log(data)
-
-        // this.toastrService.success('Successfully!!', 'User Registration');
-        console.log(this.registerForm.value.organizationType)
         const loginobj = {
           username: this.registerForm.value.email,
           password: this.registerForm.value.password
@@ -146,7 +140,6 @@ export class RegisterComponent implements OnInit {
               if (data["accessToken"] != null) {
                 sessionStorage.setItem('access-token', data["accessToken"]);
                 let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
-                console.log(jwtObj);
                 //sessionStorage.setItem('loginuser', jwtObj);
                 sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
                 //var obj = JSON.parse(sessionStorage.loginuser);
@@ -208,7 +201,7 @@ export class RegisterComponent implements OnInit {
               sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
               this.userService.userProfile(this.response.client_id, this.response.client_secret).subscribe({
                 next:(data1:any)  => {
-                  console.log(data1)
+                
                   sessionStorage.setItem('status', data1.status);
                   this.router.navigate(['/apiuser/permission/request/form']);
                  

@@ -87,11 +87,7 @@ export class AddUsersComponent {
     return base64Payload;
   }
   onSubmit(formData: FormGroup): void {
-    console.log(this.registerForm.value)
-    // const email = formData.value.email;
-    // const password = formData.value.password;
-    // const username = formData.value.username;
-    //this.auth.post(email, password, username);
+
     var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
     
     this.registerForm.controls['password'].setValue(randPassword);
@@ -99,10 +95,7 @@ export class AddUsersComponent {
    if(this.loginuser.role==='ApiUser'){
     this.userService.userregisterByApiUser(this.registerForm.value).subscribe({
       next: data => {
-        console.log(data)
-
-        this.toastrService.success('Successful!!', 'Registration ');
-       
+        this.toastrService.success('Successful!!', 'Registration '); 
         this.registerForm.reset();
         const formControls = this.registerForm.controls;
 
@@ -110,21 +103,18 @@ export class AddUsersComponent {
           const control = formControls[key];
           control.setErrors(null);
         });
-
         this.router.navigate(['/apiuser/All_users']);
         // this.router.navigate(['/confirm-email']);
 
       },
       error: err => {                          //Error callback
         console.error('error caught in component', err)
-        this.toastrService.error('error!', err.error.message);
+        this.toastrService.error('error!', err);
       }
     });
    }else{
     this.authService.PostAuth('admin/users', this.registerForm.value).subscribe({
       next: data => {
-        console.log(data)
-
         this.toastrService.success('Successful!!', 'Registration ');
         const loginobj = {
           username: this.registerForm.value.email,

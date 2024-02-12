@@ -64,8 +64,6 @@ export class AllApiuserComponent {
       this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
       this.showorg = true;
       this.adminService.GetOrganizationById(this.orgnaizatioId).subscribe((data) => {
-        console.log('org', data)
-
         this.orgdetails = data
 
       })
@@ -82,9 +80,7 @@ export class AllApiuserComponent {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
           this.orglist = data.organizations
-          console.log(this.orglist)
-        
-          
+         
         })
     }
 
@@ -126,8 +122,7 @@ export class AllApiuserComponent {
   }
 
   selectOrg(event: any) {
-    console.log(event)
-
+    
     this.subscription = this.filteredOptions.subscribe(options => {
 
       const selectedorg = options.find(option => option.name === event.option.value);
@@ -149,16 +144,13 @@ export class AllApiuserComponent {
     if (this.loginuser.role === "Admin") {
     
         this.adminService.GetAllApiUsers(page,limit,this.FilterForm.value).subscribe((data) => {
-          console.log(data)
           this.showlist = true;
           this.showorguser=false;
           this.loading = false
           //@ts-ignore
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-          console.log(this.data);
           this.dataSource = new MatTableDataSource(this.data.users);
           this.totalRows = this.data.totalCount
-          console.log(this.totalRows);
           this.totalPages = this.data.totalPages
         })
       }
@@ -198,7 +190,6 @@ export class AllApiuserComponent {
   }
 
   openDialog(user: any) {
-    console.log(user)
     if (user.role === 'OrganizationAdmin'||user.role === 'Buyer') {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
@@ -234,7 +225,6 @@ export class AllApiuserComponent {
   deleteUser(id: number) {
 
     this.adminService.removeUser(id).subscribe((response) => {
-      console.log(response);
       if (response.success) {
         this.toastrService.success('User Deleted', 'Successful')
         this.getAllUsers(this.p);

@@ -41,7 +41,7 @@ export class EditPermissionComponent {
     private aclpermissionServcie: ACLModulePermisionService) {
 
     this.userpermissioninf = data.permission
-    console.log(this.userpermissioninf)
+  
     this.userrole=this.userpermissioninf.entityId;
     this.modulename=this.userpermissioninf.aclmodulesId;
     this.userpermission= this.userpermissioninf.permissions;

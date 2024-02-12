@@ -84,7 +84,7 @@ export class AddDevicesComponent {
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-          console.log(this.orglist)
+         
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
           // Once data is loaded, call any other functions that depend on it
@@ -97,7 +97,7 @@ export class AddDevicesComponent {
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-          console.log(this.orglist)
+         
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
         }
@@ -121,8 +121,6 @@ export class AddDevicesComponent {
     });
   }
   selectOrg(event: any) {
-    console.log(event)
-
     //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {

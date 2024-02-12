@@ -61,7 +61,7 @@ export class ApiuserPermissionFormComponent {
   }
 
   isSelected(row: any): boolean {
-    console.log(row)
+   
     return this.selectedModules.includes(row);
   }
 
@@ -84,10 +84,7 @@ export class ApiuserPermissionFormComponent {
   }
 
   submitPermissions() {
-    // Handle the selected modules, e.g., send them to an API
-    console.log(this.selectedModules);
-    console.log(this.selection.selected)
-
+  
     if (this.selection.selected.length > 0) {
 
       let permissionrequest: any = []
@@ -105,10 +102,10 @@ export class ApiuserPermissionFormComponent {
       if(permissionrequest.length===0){
         this.toastrService.warning('Warning','In selected module also need to select permission')
       }else{
-        console.log(permissionrequest);
+   
         this.aclpermissionServcie.ApiUserPermissionRequest(permissionrequest, this.form.value.client_id, this.form.value.client_secret).subscribe({
           next:data=>{
-            console.log(data)
+          
             this.form.reset();
             this.selection.clear();
             this.toastrService.success('Successful','Request Sent')

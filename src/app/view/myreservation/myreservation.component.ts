@@ -130,11 +130,9 @@ export class MyreservationComponent implements OnInit {
     }
     this.DisplaySDGBList()
     this.DisplayList(this.p)
-    // this.getcountryListData();
-
-    console.log("myreservation");
+   
     setTimeout(() => {
-      //  this.loading=false;
+      
       this.applycountryFilter();
     }, 2000)
   }
@@ -143,8 +141,6 @@ export class MyreservationComponent implements OnInit {
 
     this.authService.GetMethod('countrycode/list').subscribe(
       (data) => {
-        // display list in the console 
-        // console.log(data)
         this.countrylist = data;
 
       }
@@ -172,8 +168,6 @@ export class MyreservationComponent implements OnInit {
   DisplaySDGBList() {
     this.authService.GetMethod('sdgbenefit/code').subscribe(
       (data) => {
-        // display list in the console 
-        console.log(data)
         this.sdgblist = data;
       }
     )
@@ -198,8 +192,7 @@ export class MyreservationComponent implements OnInit {
 
   }
   selectorg(event: any) {
-    console.log(event)
-
+  
     this.subscription = this.filteredOrgList.subscribe(options => {
 
       const selectedorg = options.find(option => option.name === event.option.value);
@@ -210,15 +203,15 @@ export class MyreservationComponent implements OnInit {
   }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
-    console.log(this.FilterForm.controls['countryname']);
+   
     this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '')),
     );
-    console.log(this.filteredOptions);
+  
   }
   private _filter(value: any): string[] {
-    console.log(value)
+   
     const filterValue = value.toLowerCase();
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
@@ -258,10 +251,10 @@ export class MyreservationComponent implements OnInit {
 
     setTimeout(() => {
       const updatedFormValues = this.FilterForm.value;
-      console.log(updatedFormValues);
+   
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
       this.isAnyFieldFilled = isAllValuesNull;
-      console.log(this.isAnyFieldFilled);
+    
       if (!this.isAnyFieldFilled) {
         this.DisplayList(this.p)
       }
@@ -271,11 +264,11 @@ export class MyreservationComponent implements OnInit {
     // Other code...
   }
   onEndChangeEvent(event: any) {
-    console.log(event);
+
     this.endminDate = event;
   }
   selectCountry(event: any) {
-    console.log(event)
+   
     this.subscription = this.filteredOptions.subscribe(options => {
       const selectedCountry = options.find(option => option.country === event.option.value);
       if (selectedCountry) {
@@ -299,15 +292,13 @@ export class MyreservationComponent implements OnInit {
       this.FilterForm.controls['organizationId'].setValue(null);
     }
 
-
-    console.log(this.FilterForm.value)
     this.isLoadingResults = true;
     this.isAnyFieldFilled = false;
     this.p = 1;
     this.DisplayList(this.p)
   }
   DisplayList(page: number) {
-    console.log(this.FilterForm.value)
+   
     //  this.FilterForm.controls['pagenumber'].setValue(page);
     if (this.loginuser.role === 'ApiUser') {
       if (this.FilterForm.value.reservationActive === "All") {
@@ -332,9 +323,9 @@ export class MyreservationComponent implements OnInit {
             })
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
-            console.log(this.dataSource);
+     
             this.totalRows = data.totalCount;
-            console.log(this.totalRows);
+         
             this.totalPages = data.totalPages
             this.dataSource.sort = this.sort;
           }
@@ -365,9 +356,9 @@ export class MyreservationComponent implements OnInit {
             })
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
-            console.log(this.dataSource);
+           
             this.totalRows = data.totalCount;
-            console.log(this.totalRows);
+          
             this.totalPages = data.totalPages
             this.dataSource.sort = this.sort;
           }
@@ -381,9 +372,9 @@ export class MyreservationComponent implements OnInit {
 
 
   DisplayCertificatepage(reservation_row: any) {
-    console.log(typeof reservation_row.deviceIds);
+  
     let changedeviceId = JSON.stringify(reservation_row.deviceIds)
-    console.log(typeof changedeviceId);
+   
     this.router.navigate(['/certificate'], { queryParams: { id: reservation_row.id, group_uid: reservation_row.devicegroup_uid } });
 
   }

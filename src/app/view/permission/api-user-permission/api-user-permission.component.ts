@@ -204,7 +204,7 @@ export class ApiUserPermissionComponent {
     this.showuserdetails = true;
     this.userService.userProfile().subscribe({
       next: data1 => {
-        console.log(data1)
+    
         this.showclientform = false;
         this.userdetails = data1
         this.permission_status = data1.permission_status
@@ -216,9 +216,9 @@ export class ApiUserPermissionComponent {
     const limit = 20;
     this.loading = true
     if (this.loginuser.role === "Admin") {
-      console.log(this.FilterForm.value);
+     
       this.userpermissionService.getUserpermission(this.FilterForm.value).subscribe((data) => {
-        console.log(data)
+      
         this.loading = false
         if (data.length > 0) {
           this.showorg = true;
@@ -227,10 +227,10 @@ export class ApiUserPermissionComponent {
 
           //@ts-ignore
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-          console.log(this.data);
+        
           this.dataSource = new MatTableDataSource(this.data);
           this.totalRows = this.data.totalCount
-          console.log(this.totalRows);
+        
           this.totalPages = this.data.totalPages
         }
 
@@ -238,12 +238,12 @@ export class ApiUserPermissionComponent {
 
 
     } else if (this.loginuser.role === "ApiUser") {
-      console.log(this.FilterForm.value);
+     
       const data = {
         user_id: this.userId
       }
       this.userpermissionService.getUserpermission(data).subscribe((data) => {
-        console.log(data)
+      
         this.loading = false
         if (data.length > 0) {
           //this.showorg = true;
@@ -252,10 +252,10 @@ export class ApiUserPermissionComponent {
 
           //@ts-ignore
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-          console.log(this.data);
+         
           this.dataSource = new MatTableDataSource(this.data);
           this.totalRows = this.data.totalCount
-          console.log(this.totalRows);
+       
           this.totalPages = this.data.totalPages
         }
 
@@ -327,7 +327,7 @@ export class PermissionUpdateComponent {
   }
 
   onSubmit() {
-    console.log(this.permistion_updateForm.value);
+   
     this.aclmoduleService.updateUserpermissionByAdmin(this.api_userId, this.permistion_updateForm.value).subscribe({
       next: data => {
         if (data) {

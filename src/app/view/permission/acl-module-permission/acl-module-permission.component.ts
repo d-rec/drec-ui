@@ -52,11 +52,10 @@ export class AclModulePermissionComponent {
   getaclmodulelist() {
     this.aclpermissionService.getAcl_moduleList().subscribe({
       next: data => {
-        console.log(data)
-
+       
         this.dataSource = new MatTableDataSource(data);
       }, error: err => {
-        console.log(err)
+      
       }
     })
   }
@@ -106,7 +105,7 @@ export class AclModuleFormComponent {
   }
 
   onSubmit() {
-    console.log(this.aclModuleForm.value);
+   
     this.aclmoduleService.addACL_module(this.aclModuleForm.value).subscribe({
       next: data => {
         if (data) {

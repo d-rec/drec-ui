@@ -190,7 +190,7 @@ export class UserpermissionComponent {
             
               const index = this.selection.selected.indexOf(ele);
               this.selection.selected.splice(index, 1);
-              console.log(this.selection.selected)
+           
               // Check if formDataArray is empty
               if (this.selection.selected.length === 0) {
               this.UserPermissionForm.reset();

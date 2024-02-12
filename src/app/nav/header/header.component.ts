@@ -20,8 +20,6 @@ export class HeaderComponent implements OnInit {
     if (!this.isLoggedIn) {
       this.router.navigate(['/login']);
     }
-
-    console.log(this.isLoggedIn);
   }
   public onToggleSidenav = () => {
     this.sidenavToggle.emit();
@@ -29,7 +27,6 @@ export class HeaderComponent implements OnInit {
   logout() {
     this.authService.logout('auth/logout').subscribe(
       (data) => {
-        console.log(data);
         this.toastrService.success( data.message);
         sessionStorage.clear();
         this.router.navigate(['/login']);

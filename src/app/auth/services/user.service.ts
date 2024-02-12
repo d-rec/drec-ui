@@ -13,7 +13,7 @@ export class UserService {
   constructor(private httpClient: HttpClient) { }
   public userregisterByApiUser(data:any): Observable<any> {
     let headers = new HttpHeaders(this.headersData);
-      return this.httpClient.post<any>(this.url +'user/register', data,{headers})
+      return this.httpClient.post<any>(this.url +'user/register', data)
 
   }
   public UserConfirmEmail(token: any): Observable<any> {
@@ -56,7 +56,7 @@ export class UserService {
 
       headers = new HttpHeaders(this.headersData);
     }
-    console.log(headers)
+   
     return this.httpClient.get<any>(this.url + 'user/me', { headers })
   }
   public updatProfile(data: any): Observable<any> {

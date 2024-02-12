@@ -109,7 +109,6 @@ export class CertificateComponent implements OnDestroy {
     })
     this.reservationService.GetMethodById(this.group_id).subscribe(
       (data: any) => {
-        console.log(data);
         //@ts-ignore
         this.group_name = data.name;
         this.devicesId = data.deviceIds;
@@ -122,7 +121,6 @@ export class CertificateComponent implements OnDestroy {
     this.energyurl = environment.Explorer_URL + '/block/';
     console.log("myreservation");
     setTimeout(() => {
-      console.log(this.group_id);
       if (this.group_uid != undefined) {
         this.DisplayList(this.p);
       }
@@ -156,7 +154,6 @@ export class CertificateComponent implements OnDestroy {
   getnextissuancinfo(historyp: number) {
     this.reservationService.GetnextissuanceCycleinfo(this.group_uid, historyp).subscribe(
       (data: any) => {
-        console.log(data);
         //@ts-ignore
         this.history_nextissuanclist = data.historynextissuansinfo.AllDeviceshistnextissuansinfo;
         this.historynextissuance_total = data.historynextissuansinfo.totalPages;
@@ -181,15 +178,11 @@ export class CertificateComponent implements OnDestroy {
   }
   alldevicesread: any = []
   getlastreadofdevices() {
-    console.log(this.devicesId)
-    console.log(typeof this.devicesId)
     this.alldevicesread = [];
     if (typeof this.devicesId === 'string') {
       this.readService.Getlastread(this.devicesId).subscribe({
         next: data => {
-          console.log(data),
             this.alldevicesread.push(data)
-          console.log(this.alldevicesread)
         },
         error: err => {                      //Error callback
           console.error('error caught in component', err)
@@ -202,9 +195,7 @@ export class CertificateComponent implements OnDestroy {
       this.devicesId.forEach((elemant: any) => {
         this.readService.Getlastread(elemant).subscribe({
           next: data => {
-            console.log(data),
               this.alldevicesread.push(data)
-            console.log(this.alldevicesread)
           },
           error: err => {                              //Error callback
             console.error('error caught in component', err)
@@ -219,17 +210,14 @@ export class CertificateComponent implements OnDestroy {
   }
 
   getcertifiedlogdaterange(certifiedp: number) {
-    console.log(typeof this.devicesId)
     // if (typeof this.devicesId === 'string') {
     this.deviceService.getcertifieddevicelogdate(this.group_uid, certifiedp).subscribe({
       next: data => {
-        console.log(data);
         this.alldevicescertifiedlogdatrange = data.certifieddevices_startToend;
         this.certified_total = data.totalPages;
         // if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
         //   this.alldevicescertifiedlogdatrange.push(data)
         // }
-        console.log(this.alldevicescertifiedlogdatrange)
       },
       error: err => {                                //Error callback
         console.error('error caught in component', err)
@@ -285,8 +273,6 @@ export class CertificateComponent implements OnDestroy {
 
     this.authService.GetMethod('countrycode/list').subscribe(
       (data) => {
-        // display list in the console 
-        console.log(data)
         this.countrylist = data;
 
       }
@@ -320,7 +306,7 @@ export class CertificateComponent implements OnDestroy {
   // CertificateClaimed:boolean=false;
   DisplayList(p: number) {
     console.log("certifed list")
-    console.log(this.group_uid);
+ 
     this.certificateauthService.getcertifiedlogByGooupUid( this.group_uid , p).subscribe({
      next: (data: any) => {
         this.loading = false;
@@ -496,7 +482,6 @@ export class CertificateComponent implements OnDestroy {
       periodEndDate: 'Period End Date: ' + new Date(this.selectedCertificateForClaim.generationEndTime * 1000).toISOString(),
       purpose: 'Purpose: ' + this.claimData.value.purpose
     }
-    console.log(claimData);
     daiWithSigner.functions['safeTransferAndClaimFrom'](this.selectedBlockchainAccount, this.selectedBlockchainAccount, this.selectedCertificateForClaim.id, this.formattedClaimAmount, this.encodeClaimData(claimData), this.encodeClaimData(claimData));
 
     setTimeout(() => {
@@ -510,7 +495,6 @@ export class CertificateComponent implements OnDestroy {
 
   encodeClaimData = (claimData: any) => {
     const { beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose } = claimData;
-    console.log(beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose);
     console.log("ethers.utils.defaultAbiCoder.encode(['string', 'string', 'string', 'string', 'string', 'string'], [beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose]);", ethers.utils.defaultAbiCoder.encode(['string', 'string', 'string', 'string', 'string', 'string'], [beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose]));
     return ethers.utils.defaultAbiCoder.encode(['string', 'string', 'string', 'string', 'string', 'string'], [beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose]);
   }

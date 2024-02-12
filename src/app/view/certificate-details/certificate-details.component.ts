@@ -162,7 +162,6 @@ export class CertificateDetailsComponent {
   }
 
   showorglist(event: any) {
-    console.log(event)
     //this.filteredOrgList=[];
     this.orgService.GetApiUserAllOrganization().subscribe(
       (data) => {
@@ -175,7 +174,6 @@ export class CertificateDetailsComponent {
           this.orglist = data.organizations.filter(org => org.organizationType != "Developer");
           this.applyorgFilter();
         }
-        console.log(this.orglist)
       }
     );
 
@@ -200,9 +198,7 @@ export class CertificateDetailsComponent {
 
   }
   selectorg(event: any) {
-    console.log(event)
-
-    this.subscription = this.filteredOrgList.subscribe(options => {
+     this.subscription = this.filteredOrgList.subscribe(options => {
 
       const selectedorg = options.find(option => option.name === event.option.value);
       if (selectedorg) {
@@ -211,7 +207,6 @@ export class CertificateDetailsComponent {
     });
   }
   onEndChangeEvent(event: any) {
-    console.log(event);
     this.endminDate = event;
   }
   applycountryFilter() {
@@ -234,10 +229,9 @@ export class CertificateDetailsComponent {
   }
 
   selectCountry(event: any) {
-    console.log(event)
     this.subscription = this.filteredOptions.subscribe(options => {
       const selectedCountry = options.find((option: any) => option.country === event.option.value);
-      console.log(selectedCountry)
+     
       if (selectedCountry) {
         this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
       }
@@ -269,7 +263,6 @@ export class CertificateDetailsComponent {
           this.FilterForm.controls['organizationId'].setValue(null);
         }
         const countryValue = formValues.countryname;
-        console.log(countryValue)
         if (countryValue === undefined || countryValue === '') {
           console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
@@ -309,13 +302,11 @@ export class CertificateDetailsComponent {
   onstartreadChangeEvent(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     const value = inputElement.value;
-    console.log('Start Value Changed:', value);
     // Additional logic here
     this.FilterForm.controls['fromAmountread'].setValue(value);
     this.checkFormValidity();
   }
   onendreadChangeEvent(event: Event) {
-    console.log(event);
     const inputElement = event.target as HTMLInputElement;
     const value = inputElement.value;
     //this.endminDate = event;
@@ -402,11 +393,9 @@ export class CertificateDetailsComponent {
           })
 
           this.dataSource = new MatTableDataSource(this.data);
-          console.log(this.dataSource);
           this.obs = this.dataSource.connect();
           this.totalRows = data.totalCount;
           this.totalPages = data.totalPages;
-          console.log(this.totalRows);
         } else {
           this.loading = false;
           this.data = [];
@@ -486,7 +475,6 @@ export class CertificateDetailsComponent {
     }
   }
   pageChangeEvent(event: PageEvent) {
-    console.log(event);
     this.p = event.pageIndex + 1;
     this.DisplayList(this.p);
   }

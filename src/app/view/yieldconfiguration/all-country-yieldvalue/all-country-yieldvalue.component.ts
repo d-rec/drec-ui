@@ -84,7 +84,7 @@ export class AllCountryYieldvalueComponent {
     //this.FilterForm.controls['pagenumber'].setValue(page);
     this.yieldService.getyieldList().subscribe(
       (data) => {
-        console.log(data)
+      
         //@ts-ignore
         this.data=data;
           this.dataSource = new MatTableDataSource(this.data);

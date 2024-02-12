@@ -62,19 +62,15 @@ export class AllUsersComponent {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     if (this.activatedRoute.snapshot.params['id']) {
       this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
-      console.log("orgnaizatioId", this.orgnaizatioId)
       this.showorg = true;
       if (this.loginuser.role === 'ApiUser') {
         this.orgService.GetOrganizationById(this.orgnaizatioId).subscribe((data) => {
-          console.log('org', data)
-
           this.orgdetails = data
 
         })
       } else {
         this.adminService.GetOrganizationById(this.orgnaizatioId).subscribe((data) => {
-          console.log('org', data)
-
+        
           this.orgdetails = data
 
         })
@@ -93,18 +89,13 @@ export class AllUsersComponent {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
           this.orglist = data.organizations
-          console.log(this.orglist)
-
-
+      
         })
     } else if (this.loginuser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
           this.orglist = data.organizations
-          // this.orglistload = true;
-          console.log(this.orglist)
-
-
+       
         });
     }
 
@@ -147,9 +138,7 @@ export class AllUsersComponent {
   }
 
   selectOrg(event: any) {
-    console.log(event)
-
-    this.subscription = this.filteredOptions.subscribe(options => {
+   this.subscription = this.filteredOptions.subscribe(options => {
 
       const selectedorg = options.find(option => option.name === event.option.value);
       if (selectedorg) {
@@ -169,9 +158,7 @@ export class AllUsersComponent {
   }
   getAllUsers(page: number) {
     const limit = 20;
-
-    console.log(this.orgnaizatioId);
-    if (this.loginuser.role === "Admin") {
+ if (this.loginuser.role === "Admin") {
       if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
         this.getAllUserByorganzationId(page, limit)
       } else {
@@ -200,19 +187,16 @@ export class AllUsersComponent {
   getadminAllUserList(page: number, limit: number) {
     this.adminService.GetAllUsers(page, limit, this.FilterForm.value).subscribe({
       next: (data) => {
-        console.log(data)
+      
         this.showlist = true;
         this.showorguser = false;
         this.loading = false
         //@ts-ignore
         this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-        console.log(this.data);
         this.dataSource = new MatTableDataSource(this.data.users);
         this.totalRows = this.data.totalCount
-        console.log(this.totalRows);
         this.totalPages = this.data.totalPages
       }, error: err => {
-        console.log(err)
         if (err.error.statusCode === 403) {
           this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
         } else {
@@ -225,16 +209,12 @@ export class AllUsersComponent {
   getOrganizationAllUser(page: number, limit: number) {
     this.orgService.getOrganizationUser(page, limit).subscribe({
       next: (data) => {
-
-        console.log(data)
         this.showlist = true
         this.loading = false
         //@ts-ignore
         this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-        console.log(this.data);
         this.dataSource = new MatTableDataSource(this.data.users);
         this.totalRows = this.data.totalCount
-        console.log(this.totalRows);
         this.totalPages = this.data.totalPages
 
       }, error: err => {
@@ -252,16 +232,13 @@ export class AllUsersComponent {
   getAllUserByorganzationId(page: number, limit: number) {
     this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId, page, limit).subscribe({
       next: (data) => {
-        console.log(data)
         this.showorguser = false;
         this.showlist = true
         this.loading = false
         //@ts-ignore
         this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-        console.log(this.data);
         this.dataSource = new MatTableDataSource(this.data.users);
         this.totalRows = this.data.totalCount
-        console.log(this.totalRows);
         this.totalPages = this.data.totalPages
       }, error: err => {
         console.log(err)
@@ -308,7 +285,6 @@ export class AllUsersComponent {
   }
 
   openDialog(user: any) {
-    console.log(user)
     if (this.loginuser.role === "Admin") {
       if (user.role === 'OrganizationAdmin' || user.role === 'Buyer') {
         const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
@@ -353,47 +329,45 @@ export class AllUsersComponent {
           this.deleteUser(user.id)
         }
       });
-    
+
+    }
+
   }
+  admindeleteUser(id: number) {
 
-}
-admindeleteUser(id: number) {
+    this.adminService.removeUser(id).subscribe((response) => {
+      if (response.success) {
+        this.toastrService.success('User Deleted', 'Successful')
+        this.getAllUsers(this.p);
+      } else {
 
-  this.adminService.removeUser(id).subscribe((response) => {
-    console.log(response);
-    if (response.success) {
-      this.toastrService.success('User Deleted', 'Successful')
-      this.getAllUsers(this.p);
-    } else {
+        this.toastrService.error(response.message, 'Failure')
+      }
 
-      this.toastrService.error(response.message, 'Failure')
-    }
-
-  }, (err) => {
-    console.log(err)
-    this.toastrService.error(err.error.message, 'Failure')
-  })
+    }, (err) => {
+      console.log(err)
+      this.toastrService.error(err.error.message, 'Failure')
+    })
 
 
-}
-deleteUser(id: number) {
+  }
+  deleteUser(id: number) {
 
-  this.orgService.removeUser(id).subscribe((response) => {
-    console.log(response);
-    if (response.success) {
-      this.toastrService.success('User Deleted', 'Successful')
-      this.getAllUsers(this.p);
-    } else {
+    this.orgService.removeUser(id).subscribe((response) => {
+      if (response.success) {
+        this.toastrService.success('User Deleted', 'Successful')
+        this.getAllUsers(this.p);
+      } else {
 
-      this.toastrService.error(response.message, 'Failure')
-    }
-  }, (err) => {
-    console.log(err)
-    this.toastrService.error(err.error.message, 'Failure')
-  })
+        this.toastrService.error(response.message, 'Failure')
+      }
+    }, (err) => {
+      console.log(err)
+      this.toastrService.error(err.error.message, 'Failure')
+    })
 
 
-}
+  }
   openinviteDialog() {
     const confirmDialog = this.dialog.open(InvitationformComponent, {
       data: {
