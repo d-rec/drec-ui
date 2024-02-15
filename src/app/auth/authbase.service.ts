@@ -15,13 +15,13 @@ export class AuthbaseService {
     return this.httpClient.post<any>(this.url + routePath, data)
   }
 
-  ApiUserlogin(routePath: string, client_id: string, client_secret: string, data: any) {
-    const headers = new HttpHeaders({
+  ApiUserlogin(routePath: string,  data: any,client_id?: string, client_secret?: string) {
+    // const headers = new HttpHeaders({
 
-      "client_id": client_id,
-      "client_secret": client_secret
-    });
-    return this.httpClient.post<any>(this.url + routePath, data,{ headers })
+    //   "client_id": client_id,
+    //   "client_secret": client_secret
+    // });
+    return this.httpClient.post<any>(this.url + routePath, data)
   }
 
 
