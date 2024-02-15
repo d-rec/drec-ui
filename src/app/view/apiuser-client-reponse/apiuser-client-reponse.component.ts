@@ -31,6 +31,6 @@ export class ApiuserClientReponseComponent {
     textArea.select();
     document.execCommand('copy');
     document.body.removeChild(textArea);
-    this.dialogRef.close('copy')
+   // this.dialogRef.close('copy')
   }
 }

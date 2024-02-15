@@ -28,8 +28,8 @@ export class ApiuserPermissionFormComponent {
 
 
     this.form = this.fb.group({
-      client_id:[null, Validators.required],
-      client_secret:[null, Validators.required],
+     // client_id:[null, Validators.required],
+     // client_secret:[null, Validators.required],
       permissions: this.fb.array([]),
     });
     //@ts-ignore
@@ -102,8 +102,8 @@ export class ApiuserPermissionFormComponent {
       if(permissionrequest.length===0){
         this.toastrService.warning('Warning','In selected module also need to select permission')
       }else{
-   
-        this.aclpermissionServcie.ApiUserPermissionRequest(permissionrequest, this.form.value.client_id, this.form.value.client_secret).subscribe({
+   //, this.form.value.client_id, this.form.value.client_secret
+        this.aclpermissionServcie.ApiUserPermissionRequest(permissionrequest).subscribe({
           next:data=>{
           
             this.form.reset();
