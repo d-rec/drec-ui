@@ -51,6 +51,7 @@ export class LoginComponent implements OnInit {
           this.userService.userProfile().subscribe({
             next: data1 => {
               sessionStorage.setItem('status', data1.status);
+              sessionStorage.setItem('apiuserId', data1.api_user_id);
               if (data1.status != 'Pending' && data1.organization != null) {
                 if (data1.organization.organizationType === 'Buyer') {
                   this.router.navigate(['/myreservation']);

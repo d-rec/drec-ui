@@ -11,8 +11,8 @@ export class UserService {
   url: String = environment.API_URL;
   headersData = getapiuser_header();
   constructor(private httpClient: HttpClient) { }
-  public userregisterByApiUser(data:any): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
+  public userregisterByApiUser(data:any,api_user_id:string): Observable<any> {
+    data['api_user_id'] = api_user_id;
       return this.httpClient.post<any>(this.url +'user/register', data)
 
   }

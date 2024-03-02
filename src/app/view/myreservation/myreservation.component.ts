@@ -27,6 +27,7 @@ import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 export class MyreservationComponent implements OnInit {
   displayedColumns = [
     'actions',
+    'createAt',
     'name',
     'aggregatedCapacity',
     'reservationActive',

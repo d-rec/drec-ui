@@ -131,8 +131,24 @@ export class RegisterComponent implements OnInit {
         }
         if (this.registerForm.value.organizationType === "ApiUser") {
           this.response = data;
-          this.showPopup(this.response, loginobj);
-          this.toastrService.success( 'User Register Successfull');
+          this.authService.ApiUserExportAccesskey('user/export-accesskey/', this.response.api_user_id).subscribe({
+            next: data => {
+              const blob = new Blob([data], { type: 'text/csv' });
+              const url = window.URL.createObjectURL(blob);
+             // const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `${this.response.api_user_id}.pem`; // Replace with the desired file name
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(url);//
+              this.toastrService.success('Access Key downloaded successfully' ,'Please keep it confidential');
+              this.showPopup(this.response, loginobj);
+            }
+          })
+
+          this.toastrService.success('User Register Successfull');
         } else {
 
           this.authService.login('auth/login', loginobj).subscribe({
@@ -186,24 +202,21 @@ export class RegisterComponent implements OnInit {
 
   }
   showPopup(response: any, logininfo: any) {
-    console.log(logininfo);
     // const dialogRef = this.dialog.open(ApiuserClientReponseComponent, {
     //   data: response, // Pass the response data to the modal
     // });
 
     // dialogRef.afterClosed().subscribe((result) => {
     //   if (result === 'copy') { this.response.client_id, this.response.client_secret,
-    this.authService.ApiUserlogin('auth/login', logininfo).subscribe({
+    this.authService.login('auth/login', logininfo).subscribe({
       next: (data: any) => {
         if (data["accessToken"] != null) {
           sessionStorage.setItem('access-token', data["accessToken"]);
           let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
-          jwtObj['clientId'] = this.response.client_id
-          jwtObj['clientSecret'] = this.response.client_secret
           sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
           this.userService.userProfile(this.response.client_id, this.response.client_secret).subscribe({
             next: (data1: any) => {
-
+              sessionStorage.setItem('apiuserId', data1.api_user_id);
               sessionStorage.setItem('status', data1.status);
               this.router.navigate(['/apiuser/permission/request/form']);
 

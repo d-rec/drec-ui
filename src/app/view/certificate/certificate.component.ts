@@ -125,7 +125,7 @@ export class CertificateComponent implements OnDestroy {
         this.DisplayList(this.p);
       }
 
-    }, 2500);
+    }, 2000);
     this.getBlockchainProperties();
     this.AllCountryList();
     this.claimData.controls['countryCode'];
