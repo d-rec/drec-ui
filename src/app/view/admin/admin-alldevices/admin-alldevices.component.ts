@@ -315,7 +315,7 @@ export class AdminAlldevicesComponent {
           this.DisplayList()
         }
       }, error: err => {
-        console.log(err);
+        
         if (err.error.statusCode === 403) {
           this.toastrService.error('You are Unauthorized')
         }

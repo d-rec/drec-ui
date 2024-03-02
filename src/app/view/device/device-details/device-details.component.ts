@@ -84,7 +84,6 @@ export class DeviceDetailsComponent {
           this.device_details['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == this.device_details.countryCode)?.country;
         }
       }, error: err => {
-        console.log(err)
       },
     })
   }
