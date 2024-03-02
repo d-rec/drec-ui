@@ -247,9 +247,6 @@ export class CertifiedDevicesDeveloperComponent {
   onSliderChange(event: any): void {
     const startValue = this.startThumb.nativeElement.value;
     const endValue = this.endThumb.nativeElement.value;
-    console.log('Start Value:', startValue);
-    console.log('End Value:', endValue);
-
     // Additional logic here
   }
   formatLabel(value: number): string {

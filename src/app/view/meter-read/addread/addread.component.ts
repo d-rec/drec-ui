@@ -393,8 +393,8 @@ this.showexternaiIdform=true;
 
   // }
   onChangeEvent(event: any) {
-   
     if (event === 'Delta' || event === 'Aggregate') {
+      this.endmaxdate = new Date();
       this.endminDate = this.devicecreateddate;
 
       this.hidestarttime = false;
