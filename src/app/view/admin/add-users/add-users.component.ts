@@ -27,6 +27,7 @@ export class AddUsersComponent {
   hide1 = true;
   matchconfirm: boolean = false;
   loginuser: any
+  apiuserId:string;
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   constructor(private authService: AuthbaseService, private _formBuilder: FormBuilder,
     private toastrService: ToastrService, 
@@ -38,6 +39,7 @@ export class AddUsersComponent {
 
   ngOnInit() {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+    this.apiuserId = (sessionStorage.getItem('apiuserId')!);
     this.createForm();
   }
   createForm() {
@@ -51,7 +53,7 @@ export class AddUsersComponent {
         orgAddress: new FormControl(null),
         email: new FormControl(null, [Validators.required, Validators.pattern(this.emailregex)]),
         password: new FormControl(null),
-       confirmPassword: new FormControl(null),
+        confirmPassword: new FormControl(null),
 
       },
       // {
@@ -90,10 +92,10 @@ export class AddUsersComponent {
 
     var randPassword = Array(10).fill("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz").map(function (x) { return x[Math.floor(Math.random() * x.length)] }).join('');
     
-    this.registerForm.controls['password'].setValue(randPassword);
-    this.registerForm.controls['confirmPassword'].setValue(randPassword);
+    this.registerForm.controls['password'].setValue(randPassword+'1');
+    this.registerForm.controls['confirmPassword'].setValue(randPassword+'1');
    if(this.loginuser.role==='ApiUser'){
-    this.userService.userregisterByApiUser(this.registerForm.value).subscribe({
+    this.userService.userregisterByApiUser(this.registerForm.value,this.apiuserId).subscribe({
       next: data => {
         this.toastrService.success('Successful!!', 'Registration '); 
         this.registerForm.reset();

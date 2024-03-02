@@ -182,12 +182,16 @@
                         </td>
                     </ng-container>
                     <!-- Progress Column -->
+                    <ng-container matColumnDef="createAt">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Onboarding Date </th>
+                        <td mat-cell *matCellDef="let row" class="table-data-myreservation"> {{row.createdAt|date:'long'}} </td>
+                    </ng-container>
                     <ng-container matColumnDef="name">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Name </th>
                         <td mat-cell *matCellDef="let row" class="table-data-myreservation"> {{row.name}} </td>
                     </ng-container>
 
-                    <!-- Name Column -->
+                   
                     <ng-container matColumnDef="aggregatedCapacity">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Aggregate
                             Capacity</th>
@@ -195,7 +199,6 @@
                             {{row.aggregatedCapacity}} </td>
                     </ng-container>
 
-                    <!-- Fruit Column -->
                     <ng-container matColumnDef="reservationActive">
                         <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
                         <td mat-cell *matCellDef="let row"><span *ngIf="row.reservationActive">Active</span> <span

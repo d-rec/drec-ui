@@ -350,7 +350,6 @@ export class AddDevicesComponent {
 
           const index = deviceArray.indexOf(element);
           deviceArray.splice(index, 1);
-          console.log(deviceArray)
           // Check if formDataArray is empty
           if (deviceArray.length === 0) {
             // Navigate to the list UI page
