@@ -48,7 +48,7 @@ export class AddreadComponent implements OnInit {
   orgId: number;
   devicelist: any = [];
   showmeter_readformadmin: boolean;
-  showexternaiIdform:boolean=false;
+  showexternaiIdform: boolean = false;
   constructor(private fb: FormBuilder, private readService: MeterReadService,
     private deviceservice: DeviceService,
     private authService: AuthbaseService,
@@ -79,7 +79,7 @@ export class AddreadComponent implements OnInit {
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-        
+
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
           // Once data is loaded, call any other functions that depend on it
@@ -145,7 +145,7 @@ export class AddreadComponent implements OnInit {
     });
   }
   selectOrg(event: any) {
-this.showexternaiIdform=true;
+    this.showexternaiIdform = true;
     //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
@@ -277,14 +277,14 @@ this.showexternaiIdform=true;
   lastreaddate: any;
   onSelect(result: any): void {
     this.selectedResult = result;
-   this.devicecreateddate = result.createdAt;
+    this.devicecreateddate = result.createdAt;
     this.commissioningDate = result.commissioningDate;
 
     this.historyAge = new Date(this.devicecreateddate);
     this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
     //@ts-ignore
     this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == result.countryCode)?.timezones;
-  
+
     this.readForm.controls['timezone'].setValue(null);
     this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
       startWith(''),
@@ -305,7 +305,7 @@ this.showexternaiIdform=true;
     }
     this.readService.Getlastread(deivceid).subscribe({
       next: data => {
-          this.lastreaddate = data.enddate;
+        this.lastreaddate = data.enddate;
         this.lastreadvalue = data.value;
       },
       error: err => {                      //Error callback
@@ -313,23 +313,27 @@ this.showexternaiIdform=true;
       }
     })
     this.endmaxdate = new Date();
+    console.log(this.endmaxdate)
   }
   onTimezoneSelect(timezone: any): void {
-   
 
+    this.historyAge = momentTimeZone
+      .tz(new Date(this.historyAge), timezone)
+      .format('YYYY-MM-DDTHH:mm:ss');
     this.devicecreateddate = momentTimeZone
       .tz(new Date(this.devicecreateddate), timezone)
       .format('YYYY-MM-DDTHH:mm:ss');
-   
+
     this.commissioningDate = momentTimeZone
       .tz(new Date(this.commissioningDate), timezone)
       .format('YYYY-MM-DDTHH:mm:ss');
-   
+
     //momentTimeZone.tz(this.devicecreateddate, timezone);
     this.endmaxdate = new Date(momentTimeZone
       .tz(new Date(), timezone)
       .format('YYYY-MM-DDTHH:mm:ss'));
-  
+    console.log(this.endmaxdate);
+
   }
   private _filter(value: string): string[] {
     //  console.log(this.timezonedata)
@@ -396,7 +400,12 @@ this.showexternaiIdform=true;
     if (event === 'Delta' || event === 'Aggregate') {
       this.endmaxdate = new Date();
       this.endminDate = this.devicecreateddate;
+      if (this.readForm.value.timezone != null) {
+        this.endmaxdate = new Date(momentTimeZone
+          .tz(new Date(), this.readForm.value.timezone)
+          .format('YYYY-MM-DDTHH:mm:ss'));
 
+      }
       this.hidestarttime = false;
     } else {
       if (new Date(this.commissioningDate).getTime() > new Date(this.historyAge).getTime()) {
@@ -490,7 +499,7 @@ this.showexternaiIdform=true;
           console.error('error caught in component', err)
           //@ts-ignore
           let message = getValidmsgTimezoneFormat(err.error.message);
-        
+
           this.toastrService.error(message, 'error!');
         }
       });
@@ -510,7 +519,7 @@ this.showexternaiIdform=true;
           console.error('error caught in component', err)
           //@ts-ignore
           let message = getValidmsgTimezoneFormat(err.error.message);
-         
+
           this.toastrService.error(message, 'error!');
         }
       });
