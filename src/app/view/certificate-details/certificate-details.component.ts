@@ -336,7 +336,6 @@ export class CertificateDetailsComponent {
   }
   // CertificateClaimed:boolean=false;
   DisplayList(page: number) {
-    console.log("certifed list")
 
     this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value, page).subscribe({
       next: (data: any) => {

@@ -157,7 +157,6 @@ export class CertifiedDevicesDeveloperComponent {
     this.getBlockchainProperties();
 
     this.selectAccountAddressFromMetamask();
-    console.log("drt46")
 
   }
   // formatLabel(value: number): string {
@@ -218,21 +217,17 @@ export class CertifiedDevicesDeveloperComponent {
   isAnyFieldFilled: boolean = false;
 
   // checkFormValidity(): void {
-  //   console.log("115");
   //   const formValues = this.FilterForm.value;
   //   this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
-  //   console.log(this.isAnyFieldFilled);
   // }
   // onstartreadChangeEvent(event: Event): void {
   //   const inputElement = event.target as HTMLInputElement;
   //   const value = inputElement.value;
-  //   console.log('Start Value Changed:', value);
   //   // Additional logic here
   //   this.FilterForm.controls['fromAmountread'].setValue(value);
   //   this.checkFormValidity();
   // }
   // onendreadChangeEvent(event: Event) {
-  //   console.log(event);
   //   const inputElement = event.target as HTMLInputElement;
   //   const value = inputElement.value;
   //   //this.endminDate = event;
@@ -322,7 +317,6 @@ export class CertifiedDevicesDeveloperComponent {
   }
   // CertificateClaimed:boolean=false;
   DisplayList(page: number) {
-    console.log("certifed list")
 
     this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value, page).subscribe(
       (data: any) => {
@@ -379,7 +373,6 @@ export class CertifiedDevicesDeveloperComponent {
         }
 
       }, errors => {
-        console.log(errors)
         this.data = [];
       }
 

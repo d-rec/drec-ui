@@ -218,7 +218,6 @@ export class AllUsersComponent {
         this.totalPages = this.data.totalPages
 
       }, error: err => {
-        console.log(err)
         if (err.error.statusCode === 403) {
           this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
         } else {
@@ -241,7 +240,6 @@ export class AllUsersComponent {
         this.totalRows = this.data.totalCount
         this.totalPages = this.data.totalPages
       }, error: err => {
-        console.log(err)
         if (err.error.statusCode === 403) {
           this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
         } else {
@@ -345,7 +343,6 @@ export class AllUsersComponent {
       }
 
     }, (err) => {
-      console.log(err)
       this.toastrService.error(err.error.message, 'Failure')
     })
 
@@ -362,7 +359,6 @@ export class AllUsersComponent {
         this.toastrService.error(response.message, 'Failure')
       }
     }, (err) => {
-      console.log(err)
       this.toastrService.error(err.error.message, 'Failure')
     })
 
