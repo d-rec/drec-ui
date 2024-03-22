@@ -89,13 +89,10 @@ export class AllCountryYieldvalueComponent {
         this.data=data;
           this.dataSource = new MatTableDataSource(this.data);
            this.totalRows = this.data.length
-          // console.log(this.totalRows);
           // this.totalPages = this.data.totalPages
           this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;
-
-        }
-      
+        }     
     );
   }
   UpdateYield(id:number) {

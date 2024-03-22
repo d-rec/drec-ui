@@ -119,7 +119,6 @@ export class CertificateComponent implements OnDestroy {
 
     )
     this.energyurl = environment.Explorer_URL + '/block/';
-    console.log("myreservation");
     setTimeout(() => {
       if (this.group_uid != undefined) {
         this.DisplayList(this.p);
@@ -135,7 +134,6 @@ export class CertificateComponent implements OnDestroy {
     );
     this.selectAccountAddressFromMetamask();
 
-    console.log("drt46")
     this.intervalId = setInterval(() => {
       if (this.reservationstatus) {
         this.getnextissuancinfo(this.historyp);
@@ -230,13 +228,10 @@ export class CertificateComponent implements OnDestroy {
     //   this.devicesId.forEach((elemant: any) => {
     //     this.deviceService.getcertifieddevicelogdate(elemant, this.group_uid).subscribe({
     //       next: data => {
-    //         console.log(data);
 
     //         if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
     //           this.alldevicescertifiedlogdatrange.push(data)
     //         }
-
-    //         console.log(this.alldevicescertifiedlogdatrange)
     //       },
     //       error: err => {                               //Error callback
     //         console.error('error caught in component', err)
@@ -305,7 +300,6 @@ export class CertificateComponent implements OnDestroy {
   }
   // CertificateClaimed:boolean=false;
   DisplayList(p: number) {
-    console.log("certifed list")
  
     this.certificateauthService.getcertifiedlogByGooupUid( this.group_uid , p).subscribe({
      next: (data: any) => {

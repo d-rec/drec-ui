@@ -124,7 +124,6 @@ export class CertifiedDevicesDeveloperComponent {
   ngOnInit() {
 
     this.energyurl = environment.Explorer_URL + '/block/';
-    console.log("myreservation");
 
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
@@ -134,17 +133,13 @@ export class CertifiedDevicesDeveloperComponent {
     this.authService.GetMethod('device/device-type').subscribe(
       (data2) => {
         this.devicetypelist = data2;
-        // this.devicetypeLoded = true;
       }
     );
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3) => {
-        // display list in the console
-        // console.log(data)
         this.countrylist = data3;
         this.countrycodeLoded = true;
         this.applycountryFilter();
-        // this.DisplayList(this.p);
       }
     )
     this.authService.GetMethod('sdgbenefit/code').subscribe(
