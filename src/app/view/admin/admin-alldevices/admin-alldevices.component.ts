@@ -70,12 +70,14 @@ export class AdminAlldevicesComponent {
   showlist: boolean = false;
   orglist: any;
   showapiuser_devices: boolean = false;
+  apiuserId: string;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService, private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
     private dialog: MatDialog,
     private toastrService: ToastrService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+    this.apiuserId = (sessionStorage.getItem('apiuserId')!); 
     this.FilterForm = this.formBuilder.group({
       organizationname: [],
       organizationId: [],
@@ -99,7 +101,7 @@ export class AdminAlldevicesComponent {
     this.adminService.GetAllOrganization().subscribe(
       (data) => {
         //@ts-ignore
-        this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+        this.orglist = data.organizations.filter(org => org.organizationType == "Developer" && org.api_user_id ==this.apiuserId);
       })
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
