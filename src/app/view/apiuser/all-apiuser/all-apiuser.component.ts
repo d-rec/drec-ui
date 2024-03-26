@@ -52,6 +52,7 @@ export class AllApiuserComponent {
   filteredOptions: Observable<any[]>;
   subscription: Subscription;
   showerror: boolean = false;
+  apiuserId: string;
   constructor(private authService: AuthbaseService,
     private orgService: OrganizationService,
     private adminService: AdminService,
@@ -60,6 +61,7 @@ export class AllApiuserComponent {
     private dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
     private toastrService: ToastrService) {
+    this.apiuserId = (sessionStorage.getItem('apiuserId')!);
     if (this.activatedRoute.snapshot.params['id']) {
       this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
       this.showorg = true;
@@ -79,7 +81,7 @@ export class AllApiuserComponent {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          this.orglist = data.organizations
+        this.orglist = data.organizations.filter((org: { organizationType: string; api_user_id: string; }) => org.organizationType == "ApiUser" && org.api_user_id != this.apiuserId);
          
         })
     }
