@@ -53,7 +53,6 @@ export class InvitationformComponent {
 
   }
   ngOnInit() {
-    // console.log(this.userstatus);
     // this.getinvitationList();
     this.inviteForm = this.fb.group({
       firstName: [null],
@@ -78,7 +77,6 @@ export class InvitationformComponent {
 
   }
   async onSubmit() {
-    console.log("invite")
     const headers = getapiuser_header();
     setTimeout(() => {
       this.inveiteService.Postuserinvitation(this.inviteForm.value, this.data.id, headers).subscribe({

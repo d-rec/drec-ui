@@ -94,8 +94,6 @@ export class AdminOrganizationComponent {
 
 
     setTimeout(() => {
-      console.log("93")
-
       this.loading = false;
       if (this.loginuser.role === 'Admin') {
         this.getAllOrganization(this.p);
@@ -117,7 +115,6 @@ export class AdminOrganizationComponent {
     }
   }
   applyorgFilter() {
-    console.log("105")
     this.FilterForm.controls['organizationName'];
     this.filteredOptions = this.FilterForm.controls['organizationName'].valueChanges.pipe(
       startWith(''),
@@ -177,7 +174,6 @@ export class AdminOrganizationComponent {
         // this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       }, error => {
-        console.log(error);
         this.data = [];
         this.showlist = false
       }
@@ -201,7 +197,6 @@ export class AdminOrganizationComponent {
         // this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       }, error => {
-        console.log(error);
         this.data = [];
         this.showlist = false
       }
