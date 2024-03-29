@@ -39,8 +39,12 @@ export class FileuploadService {
     let headers = new HttpHeaders(this.headersData);
     return this.http.get(`${this.baseUrl}buyer-reservation/bulk-upload/get-all-csv-jobs-of-organization`,{headers});
   }
-  getJobStatus(id:number): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    return this.http.get(`${this.baseUrl}buyer-reservation/bulk-upload-status/`+id,{headers});
+  getJobStatus(id:number,orgId?:number): Observable<any> {
+   
+    let Url = `${this.baseUrl}buyer-reservation/bulk-upload-status/`+id;
+    if (!(typeof orgId === "undefined" || orgId ===undefined  || orgId === null)) {
+      Url += `?orgId=${orgId}`;
+    }
+    return this.http.get(Url);
   }
 }
