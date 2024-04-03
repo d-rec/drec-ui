@@ -110,8 +110,6 @@ export class RedemptionReportComponent implements OnInit {
           // ele.offTakers.filter((str) => str !== ' ');
           //@ts-ignore
           let o = ele.offTakers.filter((str) => str !== ' ');
-
-          console.log("result");
           //@ts-ignore
           ele['offTakername'] = [...new Set(o.map((e) => e.trim()))].toString()
           //[... new Set(ele.offTakers)].toString();

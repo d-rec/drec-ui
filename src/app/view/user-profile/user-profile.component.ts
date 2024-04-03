@@ -90,11 +90,8 @@ export class UserProfileComponent {
       this.resetpasswordform.get('newPassword')?.hasError('requirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' : '';
   }
   checkconfirmPassword(control: any) {
-    // console.log(this.resetpasswordform.value)
-
     let enteredPassword = control.value;;
     let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
-    // console.log(this.resetpasswordform.value.password);
     //this.resetpasswordform.value.password = this.resetpasswordform.value.password?:'';
     return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'Confirmrequirements': true } :
       (!enteredPassword && enteredPassword) ? { 'matchrequirements': true } : null;

@@ -111,7 +111,6 @@ export class AddDevicesComponent {
     // Load other data as needed
   }
   filterOrgList() {
-    console.log("99")
     this.filteredOrgList = this.orglist.filter((org: any) => {
 
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
@@ -132,7 +131,7 @@ export class AddDevicesComponent {
     this.myform = this.fb.group({
       devices: this.fb.array([])
     });
-    this.myform.valueChanges.subscribe(console.log);
+    this.myform.valueChanges.subscribe();
     const device = this.fb.group({
       externalId: [null, [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
       projectName: [null],
@@ -218,15 +217,10 @@ export class AddDevicesComponent {
   }
 
   // selectCountry(event: any,i:number) {
-  //   console.log(event);
-  //   console.log(this.filteredCountryList[i])
   //   const toppings: any = this.myform.get('devices') as FormArray
   //   this.subscription = this.filteredCountryList[i].subscribe(options => {
-  //     console.log(options);
   //     const selectedCountry = options.find(option => option.country === event.option.value);
   //     if (selectedCountry) {
-  //       console.log(toppings.value[i]);
-  //       console.log(toppings.value[i].countryCode);
   //       // toppings.value[i].countryCode.setValue(selectedCountry.alpha3);
   //       toppings.at(i).get('countryCode').setValue(selectedCountry.alpha3);
   //       //this.deviceForms.controls.map(control => control['countryCode']).setValue(selectedCountry.alpha3);
@@ -271,7 +265,6 @@ export class AddDevicesComponent {
       version: ["1.0"]
     })
     this.deviceForms.push(device);
-    console.log(this.deviceForms.length);
     this.showaddmore[this.deviceForms.length - 1] = true;
     this.showinput[this.deviceForms.length - 1] = true;
     const index = this.deviceForms.length - 1;
@@ -306,7 +299,6 @@ export class AddDevicesComponent {
   }
   showinput: any[] = [];
   showenergycapacity_input(i: number, event: any) {
-    console.log(event)
     if (event) {
       this.showinput[i] = true;
     } else {

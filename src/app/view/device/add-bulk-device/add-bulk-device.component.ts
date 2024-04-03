@@ -83,7 +83,6 @@ export class AddBulkDeviceComponent implements OnInit {
   }
 
   filterOrgList() {
-    console.log("99")
     this.filteredOrgList = this.orglist.filter((org: any) => {
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
     });
@@ -117,7 +116,6 @@ export class AddBulkDeviceComponent implements OnInit {
   }
 
   openFileExplorer() {
-    console.log("came here")
     document.getElementById("fileInput")?.click();
   }
 
@@ -171,7 +169,6 @@ export class AddBulkDeviceComponent implements OnInit {
           // }
         },
         (err: any) => {
-          console.log(err);
           this.progress = 0;
 
           if (err.error && err.error.message) {

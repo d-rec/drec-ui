@@ -128,7 +128,6 @@ export class AlldevicesComponent {
       }
     )
 
-    console.log("myreservation");
     setTimeout(() => {
       if (this.countrycodeLoded) {
 
@@ -202,8 +201,6 @@ export class AlldevicesComponent {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
         if (countryValue === undefined || countryValue === '') {
-
-          console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
 
@@ -329,9 +326,7 @@ export class AlldevicesComponent {
     this.router.navigate(['/device/edit/' + externalId], { queryParams: { fromdevices: true } });
   }
   // pageChangeEvent(event: PageEvent) {
-  //   console.log(event);
   //   this.p = event.pageIndex + 1;
-
   //   this.getDeviceListData();
   // }
 
@@ -357,7 +352,6 @@ export class AlldevicesComponent {
   //   dialogRef.afterClosed().subscribe((data) => {
   //     this.dataFromDialog = data.form;
   //     if (data.clicked === 'submit') {
-  //       console.log('Sumbit button clicked');
   //     }
   //   });
   // }

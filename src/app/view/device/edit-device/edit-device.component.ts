@@ -104,7 +104,7 @@ export class EditDeviceComponent implements OnInit {
     this.addmoredetals = false;
     this.showaddmore = true;
     this.shownomore = false;
-    this.updatedeviceform.valueChanges.subscribe(console.log);
+    this.updatedeviceform.valueChanges.subscribe()
     setTimeout(() => {
       this.updatedeviceform.controls['countryCode'];
       this.filteredCountryList = this.updatedeviceform.controls['countryCode'].valueChanges.pipe(

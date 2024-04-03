@@ -110,8 +110,6 @@ export class MyreservationComponent implements OnInit {
 
       // pagenumber: [this.p]
     });
-
-    console.log("myreservation");
     this.DisplaycountryList();
     this.DisplayfuelList();
     this.DisplaytypeList();
@@ -432,7 +430,6 @@ export class MyreservationComponent implements OnInit {
   ExpoertPerDevice_csv(row: any) {
     this.certificateService.getcertifiedlogPerDevice(row.devicegroup_uid).subscribe({
       next: (data: any) => {
-       // console.log(data.headers.keys());  // Log all headers
         const blob = new Blob([data], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -444,7 +441,6 @@ export class MyreservationComponent implements OnInit {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);//
       }, error: err => {
-        console.log(err)
         if(err.status===404){
           this.toastrService.error('Download fail', 'Devices log Not found')
         }else{
