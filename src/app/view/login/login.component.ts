@@ -94,7 +94,6 @@ export class LoginComponent implements OnInit {
             }
           })
         } else {
-          console.log("check your credentials !!")
           this.toastrService.info('Message Failure!', 'Check Your Credentials !!');
           this.router.navigate(['/login']);
         }
@@ -121,7 +120,6 @@ export class LoginComponent implements OnInit {
     //         //var obj = JSON.parse(sessionStorage.loginuser);
     //         this.userService.userProfile(this.clientid, this.client_secret,).subscribe({
     //           next: data1 => {
-    //             console.log(data1)
     //             sessionStorage.setItem('status', data1.status);
     //             setTimeout(() => {
     //               //  this.loading=false;
@@ -134,7 +132,6 @@ export class LoginComponent implements OnInit {
     //           }
     //         })
     //       } else {
-    //         console.log("check your credentials !!")
     //         this.toastrService.info('Message Failure!', 'Check your credentials !!');
     //         this.router.navigate(['/login']);
     //       }

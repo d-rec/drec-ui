@@ -109,7 +109,6 @@ export class CertificateDetailsComponent {
   ngOnInit() {
 
     this.energyurl = environment.Explorer_URL + '/block/';
-    console.log("myreservation");
     if (this.loginuser.role === 'ApiUser') {
       this.FilterForm.addControl('organizationname', this.formBuilder.control(''));
       this.FilterForm.addControl('organizationId', this.formBuilder.control(''));
@@ -130,8 +129,6 @@ export class CertificateDetailsComponent {
     );
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3) => {
-        // display list in the console
-        // console.log(data)
         this.countrylist = data3;
         this.countrycodeLoded = true;
       }
@@ -152,7 +149,6 @@ export class CertificateDetailsComponent {
     }, 1500);
     this.getBlockchainProperties();
     this.selectAccountAddressFromMetamask();
-    console.log("drt46")
 
   }
   ngOnDestroy() {
@@ -264,7 +260,6 @@ export class CertificateDetailsComponent {
         }
         const countryValue = formValues.countryname;
         if (countryValue === undefined || countryValue === '') {
-          console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
 
@@ -276,10 +271,6 @@ export class CertificateDetailsComponent {
         if (formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
-        // console.log(formValues.deviceTypeCode);
-        // if (formValues.deviceTypeCode === undefined) {
-        //   this.FilterForm.controls['deviceTypeCode'].setValue(null);
-        // }
         if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
           this.FilterForm.controls['SDGBenefits'].setValue(null);
         }
@@ -316,10 +307,6 @@ export class CertificateDetailsComponent {
   onSliderChange(event: any): void {
     const startValue = this.startThumb.nativeElement.value;
     const endValue = this.endThumb.nativeElement.value;
-    console.log('Start Value:', startValue);
-    console.log('End Value:', endValue);
-
-    // Additional logic here
   }
   reset() {
     this.FilterForm.reset();
@@ -349,7 +336,6 @@ export class CertificateDetailsComponent {
   }
   // CertificateClaimed:boolean=false;
   DisplayList(page: number) {
-    console.log("certifed list")
 
     this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value, page).subscribe({
       next: (data: any) => {

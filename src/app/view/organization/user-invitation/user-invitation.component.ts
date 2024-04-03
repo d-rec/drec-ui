@@ -91,23 +91,16 @@ export class UserInvitationComponent {
 
   }
   filterOrgList() {
-    console.log("99")
     this.filteredOrgList = this.orglist.filter((org: any) => {
-
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
-
-
-
     });
   }
   selectOrg(event: any) {
-
     //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
       this.orgId = selectedCountry.id;
     }
-
   }
   onSubmit() {
     this.inveiteService.Postuserinvitation(this.inviteForm.value).subscribe({

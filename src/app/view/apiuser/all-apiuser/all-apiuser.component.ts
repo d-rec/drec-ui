@@ -236,7 +236,6 @@ export class AllApiuserComponent {
       }
 
     }, (err) => {
-      console.log(err)
       this.toastrService.error(err.error.message, 'Failure')
     })
 

@@ -122,7 +122,6 @@ export class UserpermissionComponent {
           }
 
         })
-        console.log(this.userdatalist)
         this.dataSource = new MatTableDataSource(this.userdatalist);
       }, error: err => {
 
@@ -131,14 +130,11 @@ export class UserpermissionComponent {
 
   }
   isAllSelected() {
-    console.log("125")
-    console.log(this.selection.selected);
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSource.data.length;
     return numSelected === numRows;
   }
   masterToggle() {
-    console.log("131")
     this.isAllSelected() ?
       this.selection.clear() :
       this.dataSource.data.forEach(row => this.selection.select(row));
@@ -165,12 +161,9 @@ export class UserpermissionComponent {
     }
   }
   onSubmit(): void {
-    console.log(this.UserPermissionForm.value)
     //  if (this.selection.selected.length > 0) {
     let deviceId: any = []
     //   this.selection.selected.forEach((ele,i) => {
-    // console.log(this.selectuserpermission[i]);
-    // console.log(ele);
     // deviceId.push(ele.id)
     if (this.selection.selected.length > 0) {
       this.selection.selected.forEach((ele: any, index: number)=> {
