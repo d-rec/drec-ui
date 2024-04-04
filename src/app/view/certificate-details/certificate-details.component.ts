@@ -392,7 +392,7 @@ export class CertificateDetailsComponent {
       }, error: err => {
         this.loading = false;
 
-        if (err.error.statusCode === '403') {
+        if (err.error.statusCode === 403) {
           this.toastrService.error('You are Unauthorized')
         } else {
           this.toastrService.error('Error', err.error.message)
