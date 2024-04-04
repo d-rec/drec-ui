@@ -9,25 +9,22 @@ import { getapiuser_header } from '../../utils/apiuser_clientinfo'
 })
 export class ReservationService {
   url: String = environment.API_URL;
-  headersData = getapiuser_header();
+
   constructor(private httpClient: HttpClient) { }
   GetMethod(): Observable<any> {
     return this.httpClient.get(this.url + 'certificate-log/redemption-report')
   }
-  // requestAllOrganizationsBluenumberInfoWithJobId(jobId: string): Observable<any> {
-  //   return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/Job/${jobId}`);
-  // }
+
   AddReservation(data: any, orgId?: number) {
 
     let searchUrl = `${this.url}buyer-reservation`
     if (!(orgId === null || orgId === undefined)) {
       searchUrl += `?orgId=${orgId}`;
     }
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.post<any>(searchUrl, data, { headers })
+
+    return this.httpClient.post<any>(searchUrl, data)
   }
   getReservationData(searchData: any, pagenumber: number): Observable<any> {
-    //    return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/search/paged`, { params: params, observe: 'response' });
     let searchUrl = `${this.url}buyer-reservation/my?pagenumber=` + pagenumber;
 
     if (!(typeof searchData.countryCode === "undefined" || searchData.countryCode === "" || searchData.countryCode === null)) {
@@ -55,27 +52,23 @@ export class ReservationService {
     if (!(typeof searchData.reservationActive === "undefined" || searchData.reservationActive === "" || searchData.reservationActive === null)) {
       searchUrl += `&reservationActive=${searchData.reservationActive}`;
     }
-    // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
-    //   searchUrl += `&GroupId=${searchData.GroupId}`;
-    // }
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get(searchUrl, { headers });
+
+    return this.httpClient.get(searchUrl);
   }
   GetnextissuanceCycleinfo(group_uid: any, pagenumber?: number): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get(this.url + 'buyer-reservation/current-information/' + group_uid + '?pagenumber=' + pagenumber, { headers })
+
+    return this.httpClient.get(this.url + 'buyer-reservation/current-information/' + group_uid + '?pagenumber=' + pagenumber)
   }
   GetMethodById(groupId: any): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get(this.url + 'buyer-reservation/' + groupId, { headers })
+
+    return this.httpClient.get(this.url + 'buyer-reservation/' + groupId)
   }
   public PostAuth(routePath: string, data: any): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.post<any>(this.url + routePath, data, { headers })
+
+    return this.httpClient.post<any>(this.url + routePath, data)
 
   }
   getReservationDataByadmin(searchData: any, pagenumber: number): Observable<any> {
-    //    return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/search/paged`, { params: params, observe: 'response' });
     let searchUrl = `${this.url}buyer-reservation?pagenumber=` + pagenumber;
 
     if (!(typeof searchData.organizationId === "undefined" || searchData.organizationId === "" || searchData.organizationId === null)) {
@@ -106,10 +99,7 @@ export class ReservationService {
     if (!(typeof searchData.reservationActive === "undefined" || searchData.reservationActive === "" || searchData.reservationActive === null)) {
       searchUrl += `&reservationActive=${searchData.reservationActive}`;
     }
-    // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
-    //   searchUrl += `&GroupId=${searchData.GroupId}`;
-    // }
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get(searchUrl, { headers });
+
+    return this.httpClient.get(searchUrl);
   }
 }
