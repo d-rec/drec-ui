@@ -17,9 +17,7 @@ export class CertificateService {
   GetDevoloperCertificateMethod(searchData: any, pagenumber: number): Observable<any> {
     let searchUrl = this.url + 'certificate-log/issuer/certifiedlogOfdevices?pageNumber=' + pagenumber;
     if (searchData != undefined) {
-      // if (!(typeof searchData.pagenumber === undefined || searchData.pagenumber === "" || searchData.pagenumber === null)) {
-      //   searchUrl += `pagenumber=${searchData.pagenumber}`;
-      // }
+  
       if (!(typeof searchData.organizationId === undefined || searchData.organizationId === "" || searchData.organizationId === null || searchData.organizationId === undefined)) {
         searchUrl += `&organizationId=${searchData.organizationId}`;
       }
@@ -32,10 +30,6 @@ export class CertificateService {
         searchUrl += `&fuelCode=${searchData.fuelCode}`;
 
       }
-
-      // if (!(typeof searchData.deviceTypeCode === undefined || searchData.deviceTypeCode === "" || searchData.deviceTypeCode === null)) {
-      //   searchUrl += `&deviceTypeCode=${searchData.deviceTypeCode}`;
-      // }
 
       if (!(typeof searchData.capacity === undefined || searchData.capacity === "" || searchData.capacity === null)) {
         searchUrl += `&capacity=${searchData.capacity}`;
@@ -74,10 +68,7 @@ export class CertificateService {
 
   getcertifiedlogPerDevice(group_uid: string): Observable<any> {
     let searchUrl = this.url + 'certificate-log/expoert_perdevice/' + group_uid;
-    // let headers = new HttpHeaders(this.headersData);
-    // const headers = new HttpHeaders({
-    //   'Content-Type': 'application/json',
-    //   });
+
     return this.httpClient.get(searchUrl, { responseType: 'blob' });
   }
 
