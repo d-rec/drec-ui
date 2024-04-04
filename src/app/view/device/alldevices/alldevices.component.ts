@@ -274,7 +274,7 @@ export class AlldevicesComponent {
   getDeviceListData(page: number) {
 
     this.deviceurl = 'device/my?';
-    //this.FilterForm.controls['pagenumber'].setValue(page);
+    
     this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe({
       next: data => {
         this.showlist = true
@@ -286,8 +286,8 @@ export class AlldevicesComponent {
           this.DisplayList()
         }
       }, error: err => {
-       
-        if (err.error.statusCode === '403') {
+       console.log(err);
+        if (err.error.statusCode === 403) {
           this.toastrService.error('You are Unauthorized')
         }else{
           this.toastrService.error('Error',err.error.message)
@@ -325,10 +325,7 @@ export class AlldevicesComponent {
   UpdateDevice(externalId: any) {
     this.router.navigate(['/device/edit/' + externalId], { queryParams: { fromdevices: true } });
   }
-  // pageChangeEvent(event: PageEvent) {
-  //   this.p = event.pageIndex + 1;
-  //   this.getDeviceListData();
-  // }
+
 
   previousPage(): void {
     if (this.p > 1) {
@@ -380,13 +377,6 @@ export class AlldevicesComponent {
     });
   }
 
-  // openDialog(): void {
-  //   this.dialog.open(DialogAnimationsExampleDialog, {
-  //     width: '250px',
-  //     enterAnimationDuration,
-  //     exitAnimationDuration,
-  //   });
-  // }
   deleteDevice(id: number) {
     this.deviceService.RemoveDevice(id).subscribe((response) => {
       if (response.success) {

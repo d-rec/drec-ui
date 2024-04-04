@@ -8,7 +8,7 @@ import { getapiuser_header } from '../../utils/apiuser_clientinfo'
   providedIn: 'root'
 })
 export class OrganizationService {
-  headersData = getapiuser_header();
+
   constructor(private httpClient:HttpClient) { }
 
 
@@ -28,15 +28,15 @@ export class OrganizationService {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}` ;
       }
     }
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get<IPublicOrganization>(searchUrl,{headers})
+   
+    return this.httpClient.get<IPublicOrganization>(searchUrl)
   }
   public GetOrganizationById(orgId: number): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get<any>(environment.API_URL+ 'Organization/' + orgId,{headers});
+    
+    return this.httpClient.get<any>(environment.API_URL+ 'Organization/' + orgId);
   }
   public GetApiUserAllOrganization(pagenumber?: number, limit?: number, searchData?: any): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
+   
     let searchUrl = `${environment.API_URL}Organization/apiuser/all_organization`;
     if (pagenumber != undefined && limit != undefined) {
       if (!(typeof pagenumber === undefined || pagenumber === null)) {
@@ -48,11 +48,11 @@ export class OrganizationService {
         searchUrl += `&organizationName=${searchData.organizationName}`;
       }
     }
-    return this.httpClient.get<any>(searchUrl,{headers});
+    return this.httpClient.get<any>(searchUrl);
   }
   public removeUser(userId: number): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.delete<any>(environment.API_URL+ 'Organization/user/' + userId,{headers})
+ 
+    return this.httpClient.delete<any>(environment.API_URL+ 'Organization/user/' + userId)
   }
  
 }

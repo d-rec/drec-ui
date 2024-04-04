@@ -198,19 +198,14 @@ export class RegisterComponent implements OnInit {
 
   }
   showPopup(response: any, logininfo: any) {
-    // const dialogRef = this.dialog.open(ApiuserClientReponseComponent, {
-    //   data: response, // Pass the response data to the modal
-    // });
-
-    // dialogRef.afterClosed().subscribe((result) => {
-    //   if (result === 'copy') { this.response.client_id, this.response.client_secret,
+  
     this.authService.login('auth/login', logininfo).subscribe({
       next: (data: any) => {
         if (data["accessToken"] != null) {
           sessionStorage.setItem('access-token', data["accessToken"]);
           let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
           sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-          this.userService.userProfile(this.response.client_id, this.response.client_secret).subscribe({
+          this.userService.userProfile().subscribe({
             next: (data1: any) => {
               sessionStorage.setItem('apiuserId', data1.api_user_id);
               sessionStorage.setItem('status', data1.status);
