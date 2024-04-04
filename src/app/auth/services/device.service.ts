@@ -11,8 +11,7 @@ import { getapiuser_header } from '../../utils/apiuser_clientinfo'
 export class DeviceService {
 
   url: String = environment.API_URL;
-  headersData = getapiuser_header();
-  // headers:HttpHeaders  = new HttpHeaders(this.headersData);
+ 
   constructor(private httpClient: HttpClient) { }
   GetDevicesForAdmin(): Observable<any> {
     return this.httpClient.get(this.url + 'device')
@@ -55,40 +54,35 @@ export class DeviceService {
         searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
       }
     }
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get(searchUrl, { headers });
+   
+    return this.httpClient.get(searchUrl);
 
   }
   GetDevicesInfo(id: number): Observable<Device> {
 
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get<Device>(this.url + 'device/' + id, { headers })
+    return this.httpClient.get<Device>(this.url + 'device/' + id)
   }
-  // GetDevicesInfoByExternalId(ExternalId: any): Observable<Device> {
-  //   return this.httpClient.get<Device>(this.url + 'device/externalId/' + ExternalId)
-  // }
+
   getDeviceInfoBYexternalId(externalid: string): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
+   
     return this.httpClient.get(this.url + 'device/externalId/' + externalid)
   }
   public Postdevices(data: any): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.post<any>(this.url + 'device', data, { headers })
+   
+    return this.httpClient.post<any>(this.url + 'device', data)
 
   }
   public Patchdevices(id: any, data: any): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.patch<any>(this.url + 'device/' + id, data,{ headers })
+   
+    return this.httpClient.patch<any>(this.url + 'device/' + id, data)
 
   }
 
   GetUnreserveDevices(): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get(this.url + 'device/ungrouped/buyerreservation',{headers})
+    return this.httpClient.get(this.url + 'device/ungrouped/buyerreservation')
   }
   getfilterData(searchData: any, pagenumber: number): Observable<any> {
-    //    return this.http.get(`${environment.BlueNumberGlobalAPI}/api/v1/Organization/search/paged`, { params: params, observe: 'response' });
-    let searchUrl = `${this.url}device/ungrouped/buyerreservation?pagenumber=` + pagenumber;
+  let searchUrl = `${this.url}device/ungrouped/buyerreservation?pagenumber=` + pagenumber;
 
     if (!(typeof searchData.countryCode === "undefined" || searchData.countryCode === "" || searchData.countryCode === null)) {
       searchUrl += `&country=${searchData.countryCode}`;
@@ -120,8 +114,8 @@ export class DeviceService {
     if (!(typeof searchData.end_date === "undefined" || searchData.end_date === "" || searchData.end_date === null)) {
       searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
     }
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get(searchUrl,{headers});
+    
+    return this.httpClient.get(searchUrl);
   }
   getcertifieddevicelogdate(groupId: any,pagenumber?: any): Observable<any> {
     let searchUrl = `${this.url}device/certifiedlog/first&lastdate?groupUid=` + groupId;
@@ -129,8 +123,8 @@ export class DeviceService {
     if (!(typeof pagenumber === "undefined" || pagenumber === "" ||pagenumber === null)) {
       searchUrl += `&pagenumber=${pagenumber}`;
     }
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get(searchUrl,{headers})
+   
+    return this.httpClient.get(searchUrl);
    
   }
   GetDeviceAutocomplete(searchInput: StaticRange): Observable<any> {
@@ -140,11 +134,11 @@ export class DeviceService {
   }
   RemoveDevice(id: number): Observable<any> {
     let searchUrl = `${this.url}device/` + id;
-    let headers = new HttpHeaders(this.headersData);
+   
     return this.httpClient.delete(searchUrl);
   }
   addByAdminbulkDevices(organizationId: number, data: any): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    return this.httpClient.post<any>(this.url + 'device/addByAdmin/process-creation-bulk-devices-csv/' + organizationId, data,{headers})
+   
+    return this.httpClient.post<any>(this.url + 'device/addByAdmin/process-creation-bulk-devices-csv/' + organizationId, data)
   }
 }

@@ -16,11 +16,7 @@ export class AuthbaseService {
   }
 
   ApiUserExportAccesskey(routePath: string, api_userid:string) :Observable<any>{
-    // const headers = new HttpHeaders({
 
-    //   "client_id": client_id,
-    //   "client_secret": client_secret
-    // });
     return this.httpClient.get(this.url + routePath+api_userid, { responseType: 'blob' })
   }
 
