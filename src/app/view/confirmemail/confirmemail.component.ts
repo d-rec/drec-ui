@@ -25,14 +25,6 @@ export class ConfirmemailComponent implements OnInit {
   }
 
   ngOnInit() {
-
-    //   this.authService.UserConfirmEmail(accesstoken).subscribe(
-    //     (data2) => {
-    //       // display list in the console 
-
-
-    //     }
-    //   )
   }
   getConfirmemail(accesstoken:any) {
     this.authService.UserConfirmEmail(accesstoken).subscribe({

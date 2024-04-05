@@ -184,8 +184,7 @@ export class CertificateComponent implements OnDestroy {
         },
         error: err => {                      //Error callback
           console.error('error caught in component', err)
-          //.toastrService.error('device id has been updated', 'current external id not found!!');
-
+         
         }
       })
     } else {
@@ -197,8 +196,7 @@ export class CertificateComponent implements OnDestroy {
           },
           error: err => {                              //Error callback
             console.error('error caught in component', err)
-            //.toastrService.error('device id has been updated', 'current external id not found!!');
-
+            
           }
         })
       })
@@ -208,40 +206,19 @@ export class CertificateComponent implements OnDestroy {
   }
 
   getcertifiedlogdaterange(certifiedp: number) {
-    // if (typeof this.devicesId === 'string') {
+   
     this.deviceService.getcertifieddevicelogdate(this.group_uid, certifiedp).subscribe({
       next: data => {
         this.alldevicescertifiedlogdatrange = data.certifieddevices_startToend;
         this.certified_total = data.totalPages;
-        // if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
-        //   this.alldevicescertifiedlogdatrange.push(data)
-        // }
+       
       },
       error: err => {                                //Error callback
         console.error('error caught in component', err)
-        //.toastrService.error('device id has been updated', 'current external id not found!!');
-
+        
       }
     });
-    // } else {
-    //   this.alldevicescertifiedlogdatrange = [];
-    //   this.devicesId.forEach((elemant: any) => {
-    //     this.deviceService.getcertifieddevicelogdate(elemant, this.group_uid).subscribe({
-    //       next: data => {
-
-    //         if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
-    //           this.alldevicescertifiedlogdatrange.push(data)
-    //         }
-    //       },
-    //       error: err => {                               //Error callback
-    //         console.error('error caught in component', err)
-    //         //.toastrService.error('device id has been updated', 'current external id not found!!');
-
-    //       }
-    //     });
-
-    //   })
-    // }
+   
 
   }
   certifiedDevicepreviousPage(): void {
@@ -298,15 +275,13 @@ export class CertificateComponent implements OnDestroy {
       this.dataSource.paginator.firstPage();
     }
   }
-  // CertificateClaimed:boolean=false;
+  
   DisplayList(p: number) {
  
     this.certificateauthService.getcertifiedlogByGooupUid( this.group_uid , p).subscribe({
      next: (data: any) => {
         this.loading = false;
-        // display list in the console 
-
-        // this.data = data;
+       
         //@ts-ignore
         this.data = data.certificatelog.filter(ele => ele !== null)
         this.totalPages = data.totalPages
@@ -316,7 +291,7 @@ export class CertificateComponent implements OnDestroy {
 
           ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
           ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
-          //converting blockchain address to lower case
+         
           if (ele.claims != null && (ele.claims.length > 0)) {
             ele['CertificateClaimed'] = true;
           }

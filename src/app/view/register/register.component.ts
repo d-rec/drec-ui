@@ -130,9 +130,10 @@ export class RegisterComponent implements OnInit {
           this.response = data;
           this.authService.ApiUserExportAccesskey('user/export-accesskey/', this.response.api_user_id).subscribe({
             next: data => {
-              const blob = new Blob([data], { type: 'text/csv' });
+              if(data){
+                this.showPopup(this.response, loginobj);
+                const blob = new Blob([data], { type: 'text/csv' });
               const url = window.URL.createObjectURL(blob);
-             // const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
               const a = document.createElement('a');
               a.href = url;
               a.download = `${this.response.api_user_id}.pem`; // Replace with the desired file name
@@ -141,7 +142,7 @@ export class RegisterComponent implements OnInit {
               document.body.removeChild(a);
               window.URL.revokeObjectURL(url);//
               this.toastrService.success('Access Key downloaded successfully' ,'Please keep it confidential');
-              this.showPopup(this.response, loginobj);
+              }  
             }
           })
 
@@ -198,7 +199,7 @@ export class RegisterComponent implements OnInit {
 
   }
   showPopup(response: any, logininfo: any) {
-  
+  console.log(logininfo)
     this.authService.login('auth/login', logininfo).subscribe({
       next: (data: any) => {
         if (data["accessToken"] != null) {

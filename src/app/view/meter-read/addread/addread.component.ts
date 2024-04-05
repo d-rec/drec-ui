@@ -225,11 +225,10 @@ export class AddreadComponent implements OnInit {
 
   }
   search() {
-    // const input = this.readForm.controls['externalId'].value;
-    //if (input && input != '') {
+   
     if (this.loginuser.role === 'Admin') {
       const deviceurl = 'device?';
-      //this.adminService.GetDeviceAutocomplete(input, this.orgId).subscribe(
+      
       this.deviceservice.GetMyDevices(deviceurl, { organizationId: this.orgId }).subscribe(
         (response) => {
           this.autocompleteResults = response;
@@ -251,21 +250,9 @@ export class AddreadComponent implements OnInit {
         }
       );
     }
-    // } else {
-    //   this.autocompleteResults = [];
-    //  this.showerrorexternalid=true;
-    //   this.timezonedata = [];
-    //   this.readForm.controls['externalId'].setValue(null);
-    //   this.readForm.controls['timezone'].setValue(null);
-    //   this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
-    //     startWith(''),
-    //     map(value => this._filter(value || '')),
-    //   );
-    // }
+   
   }
-  // displayFn(result: any): string {
-  //   return result ? result.label : '';
-  // }
+ 
   lastreadvalue: number;
   lastreaddate: any;
   onSelect(result: any): void {
@@ -343,44 +330,7 @@ export class AddreadComponent implements OnInit {
       }
     )
   }
-  // TimeZoneList() {
-  //   this.authService.GetMethod('meter-reads/time-zones').subscribe(
-  //     (data) => {
-  //       // display list in the console 
-  //       this.timezonedata = data;
-  //     }
-  //   )
-  // }
-
-  // ExternaIdonChangeEvent(event: any) {
-  //   this.addreads.reset();
-  //   this.readForm.controls['type'].setValue(null)
-  //   this.devicecreateddate = event.createdAt;
-  //   this.commissioningDate = event.commissioningDate;
-
-  //   this.historyAge = new Date(this.devicecreateddate);
-  //   this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
-  //   //@ts-ignore
-  //   this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == event.countryCode)?.timezones;
-
-  //   this.readForm.controls['timezone'].setValue(null);
-  //   this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
-  //     startWith(''),
-  //     map(value => this._filter(value || '')),
-  //   );
-
-  //   this.readService.Getlastread(event.externalId).subscribe({
-  //     next: data => {
-
-  //         this.lastreaddate = data.enddate;
-  //       this.lastreadvalue = data.value;
-  //     },
-  //     error: err => {                      //Error callback
-  //       console.error('error caught in component', err)
-  //     }
-  //   })
-
-  // }
+ 
   onChangeEvent(event: any) {
     if (event === 'Delta' || event === 'Aggregate') {
       this.endmaxdate = new Date();

@@ -187,7 +187,6 @@ export class AddBulkDeviceComponent implements OnInit {
     this.loading = true;
     this.uploadService.getCsvJobList().subscribe(
       (data) => {
-        // display list in the console 
         this.loading = false;
         this.data = data;
         this.dataSource = new MatTableDataSource(this.data.csvJobs);

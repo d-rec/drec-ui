@@ -148,7 +148,7 @@ export class MyreservationComponent implements OnInit {
   DisplayfuelList() {
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data) => {
-        // display list in the console 
+        
         this.fuellist = data;
       }
     )
@@ -157,7 +157,7 @@ export class MyreservationComponent implements OnInit {
 
     this.authService.GetMethod('device/device-type').subscribe(
       (data) => {
-        // display list in the console 
+        
 
         this.devicetypelist = data;
       }

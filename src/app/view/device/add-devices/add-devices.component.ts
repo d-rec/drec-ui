@@ -176,7 +176,7 @@ export class AddDevicesComponent {
 
     this.authService.GetMethod('countrycode/list').subscribe(
       (data) => {
-        // display list in the console 
+        
         this.countrylist = data;
 
       }
@@ -186,7 +186,7 @@ export class AddDevicesComponent {
 
     this.authService.GetMethod('sdgbenefit/code').subscribe(
       (data) => {
-        // display list in the console 
+        
 
         this.sdgblist = data;
 
@@ -197,7 +197,7 @@ export class AddDevicesComponent {
 
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data) => {
-        // display list in the console 
+        
 
         this.fuellist = data;
 
@@ -208,7 +208,7 @@ export class AddDevicesComponent {
 
     this.authService.GetMethod('device/device-type').subscribe(
       (data) => {
-        // display list in the console 
+        
 
         this.devicetypelist = data;
 

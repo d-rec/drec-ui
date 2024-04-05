@@ -158,7 +158,7 @@ export class EditDeviceComponent implements OnInit {
 
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data3) => {
-        // display list in the console 
+        
 
         this.fuellist = data3;
 
@@ -169,7 +169,7 @@ export class EditDeviceComponent implements OnInit {
 
     this.authService.GetMethod('device/device-type').subscribe(
       (data4) => {
-        // display list in the console 
+        
 
         this.devicetypelist = data4;
 

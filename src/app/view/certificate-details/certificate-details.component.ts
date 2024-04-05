@@ -100,9 +100,7 @@ export class CertificateDetailsComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-      // fromAmountread: [null],
-      // toAmountread: [null],
-      // pagenumber: [this.p]
+      
     });
 
   }
@@ -116,15 +114,12 @@ export class CertificateDetailsComponent {
     }
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
-        // display list in the console
+        
         this.fuellist = data1;
-        // this.fuellistLoaded = true;
       });
     this.authService.GetMethod('device/device-type').subscribe(
       (data2) => {
-        // display list in the console
         this.devicetypelist = data2;
-        // this.devicetypeLoded = true;
       }
     );
     this.authService.GetMethod('countrycode/list').subscribe(
