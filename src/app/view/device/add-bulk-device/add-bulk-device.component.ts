@@ -196,10 +196,10 @@ export class AddBulkDeviceComponent implements OnInit {
       }
     )
   }
-  DisplayDeviceLogList(jobid: number,orgId:number) {
+  DisplayDeviceLogList(jobid: number) {
     this.showdevicesinfo = true;
     this.DevicestatusList = [];
-    this.uploadService.getJobStatus(jobid,orgId).subscribe(
+    this.uploadService.getJobStatus(jobid).subscribe(
       (data) => {
         this.data = data.errorDetails.log.errorDetails;
         this.dataSource1 = new MatTableDataSource(this.data);
