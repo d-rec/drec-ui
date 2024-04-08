@@ -73,7 +73,6 @@ export class ApiuserPermissionFormComponent {
     return numSelected === numRows;
   }
   masterToggle() {
-    console.log("131")
     this.isAllSelected() ?
       this.selection.clear() :
       this.dataSource.data.forEach(row => this.selection.select(row));

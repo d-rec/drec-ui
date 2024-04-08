@@ -8,7 +8,7 @@ import { getapiuser_header } from '../../utils/apiuser_clientinfo'
 })
 export class FileuploadService {
   private baseUrl = environment.API_URL;
-  headersData = getapiuser_header();
+
   constructor(private http: HttpClient) {}
 
   upload(file: File): Observable<HttpEvent<any>> {
@@ -36,8 +36,8 @@ export class FileuploadService {
     return this.http.post<any>(this.baseUrl+'buyer-reservation/process-creation-bulk-devices-csv', data)
   }
   getCsvJobList(): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
-    return this.http.get(`${this.baseUrl}buyer-reservation/bulk-upload/get-all-csv-jobs-of-organization`,{headers});
+   
+    return this.http.get(`${this.baseUrl}buyer-reservation/bulk-upload/get-all-csv-jobs-of-organization`);
   }
   getJobStatus(id:number,orgId?:number): Observable<any> {
    

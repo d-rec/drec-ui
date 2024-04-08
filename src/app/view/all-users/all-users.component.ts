@@ -51,6 +51,7 @@ export class AllUsersComponent {
   filteredOptions: Observable<any[]>;
   subscription: Subscription;
   showerror: boolean = false;
+  apiuserId: string;
   constructor(private authService: AuthbaseService,
     private orgService: OrganizationService,
     private adminService: AdminService,
@@ -60,6 +61,7 @@ export class AllUsersComponent {
     private activatedRoute: ActivatedRoute,
     private toastrService: ToastrService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+    this.apiuserId = (sessionStorage.getItem('apiuserId')!);
     if (this.activatedRoute.snapshot.params['id']) {
       this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
       this.showorg = true;
@@ -88,9 +90,11 @@ export class AllUsersComponent {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          this.orglist = data.organizations
+        this.orglist = data.organizations.filter((org: {
+          api_user_id: string; organizationType: string; 
+        }) => org.api_user_id == this.apiuserId);
       
-        })
+      });
     } else if (this.loginuser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
@@ -218,7 +222,6 @@ export class AllUsersComponent {
         this.totalPages = this.data.totalPages
 
       }, error: err => {
-        console.log(err)
         if (err.error.statusCode === 403) {
           this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
         } else {
@@ -241,7 +244,6 @@ export class AllUsersComponent {
         this.totalRows = this.data.totalCount
         this.totalPages = this.data.totalPages
       }, error: err => {
-        console.log(err)
         if (err.error.statusCode === 403) {
           this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
         } else {
@@ -345,7 +347,6 @@ export class AllUsersComponent {
       }
 
     }, (err) => {
-      console.log(err)
       this.toastrService.error(err.error.message, 'Failure')
     })
 
@@ -362,7 +363,6 @@ export class AllUsersComponent {
         this.toastrService.error(response.message, 'Failure')
       }
     }, (err) => {
-      console.log(err)
       this.toastrService.error(err.error.message, 'Failure')
     })
 

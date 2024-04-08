@@ -145,7 +145,7 @@ export class AddReservationComponent {
         this.countrycodeLoded = true;
       }
     )
-    console.log("myreservation");
+  
     setTimeout(() => {
       if (this.countrycodeLoded) {
         this.applycountryFilter();
@@ -249,7 +249,6 @@ export class AddReservationComponent {
       const config: MatBottomSheetConfig = { data: requestreaddata };
       this.bottomSheetRef = this.bottomSheet.open(MeterReadTableComponent, config);
       this.bottomSheetRef.afterOpened().subscribe(() => {
-        console.log('Bottom sheet is open.');
       });
       this.bottomSheetRef.afterDismissed().subscribe(data => {
       });
@@ -357,7 +356,6 @@ export class AddReservationComponent {
 
 
   openpopupDialog(reservationForm: any) {
-    console.log("reservationForm");
     this.dialogRef = this.dialog.open(this.popupDialog,
       { data: this.reservationbollean, height: '300px', width: '500px' });
     this.dialogRef.afterClosed().subscribe((result: any) => {
@@ -405,7 +403,6 @@ export class AddReservationComponent {
   }
 
   // pageChangeEvent(event: PageEvent) {
-  //   console.log(event);
   //   this.p = event.pageIndex + 1;
   //   this.displayList();
   // }

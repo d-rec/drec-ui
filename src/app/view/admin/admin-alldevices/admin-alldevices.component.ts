@@ -70,12 +70,14 @@ export class AdminAlldevicesComponent {
   showlist: boolean = false;
   orglist: any;
   showapiuser_devices: boolean = false;
+  apiuserId: string;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService, private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
     private dialog: MatDialog,
     private toastrService: ToastrService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+    this.apiuserId = (sessionStorage.getItem('apiuserId')!); 
     this.FilterForm = this.formBuilder.group({
       organizationname: [],
       organizationId: [],
@@ -99,7 +101,7 @@ export class AdminAlldevicesComponent {
     this.adminService.GetAllOrganization().subscribe(
       (data) => {
         //@ts-ignore
-        this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+        this.orglist = data.organizations.filter(org => org.organizationType == "Developer" && org.api_user_id ==this.apiuserId);
       })
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
@@ -126,8 +128,6 @@ export class AdminAlldevicesComponent {
         this.sdgblist = data;
       }
     )
-
-    console.log("myreservation");
     setTimeout(() => {
       if (this.countrycodeLoded) {
         this.applycountryFilter();
@@ -144,13 +144,6 @@ export class AdminAlldevicesComponent {
     }
   }
 
-  // checkFormValidity(): void {
-  //   console.log("115");
-  //   const formValues = this.FilterForm.value;
-  //   console.log(formValues)
-  //   this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
-
-  // }
 
   applyorgFilter() {
     this.FilterForm.controls['organizationname'];
@@ -286,24 +279,6 @@ export class AdminAlldevicesComponent {
 
     this.deviceurl = 'device?';
 
-    //this.FilterForm.controls['pagenumber'].setValue(page);
-    // this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe(
-    //   (data) => {
-    //     console.log(data)
-    //     this.showlist = true
-    //     //@ts-ignore
-    //     if (data.devices) {
-    //       this.loading = false;
-    //       //@ts-ignore
-    //       this.data = data;
-    //       this.DisplayList()
-    //     }
-    //   }, error => {
-    //     console.log(error);
-    //     this.data = [];
-    //     this.showlist = false
-    //   }
-    // )
     this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe({
       next: data => {
         this.showlist = true
@@ -351,9 +326,7 @@ export class AdminAlldevicesComponent {
     this.router.navigate(['/device/edit/' + externalId], { queryParams: { fromdevices: true } });
   }
   // pageChangeEvent(event: PageEvent) {
-  //   console.log(event);
   //   this.p = event.pageIndex + 1;
-
   //   this.getDeviceListData();
   // }
 
@@ -370,19 +343,7 @@ export class AdminAlldevicesComponent {
       this.getDeviceListData(this.p);;
     }
   }
-  // showPrompt(deviceId:number): void {
-  //   const dialogRef = this.dialog.open(DeviceDetailsComponent, {
-  //     width: '500px',
-  //     height: '400px',
-  //   });
 
-  //   dialogRef.afterClosed().subscribe((data) => {
-  //     this.dataFromDialog = data.form;
-  //     if (data.clicked === 'submit') {
-  //       console.log('Sumbit button clicked');
-  //     }
-  //   });
-  // }
   alertDialog(deviceId: number): void {
     const dialogRef = this.dialog.open(DeviceDetailsComponent, {
       data: {

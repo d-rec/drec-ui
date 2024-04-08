@@ -128,7 +128,6 @@ export class AlldevicesComponent {
       }
     )
 
-    console.log("myreservation");
     setTimeout(() => {
       if (this.countrycodeLoded) {
 
@@ -202,8 +201,6 @@ export class AlldevicesComponent {
       if (isUserInteraction) {
         const countryValue = formValues.countryname;
         if (countryValue === undefined || countryValue === '') {
-
-          console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
 
@@ -277,7 +274,7 @@ export class AlldevicesComponent {
   getDeviceListData(page: number) {
 
     this.deviceurl = 'device/my?';
-    //this.FilterForm.controls['pagenumber'].setValue(page);
+    
     this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe({
       next: data => {
         this.showlist = true
@@ -289,8 +286,8 @@ export class AlldevicesComponent {
           this.DisplayList()
         }
       }, error: err => {
-       
-        if (err.error.statusCode === '403') {
+       console.log(err);
+        if (err.error.statusCode === 403) {
           this.toastrService.error('You are Unauthorized')
         }else{
           this.toastrService.error('Error',err.error.message)
@@ -328,12 +325,7 @@ export class AlldevicesComponent {
   UpdateDevice(externalId: any) {
     this.router.navigate(['/device/edit/' + externalId], { queryParams: { fromdevices: true } });
   }
-  // pageChangeEvent(event: PageEvent) {
-  //   console.log(event);
-  //   this.p = event.pageIndex + 1;
 
-  //   this.getDeviceListData();
-  // }
 
   previousPage(): void {
     if (this.p > 1) {
@@ -357,7 +349,6 @@ export class AlldevicesComponent {
   //   dialogRef.afterClosed().subscribe((data) => {
   //     this.dataFromDialog = data.form;
   //     if (data.clicked === 'submit') {
-  //       console.log('Sumbit button clicked');
   //     }
   //   });
   // }
@@ -386,13 +377,6 @@ export class AlldevicesComponent {
     });
   }
 
-  // openDialog(): void {
-  //   this.dialog.open(DialogAnimationsExampleDialog, {
-  //     width: '250px',
-  //     enterAnimationDuration,
-  //     exitAnimationDuration,
-  //   });
-  // }
   deleteDevice(id: number) {
     this.deviceService.RemoveDevice(id).subscribe((response) => {
       if (response.success) {

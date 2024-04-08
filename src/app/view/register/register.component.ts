@@ -84,11 +84,9 @@ export class RegisterComponent implements OnInit {
       this.registerForm.get('password')?.hasError('requirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' : '';
   }
   checkconfirmPassword(control: any) {
-    // console.log(this.registerForm.value)
 
     let enteredPassword = control.value;;
     let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
-    // console.log(this.registerForm.value.password);
     //this.registerForm.value.password = this.registerForm.value.password?:'';
     return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'Confirmrequirements': true } :
       (!enteredPassword && enteredPassword) ? { 'matchrequirements': true } : null;
@@ -122,7 +120,6 @@ export class RegisterComponent implements OnInit {
   }
   response: any
   onSubmit(): void {
-    console.log("registerForm")
     this.authService.PostAuth('user/register', this.registerForm.value).subscribe({
       next: data => {
         const loginobj = {
@@ -168,7 +165,6 @@ export class RegisterComponent implements OnInit {
                 }
                 this.toastrService.success('login user ' + jwtObj.email + '!', 'login Success');
               } else {
-                console.log("check your credentials !!")
                 this.toastrService.info('Message Failure!', 'check your credentials !!');
                 this.router.navigate(['/login']);
               }
@@ -202,19 +198,14 @@ export class RegisterComponent implements OnInit {
 
   }
   showPopup(response: any, logininfo: any) {
-    // const dialogRef = this.dialog.open(ApiuserClientReponseComponent, {
-    //   data: response, // Pass the response data to the modal
-    // });
-
-    // dialogRef.afterClosed().subscribe((result) => {
-    //   if (result === 'copy') { this.response.client_id, this.response.client_secret,
+  
     this.authService.login('auth/login', logininfo).subscribe({
       next: (data: any) => {
         if (data["accessToken"] != null) {
           sessionStorage.setItem('access-token', data["accessToken"]);
           let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
           sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-          this.userService.userProfile(this.response.client_id, this.response.client_secret).subscribe({
+          this.userService.userProfile().subscribe({
             next: (data1: any) => {
               sessionStorage.setItem('apiuserId', data1.api_user_id);
               sessionStorage.setItem('status', data1.status);
@@ -225,7 +216,6 @@ export class RegisterComponent implements OnInit {
             }
           })
         } else {
-          console.log("check your credentials !!")
           this.toastrService.info('Message Failure!', 'Check your credentials !!');
           this.router.navigate(['/login']);
         }
