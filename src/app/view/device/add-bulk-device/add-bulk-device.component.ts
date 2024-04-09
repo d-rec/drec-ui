@@ -205,7 +205,6 @@ export class AddBulkDeviceComponent implements OnInit {
       (data) => {
 
         this.data = data.errorDetails.log.errorDetails;
-        
         this.dataSource1 = new MatTableDataSource(this.data);
         this.dataSource1.paginator = this.paginator
 
