@@ -205,14 +205,13 @@ export class AddBulkDeviceComponent implements OnInit {
       (data) => {
 
         this.data = data.errorDetails.log.errorDetails;
-        //this.data=data;
+        
         this.dataSource1 = new MatTableDataSource(this.data);
         this.dataSource1.paginator = this.paginator
 
       })
 
 
-      
   }
 
   UpdateDevice(externalId: any) {

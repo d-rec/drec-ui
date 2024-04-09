@@ -39,7 +39,6 @@ export class FileuploadService {
    
     return this.http.get(`${this.baseUrl}buyer-reservation/bulk-upload/get-all-csv-jobs-of-organization`);
   }
-  
   getJobStatus(id:number): Observable<any> {
     
     return this.http.get(`${this.baseUrl}buyer-reservation/bulk-upload-status/`+id);
