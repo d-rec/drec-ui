@@ -8,7 +8,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 
-import { DeviceService, AdminService,OrganizationService } from '../../../auth/services'
+import { DeviceService, AdminService, OrganizationService } from '../../../auth/services'
 import { Router, ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-add-bulk-device',
@@ -64,15 +64,15 @@ export class AddBulkDeviceComponent implements OnInit {
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-   
+
           this.filteredOrgList = this.orglist;
         })
-    }else if (this.loginuser.role === 'ApiUser') {
+    } else if (this.loginuser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-        
+
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
         }
@@ -105,7 +105,6 @@ export class AddBulkDeviceComponent implements OnInit {
       this.currentFile = file;
       this.fileName = this.currentFile.name;
       if (!this.fileName.endsWith('.csv')) {
-        //throw new Error("file not found");
         this.fileName = 'Invalid file';
         this.currentFile = null;
       }
@@ -128,45 +127,42 @@ export class AddBulkDeviceComponent implements OnInit {
         (event: any) => {
           let obj: any = {};
           obj['fileName'] = event[0];
-          if (this.loginuser.role === 'Admin'||this.loginuser.role === 'ApiUser') {
+          if (this.loginuser.role === 'Admin' || this.loginuser.role === 'ApiUser') {
             this.deviceService.addByAdminbulkDevices(this.orgId, obj).subscribe({
               next: (data: any) => {
                 this.JobDisplayList();
-                // this.selectFile()
-                // this.readForm.reset();
                 this.currentFile = null;
                 this.fileName = 'Please click here to Select File';
                 this.toastrService.success('Successfully!', 'Devices Uploaded in Bulk!!');
               },
               error: (err) => {                          //Error callback
                 console.error('error caught in component', err)
-                this.toastrService.error('error!', err.error.message);
+                if (err.error.statusCode === 403) {
+                  this.toastrService.error('You are Unauthorized')
+                } else {
+                  this.toastrService.error('error!', err.error.message);
+                }
+
               }
             });
           } else {
             this.uploadService.addbulkDevices(obj).subscribe({
               next: (data: any) => {
                 this.JobDisplayList();
-                // this.selectFile()
-                // this.readForm.reset();
                 this.currentFile = null;
                 this.fileName = 'Please click here to Select File';
                 this.toastrService.success('Successful', 'Devices uploaded in bulk');
               },
               error: (err) => {                          //Error callback
                 console.error('error caught in component', err)
-                this.toastrService.error('error!', err.error.message);
+                if (err.error.statusCode === 403) {
+                  this.toastrService.error('You are Unauthorized')
+                } else {
+                  this.toastrService.error('error!', err.error.message);
+                }
               }
             });
           }
-
-          // if (event.type === HttpEventType.UploadProgress) {
-          //   this.progress = Math.round((100 * event.loaded) / event.total);
-          // } else if (event instanceof HttpResponse) {
-          //   this.message = event.body.message;
-
-
-          // }
         },
         (err: any) => {
           this.progress = 0;
@@ -196,23 +192,15 @@ export class AddBulkDeviceComponent implements OnInit {
       }
     )
   }
-  DisplayDeviceLogList(jobid: number) {
-
+  DisplayDeviceLogList(jobid: number, orgId: number) {
     this.showdevicesinfo = true;
     this.DevicestatusList = [];
-
-    this.uploadService.getJobStatus(jobid).subscribe(
+    this.uploadService.getJobStatus(jobid, orgId).subscribe(
       (data) => {
-
         this.data = data.errorDetails.log.errorDetails;
-        // this.data = data;
         this.dataSource1 = new MatTableDataSource(this.data);
         this.dataSource1.paginator = this.paginator
-
       })
-
-
-
   }
 
   UpdateDevice(externalId: any) {
