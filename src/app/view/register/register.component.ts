@@ -144,11 +144,7 @@ export class RegisterComponent implements OnInit {
               this.toastrService.success('Access Key downloaded successfully' ,'Please keep it confidential');
              
                 this.showPopup(this.response, loginobj)
-<<<<<<< Updated upstream
-              }, 5000)
-=======
               }, 6000)
->>>>>>> Stashed changes
              
             }
           })
