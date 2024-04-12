@@ -130,6 +130,7 @@ export class RegisterComponent implements OnInit {
           this.response = data;
           this.authService.ApiUserExportAccesskey('user/export-accesskey/', this.response.api_user_id).subscribe({
             next: data => {
+              setTimeout(() => {
               const blob = new Blob([data], { type: 'text/csv' });
               const url = window.URL.createObjectURL(blob);
              // const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -141,9 +142,13 @@ export class RegisterComponent implements OnInit {
               document.body.removeChild(a);
               window.URL.revokeObjectURL(url);//
               this.toastrService.success('Access Key downloaded successfully' ,'Please keep it confidential');
-              setTimeout(() => {
+             
                 this.showPopup(this.response, loginobj)
+<<<<<<< Updated upstream
               }, 5000)
+=======
+              }, 6000)
+>>>>>>> Stashed changes
              
             }
           })
