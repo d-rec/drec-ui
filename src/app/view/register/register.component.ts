@@ -143,7 +143,7 @@ export class RegisterComponent implements OnInit {
               this.toastrService.success('Access Key downloaded successfully' ,'Please keep it confidential');
               setTimeout(() => {
                 this.showPopup(this.response, loginobj)
-              }, 5000)
+              }, 15000)
              
             }
           })
