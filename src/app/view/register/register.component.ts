@@ -141,7 +141,10 @@ export class RegisterComponent implements OnInit {
               document.body.removeChild(a);
               window.URL.revokeObjectURL(url);//
               this.toastrService.success('Access Key downloaded successfully' ,'Please keep it confidential');
-              this.showPopup(this.response, loginobj);
+              setTimeout(() => {
+                this.showPopup(this.response, loginobj)
+              }, 5000)
+             
             }
           })
 

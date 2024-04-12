@@ -358,8 +358,10 @@ export class AddDevicesComponent {
           console.error('error caught in component', err.error.message)
           if (err.error.statusCode === 403) {
             this.toastrService.error('You are Unauthorized')
+          }else{
+            this.toastrService.error('some error occurred due to ' + err.error.message, 'Device!' + element.externalId,);
           }
-          this.toastrService.error('some error occurred due to ' + err.error.message, 'Device!' + element.externalId,);
+          
         }
       });
     })
