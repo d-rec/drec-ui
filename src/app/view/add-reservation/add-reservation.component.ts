@@ -83,7 +83,7 @@ export class AddReservationComponent {
     this.reservationForm = this.formBuilder.group({
       name: [null, Validators.required],
       deviceIds: [Validators.required],
-      targetCapacityInMegaWattHour: [null],
+      targetCapacityInMegaWattHour: [null, Validators.required],
       reservationStartDate: [null, Validators.required],
       reservationEndDate: [null, Validators.required],
       reservationExpiryDate: [null],
