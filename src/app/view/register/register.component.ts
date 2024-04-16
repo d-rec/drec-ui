@@ -130,9 +130,8 @@ export class RegisterComponent implements OnInit {
           this.response = data;
           this.authService.ApiUserExportAccesskey('user/export-accesskey/', this.response.api_user_id).subscribe({
             next: data => {
-              if(data){
-                this.showPopup(this.response, loginobj);
-                const blob = new Blob([data], { type: 'text/csv' });
+              setTimeout(() => {
+              const blob = new Blob([data], { type: 'text/csv' });
               const url = window.URL.createObjectURL(blob);
               const a = document.createElement('a');
               a.href = url;
@@ -142,7 +141,10 @@ export class RegisterComponent implements OnInit {
               document.body.removeChild(a);
               window.URL.revokeObjectURL(url);//
               this.toastrService.success('Access Key downloaded successfully' ,'Please keep it confidential');
-              }  
+             
+                this.showPopup(this.response, loginobj)
+              }, 6000)
+             
             }
           })
 
