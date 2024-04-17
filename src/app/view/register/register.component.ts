@@ -29,7 +29,7 @@ export class RegisterComponent implements OnInit {
   hide = true;
   hide1 = true;
   matchconfirm: boolean = false;
-
+  showPopup: boolean = false;
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   constructor(private authService: AuthbaseService, private _formBuilder: FormBuilder,
     private toastrService: ToastrService, private router: Router, private dialog: MatDialog,
@@ -128,33 +128,19 @@ export class RegisterComponent implements OnInit {
         }
         if (this.registerForm.value.organizationType === "ApiUser") {
           this.response = data;
+          this.toastrService.success('User Register Successfull');
+          this.showPopup = true;
           this.authService.ApiUserExportAccesskey('user/export-accesskey/', this.response.api_user_id).subscribe({
-            next: data => {
-              setTimeout(() => {
-              const blob = new Blob([data], { type: 'text/csv' });
-              const url = window.URL.createObjectURL(blob);
-             // const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `${this.response.api_user_id}.pem`; // Replace with the desired file name
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              window.URL.revokeObjectURL(url);//
-              this.toastrService.success('Access Key downloaded successfully' ,'Please keep it confidential');
-             
-                this.showPopup(this.response, loginobj)
-              }, 6000)
-             
+            next: keydata => { 
+              setTimeout(() => {            
+                this.showkeypopup(keydata, loginobj)
+              }, 5000)
+
             }
           })
-
-          this.toastrService.success('User Register Successfull');
         } else {
-
           this.authService.login('auth/login', loginobj).subscribe({
             next: data => {
-
               if (data["accessToken"] != null) {
                 sessionStorage.setItem('access-token', data["accessToken"]);
                 let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
@@ -198,11 +184,28 @@ export class RegisterComponent implements OnInit {
         this.toastrService.error('error!', err.error.message);
       }
     });
-    // formDirective.resetForm();
 
   }
-  showPopup(response: any, logininfo: any) {
-  
+  showkeypopup(ketdata: any, logininfo: any) {
+    
+    setTimeout(() => {
+      const blob = new Blob([ketdata], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${this.response.api_user_id}.pem`; // Replace with the desired file name
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);//
+      // this.toastrService.success('Access Key downloaded successfully' ,'Please keep it confidential');
+      this.showPopup = false;
+      this.loginapiuser(logininfo)
+    }, 5000);
+
+
+  }
+  loginapiuser(logininfo: any) {
     this.authService.login('auth/login', logininfo).subscribe({
       next: (data: any) => {
         if (data["accessToken"] != null) {
@@ -231,17 +234,5 @@ export class RegisterComponent implements OnInit {
       }
     }
     )
-
-    // this.copyToClipboard();
-    // }
-    // });
   }
-  // copyToClipboard() {
-  //   const textArea = document.createElement('textarea');
-  //   textArea.value = this.response.responseText; // Replace this with your actual response text
-  //   document.body.appendChild(textArea);
-  //   textArea.select();
-  //   document.execCommand('copy');
-  //   document.body.removeChild(textArea);
-  // }
 }
