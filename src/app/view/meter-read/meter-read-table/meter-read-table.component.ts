@@ -48,9 +48,9 @@ export class MeterReadTableComponent implements OnInit {
   ) {
   }
   ngOnInit() {
-    console.log(this.data);
+   
     if (this.data != null) {
-    console.log("53", this.data);
+   
     this.showname = true;
     this.FilterForm = this.formBuilder.group({
       exterenalId: [this.data.rexternalid, Validators.required],
@@ -59,7 +59,7 @@ export class MeterReadTableComponent implements OnInit {
       pagenumber: [this.p]
     });
     this.exterenalId = this.data.rexternalid;
-    console.log(this.exterenalId);
+   
     if (this.exterenalId != undefined) {
       this.getPagedData();
     }
@@ -71,7 +71,7 @@ export class MeterReadTableComponent implements OnInit {
   start(FilterForm: any, exterenalId: any, filter: boolean) {
 
     this.exterenalId = exterenalId
-    console.log(FilterForm)
+ 
     this.FilterForm = FilterForm
     this.filter = filter;
     if (filter) {
@@ -83,16 +83,11 @@ export class MeterReadTableComponent implements OnInit {
 
   getPagedData() {
 
-    console.log(this.exterenalId);
     this.FilterForm.controls['pagenumber'].setValue(this.p);
-    // if (this.loginuser.role === 'ApiUser') {
-    //   myobj['organizationId'] = this.orgId
-    // }
+    
     this.service.GetRead(this.exterenalId, this.FilterForm.value)
       .subscribe((response: any) => {
         this.filter = true;
-        console.log(response)
-
         this.readdata = response;
         this.readdata.historyread.forEach((element: any) => {
 
@@ -108,7 +103,7 @@ export class MeterReadTableComponent implements OnInit {
         this.totalRows = this.readdata.numberOfReads
 
         this.currentPage = this.readdata.currentPageNumber;
-        console.log(this.currentPage)
+      
         this.device_timezone = this.readdata.timezone;
         this.loading = false;
       },
@@ -123,7 +118,7 @@ export class MeterReadTableComponent implements OnInit {
   }
 
   pageChangeEvent(event: PageEvent) {
-    console.log(event);
+   
     this.p = event.pageIndex + 1;
 
     this.getPagedData();

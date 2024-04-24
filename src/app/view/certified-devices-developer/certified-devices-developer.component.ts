@@ -124,29 +124,22 @@ export class CertifiedDevicesDeveloperComponent {
   ngOnInit() {
 
     this.energyurl = environment.Explorer_URL + '/block/';
-    console.log("myreservation");
 
     this.authService.GetMethod('device/fuel-type').subscribe(
       (data1) => {
-        // display list in the console
         this.fuellist = data1;
         // this.fuellistLoaded = true;
       });
     this.authService.GetMethod('device/device-type').subscribe(
       (data2) => {
-        // display list in the console
         this.devicetypelist = data2;
-        // this.devicetypeLoded = true;
       }
     );
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3) => {
-        // display list in the console
-        // console.log(data)
         this.countrylist = data3;
         this.countrycodeLoded = true;
         this.applycountryFilter();
-        // this.DisplayList(this.p);
       }
     )
     this.authService.GetMethod('sdgbenefit/code').subscribe(
@@ -164,7 +157,6 @@ export class CertifiedDevicesDeveloperComponent {
     this.getBlockchainProperties();
 
     this.selectAccountAddressFromMetamask();
-    console.log("drt46")
 
   }
   // formatLabel(value: number): string {
@@ -180,7 +172,6 @@ export class CertifiedDevicesDeveloperComponent {
     }
   }
   onEndChangeEvent(event: any) {
-    console.log(event);
     this.endminDate = event;
   }
   applycountryFilter() {
@@ -226,21 +217,17 @@ export class CertifiedDevicesDeveloperComponent {
   isAnyFieldFilled: boolean = false;
 
   // checkFormValidity(): void {
-  //   console.log("115");
   //   const formValues = this.FilterForm.value;
   //   this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
-  //   console.log(this.isAnyFieldFilled);
   // }
   // onstartreadChangeEvent(event: Event): void {
   //   const inputElement = event.target as HTMLInputElement;
   //   const value = inputElement.value;
-  //   console.log('Start Value Changed:', value);
   //   // Additional logic here
   //   this.FilterForm.controls['fromAmountread'].setValue(value);
   //   this.checkFormValidity();
   // }
   // onendreadChangeEvent(event: Event) {
-  //   console.log(event);
   //   const inputElement = event.target as HTMLInputElement;
   //   const value = inputElement.value;
   //   //this.endminDate = event;
@@ -250,9 +237,6 @@ export class CertifiedDevicesDeveloperComponent {
   onSliderChange(event: any): void {
     const startValue = this.startThumb.nativeElement.value;
     const endValue = this.endThumb.nativeElement.value;
-    console.log('Start Value:', startValue);
-    console.log('End Value:', endValue);
-
     // Additional logic here
   }
   formatLabel(value: number): string {
@@ -333,7 +317,6 @@ export class CertifiedDevicesDeveloperComponent {
   }
   // CertificateClaimed:boolean=false;
   DisplayList(page: number) {
-    console.log("certifed list")
 
     this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value, page).subscribe(
       (data: any) => {
@@ -383,7 +366,6 @@ export class CertifiedDevicesDeveloperComponent {
           this.obs = this.dataSource.connect();
           this.totalRows = data.totalCount;
           this.totalPages = data.totalPages;
-          console.log(this.totalRows);
         } else {
           this.data = [];
           this.dataSource = new MatTableDataSource(this.data);
@@ -391,7 +373,6 @@ export class CertifiedDevicesDeveloperComponent {
         }
 
       }, errors => {
-        console.log(errors)
         this.data = [];
       }
 
@@ -457,7 +438,6 @@ export class CertifiedDevicesDeveloperComponent {
     }
   }
   pageChangeEvent(event: PageEvent) {
-    console.log(event);
     this.p = event.pageIndex + 1;
     this.DisplayList(this.p);
   }

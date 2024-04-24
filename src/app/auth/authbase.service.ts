@@ -15,13 +15,9 @@ export class AuthbaseService {
     return this.httpClient.post<any>(this.url + routePath, data)
   }
 
-  ApiUserlogin(routePath: string, client_id: string, client_secret: string, data: any) {
-    const headers = new HttpHeaders({
+  ApiUserExportAccesskey(routePath: string, api_userid:string) :Observable<any>{
 
-      "client_id": client_id,
-      "client_secret": client_secret
-    });
-    return this.httpClient.post<any>(this.url + routePath, data,{ headers })
+    return this.httpClient.get(this.url + routePath+api_userid, { responseType: 'blob' })
   }
 
 
@@ -32,6 +28,11 @@ export class AuthbaseService {
 
   GetMethod(routePath: string) {
     return this.httpClient.get(this.url + routePath)
+  }
+
+  logout(routePath: string) {
+
+    return this.httpClient.post<any>(this.url + routePath,{})
   }
 
   isLoggedIn(): boolean {

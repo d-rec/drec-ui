@@ -33,7 +33,7 @@ export class AppComponent {
         const accounts = await this.getWindowEthereumProperty().request({
           method: "eth_requestAccounts",
         });
-        console.log(accounts);
+        
       } catch (err) {
 
       }

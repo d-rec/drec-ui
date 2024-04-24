@@ -23,17 +23,17 @@ export class UserAcceptInvitationComponent {
     private toastrService: ToastrService, private activatedRoute: ActivatedRoute) {
 
     this.activatedRoute.queryParams.subscribe(params => {
-      console.log(params)
+     
       if (params['email'] != undefined) {
         this.accesstoken = params['token'];
         this.invitaionId = params['invitaionId'];
         this.useremail = params['email'];
-        console.log(this.accesstoken);
+       
         this.fromregister = false;
         //this.getConfirmemail(this.accesstoken)
         sessionStorage.setItem('access-token', this.accesstoken);
         let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(this.accesstoken.split('.')[1])));
-        console.log(jwtObj);
+     
       }
     });
 
@@ -55,8 +55,6 @@ export class UserAcceptInvitationComponent {
     return base64Payload;
   }
   acceptinvitaion() {
-    //let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(this.accesstoken.split('.')[1])));
-    //console.log(jwtObj);
     let useronj = {
       email: this.useremail,
       status: 'Accepted'
@@ -64,12 +62,9 @@ export class UserAcceptInvitationComponent {
     this.inviteService.acceptinvitaion(this.invitaionId, useronj).subscribe({
       next: data => {
         if (data.success) {
-
           this.toastrService.success('Successful!', 'Invitation Accepted !!');
-
           this.router.navigate(['/login']);
         }
-
       }, error: err => {
         this.toastrService.warning('Message Failure!', err.error.message);
         this.router.navigate(['/login']);

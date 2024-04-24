@@ -59,11 +59,9 @@ export class EditDeviceComponent implements OnInit {
     this.activatedRoute.queryParams.subscribe(params => {
       if (params['fromdevices'] != undefined) {
         this.frommydevice = params['fromdevices'];
-        console.log(this.frommydevice);
       }
       if (params['frombulk'] != undefined) {
         this.frombulk = params['frombulk'];
-        console.log(this.frombulk);
       }
     });
     this.externalid = this.activatedRoute.snapshot.params['id'];
@@ -106,7 +104,7 @@ export class EditDeviceComponent implements OnInit {
     this.addmoredetals = false;
     this.showaddmore = true;
     this.shownomore = false;
-    this.updatedeviceform.valueChanges.subscribe(console.log);
+    this.updatedeviceform.valueChanges.subscribe()
     setTimeout(() => {
       this.updatedeviceform.controls['countryCode'];
       this.filteredCountryList = this.updatedeviceform.controls['countryCode'].valueChanges.pipe(
@@ -145,21 +143,14 @@ export class EditDeviceComponent implements OnInit {
 
     this.authService.GetMethod('countrycode/list').subscribe(
       (data1) => {
-        // display list in the console 
-        console.log(data1)
         this.countrylist = data1;
-
       }
     )
   }
   DisplaySDGBList() {
-
     this.authService.GetMethod('sdgbenefit/code').subscribe(
       (data2) => {
-        // display list in the console 
-        console.log(data2)
         this.sdgblist = data2;
-
       }
     )
   }
@@ -195,7 +186,6 @@ export class EditDeviceComponent implements OnInit {
     this.shownewExternalidInput = false;
     this.updatedeviceform.value.externalId = this.externalId;
     this.showcancelicon = false;
-    console.log(this.updatedeviceform);
   }
   addmore() {
     this.addmoredetals = true;
@@ -208,7 +198,6 @@ export class EditDeviceComponent implements OnInit {
     this.shownomore = false;
   }
   showenergycapacity_input(event: any) {
-    console.log(event)
     if (event) {
       this.showinput = true;
     } else {
@@ -218,7 +207,6 @@ export class EditDeviceComponent implements OnInit {
   getDeviceinfo() {
     this.deviceService.getDeviceInfoBYexternalId(this.externalid).subscribe(
       (data) => {
-        console.log(data);
         this.id = data.id;
         this.externalId = data.externalId;
         this.status = data.status;
@@ -236,7 +224,7 @@ export class EditDeviceComponent implements OnInit {
             //@ts-ignore
             let foundEle = this.sdgblist.find(ele => ele.value.toLowerCase() === sdgbname.toString().toLowerCase());
             data.SDGBenefits[index] = foundEle.name
-            console.log(data.SDGBenefits);
+          
           });
         this.SDGBenefits = data.SDGBenefits;
         this.commissioningDate = data.commissioningDate;
@@ -251,7 +239,6 @@ export class EditDeviceComponent implements OnInit {
           this.energyStorage = false;
         }
 
-        console.log(this.energyStorage);
         this.energyStorageCapacity = data.energyStorageCapacity;
 
 
@@ -259,18 +246,14 @@ export class EditDeviceComponent implements OnInit {
 
   }
   onSubmit() {
-
-    console.log(this.updatedeviceform);
     if (this.updatedeviceform.value.externalId === null) {
       this.updatedeviceform.removeControl('externalId');
     }
-    console.log(this.updatedeviceform);
     //@ts-ignore
     const selectedCountry = this.countrylist.find(option => option.country === this.updatedeviceform.value.countryCode);
     this.updatedeviceform.value['countryCode'] = selectedCountry.alpha3;
     this.deviceService.Patchdevices(this.externalid, this.updatedeviceform.value).subscribe({
       next: (data: any) => {
-        console.log(data)
         // this.deviceForms.reset();
         this.toastrService.success('Updated Successfully !!', 'Device! ' + data.externalId);
         this.router.navigate(['device/AllList']);

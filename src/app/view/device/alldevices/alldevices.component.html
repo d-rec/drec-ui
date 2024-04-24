@@ -44,7 +44,7 @@
                 </mat-form-field> -->
 
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Select Organization*</mat-label>
+                  <mat-label class="text-capitalize">Select Organization</mat-label>
                   <input type="text" aria-label="text" matInput formControlName="organizationname" [matAutocomplete]="auto1"
                     (ngModelChange)="checkFormValidity()">
                   <mat-autocomplete #auto1="matAutocomplete" (optionSelected)="selectorg($event)">
