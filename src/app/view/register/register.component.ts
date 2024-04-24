@@ -134,7 +134,7 @@ export class RegisterComponent implements OnInit {
             next: keydata => { 
               setTimeout(() => {            
                 this.showkeypopup(keydata, loginobj)
-              }, 5000)
+              }, 1000)
 
             }
           })
