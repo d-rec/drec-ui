@@ -53,6 +53,7 @@ export class AllMetereadsComponent implements OnInit {
   showerror: boolean;
   filteredexternalIdOptions: Observable<any[]>;
   devicelist: any = [];
+  apiuserId: string;
   constructor(private service: MeterReadService, private formBuilder: FormBuilder,
     private deviceservice: DeviceService,
     private adminService: AdminService,
@@ -61,8 +62,7 @@ export class AllMetereadsComponent implements OnInit {
   ) {
 
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-
-    console.log(this.loginuser.role)
+    this.apiuserId = (sessionStorage.getItem('apiuserId')!);  
   }
 
   ngOnInit() {
@@ -71,7 +71,7 @@ export class AllMetereadsComponent implements OnInit {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
           //@ts-ignore
-          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+          this.orglist = data.organizations.filter(org => org.organizationType == "Developer" && org.api_user_id ==this.apiuserId);
           this.filteredOrgList = this.orglist;
         })
     } else if (this.loginuser.role === 'ApiUser') {
@@ -79,7 +79,7 @@ export class AllMetereadsComponent implements OnInit {
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-          console.log(this.orglist)
+
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
           // Once data is loaded, call any other functions that depend on it
@@ -112,7 +112,6 @@ export class AllMetereadsComponent implements OnInit {
     }, 2000);
   }
   filterOrgList() {
-    console.log("99")
     this.filteredOrgList = this.orglist.filter((org: any) => {
 
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
@@ -122,8 +121,6 @@ export class AllMetereadsComponent implements OnInit {
     });
   }
   selectOrg(event: any) {
-    console.log(event)
-
     //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
@@ -146,14 +143,13 @@ export class AllMetereadsComponent implements OnInit {
     const deviceurl = 'device?OrganizationId=' + orgid;
     this.deviceservice.GetMyDevices(deviceurl).subscribe({
       next: data => {
-        console.log(data)
         this.devicelist = data.devices
         this.FilterForm.controls['externalId'];
         this.filteredexternalIdOptions = this.FilterForm.controls['externalId'].valueChanges.pipe(
           startWith(''),
           map(value => this._externalIdfilterbyAdmin(value || '')),
         );
-        console.log(this.filteredexternalIdOptions);
+   
 
       }
     })
@@ -164,22 +160,19 @@ export class AllMetereadsComponent implements OnInit {
       const FilterForm = { organizationId: this.orgId }
       this.deviceservice.GetMyDevices(deviceurl, FilterForm).subscribe({
         next: data => {
-          console.log(data)
           this.devicelist = data.devices;
           this.FilterForm.controls['externalId'];
           this.filteredexternalIdOptions = this.FilterForm.controls['externalId'].valueChanges.pipe(
             startWith(''),
             map(value => this._externalIdfilter(value || '')),
           );
-          console.log(this.filteredexternalIdOptions);
-
+        
         }
       })
     } else {
       const deviceurl = 'device/my';
       this.deviceservice.GetMyDevices(deviceurl).subscribe({
         next: data => {
-          console.log(data)
           this.devicelist = data;
         }
       })
@@ -187,18 +180,14 @@ export class AllMetereadsComponent implements OnInit {
   }
 
   _externalIdfilter(value: string): string[] {
-    console.log(typeof value)
+ 
     let filterValue:any;
     if(typeof value ==='string'){
       filterValue = value.toLowerCase();
     }else{
-      console.log(value)
       //@ts-ignore
       filterValue = value.externalId.toLowerCase();
     }
-    
-    //  console.log(filterValue)
-    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
       this.showerrorexternalid = true;
@@ -212,11 +201,9 @@ export class AllMetereadsComponent implements OnInit {
   }
 
   _externalIdfilterbyAdmin(value: any): string[] {
-    console.log(typeof value)
+   
     const filterValue = value.toLowerCase();
-    //  console.log(filterValue)
-    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
-    if ((!(this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+   if ((!(this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
       this.showerrorexternalid = true;
     } else {
@@ -258,16 +245,13 @@ export class AllMetereadsComponent implements OnInit {
     }
   }
   displayFn(result: any): string {
-    console.log(result)
+
     return result;
   }
   lastreadvalue: number;
   lastreaddate: any;
   // onSelect(result: any): void {
-  //   console.log(result)
   //   this.selectedResult = result;
-  //   console.log(this.selectedResult);
-  //   console.log(result);
   //   this.FilterForm.controls['externalId'].setValue(result.externalId);
   //   if(this.loginuser.role==='Admin'){
   //     this.externalId = result.id;
@@ -278,9 +262,7 @@ export class AllMetereadsComponent implements OnInit {
   // }
   onSelect(result: any): void {
     this.selectedResult = result;
-    console.log(this.selectedResult);
-    console.log(result);
-
+  
     if (this.loginuser.role === 'Admin') {
       this.FilterForm.controls['externalId'].setValue(result.developerExternalId);
       this.externalId = result.id;
@@ -314,7 +296,7 @@ export class AllMetereadsComponent implements OnInit {
     if (this.loginuser.role === 'Buyer') {
       this.deviceservice.GetUnreserveDevices().subscribe(
         (data) => {
-          // display list in the console 
+          
           this.devicedata = data;
         }
       )
@@ -322,14 +304,14 @@ export class AllMetereadsComponent implements OnInit {
       const deviceurl = 'device/my';
       this.deviceservice.GetMyDevices(deviceurl).subscribe(
         (data) => {
-          // display list in the console 
+        
           this.devicedata = data;
         }
       )
     } else {
       this.deviceservice.GetDevicesForAdmin().subscribe(
         (data) => {
-          // display list in the console 
+          
           this.devicedata = data;
         }
       )
@@ -337,22 +319,21 @@ export class AllMetereadsComponent implements OnInit {
 
   }
   onEndChangeEvent(event: any) {
-    console.log(event);
+   
     this.endminDate = event;
   }
   getPagedData() {
     this.filter = true;
-    console.log(this.externalId);
+    
     this.FilterForm.controls['pagenumber'].setValue(this.p);
     if (this.loginuser.role === 'ApiUser') {
       this.FilterForm.controls['organizationId'].setValue(this.orgId);
     }
-    console.log(this.FilterForm)
     this.counterComponent.start(this.FilterForm, this.externalId, this.filter);
   }
 
   pageChangeEvent(event: PageEvent) {
-    console.log(event);
+ 
     this.p = event.pageIndex + 1;
     this.getPagedData();
   }

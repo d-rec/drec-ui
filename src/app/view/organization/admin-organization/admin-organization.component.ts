@@ -67,13 +67,7 @@ export class AdminOrganizationComponent {
     private orgService: OrganizationService) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.activatedRoute.queryParams.subscribe(params => {
-      console.log(params)
-      // if (params['token'] != undefined) {
-      //   this.accesstoken =params['token'];
-      //   console.log(this.accesstoken);
-      //   this.fromregister = false;
-      //   this.getConfirmemail(this.accesstoken)
-      // }
+  
     });
 
     this.FilterForm = this.formBuilder.group({
@@ -87,25 +81,19 @@ export class AdminOrganizationComponent {
           //@ts-ignore
           this.orglist =data.organizations.filter(org => org.organizationType != "ApiUser");
           this.orglistload = true;
-          console.log(this.orglist)
-
-
+     
         });
     } else if (this.loginuser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
           this.orglist = data.organizations
           this.orglistload = true;
-          console.log(this.orglist)
-
-
+  
         });
     }
 
 
     setTimeout(() => {
-      console.log("93")
-
       this.loading = false;
       if (this.loginuser.role === 'Admin') {
         this.getAllOrganization(this.p);
@@ -114,7 +102,6 @@ export class AdminOrganizationComponent {
         this.getApiuserAllOrganization(this.p);
       }
 
-      console.log(this.orglistload);
       if (this.orglistload) {
         this.applyorgFilter();
       }
@@ -128,7 +115,6 @@ export class AdminOrganizationComponent {
     }
   }
   applyorgFilter() {
-    console.log("105")
     this.FilterForm.controls['organizationName'];
     this.filteredOptions = this.FilterForm.controls['organizationName'].valueChanges.pipe(
       startWith(''),
@@ -137,8 +123,7 @@ export class AdminOrganizationComponent {
   }
 
   private _filter(value: any): string[] {
-    console.log(value);
-    console.log(this.orglist)
+ 
     const filterValue = value.toLowerCase();
     if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
@@ -153,8 +138,7 @@ export class AdminOrganizationComponent {
   }
 
   selectOrg(event: any) {
-    console.log(event)
-
+   
     this.subscription = this.filteredOptions.subscribe(options => {
 
       const selectedorg = options.find(option => option.name === event.option.value);
@@ -176,21 +160,20 @@ export class AdminOrganizationComponent {
     const limit = 20;
     this.adminService.GetAllOrganization(page, limit, this.FilterForm.value).subscribe(
       (data) => {
-        console.log(data)
+   
         this.showlist = true
         this.loading = false;
         //@ts-ignore
         this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-        console.log(this.data);
+    
         //@ts-ignore
         this.dataSource = new MatTableDataSource(this.data.organizations.filter(org => org.organizationType != "ApiUser"));
         this.totalRows = this.data.totalCount
-        console.log(this.totalRows);
+    
         this.totalPages = this.data.totalPages
         // this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       }, error => {
-        console.log(error);
         this.data = [];
         this.showlist = false
       }
@@ -201,20 +184,19 @@ export class AdminOrganizationComponent {
     const limit = 20;
     this.orgService.GetApiUserAllOrganization(page, limit, this.FilterForm.value).subscribe(
       (data) => {
-        console.log(data)
+     
         this.showlist = true
         this.loading = false;
         //@ts-ignore
         this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-        console.log(this.data);
+      
         this.dataSource = new MatTableDataSource(this.data.organizations);
         this.totalRows = this.data.totalCount
-        console.log(this.totalRows);
+       
         this.totalPages = this.data.totalPages
         // this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       }, error => {
-        console.log(error);
         this.data = [];
         this.showlist = false
       }
