@@ -83,7 +83,7 @@ export class AddReservationComponent {
     this.reservationForm = this.formBuilder.group({
       name: [null, Validators.required],
       deviceIds: [Validators.required],
-      targetCapacityInMegaWattHour: [null],
+      targetCapacityInMegaWattHour: [null, Validators.required],
       reservationStartDate: [null, Validators.required],
       reservationEndDate: [null, Validators.required],
       reservationExpiryDate: [null],
@@ -116,7 +116,6 @@ export class AddReservationComponent {
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Developer");
-          console.log(this.orglist)
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
         }
@@ -146,9 +145,7 @@ export class AddReservationComponent {
         this.countrycodeLoded = true;
       }
     )
-    // this.getcountryListData();
-
-    console.log("myreservation");
+  
     setTimeout(() => {
       if (this.countrycodeLoded) {
         this.applycountryFilter();
@@ -163,7 +160,6 @@ export class AddReservationComponent {
     }
   }
   filterOrgList() {
-    console.log("99")
     this.filteredOrgList = this.orglist.filter((org: any) => {
 
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
@@ -173,8 +169,6 @@ export class AddReservationComponent {
     });
   }
   selectOrg(event: any) {
-    console.log(event)
-
     //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
@@ -218,7 +212,6 @@ export class AddReservationComponent {
         const countryValue = formValues.countryname;
 
         if (countryValue === undefined || countryValue === '') {
-          console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
 
@@ -239,7 +232,6 @@ export class AddReservationComponent {
         // Other code...
       }
     });
-    console.log(this.FilterForm.value)
     setTimeout(() => {
       const updatedFormValues = this.FilterForm.value;
       const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
@@ -257,10 +249,8 @@ export class AddReservationComponent {
       const config: MatBottomSheetConfig = { data: requestreaddata };
       this.bottomSheetRef = this.bottomSheet.open(MeterReadTableComponent, config);
       this.bottomSheetRef.afterOpened().subscribe(() => {
-        console.log('Bottom sheet is open.');
       });
       this.bottomSheetRef.afterDismissed().subscribe(data => {
-        console.log('Return value: ', data);
       });
     } else {
       this.toastrService.error('Validation!', 'Please add start and end date');
@@ -279,29 +269,24 @@ export class AddReservationComponent {
   }
 
   isAllSelected() {
-    console.log("125")
-    console.log(this.selection.selected);
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSource.data.length;
     return numSelected === numRows;
   }
   masterToggle() {
-    console.log("131")
     this.isAllSelected() ?
       this.selection.clear() :
       this.dataSource.data.forEach(row => this.selection.select(row));
   }
   onEndChangeEvent(event: any) {
-    console.log(event);
     this.endminDate = event;
   }
   expiryminDate= new Date();
   onExpiryEvent(event: any) {
-    console.log(event);
+ 
     this.expiryminDate = event;
   }
   onfilterEndChangeEvent(event: any) {
-    console.log(event);
     this.filterendminDate = event;
   }
   // getcountryListData() {
@@ -312,13 +297,10 @@ export class AddReservationComponent {
   applyFilter() {
     this.loading = true;
     this.p = 1;
-    console.log(this.p);
     this.displayList(this.p);
   }
   displayList(page: number) {
-    // this.data=this.selection.selected;
-    console.log(this.FilterForm.value);
-    console.log(this.p);
+   
     //  this.FilterForm.controls['pagenumber'].setValue(page);
     this.deviceservice.getfilterData(this.FilterForm.value, page).subscribe(
       (data) => {
@@ -339,7 +321,6 @@ export class AddReservationComponent {
         }
 
         this.data = data.devices;
-        console.log(this.data)
         //@ts-ignore
         this.data.forEach(ele => {
           //@ts-ignore
@@ -349,10 +330,8 @@ export class AddReservationComponent {
           //@ts-ignore
           ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
         })
-        console.log(this.data)
         this.dataSource = new MatTableDataSource(this.data);
         this.totalRows = data.totalCount
-        console.log(this.totalRows);
         this.totalPages = data.totalPages
         //this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
@@ -361,7 +340,6 @@ export class AddReservationComponent {
     )
   }
   onSubmit(): void {
-    console.log(this.reservationForm.value)
 
     if (this.selection.selected.length > 0) {
 
@@ -370,7 +348,6 @@ export class AddReservationComponent {
         deviceId.push(ele.id)
       })
       this.reservationForm.controls['deviceIds'].setValue(deviceId)
-      console.log(this.reservationForm);
       this.openpopupDialog(this.reservationForm)
     } else {
       this.toastrService.error('Please select at least one device', 'Validation Error!');
@@ -379,10 +356,8 @@ export class AddReservationComponent {
 
 
   openpopupDialog(reservationForm: any) {
-    console.log("reservationForm");
     this.dialogRef = this.dialog.open(this.popupDialog,
       { data: this.reservationbollean, height: '300px', width: '500px' });
-    console.log(this.reservationForm)
     this.dialogRef.afterClosed().subscribe((result: any) => {
       this.onContinue(result);
     });
@@ -391,10 +366,8 @@ export class AddReservationComponent {
     this.reservationForm.controls['continueWithReservationIfOneOrMoreDevicesUnavailableForReservation'].setValue(result.continewwithunavilableonedevice);
     this.reservationForm.controls['continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'].setValue(result.continueWithTCLessDTC);
     if (this.loginuser?.role === 'ApiUser') {
-      console.log("orgId",this.orgId)
       this.reservationService.AddReservation(this.reservationForm.value,this.orgId).subscribe({
         next: data => {
-          console.log(data)
           this.reservationForm.reset();
           this.selection.clear();
           this.FilterForm.reset();
@@ -412,7 +385,6 @@ export class AddReservationComponent {
     else {
       this.reservationService.AddReservation( this.reservationForm.value).subscribe({
         next: data => {
-          console.log(data)
           this.reservationForm.reset();
           this.selection.clear();
           this.FilterForm.reset();
@@ -431,7 +403,6 @@ export class AddReservationComponent {
   }
 
   // pageChangeEvent(event: PageEvent) {
-  //   console.log(event);
   //   this.p = event.pageIndex + 1;
   //   this.displayList();
   // }

@@ -9,34 +9,30 @@ import { getapiuser_header } from '../../utils/apiuser_clientinfo'
 })
 export class MeterReadService {
   url: String = environment.API_URL;
-  headersData = getapiuser_header();
+ 
   constructor(private httpClient: HttpClient) { }
   GetMethod(): Observable<any> {
     return this.httpClient.get(this.url + 'certificate-log/redemption-report')
   }
   PostRead(exterenalId: string, data: any): Observable<any> {
-    let headers: HttpHeaders;
-    headers = new HttpHeaders(this.headersData);
+   
     let addUrl = `${this.url}meter-reads/new/` + exterenalId;
    
-    return this.httpClient.post<any>(addUrl, data,{headers})
+    return this.httpClient.post<any>(addUrl, data)
 
   }
   PostReadByAdmin(exterenalId: string, data: any, orgId?: number): Observable<any> {
-    let headers: HttpHeaders;
-    headers = new HttpHeaders(this.headersData);
+   
     let addUrl = `${this.url}meter-reads/addByAdmin/new/` + exterenalId;
     if (orgId != undefined) {
       addUrl += `?organizationId=${orgId}`;
     }
-    return this.httpClient.post<any>(addUrl, data,{headers})
+    return this.httpClient.post<any>(addUrl, data)
 
   }
   GetRead(exterenalId: string, data: any): Observable<any> {
-    console.log(data)
-    let headers: HttpHeaders;
-    headers = new HttpHeaders(this.headersData);
-    // return this.httpClient.get<any>(this.url + 'meter-reads/new/'+exterenalId+'? data)
+    
+    
     let searchUrl = `${this.url}meter-reads/new/` + exterenalId + `?readType=meterReads&`;
 
     if (!(typeof data.start === "undefined" || data.start === "" || data.start === null|| data.start === undefined)) {
@@ -57,14 +53,10 @@ export class MeterReadService {
       searchUrl += `&pagenumber=${data.pagenumber}`;
     }
 
-    // if (!(typeof searchData.GroupId === "undefined" || searchData.GroupId === "")) {
-    //   searchUrl += `&GroupId=${searchData.GroupId}`;
-    // }
-    return this.httpClient.get(searchUrl,{headers});
+    return this.httpClient.get(searchUrl);
   }
   Getlastread(exterenalId: string): Observable<any> {
-    let headers: HttpHeaders;
-    headers = new HttpHeaders(this.headersData);
-    return this.httpClient.get(this.url + 'meter-reads/latestread/' + exterenalId,{headers})
+  
+    return this.httpClient.get(this.url + 'meter-reads/latestread/' + exterenalId)
   }
 }

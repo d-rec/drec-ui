@@ -107,17 +107,16 @@
     </mat-card-header>
 
     <mat-card-content>
-      <div class="example-form px-2">
+      <!-- <div class="example-form px-2">
         Login Type:
         <mat-radio-group [(ngModel)]="selectedOption">
           <mat-radio-button value="Form1">Developer Or Buyer</mat-radio-button>
-          <!-- <mat-radio-button value="Buyer">Buyer</mat-radio-button> -->
+         
           <mat-radio-button value="Form2">ApiUser</mat-radio-button>
 
         </mat-radio-group>
-      </div>
-      <form class="example-form px-3" [formGroup]="loginForm" (ngSubmit)="onSubmit()"
-        *ngIf="selectedOption === 'Form1'">
+      </div> -->
+      <form class="example-form px-3" [formGroup]="loginForm">
 
         <mat-form-field class="example-full-width">
           <mat-label class="mat-labels-cont">Username</mat-label>
@@ -125,68 +124,20 @@
         </mat-form-field>
         <mat-form-field class="example-full-width">
           <mat-label class="mat-labels-cont">Password</mat-label>
-          <input matInput type="password" formControlName="password" required>
+          <input matInput [type]="hide ? 'password' : 'text'" formControlName="password" required>
+          <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hide" class="icon-eye">
+            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
         </mat-form-field>
 
 
         <div class="p-3">
-          <button type="submit" class="btn-primary btn   btn-block">Login</button>
+          <button type="submit" class="btn-primary btn   btn-block" (click)="onSubmit()">Login</button>
         </div>
 
       </form>
-      <mat-stepper *ngIf="selectedOption === 'Form2'" class="example-form px-3">
-        <mat-step label="Client Info">
-          <form>
-            <!-- <ng-template matStepLabel></ng-template> -->
-            <ng-template matStepContent>
-              <mat-form-field class="example-full-width">
-                <mat-label class="mat-labels-cont">Client Id </mat-label>
-                <input autofocus type="text" matInput [(ngModel)]="clientid" [ngModelOptions]="{standalone: true}">
-
-              </mat-form-field>
-
-              <mat-form-field class="example-full-width">
-                <mat-label class="mat-labels-cont">Client Secret</mat-label>
-                <input autofocus type="text" matInput [(ngModel)]="client_secret" [ngModelOptions]="{standalone: true}">
-
-              </mat-form-field>
-
-              <div class="d-flex justify-content-end mt-2">
-                <button mat-button matStepperNext class="btn-primary btn   btn-block">Next</button>
-                <!-- <button type="submit" class="btn-primary btn   btn-block">Login</button> -->
-              </div>
-            </ng-template>
-
-
-          </form>
-        </mat-step>
-        <mat-step label="User Info">
-          <form [formGroup]="loginForm">
-            <!-- <ng-template matStepLabel></ng-template> -->
-            <ng-template matStepContent>
-
-              <mat-form-field class="example-full-width">
-                <mat-label class="mat-labels-cont">Username</mat-label>
-                <input matInput formControlName="username" required>
-              </mat-form-field>
-              <mat-form-field class="example-full-width">
-                <mat-label class="mat-labels-cont">Password</mat-label>
-                <input matInput type="password" formControlName="password" required>
-              </mat-form-field>
-
-              <div class="d-flex mt-2">
-                <button mat-button matStepperPrevious
-                  class="btn-primary btn btn-content-back me-2  btn-block">Back</button>
-                <button mat-button matStepperNext class="btn-primary btn  ms-2   btn-block"
-                  [disabled]="loginForm.invalid" (click)="onSubmit()">Submit</button>
-              </div>
-            </ng-template>
-          </form>
-
-        </mat-step>
-
-      </mat-stepper>
-
+     
     </mat-card-content>
 
     <div class="d-flex justify-content-between mb-2 px-3">

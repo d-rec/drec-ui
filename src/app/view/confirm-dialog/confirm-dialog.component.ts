@@ -68,11 +68,7 @@ export class ConfirmDialogComponent {
   onUpdateorgadminrole() {
     if (this.showchangeform) {
       this.organizationService.changeOrguserRole(this.user.organization.id, this.user.id, this.roleForm.value).subscribe((data) => {
-        console.log(data);
-
-        //this.toastrService.success("User Updated", "Successfully")
-        // this.dialogRef.close;
-
+     
       })
     }
 
