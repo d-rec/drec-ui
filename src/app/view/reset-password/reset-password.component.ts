@@ -44,12 +44,6 @@ export class ResetPasswordComponent {
         this.accesstoken = params['token'];
         this.email = params['email'];
         this.role = params['role']
-      
-        if (this.role === "ApiUser") {
-          (this.resetpasswordForm as any).addControl('clientid', new FormControl());
-          (this.resetpasswordForm as any).addControl('client_secret', new FormControl());
-          
-        }
         this.fromregister = false;
         // this.getConfirmemail(this.accesstoken)
       }
