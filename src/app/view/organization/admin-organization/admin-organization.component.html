@@ -24,19 +24,6 @@
               <h3 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize">Filter Organization list By
                 Select Organization</h3>
               <div class="example-container1 row">
-                <!-- <div class="col-md-3">
-
-                  <mat-form-field appearance="outline">
-                    <mat-label class="text-capitalize">Organization</mat-label>
-  
-                    <mat-select formControlName="organizationName">
-  
-                      <mat-option *ngFor="let code of orglist" [value]="code.name">
-                        {{code.name}}
-                      </mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div> -->
   
                 <div class="col-md-3">
                   <mat-form-field appearance="outline">
@@ -53,6 +40,7 @@
                   </mat-form-field>
                   <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid organization name</mat-error>
                 </div>
+                
                 <div class="col-md-12 mb-3  d-flex ">
                   <div class="">
                     <button class="btn-primary me-2 btn text-capitalize px-4" (click)="getAllOrganization(1)">Filter</button>

@@ -18,8 +18,7 @@ export class InformationComponent {
   }
   ngOnInit() {
     this.orgService.getOrganizationInformation().subscribe((data) => {
-      console.log('org', data)
-      
+    
       this.orgdetails = data;
       this.orgname=this.orgdetails.name;
       this.organizationType=this.orgdetails.organizationType;

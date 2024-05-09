@@ -109,7 +109,6 @@ export class CertificateDetailsComponent {
   ngOnInit() {
 
     this.energyurl = environment.Explorer_URL + '/block/';
-    console.log("myreservation");
     if (this.loginuser.role === 'ApiUser') {
       this.FilterForm.addControl('organizationname', this.formBuilder.control(''));
       this.FilterForm.addControl('organizationId', this.formBuilder.control(''));
@@ -130,8 +129,6 @@ export class CertificateDetailsComponent {
     );
     this.authService.GetMethod('countrycode/list').subscribe(
       (data3) => {
-        // display list in the console
-        // console.log(data)
         this.countrylist = data3;
         this.countrycodeLoded = true;
       }
@@ -152,7 +149,6 @@ export class CertificateDetailsComponent {
     }, 1500);
     this.getBlockchainProperties();
     this.selectAccountAddressFromMetamask();
-    console.log("drt46")
 
   }
   ngOnDestroy() {
@@ -162,7 +158,6 @@ export class CertificateDetailsComponent {
   }
 
   showorglist(event: any) {
-    console.log(event)
     //this.filteredOrgList=[];
     this.orgService.GetApiUserAllOrganization().subscribe(
       (data) => {
@@ -175,7 +170,6 @@ export class CertificateDetailsComponent {
           this.orglist = data.organizations.filter(org => org.organizationType != "Developer");
           this.applyorgFilter();
         }
-        console.log(this.orglist)
       }
     );
 
@@ -200,9 +194,7 @@ export class CertificateDetailsComponent {
 
   }
   selectorg(event: any) {
-    console.log(event)
-
-    this.subscription = this.filteredOrgList.subscribe(options => {
+     this.subscription = this.filteredOrgList.subscribe(options => {
 
       const selectedorg = options.find(option => option.name === event.option.value);
       if (selectedorg) {
@@ -211,7 +203,6 @@ export class CertificateDetailsComponent {
     });
   }
   onEndChangeEvent(event: any) {
-    console.log(event);
     this.endminDate = event;
   }
   applycountryFilter() {
@@ -234,10 +225,9 @@ export class CertificateDetailsComponent {
   }
 
   selectCountry(event: any) {
-    console.log(event)
     this.subscription = this.filteredOptions.subscribe(options => {
       const selectedCountry = options.find((option: any) => option.country === event.option.value);
-      console.log(selectedCountry)
+     
       if (selectedCountry) {
         this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
       }
@@ -269,9 +259,7 @@ export class CertificateDetailsComponent {
           this.FilterForm.controls['organizationId'].setValue(null);
         }
         const countryValue = formValues.countryname;
-        console.log(countryValue)
         if (countryValue === undefined || countryValue === '') {
-          console.log('234')
           this.FilterForm.controls['countryname'].setValue(null);
           this.FilterForm.controls['countryCode'].setValue(null);
 
@@ -283,10 +271,6 @@ export class CertificateDetailsComponent {
         if (formValues.offTaker[0] === undefined) {
           this.FilterForm.controls['offTaker'].setValue(null);
         }
-        // console.log(formValues.deviceTypeCode);
-        // if (formValues.deviceTypeCode === undefined) {
-        //   this.FilterForm.controls['deviceTypeCode'].setValue(null);
-        // }
         if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
           this.FilterForm.controls['SDGBenefits'].setValue(null);
         }
@@ -309,13 +293,11 @@ export class CertificateDetailsComponent {
   onstartreadChangeEvent(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     const value = inputElement.value;
-    console.log('Start Value Changed:', value);
     // Additional logic here
     this.FilterForm.controls['fromAmountread'].setValue(value);
     this.checkFormValidity();
   }
   onendreadChangeEvent(event: Event) {
-    console.log(event);
     const inputElement = event.target as HTMLInputElement;
     const value = inputElement.value;
     //this.endminDate = event;
@@ -325,10 +307,6 @@ export class CertificateDetailsComponent {
   onSliderChange(event: any): void {
     const startValue = this.startThumb.nativeElement.value;
     const endValue = this.endThumb.nativeElement.value;
-    console.log('Start Value:', startValue);
-    console.log('End Value:', endValue);
-
-    // Additional logic here
   }
   reset() {
     this.FilterForm.reset();
@@ -358,7 +336,6 @@ export class CertificateDetailsComponent {
   }
   // CertificateClaimed:boolean=false;
   DisplayList(page: number) {
-    console.log("certifed list")
 
     this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value, page).subscribe({
       next: (data: any) => {
@@ -402,11 +379,9 @@ export class CertificateDetailsComponent {
           })
 
           this.dataSource = new MatTableDataSource(this.data);
-          console.log(this.dataSource);
           this.obs = this.dataSource.connect();
           this.totalRows = data.totalCount;
           this.totalPages = data.totalPages;
-          console.log(this.totalRows);
         } else {
           this.loading = false;
           this.data = [];
@@ -417,7 +392,7 @@ export class CertificateDetailsComponent {
       }, error: err => {
         this.loading = false;
 
-        if (err.error.statusCode === '403') {
+        if (err.error.statusCode === 403) {
           this.toastrService.error('You are Unauthorized')
         } else {
           this.toastrService.error('Error', err.error.message)
@@ -486,7 +461,6 @@ export class CertificateDetailsComponent {
     }
   }
   pageChangeEvent(event: PageEvent) {
-    console.log(event);
     this.p = event.pageIndex + 1;
     this.DisplayList(this.p);
   }

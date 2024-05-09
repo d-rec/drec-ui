@@ -29,7 +29,7 @@ export class RegisterComponent implements OnInit {
   hide = true;
   hide1 = true;
   matchconfirm: boolean = false;
-
+  showPopup: boolean = false;
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   constructor(private authService: AuthbaseService, private _formBuilder: FormBuilder,
     private toastrService: ToastrService, private router: Router, private dialog: MatDialog,
@@ -84,11 +84,9 @@ export class RegisterComponent implements OnInit {
       this.registerForm.get('password')?.hasError('requirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' : '';
   }
   checkconfirmPassword(control: any) {
-    // console.log(this.registerForm.value)
 
     let enteredPassword = control.value;;
     let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
-    // console.log(this.registerForm.value.password);
     //this.registerForm.value.password = this.registerForm.value.password?:'';
     return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'Confirmrequirements': true } :
       (!enteredPassword && enteredPassword) ? { 'matchrequirements': true } : null;
@@ -121,32 +119,31 @@ export class RegisterComponent implements OnInit {
     return base64Payload;
   }
   response: any
-  onSubmit(formData: FormGroup): void {
-    console.log("registerForm")
-    console.log(this.registerForm.value)
-
+  onSubmit(): void {
     this.authService.PostAuth('user/register', this.registerForm.value).subscribe({
       next: data => {
-        console.log(data)
-
-        // this.toastrService.success('Successfully!!', 'User Registration');
-        console.log(this.registerForm.value.organizationType)
         const loginobj = {
           username: this.registerForm.value.email,
           password: this.registerForm.value.password
         }
         if (this.registerForm.value.organizationType === "ApiUser") {
           this.response = data;
-          this.showPopup(this.response, loginobj);
-        } else {
+          this.toastrService.success('User Register Successfull');
+          this.showPopup = true;
+          this.authService.ApiUserExportAccesskey('user/export-accesskey/', this.response.api_user_id).subscribe({
+            next: keydata => { 
+              setTimeout(() => {            
+                this.showkeypopup(keydata, loginobj)
+              }, 1000)
 
+            }
+          })
+        } else {
           this.authService.login('auth/login', loginobj).subscribe({
             next: data => {
-
               if (data["accessToken"] != null) {
                 sessionStorage.setItem('access-token', data["accessToken"]);
                 let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
-                console.log(jwtObj);
                 //sessionStorage.setItem('loginuser', jwtObj);
                 sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
                 //var obj = JSON.parse(sessionStorage.loginuser);
@@ -158,7 +155,6 @@ export class RegisterComponent implements OnInit {
                 }
                 this.toastrService.success('login user ' + jwtObj.email + '!', 'login Success');
               } else {
-                console.log("check your credentials !!")
                 this.toastrService.info('Message Failure!', 'check your credentials !!');
                 this.router.navigate(['/login']);
               }
@@ -188,58 +184,55 @@ export class RegisterComponent implements OnInit {
         this.toastrService.error('error!', err.error.message);
       }
     });
-    // formDirective.resetForm();
 
   }
-  showPopup(response: any, logininfo: any) {
-    const dialogRef = this.dialog.open(ApiuserClientReponseComponent, {
-      data: response, // Pass the response data to the modal
-    });
+  showkeypopup(ketdata: any, logininfo: any) {
+    
+    setTimeout(() => {
+      const blob = new Blob([ketdata], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${this.response.api_user_id}.pem`; // Replace with the desired file name
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);//
+      // this.toastrService.success('Access Key downloaded successfully' ,'Please keep it confidential');
+      this.showPopup = false;
+      this.loginapiuser(logininfo)
+    }, 5000);
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === 'copy') {
-        this.authService.ApiUserlogin('auth/login', this.response.client_id, this.response.client_secret, logininfo).subscribe({
-          next: (data: any) => {
-            if (data["accessToken"] != null) {
-              sessionStorage.setItem('access-token', data["accessToken"]);
-              let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
-              jwtObj['clientId']= this.response.client_id
-              jwtObj['clientSecret']=this.response.client_secret     
-              sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-              this.userService.userProfile(this.response.client_id, this.response.client_secret).subscribe({
-                next:(data1:any)  => {
-                  console.log(data1)
-                  sessionStorage.setItem('status', data1.status);
-                  this.router.navigate(['/apiuser/permission/request/form']);
-                 
-                }, error: (err:any) => {
-                  this.toastrService.error('Error!', err.error.message);
-                }
-              })
-            } else {
-              console.log("check your credentials !!")
-              this.toastrService.info('Message Failure!', 'Check your credentials !!');
-              this.router.navigate(['/login']);
+
+  }
+  loginapiuser(logininfo: any) {
+    this.authService.login('auth/login', logininfo).subscribe({
+      next: (data: any) => {
+        if (data["accessToken"] != null) {
+          sessionStorage.setItem('access-token', data["accessToken"]);
+          let jwtObj = JSON.parse(this.b64DecodeUnicode(this.padBase64(data["accessToken"].split('.')[1])));
+          sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
+          this.userService.userProfile().subscribe({
+            next: (data1: any) => {
+              sessionStorage.setItem('apiuserId', data1.api_user_id);
+              sessionStorage.setItem('status', data1.status);
+              this.router.navigate(['/apiuser/permission/request/form']);
+
+            }, error: (err: any) => {
+              this.toastrService.error('Error!', err.error.message);
             }
-          },
-          error: error => {                              //Error callback
-            console.error('error caught in component', error)
-            this.toastrService.error('Error:' + error.error.message +
-              ',Check your credentials!', 'Login Fail!!');
-          }
+          })
+        } else {
+          this.toastrService.info('Message Failure!', 'Check your credentials !!');
+          this.router.navigate(['/login']);
         }
-        )
-      
-      // this.copyToClipboard();
+      },
+      error: error => {                              //Error callback
+        console.error('error caught in component', error)
+        this.toastrService.error('Error:' + error.error.message +
+          ',Check your credentials!', 'Login Fail!!');
+      }
     }
-    });
-}
-  // copyToClipboard() {
-  //   const textArea = document.createElement('textarea');
-  //   textArea.value = this.response.responseText; // Replace this with your actual response text
-  //   document.body.appendChild(textArea);
-  //   textArea.select();
-  //   document.execCommand('copy');
-  //   document.body.removeChild(textArea);
-  // }
+    )
+  }
 }

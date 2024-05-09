@@ -39,12 +39,12 @@ export class ResetPasswordComponent {
     private toastrService: ToastrService, private activatedRoute: ActivatedRoute) {
     // this.accesstoken = this.activatedRoute.snapshot.params['id'];
     this.activatedRoute.queryParams.subscribe(params => {
-      console.log(params)
+   
       if (params['token'] != undefined) {
         this.accesstoken = params['token'];
         this.email = params['email'];
         this.role = params['role']
-        console.log(this.accesstoken);
+      
         if (this.role === "ApiUser") {
           (this.resetpasswordForm as any).addControl('clientid', new FormControl());
           (this.resetpasswordForm as any).addControl('client_secret', new FormControl());
@@ -90,12 +90,10 @@ export class ResetPasswordComponent {
     return validation;
   }
   onSubmit() {
-
-    console.log(this.resetpasswordForm.value)
     this.authService.UserResetPassword(this.accesstoken, this.resetpasswordForm.value).subscribe(
       (data) => {
         this.toastrService.success('Successfully!!', 'Reset Password');
-        console.log(data);
+       
         this.router.navigate(['/login']);
       })
 
