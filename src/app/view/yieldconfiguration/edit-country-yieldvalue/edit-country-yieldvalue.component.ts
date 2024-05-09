@@ -78,7 +78,7 @@ export class EditCountryYieldvalueComponent {
 
   }
   selectCountry(event: any) {
-    console.log(event)
+   
     this.subscription = this.filteredOptions.subscribe(options => {
       const selectedCountry = options.find(option => option.country === event.option.value);
       if (selectedCountry) {
@@ -89,7 +89,7 @@ export class EditCountryYieldvalueComponent {
   getYieldinfo() {
     this.yieldService.getyieldInfoById(this.yieldid).subscribe(
       (data) => {
-        console.log(data);
+        
         this.countryName = data.countryName;
         this.countryCode = data.countryCode;
         this.updayeyieldForm.controls['countryCode'].setValue(this.countryCode);

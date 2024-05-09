@@ -82,10 +82,8 @@ export class DeviceDetailsComponent {
           this.device_details['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == this.device_details.deviceTypeCode)?.name;
           //@ts-ignore
           this.device_details['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == this.device_details.countryCode)?.country;
-          console.log(this.device_details);
         }
       }, error: err => {
-        console.log(err)
       },
     })
   }

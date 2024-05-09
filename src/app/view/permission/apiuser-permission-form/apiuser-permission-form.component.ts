@@ -28,8 +28,8 @@ export class ApiuserPermissionFormComponent {
 
 
     this.form = this.fb.group({
-      client_id:[null, Validators.required],
-      client_secret:[null, Validators.required],
+     // client_id:[null, Validators.required],
+     // client_secret:[null, Validators.required],
       permissions: this.fb.array([]),
     });
     //@ts-ignore
@@ -61,7 +61,7 @@ export class ApiuserPermissionFormComponent {
   }
 
   isSelected(row: any): boolean {
-    console.log(row)
+   
     return this.selectedModules.includes(row);
   }
 
@@ -73,7 +73,6 @@ export class ApiuserPermissionFormComponent {
     return numSelected === numRows;
   }
   masterToggle() {
-    console.log("131")
     this.isAllSelected() ?
       this.selection.clear() :
       this.dataSource.data.forEach(row => this.selection.select(row));
@@ -84,10 +83,7 @@ export class ApiuserPermissionFormComponent {
   }
 
   submitPermissions() {
-    // Handle the selected modules, e.g., send them to an API
-    console.log(this.selectedModules);
-    console.log(this.selection.selected)
-
+  
     if (this.selection.selected.length > 0) {
 
       let permissionrequest: any = []
@@ -105,10 +101,10 @@ export class ApiuserPermissionFormComponent {
       if(permissionrequest.length===0){
         this.toastrService.warning('Warning','In selected module also need to select permission')
       }else{
-        console.log(permissionrequest);
-        this.aclpermissionServcie.ApiUserPermissionRequest(permissionrequest, this.form.value.client_id, this.form.value.client_secret).subscribe({
+   //, this.form.value.client_id, this.form.value.client_secret
+        this.aclpermissionServcie.ApiUserPermissionRequest(permissionrequest).subscribe({
           next:data=>{
-            console.log(data)
+          
             this.form.reset();
             this.selection.clear();
             this.toastrService.success('Successful','Request Sent')

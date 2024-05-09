@@ -29,8 +29,8 @@ export class ApiuserClientReponseComponent {
     textArea.value = formattedData;
     document.body.appendChild(textArea);
     textArea.select();
-    document.execCommand('copy');
+    document.execCommand('ok');
     document.body.removeChild(textArea);
-    this.dialogRef.close('copy')
+   // this.dialogRef.close('copy')
   }
 }

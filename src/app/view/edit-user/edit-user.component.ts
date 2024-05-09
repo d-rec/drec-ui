@@ -30,11 +30,9 @@ export class EditUserComponent {
     public dialogRef: MatDialogRef<EditUserComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
     //this.userid = this.activatedRoute.snapshot.params['id'];
-    console.log(this.data)
+  
   }
   ngOnInit() {
-    console.log(this.data)
-    console.log(this.userstatus);
     this.updateForm = this.fb.group({
       firstName: [this.data.userinfo.firstName, Validators.required],
       lastName: [this.data.userinfo.lastName],
@@ -55,8 +53,6 @@ export class EditUserComponent {
 
     this.adminService.updateUser(this.data.userinfo.id, this.updateForm.value).subscribe({
       next: data => {
-        console.log(data);
-
         this.toastrService.success("User Updated", "Successful")
         this.dialogRef.close();
 

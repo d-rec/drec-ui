@@ -47,12 +47,9 @@ export class UserProfileComponent {
       this.email = this.userinfo.email
       // this.status = this, this.userinfo.status
     });
-    console.log(this.userinfo)
-
+  
   }
   ngOnInit() {
-    console.log(this.userinfo)
-    console.log(this.userstatus);
     this.updateForm = this.fb.group({
       firstName: [null, Validators.required],
       lastName: [null, Validators.required],
@@ -93,11 +90,8 @@ export class UserProfileComponent {
       this.resetpasswordform.get('newPassword')?.hasError('requirements') ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)' : '';
   }
   checkconfirmPassword(control: any) {
-    // console.log(this.resetpasswordform.value)
-
     let enteredPassword = control.value;;
     let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
-    // console.log(this.resetpasswordform.value.password);
     //this.resetpasswordform.value.password = this.resetpasswordform.value.password?:'';
     return (!passwordCheck.test(enteredPassword) && enteredPassword) ? { 'Confirmrequirements': true } :
       (!enteredPassword && enteredPassword) ? { 'matchrequirements': true } : null;
@@ -116,9 +110,7 @@ export class UserProfileComponent {
     this.userService.updatProfile(this.updateForm.value).
     subscribe({
       next: data => {
-        console.log(data);
-
-        this.toastrService.success("User Updated", "Successful")
+   this.toastrService.success("User Updated", "Successful")
         //this.dialogRef.close();
 
       }, error: err => {
@@ -134,8 +126,6 @@ export class UserProfileComponent {
   onResetPasswordUpdate() {
 
     this.userService.resetPassword(this.loginuser.email, this.resetpasswordform.value).subscribe((data) => {
-      console.log(data);
-
       this.toastrService.success("Password Updated", "Successfully")
       // this.dialogRef.close;
 

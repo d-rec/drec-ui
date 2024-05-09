@@ -43,7 +43,6 @@ export class InvitationformComponent {
     public dialogRef: MatDialogRef<InvitationformComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
     this.data = data.orginfo;
-    console.log("hgfyt", this.data)
     if (data.orginfo.organizationType === 'Developer') {
       this.role = 'OrganizationAdmin';
     }
@@ -54,8 +53,6 @@ export class InvitationformComponent {
 
   }
   ngOnInit() {
-    console.log(this.data)
-    // console.log(this.userstatus);
     // this.getinvitationList();
     this.inviteForm = this.fb.group({
       firstName: [null],
@@ -80,19 +77,18 @@ export class InvitationformComponent {
 
   }
   async onSubmit() {
-    console.log("invite")
-
     const headers = getapiuser_header();
-    console.log(headers)
     setTimeout(() => {
       this.inveiteService.Postuserinvitation(this.inviteForm.value, this.data.id, headers).subscribe({
         next: (response) => {
-          console.log(response);
           if (response.success) {
             this.toastrService.success('Invitation Sent')
             this.dialogRef.close(true)
           }
         }, error: err => {
+          if (err.error.statusCode === 403) {
+            this.toastrService.error('You are Unauthorized')
+          }
           this.toastrService.error('Error:' + err.error.message, 'Invitation Fail')
         }
       });

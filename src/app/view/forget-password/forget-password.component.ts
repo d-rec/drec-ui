@@ -36,10 +36,8 @@ export class ForgetPasswordComponent {
       this.ForgetpasswordForm.removeControl('clientid');
       this.ForgetpasswordForm.removeControl('client_secret')
     }
-    // console.log('Input changed:', event.target.value);
   }
   onSubmit() {
-    console.log(this.ForgetpasswordForm.value)
     this.authService.UserForgetPassword(this.ForgetpasswordForm.value).subscribe({
       next: data => {
         this.message = data.message

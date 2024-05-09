@@ -48,7 +48,7 @@ export class AddreadComponent implements OnInit {
   orgId: number;
   devicelist: any = [];
   showmeter_readformadmin: boolean;
-  showexternaiIdform:boolean=false;
+  showexternaiIdform: boolean = false;
   constructor(private fb: FormBuilder, private readService: MeterReadService,
     private deviceservice: DeviceService,
     private authService: AuthbaseService,
@@ -79,7 +79,7 @@ export class AddreadComponent implements OnInit {
         (data) => {
           //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-          console.log(this.orglist)
+
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
           // Once data is loaded, call any other functions that depend on it
@@ -107,7 +107,6 @@ export class AddreadComponent implements OnInit {
       validators: (control) => {
 
         if (control.value.starttimestamp > control.value.endtimestamp) {
-          console.log('49');
           //@ts-ignore
           control.get("endtimestamp").setErrors({ notSame: true });
         }
@@ -138,15 +137,13 @@ export class AddreadComponent implements OnInit {
     return this.readForm.controls["reads"] as FormArray;
   }
   filterOrgList() {
-    console.log("99")
     this.filteredOrgList = this.orglist.filter((org: any) => {
 
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
     });
   }
   selectOrg(event: any) {
-    console.log(event)
-this.showexternaiIdform=true;
+    this.showexternaiIdform = true;
     //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
@@ -164,15 +161,12 @@ this.showexternaiIdform=true;
     const deviceurl = 'device?OrganizationId=' + orgid;
     this.deviceservice.GetMyDevices(deviceurl).subscribe({
       next: data => {
-        console.log(data)
         this.devicelist = data.devices
         this.readForm.controls['externalId'];
         this.filteredexternalIdOptions = this.readForm.controls['externalId'].valueChanges.pipe(
           startWith(''),
           map(value => this._externalIdfilterbyAdmin(value || '')),
         );
-        console.log(this.filteredexternalIdOptions);
-
       }
     })
   }
@@ -184,22 +178,18 @@ this.showexternaiIdform=true;
       const FilterForm = { organizationId: this.orgId }
       this.deviceservice.GetMyDevices(deviceurl, FilterForm).subscribe({
         next: data => {
-          console.log(data)
           this.devicelist = data.devices;
           this.readForm.controls['externalId'];
           this.filteredexternalIdOptions = this.readForm.controls['externalId'].valueChanges.pipe(
             startWith(''),
             map(value => this._externalIdfilter(value || '')),
           );
-          console.log(this.filteredexternalIdOptions);
-
         }
       })
     } else {
       const deviceurl = 'device/my';
       this.deviceservice.GetMyDevices(deviceurl).subscribe({
         next: data => {
-          console.log(data)
           this.devicelist = data;
         }
       })
@@ -207,11 +197,8 @@ this.showexternaiIdform=true;
   }
 
   _externalIdfilter(value: string): string[] {
-    console.log(value)
     const filterValue = value.toLowerCase();
-    //  console.log(filterValue)
-    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
-    if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+   if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
       this.showerrorexternalid = true;
     } else {
@@ -224,10 +211,8 @@ this.showexternaiIdform=true;
   }
 
   _externalIdfilterbyAdmin(value: string): string[] {
-    console.log(value)
+
     const filterValue = value.toLowerCase();
-    //  console.log(filterValue)
-    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if ((!(this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
       this.showerrorexternalid = true;
@@ -241,7 +226,6 @@ this.showexternaiIdform=true;
   }
   search() {
     // const input = this.readForm.controls['externalId'].value;
-    //console.log(input)
     //if (input && input != '') {
     if (this.loginuser.role === 'Admin') {
       const deviceurl = 'device?';
@@ -286,9 +270,6 @@ this.showexternaiIdform=true;
   lastreaddate: any;
   onSelect(result: any): void {
     this.selectedResult = result;
-    console.log(this.selectedResult);
-    console.log(result);
-
     this.devicecreateddate = result.createdAt;
     this.commissioningDate = result.commissioningDate;
 
@@ -296,13 +277,12 @@ this.showexternaiIdform=true;
     this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
     //@ts-ignore
     this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == result.countryCode)?.timezones;
-    console.log(this.timezonedata);
+
     this.readForm.controls['timezone'].setValue(null);
     this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
       startWith(''),
       map(value => this._filter(value || '')),
     );
-    console.log(this.filteredOptions);
     this.addreads.reset();
     this.readForm.controls['type'].setValue(null)
     let deivceid;
@@ -318,8 +298,7 @@ this.showexternaiIdform=true;
     }
     this.readService.Getlastread(deivceid).subscribe({
       next: data => {
-        console.log(data),
-          this.lastreaddate = data.enddate;
+        this.lastreaddate = data.enddate;
         this.lastreadvalue = data.value;
       },
       error: err => {                      //Error callback
@@ -329,30 +308,25 @@ this.showexternaiIdform=true;
     this.endmaxdate = new Date();
   }
   onTimezoneSelect(timezone: any): void {
-    console.log(timezone);
-    console.log(momentTimeZone
-      .tz(new Date(this.devicecreateddate), timezone)
-      .format('YYYY-MM-DDTHH:mm:ssZ'));
 
+    this.historyAge = momentTimeZone
+      .tz(new Date(this.historyAge), timezone)
+      .format('YYYY-MM-DDTHH:mm:ss');
     this.devicecreateddate = momentTimeZone
       .tz(new Date(this.devicecreateddate), timezone)
       .format('YYYY-MM-DDTHH:mm:ss');
-    console.log(this.devicecreateddate);
+
     this.commissioningDate = momentTimeZone
       .tz(new Date(this.commissioningDate), timezone)
       .format('YYYY-MM-DDTHH:mm:ss');
-    console.log(this.commissioningDate);
+
     //momentTimeZone.tz(this.devicecreateddate, timezone);
     this.endmaxdate = new Date(momentTimeZone
       .tz(new Date(), timezone)
       .format('YYYY-MM-DDTHH:mm:ss'));
-    console.log(this.endmaxdate)
   }
   private _filter(value: string): string[] {
-    //  console.log(this.timezonedata)
     const filterValue = value.toLowerCase();
-    //  console.log(filterValue)
-    // console.log(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)));
     if ((!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
     } else {
@@ -363,11 +337,8 @@ this.showexternaiIdform=true;
   }
   DisplayList() {
     const deviceurl = 'device/my';
-    console.log(deviceurl);
     this.deviceservice.GetMyDevices(deviceurl).subscribe(
       (data) => {
-        console.log("data", data)
-        // display list in the console 
         this.data = data;
       }
     )
@@ -382,7 +353,6 @@ this.showexternaiIdform=true;
   // }
 
   // ExternaIdonChangeEvent(event: any) {
-  //   console.log(event);
   //   this.addreads.reset();
   //   this.readForm.controls['type'].setValue(null)
   //   this.devicecreateddate = event.createdAt;
@@ -392,16 +362,16 @@ this.showexternaiIdform=true;
   //   this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
   //   //@ts-ignore
   //   this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == event.countryCode)?.timezones;
-  //   console.log(this.timezonedata);
+
   //   this.readForm.controls['timezone'].setValue(null);
   //   this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
   //     startWith(''),
   //     map(value => this._filter(value || '')),
   //   );
-  //   console.log(this.filteredOptions);
+
   //   this.readService.Getlastread(event.externalId).subscribe({
   //     next: data => {
-  //       console.log(data),
+
   //         this.lastreaddate = data.enddate;
   //       this.lastreadvalue = data.value;
   //     },
@@ -412,11 +382,15 @@ this.showexternaiIdform=true;
 
   // }
   onChangeEvent(event: any) {
-    console.log(event);
-    console.log(new Date(this.devicecreateddate));
     if (event === 'Delta' || event === 'Aggregate') {
+      this.endmaxdate = new Date();
       this.endminDate = this.devicecreateddate;
-      console.log(this.endminDate);
+      if (this.readForm.value.timezone != null) {
+        this.endmaxdate = new Date(momentTimeZone
+          .tz(new Date(), this.readForm.value.timezone)
+          .format('YYYY-MM-DDTHH:mm:ss'));
+
+      }
       this.hidestarttime = false;
     } else {
       if (new Date(this.commissioningDate).getTime() > new Date(this.historyAge).getTime()) {
@@ -434,7 +408,6 @@ this.showexternaiIdform=true;
     }
   }
   onEndChangeEvent(event: any) {
-    console.log(event);
     this.endmaxdate = this.devicecreateddate;
     this.endminDate = event;
   }
@@ -450,8 +423,6 @@ this.showexternaiIdform=true;
   onSubmit(): void {
 
     let externalId = this.readForm.value.externalId;
-    console.log(externalId);
-    console.log(this.readForm.value);
 
     const myobj: any = {}
     if (this.loginuser.role === 'ApiUser') {
@@ -500,7 +471,6 @@ this.showexternaiIdform=true;
     if (this.loginuser.role === 'Admin') {
       this.readService.PostReadByAdmin(externalId, myobj, this.orgId).subscribe({
         next: (data: any) => {
-          console.log(data)
           this.readForm.reset();
           this.selectedResult = null;
           const formControls = this.readForm.controls;
@@ -514,7 +484,6 @@ this.showexternaiIdform=true;
           console.error('error caught in component', err)
           //@ts-ignore
           let message = getValidmsgTimezoneFormat(err.error.message);
-          console.error(message)
 
           this.toastrService.error(message, 'error!');
         }
@@ -522,7 +491,6 @@ this.showexternaiIdform=true;
     } else {
       this.readService.PostRead(externalId, myobj).subscribe({
         next: (data: any) => {
-          console.log(data)
           this.readForm.reset();
           this.selectedResult = null;
           const formControls = this.readForm.controls;
@@ -536,7 +504,6 @@ this.showexternaiIdform=true;
           console.error('error caught in component', err)
           //@ts-ignore
           let message = getValidmsgTimezoneFormat(err.error.message);
-          console.error(message)
 
           this.toastrService.error(message, 'error!');
         }
