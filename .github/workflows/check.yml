@@ -24,7 +24,6 @@ jobs:
         run: npm install
 
       - name: Run Prettier
-        working-directory: apps/drec-api
         run: npm run prettier
 
   lint-eslint:
@@ -42,12 +41,10 @@ jobs:
         run: npm install
 
       - name: Run ESLint (error)
-        working-directory: apps/drec-api
         run: npm run lint:error
         continue-on-error: true
 
       - name: Run ESLint (all)
-        working-directory: apps/drec-api
         run: npm run lint
         continue-on-error: true
 
