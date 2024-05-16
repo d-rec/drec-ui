@@ -1,17 +1,22 @@
-import { Component,Inject  } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 // import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatDialog, MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogRef,
+  MatDialogModule,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-apiuser-client-reponse',
   templateUrl: './apiuser-client-reponse.component.html',
-  styleUrls: ['./apiuser-client-reponse.component.scss']
+  styleUrls: ['./apiuser-client-reponse.component.scss'],
 })
 export class ApiuserClientReponseComponent {
-
   constructor(
     public dialogRef: MatDialogRef<ApiuserClientReponseComponent>,
-    @Inject(MAT_DIALOG_DATA) public response: any) {}
+    @Inject(MAT_DIALOG_DATA) public response: any,
+  ) {}
 
   // copyToClipboard() {
   //   const textArea = document.createElement('textarea');
@@ -31,6 +36,6 @@ export class ApiuserClientReponseComponent {
     textArea.select();
     document.execCommand('ok');
     document.body.removeChild(textArea);
-   // this.dialogRef.close('copy')
+    // this.dialogRef.close('copy')
   }
 }

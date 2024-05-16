@@ -1,6 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { ReservationService } from '../../auth//services/reservation.service';
@@ -9,7 +15,7 @@ import { AuthbaseService } from '../../auth/authbase.service';
 @Component({
   selector: 'app-redemption-report',
   templateUrl: './redemption-report.component.html',
-  styleUrls: ['./redemption-report.component.scss']
+  styleUrls: ['./redemption-report.component.scss'],
 })
 export class RedemptionReportComponent implements OnInit {
   data: any = [];
@@ -21,16 +27,15 @@ export class RedemptionReportComponent implements OnInit {
     'country',
     'fuelCode',
     // 'commissioningDateRange',
-    "beneficiary",
-    "beneficiary_address",
-    "claimCoiuntryCode",
+    'beneficiary',
+    'beneficiary_address',
+    'claimCoiuntryCode',
     'capacityRange',
-    "purpose",
+    'purpose',
     'offTakers',
     // 'sectors',
     // 'standardCompliance',
     // 'installations'
-
   ];
   pageSize: number = 20;
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -40,86 +45,96 @@ export class RedemptionReportComponent implements OnInit {
   countrylist: any;
   fuellist: any;
 
-  offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
+  offtaker = [
+    'School',
+    'Education',
+    'Health Facility',
+    'Residential',
+    'Commercial',
+    'Industrial',
+    'Public Sector',
+    'Agriculture',
+    'Utility',
+    'Off-Grid Community',
+  ];
 
-  constructor(private authService: AuthbaseService, private ReservationService: ReservationService, private router: Router,) {
-
-  }
+  constructor(
+    private authService: AuthbaseService,
+    private ReservationService: ReservationService,
+    private router: Router,
+  ) {}
   ngOnInit(): void {
     this.DisplayfuelList();
     this.DisplaycountryList();
-    this.DisplayRedemptionList()
+    this.DisplayRedemptionList();
   }
   DisplayfuelList() {
-
-    this.authService.GetMethod('device/fuel-type').subscribe(
-      (data) => {
-        this.fuellist = data;
-
-      }
-    )
+    this.authService.GetMethod('device/fuel-type').subscribe((data) => {
+      this.fuellist = data;
+    });
   }
   DisplaycountryList() {
-
-    this.authService.GetMethod('countrycode/list').subscribe(
-      (data) => {
-       
-        this.countrylist = data;
-
-      }
-    )
+    this.authService.GetMethod('countrycode/list').subscribe((data) => {
+      this.countrylist = data;
+    });
   }
   DisplayRedemptionList() {
-    this.ReservationService.GetMethod().subscribe(
-      (data) => {
-    
-        this.data = data;
-        //@ts-ignore
-        this.data.forEach(ele => {
-         
-          if (ele.fuelCode != '') {
-            let fuelname: any = [];
+    this.ReservationService.GetMethod().subscribe((data) => {
+      this.data = data;
+      //@ts-ignore
+      this.data.forEach((ele) => {
+        if (ele.fuelCode != '') {
+          let fuelname: any = [];
+          //@ts-ignore
+          let f = ele.fuelCode.filter((str) => str !== ' ');
+          //@ts-ignore
+          f.map((aele) =>
             //@ts-ignore
-            let f = ele.fuelCode.filter((str) => str !== ' ');
-            //@ts-ignore
-            f.map((aele) =>
-              //@ts-ignore
-              fuelname.push(this.fuellist.find((fuelType) => fuelType.code === aele.trim())?.name)
-            )
-            ele['fuelname'] = [...new Set(fuelname)].toString();
+            fuelname.push(
+              this.fuellist.find((fuelType) => fuelType.code === aele.trim())
+                ?.name,
+            ),
+          );
+          ele['fuelname'] = [...new Set(fuelname)].toString();
 
-            //  fuelname.filter((item,index) => fuelname.indexOf(item) === index);;
-
-          } else {
-            ele['fuelname'] = '';
-          }
+          //  fuelname.filter((item,index) => fuelname.indexOf(item) === index);;
+        } else {
+          ele['fuelname'] = '';
+        }
+        // @ts-ignore
+        ele.country.filter((str) => str !== '');
+        if (ele.country != '') {
           // @ts-ignore
-          ele.country.filter((str) => str !== '');
-          if (ele.country != '') {
+          ele['countryname'] = [
+            ...new Set(
+              ele.country.map(
+                (bele) =>
+                  this.countrylist.find(
+                    (countrycode) => countrycode.alpha3 === bele.trim(),
+                  )?.country,
+              ),
+            ),
+          ].toString();
+        } else {
+          ele['countryname'] = '';
+        }
 
-            // @ts-ignore
-            ele['countryname'] = [... new Set(ele.country.map((bele) => (this.countrylist.find(countrycode => countrycode.alpha3 === bele.trim())?.country)))].toString();
+        //@ts-ignore
+        ele['claimCoiuntryCode'] = this.countrylist.find(
+          (countrycode) => countrycode.alpha3 === ele.claimCoiuntryCode,
+        )?.country;
+        //@ts-ignore
+        // ele.offTakers.filter((str) => str !== ' ');
+        //@ts-ignore
+        let o = ele.offTakers.filter((str) => str !== ' ');
+        //@ts-ignore
+        ele['offTakername'] = [...new Set(o.map((e) => e.trim()))].toString();
+        //[... new Set(ele.offTakers)].toString();
+      });
 
-          } else {
-            ele['countryname'] = '';
-          }
-
-          //@ts-ignore
-          ele['claimCoiuntryCode'] = this.countrylist.find(countrycode => countrycode.alpha3 === ele.claimCoiuntryCode)?.country;
-          //@ts-ignore
-          // ele.offTakers.filter((str) => str !== ' ');
-          //@ts-ignore
-          let o = ele.offTakers.filter((str) => str !== ' ');
-          //@ts-ignore
-          ele['offTakername'] = [...new Set(o.map((e) => e.trim()))].toString()
-          //[... new Set(ele.offTakers)].toString();
-
-        })
-      
-        this.dataSource = new MatTableDataSource(this.data);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      }
-    )
+      this.dataSource = new MatTableDataSource(this.data);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    });
   }
 }

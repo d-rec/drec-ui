@@ -8,9 +8,8 @@ describe('RedemptionReportComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RedemptionReportComponent ]
-    })
-    .compileComponents();
+      declarations: [RedemptionReportComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(RedemptionReportComponent);
     component = fixture.componentInstance;

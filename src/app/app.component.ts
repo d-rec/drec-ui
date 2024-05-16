@@ -1,42 +1,35 @@
-
-import {FormBuilder} from '@angular/forms';
-import {SelectionModel} from '@angular/cdk/collections';
-import {MediaMatcher} from '@angular/cdk/layout';
-import {ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
+import { FormBuilder } from '@angular/forms';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MediaMatcher } from '@angular/cdk/layout';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 // import { NavItem } from './nav-item';
-import {MatTableDataSource} from '@angular/material/table';
-
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-
-  constructor()
-  {
-    
-         this.connectWallet();
+  constructor() {
+    this.connectWallet();
   }
 
-  getWindowEthereumProperty()
-  {
+  getWindowEthereumProperty() {
     //@ts-ignore
     return window.ethereum;
   }
   async connectWallet() {
-
-    if (typeof window != "undefined" && typeof this.getWindowEthereumProperty() != "undefined") {
+    if (
+      typeof window != 'undefined' &&
+      typeof this.getWindowEthereumProperty() != 'undefined'
+    ) {
       try {
         /* MetaMask is installed */
         const accounts = await this.getWindowEthereumProperty().request({
-          method: "eth_requestAccounts",
+          method: 'eth_requestAccounts',
         });
-        
-      } catch (err) {
-
-      }
+      } catch (err) {}
     }
   }
 }

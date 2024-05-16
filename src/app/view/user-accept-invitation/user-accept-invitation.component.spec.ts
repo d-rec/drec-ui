@@ -8,9 +8,8 @@ describe('UserAcceptInvitationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ UserAcceptInvitationComponent ]
-    })
-    .compileComponents();
+      declarations: [UserAcceptInvitationComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(UserAcceptInvitationComponent);
     component = fixture.componentInstance;
