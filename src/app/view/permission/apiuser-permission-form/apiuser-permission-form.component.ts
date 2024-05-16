@@ -1,5 +1,5 @@
-import { Component ,ViewChild} from '@angular/core';
-import { FormBuilder, FormGroup, FormArray ,Validators} from '@angular/forms';
+import { Component, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { DeviceService, ACLModulePermisionService } from '../../../auth/services';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -20,7 +20,7 @@ export class ApiuserPermissionFormComponent {
   selectedModules: any[] = [];
   displayedColumns: string[] = ['select', 'name', 'permissions'];
   dataSource: MatTableDataSource<any>;
-  
+
   constructor(private fb: FormBuilder,
     private toastrService: ToastrService,
     private aclpermissionServcie: ACLModulePermisionService,
@@ -28,8 +28,8 @@ export class ApiuserPermissionFormComponent {
 
 
     this.form = this.fb.group({
-     // client_id:[null, Validators.required],
-     // client_secret:[null, Validators.required],
+      // client_id:[null, Validators.required],
+      // client_secret:[null, Validators.required],
       permissions: this.fb.array([]),
     });
     //@ts-ignore
@@ -53,6 +53,7 @@ export class ApiuserPermissionFormComponent {
   }
 
   onRowSelect(row: any) {
+ 
     if (this.isSelected(row)) {
       this.selectedModules = this.selectedModules.filter((module) => module !== row);
     } else {
@@ -67,7 +68,7 @@ export class ApiuserPermissionFormComponent {
 
 
   isAllSelected() {
-   
+  
     const numSelected = this.selection.selected.length;
     const numRows = this.dataSource.data.length;
     return numSelected === numRows;
@@ -76,6 +77,9 @@ export class ApiuserPermissionFormComponent {
     this.isAllSelected() ?
       this.selection.clear() :
       this.dataSource.data.forEach(row => this.selection.select(row));
+      if (!this.isAllSelected()) {
+        this.dataSource.data.forEach(row => row.selectedPermissions = []);
+      }
   }
 
   clearSelectedModules() {
@@ -83,40 +87,39 @@ export class ApiuserPermissionFormComponent {
   }
 
   submitPermissions() {
-  
     if (this.selection.selected.length > 0) {
 
       let permissionrequest: any = []
       this.selection.selected.forEach(ele => {
-        if (ele.selectedPermissions.length === 0){
-          permissionrequest=[];
-        }else{
+        if (ele.selectedPermissions.length === 0) {
+          permissionrequest = [];
+        } else {
           permissionrequest.push({
             "aclmodulesId": ele.id,
-            "permissions":ele.selectedPermissions
+            "permissions": ele.selectedPermissions
           })
         }
-       
+
       })
-      if(permissionrequest.length===0){
-        this.toastrService.warning('Warning','In selected module also need to select permission')
-      }else{
-   //, this.form.value.client_id, this.form.value.client_secret
+      if (permissionrequest.length === 0) {
+        this.toastrService.warning('Warning', 'In selected module also need to select permission')
+      } else {
+        //, this.form.value.client_id, this.form.value.client_secret
         this.aclpermissionServcie.ApiUserPermissionRequest(permissionrequest).subscribe({
-          next:data=>{
-          
+          next: data => {
+
             this.form.reset();
             this.selection.clear();
-            this.toastrService.success('Successful','Request Sent')
+            this.toastrService.success('Successful', 'Request Sent')
             this.router.navigate(['/apiuser/permission/list']);
-          },error:err=>{
-            this.toastrService.error('Error:'+err.error.message,'Request Fail')
+          }, error: err => {
+            this.toastrService.error('Error:' + err.error.message, 'Request Fail')
           }
-  
+
         })
       }
-    
-    
+
+
     } else {
       this.toastrService.error('Please select at least one module permission', 'Validation Error!');
     }
@@ -132,6 +135,7 @@ export class ApiuserPermissionFormComponent {
     return group;
   }
   togglePermission(module: any, permission: string): void {
+ 
     const index = module.selectedPermissions.indexOf(permission);
     if (index === -1) {
       module.selectedPermissions.push(permission);
@@ -139,6 +143,12 @@ export class ApiuserPermissionFormComponent {
       module.selectedPermissions.splice(index, 1);
     }
   }
+  togglePermissionsOnRowSelection(row: any) {
+    if (!this.selection.isSelected(row)) {
+      row.selectedPermissions = []; // Clear selected permissions for the deselected row
+    }
+  }
+  
   // getSelectedPermissions(module: any): string {
   //   return module.permissions
   //     //@ts-ignore
