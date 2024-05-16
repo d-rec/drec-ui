@@ -110,8 +110,8 @@ export class AddUsersComponent {
 
       },
       error: err => {                          //Error callback
-        console.error('error caught in component', err)
-        this.toastrService.error('error!', err);
+        console.error('error caught in component', err.error.message)
+        this.toastrService.error('error!', err.error.message);
       }
     });
    }else{
