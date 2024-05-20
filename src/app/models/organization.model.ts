@@ -13,7 +13,8 @@ export interface OrganizationInformation
     documentIds: string[];
     signatoryDocumentIds: string[];
     blockchainAccountAddress: string;
-    blockchainAccountSignedMessage: string;   
+    blockchainAccountSignedMessage: string; 
+    api_user_id:string;  
 }
 export class IPublicOrganization {
     id: number;

@@ -17,6 +17,8 @@ import { map, startWith } from 'rxjs/operators';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { DeviceDetailsComponent } from '../../device/device-details/device-details.component'
 import { ToastrService } from 'ngx-toastr';
+import {OrganizationInformation,Device,fulecodeType,devicecodeType,CountryInfo } from '../../../models'
+
 @Component({
   selector: 'app-admin-alldevices',
   templateUrl: './admin-alldevices.component.html',
@@ -46,9 +48,9 @@ export class AdminAlldevicesComponent {
   loginuser: any
   deviceurl: any;
   pageSize: number = 20;
-  countrylist: any;
-  fuellist: any;
-  devicetypelist: any;
+  countrylist: CountryInfo[]=[];
+  fuellist: fulecodeType[]=[];
+  devicetypelist: devicecodeType[]=[];
   fuellistLoaded: boolean = false;
   devicetypeLoded: boolean = false;
   countrycodeLoded: boolean = false;
@@ -68,7 +70,7 @@ export class AdminAlldevicesComponent {
   showerror: boolean = false;
   showorgerror: boolean = false;
   showlist: boolean = false;
-  orglist: any;
+  orglist: OrganizationInformation[] = [];
   showapiuser_devices: boolean = false;
   apiuserId: string;
   constructor(private authService: AuthbaseService, private deviceService: DeviceService, private adminService: AdminService,
@@ -100,24 +102,28 @@ export class AdminAlldevicesComponent {
     }
     this.adminService.GetAllOrganization().subscribe(
       (data) => {
-        //@ts-ignore
-        this.orglist = data.organizations.filter(org => org.organizationType == "Developer" && org.api_user_id ==this.apiuserId);
+       
+       // this.orglist = data.organizations.filter(org => org.organizationType == "Developer" && org.api_user_id ==this.apiuserId);
+        this.orglist = data.organizations.filter(
+          (org: OrganizationInformation) => org.organizationType !== 'Developer'
+        );
+     
       })
     this.authService.GetMethod('device/fuel-type').subscribe(
-      (data1) => {
+      (data1:any) => {
 
         this.fuellist = data1;
         this.fuellistLoaded = true;
       });
     this.authService.GetMethod('device/device-type').subscribe(
-      (data2) => {
+      (data2:any) => {
 
         this.devicetypelist = data2;
         this.devicetypeLoded = true;
       }
     );
     this.authService.GetMethod('countrycode/list').subscribe(
-      (data3) => {
+      (data3:any) => {
 
         this.countrylist = data3;
         this.countrycodeLoded = true;
@@ -152,7 +158,7 @@ export class AdminAlldevicesComponent {
       map(value => this._orgfilter(value || '')),
     );
   }
-  private _orgfilter(value: any): string[] {
+  private _orgfilter(value: any): OrganizationInformation[] {
 
     const filterValue = value.toLowerCase();
     if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
@@ -172,7 +178,7 @@ export class AdminAlldevicesComponent {
     );
   }
 
-  private _filter(value: any): string[] {
+  private _filter(value: any): CountryInfo[] {
 
     const filterValue = value.toLowerCase();
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
@@ -282,10 +288,10 @@ export class AdminAlldevicesComponent {
     this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe({
       next: data => {
         this.showlist = true
-        //@ts-ignore
+       
         if (data.devices) {
           this.loading = false;
-          //@ts-ignore
+          
           this.data = data;
           this.DisplayList()
         }
@@ -303,13 +309,13 @@ export class AdminAlldevicesComponent {
   DisplayList() {
     if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
 
-      //@ts-ignore
-      this.data.devices.forEach(ele => {
-        //@ts-ignore
+     
+      this.data.devices.forEach((ele:any)=> {
+       
         ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
-        //@ts-ignore
+      
         ele['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == ele.deviceTypeCode)?.name;
-        //@ts-ignore
+       
         ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
       })
 

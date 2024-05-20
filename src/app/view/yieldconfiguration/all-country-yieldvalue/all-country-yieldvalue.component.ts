@@ -53,43 +53,17 @@ export class AllCountryYieldvalueComponent {
     )
 
     setTimeout(() => {
-      // if (this.countrycodeLoded) { 
-      //   this.applycountryFilter(); 
-      // }
       this.loading = false;
       this.getCountryyieldListData();
     }, 1000)
   }
-  // applycountryFilter() {
-  //   this.FilterForm.controls['countryname'];
-  //   this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
-  //     startWith(''),
-  //     map(value => this._filter(value || '')),
-  //   );
-  // }
 
-  // private _filter(value: any): string[] {
-
-  //   const filterValue = value.toLowerCase();
-  //   if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
-  //     this.showerror = true;
-
-  //   } else {
-  //     this.showerror = false;
-  //   }
-  //   return this.countrylist.filter((option: any) => option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
-
-  // }
   getCountryyieldListData() {
-    //this.FilterForm.controls['pagenumber'].setValue(page);
     this.yieldService.getyieldList().subscribe(
-      (data) => {
-      
-        //@ts-ignore
+      (data:any) => {
         this.data=data;
           this.dataSource = new MatTableDataSource(this.data);
-           this.totalRows = this.data.length
-          // this.totalPages = this.data.totalPages
+           this.totalRows = this.data.length;
           this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;
         }     

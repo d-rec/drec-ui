@@ -18,6 +18,8 @@ import { MatDialog, MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angu
 import { MatButtonModule } from '@angular/material/button';
 import { DeviceDetailsComponent } from '../device-details/device-details.component'
 import { ToastrService } from 'ngx-toastr';
+import {OrganizationInformation,Device,fulecodeType,devicecodeType,CountryInfo } from '../../../models'
+
 @Component({
   selector: 'app-alldevices',
   templateUrl: './alldevices.component.html',
@@ -45,9 +47,9 @@ export class AlldevicesComponent {
   loginuser: any
   deviceurl: any;
   pageSize: number = 20;
-  countrylist: any;
-  fuellist: any;
-  devicetypelist: any;
+  countrylist: CountryInfo[]=[];
+  fuellist: fulecodeType[]=[];
+  devicetypelist: devicecodeType[]=[];
   fuellistLoaded: boolean = false;
   devicetypeLoded: boolean = false;
   countrycodeLoded: boolean = false;
@@ -96,27 +98,27 @@ export class AlldevicesComponent {
       this.FilterForm.addControl('organizationId', this.formBuilder.control(''));
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
-          //@ts-ignore
+         
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
         
         }
       );
     }
     this.authService.GetMethod('device/fuel-type').subscribe(
-      (data1) => {
+      (data1:any) => {
 
         this.fuellist = data1;
         this.fuellistLoaded = true;
       });
     this.authService.GetMethod('device/device-type').subscribe(
-      (data2) => {
+      (data2:any) => {
 
         this.devicetypelist = data2;
         this.devicetypeLoded = true;
       }
     );
     this.authService.GetMethod('countrycode/list').subscribe(
-      (data3) => {
+      (data3:any) => {
 
         this.countrylist = data3;
         this.countrycodeLoded = true;
@@ -177,14 +179,11 @@ export class AlldevicesComponent {
     );
   }
 
-  private _filter(value: any): string[] {
+  private _filter(value: any): CountryInfo[] {
 
     const filterValue = value.toLowerCase();
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
-      // const updatedFormValues = this.FilterForm.value;
-      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
-      // this.isAnyFieldFilled = false;
     } else {
       this.showerror = false;
     }
@@ -278,10 +277,10 @@ export class AlldevicesComponent {
     this.deviceService.GetMyDevices(this.deviceurl, this.FilterForm.value, page).subscribe({
       next: data => {
         this.showlist = true
-        //@ts-ignore
+       
         if (data.devices) {
           this.loading = false;
-          //@ts-ignore
+       
           this.data = data;
           this.DisplayList()
         }
@@ -303,13 +302,13 @@ export class AlldevicesComponent {
   DisplayList() {
     if (this.fuellistLoaded == true && this.devicetypeLoded == true && this.countrycodeLoded === true) {
 
-      //@ts-ignore
-      this.data.devices.forEach(ele => {
-        //@ts-ignore
+     
+      this.data.devices.forEach((ele:any) => {
+      
         ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
-        //@ts-ignore
+       
         ele['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == ele.deviceTypeCode)?.name;
-        //@ts-ignore
+       
         ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
       })
 

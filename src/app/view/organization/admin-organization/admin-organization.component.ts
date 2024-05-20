@@ -2,7 +2,6 @@ import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
-// import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
@@ -13,7 +12,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-// import { DeviceDetailsComponent } from '../device-details/device-details.component'
+import {OrganizationInformation,fulecodeType,devicecodeType,CountryInfo} from '../../../models'
 @Component({
   selector: 'app-admin-organization',
   templateUrl: './admin-organization.component.html',
@@ -24,7 +23,6 @@ export class AdminOrganizationComponent {
   dataFromDialog: any;
   displayedColumns = [
     'name',
-    // 'orgemail',
     'type',
     'status',
     'no of users',
@@ -37,10 +35,10 @@ export class AdminOrganizationComponent {
   loginuser: any
   deviceurl: any;
   pageSize: number = 20;
-  countrylist: any;
-  fuellist: any;
-  orglist: any;
-  devicetypelist: any;
+  countrylist: CountryInfo[]=[];
+  fuellist: fulecodeType[]=[];
+  orglist: OrganizationInformation[]=[];
+  devicetypelist: devicecodeType[]=[];
   fuellistLoaded: boolean = false;
   devicetypeLoded: boolean = false;
   countrycodeLoded: boolean = false;
@@ -78,8 +76,7 @@ export class AdminOrganizationComponent {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          //@ts-ignore
-          this.orglist =data.organizations.filter(org => org.organizationType != "ApiUser");
+          this.orglist =data.organizations.filter((org:OrganizationInformation) => org.organizationType != "ApiUser");
           this.orglistload = true;
      
         });
@@ -92,7 +89,6 @@ export class AdminOrganizationComponent {
         });
     }
 
-
     setTimeout(() => {
       this.loading = false;
       if (this.loginuser.role === 'Admin') {
@@ -101,7 +97,6 @@ export class AdminOrganizationComponent {
       else if (this.loginuser.role === 'ApiUser') {
         this.getApiuserAllOrganization(this.p);
       }
-
       if (this.orglistload) {
         this.applyorgFilter();
       }
@@ -122,25 +117,19 @@ export class AdminOrganizationComponent {
     );
   }
 
-  private _filter(value: any): string[] {
+  private _filter(value: any): OrganizationInformation[] {
  
     const filterValue = value.toLowerCase();
-    if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
+    if (!(this.orglist.filter((option: OrganizationInformation) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
-      // const updatedFormValues = this.FilterForm.value;
-      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
-      // this.isAnyFieldFilled = false;
     } else {
       this.showerror = false;
     }
-    return this.orglist.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
-
+    return this.orglist.filter((option: OrganizationInformation) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
   }
 
-  selectOrg(event: any) {
-   
+  selectOrg(event: any) { 
     this.subscription = this.filteredOptions.subscribe(options => {
-
       const selectedorg = options.find(option => option.name === event.option.value);
       if (selectedorg) {
         this.FilterForm.controls['organizationName'].setValue(selectedorg.name);
@@ -150,28 +139,20 @@ export class AdminOrganizationComponent {
   reset() {
     this.FilterForm.reset();
     this.p = 1
-    // this.FilterForm.controls['organizationName'].setValue(null);
     this.loading = true;
-    // this.applyorgFilter();
     this.getAllOrganization(this.p);
   }
   getAllOrganization(page: number) {
-    //this.FilterForm.controls['pagenumber'].setValue(page);
     const limit = 20;
     this.adminService.GetAllOrganization(page, limit, this.FilterForm.value).subscribe(
       (data) => {
    
         this.showlist = true
         this.loading = false;
-        //@ts-ignore
-        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-    
-        //@ts-ignore
-        this.dataSource = new MatTableDataSource(this.data.organizations.filter(org => org.organizationType != "ApiUser"));
+        this.data = data;
+        this.dataSource = new MatTableDataSource(this.data.organizations.filter((org:OrganizationInformation) => org.organizationType != "ApiUser"));
         this.totalRows = this.data.totalCount
-    
         this.totalPages = this.data.totalPages
-        // this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       }, error => {
         this.data = [];
@@ -180,21 +161,15 @@ export class AdminOrganizationComponent {
     )
   }
   getApiuserAllOrganization(page: number) {
-    //this.FilterForm.controls['pagenumber'].setValue(page);
     const limit = 20;
     this.orgService.GetApiUserAllOrganization(page, limit, this.FilterForm.value).subscribe(
       (data) => {
-     
         this.showlist = true
         this.loading = false;
-        //@ts-ignore
-        this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-      
+        this.data = data;
         this.dataSource = new MatTableDataSource(this.data.organizations);
         this.totalRows = this.data.totalCount
-       
         this.totalPages = this.data.totalPages
-        // this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       }, error => {
         this.data = [];

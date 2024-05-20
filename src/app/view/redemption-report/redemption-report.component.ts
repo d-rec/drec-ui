@@ -6,6 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { ReservationService } from '../../auth//services/reservation.service';
 import { Router } from '@angular/router';
 import { AuthbaseService } from '../../auth/authbase.service';
+import {fulecodeType,devicecodeType,CountryInfo}from '../../models'
 @Component({
   selector: 'app-redemption-report',
   templateUrl: './redemption-report.component.html',
@@ -20,25 +21,19 @@ export class RedemptionReportComponent implements OnInit {
     'compliance',
     'country',
     'fuelCode',
-    // 'commissioningDateRange',
     "beneficiary",
     "beneficiary_address",
     "claimCoiuntryCode",
     'capacityRange',
     "purpose",
     'offTakers',
-    // 'sectors',
-    // 'standardCompliance',
-    // 'installations'
-
   ];
   pageSize: number = 20;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
-
-  countrylist: any;
-  fuellist: any;
+  countrylist:CountryInfo[]=[];
+  fuellist: fulecodeType[]=[];
 
   offtaker = ['School','Education','Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture','Utility','Off-Grid Community']
 
@@ -53,7 +48,7 @@ export class RedemptionReportComponent implements OnInit {
   DisplayfuelList() {
 
     this.authService.GetMethod('device/fuel-type').subscribe(
-      (data) => {
+      (data:any) => {
         this.fuellist = data;
 
       }
@@ -62,7 +57,7 @@ export class RedemptionReportComponent implements OnInit {
   DisplaycountryList() {
 
     this.authService.GetMethod('countrycode/list').subscribe(
-      (data) => {
+      (data:any) => {
        
         this.countrylist = data;
 
@@ -74,45 +69,29 @@ export class RedemptionReportComponent implements OnInit {
       (data) => {
     
         this.data = data;
-        //@ts-ignore
-        this.data.forEach(ele => {
+        this.data.forEach((ele:any) => {
          
           if (ele.fuelCode != '') {
             let fuelname: any = [];
-            //@ts-ignore
-            let f = ele.fuelCode.filter((str) => str !== ' ');
-            //@ts-ignore
-            f.map((aele) =>
-              //@ts-ignore
+            let f = ele.fuelCode.filter((str:any) => str !== ' ');
+            f.map((aele:any) =>
               fuelname.push(this.fuellist.find((fuelType) => fuelType.code === aele.trim())?.name)
             )
             ele['fuelname'] = [...new Set(fuelname)].toString();
-
-            //  fuelname.filter((item,index) => fuelname.indexOf(item) === index);;
-
           } else {
             ele['fuelname'] = '';
           }
-          // @ts-ignore
-          ele.country.filter((str) => str !== '');
+          ele.country.filter((str:any) => str !== '');
           if (ele.country != '') {
-
-            // @ts-ignore
-            ele['countryname'] = [... new Set(ele.country.map((bele) => (this.countrylist.find(countrycode => countrycode.alpha3 === bele.trim())?.country)))].toString();
+            ele['countryname'] = [... new Set(ele.country.map((bele:any) => (this.countrylist.find((countrycode:CountryInfo) => countrycode.alpha3 === bele.trim())?.country)))].toString();
 
           } else {
             ele['countryname'] = '';
           }
+          ele['claimCoiuntryCode'] = this.countrylist.find((countrycode:CountryInfo) => countrycode.alpha3 === ele.claimCoiuntryCode)?.country;
 
-          //@ts-ignore
-          ele['claimCoiuntryCode'] = this.countrylist.find(countrycode => countrycode.alpha3 === ele.claimCoiuntryCode)?.country;
-          //@ts-ignore
-          // ele.offTakers.filter((str) => str !== ' ');
-          //@ts-ignore
-          let o = ele.offTakers.filter((str) => str !== ' ');
-          //@ts-ignore
-          ele['offTakername'] = [...new Set(o.map((e) => e.trim()))].toString()
-          //[... new Set(ele.offTakers)].toString();
+          let o = ele.offTakers.filter((str:any) => str !== ' ');
+          ele['offTakername'] = [...new Set(o.map((e:any) => e.trim()))].toString()
 
         })
       

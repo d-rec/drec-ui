@@ -66,12 +66,9 @@ export class LoginComponent implements OnInit {
                 this.inviteservice.getinvitationByemail().subscribe({
                   next: data => {
                     const invitationId = data.id
-                    //@ts-ignore
-                    let loginuser = JSON.parse(sessionStorage.getItem('loginuser'));
-
+                    let loginuser  = JSON.parse(sessionStorage.getItem('loginuser') as any);
                     // Update the role property of the loginuser object with the new value
                     loginuser.role = data.role;
-
                     // Save the updated loginuser object back to sessionStorage
                     sessionStorage.setItem('loginuser', JSON.stringify(loginuser));
                     this.inviteservice.acceptinvitaion(invitationId, {
