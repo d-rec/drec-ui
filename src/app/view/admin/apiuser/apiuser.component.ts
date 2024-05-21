@@ -1,10 +1,23 @@
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ViewChildren,
+  QueryList,
+  ChangeDetectorRef,
+} from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
@@ -13,15 +26,15 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component'
+import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
 import { EditUserComponent } from '../../edit-user/edit-user.component';
 import { ToastrService } from 'ngx-toastr';
 import { errors } from 'ethers';
-import { InvitationformComponent } from '../../admin/invitationform/invitationform.component'
+import { InvitationformComponent } from '../../admin/invitationform/invitationform.component';
 @Component({
   selector: 'app-apiuser',
   templateUrl: './apiuser.component.html',
-  styleUrls: ['./apiuser.component.scss']
+  styleUrls: ['./apiuser.component.scss'],
 })
 export class ApiuserComponent {
   FilterForm: FormGroup;
@@ -43,29 +56,32 @@ export class ApiuserComponent {
   totalPages: number = 1;
   p: number = 1;
   orgnaizatioId: number;
-  showorg: boolean = false
-  orgdetails: any
+  showorg: boolean = false;
+  orgdetails: any;
   loginuser: any;
   orglist: any;
   showorguser: boolean = true;
   filteredOptions: Observable<any[]>;
   subscription: Subscription;
   showerror: boolean = false;
-  constructor(private authService: AuthbaseService,
+  constructor(
+    private authService: AuthbaseService,
     private orgService: OrganizationService,
     private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
     private dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
-    private toastrService: ToastrService) {
+    private toastrService: ToastrService,
+  ) {
     if (this.activatedRoute.snapshot.params['id']) {
       this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
       this.showorg = true;
-      this.adminService.GetOrganizationById(this.orgnaizatioId).subscribe((data) => {
-       this.orgdetails = data
-
-      })
+      this.adminService
+        .GetOrganizationById(this.orgnaizatioId)
+        .subscribe((data) => {
+          this.orgdetails = data;
+        });
     }
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -76,20 +92,18 @@ export class ApiuserComponent {
       //pagenumber: [this.p]
     });
     if (this.loginuser.role === 'Admin') {
-      this.adminService.GetAllOrganization().subscribe(
-        (data) => {
-          this.orglist = data.organizations
-         })
+      this.adminService.GetAllOrganization().subscribe((data) => {
+        this.orglist = data.organizations;
+      });
     }
 
     setTimeout(() => {
       // if (this.countrycodeLoded) {
-        this.applyorgFilter();   
-          // }
+      this.applyorgFilter();
+      // }
       this.loading = false;
       this.getAllUsers(this.p);
-    }, 2000)
-   
+    }, 2000);
   }
   ngOnDestroy() {
     if (this.subscription) {
@@ -98,16 +112,23 @@ export class ApiuserComponent {
   }
   applyorgFilter() {
     this.FilterForm.controls['organizationName'];
-    this.filteredOptions = this.FilterForm.controls['organizationName'].valueChanges.pipe(
+    this.filteredOptions = this.FilterForm.controls[
+      'organizationName'
+    ].valueChanges.pipe(
       startWith(''),
-      map(value => this._filter(value || '')),
+      map((value) => this._filter(value || '')),
     );
   }
 
   private _filter(value: any): string[] {
-
     const filterValue = value.toLowerCase();
-    if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
+    if (
+      !(
+        this.orglist.filter((option: any) =>
+          option.name.toLowerCase().includes(filterValue),
+        ).length > 0
+      )
+    ) {
       this.showerror = true;
       // const updatedFormValues = this.FilterForm.value;
       // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
@@ -115,14 +136,17 @@ export class ApiuserComponent {
     } else {
       this.showerror = false;
     }
-    return this.orglist.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
-
+    return this.orglist.filter(
+      (option: any) =>
+        option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0,
+    );
   }
 
   selectOrg(event: any) {
-   this.subscription = this.filteredOptions.subscribe(options => {
-
-      const selectedorg = options.find(option => option.name === event.option.value);
+    this.subscription = this.filteredOptions.subscribe((options) => {
+      const selectedorg = options.find(
+        (option) => option.name === event.option.value,
+      );
       if (selectedorg) {
         this.FilterForm.controls['organizationName'].setValue(selectedorg.name);
       }
@@ -136,22 +160,21 @@ export class ApiuserComponent {
     this.applyorgFilter();
     this.getAllUsers(this.p);
   }
-  getAllUsers(page:number) {
-    const limit=20;
-    if (this.loginuser.role === "Admin") {
-    
-        this.adminService.GetAllApiUsers(page,limit,this.FilterForm.value).subscribe((data) => {
+  getAllUsers(page: number) {
+    const limit = 20;
+    if (this.loginuser.role === 'Admin') {
+      this.adminService
+        .GetAllApiUsers(page, limit, this.FilterForm.value)
+        .subscribe((data) => {
           this.showlist = true;
-          this.showorguser=false;
-          this.loading = false
-          //@ts-ignore
-          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
+          this.showorguser = false;
+          this.loading = false;
+          this.data = data; //.filter(ele => ele.organizationType === 'Developer');
           this.dataSource = new MatTableDataSource(this.data.users);
-          this.totalRows = this.data.totalCount
-          this.totalPages = this.data.totalPages
-        })
-      }
-  
+          this.totalRows = this.data.totalCount;
+          this.totalPages = this.data.totalPages;
+        });
+    }
   }
   previousPage(): void {
     if (this.p > 1) {
@@ -163,79 +186,82 @@ export class ApiuserComponent {
   nextPage(): void {
     if (this.p < this.totalPages) {
       this.p++;
-      this.getAllUsers(this.p);;
+      this.getAllUsers(this.p);
     }
   }
   openUpdateDialog(user: any) {
-
     //this.router.navigate(['/admin/edit_user/' + user.id]);
     const confirmDialog = this.dialog.open(EditUserComponent, {
       data: {
         title: 'Edit User',
         //message: 'Are you sure, you want to remove Uaer: ' + user.firstName+ '' +user.lastName
-        userinfo: user
+        userinfo: user,
       },
       width: '900px',
       height: '300px',
     });
-    confirmDialog.afterClosed().subscribe(result => {
+    confirmDialog.afterClosed().subscribe((result) => {
       if (result === true) {
         // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
-        this.getAllUsers(this.p)
+        this.getAllUsers(this.p);
       }
     });
   }
 
   openDialog(user: any) {
-    if (user.role === 'OrganizationAdmin'||user.role === 'Buyer') {
+    if (user.role === 'OrganizationAdmin' || user.role === 'Buyer') {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
           title: 'Confirm Remove User',
-          message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName + ', if yes please assign this role to other user of this organization',
+          message:
+            'Are you sure, you want to remove User: ' +
+            user.firstName +
+            '' +
+            user.lastName +
+            ', if yes please assign this role to other user of this organization',
           data: user,
           showchangeform: true,
-        }
+        },
       });
-      confirmDialog.afterClosed().subscribe(result => {
+      confirmDialog.afterClosed().subscribe((result) => {
         if (result === true) {
           // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
-          this.deleteUser(user.id)
+          this.deleteUser(user.id);
         }
       });
-
     } else {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
           title: 'Confirm Remove User',
-          message: 'Are you sure, you want to remove User: ' + user.firstName + '' + user.lastName
-        }
+          message:
+            'Are you sure, you want to remove User: ' +
+            user.firstName +
+            '' +
+            user.lastName,
+        },
       });
-      confirmDialog.afterClosed().subscribe(result => {
+      confirmDialog.afterClosed().subscribe((result) => {
         if (result === true) {
           // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
-          this.deleteUser(user.id)
+          this.deleteUser(user.id);
         }
       });
     }
-
   }
   deleteUser(id: number) {
-
-    this.adminService.removeUser(id).subscribe((response) => {
-      if (response.success) {
-        this.toastrService.success('User Deleted', 'Successful')
-        this.getAllUsers(this.p);
-      } else {
-
-        this.toastrService.error(response.message, 'Failure')
-      }
-
-    }, (err) => {
-   
-      this.toastrService.error(err.error.message, 'Failure')
-    })
-
-
+    this.adminService.removeUser(id).subscribe(
+      (response) => {
+        if (response.success) {
+          this.toastrService.success('User Deleted', 'Successful');
+          this.getAllUsers(this.p);
+        } else {
+          this.toastrService.error(response.message, 'Failure');
+        }
+      },
+      (err) => {
+        this.toastrService.error(err.error.message, 'Failure');
+      },
+    );
   }
 
   openinviteDialog() {
@@ -243,10 +269,10 @@ export class ApiuserComponent {
       data: {
         title: 'User invite in ' + this.orgdetails.name,
         message: 'Are you sure, you want to  Invite: ',
-        orginfo: this.orgdetails
-      }
+        orginfo: this.orgdetails,
+      },
     });
-    confirmDialog.afterClosed().subscribe(result => {
+    confirmDialog.afterClosed().subscribe((result) => {
       if (result === true) {
         // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
         //this.deleteDevice(device.id)

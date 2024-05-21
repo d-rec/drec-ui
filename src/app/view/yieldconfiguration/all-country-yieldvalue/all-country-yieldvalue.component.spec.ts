@@ -8,9 +8,8 @@ describe('AllCountryYieldvalueComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AllCountryYieldvalueComponent ]
-    })
-    .compileComponents();
+      declarations: [AllCountryYieldvalueComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AllCountryYieldvalueComponent);
     component = fixture.componentInstance;

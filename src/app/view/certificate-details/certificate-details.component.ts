@@ -1,10 +1,27 @@
-
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, ViewChild, ElementRef, TemplateRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input, OnDestroy } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  ElementRef,
+  TemplateRef,
+  ViewChildren,
+  QueryList,
+  ChangeDetectorRef,
+  OnInit,
+  Input,
+  OnDestroy,
+} from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
-import { animate, group, state, style, transition, trigger } from '@angular/animations';
+import {
+  animate,
+  group,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
@@ -14,31 +31,53 @@ import { BlockchainDrecService } from '../../auth/services/blockchain-drec.servi
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
 import { ethers } from 'ethers';
 import { ToastrService } from 'ngx-toastr';
-import { ReservationService, OrganizationService, MeterReadService, DeviceService, CertificateService } from '../../auth/services';
-import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
+import {
+  ReservationService,
+  OrganizationService,
+  MeterReadService,
+  DeviceService,
+  CertificateService,
+} from '../../auth/services';
+import {
+  FormGroup,
+  FormBuilder,
+  FormArray,
+  Validators,
+  FormControl,
+} from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DateAdapter } from '@angular/material/core';
-import { DeviceDetailsComponent } from '../device/device-details/device-details.component'
+import { DeviceDetailsComponent } from '../device/device-details/device-details.component';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 @Component({
   selector: 'app-certificate-details',
   templateUrl: './certificate-details.component.html',
-  styleUrls: ['./certificate-details.component.scss']
+  styleUrls: ['./certificate-details.component.scss'],
 })
 export class CertificateDetailsComponent {
-
   @Input() dataFromComponentA: any;
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
-  displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
-  innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour', 'Action'];
+  displayedColumns = [
+    'serialno',
+    'certificateStartDate',
+    'certificateEndDate',
+    'owners',
+  ];
+  innerDisplayedColumns = [
+    'certificate_issuance_startdate',
+    'certificate_issuance_enddate',
+    'externalId',
+    'readvalue_watthour',
+    'Action',
+  ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild('startThumb') startThumb: ElementRef<HTMLInputElement>;
   @ViewChild('endThumb') endThumb: ElementRef<HTMLInputElement>;
-  loginuser: any
+  loginuser: any;
   dataSource: MatTableDataSource<any>;
   obs: Observable<any>;
   data: any;
@@ -54,7 +93,7 @@ export class CertificateDetailsComponent {
   loading: boolean = true;
   history_nextissuanclist: any;
   ongoingnextissuance: any;
-  devicesId: any
+  devicesId: any;
   alldevicescertifiedlogdatrange: any = [];
   intervalId: any;
   reservationstatus: boolean;
@@ -63,7 +102,18 @@ export class CertificateDetailsComponent {
   totalPages: number;
   p: number = 1;
   FilterForm: FormGroup;
-  offtaker = ['School', 'Education', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture', 'Utility', 'Off-Grid Community']
+  offtaker = [
+    'School',
+    'Education',
+    'Health Facility',
+    'Residential',
+    'Commercial',
+    'Industrial',
+    'Public Sector',
+    'Agriculture',
+    'Utility',
+    'Off-Grid Community',
+  ];
   endminDate = new Date();
   sdgblist: any;
   fuellist: any;
@@ -78,7 +128,13 @@ export class CertificateDetailsComponent {
   orglist: any;
   filteredOrgList: Observable<any[]>;
   showorgerror: boolean = false;
-  constructor(private blockchainDRECService: BlockchainDrecService, private authService: AuthbaseService, private router: Router, private activatedRoute: ActivatedRoute, private toastrService: ToastrService, private bottomSheet: MatBottomSheet,
+  constructor(
+    private blockchainDRECService: BlockchainDrecService,
+    private authService: AuthbaseService,
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private toastrService: ToastrService,
+    private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
     private readService: MeterReadService,
@@ -86,9 +142,8 @@ export class CertificateDetailsComponent {
     private certificateService: CertificateService,
     private formBuilder: FormBuilder,
     private dialog: MatDialog,
-    private orgService: OrganizationService
+    private orgService: OrganizationService,
   ) {
-
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
       countryCode: [],
@@ -104,52 +159,46 @@ export class CertificateDetailsComponent {
       // toAmountread: [null],
       // pagenumber: [this.p]
     });
-
   }
   ngOnInit() {
-
     this.energyurl = environment.Explorer_URL + '/block/';
     if (this.loginuser.role === 'ApiUser') {
-      this.FilterForm.addControl('organizationname', this.formBuilder.control(''));
-      this.FilterForm.addControl('organizationId', this.formBuilder.control(''));
-
+      this.FilterForm.addControl(
+        'organizationname',
+        this.formBuilder.control(''),
+      );
+      this.FilterForm.addControl(
+        'organizationId',
+        this.formBuilder.control(''),
+      );
     }
-    this.authService.GetMethod('device/fuel-type').subscribe(
-      (data1) => {
-        // display list in the console
-        this.fuellist = data1;
-        // this.fuellistLoaded = true;
-      });
-    this.authService.GetMethod('device/device-type').subscribe(
-      (data2) => {
-        // display list in the console
-        this.devicetypelist = data2;
-        // this.devicetypeLoded = true;
-      }
-    );
-    this.authService.GetMethod('countrycode/list').subscribe(
-      (data3) => {
-        this.countrylist = data3;
-        this.countrycodeLoded = true;
-      }
-    )
-    this.authService.GetMethod('sdgbenefit/code').subscribe(
-      (data) => {
-        // display list in the console 
-        this.sdgblist = data;
-      }
-    )
+    this.authService.GetMethod('device/fuel-type').subscribe((data1) => {
+      // display list in the console
+      this.fuellist = data1;
+      // this.fuellistLoaded = true;
+    });
+    this.authService.GetMethod('device/device-type').subscribe((data2) => {
+      // display list in the console
+      this.devicetypelist = data2;
+      // this.devicetypeLoded = true;
+    });
+    this.authService.GetMethod('countrycode/list').subscribe((data3) => {
+      this.countrylist = data3;
+      this.countrycodeLoded = true;
+    });
+    this.authService.GetMethod('sdgbenefit/code').subscribe((data) => {
+      // display list in the console
+      this.sdgblist = data;
+    });
     setTimeout(() => {
       if (this.countrycodeLoded) {
         this.applycountryFilter();
-
       }
 
       this.DisplayList(this.p);
     }, 1500);
     this.getBlockchainProperties();
     this.selectAccountAddressFromMetamask();
-
   }
   ngOnDestroy() {
     if (this.subscription) {
@@ -158,45 +207,52 @@ export class CertificateDetailsComponent {
   }
 
   showorglist(event: any) {
-    //this.filteredOrgList=[];
-    this.orgService.GetApiUserAllOrganization().subscribe(
-      (data) => {
-        if (event === "Developer") {
-          //@ts-ignore
-          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-          this.applyorgFilter();
-        } else {
-          //@ts-ignore
-          this.orglist = data.organizations.filter(org => org.organizationType != "Developer");
-          this.applyorgFilter();
-        }
+    this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+      if (event === 'Developer') {
+        this.orglist = data.organizations.filter(
+          (org) => org.organizationType != 'Buyer',
+        );
+        this.applyorgFilter();
+      } else {
+        this.orglist = data.organizations.filter(
+          (org) => org.organizationType != 'Developer',
+        );
+        this.applyorgFilter();
       }
-    );
-
+    });
   }
   applyorgFilter() {
     this.FilterForm.controls['organizationname'];
-    this.filteredOrgList = this.FilterForm.controls['organizationname'].valueChanges.pipe(
+    this.filteredOrgList = this.FilterForm.controls[
+      'organizationname'
+    ].valueChanges.pipe(
       startWith(''),
-      map(value => this._orgfilter(value || '')),
+      map((value) => this._orgfilter(value || '')),
     );
   }
   private _orgfilter(value: any): string[] {
-
     const filterValue = value.toLowerCase();
-    if (!(this.orglist.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
+    if (
+      !(
+        this.orglist.filter((option: any) =>
+          option.name.toLowerCase().includes(filterValue),
+        ).length > 0
+      )
+    ) {
       this.showorgerror = true;
-
     } else {
       this.showorgerror = false;
     }
-    return this.orglist.filter((option: any) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
-
+    return this.orglist.filter(
+      (option: any) =>
+        option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0,
+    );
   }
   selectorg(event: any) {
-     this.subscription = this.filteredOrgList.subscribe(options => {
-
-      const selectedorg = options.find(option => option.name === event.option.value);
+    this.subscription = this.filteredOrgList.subscribe((options) => {
+      const selectedorg = options.find(
+        (option) => option.name === event.option.value,
+      );
       if (selectedorg) {
         this.FilterForm.controls['organizationId'].setValue(selectedorg.id);
       }
@@ -207,29 +263,41 @@ export class CertificateDetailsComponent {
   }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
-    this.filteredOptions = this.FilterForm.controls['countryname'].valueChanges.pipe(
+    this.filteredOptions = this.FilterForm.controls[
+      'countryname'
+    ].valueChanges.pipe(
       startWith(''),
-      map(value => this._filter(value || '')),
+      map((value) => this._filter(value || '')),
     );
-
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
-    if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
+    if (
+      !(
+        this.countrylist.filter((option: any) =>
+          option.country.toLowerCase().includes(filterValue),
+        ).length > 0
+      )
+    ) {
       this.showerror = true;
-
     } else {
       this.showerror = false;
     }
-    return this.countrylist.filter((option: { country: string; }) => option.country.toLowerCase().includes(filterValue));
+    return this.countrylist.filter((option: { country: string }) =>
+      option.country.toLowerCase().includes(filterValue),
+    );
   }
 
   selectCountry(event: any) {
-    this.subscription = this.filteredOptions.subscribe(options => {
-      const selectedCountry = options.find((option: any) => option.country === event.option.value);
-     
+    this.subscription = this.filteredOptions.subscribe((options) => {
+      const selectedCountry = options.find(
+        (option: any) => option.country === event.option.value,
+      );
+
       if (selectedCountry) {
-        this.FilterForm.controls['countryCode'].setValue(selectedCountry.alpha3);
+        this.FilterForm.controls['countryCode'].setValue(
+          selectedCountry.alpha3,
+        );
       }
     });
   }
@@ -241,49 +309,60 @@ export class CertificateDetailsComponent {
 
   blockchainProperties: BlockchainProperties;
   getBlockchainProperties() {
-    this.blockchainDRECService.getBlockchainProperties().subscribe((response: BlockchainProperties) => {
-      this.blockchainProperties = response;
-    })
+    this.blockchainDRECService
+      .getBlockchainProperties()
+      .subscribe((response: BlockchainProperties) => {
+        this.blockchainProperties = response;
+      });
   }
   isAnyFieldFilled: boolean = false;
 
   checkFormValidity(): void {
     let isUserInteraction = true; // Flag to track user interaction
 
-    this.FilterForm.valueChanges.pipe(
-      debounceTime(500) // Debounce the stream for 500 milliseconds
-    ).subscribe((formValues) => {
-      if (isUserInteraction) {
-        if (formValues.organizationId === undefined || formValues.organizationId === '') {
-          this.FilterForm.controls['organizationname'].setValue(null);
-          this.FilterForm.controls['organizationId'].setValue(null);
+    this.FilterForm.valueChanges
+      .pipe(
+        debounceTime(500), // Debounce the stream for 500 milliseconds
+      )
+      .subscribe((formValues) => {
+        if (isUserInteraction) {
+          if (
+            formValues.organizationId === undefined ||
+            formValues.organizationId === ''
+          ) {
+            this.FilterForm.controls['organizationname'].setValue(null);
+            this.FilterForm.controls['organizationId'].setValue(null);
+          }
+          const countryValue = formValues.countryname;
+          if (countryValue === undefined || countryValue === '') {
+            this.FilterForm.controls['countryname'].setValue(null);
+            this.FilterForm.controls['countryCode'].setValue(null);
+          }
+          const fuelCodeValue = formValues.fuelCode;
+          if (fuelCodeValue === undefined) {
+            this.FilterForm.controls['fuelCode'].setValue(null);
+          }
+          if (formValues.offTaker[0] === undefined) {
+            this.FilterForm.controls['offTaker'].setValue(null);
+          }
+          if (
+            formValues.SDGBenefits != null &&
+            formValues.SDGBenefits[0] === undefined
+          ) {
+            this.FilterForm.controls['SDGBenefits'].setValue(null);
+          }
+          // Other code...
         }
-        const countryValue = formValues.countryname;
-        if (countryValue === undefined || countryValue === '') {
-          this.FilterForm.controls['countryname'].setValue(null);
-          this.FilterForm.controls['countryCode'].setValue(null);
-
-        }
-        const fuelCodeValue = formValues.fuelCode;
-        if (fuelCodeValue === undefined) {
-          this.FilterForm.controls['fuelCode'].setValue(null);
-        }
-        if (formValues.offTaker[0] === undefined) {
-          this.FilterForm.controls['offTaker'].setValue(null);
-        }
-        if (formValues.SDGBenefits != null && formValues.SDGBenefits[0] === undefined) {
-          this.FilterForm.controls['SDGBenefits'].setValue(null);
-        }
-        // Other code...
-      }
-    });
+      });
 
     setTimeout(() => {
       const updatedFormValues = this.FilterForm.value;
-      const isAllValuesNull = Object.values(updatedFormValues).some((value) => !!value);
+      const isAllValuesNull = Object.values(updatedFormValues).some(
+        (value) => !!value,
+      );
       this.isAnyFieldFilled = isAllValuesNull;
       if (!this.isAnyFieldFilled) {
-        this.DisplayList(this.p)
+        this.DisplayList(this.p);
       }
     }, 500);
 
@@ -319,7 +398,6 @@ export class CertificateDetailsComponent {
     this.isAnyFieldFilled = false;
     this.p = 1;
     this.DisplayList(this.p);
-
   }
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
@@ -336,128 +414,165 @@ export class CertificateDetailsComponent {
   }
   // CertificateClaimed:boolean=false;
   DisplayList(page: number) {
-
-    this.certificateService.GetDevoloperCertificateMethod(this.FilterForm.value, page).subscribe({
-      next: (data: any) => {
-        this.loading = false;
-        // display list in the console 
-        if (data.certificatelog.length > 0) {
-          // this.data = data;
-          //@ts-ignore
-          this.data = data.certificatelog.filter(ele => ele !== null)
-          //@ts-ignore
-          this.data.forEach(ele => {
-
-            ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
-            ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
-            //converting blockchain address to lower case
-            if (ele.claims != null && (ele.claims.length > 0)) {
-              ele['CertificateClaimed'] = true;
-            }
-            for (let key in ele.owners) {
-              if (key !== key.toLowerCase()) {
-                ele.owners[key.toLowerCase()] = ele.owners[key];
-                delete ele.owners[key];
-                // if(ele.owner[key].value=0){
-
-                // }
-              }
-            }
-
-            if (ele.creationBlockHash != "") {
-              ele.creationBlockHash
-              ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.id + '/token-transfers'
-            }
-            //@ts-ignore
-            else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
-
-              //@ts-ignore
-              ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
-
-              ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.blockchainCertificateId + '/token-transfers'
-            }
-          })
-
-          this.dataSource = new MatTableDataSource(this.data);
-          this.obs = this.dataSource.connect();
-          this.totalRows = data.totalCount;
-          this.totalPages = data.totalPages;
-        } else {
+    this.certificateService
+      .GetDevoloperCertificateMethod(this.FilterForm.value, page)
+      .subscribe({
+        next: (data: any) => {
           this.loading = false;
-          this.data = [];
-          this.dataSource = new MatTableDataSource(this.data);
-          this.obs = this.dataSource.connect();
-        }
+          // display list in the console
+          if (data.certificatelog.length > 0) {
+            this.data = data.certificatelog.filter((ele: any) => ele !== null);
 
-      }, error: err => {
-        this.loading = false;
+            this.data.forEach((ele: any) => {
+              ele['generationStartTimeinUTC'] = new Date(
+                ele.generationStartTime * 1000,
+              ).toISOString();
+              ele['generationEndTimeinUTC'] = new Date(
+                ele.generationEndTime * 1000,
+              ).toISOString();
+              //converting blockchain address to lower case
+              if (ele.claims != null && ele.claims.length > 0) {
+                ele['CertificateClaimed'] = true;
+              }
+              for (let key in ele.owners) {
+                if (key !== key.toLowerCase()) {
+                  ele.owners[key.toLowerCase()] = ele.owners[key];
+                  delete ele.owners[key];
+                }
+              }
 
-        if (err.error.statusCode === 403) {
-          this.toastrService.error('You are Unauthorized')
-        } else {
-          this.toastrService.error('Error', err.error.message)
-        }
-      }
-    }
-    )
+              if (ele.creationBlockHash != '') {
+                ele.creationBlockHash;
+                ele['energyurl'] =
+                  environment.Explorer_URL +
+                  '/token/' +
+                  this.blockchainProperties.registry +
+                  '/instance/' +
+                  ele.id +
+                  '/token-transfers';
+              } else if (
+                ele.transactions.find(
+                  (ele1: any) => ele1.eventType == 'IssuancePersisted',
+                )
+              ) {
+                ele.creationBlockHash = ele.transactions.find(
+                  (ele1: any) => ele1.eventType == 'IssuancePersisted',
+                ).transactionHash;
+
+                ele['energyurl'] =
+                  environment.Explorer_URL +
+                  '/token/' +
+                  this.blockchainProperties.registry +
+                  '/instance/' +
+                  ele.blockchainCertificateId +
+                  '/token-transfers';
+              }
+            });
+
+            this.dataSource = new MatTableDataSource(this.data);
+            this.obs = this.dataSource.connect();
+            this.totalRows = data.totalCount;
+            this.totalPages = data.totalPages;
+          } else {
+            this.loading = false;
+            this.data = [];
+            this.dataSource = new MatTableDataSource(this.data);
+            this.obs = this.dataSource.connect();
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+
+          if (err.error.statusCode === 403) {
+            this.toastrService.error('You are Unauthorized');
+          } else {
+            this.toastrService.error('Error', err.error.message);
+          }
+        },
+      });
   }
 
   getWindowEthereumObject() {
-    //@ts-ignore
     return window.ethereum;
   }
 
   selectedCertificateForClaim: {
-    id: number,
-    deviceId: string, // groupId or reservation id
-    generationStartTime: number,
-    generationEndTime: number,
-    owners: { [key: string]: string }
-  }
+    id: number;
+    deviceId: string; // groupId or reservation id
+    generationStartTime: number;
+    generationEndTime: number;
+    owners: { [key: string]: string };
+  };
 
   formattedClaimAmount: {
-    hex: string,
-    type: string
-  }
+    hex: string;
+    type: string;
+  };
 
   selectedBlockchainAccount: string = '';
 
   checkMetamaskConnected() {
-    return typeof window !== 'undefined' && typeof this.getWindowEthereumObject() !== 'undefined';
+    return (
+      typeof window !== 'undefined' &&
+      typeof this.getWindowEthereumObject() !== 'undefined'
+    );
   }
-
-  connectWallet() {
-    //@ts-ignore   
-    if (typeof window !== 'undefined' && typeof window.ethereum! == 'undefined') {
-      try {
-        //@ts-ignore
-        window.ethereum.request({ method: 'eth_requestAccounts' })
-
-      }
-      catch (e) {
-        console.error("some error occures", e);
+  getWindowEthereumProperty(): Ethereum | undefined {
+    return window.ethereum;
+  }
+  async connectWallet() {
+    if (
+      typeof window != 'undefined' &&
+      typeof this.getWindowEthereumProperty() != 'undefined'
+    ) {
+      const ethereum = this.getWindowEthereumProperty();
+      if (ethereum) {
+        try {
+          /* MetaMask is installed */
+          const accounts = await ethereum.request({
+            method: 'eth_requestAccounts',
+          });
+          console.log('Connected accounts:', accounts);
+        } catch (err) {
+          console.error('Error connecting to MetaMask:', err);
+        }
+      } else {
+        console.error('MetaMask not found');
       }
     }
   }
 
   selectAccountAddressFromMetamask() {
-    //@ts-ignore
-    if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
-      //@ts-ignore
-      window.ethereum.request({ method: 'eth_requestAccounts' }).then(response => {
-        this.selectedBlockchainAccount = (response && response[0]) ? response[0] : '';
-        this.selectedBlockchainAccount = this.selectedBlockchainAccount.toLowerCase();
-        if (this.selectedBlockchainAccount === '') {
-          this.toastrService.error('No Blockchain account selected please connect metamask account')
-        }
-      }).catch((error: any) => {
-        console.log('Metamask is not connected, please first connect metamask then click this button to select account');
-        console.log(error);
-        this.toastrService.error('Metamask is not connected, please first connect metamask then click this button to select account');
-      });
-    }
-    else {
-      this.toastrService.error('Metamask is not connected, please first connect metamask then click this button to select account');
+    if (
+      typeof window !== 'undefined' &&
+      typeof window.ethereum !== 'undefined'
+    ) {
+      window.ethereum
+        .request({ method: 'eth_requestAccounts' })
+        .then((response) => {
+          this.selectedBlockchainAccount =
+            response && response[0] ? response[0] : '';
+          this.selectedBlockchainAccount =
+            this.selectedBlockchainAccount.toLowerCase();
+          if (this.selectedBlockchainAccount === '') {
+            this.toastrService.error(
+              'No Blockchain account selected please connect metamask account',
+            );
+          }
+        })
+        .catch((error: any) => {
+          console.log(
+            'Metamask is not connected, please first connect metamask then click this button to select account',
+          );
+          console.log(error);
+          this.toastrService.error(
+            'Metamask is not connected, please first connect metamask then click this button to select account',
+          );
+        });
+    } else {
+      this.toastrService.error(
+        'Metamask is not connected, please first connect metamask then click this button to select account',
+      );
     }
   }
   pageChangeEvent(event: PageEvent) {
@@ -475,17 +590,16 @@ export class CertificateDetailsComponent {
   nextPage(): void {
     if (this.p < this.totalPages) {
       this.p++;
-      this.DisplayList(this.p);;
+      this.DisplayList(this.p);
     }
   }
   deviceDetaileDialog(deviceId: number): void {
     const dialogRef = this.dialog.open(DeviceDetailsComponent, {
       data: {
-        deviceid: deviceId
+        deviceid: deviceId,
       },
       width: '900px',
       height: '400px',
     });
   }
 }
-

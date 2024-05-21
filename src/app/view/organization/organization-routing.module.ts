@@ -1,25 +1,25 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import {InformationComponent} from './information/information.component'
-import {UserInvitationComponent} from './user-invitation/user-invitation.component'
+import { InformationComponent } from './information/information.component';
+import { UserInvitationComponent } from './user-invitation/user-invitation.component';
 const routes: Routes = [
   {
     path: '',
     redirectTo: 'information',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
   {
     path: 'my/information',
-    component: InformationComponent
+    component: InformationComponent,
   },
   {
-    path: 'user/invitation', component: UserInvitationComponent
-  }
-
+    path: 'user/invitation',
+    component: UserInvitationComponent,
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class OrganizationRoutingModule { }
+export class OrganizationRoutingModule {}
