@@ -25,7 +25,6 @@ jobs:
 
       - name: Run Prettier
         run: npm run prettier
-        continue-on-error: true
 
   lint-eslint:
     runs-on: ubuntu-latest

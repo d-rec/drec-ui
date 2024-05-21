@@ -8,9 +8,8 @@ describe('EditCountryYieldvalueComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ EditCountryYieldvalueComponent ]
-    })
-    .compileComponents();
+      declarations: [EditCountryYieldvalueComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(EditCountryYieldvalueComponent);
     component = fixture.componentInstance;
