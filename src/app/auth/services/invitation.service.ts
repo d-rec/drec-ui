@@ -9,7 +9,6 @@ import { getapiuser_header } from '../../utils/apiuser_clientinfo'
 })
 export class InvitationService {
     url: String = environment.API_URL;
-    headersData = getapiuser_header();
     constructor(private httpClient: HttpClient) { }
 
     public Postuserinvitation(data: any, organizationId?: number, headers?: any): Observable<any> {
@@ -17,9 +16,8 @@ export class InvitationService {
         if (organizationId != null || organizationId != undefined) {
             addUrl += `?organizationId=${organizationId}`;
         }
-        let newheaders = new HttpHeaders(headers);
-        //@ts-ignore
-        return this.httpClient.post<any>(addUrl, data, { headers })
+       
+        return this.httpClient.post<any>(addUrl, data)
 
     }
     public getinvitaion(): Observable<any> {

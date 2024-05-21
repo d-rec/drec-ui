@@ -105,19 +105,10 @@ export class ApiUserPermissionComponent {
         })
     }
 
-    // setTimeout(() => {
-    //   // if (this.countrycodeLoded) {
-    //   this.applyorgFilter();
-    //   // }
-    //   this.loading = false;
-    //   //this.getAllUserspermission(this.p);
-    // }, 2000)
-
   }
   async getapiUser(){
     this.userId = this.loginuser.id;
     this.showuserdetails = true;
-   // let headers:any = await getapiuser_header();
     this.userService.userProfile().subscribe({
       next: data1 => {
         this.showclientform = false;
@@ -151,13 +142,9 @@ export class ApiUserPermissionComponent {
   }
 
   private _filter(value: any): string[] {
-
     const filterValue = value.toLowerCase();
     if (!(this.apiuserlist.filter((option: any) => option.firstName.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
-      // const updatedFormValues = this.FilterForm.value;
-      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
-      // this.isAnyFieldFilled = false;
     } else {
       this.showerror = false;
     }
@@ -165,24 +152,14 @@ export class ApiUserPermissionComponent {
 
   }
   selectOrg(event: any) {
-    // this.subscription = this.filteredOptions.subscribe(options => {
-    //   const selectedorg = options.find(option => option.id === event.option.value);
-    //   if (selectedorg) {
     this.fromselectid = true;
-    //     this.FilterForm.controls['user_id'].setValue(selectedorg.id);
-    //     this.FilterForm.controls['organizationName'].setValue(selectedorg.firstName);
-    //   }
-    // });
   }
   reset() {
     this.FilterForm.reset();
 
     this.FilterForm.controls['organizationName'].setValue(null);
     this.FilterForm.controls['user_id'].setValue(null);
-    // this.loading = true;
-    // this.applyorgFilter();
     this.showlist = false;
-    // this.getAllUserspermission(this.p);
   }
   submit() {
 
@@ -202,29 +179,18 @@ export class ApiUserPermissionComponent {
     const limit = 20;
     this.loading = true
     if (this.loginuser.role === "Admin") {
-     
       this.userpermissionService.getUserpermission(this.FilterForm.value).subscribe((data) => {
-      
         this.loading = false
         if (data.length > 0) {
           this.showorg = true;
-
           this.showlist = true
-
-          //@ts-ignore
-          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-        
+          this.data = data;      
           this.dataSource = new MatTableDataSource(this.data);
-          this.totalRows = this.data.totalCount
-        
+          this.totalRows = this.data.totalCount      
           this.totalPages = this.data.totalPages
         }
-
       })
-
-
-    } else if (this.loginuser.role === "ApiUser") {
-     
+    } else if (this.loginuser.role === "ApiUser") { 
       const data = {
         user_id: this.userId
       }
@@ -232,21 +198,13 @@ export class ApiUserPermissionComponent {
       
         this.loading = false
         if (data.length > 0) {
-          //this.showorg = true;
-
-          this.showlist = true
-
-          //@ts-ignore
-          this.data = data;//.filter(ele => ele.organizationType === 'Developer');
-         
+          this.showlist = true;
+          this.data = data;      
           this.dataSource = new MatTableDataSource(this.data);
-          this.totalRows = this.data.totalCount
-       
+          this.totalRows = this.data.totalCount    
           this.totalPages = this.data.totalPages
         }
-
       })
-
     }
   }
 
@@ -260,15 +218,12 @@ export class ApiUserPermissionComponent {
     });
     confirmDialog.afterClosed().subscribe(result => {
       if (result === true) {
-        // this.employeeList = this.employeeList.filter(item => item.employeeId !== employeeObj.employeeId);
-        //this.deleteDevice(device.id)
         this.getuserinfo();
       }
     });
   }
 
   UpdatePermission(row:number){
-   
     const dialogRef = this.dialog.open(EditPermissionComponent, {
       data: {
         upatefor: 'User ',

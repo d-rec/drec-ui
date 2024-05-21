@@ -56,18 +56,8 @@ export class AddUsersComponent {
         confirmPassword: new FormControl(null),
 
       },
-      // {
-      //   validators: (control) => {
-
-      //     if (control.value.password !== control.value.confirmPassword) {
-      //       //@ts-ignore
-      //       control.get("confirmPassword").setErrors({ notSame: true });
-      //     }
-      //     return null;
-      //   },
-      // }
+     
     );
-
 
   }
   emaiErrors() {

@@ -148,8 +148,7 @@ export class AllApiuserComponent {
         this.adminService.GetAllApiUsers(page,limit,this.FilterForm.value).subscribe((data) => {
           this.showlist = true;
           this.showorguser=false;
-          this.loading = false
-          //@ts-ignore
+          this.loading = false;
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');
           this.dataSource = new MatTableDataSource(this.data.users);
           this.totalRows = this.data.totalCount

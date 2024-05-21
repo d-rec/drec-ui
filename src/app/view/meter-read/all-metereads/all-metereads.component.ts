@@ -8,6 +8,7 @@ import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bott
 import { MeterReadTableComponent } from '../meter-read-table/meter-read-table.component'
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { OrganizationInformation ,Device} from '../../../models'
 @Component({
   selector: 'app-all-metereads',
   templateUrl: './all-metereads.component.html',
@@ -44,11 +45,11 @@ export class AllMetereadsComponent implements OnInit {
   autocompleteResults: any[] = [];
   // searchControl: FormControl = new FormControl();
   filteredResults: Observable<any[]>;
-  filteredOrgList: any[] = [];
+  filteredOrgList: OrganizationInformation[] = [];
   //public color: ThemePalette = 'primary';
   orgname: any;
   orgId: any;
-  orglist: any;
+  orglist: OrganizationInformation[]=[];
   showerrorexternalid: boolean = false;
   showerror: boolean;
   filteredexternalIdOptions: Observable<any[]>;
@@ -70,15 +71,15 @@ export class AllMetereadsComponent implements OnInit {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          //@ts-ignore
-          this.orglist = data.organizations.filter(org => org.organizationType == "Developer" && org.api_user_id ==this.apiuserId);
+         
+          this.orglist = data.organizations.filter((org:OrganizationInformation) => org.organizationType == "Developer" && org.api_user_id ==this.apiuserId);
           this.filteredOrgList = this.orglist;
         })
     } else if (this.loginuser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
-          //@ts-ignore
-          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+         
+          this.orglist = data.organizations.filter((org:OrganizationInformation) => org.organizationType != "Buyer");
 
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
@@ -112,16 +113,13 @@ export class AllMetereadsComponent implements OnInit {
     }, 2000);
   }
   filterOrgList() {
-    this.filteredOrgList = this.orglist.filter((org: any) => {
+    this.filteredOrgList = this.orglist.filter((org: OrganizationInformation) => {
 
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
-
-
 
     });
   }
   selectOrg(event: any) {
-    //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
       this.filteredexternalIdOptions = of([]);
@@ -179,24 +177,21 @@ export class AllMetereadsComponent implements OnInit {
     }
   }
 
-  _externalIdfilter(value: string): string[] {
- 
+  _externalIdfilter(value: string | Device): Device[] {
     let filterValue:any;
     if(typeof value ==='string'){
       filterValue = value.toLowerCase();
     }else{
-      //@ts-ignore
       filterValue = value.externalId.toLowerCase();
     }
-    if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+    if ((!(this.devicelist.filter((option: Device) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
       this.showerrorexternalid = true;
     } else {
       this.showerror = false;
       this.showerrorexternalid = false;
     }
-    //  this.endmaxdate = new Date();
-    return this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue))
+    return this.devicelist.filter((option: Device) => option.externalId.toLowerCase().includes(filterValue))
 
   }
 
@@ -210,9 +205,7 @@ export class AllMetereadsComponent implements OnInit {
       this.showerror = false;
       this.showerrorexternalid = false;
     }
-    //  this.endmaxdate = new Date();
     return this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue))
-
   }
   search(): void {
     const input = this.FilterForm.controls['externalId'].value;

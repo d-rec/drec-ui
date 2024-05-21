@@ -3,7 +3,6 @@ import {FormBuilder} from '@angular/forms';
 import {SelectionModel} from '@angular/cdk/collections';
 import {MediaMatcher} from '@angular/cdk/layout';
 import {ChangeDetectorRef, Component, OnDestroy} from '@angular/core';
-// import { NavItem } from './nav-item';
 import {MatTableDataSource} from '@angular/material/table';
 
 
@@ -15,27 +14,27 @@ import {MatTableDataSource} from '@angular/material/table';
 export class AppComponent {
 
   constructor()
-  {
-    
-         this.connectWallet();
-  }
-
-  getWindowEthereumProperty()
-  {
-    //@ts-ignore
+  {this.connectWallet();}
+  getWindowEthereumProperty(): Ethereum | undefined {
     return window.ethereum;
   }
+  
   async connectWallet() {
 
     if (typeof window != "undefined" && typeof this.getWindowEthereumProperty() != "undefined") {
-      try {
-        /* MetaMask is installed */
-        const accounts = await this.getWindowEthereumProperty().request({
-          method: "eth_requestAccounts",
-        });
-        
-      } catch (err) {
-
+      const ethereum = this.getWindowEthereumProperty();
+      if (ethereum) {
+        try {
+          /* MetaMask is installed */
+          const accounts = await ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          console.log('Connected accounts:', accounts);
+        } catch (err) {
+          console.error('Error connecting to MetaMask:', err);
+        }
+      } else {
+        console.error('MetaMask not found');
       }
     }
   }

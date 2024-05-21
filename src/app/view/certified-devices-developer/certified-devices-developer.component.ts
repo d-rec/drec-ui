@@ -323,14 +323,9 @@ export class CertifiedDevicesDeveloperComponent {
 
         this.loading = false;
         // display list in the console 
-
-        // this.data = data;
-
         if (data.certificatelog.length > 0) {
-          //@ts-ignore
-          this.data = data.certificatelog.filter(ele => ele !== null)
-          //@ts-ignore
-          this.data.forEach(ele => {
+          this.data = data.certificatelog.filter((ele:any) => ele !== null)
+          this.data.forEach((ele:any) => {
 
             ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
             ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
@@ -342,24 +337,8 @@ export class CertifiedDevicesDeveloperComponent {
               if (key !== key.toLowerCase()) {
                 ele.owners[key.toLowerCase()] = ele.owners[key];
                 delete ele.owners[key];
-                // if(ele.owner[key].value=0){
-
-                // }
               }
             }
-
-            // if (ele.creationBlockHash != "") {
-            //   ele.creationBlockHash
-            //   ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.id + '/token-transfers'
-            // }
-            // //@ts-ignore
-            // else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
-
-            //   //@ts-ignore
-            //   ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
-
-            //   ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.blockchainCertificateId + '/token-transfers'
-            // }
           })
 
           this.dataSource = new MatTableDataSource(this.data);
@@ -380,7 +359,6 @@ export class CertifiedDevicesDeveloperComponent {
   }
 
   getWindowEthereumObject() {
-    //@ts-ignore
     return window.ethereum;
   }
 
@@ -402,25 +380,32 @@ export class CertifiedDevicesDeveloperComponent {
   checkMetamaskConnected() {
     return typeof window !== 'undefined' && typeof this.getWindowEthereumObject() !== 'undefined';
   }
+  getWindowEthereumProperty(): Ethereum | undefined {
+    return window.ethereum;
+  }
+  async connectWallet() {
 
-  connectWallet() {
-    //@ts-ignore   
-    if (typeof window !== 'undefined' && typeof window.ethereum! == 'undefined') {
-      try {
-        //@ts-ignore
-        window.ethereum.request({ method: 'eth_requestAccounts' })
-
-      }
-      catch (e) {
-        console.error("some error occures", e);
+    if (typeof window != "undefined" && typeof this.getWindowEthereumProperty() != "undefined") {
+      const ethereum = this.getWindowEthereumProperty();
+      if (ethereum) {
+        try {
+          /* MetaMask is installed */
+          const accounts = await ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          console.log('Connected accounts:', accounts);
+        } catch (err) {
+          console.error('Error connecting to MetaMask:', err);
+        }
+      } else {
+        console.error('MetaMask not found');
       }
     }
   }
 
+
   selectAccountAddressFromMetamask() {
-    //@ts-ignore
     if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
-      //@ts-ignore
       window.ethereum.request({ method: 'eth_requestAccounts' }).then(response => {
         this.selectedBlockchainAccount = (response && response[0]) ? response[0] : '';
         this.selectedBlockchainAccount = this.selectedBlockchainAccount.toLowerCase();

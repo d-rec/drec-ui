@@ -7,6 +7,8 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { MatTabGroup } from '@angular/material/tabs';
+import {OrganizationInformation,fulecodeType,devicecodeType,CountryInfo} from '../../../models'
+
 @Component({
   selector: 'app-user-invitation',
   templateUrl: './user-invitation.component.html',
@@ -30,7 +32,6 @@ export class UserInvitationComponent {
   loading: boolean = false;
   emailregex: RegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   orgtype: any[] = [
-    // { value: 'OrganizationAdmin', viewValue: 'Developer' },
     { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
     { value: 'User', viewValue: 'User' }
   ];
@@ -41,11 +42,10 @@ export class UserInvitationComponent {
     { value: 'User', viewValue: 'User' }
   ];
   loginuser: any;
-  filteredOrgList: any[] = [];
-  //public color: ThemePalette = 'primary';
+  filteredOrgList: OrganizationInformation[] = [];
   orgname: string;
   orgId: number;
-  orglist: any;
+  orglist: OrganizationInformation[]=[];
   constructor(private fb: FormBuilder,
     private adminService: AdminService,
     private router: Router,
@@ -63,14 +63,8 @@ export class UserInvitationComponent {
     if (this.loginuser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
-          //@ts-ignore
-          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-        
-          // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
-          this.filteredOrgList = this.orglist;
-          // Once data is loaded, call any other functions that depend on it
-
-
+          this.orglist = data.organizations.filter((org:OrganizationInformation) => org.organizationType != "Buyer");
+        this.filteredOrgList = this.orglist;
         }
       );
     }
@@ -91,12 +85,11 @@ export class UserInvitationComponent {
 
   }
   filterOrgList() {
-    this.filteredOrgList = this.orglist.filter((org: any) => {
+    this.filteredOrgList = this.orglist.filter((org: OrganizationInformation) => {
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
     });
   }
   selectOrg(event: any) {
-    //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
       this.orgId = selectedCountry.id;
@@ -135,9 +128,7 @@ export class UserInvitationComponent {
   }
 
   getorginviteuserlist() {
-    this.orgService.getOrganizationInformation().subscribe((data) => {
-   
-      //@ts-ignore
+    this.orgService.getOrganizationInformation().subscribe((data:any) => {
       this.orginviteuser = data.invitations
       this.dataSource1 = new MatTableDataSource(this.orginviteuser);
 
