@@ -7,9 +7,10 @@ import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-
 import { DeviceService, AdminService, OrganizationService } from '../../../auth/services'
 import { Router, ActivatedRoute } from '@angular/router';
+import {OrganizationInformation,Device,fulecodeType,devicecodeType,CountryInfo } from '../../../models'
+
 @Component({
   selector: 'app-add-bulk-device',
   templateUrl: './add-bulk-device.component.html',
@@ -53,27 +54,25 @@ export class AddBulkDeviceComponent implements OnInit {
   dataSource1: MatTableDataSource<any>;
   data: any;
   orglist: any;
-  filteredOrgList: any[] = [];
+  filteredOrgList: OrganizationInformation[] = [];
   //public color: ThemePalette = 'primary';
   orgname: string;
   orgId: number;
   loginuser: any;
+  
   ngOnInit(): void {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          //@ts-ignore
-          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-
+          this.orglist = data.organizations.filter(
+            (org: OrganizationInformation) => org.organizationType !== 'Buyer'
+          );
           this.filteredOrgList = this.orglist;
         })
     } else if (this.loginuser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
-          //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-
-          // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
         }
       );
@@ -83,13 +82,12 @@ export class AddBulkDeviceComponent implements OnInit {
   }
 
   filterOrgList() {
-    this.filteredOrgList = this.orglist.filter((org: any) => {
+    this.filteredOrgList = this.orglist.filter((org: OrganizationInformation) => {
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
     });
   }
   selectOrg(event: any) {
-    //@ts-ignore
-    const selectedCountry = this.orglist.find(option => option.name === event.option.value);
+    const selectedCountry = this.orglist.find((option:any) => option.name === event.option.value);
     if (selectedCountry) {
       this.orgId = selectedCountry.id;
     }

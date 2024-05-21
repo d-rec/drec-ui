@@ -144,7 +144,6 @@ export class ApiuserComponent {
           this.showlist = true;
           this.showorguser=false;
           this.loading = false
-          //@ts-ignore
           this.data = data;//.filter(ele => ele.organizationType === 'Developer');
           this.dataSource = new MatTableDataSource(this.data.users);
           this.totalRows = this.data.totalCount

@@ -16,7 +16,7 @@ import { ethers } from 'ethers';
 import { ToastrService } from 'ngx-toastr';
 import { issuerABI } from './issuer-abi';
 import { registryABI } from './registery-abi';
-import { MeterReadService ,ReservationService,BlockchainDrecService,CertificateService} from '../../auth/services'
+import { MeterReadService, ReservationService, BlockchainDrecService, CertificateService } from '../../auth/services'
 export interface Student {
   firstName: string;
   lastName: string;
@@ -78,12 +78,12 @@ export class CertificateComponent implements OnDestroy {
   certifiedp: number = 1
   certified_total: number;
   constructor(private blockchainDRECService: BlockchainDrecService,
-    private authService: AuthbaseService, 
-    private certificateauthService: CertificateService, 
+    private authService: AuthbaseService,
+    private certificateauthService: CertificateService,
     private router: Router,
-     private activatedRoute: ActivatedRoute,
-      private toastrService: ToastrService,
-       private bottomSheet: MatBottomSheet,
+    private activatedRoute: ActivatedRoute,
+    private toastrService: ToastrService,
+    private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
     private readService: MeterReadService,
@@ -96,7 +96,7 @@ export class CertificateComponent implements OnDestroy {
 
     });
 
-    
+
   }
   ngOnInit() {
     this.claimData = this.fb.group({
@@ -109,11 +109,10 @@ export class CertificateComponent implements OnDestroy {
     })
     this.reservationService.GetMethodById(this.group_id).subscribe(
       (data: any) => {
-        //@ts-ignore
         this.group_name = data.name;
         this.devicesId = data.deviceIds;
         this.reservationstatus = data.reservationActive;
-        
+
 
       }
 
@@ -152,7 +151,6 @@ export class CertificateComponent implements OnDestroy {
   getnextissuancinfo(historyp: number) {
     this.reservationService.GetnextissuanceCycleinfo(this.group_uid, historyp).subscribe(
       (data: any) => {
-        //@ts-ignore
         this.history_nextissuanclist = data.historynextissuansinfo.AllDeviceshistnextissuansinfo;
         this.historynextissuance_total = data.historynextissuansinfo.totalPages;
 
@@ -180,7 +178,7 @@ export class CertificateComponent implements OnDestroy {
     if (typeof this.devicesId === 'string') {
       this.readService.Getlastread(this.devicesId).subscribe({
         next: data => {
-            this.alldevicesread.push(data)
+          this.alldevicesread.push(data)
         },
         error: err => {                      //Error callback
           console.error('error caught in component', err)
@@ -193,7 +191,7 @@ export class CertificateComponent implements OnDestroy {
       this.devicesId.forEach((elemant: any) => {
         this.readService.Getlastread(elemant).subscribe({
           next: data => {
-              this.alldevicesread.push(data)
+            this.alldevicesread.push(data)
           },
           error: err => {                              //Error callback
             console.error('error caught in component', err)
@@ -300,19 +298,14 @@ export class CertificateComponent implements OnDestroy {
   }
   // CertificateClaimed:boolean=false;
   DisplayList(p: number) {
- 
-    this.certificateauthService.getcertifiedlogByGooupUid( this.group_uid , p).subscribe({
-     next: (data: any) => {
-        this.loading = false;
-        // display list in the console 
 
-        // this.data = data;
-        //@ts-ignore
-        this.data = data.certificatelog.filter(ele => ele !== null)
-        this.totalPages = data.totalPages
-          ;
-        //@ts-ignore
-        this.data.forEach(ele => {
+    this.certificateauthService.getcertifiedlogByGooupUid(this.group_uid, p).subscribe({
+      next: (data: any) => {
+        this.loading = false;
+        this.data = data.certificatelog.filter((ele: any) => ele !== null)
+        this.totalPages = data.totalPages;
+
+        this.data.forEach((ele: any) => {
 
           ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
           ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
@@ -331,17 +324,14 @@ export class CertificateComponent implements OnDestroy {
             ele.creationBlockHash
             ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.id + '/token-transfers'
           }
-          //@ts-ignore
-          else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
-
-            //@ts-ignore
-            ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
+          else if (ele.transactions.find((ele1: any) => ele1.eventType == "IssuancePersisted")) {
+            ele.creationBlockHash = ele.transactions.find((ele1: any) => ele1.eventType == "IssuancePersisted").transactionHash
 
             ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.blockchainCertificateId + '/token-transfers'
           }
         })
 
-      },error:err=>{
+      }, error: err => {
         if (err.error.statusCode === 403) {
           this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
         } else {
@@ -349,7 +339,7 @@ export class CertificateComponent implements OnDestroy {
         }
       }
     }
-      
+
 
     )
   }
@@ -367,7 +357,6 @@ export class CertificateComponent implements OnDestroy {
     }
   }
   getWindowEthereumObject() {
-    //@ts-ignore
     return window.ethereum;
   }
 
@@ -389,25 +378,34 @@ export class CertificateComponent implements OnDestroy {
   checkMetamaskConnected() {
     return typeof window !== 'undefined' && typeof this.getWindowEthereumObject() !== 'undefined';
   }
+  getWindowEthereumProperty(): Ethereum | undefined {
+    return window.ethereum;
+  }
+  async connectWallet() {
 
-  connectWallet() {
-    //@ts-ignore   
-    if (typeof window !== 'undefined' && typeof window.ethereum! == 'undefined') {
-      try {
-        //@ts-ignore
-        window.ethereum.request({ method: 'eth_requestAccounts' })
-
-      }
-      catch (e) {
-        console.error("some error occures", e);
+    if (typeof window != "undefined" && typeof this.getWindowEthereumProperty() != "undefined") {
+      const ethereum = this.getWindowEthereumProperty();
+      if (ethereum) {
+        try {
+          /* MetaMask is installed */
+          const accounts = await ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          console.log('Connected accounts:', accounts);
+        } catch (err) {
+          console.error('Error connecting to MetaMask:', err);
+        }
+      } else {
+        console.error('MetaMask not found');
       }
     }
   }
 
+
   selectAccountAddressFromMetamask() {
-    //@ts-ignore
+
     if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
-      //@ts-ignore
+
       window.ethereum.request({ method: 'eth_requestAccounts' }).then(response => {
         this.selectedBlockchainAccount = (response && response[0]) ? response[0] : '';
         this.selectedBlockchainAccount = this.selectedBlockchainAccount.toLowerCase();
@@ -459,29 +457,40 @@ export class CertificateComponent implements OnDestroy {
   }
 
   claimUsingEtherJS() {
-    //@ts-ignore
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    //@ts-ignore
-    //const daiContract = new ethers.Contract("0x4dae00fa86aC7548f92a0293A676Ad07b65c264F", registryABI, provider);
+    if (window.ethereum) {
+      try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-    const daiContract = new ethers.Contract(this.blockchainProperties.registry, registryABI, provider);
-    const signer = provider.getSigner();
-    const daiWithSigner = daiContract.connect(signer);
+        const daiContract = new ethers.Contract(this.blockchainProperties.registry, registryABI, provider);
+        const signer = provider.getSigner();
+        const daiWithSigner = daiContract.connect(signer);
 
-    let claimData = {
-      beneficiary: 'Beneficiary: ' + this.claimData.value.beneficiary,
-      location: 'Location: ' + this.claimData.value.location,
-      countryCode: 'Country Code: ' + this.claimData.value.countryCode,
-      periodStartDate: 'Period Start Date: ' + new Date(this.selectedCertificateForClaim.generationStartTime * 1000).toISOString(),
-      periodEndDate: 'Period End Date: ' + new Date(this.selectedCertificateForClaim.generationEndTime * 1000).toISOString(),
-      purpose: 'Purpose: ' + this.claimData.value.purpose
+        let claimData = {
+          beneficiary: 'Beneficiary: ' + this.claimData.value.beneficiary,
+          location: 'Location: ' + this.claimData.value.location,
+          countryCode: 'Country Code: ' + this.claimData.value.countryCode,
+          periodStartDate: 'Period Start Date: ' + new Date(this.selectedCertificateForClaim.generationStartTime * 1000).toISOString(),
+          periodEndDate: 'Period End Date: ' + new Date(this.selectedCertificateForClaim.generationEndTime * 1000).toISOString(),
+          purpose: 'Purpose: ' + this.claimData.value.purpose
+        }
+        daiWithSigner.functions['safeTransferAndClaimFrom'](this.selectedBlockchainAccount, this.selectedBlockchainAccount, this.selectedCertificateForClaim.id, this.formattedClaimAmount, this.encodeClaimData(claimData), this.encodeClaimData(claimData));
+
+        setTimeout(() => {
+          this.toastrService.info(`Please check metamask for success or failure of claim of this certificate`);
+          this.closeTemplateSheetMenu();
+        }, 1000);
+
+      }
+      catch (error) {
+        console.error('Error during the claim process:', error);
+        this.toastrService.error('An error occurred during the claim process. Please try again.');
+      } finally {
+        this.closeTemplateSheetMenu();
+      }
+    } else {
+      console.error('window.ethereum is not available');
+      this.toastrService.error('Ethereum provider is not available. Please install MetaMask.');
     }
-    daiWithSigner.functions['safeTransferAndClaimFrom'](this.selectedBlockchainAccount, this.selectedBlockchainAccount, this.selectedCertificateForClaim.id, this.formattedClaimAmount, this.encodeClaimData(claimData), this.encodeClaimData(claimData));
-
-    setTimeout(() => {
-      this.toastrService.info(`Please check metamask for success or failure of claim of this certificate`);
-      this.closeTemplateSheetMenu();
-    }, 1000);
 
 
   }

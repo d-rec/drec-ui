@@ -18,13 +18,14 @@ export class ResetPasswordComponent {
     },
     {
       validators: (control) => {
-
-        if (control.value.newPassword != control.value.confirmPassword) {
-          //@ts-ignore
-          control.get("confirmPassword").setErrors({ notSame: true });
+        const newPassword = control.get("newPassword")?.value;
+        const confirmPassword = control.get("confirmPassword")?.value;
+    
+        if (newPassword !== null && confirmPassword !== null && newPassword !== confirmPassword) {
+            control.get("confirmPassword")?.setErrors({ notSame: true });
         }
         return null;
-      },
+    },
     }
   );
   hide = true;

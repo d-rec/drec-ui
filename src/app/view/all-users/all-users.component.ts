@@ -195,7 +195,6 @@ export class AllUsersComponent {
         this.showlist = true;
         this.showorguser = false;
         this.loading = false
-        //@ts-ignore
         this.data = data;//.filter(ele => ele.organizationType === 'Developer');
         this.dataSource = new MatTableDataSource(this.data.users);
         this.totalRows = this.data.totalCount
@@ -213,9 +212,8 @@ export class AllUsersComponent {
   getOrganizationAllUser(page: number, limit: number) {
     this.orgService.getOrganizationUser(page, limit).subscribe({
       next: (data) => {
-        this.showlist = true
-        this.loading = false
-        //@ts-ignore
+        this.showlist = true;
+        this.loading = false;
         this.data = data;//.filter(ele => ele.organizationType === 'Developer');
         this.dataSource = new MatTableDataSource(this.data.users);
         this.totalRows = this.data.totalCount
@@ -236,13 +234,12 @@ export class AllUsersComponent {
     this.adminService.GetAllOrgnaizationUsers(this.orgnaizatioId, page, limit).subscribe({
       next: (data) => {
         this.showorguser = false;
-        this.showlist = true
-        this.loading = false
-        //@ts-ignore
+        this.showlist = true;
+        this.loading = false;
         this.data = data;//.filter(ele => ele.organizationType === 'Developer');
         this.dataSource = new MatTableDataSource(this.data.users);
-        this.totalRows = this.data.totalCount
-        this.totalPages = this.data.totalPages
+        this.totalRows = this.data.totalCount;
+        this.totalPages = this.data.totalPages;
       }, error: err => {
         if (err.error.statusCode === 403) {
           this.toastrService.error('Error:' + err.error.message, 'Unauthorized')

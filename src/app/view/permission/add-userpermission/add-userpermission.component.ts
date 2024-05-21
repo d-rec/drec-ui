@@ -78,22 +78,20 @@ export class UserpermissionComponent {
 
     })
 
-    //@ts-ignore
     this.dataSource1 = new MatTableDataSource<any>([]);
     this.aclpermissionServcie.getAcl_moduleList().subscribe({
       next: (data) => {
         const permissionFormArray = this.UserPermissionForm.get('permissions') as FormArray;
-        //@ts-ignore
-        data.forEach(permission => {
+        data.forEach((permission:any) => {
           permission.selectedPermissions = []; // Initialize with empty strings
           permissionFormArray.push(this.createPermissionFormGroup(permission));
 
         });
-        //@ts-ignore
-        this.dataSource1.data = this.UserPermissionForm.get('permissions').value;
+        
+        this.dataSource1.data = this.UserPermissionForm.get('permissions')?.value ?? [];;
       },
       error: (err) => {
-        // Handle the error
+        this.toastrService.error(err.error.message??'Permission Not found')
       },
     });
   }
@@ -112,10 +110,9 @@ export class UserpermissionComponent {
     this.aclpermissionServcie.getUserAcl_modulePermissionList().subscribe({
       next: data => {
         this.userdatalist = data
-        //@ts-ignore
-        this.userdatalist = data.filter(permission => permission.entityType != "User");
-        //@ts-ignore
-        this.userdatalist.forEach(ele => {
+      
+        this.userdatalist = data.filter((permission:any) => permission.entityType != "User");
+        this.userdatalist.forEach((ele:any) => {
           if (ele.entityType === 'Role') {
             ele['user_role'] = this.rolelist.find((rolename: any) => rolename.id === ele.entityId,)?.name;
 

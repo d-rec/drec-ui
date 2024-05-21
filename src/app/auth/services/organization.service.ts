@@ -35,7 +35,7 @@ export class OrganizationService {
     
     return this.httpClient.get<any>(environment.API_URL+ 'Organization/' + orgId);
   }
-  public GetApiUserAllOrganization(pagenumber?: number, limit?: number, searchData?: any): Observable<any> {
+  public GetApiUserAllOrganization(pagenumber?: number, limit?: number, searchData?: any): Observable<{ organizations: OrganizationInformation[] }> {
    
     let searchUrl = `${environment.API_URL}Organization/apiuser/all_organization`;
     if (pagenumber != undefined && limit != undefined) {
@@ -48,7 +48,7 @@ export class OrganizationService {
         searchUrl += `&organizationName=${searchData.organizationName}`;
       }
     }
-    return this.httpClient.get<any>(searchUrl);
+    return this.httpClient.get<{ organizations: OrganizationInformation[] }>(searchUrl);
   }
   public removeUser(userId: number): Observable<any> {
  

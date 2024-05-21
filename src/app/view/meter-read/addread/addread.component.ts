@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, importProvidersFrom } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
 import { MeterReadService, DeviceService, AdminService, OrganizationService } from '../../../auth/services';
 import { AuthbaseService } from '../../../auth/authbase.service'
@@ -9,6 +9,7 @@ import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
 import * as momentTimeZone from 'moment-timezone';
 import { getValidmsgTimezoneFormat } from '../../../utils/getTimezone_msg'
+import { CountryInfo, OrganizationInformation } from '../../../models'
 @Component({
   selector: 'app-addread',
   templateUrl: './addread.component.html',
@@ -40,9 +41,9 @@ export class AddreadComponent implements OnInit {
   selectedResult: any;
   filteredOptions: Observable<any[]>;
   filteredexternalIdOptions: Observable<any[]>;
-  orglist: any;
+  orglist: OrganizationInformation[] = [];
   loginuser: any;
-  filteredOrgList: any[] = [];
+  filteredOrgList: OrganizationInformation[] = [];
   //public color: ThemePalette = 'primary';
   orgname: string;
   orgId: number;
@@ -70,21 +71,19 @@ export class AddreadComponent implements OnInit {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe(
         (data) => {
-          //@ts-ignore
-          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
+          this.orglist = data.organizations.filter(
+            (org: OrganizationInformation) => org.organizationType !== 'Buyer'
+          );
+
           this.filteredOrgList = this.orglist;
         })
     } else if (this.loginuser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
-          //@ts-ignore
-          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
 
-          // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
+          this.orglist = data.organizations.filter((org: OrganizationInformation) => org.organizationType != "Buyer");
           this.filteredOrgList = this.orglist;
-          // Once data is loaded, call any other functions that depend on it
 
-          // this.date = new Date();
         }
       );
     }
@@ -104,15 +103,23 @@ export class AddreadComponent implements OnInit {
       endtimestamp: [null, Validators.required],
       value: [null, Validators.required],
     }, {
-      validators: (control) => {
+      validators: (control: FormGroup) => {
+        const startTimestampControl = control.get('starttimestamp');
+        const endTimestampControl = control.get('endtimestamp');
 
-        if (control.value.starttimestamp > control.value.endtimestamp) {
-          //@ts-ignore
-          control.get("endtimestamp").setErrors({ notSame: true });
+        if (startTimestampControl && endTimestampControl) {
+          const startTimestamp = startTimestampControl.value;
+          const endTimestamp = endTimestampControl.value;
+
+          if (startTimestamp > endTimestamp) {
+            endTimestampControl.setErrors({ notSame: true });
+          } else {
+            endTimestampControl.setErrors(null);
+          }
         }
         return null;
       },
-    })
+    });
     this.addreads.push(read);
     // this.DisplayList();
     //this.TimeZoneList();
@@ -144,7 +151,6 @@ export class AddreadComponent implements OnInit {
   }
   selectOrg(event: any) {
     this.showexternaiIdform = true;
-    //@ts-ignore
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
       this.orgId = selectedCountry.id;
@@ -198,14 +204,13 @@ export class AddreadComponent implements OnInit {
 
   _externalIdfilter(value: string): string[] {
     const filterValue = value.toLowerCase();
-   if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+    if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
       this.showerror = true;
       this.showerrorexternalid = true;
     } else {
       this.showerror = false;
       this.showerrorexternalid = false;
     }
-    //  this.endmaxdate = new Date();
     return this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue))
 
   }
@@ -275,8 +280,7 @@ export class AddreadComponent implements OnInit {
 
     this.historyAge = new Date(this.devicecreateddate);
     this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
-    //@ts-ignore
-    this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == result.countryCode)?.timezones;
+    this.timezonedata = this.countrylist.find((countrycode:CountryInfo) => countrycode.alpha3 == result.countryCode)?.timezones;
 
     this.readForm.controls['timezone'].setValue(null);
     this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
@@ -343,44 +347,7 @@ export class AddreadComponent implements OnInit {
       }
     )
   }
-  // TimeZoneList() {
-  //   this.authService.GetMethod('meter-reads/time-zones').subscribe(
-  //     (data) => {
-  //       // display list in the console 
-  //       this.timezonedata = data;
-  //     }
-  //   )
-  // }
 
-  // ExternaIdonChangeEvent(event: any) {
-  //   this.addreads.reset();
-  //   this.readForm.controls['type'].setValue(null)
-  //   this.devicecreateddate = event.createdAt;
-  //   this.commissioningDate = event.commissioningDate;
-
-  //   this.historyAge = new Date(this.devicecreateddate);
-  //   this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
-  //   //@ts-ignore
-  //   this.timezonedata = this.countrylist.find(countrycode => countrycode.alpha3 == event.countryCode)?.timezones;
-
-  //   this.readForm.controls['timezone'].setValue(null);
-  //   this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
-  //     startWith(''),
-  //     map(value => this._filter(value || '')),
-  //   );
-
-  //   this.readService.Getlastread(event.externalId).subscribe({
-  //     next: data => {
-
-  //         this.lastreaddate = data.enddate;
-  //       this.lastreadvalue = data.value;
-  //     },
-  //     error: err => {                      //Error callback
-  //       console.error('error caught in component', err)
-  //     }
-  //   })
-
-  // }
   onChangeEvent(event: any) {
     if (event === 'Delta' || event === 'Aggregate') {
       this.endmaxdate = new Date();
@@ -482,8 +449,8 @@ export class AddreadComponent implements OnInit {
         },
         error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
           console.error('error caught in component', err)
-          //@ts-ignore
-          let message = getValidmsgTimezoneFormat(err.error.message);
+    
+          let message = getValidmsgTimezoneFormat(err.error.message?? 'Someting Wrong');
 
           this.toastrService.error(message, 'error!');
         }
@@ -502,8 +469,8 @@ export class AddreadComponent implements OnInit {
         },
         error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
           console.error('error caught in component', err)
-          //@ts-ignore
-          let message = getValidmsgTimezoneFormat(err.error.message);
+        
+          let message = getValidmsgTimezoneFormat(err.error.message?? 'Something Wrong!!');
 
           this.toastrService.error(message, 'error!');
         }

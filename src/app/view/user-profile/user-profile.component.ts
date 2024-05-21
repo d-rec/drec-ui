@@ -47,7 +47,7 @@ export class UserProfileComponent {
       this.email = this.userinfo.email
       // this.status = this, this.userinfo.status
     });
-  
+
   }
   ngOnInit() {
     this.updateForm = this.fb.group({
@@ -64,10 +64,11 @@ export class UserProfileComponent {
       },
       {
         validators: (control) => {
+          const newPassword = control.get("newPassword")?.value;
+          const confirmPassword = control.get("confirmPassword")?.value;
 
-          if (control.value.newPassword !== control.value.confirmPassword) {
-            //@ts-ignore
-            control.get("confirmPassword").setErrors({ notSame: true });
+          if (newPassword !== null && confirmPassword !== null && newPassword !== confirmPassword) {
+            control.get("confirmPassword")?.setErrors({ notSame: true });
           }
           return null;
         },
@@ -108,19 +109,19 @@ export class UserProfileComponent {
   onUpdate() {
 
     this.userService.updatProfile(this.updateForm.value).
-    subscribe({
-      next: data => {
-   this.toastrService.success("User Updated", "Successful")
-        //this.dialogRef.close();
+      subscribe({
+        next: data => {
+          this.toastrService.success("User Updated", "Successful")
+          //this.dialogRef.close();
 
-      }, error: err => {
-        this.updateForm.reset();
+        }, error: err => {
+          this.updateForm.reset();
 
-        this.updateForm.patchValue(this.userinfo);
+          this.updateForm.patchValue(this.userinfo);
 
-        this.toastrService.error(err.error.message, "Error")
-      }
-    })
+          this.toastrService.error(err.error.message, "Error")
+        }
+      })
 
   }
   onResetPasswordUpdate() {

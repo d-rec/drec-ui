@@ -2,7 +2,7 @@
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA, importProvidersFrom } from '@angular/core';
 // import { NavItem } from './nav-item';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
 import { animate, state, style, transition, trigger } from '@angular/animations';
@@ -15,6 +15,7 @@ import { Observable, Subscription, take, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
 import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
+import {fulecodeType,devicecodeType,CountryInfo} from '../../models'
 
 @Component({
   selector: 'app-myreservation',
@@ -118,8 +119,6 @@ export class MyreservationComponent implements OnInit {
       this.FilterForm.addControl('organizationId', this.formBuilder.control(''));
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
-
-          //@ts-ignore
           this.orglist = data.organizations.filter(org => org.organizationType != "Developer");
           if (this.orglist.length > 0) {
             this.applyorgFilter();
@@ -311,8 +310,8 @@ export class MyreservationComponent implements OnInit {
             this.showdevicesinfo = false;
 
             this.data = data.groupedData;
-            //@ts-ignore
-            this.data.forEach(ele => {
+          
+            this.data.forEach((ele:any) => {
 
               if (ele.deviceIds != null) {
                 ele['numberOfdevices'] = ele.deviceIds.length;
@@ -335,7 +334,6 @@ export class MyreservationComponent implements OnInit {
     } else {
       if (this.FilterForm.value.reservationActive === "All") {
         this.FilterForm.removeControl('reservationActive');
-        //this.FilterForm.controls['reservationActive'].setValue(null);
       }
       if (!(this.FilterForm.value.reservationStartDate != null && this.FilterForm.value.reservationEndDate === null)) {
 
@@ -344,8 +342,7 @@ export class MyreservationComponent implements OnInit {
             this.showdevicesinfo = false;
 
             this.data = data.groupedData;
-            //@ts-ignore
-            this.data.forEach(ele => {
+            this.data.forEach((ele:any) => {
 
               if (ele.deviceIds != null) {
                 ele['numberOfdevices'] = ele.deviceIds.length;
@@ -378,27 +375,17 @@ export class MyreservationComponent implements OnInit {
 
   }
   DisplayDeviceList(row: any) {
-    //this.FilterForm.reset();
     this.showdevicesinfo = true;
-
     this.group_info = row;
-    //  this.reservationsstatus=row.reservationActivethis, 
-
-    // this.reservationstart= "start from "+row.reservationStartDate+ " To "+row. reservationEndDate 
-    this.DevicesList = [];
-    //@ts-ignore
-    row.deviceIds.forEach(ele => {
+   this.DevicesList = [];
+    row.deviceIds.forEach((ele:any) => {
       this.authService.GetMethod('device/' + ele).subscribe(
         (data) => {
 
           this.data = data;
-          // this.data.forEach(ele => {
-          //@ts-ignore
-          this.data['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === this.data.fuelCode)?.name;
-          //@ts-ignore
-          this.data['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == this.data.deviceTypeCode)?.name;
-          //@ts-ignore
-          this.data['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == this.data.countryCode)?.country;
+          this.data['fuelname'] = this.fuellist.find((fuelType:fulecodeType) => fuelType.code === this.data.fuelCode)?.name;
+          this.data['devicetypename'] = this.devicetypelist.find((devicetype:devicecodeType) => devicetype.code == this.data.deviceTypeCode)?.name;
+          this.data['countryname'] = this.countrylist.find((countrycode:CountryInfo) => countrycode.alpha3 == this.data.countryCode)?.country;
           // })
           this.DevicesList.push(data)
           this.dataSource1 = new MatTableDataSource(this.DevicesList);

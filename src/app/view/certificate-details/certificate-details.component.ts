@@ -158,15 +158,15 @@ export class CertificateDetailsComponent {
   }
 
   showorglist(event: any) {
-    //this.filteredOrgList=[];
+    
     this.orgService.GetApiUserAllOrganization().subscribe(
       (data) => {
         if (event === "Developer") {
-          //@ts-ignore
+         
           this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
           this.applyorgFilter();
         } else {
-          //@ts-ignore
+         
           this.orglist = data.organizations.filter(org => org.organizationType != "Developer");
           this.applyorgFilter();
         }
@@ -342,11 +342,10 @@ export class CertificateDetailsComponent {
         this.loading = false;
         // display list in the console 
         if (data.certificatelog.length > 0) {
-          // this.data = data;
-          //@ts-ignore
-          this.data = data.certificatelog.filter(ele => ele !== null)
-          //@ts-ignore
-          this.data.forEach(ele => {
+         
+          this.data = data.certificatelog.filter((ele:any) => ele !== null)
+         
+          this.data.forEach((ele:any) => {
 
             ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
             ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
@@ -358,9 +357,7 @@ export class CertificateDetailsComponent {
               if (key !== key.toLowerCase()) {
                 ele.owners[key.toLowerCase()] = ele.owners[key];
                 delete ele.owners[key];
-                // if(ele.owner[key].value=0){
-
-                // }
+                
               }
             }
 
@@ -368,11 +365,9 @@ export class CertificateDetailsComponent {
               ele.creationBlockHash
               ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.id + '/token-transfers'
             }
-            //@ts-ignore
-            else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
+            else if (ele.transactions.find((ele1:any) => ele1.eventType == "IssuancePersisted")) {
 
-              //@ts-ignore
-              ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
+              ele.creationBlockHash = ele.transactions.find((ele1:any) => ele1.eventType == "IssuancePersisted").transactionHash
 
               ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.blockchainCertificateId + '/token-transfers'
             }
@@ -403,7 +398,7 @@ export class CertificateDetailsComponent {
   }
 
   getWindowEthereumObject() {
-    //@ts-ignore
+  
     return window.ethereum;
   }
 
@@ -425,25 +420,34 @@ export class CertificateDetailsComponent {
   checkMetamaskConnected() {
     return typeof window !== 'undefined' && typeof this.getWindowEthereumObject() !== 'undefined';
   }
+  getWindowEthereumProperty(): Ethereum | undefined {
+    return window.ethereum;
+  }
+  async connectWallet() {
 
-  connectWallet() {
-    //@ts-ignore   
-    if (typeof window !== 'undefined' && typeof window.ethereum! == 'undefined') {
-      try {
-        //@ts-ignore
-        window.ethereum.request({ method: 'eth_requestAccounts' })
-
-      }
-      catch (e) {
-        console.error("some error occures", e);
+    if (typeof window != "undefined" && typeof this.getWindowEthereumProperty() != "undefined") {
+      const ethereum = this.getWindowEthereumProperty();
+      if (ethereum) {
+        try {
+          /* MetaMask is installed */
+          const accounts = await ethereum.request({
+            method: "eth_requestAccounts",
+          });
+          console.log('Connected accounts:', accounts);
+        } catch (err) {
+          console.error('Error connecting to MetaMask:', err);
+        }
+      } else {
+        console.error('MetaMask not found');
       }
     }
   }
 
+
   selectAccountAddressFromMetamask() {
-    //@ts-ignore
+   
     if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
-      //@ts-ignore
+    
       window.ethereum.request({ method: 'eth_requestAccounts' }).then(response => {
         this.selectedBlockchainAccount = (response && response[0]) ? response[0] : '';
         this.selectedBlockchainAccount = this.selectedBlockchainAccount.toLowerCase();

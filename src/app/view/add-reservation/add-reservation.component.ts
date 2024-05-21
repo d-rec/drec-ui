@@ -14,7 +14,8 @@ import { MatBottomSheet, MatBottomSheetConfig, MatBottomSheetRef } from '@angula
 import { MeterReadTableComponent } from '../meter-read/meter-read-table/meter-read-table.component'
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { DeviceDetailsComponent } from '../device/device-details/device-details.component'
+import { DeviceDetailsComponent } from '../device/device-details/device-details.component';
+import {OrganizationInformation,Device,fulecodeType,devicecodeType,CountryInfo } from '../../models'
 @Component({
   selector: 'app-add-reservation',
   templateUrl: './add-reservation.component.html',
@@ -28,7 +29,6 @@ export class AddReservationComponent {
     'projectName',
     'externalId',
     'countryCode',
-    // 'fuelCode',
     'commissioningDate',
     'status',
     'viewread'
@@ -39,13 +39,13 @@ export class AddReservationComponent {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
-  data: any;
+  data: Device[]=[];
   loginuser: any
   deviceurl: any;
   pageSize: number = 20;
-  countrylist: any;
-  fuellist: any;
-  devicetypelist: any;
+  countrylist: CountryInfo[]=[];
+  fuellist: fulecodeType[]=[];
+  devicetypelist: devicecodeType[]=[];
   fuellistLoaded: boolean = false;
   devicetypeLoded: boolean = false;
   countrycodeLoded: boolean = false;
@@ -68,9 +68,8 @@ export class AddReservationComponent {
   showerror: boolean = false;
   orgname: string;
   orgId: number;
-  orglist: any;
-  filteredOrgList: any[] = [];
-  // countrycodeLoded: boolean = false;
+  orglist: OrganizationInformation[] = [];
+  filteredOrgList: OrganizationInformation[] = [];
   reservationbollean = { continewwithunavilableonedevice: true, continueWithTCLessDTC: true };
   constructor(private authService: AuthbaseService, private reservationService: ReservationService, private router: Router,
     public dialog: MatDialog, private bottomSheet: MatBottomSheet,
@@ -78,7 +77,6 @@ export class AddReservationComponent {
     private toastrService: ToastrService,
     private deviceservice: DeviceService,
     private orgService: OrganizationService) {
-    // this.loginuser = sessionStorage.getItem('loginuser');
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.reservationForm = this.formBuilder.group({
       name: [null, Validators.required],
@@ -103,7 +101,6 @@ export class AddReservationComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-      // pagenumber: [this.p]
     });
 
     this.FilterForm.valueChanges.subscribe(() => {
@@ -114,8 +111,10 @@ export class AddReservationComponent {
     if (this.loginuser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe(
         (data) => {
-          //@ts-ignore
-          this.orglist = data.organizations.filter(org => org.organizationType != "Developer");
+         
+          this.orglist = data.organizations.filter(
+            (org: OrganizationInformation) => org.organizationType !== 'Developer'
+          );
           // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
           this.filteredOrgList = this.orglist;
         }
@@ -169,7 +168,7 @@ export class AddReservationComponent {
     });
   }
   selectOrg(event: any) {
-    //@ts-ignore
+  
     const selectedCountry = this.orglist.find(option => option.name === event.option.value);
     if (selectedCountry) {
       this.orgId = selectedCountry.id;
@@ -184,7 +183,7 @@ export class AddReservationComponent {
     );
   }
 
-  private _filter(value: any): string[] {
+  private _filter(value: any): CountryInfo[] {
     const filterValue = value.toLowerCase();
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
@@ -321,21 +320,21 @@ export class AddReservationComponent {
         }
 
         this.data = data.devices;
-        //@ts-ignore
-        this.data.forEach(ele => {
-          //@ts-ignore
+       
+        this.data.forEach((ele:any) => {
+         
           ele['fuelname'] = this.fuellist.find((fuelType) => fuelType.code === ele.fuelCode,)?.name;
-          //@ts-ignore
+         
           ele['devicetypename'] = this.devicetypelist.find(devicetype => devicetype.code == ele.deviceTypeCode)?.name;
-          //@ts-ignore
+          
           ele['countryname'] = this.countrylist.find(countrycode => countrycode.alpha3 == ele.countryCode)?.country;
         })
         this.dataSource = new MatTableDataSource(this.data);
         this.totalRows = data.totalCount
         this.totalPages = data.totalPages
-        //this.dataSource.paginator = this.paginator;
+       
         this.dataSource.sort = this.sort;
-        //@ts-ignore
+        
       }
     )
   }

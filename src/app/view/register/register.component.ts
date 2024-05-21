@@ -57,16 +57,15 @@ export class RegisterComponent implements OnInit {
       },
       {
         validators: (control) => {
-
-          if (control.value.password !== control.value.confirmPassword) {
-            //@ts-ignore
-            control.get("confirmPassword").setErrors({ notSame: true });
+          const password = control.get("password")?.value;
+          const confirmPassword = control.get("confirmPassword")?.value;
+      
+          if (password !== null && confirmPassword !== null && password !== confirmPassword) {
+              control.get("confirmPassword")?.setErrors({ notSame: true });
           }
           return null;
-        },
-      }
-    );
-
+      },
+      });
 
   }
   emaiErrors() {

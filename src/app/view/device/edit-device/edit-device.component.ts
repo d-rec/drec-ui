@@ -6,6 +6,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, Subscription } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { Device,CountryInfo,fulecodeType,devicecodeType } from '../../../models';
+
 @Component({
   selector: 'app-edit-device',
   templateUrl: './edit-device.component.html',
@@ -14,9 +16,9 @@ import { map, startWith } from 'rxjs/operators';
 export class EditDeviceComponent implements OnInit {
 
   updatedeviceform: FormGroup;
-  countrylist: any;
-  fuellist: any;
-  devicetypelist: any;
+  countrylist: CountryInfo[]=[];
+  fuellist: fulecodeType[]=[];
+  devicetypelist: devicecodeType[]=[];
   numberregex: RegExp = /[0-9]+(\.[0-9]*){0,1}/;
   maxDate = new Date();
   public date: any;
@@ -115,16 +117,14 @@ export class EditDeviceComponent implements OnInit {
     }, 1000);
 
   }
-  private _filter(value: string): any[] {
+  private _filter(value: string): CountryInfo[] {
     const filterValue = value.toLowerCase();
 
     if (!(this.countrylist.filter((option: any) => option.country.toLowerCase().includes(filterValue)).length > 0)) {
       this.showerror = true;
-      //  toppings.at(i).get('countryCode').setValue(null);
     } else {
       this.showerror = false;
     }
-    //@ts-ignore
     return this.countrylist.filter(code => code.country.toLowerCase().includes(filterValue));
   }
   getCountryCodeControl(): FormControl {
@@ -142,7 +142,7 @@ export class EditDeviceComponent implements OnInit {
   DisplayList() {
 
     this.authService.GetMethod('countrycode/list').subscribe(
-      (data1) => {
+      (data1:any) => {
         this.countrylist = data1;
       }
     )
@@ -157,9 +157,7 @@ export class EditDeviceComponent implements OnInit {
   DisplayfuelList() {
 
     this.authService.GetMethod('device/fuel-type').subscribe(
-      (data3) => {
-        // display list in the console 
-
+      (data3:any) => {
         this.fuellist = data3;
 
       }
@@ -168,9 +166,7 @@ export class EditDeviceComponent implements OnInit {
   DisplaytypeList() {
 
     this.authService.GetMethod('device/device-type').subscribe(
-      (data4) => {
-        // display list in the console 
-
+      (data4:any) => {
         this.devicetypelist = data4;
 
       }
@@ -214,15 +210,13 @@ export class EditDeviceComponent implements OnInit {
         this.address = data.address;
         this.latitude = data.latitude;
         this.longitude = data.longitude;
-        //@ts-ignore
         this.countryCode = this.countrylist.find(countrycode => countrycode.alpha3 == data.countryCode)?.country;
         this.fuelCode = data.fuelCode;
         this.deviceTypeCode = data.deviceTypeCode;
         this.capacity = data.capacity;
         data.SDGBenefits.forEach(
           (sdgbname: string, index: number) => {
-            //@ts-ignore
-            let foundEle = this.sdgblist.find(ele => ele.value.toLowerCase() === sdgbname.toString().toLowerCase());
+            let foundEle = this.sdgblist.find((ele:any) => ele.value.toLowerCase() === sdgbname.toString().toLowerCase());
             data.SDGBenefits[index] = foundEle.name
           
           });
@@ -249,12 +243,10 @@ export class EditDeviceComponent implements OnInit {
     if (this.updatedeviceform.value.externalId === null) {
       this.updatedeviceform.removeControl('externalId');
     }
-    //@ts-ignore
-    const selectedCountry = this.countrylist.find(option => option.country === this.updatedeviceform.value.countryCode);
-    this.updatedeviceform.value['countryCode'] = selectedCountry.alpha3;
+    const selectedCountry: CountryInfo|undefined= this.countrylist.find(option => option.country === this.updatedeviceform.value.countryCode);
+    this.updatedeviceform.value['countryCode'] = selectedCountry?.alpha3;
     this.deviceService.Patchdevices(this.externalid, this.updatedeviceform.value).subscribe({
       next: (data: any) => {
-        // this.deviceForms.reset();
         this.toastrService.success('Updated Successfully !!', 'Device! ' + data.externalId);
         this.router.navigate(['device/AllList']);
       },

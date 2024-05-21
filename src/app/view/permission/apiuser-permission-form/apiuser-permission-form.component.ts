@@ -28,23 +28,18 @@ export class ApiuserPermissionFormComponent {
 
 
     this.form = this.fb.group({
-      // client_id:[null, Validators.required],
-      // client_secret:[null, Validators.required],
       permissions: this.fb.array([]),
     });
-    //@ts-ignore
     this.dataSource = new MatTableDataSource<any>([]);
     this.aclpermissionServcie.getAcl_moduleList().subscribe({
       next: (data) => {
         const permissionFormArray = this.form.get('permissions') as FormArray;
-        //@ts-ignore
-        data.forEach(permission => {
+        data.forEach((permission:any) => {
           permission.selectedPermissions = []; // Initialize with empty strings
           permissionFormArray.push(this.createPermissionFormGroup(permission));
 
         });
-        //@ts-ignore
-        this.dataSource.data = this.form.get('permissions').value;
+        this.dataSource.data = this.form.get('permissions')?.value ?? [];
       },
       error: (err) => {
         // Handle the error
@@ -148,20 +143,5 @@ export class ApiuserPermissionFormComponent {
       row.selectedPermissions = []; // Clear selected permissions for the deselected row
     }
   }
-  
-  // getSelectedPermissions(module: any): string {
-  //   return module.permissions
-  //     //@ts-ignore
-  //     .filter((_, i) => module.selectedPermissions[i])
-  //     .join(', ');
-  // }
 
-  // getPermissionControls(permissions: string[]): { [key: string]: any } {
-  //   const permissionControls = {};
-  //   permissions.forEach(permission => {
-  //     //@ts-ignore
-  //     permissionControls[permission] = false;
-  //   });
-  //   return permissionControls;
-  // }
 }
