@@ -1,8 +1,8 @@
 export interface Devicelist {
-  devices: Device[],
-  currentPage: number,
-  totalPages: number,
-  totalCount: number,
+  devices: Device[];
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
 }
 
 export interface Device {

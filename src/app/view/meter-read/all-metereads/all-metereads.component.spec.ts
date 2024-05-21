@@ -8,9 +8,8 @@ describe('AllMetereadsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AllMetereadsComponent ]
-    })
-    .compileComponents();
+      declarations: [AllMetereadsComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AllMetereadsComponent);
     component = fixture.componentInstance;

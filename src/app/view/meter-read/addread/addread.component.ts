@@ -1,19 +1,30 @@
 import { Component, OnInit, importProvidersFrom } from '@angular/core';
-import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
-import { MeterReadService, DeviceService, AdminService, OrganizationService } from '../../../auth/services';
-import { AuthbaseService } from '../../../auth/authbase.service'
+import {
+  FormGroup,
+  FormBuilder,
+  FormArray,
+  Validators,
+  FormControl,
+} from '@angular/forms';
+import {
+  MeterReadService,
+  DeviceService,
+  AdminService,
+  OrganizationService,
+} from '../../../auth/services';
+import { AuthbaseService } from '../../../auth/authbase.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import * as moment from 'moment';
 import * as momentTimeZone from 'moment-timezone';
-import { getValidmsgTimezoneFormat } from '../../../utils/getTimezone_msg'
-import { CountryInfo, OrganizationInformation } from '../../../models'
+import { getValidmsgTimezoneFormat } from '../../../utils/getTimezone_msg';
+import { CountryInfo, OrganizationInformation } from '../../../models';
 @Component({
   selector: 'app-addread',
   templateUrl: './addread.component.html',
-  styleUrls: ['./addread.component.scss']
+  styleUrls: ['./addread.component.scss'],
 })
 export class AddreadComponent implements OnInit {
   autocompleteResults: any[] = [];
@@ -50,12 +61,16 @@ export class AddreadComponent implements OnInit {
   devicelist: any = [];
   showmeter_readformadmin: boolean;
   showexternaiIdform: boolean = false;
-  constructor(private fb: FormBuilder, private readService: MeterReadService,
+  constructor(
+    private fb: FormBuilder,
+    private readService: MeterReadService,
     private deviceservice: DeviceService,
     private authService: AuthbaseService,
-    private router: Router, private toastrService: ToastrService,
+    private router: Router,
+    private toastrService: ToastrService,
     private adminService: AdminService,
-    private orgService: OrganizationService) {
+    private orgService: OrganizationService,
+  ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
 
     if (this.loginuser.role === 'Admin' || this.loginuser.role === 'ApiUser') {
@@ -65,29 +80,23 @@ export class AddreadComponent implements OnInit {
     }
   }
 
-
   ngOnInit() {
-
     if (this.loginuser.role === 'Admin') {
-      this.adminService.GetAllOrganization().subscribe(
-        (data) => {
-          this.orglist = data.organizations.filter(
-            (org: OrganizationInformation) => org.organizationType !== 'Buyer'
-          );
+      this.adminService.GetAllOrganization().subscribe((data) => {
+        this.orglist = data.organizations.filter(
+          (org: OrganizationInformation) => org.organizationType !== 'Buyer',
+        );
 
-          this.filteredOrgList = this.orglist;
-        })
+        this.filteredOrgList = this.orglist;
+      });
     } else if (this.loginuser.role === 'ApiUser') {
-      this.orgService.GetApiUserAllOrganization().subscribe(
-        (data) => {
-
-          this.orglist = data.organizations.filter((org: OrganizationInformation) => org.organizationType != "Buyer");
-          this.filteredOrgList = this.orglist;
-
-        }
-      );
-    }
-    else {
+      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+        this.orglist = data.organizations.filter(
+          (org: OrganizationInformation) => org.organizationType != 'Buyer',
+        );
+        this.filteredOrgList = this.orglist;
+      });
+    } else {
       this.gedevicefororg();
     }
     this.readForm = this.fb.group({
@@ -95,45 +104,47 @@ export class AddreadComponent implements OnInit {
       externalId: [null, Validators.required],
       type: [null, Validators.required],
       unit: [null, Validators.required],
-      reads: this.fb.array([
-      ])
-    })
-    const read = this.fb.group({
-      starttimestamp: [''],
-      endtimestamp: [null, Validators.required],
-      value: [null, Validators.required],
-    }, {
-      validators: (control: FormGroup) => {
-        const startTimestampControl = control.get('starttimestamp');
-        const endTimestampControl = control.get('endtimestamp');
-
-        if (startTimestampControl && endTimestampControl) {
-          const startTimestamp = startTimestampControl.value;
-          const endTimestamp = endTimestampControl.value;
-
-          if (startTimestamp > endTimestamp) {
-            endTimestampControl.setErrors({ notSame: true });
-          } else {
-            endTimestampControl.setErrors(null);
-          }
-        }
-        return null;
-      },
+      reads: this.fb.array([]),
     });
+    const read = this.fb.group(
+      {
+        starttimestamp: [''],
+        endtimestamp: [null, Validators.required],
+        value: [null, Validators.required],
+      },
+      {
+        validators: (control: FormGroup) => {
+          const startTimestampControl = control.get('starttimestamp');
+          const endTimestampControl = control.get('endtimestamp');
+
+          if (startTimestampControl && endTimestampControl) {
+            const startTimestamp = startTimestampControl.value;
+            const endTimestamp = endTimestampControl.value;
+
+            if (startTimestamp > endTimestamp) {
+              endTimestampControl.setErrors({ notSame: true });
+            } else {
+              endTimestampControl.setErrors(null);
+            }
+          }
+          return null;
+        },
+      },
+    );
     this.addreads.push(read);
     // this.DisplayList();
     //this.TimeZoneList();
-    this.authService.GetMethod('countrycode/list').subscribe(
-      (data3) => {
-        this.countrylist = data3;
-      }
-    );
+    this.authService.GetMethod('countrycode/list').subscribe((data3) => {
+      this.countrylist = data3;
+    });
     setTimeout(() => {
       if (this.loginuser.role != 'Admin') {
         this.readForm.controls['externalId'];
-        this.filteredexternalIdOptions = this.readForm.controls['externalId'].valueChanges.pipe(
+        this.filteredexternalIdOptions = this.readForm.controls[
+          'externalId'
+        ].valueChanges.pipe(
           startWith(''),
-          map(value => this._externalIdfilter(value || '')),
+          map((value) => this._externalIdfilter(value || '')),
         );
       }
       //  this.getDeviceinfo();
@@ -141,17 +152,18 @@ export class AddreadComponent implements OnInit {
   }
 
   get addreads() {
-    return this.readForm.controls["reads"] as FormArray;
+    return this.readForm.controls['reads'] as FormArray;
   }
   filterOrgList() {
     this.filteredOrgList = this.orglist.filter((org: any) => {
-
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
     });
   }
   selectOrg(event: any) {
     this.showexternaiIdform = true;
-    const selectedCountry = this.orglist.find(option => option.name === event.option.value);
+    const selectedCountry = this.orglist.find(
+      (option) => option.name === event.option.value,
+    );
     if (selectedCountry) {
       this.orgId = selectedCountry.id;
       if (this.loginuser.role === 'ApiUser') {
@@ -160,65 +172,81 @@ export class AddreadComponent implements OnInit {
         this.gedeviceforadmin(this.orgId);
       }
     }
-
   }
 
   gedeviceforadmin(orgid: number) {
     const deviceurl = 'device?OrganizationId=' + orgid;
     this.deviceservice.GetMyDevices(deviceurl).subscribe({
-      next: data => {
-        this.devicelist = data.devices
+      next: (data) => {
+        this.devicelist = data.devices;
         this.readForm.controls['externalId'];
-        this.filteredexternalIdOptions = this.readForm.controls['externalId'].valueChanges.pipe(
+        this.filteredexternalIdOptions = this.readForm.controls[
+          'externalId'
+        ].valueChanges.pipe(
           startWith(''),
-          map(value => this._externalIdfilterbyAdmin(value || '')),
+          map((value) => this._externalIdfilterbyAdmin(value || '')),
         );
-      }
-    })
+      },
+    });
   }
 
   gedevicefororg() {
-
     if (this.loginuser.role === 'ApiUser') {
       const deviceurl = 'device/my?';
-      const FilterForm = { organizationId: this.orgId }
+      const FilterForm = { organizationId: this.orgId };
       this.deviceservice.GetMyDevices(deviceurl, FilterForm).subscribe({
-        next: data => {
+        next: (data) => {
           this.devicelist = data.devices;
           this.readForm.controls['externalId'];
-          this.filteredexternalIdOptions = this.readForm.controls['externalId'].valueChanges.pipe(
+          this.filteredexternalIdOptions = this.readForm.controls[
+            'externalId'
+          ].valueChanges.pipe(
             startWith(''),
-            map(value => this._externalIdfilter(value || '')),
+            map((value) => this._externalIdfilter(value || '')),
           );
-        }
-      })
+        },
+      });
     } else {
       const deviceurl = 'device/my';
       this.deviceservice.GetMyDevices(deviceurl).subscribe({
-        next: data => {
+        next: (data) => {
           this.devicelist = data;
-        }
-      })
+        },
+      });
     }
   }
 
   _externalIdfilter(value: string): string[] {
     const filterValue = value.toLowerCase();
-    if ((!(this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+    if (
+      !(
+        this.devicelist.filter((option: any) =>
+          option.externalId.toLowerCase().includes(filterValue),
+        ).length > 0
+      ) &&
+      filterValue != ''
+    ) {
       this.showerror = true;
       this.showerrorexternalid = true;
     } else {
       this.showerror = false;
       this.showerrorexternalid = false;
     }
-    return this.devicelist.filter((option: any) => option.externalId.toLowerCase().includes(filterValue))
-
+    return this.devicelist.filter((option: any) =>
+      option.externalId.toLowerCase().includes(filterValue),
+    );
   }
 
   _externalIdfilterbyAdmin(value: string): string[] {
-
     const filterValue = value.toLowerCase();
-    if ((!(this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+    if (
+      !(
+        this.devicelist.filter((option: any) =>
+          option.developerExternalId.toLowerCase().includes(filterValue),
+        ).length > 0
+      ) &&
+      filterValue != ''
+    ) {
       this.showerror = true;
       this.showerrorexternalid = true;
     } else {
@@ -226,8 +254,9 @@ export class AddreadComponent implements OnInit {
       this.showerrorexternalid = false;
     }
     //  this.endmaxdate = new Date();
-    return this.devicelist.filter((option: any) => option.developerExternalId.toLowerCase().includes(filterValue))
-
+    return this.devicelist.filter((option: any) =>
+      option.developerExternalId.toLowerCase().includes(filterValue),
+    );
   }
   search() {
     // const input = this.readForm.controls['externalId'].value;
@@ -235,15 +264,17 @@ export class AddreadComponent implements OnInit {
     if (this.loginuser.role === 'Admin') {
       const deviceurl = 'device?';
       //this.adminService.GetDeviceAutocomplete(input, this.orgId).subscribe(
-      this.deviceservice.GetMyDevices(deviceurl, { organizationId: this.orgId }).subscribe(
-        (response) => {
-          this.autocompleteResults = response;
-          this.showerrorexternalid = false;
-        },
-        (error) => {
-          console.error('Error fetching autocomplete results:', error);
-        }
-      );
+      this.deviceservice
+        .GetMyDevices(deviceurl, { organizationId: this.orgId })
+        .subscribe(
+          (response) => {
+            this.autocompleteResults = response;
+            this.showerrorexternalid = false;
+          },
+          (error) => {
+            console.error('Error fetching autocomplete results:', error);
+          },
+        );
     } else {
       const deviceurl = 'device/my?';
       this.deviceservice.GetMyDevices(deviceurl).subscribe(
@@ -253,7 +284,7 @@ export class AddreadComponent implements OnInit {
         },
         (error) => {
           console.error('Error fetching autocomplete results:', error);
-        }
+        },
       );
     }
     // } else {
@@ -280,15 +311,17 @@ export class AddreadComponent implements OnInit {
 
     this.historyAge = new Date(this.devicecreateddate);
     this.historyAge.setFullYear(this.historyAge.getFullYear() - 3);
-    this.timezonedata = this.countrylist.find((countrycode:CountryInfo) => countrycode.alpha3 == result.countryCode)?.timezones;
+    this.timezonedata = this.countrylist.find(
+      (countrycode: CountryInfo) => countrycode.alpha3 == result.countryCode,
+    )?.timezones;
 
     this.readForm.controls['timezone'].setValue(null);
     this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
       startWith(''),
-      map(value => this._filter(value || '')),
+      map((value) => this._filter(value || '')),
     );
     this.addreads.reset();
-    this.readForm.controls['type'].setValue(null)
+    this.readForm.controls['type'].setValue(null);
     let deivceid;
     if (this.loginuser.role === 'Admin') {
       this.readForm.controls['externalId'].setValue(result.developerExternalId);
@@ -301,18 +334,18 @@ export class AddreadComponent implements OnInit {
       deivceid = result.externalId;
     }
     this.readService.Getlastread(deivceid).subscribe({
-      next: data => {
+      next: (data) => {
         this.lastreaddate = data.enddate;
         this.lastreadvalue = data.value;
       },
-      error: err => {                      //Error callback
-        console.error('error caught in component', err)
-      }
-    })
+      error: (err) => {
+        //Error callback
+        console.error('error caught in component', err);
+      },
+    });
     this.endmaxdate = new Date();
   }
   onTimezoneSelect(timezone: any): void {
-
     this.historyAge = momentTimeZone
       .tz(new Date(this.historyAge), timezone)
       .format('YYYY-MM-DDTHH:mm:ss');
@@ -325,27 +358,34 @@ export class AddreadComponent implements OnInit {
       .format('YYYY-MM-DDTHH:mm:ss');
 
     //momentTimeZone.tz(this.devicecreateddate, timezone);
-    this.endmaxdate = new Date(momentTimeZone
-      .tz(new Date(), timezone)
-      .format('YYYY-MM-DDTHH:mm:ss'));
+    this.endmaxdate = new Date(
+      momentTimeZone.tz(new Date(), timezone).format('YYYY-MM-DDTHH:mm:ss'),
+    );
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
-    if ((!(this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue)).length > 0) && filterValue != '')) {
+    if (
+      !(
+        this.timezonedata.filter((option: any) =>
+          option.name.toLowerCase().includes(filterValue),
+        ).length > 0
+      ) &&
+      filterValue != ''
+    ) {
       this.showerror = true;
     } else {
       this.showerror = false;
     }
     this.endmaxdate = new Date();
-    return this.timezonedata.filter((option: any) => option.name.toLowerCase().includes(filterValue))
+    return this.timezonedata.filter((option: any) =>
+      option.name.toLowerCase().includes(filterValue),
+    );
   }
   DisplayList() {
     const deviceurl = 'device/my';
-    this.deviceservice.GetMyDevices(deviceurl).subscribe(
-      (data) => {
-        this.data = data;
-      }
-    )
+    this.deviceservice.GetMyDevices(deviceurl).subscribe((data) => {
+      this.data = data;
+    });
   }
 
   onChangeEvent(event: any) {
@@ -353,14 +393,18 @@ export class AddreadComponent implements OnInit {
       this.endmaxdate = new Date();
       this.endminDate = this.devicecreateddate;
       if (this.readForm.value.timezone != null) {
-        this.endmaxdate = new Date(momentTimeZone
-          .tz(new Date(), this.readForm.value.timezone)
-          .format('YYYY-MM-DDTHH:mm:ss'));
-
+        this.endmaxdate = new Date(
+          momentTimeZone
+            .tz(new Date(), this.readForm.value.timezone)
+            .format('YYYY-MM-DDTHH:mm:ss'),
+        );
       }
       this.hidestarttime = false;
     } else {
-      if (new Date(this.commissioningDate).getTime() > new Date(this.historyAge).getTime()) {
+      if (
+        new Date(this.commissioningDate).getTime() >
+        new Date(this.historyAge).getTime()
+      ) {
         this.startminDate = this.commissioningDate;
         this.endminDate = this.commissioningDate;
       } else {
@@ -380,103 +424,125 @@ export class AddreadComponent implements OnInit {
   }
 
   getErrorcheckdatavalidation() {
-    return this.readForm.controls["reads"].get('endtimestamp')?.hasError('required') ? 'This field is required' :
-      this.readForm.controls["reads"].get('endtimestamp')?.hasError('notSame') ? ' Please add a valid endtimestamp' : '';
+    return this.readForm.controls['reads']
+      .get('endtimestamp')
+      ?.hasError('required')
+      ? 'This field is required'
+      : this.readForm.controls['reads'].get('endtimestamp')?.hasError('notSame')
+        ? ' Please add a valid endtimestamp'
+        : '';
   }
   checkValidation(input: string) {
-    const validation = this.readForm.controls["reads"].get(input)?.invalid && (this.readForm.controls["reads"].get(input)?.dirty || this.readForm.controls["reads"].get(input)?.touched)
+    const validation =
+      this.readForm.controls['reads'].get(input)?.invalid &&
+      (this.readForm.controls['reads'].get(input)?.dirty ||
+        this.readForm.controls['reads'].get(input)?.touched);
     return validation;
   }
   onSubmit(): void {
-
     let externalId = this.readForm.value.externalId;
 
-    const myobj: any = {}
+    const myobj: any = {};
     if (this.loginuser.role === 'ApiUser') {
-      myobj['organizationId'] = this.orgId
+      myobj['organizationId'] = this.orgId;
     }
-    if ((this.readForm.value.timezone != null && this.readForm.value.timezone != '') && this.readForm.value.type === 'History') {
-      myobj['timezone'] = this.readForm.value.timezone
-      myobj['type'] = this.readForm.value.type
-      myobj['unit'] = this.readForm.value.unit
-      let reads: any = []
+    if (
+      this.readForm.value.timezone != null &&
+      this.readForm.value.timezone != '' &&
+      this.readForm.value.type === 'History'
+    ) {
+      myobj['timezone'] = this.readForm.value.timezone;
+      myobj['type'] = this.readForm.value.type;
+      myobj['unit'] = this.readForm.value.unit;
+      let reads: any = [];
       this.readForm.value.reads.forEach((ele: any) => {
         reads.push({
-          starttimestamp: moment(ele.starttimestamp).format('YYYY-MM-DD HH:mm:ss'),
+          starttimestamp: moment(ele.starttimestamp).format(
+            'YYYY-MM-DD HH:mm:ss',
+          ),
           endtimestamp: moment(ele.endtimestamp).format('YYYY-MM-DD HH:mm:ss'),
           value: ele.value,
-        })
-      })
-      myobj['reads'] = reads
-    } else if ((this.readForm.value.timezone != null && this.readForm.value.timezone != '') && this.readForm.value.type != 'History') {
-
-      myobj['timezone'] = this.readForm.value.timezone
-      myobj['type'] = this.readForm.value.type
-      myobj['unit'] = this.readForm.value.unit
-      let newreads: any = []
+        });
+      });
+      myobj['reads'] = reads;
+    } else if (
+      this.readForm.value.timezone != null &&
+      this.readForm.value.timezone != '' &&
+      this.readForm.value.type != 'History'
+    ) {
+      myobj['timezone'] = this.readForm.value.timezone;
+      myobj['type'] = this.readForm.value.type;
+      myobj['unit'] = this.readForm.value.unit;
+      let newreads: any = [];
       this.readForm.value.reads.forEach((ele: any) => {
         newreads.push({
-          starttimestamp: "",
+          starttimestamp: '',
           endtimestamp: moment(ele.endtimestamp).format('YYYY-MM-DD HH:mm:ss'),
           value: ele.value,
-        })
-      })
-      myobj['reads'] = newreads
+        });
+      });
+      myobj['reads'] = newreads;
     } else {
-      myobj['type'] = this.readForm.value.type
-      myobj['unit'] = this.readForm.value.unit
-      let newreads: any = []
+      myobj['type'] = this.readForm.value.type;
+      myobj['unit'] = this.readForm.value.unit;
+      let newreads: any = [];
       this.readForm.value.reads.forEach((ele: any) => {
         newreads.push({
           starttimestamp: ele.starttimestamp,
           endtimestamp: ele.endtimestamp,
           value: ele.value,
-        })
-      })
-      myobj['reads'] = newreads
+        });
+      });
+      myobj['reads'] = newreads;
     }
     if (this.loginuser.role === 'Admin') {
-      this.readService.PostReadByAdmin(externalId, myobj, this.orgId).subscribe({
-        next: (data: any) => {
-          this.readForm.reset();
-          this.selectedResult = null;
-          const formControls = this.readForm.controls;
-          Object.keys(formControls).forEach(key => {
-            const control = formControls[key];
-            control.setErrors(null);
-          });
-          this.toastrService.success('Successfully!', 'Read Added!!');
-        },
-        error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
-          console.error('error caught in component', err)
-    
-          let message = getValidmsgTimezoneFormat(err.error.message?? 'Someting Wrong');
+      this.readService
+        .PostReadByAdmin(externalId, myobj, this.orgId)
+        .subscribe({
+          next: (data: any) => {
+            this.readForm.reset();
+            this.selectedResult = null;
+            const formControls = this.readForm.controls;
+            Object.keys(formControls).forEach((key) => {
+              const control = formControls[key];
+              control.setErrors(null);
+            });
+            this.toastrService.success('Successfully!', 'Read Added!!');
+          },
+          error: (err: { error: { message: string | undefined } }) => {
+            //Error callback
+            console.error('error caught in component', err);
 
-          this.toastrService.error(message, 'error!');
-        }
-      });
+            let message = getValidmsgTimezoneFormat(
+              err.error.message ?? 'Someting Wrong',
+            );
+
+            this.toastrService.error(message, 'error!');
+          },
+        });
     } else {
       this.readService.PostRead(externalId, myobj).subscribe({
         next: (data: any) => {
           this.readForm.reset();
           this.selectedResult = null;
           const formControls = this.readForm.controls;
-          Object.keys(formControls).forEach(key => {
+          Object.keys(formControls).forEach((key) => {
             const control = formControls[key];
             control.setErrors(null);
           });
           this.toastrService.success('Successfully!', 'Read Added!!');
         },
-        error: (err: { error: { message: string | undefined; }; }) => {                          //Error callback
-          console.error('error caught in component', err)
-        
-          let message = getValidmsgTimezoneFormat(err.error.message?? 'Something Wrong!!');
+        error: (err: { error: { message: string | undefined } }) => {
+          //Error callback
+          console.error('error caught in component', err);
+
+          let message = getValidmsgTimezoneFormat(
+            err.error.message ?? 'Something Wrong!!',
+          );
 
           this.toastrService.error(message, 'error!');
-        }
+        },
       });
     }
-
   }
-
 }
