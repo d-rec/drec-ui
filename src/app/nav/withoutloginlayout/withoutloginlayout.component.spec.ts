@@ -8,9 +8,8 @@ describe('WithoutloginlayoutComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ WithoutloginlayoutComponent ]
-    })
-    .compileComponents();
+      declarations: [WithoutloginlayoutComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(WithoutloginlayoutComponent);
     component = fixture.componentInstance;

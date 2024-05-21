@@ -5,23 +5,22 @@ import { environment } from '../../../environments/environment';
 import { OrganizationInformation } from '../../models/organization.model';
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BlockchainDrecService {
+  constructor(private httpClient: HttpClient) {}
 
-  constructor(private httpClient:HttpClient) { }
-
-
-  getBlockchainProperties():Observable<BlockchainProperties>
-  {
-    return this.httpClient.get<BlockchainProperties>(environment.API_URL+'blockchain-properties')
+  getBlockchainProperties(): Observable<BlockchainProperties> {
+    return this.httpClient.get<BlockchainProperties>(
+      environment.API_URL + 'blockchain-properties',
+    );
   }
 
-  convertClaimAmountToHex(amount:number|string):Observable<any>
-  {
-    return this.httpClient.get<any>(environment.API_URL+`certificate-log/claim-amount-in-ethers-json?amount=${amount.toString()}`)
+  convertClaimAmountToHex(amount: number | string): Observable<any> {
+    return this.httpClient.get<any>(
+      environment.API_URL +
+        `certificate-log/claim-amount-in-ethers-json?amount=${amount.toString()}`,
+    );
   }
-  
 }

@@ -1,9 +1,22 @@
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, OnInit, ViewChild, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewChild,
+  ViewChildren,
+  QueryList,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
@@ -12,33 +25,32 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import {OrganizationInformation,fulecodeType,devicecodeType,CountryInfo} from '../../../models'
+import {
+  OrganizationInformation,
+  fulecodeType,
+  devicecodeType,
+  CountryInfo,
+} from '../../../models';
 @Component({
   selector: 'app-admin-organization',
   templateUrl: './admin-organization.component.html',
-  styleUrls: ['./admin-organization.component.scss']
+  styleUrls: ['./admin-organization.component.scss'],
 })
 export class AdminOrganizationComponent {
   title = 'matDialog';
   dataFromDialog: any;
-  displayedColumns = [
-    'name',
-    'type',
-    'status',
-    'no of users',
-    'actions',
-  ];
+  displayedColumns = ['name', 'type', 'status', 'no of users', 'actions'];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   data: any;
-  loginuser: any
+  loginuser: any;
   deviceurl: any;
   pageSize: number = 20;
-  countrylist: CountryInfo[]=[];
-  fuellist: fulecodeType[]=[];
-  orglist: OrganizationInformation[]=[];
-  devicetypelist: devicecodeType[]=[];
+  countrylist: CountryInfo[] = [];
+  fuellist: fulecodeType[] = [];
+  orglist: OrganizationInformation[] = [];
+  devicetypelist: devicecodeType[] = [];
   fuellistLoaded: boolean = false;
   devicetypeLoded: boolean = false;
   countrycodeLoded: boolean = false;
@@ -48,7 +60,18 @@ export class AdminOrganizationComponent {
   p: number = 1;
   totalRows = 0;
   filteredOptions: Observable<any[]>;
-  offtaker = ['School', 'Education', 'Health Facility', 'Residential', 'Commercial', 'Industrial', 'Public Sector', 'Agriculture', 'Utility', 'Off-Grid Community']
+  offtaker = [
+    'School',
+    'Education',
+    'Health Facility',
+    'Residential',
+    'Commercial',
+    'Industrial',
+    'Public Sector',
+    'Agriculture',
+    'Utility',
+    'Off-Grid Community',
+  ];
   endminDate = new Date();
   totalPages: number;
   subscription: Subscription;
@@ -57,51 +80,48 @@ export class AdminOrganizationComponent {
   showerror: boolean = false;
   showlist: boolean = false;
   orglistload: boolean = false;
-  constructor(private authService: AuthbaseService, private adminService: AdminService,
+  constructor(
+    private authService: AuthbaseService,
+    private adminService: AdminService,
     private formBuilder: FormBuilder,
     private router: Router,
     private dialog: MatDialog,
     private activatedRoute: ActivatedRoute,
-    private orgService: OrganizationService) {
+    private orgService: OrganizationService,
+  ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-    this.activatedRoute.queryParams.subscribe(params => {
-  
-    });
+    this.activatedRoute.queryParams.subscribe((params) => {});
 
     this.FilterForm = this.formBuilder.group({
-      organizationName: []
+      organizationName: [],
     });
   }
   ngOnInit() {
     if (this.loginuser.role === 'Admin') {
-      this.adminService.GetAllOrganization().subscribe(
-        (data) => {
-          this.orglist =data.organizations.filter((org:OrganizationInformation) => org.organizationType != "ApiUser");
-          this.orglistload = true;
-     
-        });
+      this.adminService.GetAllOrganization().subscribe((data) => {
+        this.orglist = data.organizations.filter(
+          (org: OrganizationInformation) => org.organizationType != 'ApiUser',
+        );
+        this.orglistload = true;
+      });
     } else if (this.loginuser.role === 'ApiUser') {
-      this.orgService.GetApiUserAllOrganization().subscribe(
-        (data) => {
-          this.orglist = data.organizations
-          this.orglistload = true;
-  
-        });
+      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+        this.orglist = data.organizations;
+        this.orglistload = true;
+      });
     }
 
     setTimeout(() => {
       this.loading = false;
       if (this.loginuser.role === 'Admin') {
         this.getAllOrganization(this.p);
-      }
-      else if (this.loginuser.role === 'ApiUser') {
+      } else if (this.loginuser.role === 'ApiUser') {
         this.getApiuserAllOrganization(this.p);
       }
       if (this.orglistload) {
         this.applyorgFilter();
       }
-
-    }, 2500)
+    }, 2500);
   }
 
   ngOnDestroy() {
@@ -111,26 +131,38 @@ export class AdminOrganizationComponent {
   }
   applyorgFilter() {
     this.FilterForm.controls['organizationName'];
-    this.filteredOptions = this.FilterForm.controls['organizationName'].valueChanges.pipe(
+    this.filteredOptions = this.FilterForm.controls[
+      'organizationName'
+    ].valueChanges.pipe(
       startWith(''),
-      map(value => this._filter(value || '')),
+      map((value) => this._filter(value || '')),
     );
   }
 
   private _filter(value: any): OrganizationInformation[] {
- 
     const filterValue = value.toLowerCase();
-    if (!(this.orglist.filter((option: OrganizationInformation) => option.name.toLowerCase().includes(filterValue)).length > 0)) {
+    if (
+      !(
+        this.orglist.filter((option: OrganizationInformation) =>
+          option.name.toLowerCase().includes(filterValue),
+        ).length > 0
+      )
+    ) {
       this.showerror = true;
     } else {
       this.showerror = false;
     }
-    return this.orglist.filter((option: OrganizationInformation) => option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0);
+    return this.orglist.filter(
+      (option: OrganizationInformation) =>
+        option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0,
+    );
   }
 
-  selectOrg(event: any) { 
-    this.subscription = this.filteredOptions.subscribe(options => {
-      const selectedorg = options.find(option => option.name === event.option.value);
+  selectOrg(event: any) {
+    this.subscription = this.filteredOptions.subscribe((options) => {
+      const selectedorg = options.find(
+        (option) => option.name === event.option.value,
+      );
       if (selectedorg) {
         this.FilterForm.controls['organizationName'].setValue(selectedorg.name);
       }
@@ -138,44 +170,54 @@ export class AdminOrganizationComponent {
   }
   reset() {
     this.FilterForm.reset();
-    this.p = 1
+    this.p = 1;
     this.loading = true;
     this.getAllOrganization(this.p);
   }
   getAllOrganization(page: number) {
     const limit = 20;
-    this.adminService.GetAllOrganization(page, limit, this.FilterForm.value).subscribe(
-      (data) => {
-   
-        this.showlist = true
-        this.loading = false;
-        this.data = data;
-        this.dataSource = new MatTableDataSource(this.data.organizations.filter((org:OrganizationInformation) => org.organizationType != "ApiUser"));
-        this.totalRows = this.data.totalCount
-        this.totalPages = this.data.totalPages
-        this.dataSource.sort = this.sort;
-      }, error => {
-        this.data = [];
-        this.showlist = false
-      }
-    )
+    this.adminService
+      .GetAllOrganization(page, limit, this.FilterForm.value)
+      .subscribe(
+        (data) => {
+          this.showlist = true;
+          this.loading = false;
+          this.data = data;
+          this.dataSource = new MatTableDataSource(
+            this.data.organizations.filter(
+              (org: OrganizationInformation) =>
+                org.organizationType != 'ApiUser',
+            ),
+          );
+          this.totalRows = this.data.totalCount;
+          this.totalPages = this.data.totalPages;
+          this.dataSource.sort = this.sort;
+        },
+        (error) => {
+          this.data = [];
+          this.showlist = false;
+        },
+      );
   }
   getApiuserAllOrganization(page: number) {
     const limit = 20;
-    this.orgService.GetApiUserAllOrganization(page, limit, this.FilterForm.value).subscribe(
-      (data) => {
-        this.showlist = true
-        this.loading = false;
-        this.data = data;
-        this.dataSource = new MatTableDataSource(this.data.organizations);
-        this.totalRows = this.data.totalCount
-        this.totalPages = this.data.totalPages
-        this.dataSource.sort = this.sort;
-      }, error => {
-        this.data = [];
-        this.showlist = false
-      }
-    )
+    this.orgService
+      .GetApiUserAllOrganization(page, limit, this.FilterForm.value)
+      .subscribe(
+        (data) => {
+          this.showlist = true;
+          this.loading = false;
+          this.data = data;
+          this.dataSource = new MatTableDataSource(this.data.organizations);
+          this.totalRows = this.data.totalCount;
+          this.totalPages = this.data.totalPages;
+          this.dataSource.sort = this.sort;
+        },
+        (error) => {
+          this.data = [];
+          this.showlist = false;
+        },
+      );
   }
   previousPage(): void {
     if (this.p > 1) {
@@ -187,8 +229,7 @@ export class AdminOrganizationComponent {
   nextPage(): void {
     if (this.p < this.totalPages) {
       this.p++;
-      this.getAllOrganization(this.p);;
+      this.getAllOrganization(this.p);
     }
   }
-
 }
