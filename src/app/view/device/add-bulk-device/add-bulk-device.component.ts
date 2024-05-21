@@ -4,17 +4,33 @@ import { Observable } from 'rxjs';
 import { FileuploadService } from '../../../auth/services/fileupload.service';
 import { ToastrService } from 'ngx-toastr';
 import { MatTableDataSource, MatTable } from '@angular/material/table';
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import { DeviceService, AdminService, OrganizationService } from '../../../auth/services'
+import {
+  DeviceService,
+  AdminService,
+  OrganizationService,
+} from '../../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
-import {OrganizationInformation,Device,fulecodeType,devicecodeType,CountryInfo } from '../../../models'
+import {
+  OrganizationInformation,
+  Device,
+  fulecodeType,
+  devicecodeType,
+  CountryInfo,
+} from '../../../models';
 
 @Component({
   selector: 'app-add-bulk-device',
   templateUrl: './add-bulk-device.component.html',
-  styleUrls: ['./add-bulk-device.component.scss']
+  styleUrls: ['./add-bulk-device.component.scss'],
 })
 export class AddBulkDeviceComponent implements OnInit {
   currentFile?: File | null;
@@ -28,24 +44,28 @@ export class AddBulkDeviceComponent implements OnInit {
   loading: boolean = true;
   objectKeys = Object.keys;
   displayedColumns = [
-    "serialno",
-    "createdAt",
-    "jobId",
-    "fileId",
-    "status",
-    "actions"];
-  displayedColumns1 = [
-    "serialno",
-    "externalId",
-    "errorsList",
-    "Status",
-    "Action"
+    'serialno',
+    'createdAt',
+    'jobId',
+    'fileId',
+    'status',
+    'actions',
   ];
-  constructor(private uploadService: FileuploadService,
-    private deviceService: DeviceService, private router: Router,
+  displayedColumns1 = [
+    'serialno',
+    'externalId',
+    'errorsList',
+    'Status',
+    'Action',
+  ];
+  constructor(
+    private uploadService: FileuploadService,
+    private deviceService: DeviceService,
+    private router: Router,
     private toastrService: ToastrService,
     private adminService: AdminService,
-    private orgService: OrganizationService) {
+    private orgService: OrganizationService,
+  ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -59,39 +79,40 @@ export class AddBulkDeviceComponent implements OnInit {
   orgname: string;
   orgId: number;
   loginuser: any;
-  
+
   ngOnInit(): void {
     if (this.loginuser.role === 'Admin') {
-      this.adminService.GetAllOrganization().subscribe(
-        (data) => {
-          this.orglist = data.organizations.filter(
-            (org: OrganizationInformation) => org.organizationType !== 'Buyer'
-          );
-          this.filteredOrgList = this.orglist;
-        })
+      this.adminService.GetAllOrganization().subscribe((data) => {
+        this.orglist = data.organizations.filter(
+          (org: OrganizationInformation) => org.organizationType !== 'Buyer',
+        );
+        this.filteredOrgList = this.orglist;
+      });
     } else if (this.loginuser.role === 'ApiUser') {
-      this.orgService.GetApiUserAllOrganization().subscribe(
-        (data) => {
-          this.orglist = data.organizations.filter(org => org.organizationType != "Buyer");
-          this.filteredOrgList = this.orglist;
-        }
-      );
+      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+        this.orglist = data.organizations.filter(
+          (org) => org.organizationType != 'Buyer',
+        );
+        this.filteredOrgList = this.orglist;
+      });
     }
     this.JobDisplayList();
-
   }
 
   filterOrgList() {
-    this.filteredOrgList = this.orglist.filter((org: OrganizationInformation) => {
-      return org.name.toLowerCase().includes(this.orgname.toLowerCase());
-    });
+    this.filteredOrgList = this.orglist.filter(
+      (org: OrganizationInformation) => {
+        return org.name.toLowerCase().includes(this.orgname.toLowerCase());
+      },
+    );
   }
   selectOrg(event: any) {
-    const selectedCountry = this.orglist.find((option:any) => option.name === event.option.value);
+    const selectedCountry = this.orglist.find(
+      (option: any) => option.name === event.option.value,
+    );
     if (selectedCountry) {
       this.orgId = selectedCountry.id;
     }
-
   }
   reset() {
     this.currentFile = null;
@@ -113,7 +134,7 @@ export class AddBulkDeviceComponent implements OnInit {
   }
 
   openFileExplorer() {
-    document.getElementById("fileInput")?.click();
+    document.getElementById('fileInput')?.click();
   }
 
   upload(): void {
@@ -125,40 +146,52 @@ export class AddBulkDeviceComponent implements OnInit {
         (event: any) => {
           let obj: any = {};
           obj['fileName'] = event[0];
-          if (this.loginuser.role === 'Admin' || this.loginuser.role === 'ApiUser') {
-            this.deviceService.addByAdminbulkDevices(this.orgId, obj).subscribe({
-              next: (data: any) => {
-                this.JobDisplayList();
-                this.currentFile = null;
-                this.fileName = 'Please click here to Select File';
-                this.toastrService.success('Successfully!', 'Devices Uploaded in Bulk!!');
-              },
-              error: (err) => {                          //Error callback
-                console.error('error caught in component', err)
-                if (err.error.statusCode === 403) {
-                  this.toastrService.error('You are Unauthorized')
-                } else {
-                  this.toastrService.error('error!', err.error.message);
-                }
-
-              }
-            });
+          if (
+            this.loginuser.role === 'Admin' ||
+            this.loginuser.role === 'ApiUser'
+          ) {
+            this.deviceService
+              .addByAdminbulkDevices(this.orgId, obj)
+              .subscribe({
+                next: (data: any) => {
+                  this.JobDisplayList();
+                  this.currentFile = null;
+                  this.fileName = 'Please click here to Select File';
+                  this.toastrService.success(
+                    'Successfully!',
+                    'Devices Uploaded in Bulk!!',
+                  );
+                },
+                error: (err) => {
+                  //Error callback
+                  console.error('error caught in component', err);
+                  if (err.error.statusCode === 403) {
+                    this.toastrService.error('You are Unauthorized');
+                  } else {
+                    this.toastrService.error('error!', err.error.message);
+                  }
+                },
+              });
           } else {
             this.uploadService.addbulkDevices(obj).subscribe({
               next: (data: any) => {
                 this.JobDisplayList();
                 this.currentFile = null;
                 this.fileName = 'Please click here to Select File';
-                this.toastrService.success('Successful', 'Devices uploaded in bulk');
+                this.toastrService.success(
+                  'Successful',
+                  'Devices uploaded in bulk',
+                );
               },
-              error: (err) => {                          //Error callback
-                console.error('error caught in component', err)
+              error: (err) => {
+                //Error callback
+                console.error('error caught in component', err);
                 if (err.error.statusCode === 403) {
-                  this.toastrService.error('You are Unauthorized')
+                  this.toastrService.error('You are Unauthorized');
                 } else {
                   this.toastrService.error('error!', err.error.message);
                 }
-              }
+              },
             });
           }
         },
@@ -172,50 +205,54 @@ export class AddBulkDeviceComponent implements OnInit {
           }
 
           this.currentFile = null;
-        }
+        },
       );
     }
   }
   JobDisplayList() {
     this.showdevicesinfo = false;
     this.loading = true;
-    this.uploadService.getCsvJobList().subscribe(
-      (data) => {
-        // display list in the console 
-        this.loading = false;
-        this.data = data;
-        this.dataSource = new MatTableDataSource(this.data.csvJobs);
-        this.dataSource.paginator = this.paginator
-        this.dataSource.sort = this.sort;
-      }
-    )
+    this.uploadService.getCsvJobList().subscribe((data) => {
+      // display list in the console
+      this.loading = false;
+      this.data = data;
+      this.dataSource = new MatTableDataSource(this.data.csvJobs);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    });
   }
   DisplayDeviceLogList(jobid: number, orgId: number) {
     this.showdevicesinfo = true;
     this.DevicestatusList = [];
-    this.uploadService.getJobStatus(jobid, orgId).subscribe(
-      (data) => {
-        this.data = data.errorDetails.log.errorDetails;
-        this.dataSource1 = new MatTableDataSource(this.data);
-        this.dataSource1.paginator = this.paginator
-      })
+    this.uploadService.getJobStatus(jobid, orgId).subscribe((data) => {
+      this.data = data.errorDetails.log.errorDetails;
+      this.dataSource1 = new MatTableDataSource(this.data);
+      this.dataSource1.paginator = this.paginator;
+    });
   }
 
   UpdateDevice(externalId: any) {
-
     this.deviceService.getDeviceInfoBYexternalId(externalId).subscribe(
       (data) => {
         if (data) {
-          this.router.navigate(['/device/edit/' + externalId], { queryParams: { frombulk: true } });
+          this.router.navigate(['/device/edit/' + externalId], {
+            queryParams: { frombulk: true },
+          });
         } else {
-          this.toastrService.error('device id has been updated', 'current external id not found!!');
+          this.toastrService.error(
+            'device id has been updated',
+            'current external id not found!!',
+          );
         }
       },
-      (error) => {                              //Error callback
-        console.error('error caught in component', error)
-        this.toastrService.error('device id has been updated', 'current external id not found!!');
-      }
+      (error) => {
+        //Error callback
+        console.error('error caught in component', error);
+        this.toastrService.error(
+          'device id has been updated',
+          'current external id not found!!',
+        );
+      },
     );
-
   }
 }

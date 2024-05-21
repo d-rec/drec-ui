@@ -1,17 +1,17 @@
-export const getapiuser_header =  () => {
-    let header:any = {};
-    let loginuser = JSON.parse( sessionStorage.getItem('loginuser')!);
-  
-    // if (loginuser?.role === "ApiUser") {
-    //     header = {
-    //         "client_id": loginuser?.clientId,
-    //         "client_secret": loginuser?.clientSecret
-    //     }
+export const getapiuser_header = () => {
+  let header: any = {};
+  let loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
 
-    // }
-   
-    return  header;
-}
+  // if (loginuser?.role === "ApiUser") {
+  //     header = {
+  //         "client_id": loginuser?.clientId,
+  //         "client_secret": loginuser?.clientSecret
+  //     }
+
+  // }
+
+  return header;
+};
 // export const getapiuser_header = () => {
 //     return new Promise((resolve) => {
 //         let interval = setInterval(() => {
