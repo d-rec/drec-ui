@@ -223,7 +223,6 @@ export class AllMetereadsComponent implements OnInit {
   }
 
   _externalIdfilterbyAdmin(value: any): string[] {
-
     const filterValue = value.toLowerCase();
     if (
       !(
