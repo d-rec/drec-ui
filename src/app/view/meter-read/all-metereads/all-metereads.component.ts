@@ -8,11 +8,7 @@ import {
   AdminService,
   OrganizationService,
 } from '../../../auth/services';
-import {
-  FormGroup,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MeterReadTableComponent } from '../meter-read-table/meter-read-table.component';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';

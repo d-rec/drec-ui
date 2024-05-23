@@ -1,8 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpClient,
-  HttpHeaders,
-} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { getapiuser_header } from '../../utils/apiuser_clientinfo';
@@ -27,7 +24,8 @@ export class AdminService {
     }
     if (searchData != undefined) {
       if (
-        !(searchData.organizationName === undefined ||
+        !(
+          searchData.organizationName === undefined ||
           searchData.organizationName === '' ||
           searchData.organizationName === null
         )
@@ -49,13 +47,14 @@ export class AdminService {
     const headers = new HttpHeaders(this.headersData);
     let searchUrl = `${this.url}admin/users`;
     if (pagenumber != undefined && limit != undefined) {
-      if (!( pagenumber === undefined || pagenumber === null)) {
+      if (!(pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;
       }
     }
     if (searchData != undefined) {
       if (
-        !( searchData.organizationName === undefined ||
+        !(
+          searchData.organizationName === undefined ||
           searchData.organizationName === '' ||
           searchData.organizationName === null
         )
@@ -73,7 +72,7 @@ export class AdminService {
     const headers = new HttpHeaders(this.headersData);
     let searchUrl = `${this.url}admin/organizations/user/${organizationsId}`;
     if (pagenumber != undefined && limit != undefined) {
-      if (!( pagenumber === undefined || pagenumber === null)) {
+      if (!(pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;
       }
     }
@@ -117,7 +116,8 @@ export class AdminService {
 
     if (searchData != undefined) {
       if (
-        !( searchData.organizationName === undefined ||
+        !(
+          searchData.organizationName === undefined ||
           searchData.organizationName === '' ||
           searchData.organizationName === null
         )

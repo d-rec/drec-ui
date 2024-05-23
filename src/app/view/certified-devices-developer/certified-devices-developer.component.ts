@@ -1,4 +1,3 @@
-
 import {
   Component,
   ViewChild,
@@ -24,11 +23,7 @@ export interface Student {
   course: string;
   yearOfStudy: number;
 }
-import {
-  FormGroup,
-  FormBuilder,
-  FormControl,
-} from '@angular/forms';
+import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -367,7 +362,7 @@ export class CertifiedDevicesDeveloperComponent {
         },
         (errors) => {
           this.data = [];
-          this.toastrService.error("Failed",errors)
+          this.toastrService.error('Failed', errors);
         },
       );
   }

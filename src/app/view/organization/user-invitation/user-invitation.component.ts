@@ -1,9 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import {
-  FormGroup,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import {
   AdminService,
   UserService,
@@ -16,9 +12,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatTabGroup } from '@angular/material/tabs';
-import {
-  OrganizationInformation,
-} from '../../../models';
+import { OrganizationInformation } from '../../../models';
 
 @Component({
   selector: 'app-user-invitation',
@@ -42,7 +36,7 @@ export class UserInvitationComponent {
   showorginviteuser: boolean = false;
   loading: boolean = false;
   emailregex: RegExp =
-  // eslint-disable-next-line no-useless-escape
+    // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   orgtype: any[] = [
     { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
@@ -133,7 +127,7 @@ export class UserInvitationComponent {
         this.dataSource = new MatTableDataSource(this.invitaionlist);
       },
       error: (err) => {
-        this.toastrService.error('Failed',err)
+        this.toastrService.error('Failed', err);
       },
     });
   }

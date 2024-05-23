@@ -11,11 +11,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import {
-  CountryInfo,
-  fulecodeType,
-  devicecodeType,
-} from '../../../models';
+import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
 
 @Component({
   selector: 'app-edit-device',

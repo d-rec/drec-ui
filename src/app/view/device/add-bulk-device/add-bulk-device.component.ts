@@ -11,9 +11,7 @@ import {
   OrganizationService,
 } from '../../../auth/services';
 import { Router } from '@angular/router';
-import {
-  OrganizationInformation,
-} from '../../../models';
+import { OrganizationInformation } from '../../../models';
 
 @Component({
   selector: 'app-add-bulk-device',

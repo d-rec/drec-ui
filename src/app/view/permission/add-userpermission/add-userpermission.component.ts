@@ -1,11 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
-import {
-  FormBuilder,
-  FormGroup,
-  FormArray,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -15,9 +10,7 @@ import {
   ACLModulePermisionService,
 } from '../../../auth/services';
 import { Router } from '@angular/router';
-import {
-  MatDialog,
-} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { EditPermissionComponent } from '../edit-permission/edit-permission.component';
 import { ToastrService } from 'ngx-toastr';
 @Component({
@@ -99,7 +92,7 @@ export class UserpermissionComponent {
         //this.dataSource = new MatTableDataSource(data);
       },
       error: (err) => {
-        this.toastrService.error('Failed',err)
+        this.toastrService.error('Failed', err);
       },
     });
   }
@@ -121,7 +114,7 @@ export class UserpermissionComponent {
         this.dataSource = new MatTableDataSource(this.userdatalist);
       },
       error: (err) => {
-        this.toastrService.error('failed',err)
+        this.toastrService.error('failed', err);
       },
     });
   }
@@ -155,7 +148,6 @@ export class UserpermissionComponent {
     }
   }
   onSubmit(): void {
-   
     if (this.selection.selected.length > 0) {
       this.selection.selected.forEach((ele: any) => {
         const request = {

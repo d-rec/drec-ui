@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import {
-  ACLModulePermisionService,
-} from '../../../auth/services';
+import { ACLModulePermisionService } from '../../../auth/services';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
@@ -39,7 +37,7 @@ export class ApiuserPermissionFormComponent {
         this.dataSource.data = this.form.get('permissions')?.value ?? [];
       },
       error: (err) => {
-        this.toastrService.error('Fialed',err.error);
+        this.toastrService.error('Fialed', err.error);
       },
     });
   }

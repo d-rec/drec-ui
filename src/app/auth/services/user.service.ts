@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpClient,
-} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 //import {environment} from '../../../environments/environment.dev';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
@@ -49,9 +47,7 @@ export class UserService {
       data,
     );
   }
-  public getuserById(
-    id: number,
-  ): Observable<any> {
+  public getuserById(id: number): Observable<any> {
     return this.httpClient.get<any>(this.url + 'user/' + id);
   }
 }

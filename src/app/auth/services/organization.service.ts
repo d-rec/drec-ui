@@ -33,7 +33,7 @@ export class OrganizationService {
   ): Observable<IPublicOrganization> {
     let searchUrl = `${environment.API_URL}Organization/users`;
     if (pagenumber != undefined && limit != undefined) {
-      if (!( pagenumber === undefined || pagenumber === null)) {
+      if (!(pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;
       }
     }
@@ -59,7 +59,7 @@ export class OrganizationService {
     if (searchData != undefined) {
       if (
         !(
-         searchData.organizationName === undefined ||
+          searchData.organizationName === undefined ||
           searchData.organizationName === '' ||
           searchData.organizationName === null
         )

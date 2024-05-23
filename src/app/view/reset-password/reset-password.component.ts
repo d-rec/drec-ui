@@ -115,7 +115,10 @@ export class ResetPasswordComponent {
     this.authService
       .UserResetPassword(this.accesstoken, this.resetpasswordForm.value)
       .subscribe((data) => {
-        this.toastrService.success('Successfully!!', data.firstName+'Reset Password');
+        this.toastrService.success(
+          'Successfully!!',
+          data.firstName + 'Reset Password',
+        );
 
         this.router.navigate(['/login']);
       });

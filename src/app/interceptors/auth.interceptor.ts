@@ -34,9 +34,7 @@ export class AuthInterceptor implements HttpInterceptor {
           }
         }
       }),
-      catchError((err: string) =>
-        this.handleHttpClientError(err),
-      ),
+      catchError((err: string) => this.handleHttpClientError(err)),
     );
   }
 
@@ -44,7 +42,7 @@ export class AuthInterceptor implements HttpInterceptor {
     // this.sharedService.stopLoader();
     if (error.status == 401) {
       // Handle unauthorized error
-    //  this.authService.logout(); // Example: log the user out
+      //  this.authService.logout(); // Example: log the user out
       this.router.navigate(['/login']); // Example: redirect to login page
     }
     return throwError(error);

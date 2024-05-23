@@ -1,9 +1,5 @@
 import { Component } from '@angular/core';
-import {
-  FormGroup,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';

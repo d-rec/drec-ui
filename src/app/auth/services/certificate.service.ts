@@ -1,8 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpClient,
-  HttpHeaders,
-} from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { getapiuser_header } from '../../utils/apiuser_clientinfo';
@@ -26,7 +23,8 @@ export class CertificateService {
       pagenumber;
     if (searchData != undefined) {
       if (
-        !(searchData.organizationId === undefined ||
+        !(
+          searchData.organizationId === undefined ||
           searchData.organizationId === '' ||
           searchData.organizationId === null ||
           searchData.organizationId === undefined
@@ -35,7 +33,8 @@ export class CertificateService {
         searchUrl += `&organizationId=${searchData.organizationId}`;
       }
       if (
-        !(searchData.countryCode === undefined ||
+        !(
+          searchData.countryCode === undefined ||
           searchData.countryCode === '' ||
           searchData.countryCode === null
         )
@@ -44,7 +43,8 @@ export class CertificateService {
       }
 
       if (
-        !( searchData.fuelCode === undefined ||
+        !(
+          searchData.fuelCode === undefined ||
           searchData.fuelCode === '' ||
           searchData.fuelCode === null
         )
@@ -53,7 +53,8 @@ export class CertificateService {
       }
 
       if (
-        !(searchData.capacity === undefined ||
+        !(
+          searchData.capacity === undefined ||
           searchData.capacity === '' ||
           searchData.capacity === null
         )
@@ -61,7 +62,8 @@ export class CertificateService {
         searchUrl += `&capacity=${searchData.capacity}`;
       }
       if (
-        !(searchData.offTaker === undefined ||
+        !(
+          searchData.offTaker === undefined ||
           searchData.offTaker === '' ||
           searchData.offTaker === null
         )
@@ -69,7 +71,8 @@ export class CertificateService {
         searchUrl += `&offTaker=${searchData.offTaker}`;
       }
       if (
-        !(searchData.SDGBenefits === undefined ||
+        !(
+          searchData.SDGBenefits === undefined ||
           searchData.SDGBenefits === '' ||
           searchData.SDGBenefits === null
         )

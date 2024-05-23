@@ -63,7 +63,7 @@ export class AclModulePermissionComponent {
         this.dataSource = new MatTableDataSource(data);
       },
       error: (err) => {
-        this.toastrService.error('Failed',err)
+        this.toastrService.error('Failed', err);
       },
     });
   }

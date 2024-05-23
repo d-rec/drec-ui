@@ -42,8 +42,7 @@ export class AddUsersComponent {
     private toastrService: ToastrService,
     private userService: UserService,
     private router: Router,
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);

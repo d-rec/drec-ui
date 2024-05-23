@@ -75,7 +75,7 @@ export class DeviceDetailsComponent {
         }
       },
       error: (err) => {
-        this.toastrService.error('Data info not Found',err)
+        this.toastrService.error('Data info not Found', err);
       },
     });
   }

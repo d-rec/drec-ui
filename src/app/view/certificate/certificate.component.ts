@@ -1,4 +1,3 @@
-
 import {
   Component,
   ViewChild,
@@ -36,11 +35,7 @@ export interface Student {
   course: string;
   yearOfStudy: number;
 }
-import {
-  FormGroup,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';

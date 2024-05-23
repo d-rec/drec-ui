@@ -25,7 +25,7 @@ export class UserProfileComponent {
   loginuser: any;
   status: any;
   emailregex: RegExp =
-  // eslint-disable-next-line no-useless-escape
+    // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   fieldRequired: string = 'This field is required';
   resetpasswordform: FormGroup;
@@ -141,8 +141,10 @@ export class UserProfileComponent {
   onUpdate() {
     this.userService.updatProfile(this.updateForm.value).subscribe({
       next: (data) => {
-        this.toastrService.success(data.firstName+' User Updated', 'Successful');
-        
+        this.toastrService.success(
+          data.firstName + ' User Updated',
+          'Successful',
+        );
       },
       error: (err) => {
         this.updateForm.reset();
@@ -157,7 +159,10 @@ export class UserProfileComponent {
     this.userService
       .resetPassword(this.loginuser.email, this.resetpasswordform.value)
       .subscribe((data) => {
-        this.toastrService.success(data.firstName+' Password Updated', 'Successfully');
+        this.toastrService.success(
+          data.firstName + ' Password Updated',
+          'Successfully',
+        );
       });
   }
 }

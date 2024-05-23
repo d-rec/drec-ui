@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpClient,
-} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { Device } from '../../models/device.model';
@@ -21,12 +19,7 @@ export class DeviceService {
     pagenumber?: number,
   ): Observable<any> {
     let searchUrl = `${this.url}` + deviceurl;
-    if (
-      !(
-        pagenumber === null ||
-        pagenumber === undefined
-      )
-    ) {
+    if (!(pagenumber === null || pagenumber === undefined)) {
       searchUrl += `pagenumber=${pagenumber}`;
     }
 
@@ -86,7 +79,8 @@ export class DeviceService {
         searchUrl += `&offTaker=${searchData.offTaker}`;
       }
       if (
-        !(searchData.SDGBenefits === '' ||
+        !(
+          searchData.SDGBenefits === '' ||
           searchData.SDGBenefits === null ||
           searchData.SDGBenefits === undefined
         )
@@ -188,7 +182,8 @@ export class DeviceService {
       searchUrl += `&offTaker=${searchData.offTaker}`;
     }
     if (
-      !(searchData.SDGBenefits === undefined ||
+      !(
+        searchData.SDGBenefits === undefined ||
         searchData.SDGBenefits === '' ||
         searchData.SDGBenefits === null
       )

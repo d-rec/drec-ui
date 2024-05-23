@@ -1,8 +1,5 @@
 import { FormBuilder, FormGroup } from '@angular/forms';
-import {
-  Component,
-  ViewChild,
-} from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -77,7 +74,7 @@ export class AdminOrganizationComponent {
     private orgService: OrganizationService,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-    this.activatedRoute.queryParams.subscribe(() => { });
+    this.activatedRoute.queryParams.subscribe(() => {});
 
     this.FilterForm = this.formBuilder.group({
       organizationName: [],
@@ -185,7 +182,6 @@ export class AdminOrganizationComponent {
             this.data = [];
             this.showlist = false;
           }
-
         },
       );
   }
@@ -208,7 +204,6 @@ export class AdminOrganizationComponent {
             this.data = [];
             this.showlist = false;
           }
-
         },
       );
   }

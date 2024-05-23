@@ -1,9 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import {
-  FormGroup,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import {
   AdminService,
   UserService,
@@ -11,10 +7,7 @@ import {
 } from '../../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import {
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-invitationform',
@@ -28,7 +21,7 @@ export class InvitationformComponent {
   invitaionlist: any;
 
   emailregex: RegExp =
-  // eslint-disable-next-line no-useless-escape
+    // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   orgtype: any[] = [
     { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
@@ -114,7 +107,7 @@ export class InvitationformComponent {
         this.invitaionlist = data;
       },
       error: (err) => {
-        this.toastrService.error("failed",err)
+        this.toastrService.error('failed', err);
       },
     });
   }

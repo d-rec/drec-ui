@@ -1,4 +1,4 @@
-import {  Component, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { UserService, InvitationService } from '../../auth/services';

@@ -5,20 +5,14 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router } from '@angular/router';
-import {
-  FormGroup,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import {
   DeviceService,
   ReservationService,
   OrganizationService,
 } from '../../auth/services';
-import {
-  MatDialog,
-} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import {
   MatBottomSheet,
   MatBottomSheetConfig,
@@ -491,7 +485,7 @@ export class AddReservationComponent {
     }
   }
   alertDialog(deviceId: number): void {
-     this.dialog.open(DeviceDetailsComponent, {
+    this.dialog.open(DeviceDetailsComponent, {
       data: {
         deviceid: deviceId,
       },

@@ -31,7 +31,6 @@ export class UserAcceptInvitationComponent {
 
         this.fromregister = false;
         sessionStorage.setItem('access-token', this.accesstoken);
-       
       }
     });
   }

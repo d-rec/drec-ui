@@ -5,11 +5,7 @@ import {
   ReactiveFormsModule,
   FormsModule,
 } from '@angular/forms';
-import {
-  Component,
-  Inject,
-  ViewChild,
-} from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { MatSort } from '@angular/material/sort';
@@ -166,7 +162,6 @@ export class ApiUserPermissionComponent {
     );
   }
   selectOrg() {
-    
     this.fromselectid = true;
   }
   reset() {

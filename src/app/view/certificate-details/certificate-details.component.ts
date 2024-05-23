@@ -21,10 +21,7 @@ import {
   DeviceService,
   CertificateService,
 } from '../../auth/services';
-import {
-  FormGroup,
-  FormBuilder,
-} from '@angular/forms';
+import { FormGroup, FormBuilder } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -572,7 +569,7 @@ export class CertificateDetailsComponent {
     }
   }
   deviceDetaileDialog(deviceId: number): void {
-   this.dialog.open(DeviceDetailsComponent, {
+    this.dialog.open(DeviceDetailsComponent, {
       data: {
         deviceid: deviceId,
       },

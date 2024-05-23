@@ -1,9 +1,5 @@
 import { FormBuilder, FormGroup } from '@angular/forms';
-import {
-  Component,
-  Inject,
-  ViewChild,
-} from '@angular/core';
+import { Component, Inject, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { MatSort } from '@angular/material/sort';
@@ -22,11 +18,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { DeviceDetailsComponent } from '../device-details/device-details.component';
 import { ToastrService } from 'ngx-toastr';
-import {
-  fulecodeType,
-  devicecodeType,
-  CountryInfo,
-} from '../../../models';
+import { fulecodeType, devicecodeType, CountryInfo } from '../../../models';
 
 @Component({
   selector: 'app-alldevices',
@@ -403,7 +395,7 @@ export class AlldevicesComponent {
   //   });
   // }
   alertDialog(deviceId: number): void {
-  this.dialog.open(DeviceDetailsComponent, {
+    this.dialog.open(DeviceDetailsComponent, {
       data: {
         deviceid: deviceId,
       },

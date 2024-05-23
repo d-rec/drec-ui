@@ -1,19 +1,12 @@
 import { Component, Inject } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import {
   DeviceService,
   ACLModulePermisionService,
 } from '../../../auth/services';
 import { Router } from '@angular/router';
-import {
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { UserpermissionComponent } from '../add-userpermission/add-userpermission.component';
 @Component({
@@ -69,7 +62,7 @@ export class EditPermissionComponent {
         this.datalist = data;
       },
       error: (err) => {
-        this.toastrService.error('No Response',err);
+        this.toastrService.error('No Response', err);
       },
     });
   }
@@ -87,7 +80,7 @@ export class EditPermissionComponent {
           }
         },
         error: (err) => {
-          this.toastrService.error('Fialed',err);
+          this.toastrService.error('Fialed', err);
         },
       });
   }
