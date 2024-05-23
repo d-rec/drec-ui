@@ -13,7 +13,6 @@ import { AddReservationComponent } from './view/add-reservation/add-reservation.
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
 import { ResetPasswordComponent } from './view/reset-password/reset-password.component';
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
-import { UserInvitationComponent } from './view/organization/user-invitation/user-invitation.component';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [

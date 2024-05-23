@@ -2,9 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   HttpClient,
   HttpHeaders,
-  HttpErrorResponse,
 } from '@angular/common/http';
-//import {environment} from '../../../environments/environment.dev';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { getapiuser_header } from '../../utils/apiuser_clientinfo';
@@ -12,7 +10,7 @@ import { getapiuser_header } from '../../utils/apiuser_clientinfo';
   providedIn: 'root',
 })
 export class AdminService {
-  url: String = environment.API_URL;
+  url: string = environment.API_URL;
   headersData = getapiuser_header();
   constructor(private httpClient: HttpClient) {}
 
@@ -23,14 +21,13 @@ export class AdminService {
   ): Observable<any> {
     let searchUrl = `${this.url}admin/organizations`;
     if (pagenumber != undefined && limit != undefined) {
-      if (!(typeof pagenumber === undefined || pagenumber === null)) {
+      if (!(pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;
       }
     }
     if (searchData != undefined) {
       if (
-        !(
-          typeof searchData.organizationName === undefined ||
+        !(searchData.organizationName === undefined ||
           searchData.organizationName === '' ||
           searchData.organizationName === null
         )
@@ -49,17 +46,16 @@ export class AdminService {
     limit?: number,
     searchData?: any,
   ): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
+    const headers = new HttpHeaders(this.headersData);
     let searchUrl = `${this.url}admin/users`;
     if (pagenumber != undefined && limit != undefined) {
-      if (!(typeof pagenumber === undefined || pagenumber === null)) {
+      if (!( pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;
       }
     }
     if (searchData != undefined) {
       if (
-        !(
-          typeof searchData.organizationName === undefined ||
+        !( searchData.organizationName === undefined ||
           searchData.organizationName === '' ||
           searchData.organizationName === null
         )
@@ -74,10 +70,10 @@ export class AdminService {
     pagenumber?: number,
     limit?: number,
   ): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
+    const headers = new HttpHeaders(this.headersData);
     let searchUrl = `${this.url}admin/organizations/user/${organizationsId}`;
     if (pagenumber != undefined && limit != undefined) {
-      if (!(typeof pagenumber === undefined || pagenumber === null)) {
+      if (!( pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;
       }
     }
@@ -93,7 +89,7 @@ export class AdminService {
     searchInput: StaticRange,
     orgId: number,
   ): Observable<any> {
-    let searchUrl =
+    const searchUrl =
       `${this.url}admin/devices/autocomplete?externalId=` +
       searchInput +
       `&organizationId=` +
@@ -114,15 +110,14 @@ export class AdminService {
   ): Observable<any> {
     let searchUrl = `${this.url}admin/apiusers`;
     if (pagenumber != undefined && limit != undefined) {
-      if (!(typeof pagenumber === undefined || pagenumber === null)) {
+      if (!(pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;
       }
     }
 
     if (searchData != undefined) {
       if (
-        !(
-          typeof searchData.organizationName === undefined ||
+        !( searchData.organizationName === undefined ||
           searchData.organizationName === '' ||
           searchData.organizationName === null
         )

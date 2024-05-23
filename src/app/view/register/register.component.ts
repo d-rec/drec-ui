@@ -2,17 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import {
   FormGroup,
   FormControl,
-  FormBuilder,
   Validators,
-  FormGroupDirective,
 } from '@angular/forms';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router } from '@angular/router';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
-import { ApiuserClientReponseComponent } from '../apiuser-client-reponse/apiuser-client-reponse.component';
 import { ToastrService } from 'ngx-toastr';
-import { MatDialog } from '@angular/material/dialog';
-import { UserService, InvitationService } from '../../auth/services';
+import { UserService } from '../../auth/services';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -37,13 +33,12 @@ export class RegisterComponent implements OnInit {
   matchconfirm: boolean = false;
   showPopup: boolean = false;
   emailregex: RegExp =
+  // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   constructor(
     private authService: AuthbaseService,
-    private _formBuilder: FormBuilder,
     private toastrService: ToastrService,
     private router: Router,
-    private dialog: MatDialog,
     private userService: UserService,
   ) {}
 
@@ -96,8 +91,8 @@ export class RegisterComponent implements OnInit {
         : '';
   }
   checkPassword(control: any) {
-    let enteredPassword = control.value;
-    let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
+    const enteredPassword = control.value;
+    const passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
     return !passwordCheck.test(enteredPassword) && enteredPassword
       ? { requirements: true }
       : null;
@@ -110,8 +105,8 @@ export class RegisterComponent implements OnInit {
         : '';
   }
   checkconfirmPassword(control: any) {
-    let enteredPassword = control.value;
-    let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
+    const enteredPassword = control.value;
+    const passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
     //this.registerForm.value.password = this.registerForm.value.password?:'';
     return !passwordCheck.test(enteredPassword) && enteredPassword
       ? { Confirmrequirements: true }
@@ -189,7 +184,7 @@ export class RegisterComponent implements OnInit {
               next: (data) => {
                 if (data['accessToken'] != null) {
                   sessionStorage.setItem('access-token', data['accessToken']);
-                  let jwtObj = JSON.parse(
+                  const jwtObj = JSON.parse(
                     this.b64DecodeUnicode(
                       this.padBase64(data['accessToken'].split('.')[1]),
                     ),
@@ -262,7 +257,7 @@ export class RegisterComponent implements OnInit {
       next: (data: any) => {
         if (data['accessToken'] != null) {
           sessionStorage.setItem('access-token', data['accessToken']);
-          let jwtObj = JSON.parse(
+          const jwtObj = JSON.parse(
             this.b64DecodeUnicode(
               this.padBase64(data['accessToken'].split('.')[1]),
             ),

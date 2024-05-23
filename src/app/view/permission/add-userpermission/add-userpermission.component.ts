@@ -1,37 +1,23 @@
-import { Component, Inject, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
 import {
   FormBuilder,
   FormGroup,
   FormArray,
-  FormControl,
   Validators,
 } from '@angular/forms';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import {
   DeviceService,
   ACLModulePermisionService,
 } from '../../../auth/services';
 import { Router } from '@angular/router';
-import { Observable, Subscription, debounceTime } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
 import {
   MatDialog,
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { EditPermissionComponent } from '../edit-permission/edit-permission.component';
 import { ToastrService } from 'ngx-toastr';
 @Component({
@@ -63,8 +49,6 @@ export class UserpermissionComponent {
     { id: 4, name: 'Buyer' },
     { id: 5, name: 'User' },
     { id: 6, name: 'SubBuyer' },
-    //{id:6,name:""},
-    // {id:,name:""}
   ];
   constructor(
     private authService: AuthbaseService,
@@ -114,7 +98,9 @@ export class UserpermissionComponent {
         this.datalist = data;
         //this.dataSource = new MatTableDataSource(data);
       },
-      error: (err) => {},
+      error: (err) => {
+        this.toastrService.error('Failed',err)
+      },
     });
   }
   getuseraclmodulepermission() {
@@ -134,7 +120,9 @@ export class UserpermissionComponent {
         });
         this.dataSource = new MatTableDataSource(this.userdatalist);
       },
-      error: (err) => {},
+      error: (err) => {
+        this.toastrService.error('failed',err)
+      },
     });
   }
   isAllSelected() {
@@ -147,10 +135,6 @@ export class UserpermissionComponent {
       ? this.selection.clear()
       : this.dataSource.data.forEach((row) => this.selection.select(row));
   }
-  // permissionchange(roeid,permissionvalue){
-
-  // }
-
   createPermissionFormGroup(permission: any): FormGroup {
     const group = this.formBuilder.group({
       id: [permission.id],
@@ -171,12 +155,9 @@ export class UserpermissionComponent {
     }
   }
   onSubmit(): void {
-    //  if (this.selection.selected.length > 0) {
-    let deviceId: any = [];
-    //   this.selection.selected.forEach((ele,i) => {
-    // deviceId.push(ele.id)
+   
     if (this.selection.selected.length > 0) {
-      this.selection.selected.forEach((ele: any, index: number) => {
+      this.selection.selected.forEach((ele: any) => {
         const request = {
           aclmodulesId: ele.id,
           entityType: this.UserPermissionForm.value.entityType,

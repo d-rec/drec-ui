@@ -1,10 +1,8 @@
-import { Component, Inject, ViewChild } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
-  FormArray,
   Validators,
-  FormControl,
 } from '@angular/forms';
 import {
   AdminService,
@@ -14,12 +12,9 @@ import {
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import {
-  MatDialog,
   MatDialogRef,
-  MatDialogModule,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
-import { getapiuser_header } from '../../../utils/apiuser_clientinfo';
 
 @Component({
   selector: 'app-invitationform',
@@ -33,9 +28,9 @@ export class InvitationformComponent {
   invitaionlist: any;
 
   emailregex: RegExp =
+  // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   orgtype: any[] = [
-    // { value: 'OrganizationAdmin', viewValue: 'Developer' },
     { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
     { value: 'User', viewValue: 'User' },
   ];
@@ -91,10 +86,9 @@ export class InvitationformComponent {
     });
   }
   async onSubmit() {
-    const headers = getapiuser_header();
     setTimeout(() => {
       this.inveiteService
-        .Postuserinvitation(this.inviteForm.value, this.data.id, headers)
+        .Postuserinvitation(this.inviteForm.value, this.data.id)
         .subscribe({
           next: (response) => {
             if (response.success) {
@@ -119,7 +113,9 @@ export class InvitationformComponent {
       next: (data) => {
         this.invitaionlist = data;
       },
-      error: (err) => {},
+      error: (err) => {
+        this.toastrService.error("failed",err)
+      },
     });
   }
 }

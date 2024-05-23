@@ -34,7 +34,7 @@ export class HeaderComponent implements OnInit {
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        this.toastrService.success('logout Successfull');
+        this.toastrService.success(err,'logout Successfull');
         this.router.navigate(['/login']);
       },
     });

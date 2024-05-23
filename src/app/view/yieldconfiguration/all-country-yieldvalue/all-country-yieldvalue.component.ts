@@ -1,31 +1,14 @@
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { SelectionModel } from '@angular/cdk/collections';
-import { MediaMatcher } from '@angular/cdk/layout';
+
 import {
   Component,
-  OnInit,
   ViewChild,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
 } from '@angular/core';
-// import { NavItem } from './nav-item';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { YieldConfigurationService } from '../../../auth/services/yieldConfiguration.service';
 import { Router } from '@angular/router';
-import { Observable, Subscription, debounceTime } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { YieldConfig } from '../../../models/yieldvalue.model';
 @Component({
   selector: 'app-all-country-yieldvalue',
@@ -46,9 +29,7 @@ export class AllCountryYieldvalueComponent {
   constructor(
     private authService: AuthbaseService,
     private yieldService: YieldConfigurationService,
-    private formBuilder: FormBuilder,
     private router: Router,
-    private dialog: MatDialog,
   ) {}
   ngOnInit(): void {
     this.authService.GetMethod('countrycode/list').subscribe((data3) => {

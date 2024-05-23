@@ -1,21 +1,18 @@
 import {
   Component,
   ViewChild,
-  AfterViewInit,
   OnInit,
   Input,
   Inject,
 } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { MeterReadService, DeviceService } from '../../../auth/services';
 import {
   FormGroup,
   FormBuilder,
-  FormArray,
   Validators,
-  FormControl,
 } from '@angular/forms';
 import {
   MatBottomSheetRef,

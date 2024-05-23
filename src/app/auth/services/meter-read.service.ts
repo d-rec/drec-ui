@@ -1,25 +1,21 @@
 import { Injectable } from '@angular/core';
 import {
   HttpClient,
-  HttpHeaders,
-  HttpErrorResponse,
 } from '@angular/common/http';
-//import {environment} from '../../environments/environment.dev';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { getapiuser_header } from '../../utils/apiuser_clientinfo';
 @Injectable({
   providedIn: 'root',
 })
 export class MeterReadService {
-  url: String = environment.API_URL;
+  url: string = environment.API_URL;
 
   constructor(private httpClient: HttpClient) {}
   GetMethod(): Observable<any> {
     return this.httpClient.get(this.url + 'certificate-log/redemption-report');
   }
   PostRead(exterenalId: string, data: any): Observable<any> {
-    let addUrl = `${this.url}meter-reads/new/` + exterenalId;
+    const addUrl = `${this.url}meter-reads/new/` + exterenalId;
 
     return this.httpClient.post<any>(addUrl, data);
   }

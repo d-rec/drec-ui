@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component} from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -18,13 +18,11 @@ import { Observable, Subscription } from 'rxjs';
 import { startWith, map } from 'rxjs/operators';
 import {
   OrganizationInformation,
-  Device,
   fulecodeType,
   devicecodeType,
   CountryInfo,
 } from '../../../models';
 
-//import * as moment from 'moment';
 @Component({
   selector: 'app-add-devices',
   templateUrl: './add-devices.component.html',
@@ -281,7 +279,6 @@ export class AddDevicesComponent {
   }
   private _filter(value: string, i: number): CountryInfo[] {
     const filterValue = value.toLowerCase();
-    const toppings: any = this.myform.get('devices') as FormArray;
     if (
       !(
         this.countrylist.filter((option: CountryInfo) =>
@@ -325,19 +322,17 @@ export class AddDevicesComponent {
   }
 
   onSubmit() {
-    const formArray = this.myform.get('devices') as FormArray;
-    let deviceArray = this.myform.value.devices;
-    deviceArray.forEach((element: any, index: number) => {
+    const deviceArray = this.myform.value.devices;
+    deviceArray.forEach((element: any) => {
       if (this.orgname != null) {
         element['organizationId'] = this.orgId;
       }
-
       const selectedCountry = this.countrylist.find(
         (option: CountryInfo) => option.country === element.countryCodename,
       );
       element['countryCode'] = selectedCountry?.alpha3;
       this.deviceService.Postdevices(element).subscribe({
-        next: (data) => {
+        next: () => {
           this.toastrService.success(
             'Added Successfully !!',
             'Device! ' + element.externalId,

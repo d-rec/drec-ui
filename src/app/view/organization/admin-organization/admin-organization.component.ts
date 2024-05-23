@@ -1,30 +1,17 @@
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { SelectionModel } from '@angular/cdk/collections';
-import { MediaMatcher } from '@angular/cdk/layout';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import {
   Component,
-  OnInit,
   ViewChild,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
 } from '@angular/core';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { AdminService, OrganizationService } from '../../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Observable, Subscription, debounceTime } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import {
   OrganizationInformation,
   fulecodeType,
@@ -90,7 +77,7 @@ export class AdminOrganizationComponent {
     private orgService: OrganizationService,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-    this.activatedRoute.queryParams.subscribe((params) => {});
+    this.activatedRoute.queryParams.subscribe(() => { });
 
     this.FilterForm = this.formBuilder.group({
       organizationName: [],
@@ -194,8 +181,11 @@ export class AdminOrganizationComponent {
           this.dataSource.sort = this.sort;
         },
         (error) => {
-          this.data = [];
-          this.showlist = false;
+          if (error) {
+            this.data = [];
+            this.showlist = false;
+          }
+
         },
       );
   }
@@ -214,8 +204,11 @@ export class AdminOrganizationComponent {
           this.dataSource.sort = this.sort;
         },
         (error) => {
-          this.data = [];
-          this.showlist = false;
+          if (error) {
+            this.data = [];
+            this.showlist = false;
+          }
+
         },
       );
   }

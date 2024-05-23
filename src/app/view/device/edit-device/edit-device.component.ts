@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
-  FormArray,
   Validators,
   FormControl,
 } from '@angular/forms';
@@ -10,10 +9,9 @@ import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService } from '../../../auth/services/device.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import {
-  Device,
   CountryInfo,
   fulecodeType,
   devicecodeType,
@@ -254,7 +252,7 @@ export class EditDeviceComponent implements OnInit {
         this.deviceTypeCode = data.deviceTypeCode;
         this.capacity = data.capacity;
         data.SDGBenefits.forEach((sdgbname: string, index: number) => {
-          let foundEle = this.sdgblist.find(
+          const foundEle = this.sdgblist.find(
             (ele: any) =>
               ele.value.toLowerCase() === sdgbname.toString().toLowerCase(),
           );

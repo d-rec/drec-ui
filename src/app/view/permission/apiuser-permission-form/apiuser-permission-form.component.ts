@@ -1,15 +1,11 @@
-import { Component, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import {
-  DeviceService,
   ACLModulePermisionService,
 } from '../../../auth/services';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatCheckboxChange } from '@angular/material/checkbox';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-apiuser-permission-form',
@@ -43,7 +39,7 @@ export class ApiuserPermissionFormComponent {
         this.dataSource.data = this.form.get('permissions')?.value ?? [];
       },
       error: (err) => {
-        // Handle the error
+        this.toastrService.error('Fialed',err.error);
       },
     });
   }
@@ -103,7 +99,7 @@ export class ApiuserPermissionFormComponent {
         this.aclpermissionServcie
           .ApiUserPermissionRequest(permissionrequest)
           .subscribe({
-            next: (data) => {
+            next: () => {
               this.form.reset();
               this.selection.clear();
               this.toastrService.success('Successful', 'Request Sent');

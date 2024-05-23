@@ -2,7 +2,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { YieldConfig } from '../../models/yieldvalue.model';
 import { getapiuser_header } from '../../utils/apiuser_clientinfo';
 @Injectable({
   providedIn: 'root',
@@ -46,7 +45,7 @@ export class ACLModulePermisionService {
     );
   }
   public PutUserpermission(id: any, data: any): Observable<any> {
-    let headers = new HttpHeaders(this.headersData);
+    const headers = new HttpHeaders(this.headersData);
     return this.httpClient.put<any>(
       environment.API_URL + 'permission/update/' + id,
       data,

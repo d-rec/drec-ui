@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -6,7 +6,6 @@ import {
   OrganizationInformation,
   IPublicOrganization,
 } from '../../models/organization.model';
-import { getapiuser_header } from '../../utils/apiuser_clientinfo';
 @Injectable({
   providedIn: 'root',
 })
@@ -34,7 +33,7 @@ export class OrganizationService {
   ): Observable<IPublicOrganization> {
     let searchUrl = `${environment.API_URL}Organization/users`;
     if (pagenumber != undefined && limit != undefined) {
-      if (!(typeof pagenumber === undefined || pagenumber === null)) {
+      if (!( pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;
       }
     }
@@ -53,14 +52,14 @@ export class OrganizationService {
   ): Observable<{ organizations: OrganizationInformation[] }> {
     let searchUrl = `${environment.API_URL}Organization/apiuser/all_organization`;
     if (pagenumber != undefined && limit != undefined) {
-      if (!(typeof pagenumber === undefined || pagenumber === null)) {
+      if (!(pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;
       }
     }
     if (searchData != undefined) {
       if (
         !(
-          typeof searchData.organizationName === undefined ||
+         searchData.organizationName === undefined ||
           searchData.organizationName === '' ||
           searchData.organizationName === null
         )

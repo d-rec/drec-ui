@@ -1,43 +1,26 @@
 import {
   FormBuilder,
   FormGroup,
-  Validators,
   FormControl,
 } from '@angular/forms';
-import { SelectionModel } from '@angular/cdk/collections';
-import { MediaMatcher } from '@angular/cdk/layout';
 import {
   Component,
   OnInit,
   ViewChild,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
-  CUSTOM_ELEMENTS_SCHEMA,
-  importProvidersFrom,
 } from '@angular/core';
-// import { NavItem } from './nav-item';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
 import {
   ReservationService,
   OrganizationService,
   CertificateService,
 } from '../../auth/services';
-import { Router, NavigationEnd } from '@angular/router';
-import { Observable, Subscription, take, debounceTime } from 'rxjs';
+import { Router } from '@angular/router';
+import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 import { fulecodeType, devicecodeType, CountryInfo } from '../../models';
 
 @Component({
@@ -261,7 +244,7 @@ export class MyreservationComponent implements OnInit {
   }
 
   checkFormValidity(): void {
-    let isUserInteraction = true; // Flag to track user interaction
+    const isUserInteraction = true; // Flag to track user interaction
 
     this.FilterForm.valueChanges
       .pipe(
@@ -421,8 +404,7 @@ export class MyreservationComponent implements OnInit {
   }
 
   DisplayCertificatepage(reservation_row: any) {
-    let changedeviceId = JSON.stringify(reservation_row.deviceIds);
-
+  
     this.router.navigate(['/certificate'], {
       queryParams: {
         id: reservation_row.id,

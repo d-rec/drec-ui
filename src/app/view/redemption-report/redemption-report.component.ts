@@ -1,18 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { ReservationService } from '../../auth//services/reservation.service';
 import { Router } from '@angular/router';
 import { AuthbaseService } from '../../auth/authbase.service';
-import { fulecodeType, devicecodeType, CountryInfo } from '../../models';
+import { fulecodeType, CountryInfo } from '../../models';
 @Component({
   selector: 'app-redemption-report',
   templateUrl: './redemption-report.component.html',
@@ -79,8 +72,8 @@ export class RedemptionReportComponent implements OnInit {
       this.data = data;
       this.data.forEach((ele: any) => {
         if (ele.fuelCode != '') {
-          let fuelname: any = [];
-          let f = ele.fuelCode.filter((str: any) => str !== ' ');
+          const fuelname: any = [];
+          const f = ele.fuelCode.filter((str: any) => str !== ' ');
           f.map((aele: any) =>
             fuelname.push(
               this.fuellist.find((fuelType) => fuelType.code === aele.trim())
@@ -112,7 +105,7 @@ export class RedemptionReportComponent implements OnInit {
             countrycode.alpha3 === ele.claimCoiuntryCode,
         )?.country;
 
-        let o = ele.offTakers.filter((str: any) => str !== ' ');
+        const o = ele.offTakers.filter((str: any) => str !== ' ');
         ele['offTakername'] = [
           ...new Set(o.map((e: any) => e.trim())),
         ].toString();

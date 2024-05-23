@@ -1,21 +1,14 @@
-import { SelectionModel } from '@angular/cdk/collections';
-import { MediaMatcher } from '@angular/cdk/layout';
+
 import {
   Component,
   ViewChild,
   TemplateRef,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
-  OnInit,
   Input,
   OnDestroy,
 } from '@angular/core';
-// import { NavItem } from './nav-item';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import {
   animate,
-  group,
   state,
   style,
   transition,
@@ -24,12 +17,11 @@ import {
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
 import { ethers } from 'ethers';
 import { ToastrService } from 'ngx-toastr';
-import { issuerABI } from './issuer-abi';
 import { registryABI } from './registery-abi';
 import {
   MeterReadService,
@@ -47,15 +39,11 @@ export interface Student {
 import {
   FormGroup,
   FormBuilder,
-  FormArray,
   Validators,
-  FormControl,
 } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import * as moment from 'moment';
-import { DateAdapter } from '@angular/material/core';
 import { DeviceService } from '../../auth/services/device.service';
 @Component({
   selector: 'app-certificate',
@@ -345,7 +333,7 @@ export class CertificateComponent implements OnDestroy {
             if (ele.claims != null && ele.claims.length > 0) {
               ele['CertificateClaimed'] = true;
             }
-            for (let key in ele.owners) {
+            for (const key in ele.owners) {
               if (key !== key.toLowerCase()) {
                 ele.owners[key.toLowerCase()] = ele.owners[key];
                 delete ele.owners[key];
@@ -508,7 +496,7 @@ export class CertificateComponent implements OnDestroy {
         this.selectedCertificateForClaim.owners[blockchainAccountAddress],
       ) > 0
     ) {
-      let convertingWattsToKiloWatts = Math.floor(
+      const convertingWattsToKiloWatts = Math.floor(
         parseFloat(
           this.selectedCertificateForClaim.owners[blockchainAccountAddress],
         ) / 1000,
@@ -532,7 +520,7 @@ export class CertificateComponent implements OnDestroy {
         `Currently connected blockchain address does not own anything in this certificate, ${this.selectedBlockchainAccount}`,
       );
       let owners = '';
-      for (let key in this.selectedCertificateForClaim.owners) {
+      for (const key in this.selectedCertificateForClaim.owners) {
         owners =
           key + ' : ' + this.selectedCertificateForClaim.owners[key] + '; ';
       }
@@ -553,7 +541,7 @@ export class CertificateComponent implements OnDestroy {
         const signer = provider.getSigner();
         const daiWithSigner = daiContract.connect(signer);
 
-        let claimData = {
+        const claimData = {
           beneficiary: 'Beneficiary: ' + this.claimData.value.beneficiary,
           location: 'Location: ' + this.claimData.value.location,
           countryCode: 'Country Code: ' + this.claimData.value.countryCode,

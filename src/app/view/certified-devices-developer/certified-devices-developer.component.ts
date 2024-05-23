@@ -1,38 +1,21 @@
-import { SelectionModel } from '@angular/cdk/collections';
-import { MediaMatcher } from '@angular/cdk/layout';
+
 import {
   Component,
   ViewChild,
   TemplateRef,
   ElementRef,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
-  OnInit,
   Input,
-  OnDestroy,
 } from '@angular/core';
-// import { NavItem } from './nav-item';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  group,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { BlockchainDrecService } from '../../auth/services/blockchain-drec.service';
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
-import { errors, ethers } from 'ethers';
 import { ToastrService } from 'ngx-toastr';
 import { ReservationService } from '../../auth/services/reservation.service';
-
 import { MeterReadService } from '../../auth/services/meter-read.service';
 export interface Student {
   firstName: string;
@@ -44,21 +27,15 @@ export interface Student {
 import {
   FormGroup,
   FormBuilder,
-  FormArray,
-  Validators,
   FormControl,
 } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import * as moment from 'moment';
-import { DateAdapter } from '@angular/material/core';
 import { DeviceService } from '../../auth/services/device.service';
 import { CertificateService } from '../../auth/services/certificate.service';
 import { DeviceDetailsComponent } from '../device/device-details/device-details.component';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { MatDatepicker } from '@angular/material/datepicker';
-import { MatDateRangePicker } from '@angular/material/datepicker';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-certified-devices-developer',
@@ -266,29 +243,6 @@ export class CertifiedDevicesDeveloperComponent {
   }
   isAnyFieldFilled: boolean = false;
 
-  // checkFormValidity(): void {
-  //   const formValues = this.FilterForm.value;
-  //   this.isAnyFieldFilled = Object.values(formValues).some(value => !!value);
-  // }
-  // onstartreadChangeEvent(event: Event): void {
-  //   const inputElement = event.target as HTMLInputElement;
-  //   const value = inputElement.value;
-  //   // Additional logic here
-  //   this.FilterForm.controls['fromAmountread'].setValue(value);
-  //   this.checkFormValidity();
-  // }
-  // onendreadChangeEvent(event: Event) {
-  //   const inputElement = event.target as HTMLInputElement;
-  //   const value = inputElement.value;
-  //   //this.endminDate = event;
-  //   this.FilterForm.controls['toAmountread'].setValue(value);
-  //   this.checkFormValidity();
-  // }
-  onSliderChange(event: any): void {
-    const startValue = this.startThumb.nativeElement.value;
-    const endValue = this.endThumb.nativeElement.value;
-    // Additional logic here
-  }
   formatLabel(value: number): string {
     if (value >= 1000) {
       return Math.round(value / 1000) + 'k';
@@ -297,7 +251,7 @@ export class CertifiedDevicesDeveloperComponent {
     return `${value}`;
   }
   checkFormValidity(): void {
-    let isUserInteraction = true; // Flag to track user interaction
+    const isUserInteraction = true; // Flag to track user interaction
 
     this.FilterForm.valueChanges
       .pipe(
@@ -393,7 +347,7 @@ export class CertifiedDevicesDeveloperComponent {
               if (ele.claims != null && ele.claims.length > 0) {
                 ele['CertificateClaimed'] = true;
               }
-              for (let key in ele.owners) {
+              for (const key in ele.owners) {
                 if (key !== key.toLowerCase()) {
                   ele.owners[key.toLowerCase()] = ele.owners[key];
                   delete ele.owners[key];
@@ -413,6 +367,7 @@ export class CertifiedDevicesDeveloperComponent {
         },
         (errors) => {
           this.data = [];
+          this.toastrService.error("Failed",errors)
         },
       );
   }
@@ -520,7 +475,7 @@ export class CertifiedDevicesDeveloperComponent {
   }
 
   deviceDetaileDialog(deviceId: number): void {
-    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+    this.dialog.open(DeviceDetailsComponent, {
       data: {
         deviceid: deviceId,
       },
