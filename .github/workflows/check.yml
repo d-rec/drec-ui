@@ -42,11 +42,9 @@ jobs:
 
       - name: Run ESLint (error)
         run: npm run lint:error
-        continue-on-error: true
 
       - name: Run ESLint (all)
         run: npm run lint
-        continue-on-error: true
 
   check-build:
     runs-on: ubuntu-latest
