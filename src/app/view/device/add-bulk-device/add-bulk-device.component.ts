@@ -1,16 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FileuploadService } from '../../../auth/services/fileupload.service';
 import { ToastrService } from 'ngx-toastr';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import {
@@ -18,14 +10,8 @@ import {
   AdminService,
   OrganizationService,
 } from '../../../auth/services';
-import { Router, ActivatedRoute } from '@angular/router';
-import {
-  OrganizationInformation,
-  Device,
-  fulecodeType,
-  devicecodeType,
-  CountryInfo,
-} from '../../../models';
+import { Router } from '@angular/router';
+import { OrganizationInformation } from '../../../models';
 
 @Component({
   selector: 'app-add-bulk-device',
@@ -144,7 +130,7 @@ export class AddBulkDeviceComponent implements OnInit {
     if (this.currentFile) {
       this.uploadService.csvupload(this.currentFile).subscribe(
         (event: any) => {
-          let obj: any = {};
+          const obj: any = {};
           obj['fileName'] = event[0];
           if (
             this.loginuser.role === 'Admin' ||
@@ -153,7 +139,7 @@ export class AddBulkDeviceComponent implements OnInit {
             this.deviceService
               .addByAdminbulkDevices(this.orgId, obj)
               .subscribe({
-                next: (data: any) => {
+                next: () => {
                   this.JobDisplayList();
                   this.currentFile = null;
                   this.fileName = 'Please click here to Select File';
@@ -174,7 +160,7 @@ export class AddBulkDeviceComponent implements OnInit {
               });
           } else {
             this.uploadService.addbulkDevices(obj).subscribe({
-              next: (data: any) => {
+              next: () => {
                 this.JobDisplayList();
                 this.currentFile = null;
                 this.fileName = 'Please click here to Select File';

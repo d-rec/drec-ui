@@ -2,33 +2,14 @@ import {
   FormBuilder,
   FormGroup,
   Validators,
-  FormControl,
   ReactiveFormsModule,
   FormsModule,
 } from '@angular/forms';
-import { SelectionModel } from '@angular/cdk/collections';
-import { MediaMatcher } from '@angular/cdk/layout';
-import {
-  Component,
-  OnInit,
-  Inject,
-  ViewChild,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
-} from '@angular/core';
-// import { NavItem } from './nav-item';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { Component, Inject, ViewChild } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { AuthbaseService } from '../../../auth/authbase.service';
+import { MatPaginator } from '@angular/material/paginator';
 import {
   AdminService,
   OrganizationService,
@@ -36,7 +17,7 @@ import {
   UserService,
 } from '../../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Observable, Subscription, debounceTime } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import {
   MatDialog,
@@ -46,14 +27,12 @@ import {
 } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { ToastrService } from 'ngx-toastr';
-import { errors } from 'ethers';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
 import { EditPermissionComponent } from '../edit-permission/edit-permission.component';
-import { getapiuser_header } from '../../../utils/apiuser_clientinfo';
 @Component({
   selector: 'app-api-user-permission',
   templateUrl: './api-user-permission.component.html',
@@ -182,7 +161,7 @@ export class ApiUserPermissionComponent {
         option.firstName.toLowerCase().indexOf(filterValue.toLowerCase()) === 0,
     );
   }
-  selectOrg(event: any) {
+  selectOrg() {
     this.fromselectid = true;
   }
   reset() {
@@ -205,7 +184,6 @@ export class ApiUserPermissionComponent {
     });
   }
   getAllUserspermission() {
-    const limit = 20;
     this.loading = true;
     if (this.loginuser.role === 'Admin') {
       this.userpermissionService

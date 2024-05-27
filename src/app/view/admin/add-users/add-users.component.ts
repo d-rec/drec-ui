@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {
   FormGroup,
   FormControl,
   FormBuilder,
   Validators,
-  FormGroupDirective,
 } from '@angular/forms';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { Router } from '@angular/router';
@@ -35,6 +34,7 @@ export class AddUsersComponent {
   loginuser: any;
   apiuserId: string;
   emailregex: RegExp =
+    // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   constructor(
     private authService: AuthbaseService,
@@ -42,9 +42,7 @@ export class AddUsersComponent {
     private toastrService: ToastrService,
     private userService: UserService,
     private router: Router,
-  ) {
-    // this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-  }
+  ) {}
 
   ngOnInit() {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
@@ -89,8 +87,8 @@ export class AddUsersComponent {
     const base64Payload = window.atob(token);
     return base64Payload;
   }
-  onSubmit(formData: FormGroup): void {
-    var randPassword = Array(10)
+  onSubmit(): void {
+    const randPassword = Array(10)
       .fill('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
       .map(function (x) {
         return x[Math.floor(Math.random() * x.length)];
@@ -103,7 +101,7 @@ export class AddUsersComponent {
       this.userService
         .userregisterByApiUser(this.registerForm.value, this.apiuserId)
         .subscribe({
-          next: (data) => {
+          next: () => {
             this.toastrService.success('Successful!!', 'Registration ');
             this.registerForm.reset();
             const formControls = this.registerForm.controls;
@@ -125,26 +123,17 @@ export class AddUsersComponent {
       this.authService
         .PostAuth('admin/users', this.registerForm.value)
         .subscribe({
-          next: (data) => {
+          next: () => {
             this.toastrService.success('Successful!!', 'Registration ');
-            const loginobj = {
-              username: this.registerForm.value.email,
-              password: this.registerForm.value.password,
-            };
-
             this.registerForm.reset();
             const formControls = this.registerForm.controls;
-
             Object.keys(formControls).forEach((key) => {
               const control = formControls[key];
               control.setErrors(null);
             });
-
             this.router.navigate(['/admin/All_users']);
-            // this.router.navigate(['/confirm-email']);
           },
           error: (err) => {
-            //Error callback
             console.error('error caught in component', err);
             this.toastrService.error('error!', err.error.message);
           },

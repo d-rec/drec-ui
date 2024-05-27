@@ -1,13 +1,6 @@
-import { Component, OnInit, NgZone } from '@angular/core';
-import {
-  FormGroup,
-  FormBuilder,
-  FormArray,
-  Validators,
-  FormControl,
-} from '@angular/forms';
+import { Component } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthbaseService } from '../../../auth/authbase.service';
-import { DeviceService } from '../../../auth/services/device.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, Subscription } from 'rxjs';

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { UserService } from '../../auth/services/user.service';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -70,8 +70,8 @@ export class ResetPasswordComponent {
     return base64Payload;
   }
   checkPassword(control: any) {
-    let enteredPassword = control.value;
-    let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
+    const enteredPassword = control.value;
+    const passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
     return !passwordCheck.test(enteredPassword) && enteredPassword
       ? { requirements: true }
       : null;
@@ -84,8 +84,8 @@ export class ResetPasswordComponent {
         : '';
   }
   checkconfirmPassword(control: any) {
-    let enteredPassword = control.value;
-    let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
+    const enteredPassword = control.value;
+    const passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
 
     return !passwordCheck.test(enteredPassword) && enteredPassword
       ? { Confirmrequirements: true }
@@ -115,7 +115,10 @@ export class ResetPasswordComponent {
     this.authService
       .UserResetPassword(this.accesstoken, this.resetpasswordForm.value)
       .subscribe((data) => {
-        this.toastrService.success('Successfully!!', 'Reset Password');
+        this.toastrService.success(
+          'Successfully!!',
+          data.firstName + 'Reset Password',
+        );
 
         this.router.navigate(['/login']);
       });

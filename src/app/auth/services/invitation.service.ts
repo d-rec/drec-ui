@@ -1,24 +1,17 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpClient,
-  HttpHeaders,
-  HttpErrorResponse,
-} from '@angular/common/http';
-//import {environment} from '../../../environments/environment.dev';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { getapiuser_header } from '../../utils/apiuser_clientinfo';
 @Injectable({
   providedIn: 'root',
 })
 export class InvitationService {
-  url: String = environment.API_URL;
+  url: string = environment.API_URL;
   constructor(private httpClient: HttpClient) {}
 
   public Postuserinvitation(
     data: any,
     organizationId?: number,
-    headers?: any,
   ): Observable<any> {
     let addUrl = `${this.url}invitation`;
     if (organizationId != null || organizationId != undefined) {

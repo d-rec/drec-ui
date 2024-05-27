@@ -1,5 +1,3 @@
-import { from } from 'rxjs';
-
 export * from './certificate.service';
 export * from './device.service';
 export * from './meter-read.service';

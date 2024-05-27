@@ -1,29 +1,18 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { Component, ViewChild, TemplateRef } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router } from '@angular/router';
-import {
-  FormGroup,
-  FormBuilder,
-  FormArray,
-  Validators,
-  FormControl,
-} from '@angular/forms';
-import { ParseTreeResult } from '@angular/compiler';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import {
   DeviceService,
   ReservationService,
   OrganizationService,
 } from '../../auth/services';
-import {
-  MatDialog,
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import {
   MatBottomSheet,
   MatBottomSheetConfig,
@@ -247,7 +236,7 @@ export class AddReservationComponent {
     });
   }
   checkFormValidity(): void {
-    let isUserInteraction = true; // Flag to track user interaction
+    const isUserInteraction = true; // Flag to track user interaction
     this.FilterForm.valueChanges
       .pipe(
         debounceTime(500), // Debounce the stream for 500 milliseconds
@@ -303,7 +292,7 @@ export class AddReservationComponent {
       this.reservationForm.value.reservationStartDate != null &&
       this.reservationForm.value.reservationEndDate != null
     ) {
-      let requestreaddata: any = {
+      const requestreaddata: any = {
         devicename: device.externalId,
         rexternalid: device.id,
         reservationStartDate: this.reservationForm.value.reservationStartDate,
@@ -315,7 +304,7 @@ export class AddReservationComponent {
         config,
       );
       this.bottomSheetRef.afterOpened().subscribe(() => {});
-      this.bottomSheetRef.afterDismissed().subscribe((data) => {});
+      this.bottomSheetRef.afterDismissed().subscribe(() => {});
     } else {
       this.toastrService.error('Validation!', 'Please add start and end date');
     }
@@ -405,12 +394,12 @@ export class AddReservationComponent {
   }
   onSubmit(): void {
     if (this.selection.selected.length > 0) {
-      let deviceId: any = [];
+      const deviceId: any = [];
       this.selection.selected.forEach((ele) => {
         deviceId.push(ele.id);
       });
       this.reservationForm.controls['deviceIds'].setValue(deviceId);
-      this.openpopupDialog(this.reservationForm);
+      this.openpopupDialog();
     } else {
       this.toastrService.error(
         'Please select at least one device',
@@ -419,7 +408,7 @@ export class AddReservationComponent {
     }
   }
 
-  openpopupDialog(reservationForm: any) {
+  openpopupDialog() {
     this.dialogRef = this.dialog.open(this.popupDialog, {
       data: this.reservationbollean,
       height: '300px',
@@ -440,7 +429,7 @@ export class AddReservationComponent {
       this.reservationService
         .AddReservation(this.reservationForm.value, this.orgId)
         .subscribe({
-          next: (data) => {
+          next: () => {
             this.reservationForm.reset();
             this.selection.clear();
             this.FilterForm.reset();
@@ -459,7 +448,7 @@ export class AddReservationComponent {
       this.reservationService
         .AddReservation(this.reservationForm.value)
         .subscribe({
-          next: (data) => {
+          next: () => {
             this.reservationForm.reset();
             this.selection.clear();
             this.FilterForm.reset();
@@ -496,7 +485,7 @@ export class AddReservationComponent {
     }
   }
   alertDialog(deviceId: number): void {
-    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+    this.dialog.open(DeviceDetailsComponent, {
       data: {
         deviceid: deviceId,
       },

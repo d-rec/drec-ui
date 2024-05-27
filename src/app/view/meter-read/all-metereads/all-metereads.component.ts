@@ -1,24 +1,14 @@
-import { Component, ViewChild, OnInit, Inject } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import {
   MeterReadService,
   DeviceService,
   AdminService,
   OrganizationService,
 } from '../../../auth/services';
-import {
-  FormGroup,
-  FormBuilder,
-  FormArray,
-  Validators,
-  FormControl,
-} from '@angular/forms';
-import {
-  MatBottomSheetRef,
-  MAT_BOTTOM_SHEET_DATA,
-} from '@angular/material/bottom-sheet';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MeterReadTableComponent } from '../meter-read-table/meter-read-table.component';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -276,16 +266,7 @@ export class AllMetereadsComponent implements OnInit {
   }
   lastreadvalue: number;
   lastreaddate: any;
-  // onSelect(result: any): void {
-  //   this.selectedResult = result;
-  //   this.FilterForm.controls['externalId'].setValue(result.externalId);
-  //   if(this.loginuser.role==='Admin'){
-  //     this.externalId = result.id;
-  //   }else{
-  //     this.externalId = result.exterenalId;
-  //   }
 
-  // }
   onSelect(result: any): void {
     this.selectedResult = result;
 

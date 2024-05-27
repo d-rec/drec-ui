@@ -1,11 +1,5 @@
-import { Component, Inject, ViewChild, ElementRef } from '@angular/core';
-import {
-  FormGroup,
-  FormBuilder,
-  FormArray,
-  Validators,
-  FormControl,
-} from '@angular/forms';
+import { Component, ViewChild } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import {
   AdminService,
   UserService,
@@ -15,15 +9,10 @@ import {
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatTabGroup } from '@angular/material/tabs';
-import {
-  OrganizationInformation,
-  fulecodeType,
-  devicecodeType,
-  CountryInfo,
-} from '../../../models';
+import { OrganizationInformation } from '../../../models';
 
 @Component({
   selector: 'app-user-invitation',
@@ -47,6 +36,7 @@ export class UserInvitationComponent {
   showorginviteuser: boolean = false;
   loading: boolean = false;
   emailregex: RegExp =
+    // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   orgtype: any[] = [
     { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
@@ -136,7 +126,9 @@ export class UserInvitationComponent {
         this.invitaionlist = data;
         this.dataSource = new MatTableDataSource(this.invitaionlist);
       },
-      error: (err) => {},
+      error: (err) => {
+        this.toastrService.error('Failed', err);
+      },
     });
   }
 

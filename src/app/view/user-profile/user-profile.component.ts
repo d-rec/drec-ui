@@ -1,22 +1,13 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
-  FormArray,
   Validators,
   FormControl,
 } from '@angular/forms';
 import { AdminService, UserService } from '../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subscription } from 'rxjs';
-import { startWith, map } from 'rxjs/operators';
-import {
-  MatDialog,
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
 import { UserStatus } from '../../utils/drec.enum';
 @Component({
   selector: 'app-user-profile',
@@ -34,6 +25,7 @@ export class UserProfileComponent {
   loginuser: any;
   status: any;
   emailregex: RegExp =
+    // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   fieldRequired: string = 'This field is required';
   resetpasswordform: FormGroup;
@@ -105,8 +97,8 @@ export class UserProfileComponent {
         : '';
   }
   checkPassword(control: any) {
-    let enteredPassword = control.value;
-    let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
+    const enteredPassword = control.value;
+    const passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
     return !passwordCheck.test(enteredPassword) && enteredPassword
       ? { requirements: true }
       : null;
@@ -119,8 +111,8 @@ export class UserProfileComponent {
         : '';
   }
   checkconfirmPassword(control: any) {
-    let enteredPassword = control.value;
-    let passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
+    const enteredPassword = control.value;
+    const passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
     //this.resetpasswordform.value.password = this.resetpasswordform.value.password?:'';
     return !passwordCheck.test(enteredPassword) && enteredPassword
       ? { Confirmrequirements: true }
@@ -149,8 +141,10 @@ export class UserProfileComponent {
   onUpdate() {
     this.userService.updatProfile(this.updateForm.value).subscribe({
       next: (data) => {
-        this.toastrService.success('User Updated', 'Successful');
-        //this.dialogRef.close();
+        this.toastrService.success(
+          data.firstName + ' User Updated',
+          'Successful',
+        );
       },
       error: (err) => {
         this.updateForm.reset();
@@ -165,8 +159,10 @@ export class UserProfileComponent {
     this.userService
       .resetPassword(this.loginuser.email, this.resetpasswordform.value)
       .subscribe((data) => {
-        this.toastrService.success('Password Updated', 'Successfully');
-        // this.dialogRef.close;
+        this.toastrService.success(
+          data.firstName + ' Password Updated',
+          'Successfully',
+        );
       });
   }
 }

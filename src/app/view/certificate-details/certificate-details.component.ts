@@ -1,35 +1,18 @@
-import { SelectionModel } from '@angular/cdk/collections';
-import { MediaMatcher } from '@angular/cdk/layout';
 import {
   Component,
   ViewChild,
   ElementRef,
   TemplateRef,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
-  OnInit,
   Input,
-  OnDestroy,
 } from '@angular/core';
-// import { NavItem } from './nav-item';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  group,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { BlockchainDrecService } from '../../auth/services/blockchain-drec.service';
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
-import { ethers } from 'ethers';
 import { ToastrService } from 'ngx-toastr';
 import {
   ReservationService,
@@ -38,20 +21,12 @@ import {
   DeviceService,
   CertificateService,
 } from '../../auth/services';
-import {
-  FormGroup,
-  FormBuilder,
-  FormArray,
-  Validators,
-  FormControl,
-} from '@angular/forms';
+import { FormGroup, FormBuilder } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import * as moment from 'moment';
-import { DateAdapter } from '@angular/material/core';
 import { DeviceDetailsComponent } from '../device/device-details/device-details.component';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-certificate-details',
   templateUrl: './certificate-details.component.html',
@@ -318,7 +293,7 @@ export class CertificateDetailsComponent {
   isAnyFieldFilled: boolean = false;
 
   checkFormValidity(): void {
-    let isUserInteraction = true; // Flag to track user interaction
+    const isUserInteraction = true; // Flag to track user interaction
 
     this.FilterForm.valueChanges
       .pipe(
@@ -383,10 +358,10 @@ export class CertificateDetailsComponent {
     this.FilterForm.controls['toAmountread'].setValue(value);
     this.checkFormValidity();
   }
-  onSliderChange(event: any): void {
-    const startValue = this.startThumb.nativeElement.value;
-    const endValue = this.endThumb.nativeElement.value;
-  }
+  // onSliderChange(event: any): void {
+  //   const startValue = this.startThumb.nativeElement.value;
+  //   const endValue = this.endThumb.nativeElement.value;
+  // }
   reset() {
     this.FilterForm.reset();
     this.FilterForm.controls['countryCode'].setValue(null);
@@ -434,7 +409,7 @@ export class CertificateDetailsComponent {
               if (ele.claims != null && ele.claims.length > 0) {
                 ele['CertificateClaimed'] = true;
               }
-              for (let key in ele.owners) {
+              for (const key in ele.owners) {
                 if (key !== key.toLowerCase()) {
                   ele.owners[key.toLowerCase()] = ele.owners[key];
                   delete ele.owners[key];
@@ -594,7 +569,7 @@ export class CertificateDetailsComponent {
     }
   }
   deviceDetaileDialog(deviceId: number): void {
-    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+    this.dialog.open(DeviceDetailsComponent, {
       data: {
         deviceid: deviceId,
       },

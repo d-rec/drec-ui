@@ -1,36 +1,18 @@
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { SelectionModel } from '@angular/cdk/collections';
-import { MediaMatcher } from '@angular/cdk/layout';
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
-} from '@angular/core';
-// import { NavItem } from './nav-item';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Component, ViewChild } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService, AdminService } from '../../../auth/services';
 import { Router } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { DeviceDetailsComponent } from '../../device/device-details/device-details.component';
 import { ToastrService } from 'ngx-toastr';
 import {
   OrganizationInformation,
-  Device,
   fulecodeType,
   devicecodeType,
   CountryInfo,
@@ -45,14 +27,11 @@ export class AdminAlldevicesComponent {
   title = 'matDialog';
   dataFromDialog: any;
   displayedColumns = [
-    //'onboarding_date',
-    // 'projectName',
     'organization',
     'developerExternalId',
     'externalId',
     'countryCode',
     'fuelCode',
-    // 'commissioningDate',
     'capacity',
     'IREC_Status',
     'IREC_ID',
@@ -124,8 +103,6 @@ export class AdminAlldevicesComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-
-      //pagenumber: [this.p]
     });
   }
   ngOnInit(): void {
@@ -133,7 +110,6 @@ export class AdminAlldevicesComponent {
       this.showapiuser_devices = true;
     }
     this.adminService.GetAllOrganization().subscribe((data) => {
-      // this.orglist = data.organizations.filter(org => org.organizationType == "Developer" && org.api_user_id ==this.apiuserId);
       this.orglist = data.organizations.filter(
         (org: OrganizationInformation) => org.organizationType !== 'Developer',
       );
@@ -229,7 +205,7 @@ export class AdminAlldevicesComponent {
   }
 
   checkFormValidity(): void {
-    let isUserInteraction = true; // Flag to track user interaction
+    const isUserInteraction = true; // Flag to track user interaction
 
     this.FilterForm.valueChanges
       .pipe(
@@ -414,7 +390,7 @@ export class AdminAlldevicesComponent {
   }
 
   alertDialog(deviceId: number): void {
-    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+    this.dialog.open(DeviceDetailsComponent, {
       data: {
         deviceid: deviceId,
       },

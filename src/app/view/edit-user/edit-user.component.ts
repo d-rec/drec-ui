@@ -1,22 +1,9 @@
 import { Component, Inject } from '@angular/core';
-import {
-  FormGroup,
-  FormBuilder,
-  FormArray,
-  Validators,
-  FormControl,
-} from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AdminService } from '../../auth/services/admin.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subscription } from 'rxjs';
-import { startWith, map } from 'rxjs/operators';
-import {
-  MatDialog,
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { UserStatus } from '../../utils/drec.enum';
 @Component({
   selector: 'app-edit-user',
@@ -32,6 +19,7 @@ export class EditUserComponent {
   email: string = '';
   userstatus: any = UserStatus;
   emailregex: RegExp =
+    // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   fieldRequired: string = 'This field is required';
   constructor(
@@ -71,7 +59,7 @@ export class EditUserComponent {
     this.adminService
       .updateUser(this.data.userinfo.id, this.updateForm.value)
       .subscribe({
-        next: (data) => {
+        next: () => {
           this.toastrService.success('User Updated', 'Successful');
           this.dialogRef.close();
         },
