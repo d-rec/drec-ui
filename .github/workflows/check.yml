@@ -1,0 +1,64 @@
+name: Code Quality
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  lint-prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/gallium
+
+      - name: Install drec-ui
+        run: npm install
+
+      - name: Run Prettier
+        run: npm run prettier
+
+  lint-eslint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/gallium
+
+      - name: Install drec-ui
+        run: npm install
+
+      - name: Run ESLint (error)
+        run: npm run lint:error
+
+      - name: Run ESLint (all)
+        run: npm run lint
+
+  check-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/gallium
+
+      - name: Install drec-ui
+        run: npm install
+
+      - name: Build drec-origin
+        run: npm run build

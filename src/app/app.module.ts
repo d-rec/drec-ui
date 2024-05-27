@@ -32,9 +32,9 @@ import { ConfirmDialogComponent } from './view/confirm-dialog/confirm-dialog.com
 import { EditUserComponent } from './view/edit-user/edit-user.component';
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
 //import { UserInvitationComponent } from./view/organization/user-invitation/user-invitation.componentnt';
-import {AdminModule} from './view/admin/admin.module';
-import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component'
-import {ApiuserClientReponseComponent} from './view/apiuser-client-reponse/apiuser-client-reponse.component'
+import { AdminModule } from './view/admin/admin.module';
+import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
+import { ApiuserClientReponseComponent } from './view/apiuser-client-reponse/apiuser-client-reponse.component';
 
 @NgModule({
   declarations: [
@@ -62,8 +62,8 @@ import {ApiuserClientReponseComponent} from './view/apiuser-client-reponse/apius
     EditUserComponent,
     UserProfileComponent,
     UserAcceptInvitationComponent,
-   // UserInvitationComponent,
-   ApiuserClientReponseComponent
+    // UserInvitationComponent,
+    ApiuserClientReponseComponent,
   ],
   imports: [
     BrowserModule,
@@ -80,9 +80,10 @@ import {ApiuserClientReponseComponent} from './view/apiuser-client-reponse/apius
       timeOut: 15000, // 15 seconds
       progressBar: true,
     }),
-
   ],
-  providers: [{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },],
-  bootstrap: [AppComponent]
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+  ],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
