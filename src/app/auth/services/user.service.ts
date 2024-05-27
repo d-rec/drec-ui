@@ -24,8 +24,10 @@ export class UserService {
     return this.httpClient.post<any>(this.url + 'user/forget-password', data);
   }
   public UserResetPassword(token: any, data: any): Observable<any> {
-   
-    return this.httpClient.put<any>(this.url + 'user/reset/password/' + token, data,);
+    return this.httpClient.put<any>(
+      this.url + 'user/reset/password/' + token,
+      data,
+    );
   }
   public userProfile(): Observable<any> {
    

@@ -44,7 +44,7 @@ export class ResetPasswordComponent {
         this.accesstoken = params['token'];
         this.email = params['email'];
         this.role = params['role']
-        this.fromregister = false;
+        this.role = params['role'];
         // this.getConfirmemail(this.accesstoken)
       }
     });
