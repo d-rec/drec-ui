@@ -6,7 +6,7 @@ import {
   HttpInterceptor,
   HttpResponse,
 } from '@angular/common/http';
-import { catchError, Observable, of, tap, throwError } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class AuthInterceptor implements HttpInterceptor {
     request: HttpRequest<unknown>,
     next: HttpHandler,
   ): Observable<HttpEvent<unknown>> {
-    let authorizationToken = sessionStorage.getItem('token');
+    const authorizationToken = sessionStorage.getItem('token');
     if (authorizationToken) {
       request = request.clone({
         setHeaders: {
@@ -34,18 +34,16 @@ export class AuthInterceptor implements HttpInterceptor {
           }
         }
       }),
-      catchError((err: string, caught: Observable<any>) =>
-        this.handleHttpClientError(err, caught),
-      ),
+      catchError((err: string) => this.handleHttpClientError(err)),
     );
   }
 
-  handleHttpClientError(error: any, caught: Observable<any>) {
-    //this.sharedService.stopLoader();
+  handleHttpClientError(error: any) {
+    // this.sharedService.stopLoader();
     if (error.status == 401) {
-      // this.tokenHandlingService.removeTokenFromStorage();
-      // this.sharedService.showToastMessages('info', 'Your session has been timed out, you have been logged out');
-      // this.router.navigate(['login']);
+      // Handle unauthorized error
+      //  this.authService.logout(); // Example: log the user out
+      this.router.navigate(['/login']); // Example: redirect to login page
     }
     return throwError(error);
   }

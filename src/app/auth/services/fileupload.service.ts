@@ -1,13 +1,7 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpClient,
-  HttpRequest,
-  HttpEvent,
-  HttpHeaders,
-} from '@angular/common/http';
+import { HttpClient, HttpRequest, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { getapiuser_header } from '../../utils/apiuser_clientinfo';
 @Injectable({
   providedIn: 'root',
 })

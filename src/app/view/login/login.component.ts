@@ -1,4 +1,4 @@
-import { Input, Component, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { UserService, InvitationService } from '../../auth/services';
@@ -43,7 +43,7 @@ export class LoginComponent implements OnInit {
       (data) => {
         if (data['accessToken'] != null) {
           sessionStorage.setItem('access-token', data['accessToken']);
-          let jwtObj = JSON.parse(
+          const jwtObj = JSON.parse(
             this.b64DecodeUnicode(
               this.padBase64(data['accessToken'].split('.')[1]),
             ),
@@ -72,7 +72,7 @@ export class LoginComponent implements OnInit {
                 this.inviteservice.getinvitationByemail().subscribe({
                   next: (data) => {
                     const invitationId = data.id;
-                    let loginuser = JSON.parse(
+                    const loginuser = JSON.parse(
                       sessionStorage.getItem('loginuser') as any,
                     );
                     // Update the role property of the loginuser object with the new value
@@ -88,7 +88,7 @@ export class LoginComponent implements OnInit {
                         status: 'Accepted',
                       })
                       .subscribe({
-                        next: (data) => {
+                        next: () => {
                           this.toastrService.success(
                             'Accept Sucessful!',
                             'Invitation ',

@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { UserService, InvitationService } from '../../auth/services';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { errors } from 'ethers';
 @Component({
   selector: 'app-user-accept-invitation',
   templateUrl: './user-accept-invitation.component.html',
@@ -31,11 +30,7 @@ export class UserAcceptInvitationComponent {
         this.useremail = params['email'];
 
         this.fromregister = false;
-        //this.getConfirmemail(this.accesstoken)
         sessionStorage.setItem('access-token', this.accesstoken);
-        let jwtObj = JSON.parse(
-          this.b64DecodeUnicode(this.padBase64(this.accesstoken.split('.')[1])),
-        );
       }
     });
   }
@@ -54,7 +49,7 @@ export class UserAcceptInvitationComponent {
     return base64Payload;
   }
   acceptinvitaion() {
-    let useronj = {
+    const useronj = {
       email: this.useremail,
       status: 'Accepted',
     };

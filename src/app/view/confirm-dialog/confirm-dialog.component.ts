@@ -1,18 +1,8 @@
 import { Component, Inject } from '@angular/core';
-import {
-  MatDialog,
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AdminService, OrganizationService } from '../../auth/services';
-import {
-  FormGroup,
-  FormBuilder,
-  FormArray,
-  Validators,
-  FormControl,
-} from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 @Component({
   selector: 'app-confirm-dialog',
   templateUrl: './confirm-dialog.component.html',
@@ -35,6 +25,7 @@ export class ConfirmDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private adminService: AdminService,
     private organizationService: OrganizationService,
+    private toastrService: ToastrService,
   ) {
     if (data.showchangeform) {
       this.dailogmessage = data.message;
@@ -86,7 +77,9 @@ export class ConfirmDialogComponent {
           this.user.id,
           this.roleForm.value,
         )
-        .subscribe((data) => {});
+        .subscribe((data) => {
+          this.toastrService.success(data.message + 'Role Updated');
+        });
     }
   }
 }

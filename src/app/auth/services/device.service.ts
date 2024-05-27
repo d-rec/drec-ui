@@ -1,19 +1,13 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpClient,
-  HttpHeaders,
-  HttpErrorResponse,
-} from '@angular/common/http';
-//import {environment} from '../../../environments/environment.dev';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { Device } from '../../models/device.model';
-import { getapiuser_header } from '../../utils/apiuser_clientinfo';
 @Injectable({
   providedIn: 'root',
 })
 export class DeviceService {
-  url: String = environment.API_URL;
+  url: string = environment.API_URL;
 
   constructor(private httpClient: HttpClient) {}
   GetDevicesForAdmin(): Observable<any> {
@@ -25,20 +19,13 @@ export class DeviceService {
     pagenumber?: number,
   ): Observable<any> {
     let searchUrl = `${this.url}` + deviceurl;
-    if (
-      !(
-        typeof pagenumber === undefined ||
-        pagenumber === null ||
-        pagenumber === undefined
-      )
-    ) {
+    if (!(pagenumber === null || pagenumber === undefined)) {
       searchUrl += `pagenumber=${pagenumber}`;
     }
 
     if (searchData != undefined) {
       if (
         !(
-          typeof searchData.organizationId === undefined ||
           searchData.organizationId === '' ||
           searchData.organizationId === null ||
           searchData.organizationId === undefined
@@ -48,7 +35,6 @@ export class DeviceService {
       }
       if (
         !(
-          typeof searchData.countryCode === undefined ||
           searchData.countryCode === '' ||
           searchData.countryCode === null ||
           searchData.countryCode === undefined
@@ -58,7 +44,6 @@ export class DeviceService {
       }
       if (
         !(
-          typeof searchData.fuelCode === undefined ||
           searchData.fuelCode === '' ||
           searchData.fuelCode === null ||
           searchData.fuelCode === undefined
@@ -68,7 +53,6 @@ export class DeviceService {
       }
       if (
         !(
-          typeof searchData.deviceTypeCode === undefined ||
           searchData.deviceTypeCode === '' ||
           searchData.deviceTypeCode === null ||
           searchData.deviceTypeCode === undefined
@@ -78,7 +62,6 @@ export class DeviceService {
       }
       if (
         !(
-          typeof searchData.capacity === undefined ||
           searchData.capacity === '' ||
           searchData.capacity === null ||
           searchData.capacity === undefined
@@ -88,7 +71,6 @@ export class DeviceService {
       }
       if (
         !(
-          typeof searchData.offTaker === undefined ||
           searchData.offTaker === '' ||
           searchData.offTaker === null ||
           searchData.offTaker === undefined
@@ -98,7 +80,6 @@ export class DeviceService {
       }
       if (
         !(
-          typeof searchData.SDGBenefits === undefined ||
           searchData.SDGBenefits === '' ||
           searchData.SDGBenefits === null ||
           searchData.SDGBenefits === undefined
@@ -202,7 +183,7 @@ export class DeviceService {
     }
     if (
       !(
-        typeof searchData.SDGBenefits === undefined ||
+        searchData.SDGBenefits === undefined ||
         searchData.SDGBenefits === '' ||
         searchData.SDGBenefits === null
       )
@@ -248,12 +229,12 @@ export class DeviceService {
     return this.httpClient.get(searchUrl);
   }
   GetDeviceAutocomplete(searchInput: StaticRange): Observable<any> {
-    let searchUrl =
+    const searchUrl =
       `${this.url}device/my/autocomplete?externalId=` + searchInput;
     return this.httpClient.get(searchUrl);
   }
   RemoveDevice(id: number): Observable<any> {
-    let searchUrl = `${this.url}device/` + id;
+    const searchUrl = `${this.url}device/` + id;
 
     return this.httpClient.delete(searchUrl);
   }

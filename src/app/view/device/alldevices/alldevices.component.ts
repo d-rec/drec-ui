@@ -1,26 +1,9 @@
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { SelectionModel } from '@angular/cdk/collections';
-import { MediaMatcher } from '@angular/cdk/layout';
-import {
-  Component,
-  OnInit,
-  Inject,
-  ViewChild,
-  ViewChildren,
-  QueryList,
-  ChangeDetectorRef,
-} from '@angular/core';
-// import { NavItem } from './nav-item';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Component, Inject, ViewChild } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService, OrganizationService } from '../../../auth/services';
 import { Router } from '@angular/router';
@@ -35,13 +18,7 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { DeviceDetailsComponent } from '../device-details/device-details.component';
 import { ToastrService } from 'ngx-toastr';
-import {
-  OrganizationInformation,
-  Device,
-  fulecodeType,
-  devicecodeType,
-  CountryInfo,
-} from '../../../models';
+import { fulecodeType, devicecodeType, CountryInfo } from '../../../models';
 
 @Component({
   selector: 'app-alldevices',
@@ -237,7 +214,7 @@ export class AlldevicesComponent {
   }
 
   checkFormValidity(): void {
-    let isUserInteraction = true; // Flag to track user interaction
+    const isUserInteraction = true; // Flag to track user interaction
 
     this.FilterForm.valueChanges
       .pipe(
@@ -418,7 +395,7 @@ export class AlldevicesComponent {
   //   });
   // }
   alertDialog(deviceId: number): void {
-    const dialogRef = this.dialog.open(DeviceDetailsComponent, {
+    this.dialog.open(DeviceDetailsComponent, {
       data: {
         deviceid: deviceId,
       },

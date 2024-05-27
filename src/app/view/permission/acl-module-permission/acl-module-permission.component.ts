@@ -7,24 +7,15 @@ import {
   FormsModule,
   FormControl,
 } from '@angular/forms';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import {
-  animate,
-  state,
-  style,
-  transition,
-  trigger,
-} from '@angular/animations';
+import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import {
   DeviceService,
   ACLModulePermisionService,
 } from '../../../auth/services';
 import { Router } from '@angular/router';
-import { Observable, Subscription, debounceTime } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
 import {
   MatDialog,
   MatDialogRef,
@@ -71,7 +62,9 @@ export class AclModulePermissionComponent {
       next: (data) => {
         this.dataSource = new MatTableDataSource(data);
       },
-      error: (err) => {},
+      error: (err) => {
+        this.toastrService.error('Failed', err);
+      },
     });
   }
   openAclmoduleFormDialog() {

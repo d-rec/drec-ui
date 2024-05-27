@@ -1,5 +1,5 @@
 import { AbiItem } from 'web3-utils';
-export let issuerABI: Array<AbiItem> = [
+export const issuerABI: Array<AbiItem> = [
   {
     anonymous: false,
     inputs: [

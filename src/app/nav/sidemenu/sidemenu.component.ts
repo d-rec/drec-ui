@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 })
 export class SidemenuComponent implements OnInit {
   loginuser: any;
-  showmenu: Boolean;
+  showmenu: boolean;
   devcieurl: string;
   Alluserurl: string;
   adduserorg_url: string;

@@ -1,4 +1,4 @@
-import { Component, OnInit, importProvidersFrom } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -440,7 +440,7 @@ export class AddreadComponent implements OnInit {
     return validation;
   }
   onSubmit(): void {
-    let externalId = this.readForm.value.externalId;
+    const externalId = this.readForm.value.externalId;
 
     const myobj: any = {};
     if (this.loginuser.role === 'ApiUser') {
@@ -454,7 +454,7 @@ export class AddreadComponent implements OnInit {
       myobj['timezone'] = this.readForm.value.timezone;
       myobj['type'] = this.readForm.value.type;
       myobj['unit'] = this.readForm.value.unit;
-      let reads: any = [];
+      const reads: any = [];
       this.readForm.value.reads.forEach((ele: any) => {
         reads.push({
           starttimestamp: moment(ele.starttimestamp).format(
@@ -473,7 +473,7 @@ export class AddreadComponent implements OnInit {
       myobj['timezone'] = this.readForm.value.timezone;
       myobj['type'] = this.readForm.value.type;
       myobj['unit'] = this.readForm.value.unit;
-      let newreads: any = [];
+      const newreads: any = [];
       this.readForm.value.reads.forEach((ele: any) => {
         newreads.push({
           starttimestamp: '',
@@ -485,7 +485,7 @@ export class AddreadComponent implements OnInit {
     } else {
       myobj['type'] = this.readForm.value.type;
       myobj['unit'] = this.readForm.value.unit;
-      let newreads: any = [];
+      const newreads: any = [];
       this.readForm.value.reads.forEach((ele: any) => {
         newreads.push({
           starttimestamp: ele.starttimestamp,
@@ -499,7 +499,7 @@ export class AddreadComponent implements OnInit {
       this.readService
         .PostReadByAdmin(externalId, myobj, this.orgId)
         .subscribe({
-          next: (data: any) => {
+          next: () => {
             this.readForm.reset();
             this.selectedResult = null;
             const formControls = this.readForm.controls;
@@ -513,7 +513,7 @@ export class AddreadComponent implements OnInit {
             //Error callback
             console.error('error caught in component', err);
 
-            let message = getValidmsgTimezoneFormat(
+            const message = getValidmsgTimezoneFormat(
               err.error.message ?? 'Someting Wrong',
             );
 
@@ -522,7 +522,7 @@ export class AddreadComponent implements OnInit {
         });
     } else {
       this.readService.PostRead(externalId, myobj).subscribe({
-        next: (data: any) => {
+        next: () => {
           this.readForm.reset();
           this.selectedResult = null;
           const formControls = this.readForm.controls;
@@ -536,7 +536,7 @@ export class AddreadComponent implements OnInit {
           //Error callback
           console.error('error caught in component', err);
 
-          let message = getValidmsgTimezoneFormat(
+          const message = getValidmsgTimezoneFormat(
             err.error.message ?? 'Something Wrong!!',
           );
 

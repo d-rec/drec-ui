@@ -1,26 +1,12 @@
-import { Component, Inject, ViewChild } from '@angular/core';
-import { SelectionModel } from '@angular/cdk/collections';
-import {
-  FormBuilder,
-  FormGroup,
-  FormControl,
-  Validators,
-} from '@angular/forms';
+import { Component, Inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import {
   DeviceService,
   ACLModulePermisionService,
 } from '../../../auth/services';
 import { Router } from '@angular/router';
-import { Observable, Subscription, debounceTime } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
-import {
-  MatDialog,
-  MatDialogRef,
-  MatDialogModule,
-  MAT_DIALOG_DATA,
-} from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { UserpermissionComponent } from '../add-userpermission/add-userpermission.component';
 @Component({
@@ -74,9 +60,10 @@ export class EditPermissionComponent {
     this.aclpermissionServcie.getAcl_moduleList().subscribe({
       next: (data) => {
         this.datalist = data;
-        //this.dataSource = new MatTableDataSource(data);
       },
-      error: (err) => {},
+      error: (err) => {
+        this.toastrService.error('No Response', err);
+      },
     });
   }
   updatepermission() {
@@ -93,7 +80,7 @@ export class EditPermissionComponent {
           }
         },
         error: (err) => {
-          this.toastrService.error('Fial');
+          this.toastrService.error('Fialed', err);
         },
       });
   }

@@ -1,10 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  HttpClient,
-  HttpHeaders,
-  HttpErrorResponse,
-} from '@angular/common/http';
-//import {environment} from '../../environments/environment.dev';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { getapiuser_header } from '../../utils/apiuser_clientinfo';
@@ -12,7 +7,7 @@ import { getapiuser_header } from '../../utils/apiuser_clientinfo';
   providedIn: 'root',
 })
 export class CertificateService {
-  url: String = environment.API_URL;
+  url: string = environment.API_URL;
   headersData = getapiuser_header();
   constructor(private httpClient: HttpClient) {}
   GetRedemptionMethod(): Observable<any> {
@@ -29,7 +24,7 @@ export class CertificateService {
     if (searchData != undefined) {
       if (
         !(
-          typeof searchData.organizationId === undefined ||
+          searchData.organizationId === undefined ||
           searchData.organizationId === '' ||
           searchData.organizationId === null ||
           searchData.organizationId === undefined
@@ -39,7 +34,7 @@ export class CertificateService {
       }
       if (
         !(
-          typeof searchData.countryCode === undefined ||
+          searchData.countryCode === undefined ||
           searchData.countryCode === '' ||
           searchData.countryCode === null
         )
@@ -49,7 +44,7 @@ export class CertificateService {
 
       if (
         !(
-          typeof searchData.fuelCode === undefined ||
+          searchData.fuelCode === undefined ||
           searchData.fuelCode === '' ||
           searchData.fuelCode === null
         )
@@ -59,7 +54,7 @@ export class CertificateService {
 
       if (
         !(
-          typeof searchData.capacity === undefined ||
+          searchData.capacity === undefined ||
           searchData.capacity === '' ||
           searchData.capacity === null
         )
@@ -68,7 +63,7 @@ export class CertificateService {
       }
       if (
         !(
-          typeof searchData.offTaker === undefined ||
+          searchData.offTaker === undefined ||
           searchData.offTaker === '' ||
           searchData.offTaker === null
         )
@@ -77,7 +72,7 @@ export class CertificateService {
       }
       if (
         !(
-          typeof searchData.SDGBenefits === undefined ||
+          searchData.SDGBenefits === undefined ||
           searchData.SDGBenefits === '' ||
           searchData.SDGBenefits === null
         )
@@ -123,7 +118,7 @@ export class CertificateService {
         searchUrl += `&toAmountread=${searchData.toAmountread}`;
       }
     }
-    let headers = new HttpHeaders(this.headersData);
+    const headers = new HttpHeaders(this.headersData);
 
     return this.httpClient.get(searchUrl, { headers });
   }
@@ -131,19 +126,20 @@ export class CertificateService {
     group_uid: string,
     pagenumber: number,
   ): Observable<any> {
-    let searchUrl =
+    const searchUrl =
       this.url +
       'certificate-log/issuer/certified/new/' +
       group_uid +
       '?pageNumber=' +
       pagenumber;
-    let headers = new HttpHeaders(this.headersData);
+    const headers = new HttpHeaders(this.headersData);
 
     return this.httpClient.get(searchUrl, { headers });
   }
 
   getcertifiedlogPerDevice(group_uid: string): Observable<any> {
-    let searchUrl = this.url + 'certificate-log/expoert_perdevice/' + group_uid;
+    const searchUrl =
+      this.url + 'certificate-log/expoert_perdevice/' + group_uid;
 
     return this.httpClient.get(searchUrl, { responseType: 'blob' });
   }

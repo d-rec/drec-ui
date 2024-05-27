@@ -1,16 +1,15 @@
 import { Component, Inject } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, NgForm } from '@angular/forms';
+import { FormGroup, FormBuilder } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DeviceService } from '../../../auth/services/device.service';
 import { AuthbaseService } from '../../../auth/authbase.service';
-import { Observable } from 'rxjs';
 import {
   Device,
   CountryInfo,
   fulecodeType,
   devicecodeType,
 } from '../../../models';
-
+import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-device-details',
   templateUrl: './device-details.component.html',
@@ -32,6 +31,7 @@ export class DeviceDetailsComponent {
     public dialogRef: MatDialogRef<DeviceDetailsComponent>,
     private deviceService: DeviceService,
     private authService: AuthbaseService,
+    private toastrService: ToastrService,
   ) {
     this.id = data.deviceid;
 
@@ -74,7 +74,9 @@ export class DeviceDetailsComponent {
           )?.country;
         }
       },
-      error: (err) => {},
+      error: (err) => {
+        this.toastrService.error('Data info not Found', err);
+      },
     });
   }
 
