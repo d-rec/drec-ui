@@ -1,36 +1,44 @@
-
-
-import { SelectionModel } from '@angular/cdk/collections';
-import { MediaMatcher } from '@angular/cdk/layout';
-import { Component, ViewChild, TemplateRef, ViewChildren, QueryList, ChangeDetectorRef, OnInit, Input, OnDestroy } from '@angular/core';
-// import { NavItem } from './nav-item';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
-import { animate, group, state, style, transition, trigger } from '@angular/animations';
+import {
+  Component,
+  ViewChild,
+  TemplateRef,
+  Input,
+  OnDestroy,
+} from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
 import { ethers } from 'ethers';
 import { ToastrService } from 'ngx-toastr';
-import { issuerABI } from './issuer-abi';
 import { registryABI } from './registery-abi';
-import { MeterReadService ,ReservationService,BlockchainDrecService,CertificateService} from '../../auth/services'
+import {
+  MeterReadService,
+  ReservationService,
+  BlockchainDrecService,
+  CertificateService,
+} from '../../auth/services';
 export interface Student {
   firstName: string;
   lastName: string;
   studentEmail: string;
   course: string;
   yearOfStudy: number;
-
 }
-import { FormGroup, FormBuilder, FormArray, Validators, FormControl } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import * as moment from 'moment';
-import { DateAdapter } from '@angular/material/core';
 import { DeviceService } from '../../auth/services/device.service';
 @Component({
   selector: 'app-certificate',
@@ -40,15 +48,28 @@ import { DeviceService } from '../../auth/services/device.service';
     trigger('detailExpand', [
       state('collapsed', style({ height: '0px', minHeight: '0' })),
       state('expanded', style({ height: '*' })),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+      transition(
+        'expanded <=> collapsed',
+        animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'),
+      ),
     ]),
   ],
 })
 export class CertificateComponent implements OnDestroy {
   @Input() dataFromComponentA: any;
   @ViewChild('templateBottomSheet') TemplateBottomSheet: TemplateRef<any>;
-  displayedColumns = ['serialno', 'certificateStartDate', 'certificateEndDate', 'owners'];
-  innerDisplayedColumns = ['certificate_issuance_startdate', 'certificate_issuance_enddate', 'externalId', 'readvalue_watthour'];
+  displayedColumns = [
+    'serialno',
+    'certificateStartDate',
+    'certificateEndDate',
+    'owners',
+  ];
+  innerDisplayedColumns = [
+    'certificate_issuance_startdate',
+    'certificate_issuance_enddate',
+    'externalId',
+    'readvalue_watthour',
+  ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
@@ -65,7 +86,7 @@ export class CertificateComponent implements OnDestroy {
   loading: boolean = true;
   history_nextissuanclist: any;
   ongoingnextissuance: any;
-  devicesId: any
+  devicesId: any;
   alldevicescertifiedlogdatrange: any = [];
   intervalId: any;
   reservationstatus: boolean;
@@ -73,64 +94,58 @@ export class CertificateComponent implements OnDestroy {
   totalRows = 0;
   pageSize: number = 10;
   totalPages: number;
-  historyp: number = 1
+  historyp: number = 1;
   historynextissuance_total: number;
-  certifiedp: number = 1
+  certifiedp: number = 1;
   certified_total: number;
-  constructor(private blockchainDRECService: BlockchainDrecService,
-    private authService: AuthbaseService, 
-    private certificateauthService: CertificateService, 
+  constructor(
+    private blockchainDRECService: BlockchainDrecService,
+    private authService: AuthbaseService,
+    private certificateauthService: CertificateService,
     private router: Router,
-     private activatedRoute: ActivatedRoute,
-      private toastrService: ToastrService,
-       private bottomSheet: MatBottomSheet,
+    private activatedRoute: ActivatedRoute,
+    private toastrService: ToastrService,
+    private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
     private reservationService: ReservationService,
     private readService: MeterReadService,
-    private deviceService: DeviceService
+    private deviceService: DeviceService,
   ) {
-
-    this.activatedRoute.queryParams.subscribe(params => {
+    this.activatedRoute.queryParams.subscribe((params) => {
       this.group_id = params['id'];
       this.group_uid = params['group_uid'];
-
     });
-
-    
   }
   ngOnInit() {
     this.claimData = this.fb.group({
-      beneficiary: [null, Validators.required],//"claim from angular smart contract", // ui text field
-      location: [null, Validators.required],//"angular chrome", // ui text field
-      countryCode: [null, Validators.required],//"IND", // country code drodpown
+      beneficiary: [null, Validators.required], //"claim from angular smart contract", // ui text field
+      location: [null, Validators.required], //"angular chrome", // ui text field
+      countryCode: [null, Validators.required], //"IND", // country code drodpown
       periodStartDate: [new Date(), Validators.required], // date picker
       periodEndDate: [new Date(), Validators.required], // date picker
-      purpose: [null, Validators.required],//"claim testing from new UI" // ui text field
-    })
-    this.reservationService.GetMethodById(this.group_id).subscribe(
-      (data: any) => {
-        //@ts-ignore
+      purpose: [null, Validators.required], //"claim testing from new UI" // ui text field
+    });
+    this.reservationService
+      .GetMethodById(this.group_id)
+      .subscribe((data: any) => {
         this.group_name = data.name;
         this.devicesId = data.deviceIds;
         this.reservationstatus = data.reservationActive;
-        
-
-      }
-
-    )
+      });
     this.energyurl = environment.Explorer_URL + '/block/';
     setTimeout(() => {
       if (this.group_uid != undefined) {
         this.DisplayList(this.p);
       }
-
     }, 2000);
     this.getBlockchainProperties();
     this.AllCountryList();
     this.claimData.controls['countryCode'];
-    this.filteredOptions = this.claimData.controls['countryCode'].valueChanges.pipe(
+    this.filteredOptions = this.claimData.controls[
+      'countryCode'
+    ].valueChanges.pipe(
       startWith(''),
-      map(value => this._filter(value || '')),
+      map((value) => this._filter(value || '')),
     );
     this.selectAccountAddressFromMetamask();
 
@@ -141,25 +156,20 @@ export class CertificateComponent implements OnDestroy {
         this.getcertifiedlogdaterange(this.certifiedp);
       }
     }, 100000);
-
-
-
-
   }
   ngOnDestroy(): void {
     clearInterval(this.intervalId);
   }
   getnextissuancinfo(historyp: number) {
-    this.reservationService.GetnextissuanceCycleinfo(this.group_uid, historyp).subscribe(
-      (data: any) => {
-        //@ts-ignore
-        this.history_nextissuanclist = data.historynextissuansinfo.AllDeviceshistnextissuansinfo;
+    this.reservationService
+      .GetnextissuanceCycleinfo(this.group_uid, historyp)
+      .subscribe((data: any) => {
+        this.history_nextissuanclist =
+          data.historynextissuansinfo.AllDeviceshistnextissuansinfo;
         this.historynextissuance_total = data.historynextissuansinfo.totalPages;
 
-        this.ongoingnextissuance = data.ongoing_next_issuance
-      }
-
-    )
+        this.ongoingnextissuance = data.ongoing_next_issuance;
+      });
   }
   histroynextIssuancepreviousPage(): void {
     if (this.historyp > 1) {
@@ -171,58 +181,58 @@ export class CertificateComponent implements OnDestroy {
   histroynextIssuancenextPage(): void {
     if (this.historyp < this.totalPages) {
       this.historyp++;
-      this.getnextissuancinfo(this.historyp);;
+      this.getnextissuancinfo(this.historyp);
     }
   }
-  alldevicesread: any = []
+  alldevicesread: any = [];
   getlastreadofdevices() {
     this.alldevicesread = [];
     if (typeof this.devicesId === 'string') {
       this.readService.Getlastread(this.devicesId).subscribe({
-        next: data => {
-            this.alldevicesread.push(data)
+        next: (data) => {
+          this.alldevicesread.push(data);
         },
-        error: err => {                      //Error callback
-          console.error('error caught in component', err)
+        error: (err) => {
+          //Error callback
+          console.error('error caught in component', err);
           //.toastrService.error('device id has been updated', 'current external id not found!!');
-
-        }
-      })
+        },
+      });
     } else {
-
       this.devicesId.forEach((elemant: any) => {
         this.readService.Getlastread(elemant).subscribe({
-          next: data => {
-              this.alldevicesread.push(data)
+          next: (data) => {
+            this.alldevicesread.push(data);
           },
-          error: err => {                              //Error callback
-            console.error('error caught in component', err)
+          error: (err) => {
+            //Error callback
+            console.error('error caught in component', err);
             //.toastrService.error('device id has been updated', 'current external id not found!!');
-
-          }
-        })
-      })
+          },
+        });
+      });
     }
-
-
   }
 
   getcertifiedlogdaterange(certifiedp: number) {
     // if (typeof this.devicesId === 'string') {
-    this.deviceService.getcertifieddevicelogdate(this.group_uid, certifiedp).subscribe({
-      next: data => {
-        this.alldevicescertifiedlogdatrange = data.certifieddevices_startToend;
-        this.certified_total = data.totalPages;
-        // if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
-        //   this.alldevicescertifiedlogdatrange.push(data)
-        // }
-      },
-      error: err => {                                //Error callback
-        console.error('error caught in component', err)
-        //.toastrService.error('device id has been updated', 'current external id not found!!');
-
-      }
-    });
+    this.deviceService
+      .getcertifieddevicelogdate(this.group_uid, certifiedp)
+      .subscribe({
+        next: (data) => {
+          this.alldevicescertifiedlogdatrange =
+            data.certifieddevices_startToend;
+          this.certified_total = data.totalPages;
+          // if (data.firstcertifiedstartdate != null && data.lastcertifiedenddate != null) {
+          //   this.alldevicescertifiedlogdatrange.push(data)
+          // }
+        },
+        error: (err) => {
+          //Error callback
+          console.error('error caught in component', err);
+          //.toastrService.error('device id has been updated', 'current external id not found!!');
+        },
+      });
     // } else {
     //   this.alldevicescertifiedlogdatrange = [];
     //   this.devicesId.forEach((elemant: any) => {
@@ -242,7 +252,6 @@ export class CertificateComponent implements OnDestroy {
 
     //   })
     // }
-
   }
   certifiedDevicepreviousPage(): void {
     if (this.certifiedp > 1) {
@@ -254,7 +263,7 @@ export class CertificateComponent implements OnDestroy {
   certifiedDevicenextPage(): void {
     if (this.certifiedp < this.totalPages) {
       this.certifiedp++;
-      this.getcertifiedlogdaterange(this.certifiedp);;
+      this.getcertifiedlogdaterange(this.certifiedp);
     }
   }
   openTemplateSheetMenu() {
@@ -265,18 +274,16 @@ export class CertificateComponent implements OnDestroy {
     this.bottomSheet.dismiss();
   }
   AllCountryList() {
-
-    this.authService.GetMethod('countrycode/list').subscribe(
-      (data) => {
-        this.countrylist = data;
-
-      }
-    )
+    this.authService.GetMethod('countrycode/list').subscribe((data) => {
+      this.countrylist = data;
+    });
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
     //((u) => isRole(u.role, Role.DeviceOwner));
-    return this.countrylist.filter((option: { country: string; }) => option.country.toLowerCase().includes(filterValue));
+    return this.countrylist.filter((option: { country: string }) =>
+      option.country.toLowerCase().includes(filterValue),
+    );
   }
   // ngAfterViewInit() {
   //   this.dataSource.paginator = this.paginator;
@@ -285,9 +292,11 @@ export class CertificateComponent implements OnDestroy {
 
   blockchainProperties: BlockchainProperties;
   getBlockchainProperties() {
-    this.blockchainDRECService.getBlockchainProperties().subscribe((response: BlockchainProperties) => {
-      this.blockchainProperties = response;
-    })
+    this.blockchainDRECService
+      .getBlockchainProperties()
+      .subscribe((response: BlockchainProperties) => {
+        this.blockchainProperties = response;
+      });
   }
 
   applyFilter(event: Event) {
@@ -300,58 +309,71 @@ export class CertificateComponent implements OnDestroy {
   }
   // CertificateClaimed:boolean=false;
   DisplayList(p: number) {
- 
-    this.certificateauthService.getcertifiedlogByGooupUid( this.group_uid , p).subscribe({
-     next: (data: any) => {
-        this.loading = false;
-        // display list in the console 
+    this.certificateauthService
+      .getcertifiedlogByGooupUid(this.group_uid, p)
+      .subscribe({
+        next: (data: any) => {
+          this.loading = false;
+          this.data = data.certificatelog.filter((ele: any) => ele !== null);
+          this.totalPages = data.totalPages;
 
-        // this.data = data;
-        //@ts-ignore
-        this.data = data.certificatelog.filter(ele => ele !== null)
-        this.totalPages = data.totalPages
-          ;
-        //@ts-ignore
-        this.data.forEach(ele => {
-
-          ele['generationStartTimeinUTC'] = new Date(ele.generationStartTime * 1000).toISOString();
-          ele['generationEndTimeinUTC'] = new Date(ele.generationEndTime * 1000).toISOString();
-          //converting blockchain address to lower case
-          if (ele.claims != null && (ele.claims.length > 0)) {
-            ele['CertificateClaimed'] = true;
-          }
-          for (let key in ele.owners) {
-            if (key !== key.toLowerCase()) {
-              ele.owners[key.toLowerCase()] = ele.owners[key];
-              delete ele.owners[key];
+          this.data.forEach((ele: any) => {
+            ele['generationStartTimeinUTC'] = new Date(
+              ele.generationStartTime * 1000,
+            ).toISOString();
+            ele['generationEndTimeinUTC'] = new Date(
+              ele.generationEndTime * 1000,
+            ).toISOString();
+            //converting blockchain address to lower case
+            if (ele.claims != null && ele.claims.length > 0) {
+              ele['CertificateClaimed'] = true;
             }
+            for (const key in ele.owners) {
+              if (key !== key.toLowerCase()) {
+                ele.owners[key.toLowerCase()] = ele.owners[key];
+                delete ele.owners[key];
+              }
+            }
+
+            if (ele.creationBlockHash != '') {
+              ele.creationBlockHash;
+              ele['energyurl'] =
+                environment.Explorer_URL +
+                '/token/' +
+                this.blockchainProperties.registry +
+                '/instance/' +
+                ele.id +
+                '/token-transfers';
+            } else if (
+              ele.transactions.find(
+                (ele1: any) => ele1.eventType == 'IssuancePersisted',
+              )
+            ) {
+              ele.creationBlockHash = ele.transactions.find(
+                (ele1: any) => ele1.eventType == 'IssuancePersisted',
+              ).transactionHash;
+
+              ele['energyurl'] =
+                environment.Explorer_URL +
+                '/token/' +
+                this.blockchainProperties.registry +
+                '/instance/' +
+                ele.blockchainCertificateId +
+                '/token-transfers';
+            }
+          });
+        },
+        error: (err) => {
+          if (err.error.statusCode === 403) {
+            this.toastrService.error(
+              'Error:' + err.error.message,
+              'Unauthorized',
+            );
+          } else {
+            this.toastrService.error('Error:' + err.error.message, 'Fail');
           }
-
-          if (ele.creationBlockHash != "") {
-            ele.creationBlockHash
-            ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.id + '/token-transfers'
-          }
-          //@ts-ignore
-          else if (ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted")) {
-
-            //@ts-ignore
-            ele.creationBlockHash = ele.transactions.find(ele1 => ele1.eventType == "IssuancePersisted").transactionHash
-
-            ele['energyurl'] = environment.Explorer_URL + '/token/' + this.blockchainProperties.registry + '/instance/' + ele.blockchainCertificateId + '/token-transfers'
-          }
-        })
-
-      },error:err=>{
-        if (err.error.statusCode === 403) {
-          this.toastrService.error('Error:' + err.error.message, 'Unauthorized')
-        } else {
-          this.toastrService.error('Error:' + err.error.message, 'Fail')
-        }
-      }
-    }
-      
-
-    )
+        },
+      });
   }
   previousPage(): void {
     if (this.p > 1) {
@@ -363,72 +385,99 @@ export class CertificateComponent implements OnDestroy {
   nextPage(): void {
     if (this.p < this.totalPages) {
       this.p++;
-      this.DisplayList(this.p);;
+      this.DisplayList(this.p);
     }
   }
   getWindowEthereumObject() {
-    //@ts-ignore
     return window.ethereum;
   }
 
   selectedCertificateForClaim: {
-    id: number,
-    deviceId: string, // groupId or reservation id
-    generationStartTime: number,
-    generationEndTime: number,
-    owners: { [key: string]: string }
-  }
+    id: number;
+    deviceId: string; // groupId or reservation id
+    generationStartTime: number;
+    generationEndTime: number;
+    owners: { [key: string]: string };
+  };
 
   formattedClaimAmount: {
-    hex: string,
-    type: string
-  }
+    hex: string;
+    type: string;
+  };
 
   selectedBlockchainAccount: string = '';
 
   checkMetamaskConnected() {
-    return typeof window !== 'undefined' && typeof this.getWindowEthereumObject() !== 'undefined';
+    return (
+      typeof window !== 'undefined' &&
+      typeof this.getWindowEthereumObject() !== 'undefined'
+    );
   }
-
-  connectWallet() {
-    //@ts-ignore   
-    if (typeof window !== 'undefined' && typeof window.ethereum! == 'undefined') {
-      try {
-        //@ts-ignore
-        window.ethereum.request({ method: 'eth_requestAccounts' })
-
-      }
-      catch (e) {
-        console.error("some error occures", e);
+  getWindowEthereumProperty(): Ethereum | undefined {
+    return window.ethereum;
+  }
+  async connectWallet() {
+    if (
+      typeof window != 'undefined' &&
+      typeof this.getWindowEthereumProperty() != 'undefined'
+    ) {
+      const ethereum = this.getWindowEthereumProperty();
+      if (ethereum) {
+        try {
+          /* MetaMask is installed */
+          const accounts = await ethereum.request({
+            method: 'eth_requestAccounts',
+          });
+          console.log('Connected accounts:', accounts);
+        } catch (err) {
+          console.error('Error connecting to MetaMask:', err);
+        }
+      } else {
+        console.error('MetaMask not found');
       }
     }
   }
 
   selectAccountAddressFromMetamask() {
-    //@ts-ignore
-    if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
-      //@ts-ignore
-      window.ethereum.request({ method: 'eth_requestAccounts' }).then(response => {
-        this.selectedBlockchainAccount = (response && response[0]) ? response[0] : '';
-        this.selectedBlockchainAccount = this.selectedBlockchainAccount.toLowerCase();
-        if (this.selectedBlockchainAccount === '') {
-          this.toastrService.error('No Blockchain account selected please connect metamask account')
-        }
-      }).catch((error: any) => {
-        console.log('Metamask is not connected, please first connect metamask then click this button to select account');
-        console.log(error);
-        this.toastrService.error('Metamask is not connected, please first connect metamask then click this button to select account');
-      });
-    }
-    else {
-      this.toastrService.error('Metamask is not connected, please first connect metamask then click this button to select account');
+    if (
+      typeof window !== 'undefined' &&
+      typeof window.ethereum !== 'undefined'
+    ) {
+      window.ethereum
+        .request({ method: 'eth_requestAccounts' })
+        .then((response) => {
+          this.selectedBlockchainAccount =
+            response && response[0] ? response[0] : '';
+          this.selectedBlockchainAccount =
+            this.selectedBlockchainAccount.toLowerCase();
+          if (this.selectedBlockchainAccount === '') {
+            this.toastrService.error(
+              'No Blockchain account selected please connect metamask account',
+            );
+          }
+        })
+        .catch((error: any) => {
+          console.log(
+            'Metamask is not connected, please first connect metamask then click this button to select account',
+          );
+          console.log(error);
+          this.toastrService.error(
+            'Metamask is not connected, please first connect metamask then click this button to select account',
+          );
+        });
+    } else {
+      this.toastrService.error(
+        'Metamask is not connected, please first connect metamask then click this button to select account',
+      );
     }
   }
 
   selectCertificateForClaim(certificate: any) {
     if (this.selectedBlockchainAccount === '') {
       this.openTemplateSheetMenu();
-      this.toastrService.error('No account is connected currently, please connect metamask account');
+      this.toastrService.error(
+        'No account is connected currently, please connect metamask account',
+      );
       return;
     }
     this.selectedCertificateForClaim = certificate;
@@ -436,67 +485,141 @@ export class CertificateComponent implements OnDestroy {
   }
   getAmountForClaim(blockchainAccountAddress: string) {
     // this.selectedCertificateForClaim.owners[blockchainAccountAddress]="10998";
-    if (this.selectedCertificateForClaim.owners[blockchainAccountAddress] && parseFloat(this.selectedCertificateForClaim.owners[blockchainAccountAddress]) > 0) {
-      let convertingWattsToKiloWatts = Math.floor(parseFloat(this.selectedCertificateForClaim.owners[blockchainAccountAddress]) / 1000);
-      this.blockchainDRECService.convertClaimAmountToHex(convertingWattsToKiloWatts).subscribe(response => {
-        this.formattedClaimAmount = response;
-        // this.claimUsingEtherJS();
-        this.openTemplateSheetMenu();
-      },
-        error => {
-          this.toastrService.error(`Some error occured while requesting for claim+ ${JSON.stringify(error)}`);
-        })
-    }
-    else {
-      this.toastrService.error(`Currently connected blockchain address does not own anything in this certificate, ${this.selectedBlockchainAccount}`);
+    if (
+      this.selectedCertificateForClaim.owners[blockchainAccountAddress] &&
+      parseFloat(
+        this.selectedCertificateForClaim.owners[blockchainAccountAddress],
+      ) > 0
+    ) {
+      const convertingWattsToKiloWatts = Math.floor(
+        parseFloat(
+          this.selectedCertificateForClaim.owners[blockchainAccountAddress],
+        ) / 1000,
+      );
+      this.blockchainDRECService
+        .convertClaimAmountToHex(convertingWattsToKiloWatts)
+        .subscribe(
+          (response) => {
+            this.formattedClaimAmount = response;
+            // this.claimUsingEtherJS();
+            this.openTemplateSheetMenu();
+          },
+          (error) => {
+            this.toastrService.error(
+              `Some error occured while requesting for claim+ ${JSON.stringify(error)}`,
+            );
+          },
+        );
+    } else {
+      this.toastrService.error(
+        `Currently connected blockchain address does not own anything in this certificate, ${this.selectedBlockchainAccount}`,
+      );
       let owners = '';
-      for (let key in this.selectedCertificateForClaim.owners) {
-        owners = key + ' : ' + this.selectedCertificateForClaim.owners[key] + '; ';
+      for (const key in this.selectedCertificateForClaim.owners) {
+        owners =
+          key + ' : ' + this.selectedCertificateForClaim.owners[key] + '; ';
       }
       this.toastrService.info(`Current Owners ${owners}`);
     }
-
   }
 
   claimUsingEtherJS() {
-    //@ts-ignore
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    //@ts-ignore
-    //const daiContract = new ethers.Contract("0x4dae00fa86aC7548f92a0293A676Ad07b65c264F", registryABI, provider);
+    if (window.ethereum) {
+      try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-    const daiContract = new ethers.Contract(this.blockchainProperties.registry, registryABI, provider);
-    const signer = provider.getSigner();
-    const daiWithSigner = daiContract.connect(signer);
+        const daiContract = new ethers.Contract(
+          this.blockchainProperties.registry,
+          registryABI,
+          provider,
+        );
+        const signer = provider.getSigner();
+        const daiWithSigner = daiContract.connect(signer);
 
-    let claimData = {
-      beneficiary: 'Beneficiary: ' + this.claimData.value.beneficiary,
-      location: 'Location: ' + this.claimData.value.location,
-      countryCode: 'Country Code: ' + this.claimData.value.countryCode,
-      periodStartDate: 'Period Start Date: ' + new Date(this.selectedCertificateForClaim.generationStartTime * 1000).toISOString(),
-      periodEndDate: 'Period End Date: ' + new Date(this.selectedCertificateForClaim.generationEndTime * 1000).toISOString(),
-      purpose: 'Purpose: ' + this.claimData.value.purpose
+        const claimData = {
+          beneficiary: 'Beneficiary: ' + this.claimData.value.beneficiary,
+          location: 'Location: ' + this.claimData.value.location,
+          countryCode: 'Country Code: ' + this.claimData.value.countryCode,
+          periodStartDate:
+            'Period Start Date: ' +
+            new Date(
+              this.selectedCertificateForClaim.generationStartTime * 1000,
+            ).toISOString(),
+          periodEndDate:
+            'Period End Date: ' +
+            new Date(
+              this.selectedCertificateForClaim.generationEndTime * 1000,
+            ).toISOString(),
+          purpose: 'Purpose: ' + this.claimData.value.purpose,
+        };
+        daiWithSigner.functions['safeTransferAndClaimFrom'](
+          this.selectedBlockchainAccount,
+          this.selectedBlockchainAccount,
+          this.selectedCertificateForClaim.id,
+          this.formattedClaimAmount,
+          this.encodeClaimData(claimData),
+          this.encodeClaimData(claimData),
+        );
+
+        setTimeout(() => {
+          this.toastrService.info(
+            `Please check metamask for success or failure of claim of this certificate`,
+          );
+          this.closeTemplateSheetMenu();
+        }, 1000);
+      } catch (error) {
+        console.error('Error during the claim process:', error);
+        this.toastrService.error(
+          'An error occurred during the claim process. Please try again.',
+        );
+      } finally {
+        this.closeTemplateSheetMenu();
+      }
+    } else {
+      console.error('window.ethereum is not available');
+      this.toastrService.error(
+        'Ethereum provider is not available. Please install MetaMask.',
+      );
     }
-    daiWithSigner.functions['safeTransferAndClaimFrom'](this.selectedBlockchainAccount, this.selectedBlockchainAccount, this.selectedCertificateForClaim.id, this.formattedClaimAmount, this.encodeClaimData(claimData), this.encodeClaimData(claimData));
-
-    setTimeout(() => {
-      this.toastrService.info(`Please check metamask for success or failure of claim of this certificate`);
-      this.closeTemplateSheetMenu();
-    }, 1000);
-
-
   }
-
 
   encodeClaimData = (claimData: any) => {
-    const { beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose } = claimData;
-    console.log("ethers.utils.defaultAbiCoder.encode(['string', 'string', 'string', 'string', 'string', 'string'], [beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose]);", ethers.utils.defaultAbiCoder.encode(['string', 'string', 'string', 'string', 'string', 'string'], [beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose]));
-    return ethers.utils.defaultAbiCoder.encode(['string', 'string', 'string', 'string', 'string', 'string'], [beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose]);
-  }
-
+    const {
+      beneficiary,
+      location,
+      countryCode,
+      periodStartDate,
+      periodEndDate,
+      purpose,
+    } = claimData;
+    console.log(
+      "ethers.utils.defaultAbiCoder.encode(['string', 'string', 'string', 'string', 'string', 'string'], [beneficiary, location, countryCode, periodStartDate, periodEndDate, purpose]);",
+      ethers.utils.defaultAbiCoder.encode(
+        ['string', 'string', 'string', 'string', 'string', 'string'],
+        [
+          beneficiary,
+          location,
+          countryCode,
+          periodStartDate,
+          periodEndDate,
+          purpose,
+        ],
+      ),
+    );
+    return ethers.utils.defaultAbiCoder.encode(
+      ['string', 'string', 'string', 'string', 'string', 'string'],
+      [
+        beneficiary,
+        location,
+        countryCode,
+        periodStartDate,
+        periodEndDate,
+        purpose,
+      ],
+    );
+  };
 
   goback() {
     this.router.navigate(['/myreservation']);
   }
-
 }
-
