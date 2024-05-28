@@ -6,7 +6,12 @@
     "start": "ng serve",
     "build": "ng build --configuration",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "prettier": "prettier --check './{src,migrations,test}/**/*{.ts,.tsx}'",
+    "prettier:fix": "prettier --write './{src,migrations,test}/**/*{.ts,.tsx}'",
+    "lint": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\"",
+    "lint:error": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --quiet",
+    "lint:fix": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --fix"
   },
   "private": true,
   "dependencies": {
@@ -23,17 +28,17 @@
     "@angular/platform-browser": "^15.0.0",
     "@angular/platform-browser-dynamic": "^15.0.0",
     "@angular/router": "^15.0.0",
+    "@energyweb/issuer": "4.1.1-alpha.1634225870.0",
+    "@energyweb/utils-general": "11.0.5-alpha.1634225870.0",
     "bootstrap": "^5.2.3",
+    "ethers": "^5.7.2",
     "moment": "^2.29.4",
+    "moment-timezone": "0.5.40",
     "ngx-toastr": "^16.0.1",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
-    "zone.js": "~0.12.0",
-    "@energyweb/issuer": "4.1.1-alpha.1634225870.0",
-    "ethers": "^5.7.2",
-    "@energyweb/utils-general": "11.0.5-alpha.1634225870.0",
     "web3": "^1.8.1",
-    "moment-timezone": "0.5.40"
+    "zone.js": "~0.12.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.0.3",
@@ -41,12 +46,16 @@
     "@angular/compiler-cli": "^15.0.0",
     "@types/jasmine": "~4.3.0",
     "@types/react": "^18.0.26",
+    "@typescript-eslint/eslint-plugin": "^7.9.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
     "jasmine-core": "~4.5.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.1.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
+    "prettier": "3.2.5",
     "typescript": "~4.8.2"
   }
 }
