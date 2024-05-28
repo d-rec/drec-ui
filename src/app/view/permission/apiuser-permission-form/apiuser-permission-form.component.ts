@@ -43,7 +43,6 @@ export class ApiuserPermissionFormComponent {
   }
 
   onRowSelect(row: any) {
- 
     if (this.isSelected(row)) {
       this.selectedModules = this.selectedModules.filter(
         (module) => module !== row,
@@ -130,7 +129,6 @@ export class ApiuserPermissionFormComponent {
     return group;
   }
   togglePermission(module: any, permission: string): void {
- 
     const index = module.selectedPermissions.indexOf(permission);
     if (index === -1) {
       module.selectedPermissions.push(permission);
