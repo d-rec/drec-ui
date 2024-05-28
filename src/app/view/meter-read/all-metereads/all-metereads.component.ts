@@ -269,7 +269,6 @@ export class AllMetereadsComponent implements OnInit {
 
   onSelect(result: any): void {
     this.selectedResult = result;
-
     if (this.loginuser.role === 'Admin') {
       this.FilterForm.controls['externalId'].setValue(
         result.developerExternalId,
@@ -321,7 +320,6 @@ export class AllMetereadsComponent implements OnInit {
   }
   getPagedData() {
     this.filter = true;
-
     this.FilterForm.controls['pagenumber'].setValue(this.p);
     if (this.loginuser.role === 'ApiUser') {
       this.FilterForm.controls['organizationId'].setValue(this.orgId);

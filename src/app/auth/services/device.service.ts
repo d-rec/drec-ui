@@ -22,7 +22,6 @@ export class DeviceService {
     if (!(pagenumber === null || pagenumber === undefined)) {
       searchUrl += `pagenumber=${pagenumber}`;
     }
-
     if (searchData != undefined) {
       if (
         !(
