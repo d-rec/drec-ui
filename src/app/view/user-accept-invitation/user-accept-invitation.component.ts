@@ -28,7 +28,6 @@ export class UserAcceptInvitationComponent {
         this.accesstoken = params['token'];
         this.invitaionId = params['invitaionId'];
         this.useremail = params['email'];
-
         this.fromregister = false;
         sessionStorage.setItem('access-token', this.accesstoken);
       }

@@ -101,7 +101,6 @@ export class MeterReadTableComponent implements OnInit {
         this.totalRows = this.readdata.numberOfReads;
 
         this.currentPage = this.readdata.currentPageNumber;
-
         this.device_timezone = this.readdata.timezone;
         this.loading = false;
       },
