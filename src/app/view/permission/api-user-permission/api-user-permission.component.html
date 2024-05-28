@@ -103,12 +103,8 @@
 
                             <div class="col-md-3">
                                 <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">Select User</mat-label>
-                                    <!-- <input type="text" aria-label="text" matInput formControlName="organizationName"
-                                        [matAutocomplete]="auto">
-                                    <mat-autocomplete #auto="matAutocomplete" > -->
-                                    <!-- <mat-option [value]="">---</mat-option> -->
-                                    <mat-select formControlName='user_id' (ngModelChange)="selectOrg($event)">
+                                    <mat-label class="text-capitalize">Select User</mat-label>                   
+                                    <mat-select formControlName='user_id' (ngModelChange)="selectOrg()">
                                         <mat-option *ngFor="let user of apiuserlist" [value]="user.id">
                                             {{ user.firstName }} {{ user.lastName }}
                                         </mat-option>
