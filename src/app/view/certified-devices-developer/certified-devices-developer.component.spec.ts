@@ -8,9 +8,8 @@ describe('CertifiedDevicesDeveloperComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CertifiedDevicesDeveloperComponent ]
-    })
-    .compileComponents();
+      declarations: [CertifiedDevicesDeveloperComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(CertifiedDevicesDeveloperComponent);
     component = fixture.componentInstance;
