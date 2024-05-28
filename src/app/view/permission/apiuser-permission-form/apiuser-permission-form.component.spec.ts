@@ -8,9 +8,8 @@ describe('ApiuserPermissionFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ApiuserPermissionFormComponent ]
-    })
-    .compileComponents();
+      declarations: [ApiuserPermissionFormComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ApiuserPermissionFormComponent);
     component = fixture.componentInstance;
