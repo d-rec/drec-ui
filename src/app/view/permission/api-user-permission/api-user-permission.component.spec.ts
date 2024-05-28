@@ -8,9 +8,8 @@ describe('ApiUserPermissionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ApiUserPermissionComponent ]
-    })
-    .compileComponents();
+      declarations: [ApiUserPermissionComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ApiUserPermissionComponent);
     component = fixture.componentInstance;
