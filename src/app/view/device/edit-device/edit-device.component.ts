@@ -280,9 +280,9 @@ export class EditDeviceComponent implements OnInit {
     const selectedCountry: CountryInfo | undefined = this.countrylist.find(
       (option) => option.country === this.updatedeviceform.value.countryCode,
     );
-    this.updatedeviceform.controls[
-      'organizationId'
-    ].setValue(this.organizationId);
+    this.updatedeviceform.controls['organizationId'].setValue(
+      this.organizationId,
+    );
     this.updatedeviceform.value['countryCode'] = selectedCountry?.alpha3;
     this.deviceService
       .Patchdevices(this.externalid, this.updatedeviceform.value)
