@@ -111,7 +111,7 @@ export class AdminAlldevicesComponent {
     }
     this.adminService.GetAllOrganization().subscribe((data) => {
       this.orglist = data.organizations.filter(
-        (org: OrganizationInformation) => org.organizationType !== 'Developer',
+        (org: OrganizationInformation) => org.organizationType !== 'Buyer',
       );
     });
     this.authService.GetMethod('device/fuel-type').subscribe((data1: any) => {
