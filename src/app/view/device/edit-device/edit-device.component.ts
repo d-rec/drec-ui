@@ -56,6 +56,7 @@ export class EditDeviceComponent implements OnInit {
   frommydevice: boolean = false;
   frombulk: boolean = false;
   filteredCountryList: Observable<any[]>;
+  organizationId: any;
   offtaker = [
     'School',
     'Education',
@@ -130,6 +131,7 @@ export class EditDeviceComponent implements OnInit {
       qualityLabels: [null],
       SDGBenefits: [new FormControl([])],
       version: ['1.0'],
+      organizationId: [null],
     });
     this.showinput = true;
     this.addmoredetals = false;
@@ -268,6 +270,7 @@ export class EditDeviceComponent implements OnInit {
         }
 
         this.energyStorageCapacity = data.energyStorageCapacity;
+        this.organizationId = data.organizationId;
       });
   }
   onSubmit() {
@@ -276,6 +279,9 @@ export class EditDeviceComponent implements OnInit {
     }
     const selectedCountry: CountryInfo | undefined = this.countrylist.find(
       (option) => option.country === this.updatedeviceform.value.countryCode,
+    );
+    this.updatedeviceform.controls['organizationId'].setValue(
+      this.organizationId,
     );
     this.updatedeviceform.value['countryCode'] = selectedCountry?.alpha3;
     this.deviceService
