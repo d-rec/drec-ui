@@ -156,10 +156,10 @@ export class AdminOrganizationComponent {
     this.FilterForm.reset();
     this.p = 1;
     this.loading = true;
-    if(this.loginuser.role==="Admin"){
+    if (this.loginuser.role === 'Admin') {
       this.getAllOrganization(this.p);
     }
-    if(this.loginuser.role==="ApiUser"){
+    if (this.loginuser.role === 'ApiUser') {
       this.getApiuserAllOrganization(this.p);
     }
   }
@@ -215,23 +215,22 @@ export class AdminOrganizationComponent {
   previousPage(): void {
     if (this.p > 1) {
       this.p--;
-      if(this.loginuser.role==="Admin"){
+      if (this.loginuser.role === 'Admin') {
         this.getAllOrganization(this.p);
       }
-      if(this.loginuser.role==="ApiUser"){
+      if (this.loginuser.role === 'ApiUser') {
         this.getApiuserAllOrganization(this.p);
       }
-      
     }
   }
 
   nextPage(): void {
     if (this.p < this.totalPages) {
       this.p++;
-      if(this.loginuser.role==="Admin"){
+      if (this.loginuser.role === 'Admin') {
         this.getAllOrganization(this.p);
       }
-      if(this.loginuser.role==="ApiUser"){
+      if (this.loginuser.role === 'ApiUser') {
         this.getApiuserAllOrganization(this.p);
       }
     }
