@@ -28,7 +28,7 @@
     "@angular/platform-browser": "^15.0.0",
     "@angular/platform-browser-dynamic": "^15.0.0",
     "@angular/router": "^15.0.0",
-    "@energyweb/issuer": "^7.0.1",
+    "@energyweb/issuer": "7.0.1",
     "@energyweb/utils-general": "11.0.5-alpha.1634225870.0",
     "axios": "^1.7.2",
     "bootstrap": "^5.2.3",
@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.0.3",
-    "@angular/cli": "^15.2.11",
+    "@angular/cli": "~15.2.11",
     "@angular/compiler-cli": "^15.0.0",
     "@types/bn.js": "^5.1.5",
     "@types/jasmine": "~4.3.0",
