@@ -39,6 +39,7 @@ export class MyreservationComponent implements OnInit {
     'createdAt',
     'projectName',
     'Name',
+    'internalexternalId',
     'countryCode',
     'capacity',
     'offTaker',
