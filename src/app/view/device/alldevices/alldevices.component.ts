@@ -32,6 +32,7 @@ export class AlldevicesComponent {
     'onboarding_date',
     // 'projectName',
     'externalId',
+    'internalexternalId',
     'countryCode',
     // 'fuelCode',
     'commissioningDate',
