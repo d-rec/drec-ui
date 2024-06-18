@@ -40,6 +40,7 @@ export class AddReservationComponent {
     'onboarding_date',
     'projectName',
     'externalId',
+    'internalexternalId',
     'countryCode',
     'commissioningDate',
     'status',
