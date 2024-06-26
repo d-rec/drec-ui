@@ -106,7 +106,7 @@ export class MyreservationComponent implements OnInit {
 
   ngOnInit() {
     this.FilterForm = this.formBuilder.group({
-      name:[],
+      name: [],
       countryCode: [],
       countryname: [],
       fuelCode: [],
@@ -249,7 +249,6 @@ export class MyreservationComponent implements OnInit {
           const reservationname = formValues.countryname;
           if (reservationname === undefined || reservationname === '') {
             this.FilterForm.controls['name'].setValue(null);
-            
           }
           const countryValue = formValues.countryname;
           if (countryValue === undefined || countryValue === '') {
