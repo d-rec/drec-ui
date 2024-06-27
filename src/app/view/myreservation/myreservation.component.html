@@ -41,6 +41,15 @@
                             <div class="col-md-3">
                                 <input type="hidden" formControlName='countryCode' #input>
                                 <mat-form-field appearance="outline">
+                                    <mat-label class="text-capitalize">Reservation Name </mat-label>
+
+                                    <input type="text" aria-label="text" matInput formControlName="name" (ngModelChange)="checkFormValidity()">
+                                </mat-form-field>
+                               
+                            </div>
+                            <div class="col-md-3">
+                                <input type="hidden" formControlName='countryCode' #input>
+                                <mat-form-field appearance="outline">
                                     <mat-label class="text-capitalize">Select country </mat-label>
 
                                     <input type="text" aria-label="text" matInput formControlName="countryname"
