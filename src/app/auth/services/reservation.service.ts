@@ -23,7 +23,15 @@ export class ReservationService {
   }
   getReservationData(searchData: any, pagenumber: number): Observable<any> {
     let searchUrl = `${this.url}buyer-reservation/my?pagenumber=` + pagenumber;
-
+    if (
+      !(
+        typeof searchData.name === 'undefined' ||
+        searchData.name === '' ||
+        searchData.name === null
+      )
+    ) {
+      searchUrl += `&name=${searchData.name}`;
+    }
     if (
       !(
         typeof searchData.countryCode === 'undefined' ||
@@ -125,6 +133,15 @@ export class ReservationService {
       )
     ) {
       searchUrl += `&organizationId=${searchData.organizationId}`;
+    }
+    if (
+      !(
+        typeof searchData.name === 'undefined' ||
+        searchData.name === '' ||
+        searchData.name === null
+      )
+    ) {
+      searchUrl += `&name=${searchData.name}`;
     }
     if (
       !(
