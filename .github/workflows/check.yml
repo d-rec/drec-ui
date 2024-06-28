@@ -18,7 +18,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/gallium
+          node-version: lts/iron
 
       - name: Install drec-ui
         run: npm install
@@ -35,7 +35,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/gallium
+          node-version: lts/iron
 
       - name: Install drec-ui
         run: npm install
@@ -55,7 +55,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/gallium
+          node-version: lts/iron
 
       - name: Install drec-ui
         run: npm install
