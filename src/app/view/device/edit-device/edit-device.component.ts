@@ -19,6 +19,7 @@ import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
   styleUrls: ['./edit-device.component.scss'],
 })
 export class EditDeviceComponent implements OnInit {
+  loginuser: any;
   updatedeviceform: FormGroup;
   countrylist: CountryInfo[] = [];
   fuellist: fulecodeType[] = [];
@@ -94,6 +95,7 @@ export class EditDeviceComponent implements OnInit {
       }
     });
     this.externalid = this.activatedRoute.snapshot.params['id'];
+    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
 
   ngOnInit() {
@@ -292,7 +294,13 @@ export class EditDeviceComponent implements OnInit {
             'Updated Successfully !!',
             'Device! ' + data.externalId,
           );
-          this.router.navigate(['device/AllList']);
+          if (this.loginuser.role === 'Admin') {
+            this.router.navigate(['/admin/All_devices']);
+          } else if (this.loginuser.role === 'ApiUser') {
+            this.router.navigate(['/apiuser/All_devices']);
+          } else {
+            this.router.navigate(['/device/AllList']);
+          }
         },
         error: (err: any): void => {
           //Error callback
