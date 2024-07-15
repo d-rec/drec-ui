@@ -87,7 +87,7 @@ export class AllUsersComponent {
       this.adminService.GetAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: { api_user_id: string; organizationType: string }) =>
-            org.api_user_id == this.apiuserId,
+            org.organizationType != 'ApiUser',
         );
       });
     } else if (this.loginuser.role === 'ApiUser') {
