@@ -43,7 +43,9 @@
                 
                 <div class="col-md-12 mb-3  d-flex ">
                   <div class="">
-                    <button class="btn-primary me-2 btn text-capitalize px-4" (click)="getAllOrganization(1)">Filter</button>
+                    <button class="btn-primary me-2 btn text-capitalize px-4" (click)="getAllOrganization(1)" *ngIf="loginuser.role ==='Admin'">Filter</button>
+                    <button class="btn-primary me-2 btn text-capitalize px-4" (click)="getApiuserAllOrganization(1)" *ngIf="loginuser.role ==='ApiUser'">Filter</button>
+
                   </div>
                   <div class="">
                     <button class="btn-dark btn text-capitalize px-4" (click)="reset()">Reset</button>

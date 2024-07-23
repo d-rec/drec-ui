@@ -8,9 +8,8 @@ describe('MeterReadTableComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ MeterReadTableComponent ]
-    })
-    .compileComponents();
+      declarations: [MeterReadTableComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MeterReadTableComponent);
     component = fixture.componentInstance;

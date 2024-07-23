@@ -8,9 +8,8 @@ describe('AllApiuserComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AllApiuserComponent ]
-    })
-    .compileComponents();
+      declarations: [AllApiuserComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AllApiuserComponent);
     component = fixture.componentInstance;
