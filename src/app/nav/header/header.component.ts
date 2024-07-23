@@ -5,15 +5,17 @@ import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit {
   isLoggedIn = false;
   @Output() public sidenavToggle = new EventEmitter();
 
-  constructor(private authService: AuthbaseService,
+  constructor(
+    private authService: AuthbaseService,
     private toastrService: ToastrService,
-    private router: Router) { }
+    private router: Router,
+  ) {}
 
   ngOnInit() {
     this.isLoggedIn = this.authService.isLoggedIn();
@@ -23,19 +25,18 @@ export class HeaderComponent implements OnInit {
   }
   public onToggleSidenav = () => {
     this.sidenavToggle.emit();
-  }
+  };
   logout() {
     this.authService.logout('auth/logout').subscribe({
-
       next: (data) => {
         this.toastrService.success(data.message);
         sessionStorage.clear();
         this.router.navigate(['/login']);
-      }, error: err => {
-        this.toastrService.success('logout Successfull');
+      },
+      error: (err) => {
+        this.toastrService.success(err, 'logout Successfull');
         this.router.navigate(['/login']);
-      }
-    })
-
+      },
+    });
   }
 }

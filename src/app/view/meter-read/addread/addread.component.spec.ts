@@ -8,9 +8,8 @@ describe('AddreadComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AddreadComponent ]
-    })
-    .compileComponents();
+      declarations: [AddreadComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AddreadComponent);
     component = fixture.componentInstance;

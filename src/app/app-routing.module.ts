@@ -6,20 +6,27 @@ import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
-import { ConfirmemailComponent } from './view/confirmemail/confirmemail.component'
-import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component'
-import { MyreservationComponent } from './view/myreservation/myreservation.component'
+import { ConfirmemailComponent } from './view/confirmemail/confirmemail.component';
+import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
+import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
-import { ResetPasswordComponent } from './view/reset-password/reset-password.component'
-import {UserProfileComponent} from './view/user-profile/user-profile.component'
-import {UserInvitationComponent} from './view/organization/user-invitation/user-invitation.component'
-import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component'; './view/UserAcceptInvitationComponent'
+import { ResetPasswordComponent } from './view/reset-password/reset-password.component';
+import { UserProfileComponent } from './view/user-profile/user-profile.component';
+import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
+('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
-  { path: '', redirectTo: 'login', data: { title: 'First Component' }, pathMatch: 'full' },
+  {
+    path: '',
+    redirectTo: 'login',
+    data: { title: 'First Component' },
+    pathMatch: 'full',
+  },
 
   {
-    path: '', component: WithoutloginlayoutComponent, data: { title: 'First Component' },
+    path: '',
+    component: WithoutloginlayoutComponent,
+    data: { title: 'First Component' },
     children: [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
@@ -27,11 +34,15 @@ const routes: Routes = [
       { path: 'confirm-email', component: ConfirmemailComponent },
       { path: 'forgot-password', component: ForgetPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
-      { path: 'user/acceptInvitaion', component: UserAcceptInvitationComponent },
-    ]
+      {
+        path: 'user/acceptInvitaion',
+        component: UserAcceptInvitationComponent,
+      },
+    ],
   },
   {
-    path: '', component: WithloginlayoutComponent,
+    path: '',
+    component: WithloginlayoutComponent,
     children: [
       { path: '', redirectTo: 'device', pathMatch: 'full' },
 
@@ -42,13 +53,17 @@ const routes: Routes = [
       {
         path: 'reads',
         loadChildren: () =>
-          import('./view/meter-read/meter-read.module').then((m) => m.MeterReadModule),
+          import('./view/meter-read/meter-read.module').then(
+            (m) => m.MeterReadModule,
+          ),
       },
       //  { path: 'add/read', component: AddreadComponent },
       {
         path: 'organization',
         loadChildren: () =>
-          import('./view/organization/organization.module').then((m) => m.OrganizationModule),
+          import('./view/organization/organization.module').then(
+            (m) => m.OrganizationModule,
+          ),
       },
       {
         path: 'device',
@@ -56,10 +71,12 @@ const routes: Routes = [
           import('./view/device/device.module').then((m) => m.DeviceModule),
       },
       {
-        path: 'redemption-report', component: RedemptionReportComponent
+        path: 'redemption-report',
+        component: RedemptionReportComponent,
       },
       {
-        path: 'add/reservation', component: AddReservationComponent
+        path: 'add/reservation',
+        component: AddReservationComponent,
       },
       {
         path: 'admin',
@@ -67,20 +84,20 @@ const routes: Routes = [
           import('./view/admin/admin.module').then((m) => m.AdminModule),
       },
       {
-        path: 'user/profile', component: UserProfileComponent
-      }
-      ,
+        path: 'user/profile',
+        component: UserProfileComponent,
+      },
       {
         path: 'apiuser',
         loadChildren: () =>
           import('./view/apiuser/apiuser.module').then((m) => m.ApiuserModule),
       },
-    ]
-  }
+    ],
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
