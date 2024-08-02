@@ -162,11 +162,11 @@ export class AllMetereadsComponent implements OnInit {
   }
   gedevicefororg() {
     if (this.loginuser.role === 'ApiUser') {
-      const deviceurl = 'device/my?';
-      const FilterForm = { organizationId: this.orgId };
-      this.deviceservice.GetMyDevices(deviceurl, FilterForm).subscribe({
+      const deviceurl = 'device/my?organizationId=' + this.orgId;
+      this.deviceservice.GetMyDevices(deviceurl).subscribe({
         next: (data) => {
-          this.devicelist = data.devices;
+          console.log("data:", data);
+          this.devicelist = data;
           this.FilterForm.controls['externalId'];
           this.filteredexternalIdOptions = this.FilterForm.controls[
             'externalId'
