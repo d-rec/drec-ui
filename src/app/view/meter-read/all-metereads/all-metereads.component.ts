@@ -165,7 +165,6 @@ export class AllMetereadsComponent implements OnInit {
       const deviceurl = 'device/my?organizationId=' + this.orgId;
       this.deviceservice.GetMyDevices(deviceurl).subscribe({
         next: (data) => {
-          console.log('data:', data);
           this.devicelist = data;
           this.FilterForm.controls['externalId'];
           this.filteredexternalIdOptions = this.FilterForm.controls[
