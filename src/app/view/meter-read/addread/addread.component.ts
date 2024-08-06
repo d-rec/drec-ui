@@ -196,7 +196,7 @@ export class AddreadComponent implements OnInit {
       const FilterForm = { organizationId: this.orgId };
       this.deviceservice.GetMyDevices(deviceurl, FilterForm).subscribe({
         next: (data) => {
-          this.devicelist = data.devices;
+          this.devicelist = data;
           this.readForm.controls['externalId'];
           this.filteredexternalIdOptions = this.readForm.controls[
             'externalId'
