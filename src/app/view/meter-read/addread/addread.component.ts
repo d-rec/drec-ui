@@ -440,7 +440,7 @@ export class AddreadComponent implements OnInit {
     return validation;
   }
   onSubmit(): void {
-    if(this.readForm.valid) {
+    if (this.readForm.valid) {
       const externalId = this.readForm.value.externalId;
 
       const myobj: any = {};
@@ -461,7 +461,9 @@ export class AddreadComponent implements OnInit {
             starttimestamp: moment(ele.starttimestamp).format(
               'YYYY-MM-DD HH:mm:ss',
             ),
-            endtimestamp: moment(ele.endtimestamp).format('YYYY-MM-DD HH:mm:ss'),
+            endtimestamp: moment(ele.endtimestamp).format(
+              'YYYY-MM-DD HH:mm:ss',
+            ),
             value: ele.value,
           });
         });
@@ -478,7 +480,9 @@ export class AddreadComponent implements OnInit {
         this.readForm.value.reads.forEach((ele: any) => {
           newreads.push({
             starttimestamp: '',
-            endtimestamp: moment(ele.endtimestamp).format('YYYY-MM-DD HH:mm:ss'),
+            endtimestamp: moment(ele.endtimestamp).format(
+              'YYYY-MM-DD HH:mm:ss',
+            ),
             value: ele.value,
           });
         });
@@ -513,11 +517,11 @@ export class AddreadComponent implements OnInit {
             error: (err: { error: { message: string | undefined } }) => {
               //Error callback
               console.error('error caught in component', err);
-  
+
               const message = getValidmsgTimezoneFormat(
                 err.error.message ?? 'Someting Wrong',
               );
-  
+
               this.toastrService.error(message, 'error!');
             },
           });
@@ -536,11 +540,11 @@ export class AddreadComponent implements OnInit {
           error: (err: { error: { message: string | undefined } }) => {
             //Error callback
             console.error('error caught in component', err);
-  
+
             const message = getValidmsgTimezoneFormat(
               err.error.message ?? 'Something Wrong!!',
             );
-  
+
             this.toastrService.error(message, 'error!');
           },
         });
