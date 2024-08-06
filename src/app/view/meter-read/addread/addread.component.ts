@@ -440,65 +440,93 @@ export class AddreadComponent implements OnInit {
     return validation;
   }
   onSubmit(): void {
-    const externalId = this.readForm.value.externalId;
+    if (this.readForm.valid) {
+      const externalId = this.readForm.value.externalId;
 
-    const myobj: any = {};
-    if (this.loginuser.role === 'ApiUser') {
-      myobj['organizationId'] = this.orgId;
-    }
-    if (
-      this.readForm.value.timezone != null &&
-      this.readForm.value.timezone != '' &&
-      this.readForm.value.type === 'History'
-    ) {
-      myobj['timezone'] = this.readForm.value.timezone;
-      myobj['type'] = this.readForm.value.type;
-      myobj['unit'] = this.readForm.value.unit;
-      const reads: any = [];
-      this.readForm.value.reads.forEach((ele: any) => {
-        reads.push({
-          starttimestamp: moment(ele.starttimestamp).format(
-            'YYYY-MM-DD HH:mm:ss',
-          ),
-          endtimestamp: moment(ele.endtimestamp).format('YYYY-MM-DD HH:mm:ss'),
-          value: ele.value,
+      const myobj: any = {};
+      if (this.loginuser.role === 'ApiUser') {
+        myobj['organizationId'] = this.orgId;
+      }
+      if (
+        this.readForm.value.timezone != null &&
+        this.readForm.value.timezone != '' &&
+        this.readForm.value.type === 'History'
+      ) {
+        myobj['timezone'] = this.readForm.value.timezone;
+        myobj['type'] = this.readForm.value.type;
+        myobj['unit'] = this.readForm.value.unit;
+        const reads: any = [];
+        this.readForm.value.reads.forEach((ele: any) => {
+          reads.push({
+            starttimestamp: moment(ele.starttimestamp).format(
+              'YYYY-MM-DD HH:mm:ss',
+            ),
+            endtimestamp: moment(ele.endtimestamp).format(
+              'YYYY-MM-DD HH:mm:ss',
+            ),
+            value: ele.value,
+          });
         });
-      });
-      myobj['reads'] = reads;
-    } else if (
-      this.readForm.value.timezone != null &&
-      this.readForm.value.timezone != '' &&
-      this.readForm.value.type != 'History'
-    ) {
-      myobj['timezone'] = this.readForm.value.timezone;
-      myobj['type'] = this.readForm.value.type;
-      myobj['unit'] = this.readForm.value.unit;
-      const newreads: any = [];
-      this.readForm.value.reads.forEach((ele: any) => {
-        newreads.push({
-          starttimestamp: '',
-          endtimestamp: moment(ele.endtimestamp).format('YYYY-MM-DD HH:mm:ss'),
-          value: ele.value,
+        myobj['reads'] = reads;
+      } else if (
+        this.readForm.value.timezone != null &&
+        this.readForm.value.timezone != '' &&
+        this.readForm.value.type != 'History'
+      ) {
+        myobj['timezone'] = this.readForm.value.timezone;
+        myobj['type'] = this.readForm.value.type;
+        myobj['unit'] = this.readForm.value.unit;
+        const newreads: any = [];
+        this.readForm.value.reads.forEach((ele: any) => {
+          newreads.push({
+            starttimestamp: '',
+            endtimestamp: moment(ele.endtimestamp).format(
+              'YYYY-MM-DD HH:mm:ss',
+            ),
+            value: ele.value,
+          });
         });
-      });
-      myobj['reads'] = newreads;
-    } else {
-      myobj['type'] = this.readForm.value.type;
-      myobj['unit'] = this.readForm.value.unit;
-      const newreads: any = [];
-      this.readForm.value.reads.forEach((ele: any) => {
-        newreads.push({
-          starttimestamp: ele.starttimestamp,
-          endtimestamp: ele.endtimestamp,
-          value: ele.value,
+        myobj['reads'] = newreads;
+      } else {
+        myobj['type'] = this.readForm.value.type;
+        myobj['unit'] = this.readForm.value.unit;
+        const newreads: any = [];
+        this.readForm.value.reads.forEach((ele: any) => {
+          newreads.push({
+            starttimestamp: ele.starttimestamp,
+            endtimestamp: ele.endtimestamp,
+            value: ele.value,
+          });
         });
-      });
-      myobj['reads'] = newreads;
-    }
-    if (this.loginuser.role === 'Admin') {
-      this.readService
-        .PostReadByAdmin(externalId, myobj, this.orgId)
-        .subscribe({
+        myobj['reads'] = newreads;
+      }
+      if (this.loginuser.role === 'Admin') {
+        this.readService
+          .PostReadByAdmin(externalId, myobj, this.orgId)
+          .subscribe({
+            next: () => {
+              this.readForm.reset();
+              this.selectedResult = null;
+              const formControls = this.readForm.controls;
+              Object.keys(formControls).forEach((key) => {
+                const control = formControls[key];
+                control.setErrors(null);
+              });
+              this.toastrService.success('Successfully!', 'Read Added!!');
+            },
+            error: (err: { error: { message: string | undefined } }) => {
+              //Error callback
+              console.error('error caught in component', err);
+
+              const message = getValidmsgTimezoneFormat(
+                err.error.message ?? 'Someting Wrong',
+              );
+
+              this.toastrService.error(message, 'error!');
+            },
+          });
+      } else {
+        this.readService.PostRead(externalId, myobj).subscribe({
           next: () => {
             this.readForm.reset();
             this.selectedResult = null;
@@ -514,35 +542,13 @@ export class AddreadComponent implements OnInit {
             console.error('error caught in component', err);
 
             const message = getValidmsgTimezoneFormat(
-              err.error.message ?? 'Someting Wrong',
+              err.error.message ?? 'Something Wrong!!',
             );
 
             this.toastrService.error(message, 'error!');
           },
         });
-    } else {
-      this.readService.PostRead(externalId, myobj).subscribe({
-        next: () => {
-          this.readForm.reset();
-          this.selectedResult = null;
-          const formControls = this.readForm.controls;
-          Object.keys(formControls).forEach((key) => {
-            const control = formControls[key];
-            control.setErrors(null);
-          });
-          this.toastrService.success('Successfully!', 'Read Added!!');
-        },
-        error: (err: { error: { message: string | undefined } }) => {
-          //Error callback
-          console.error('error caught in component', err);
-
-          const message = getValidmsgTimezoneFormat(
-            err.error.message ?? 'Something Wrong!!',
-          );
-
-          this.toastrService.error(message, 'error!');
-        },
-      });
+      }
     }
   }
 }
