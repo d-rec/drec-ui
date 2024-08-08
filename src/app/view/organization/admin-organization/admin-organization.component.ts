@@ -78,6 +78,7 @@ export class AdminOrganizationComponent {
 
     this.FilterForm = this.formBuilder.group({
       organizationName: [],
+      organizationType: '',
     });
   }
   ngOnInit() {
@@ -165,6 +166,7 @@ export class AdminOrganizationComponent {
   }
   getAllOrganization(page: number) {
     const limit = 20;
+    this.FilterForm.value['organizationType'] = 'ApiUser';
     this.adminService
       .GetAllOrganization(page, limit, this.FilterForm.value)
       .subscribe(
@@ -172,12 +174,7 @@ export class AdminOrganizationComponent {
           this.showlist = true;
           this.loading = false;
           this.data = data;
-          this.dataSource = new MatTableDataSource(
-            this.data.organizations.filter(
-              (org: OrganizationInformation) =>
-                org.organizationType != 'ApiUser',
-            ),
-          );
+          this.dataSource = new MatTableDataSource(this.data.organizations);
           this.totalRows = this.data.totalCount;
           this.totalPages = this.data.totalPages;
           this.dataSource.sort = this.sort;
