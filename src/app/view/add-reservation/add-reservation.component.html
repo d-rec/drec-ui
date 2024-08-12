@@ -287,11 +287,11 @@
                                 </ng-container>
                                 <ng-container matColumnDef="externalId">
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header> ExternalId </th>
-                                    <td mat-cell *matCellDef="let element"> {{element.externalId}} </td>
+                                    <td mat-cell *matCellDef="let element"> {{element.developerExternalId}} </td>
                                 </ng-container>
                                <ng-container matColumnDef="internalexternalId" class="text-left">
                                 <th mat-header-cell *matHeaderCellDef> Internal SiteId </th>
-                                <td mat-cell *matCellDef="let element"> {{element.internalexternalId}} </td>
+                                <td mat-cell *matCellDef="let element"> {{element.externalId}} </td>
                               </ng-container>
 
                                 <ng-container matColumnDef="countryCode">
