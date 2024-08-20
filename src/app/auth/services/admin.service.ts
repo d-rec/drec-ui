@@ -32,6 +32,16 @@ export class AdminService {
       ) {
         searchUrl += `&organizationName=${searchData.organizationName}`;
       }
+
+      if (
+        !(
+          searchData.organizationType === undefined ||
+          searchData.organizationType === '' ||
+          searchData.organizationType === null
+        )
+      ) {
+        searchUrl += `&organizationType=${searchData.organizationType}`;
+      }
     }
     return this.httpClient.get<any>(searchUrl);
   }
