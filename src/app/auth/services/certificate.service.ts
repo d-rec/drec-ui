@@ -16,11 +16,14 @@ export class CertificateService {
   GetDevoloperCertificateMethod(
     searchData: any,
     pagenumber: number,
+    oldlog: boolean,
   ): Observable<any> {
     let searchUrl =
       this.url +
       'certificate-log/issuer/certifiedlogOfdevices?pageNumber=' +
-      pagenumber;
+      pagenumber +
+      '&oldcertificatelog=' +
+      oldlog;
     if (searchData != undefined) {
       if (
         !(
