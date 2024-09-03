@@ -103,6 +103,8 @@ export class CertificateDetailsComponent {
   orglist: any;
   filteredOrgList: Observable<any[]>;
   showorgerror: boolean = false;
+  oldlog: boolean = false;
+  oldcertificatelog: boolean;
   constructor(
     private blockchainDRECService: BlockchainDrecService,
     private authService: AuthbaseService,
@@ -236,6 +238,7 @@ export class CertificateDetailsComponent {
   onEndChangeEvent(event: any) {
     this.endminDate = event;
   }
+
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls[
@@ -275,6 +278,18 @@ export class CertificateDetailsComponent {
         );
       }
     });
+  }
+  getcertificatelog(event: any) {
+    this.loading = true;
+    this.data = [];
+    if (event === 'old') {
+      this.oldlog = true;
+      this.DisplayList(1);
+    }
+    if (event === 'new') {
+      this.oldlog = false;
+      this.DisplayList(1);
+    }
   }
 
   // ngAfterViewInit() {
@@ -390,11 +405,12 @@ export class CertificateDetailsComponent {
   // CertificateClaimed:boolean=false;
   DisplayList(page: number) {
     this.certificateService
-      .GetDevoloperCertificateMethod(this.FilterForm.value, page)
+      .GetDevoloperCertificateMethod(this.FilterForm.value, page, this.oldlog)
       .subscribe({
         next: (data: any) => {
           this.loading = false;
           // display list in the console
+          this.oldcertificatelog = data.oldcertificatelog;
           if (data.certificatelog.length > 0) {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);
 
@@ -556,6 +572,8 @@ export class CertificateDetailsComponent {
   }
 
   previousPage(): void {
+    this.data = [];
+    this.loading = true;
     if (this.p > 1) {
       this.p--;
       this.DisplayList(this.p);
@@ -563,6 +581,8 @@ export class CertificateDetailsComponent {
   }
 
   nextPage(): void {
+    this.data = [];
+    this.loading = true;
     if (this.p < this.totalPages) {
       this.p++;
       this.DisplayList(this.p);
