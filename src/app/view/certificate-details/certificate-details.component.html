@@ -17,11 +17,7 @@
 						<div class="example-container1 row" *ngIf="FilterForm.get('organizationname')">
 							<div class="col-md-3 d-flex flex-column">
 								<span>Select type for get certificate </span>
-								<!-- <mat-radio-group 
-									(ngModelChange)="showorglist($event)" >
-									<mat-radio-button [value]=true>Developer</mat-radio-button>
-									<mat-radio-button [value]="Buyer" (click)="showorglist('Buyer')">Buyer</mat-radio-button>
-								</mat-radio-group> -->
+								
 								<mat-radio-group >
 									<mat-radio-button value="Developer" (click)="showorglist('Developer')">Developer</mat-radio-button>
 									<mat-radio-button value="Buyer" (click)="showorglist('Buyer')">Buyer</mat-radio-button>
@@ -210,10 +206,21 @@
 			<h2 style="text-align: center;color:#f2be1a; font-size: 16px;" class="text-capitalize mt-0 pt-0 mb-2 pb-0">
 				<b>All certificate of those reservations </b>
 			</h2>
+			
+			<ng-container >
+				<div class="col-md-3 d-flex flex-column" *ngIf="oldcertificatelog">
+					<span>Have you old certificate? </span>
+					<mat-radio-group >
+						<mat-radio-button value="old" (click)="getcertificatelog('old')">Yes</mat-radio-button>
+						<mat-radio-button value="new" (click)="getcertificatelog('new')">No</mat-radio-button>
+						<!-- Add more radio buttons as needed -->
+					  </mat-radio-group>
+				</div>
+				<br>
+				<mat-progress-spinner clase="loder" style="width: 50px; height: 50px"[mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
 
-			<mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner>
-			<ng-container *ngIf="!loading">
 				<div *ngIf="data?.length">
+					
 					<mat-card class="innermat-card example-card1 border" *ngFor="let item of obs| async;let i=index">
 						<mat-card-header class="">
 							<div class="col-12">
@@ -325,17 +332,13 @@
 					</mat-card>
 
 					<br>
-
-					<!-- <mat-paginator #paginator [length]="totalRows" [pageSize]="pageSize" (page)="pageChangeEvent($event)"
-				aria-label="Select page">
-			</mat-paginator> -->
-
 					<button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
 						[disabled]="p === 1">Previous</button>&nbsp;&nbsp;
 					Total Pages:&nbsp;{{totalPages}}&nbsp;&nbsp;&nbsp;&nbsp;
 					<button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
 						[disabled]="p === totalPages">Next</button>
-				</div>
+						<p class="pagenumber"><b>Page Number:</b>{{p}}</p>
+					</div>
 				<div *ngIf="!data?.length" style="text-align: center;color: #f2be1a;">No Certificate</div>
 			</ng-container>
 		</mat-card-content>

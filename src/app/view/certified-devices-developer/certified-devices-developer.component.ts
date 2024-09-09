@@ -324,7 +324,7 @@ export class CertifiedDevicesDeveloperComponent {
   // CertificateClaimed:boolean=false;
   DisplayList(page: number) {
     this.certificateService
-      .GetDevoloperCertificateMethod(this.FilterForm.value, page)
+      .GetDevoloperCertificateMethod(this.FilterForm.value, page, false)
       .subscribe(
         (data: any) => {
           this.loading = false;
@@ -456,6 +456,7 @@ export class CertifiedDevicesDeveloperComponent {
   }
 
   previousPage(): void {
+    this.loading = true;
     if (this.p > 1) {
       this.p--;
       this.DisplayList(this.p);
@@ -463,6 +464,7 @@ export class CertifiedDevicesDeveloperComponent {
   }
 
   nextPage(): void {
+    this.loading = true;
     if (this.p < this.totalPages) {
       this.p++;
       this.DisplayList(this.p);
