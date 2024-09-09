@@ -343,7 +343,11 @@
                                 Total Pages:&nbsp;{{totalPages}}&nbsp;&nbsp;&nbsp;&nbsp;
                                 <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
                                     [disabled]="p >= totalPages">Next</button>
-                            </div>
+                                    <p style="width: 150px;
+                                    height: 25px;
+                                    margin-left: 450px;
+                                    padding: 10px 5px 0px 0px"><b>Page Number:</b>{{p}}</p>
+                                </div>
 
                         </div>
                     </mat-card-content>
