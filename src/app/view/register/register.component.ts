@@ -112,11 +112,11 @@ export class RegisterComponent implements OnInit {
   }
   getErrorcheckconfirmPassword() {
     return this.registerForm.get('confirmPassword')?.hasError('required')
-      ? 'This field is required (Password must contain minimum 6 characters (upper and/or lower case) and at least one number)'
+      ? '(Password must contain a minimum of 6 characters (upper or lower case) and at least one number)'
       : this.registerForm
             .get('confirmPassword')
             ?.hasError('Confirmrequirements')
-        ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)'
+        ? '(Password must contain a minimum of 6 characters (upper or lower case) and at least one number)'
         : this.registerForm.get('confirmPassword')?.hasError('notSame')
           ? ' confirmPassword Does not match'
           : '';
