@@ -328,7 +328,7 @@ export class AlldevicesComponent {
           console.log(err);
           if (err.error.statusCode === 403) {
             this.toastrService.error(
-              "You don't have the permissions to access this page.",
+              "You don't have the permissions to access the devices.",
               'Access Denied',
             );
           } else {

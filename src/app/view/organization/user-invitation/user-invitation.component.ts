@@ -7,6 +7,7 @@ import {
   OrganizationService,
 } from '../../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
+
 import { ToastrService } from 'ngx-toastr';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -115,7 +116,10 @@ export class UserInvitationComponent {
         }
       },
       error: (err) => {
-        this.toastrService.error('Fail', err.error.message);
+        this.toastrService.error(
+          "You don't have the permissions to invite a user to this organization",
+          'Access Denied',
+        );
       },
     });
   }
