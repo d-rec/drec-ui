@@ -1,5 +1,6 @@
 {
   "singleQuote": true,
+  "trailingComma": "all",
   "overrides": [
     {
       "files": "*.{yaml,yml}",
@@ -7,6 +8,5 @@
         "singleQuote": false
       }
     }
-  ],
-  "trailingComma": "all"
+  ]
 }
