@@ -327,7 +327,10 @@ export class AlldevicesComponent {
         error: (err) => {
           console.log(err);
           if (err.error.statusCode === 403) {
-            this.toastrService.error('You are Unauthorized');
+            this.toastrService.error(
+              "You don't have the permissions to access this page.",
+              'Access Denied',
+            );
           } else {
             this.toastrService.error('Error', err.error.message);
           }

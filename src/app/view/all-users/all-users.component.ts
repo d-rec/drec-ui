@@ -224,8 +224,8 @@ export class AllUsersComponent {
       error: (err) => {
         if (err.error.statusCode === 403) {
           this.toastrService.error(
-            'Error:' + err.error.message,
-            'Unauthorized',
+      'You don\'t have the permissions to access this page.',
+      'Access Denied'
           );
         } else {
           this.toastrService.error('Error:' + err.error.message, 'Fail');

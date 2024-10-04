@@ -152,7 +152,10 @@ export class AddBulkDeviceComponent implements OnInit {
                   //Error callback
                   console.error('error caught in component', err);
                   if (err.error.statusCode === 403) {
-                    this.toastrService.error('You are Unauthorized');
+                    this.toastrService.error(
+                      "You don't have the permissions to add devices.",
+                      'Access Denied',
+                    );
                   } else {
                     this.toastrService.error('error!', err.error.message);
                   }
@@ -173,7 +176,10 @@ export class AddBulkDeviceComponent implements OnInit {
                 //Error callback
                 console.error('error caught in component', err);
                 if (err.error.statusCode === 403) {
-                  this.toastrService.error('You are Unauthorized');
+                  this.toastrService.error(
+                    "You don't have the permissions to add  devices.",
+                    'Access Denied',
+                  );
                 } else {
                   this.toastrService.error('error!', err.error.message);
                 }
