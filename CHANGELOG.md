@@ -2,5 +2,5 @@
 
 ## 0.0.1
 
-- Dockerfile and buildspec.yml changes
-- CICD testing
+- Dockerfile and buildspec.yml changes.
+- CICD testing.
