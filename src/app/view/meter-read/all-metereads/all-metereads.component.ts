@@ -31,6 +31,7 @@ export class AllMetereadsComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
   readdata: any;
 
+  startDate: Date = new Date(new Date().setMonth(new Date().getMonth() - 1));
   devicedata: any;
   p: number = 1;
   total: number = 0;
@@ -284,7 +285,7 @@ export class AllMetereadsComponent implements OnInit {
       this.externalId = result.externalId;
     }
 
-    this.FilterForm.controls['start'].setValue(result.commissioningDate);
+    this.FilterForm.controls['start'].setValue(this.startDate);
     this.FilterForm.controls['end'].setValue(new Date());
 
     this.getPagedData();
