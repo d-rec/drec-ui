@@ -475,7 +475,10 @@ export class CertificateDetailsComponent {
           this.loading = false;
 
           if (err.error.statusCode === 403) {
-            this.toastrService.error('You are Unauthorized');
+            this.toastrService.error(
+              "You don't have the permissions to access the certificate page.",
+              'Access Denied',
+            );
           } else {
             this.toastrService.error('Error', err.error.message);
           }
