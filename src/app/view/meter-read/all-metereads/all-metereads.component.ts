@@ -66,9 +66,8 @@ export class AllMetereadsComponent implements OnInit {
     private deviceservice: DeviceService,
     private adminService: AdminService,
     private orgService: OrganizationService,
-    
   ) {
-    this.startDate =  new Date(new Date().setMonth(new Date().getMonth() - 1));
+    this.startDate = new Date(new Date().setMonth(new Date().getMonth() - 1));
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.apiuserId = sessionStorage.getItem('apiuserId')!;
   }
@@ -287,7 +286,9 @@ export class AllMetereadsComponent implements OnInit {
       this.externalId = result.externalId;
     }
 
-    this.FilterForm.controls['start'].setValue(result.commissioningDate || this.startDate);
+    this.FilterForm.controls['start'].setValue(
+      result.commissioningDate || this.startDate,
+    );
     this.FilterForm.controls['end'].setValue(new Date());
 
     this.getPagedData();
