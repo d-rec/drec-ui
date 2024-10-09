@@ -8,9 +8,8 @@ describe('AddBulkReadsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AddBulkReadsComponent ]
-    })
-    .compileComponents();
+      declarations: [AddBulkReadsComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(AddBulkReadsComponent);
     component = fixture.componentInstance;
