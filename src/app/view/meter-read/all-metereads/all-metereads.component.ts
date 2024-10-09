@@ -31,7 +31,6 @@ export class AllMetereadsComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
   readdata: any;
 
-  startDate: Date;
   devicedata: any;
   p: number = 1;
   total: number = 0;
@@ -67,7 +66,6 @@ export class AllMetereadsComponent implements OnInit {
     private adminService: AdminService,
     private orgService: OrganizationService,
   ) {
-    this.startDate = new Date(new Date().setMonth(new Date().getMonth() - 1));
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.apiuserId = sessionStorage.getItem('apiuserId')!;
   }
@@ -285,9 +283,9 @@ export class AllMetereadsComponent implements OnInit {
       this.FilterForm.controls['externalId'].setValue(result.externalId);
       this.externalId = result.externalId;
     }
-
+    const startDate: Date = new Date(new Date().setMonth(new Date().getMonth() - 1));
     this.FilterForm.controls['start'].setValue(
-      result.commissioningDate || this.startDate,
+      result.commissioningDate || startDate,
     );
     this.FilterForm.controls['end'].setValue(new Date());
 
