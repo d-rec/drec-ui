@@ -283,8 +283,12 @@ export class AllMetereadsComponent implements OnInit {
       this.FilterForm.controls['externalId'].setValue(result.externalId);
       this.externalId = result.externalId;
     }
-
-    this.FilterForm.controls['start'].setValue(result.commissioningDate);
+    const startDate: Date = new Date(
+      new Date().setMonth(new Date().getMonth() - 1),
+    );
+    this.FilterForm.controls['start'].setValue(
+      result.commissioningDate || startDate,
+    );
     this.FilterForm.controls['end'].setValue(new Date());
 
     this.getPagedData();
