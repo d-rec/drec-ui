@@ -40,8 +40,6 @@ export class AddBulkReadsComponent implements OnInit {
   ];
   constructor(
     private uploadService: FileuploadService,
-    // private router: Router,
-    // private toastrService: ToastrService,
     private adminService: AdminService,
     private orgService: OrganizationService,
   ) {
