@@ -10,7 +10,6 @@ import { OrganizationInformation } from '../../../models';
 @Component({
   selector: 'app-add-bulk-reads',
   templateUrl: './add-bulk-reads.component.html',
-
 })
 export class AddBulkReadsComponent implements OnInit {
   currentFile?: File | null;
