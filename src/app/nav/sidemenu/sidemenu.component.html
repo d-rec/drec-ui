@@ -109,6 +109,11 @@
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add MeterRead</span>
           </a>
+          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/reads/bulk_upload"
+          *ngIf="loginuser.role !='User'">
+          <!-- <mat-icon>list</mat-icon> -->
+          <span>Bulk Upload</span>
+        </a>
           <a mat-button class="menu-button inside-menu-button big-menu" routerLinkActive="active"
             routerLink="/device/certifiedin_reservation" *ngIf="loginuser.role ==='OrganizationAdmin'">
             <!-- <mat-icon>list</mat-icon> -->
