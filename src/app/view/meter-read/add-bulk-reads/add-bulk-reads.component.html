@@ -1,5 +1,5 @@
 <div class="body-bg p-5">
-  <mat-card *ngIf="!showmeterreadinfo">
+  <mat-card>
     <mat-card-header
       class="d-flex justify-content-between mat-crd-hide align-items-center"
     >
@@ -11,7 +11,7 @@
       <div>
         <button
           class="btn btn-dark justify-content-end px-4"
-          (click)="JobDisplayList()"
+         
         >
           <mat-icon class="align-middle">refresh</mat-icon>
         </button>
@@ -26,9 +26,7 @@
             *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
           >
             <mat-form-field appearance="outline">
-              <mat-label class="text-capitalize"
-                >Organization</mat-label
-              >
+              <mat-label class="text-capitalize">Organization</mat-label>
 
               <input
                 matInput
@@ -55,18 +53,13 @@
             <mat-form-field appearance="outline">
               <div>
                 <mat-toolbar class="bg-transparent h-auto p-0">
-                  <input
-                    matInput
-                    [value]="fileName"
-                    (click)="openFileExplorer()"
-                  />
+                  <input matInput (click)="openFileExplorer()" />
                 </mat-toolbar>
                 <div class="d-flex justify-content-center">
                   <input
                     type="file"
                     hidden
                     id="fileInput"
-                    (change)="selectFile($event)"
                     name="fileInput"
                     accept=".csv"
                   />
@@ -92,10 +85,7 @@
           </div>
         </div>
       </form>
-      <mat-progress-spinner
-        [mode]="'indeterminate'"
-        *ngIf="loading"
-      ></mat-progress-spinner>
+
       <div class="mat-elevation-z8 text-center">
         <table
           mat-table

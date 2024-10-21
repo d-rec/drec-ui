@@ -16,10 +16,6 @@ export class AddBulkReadsComponent implements OnInit {
   progress = 0;
   message = '';
   pageSize: number = 10;
-  fileName = 'Please click here to select file';
-  fileInfos?: Observable<any>;
-  showmeterreadinfo: boolean = false;
-  MeterreadstatusList: any = [];
   loading: boolean = true;
   objectKeys = Object.keys;
   displayedColumns = [
@@ -71,7 +67,6 @@ export class AddBulkReadsComponent implements OnInit {
         this.filteredOrgList = this.orglist;
       });
     }
-    this.JobDisplayList();
   }
 
   filterOrgList() {
@@ -91,22 +86,9 @@ export class AddBulkReadsComponent implements OnInit {
   }
   reset() {
     this.currentFile = null;
-    this.fileName = 'Please click here to select file';
+ 
   }
-  selectFile(event: any): void {
-    if (event.target.files && event.target.files[0]) {
-      const file: File = event.target.files[0];
-      this.currentFile = file;
-      this.fileName = this.currentFile.name;
-      if (!this.fileName.endsWith('.csv')) {
-        this.fileName = 'Invalid file';
-        this.currentFile = null;
-      }
-    } else {
-      this.fileName = 'Please click here to select file';
-    }
-    event.target.value = '';
-  }
+
 
   openFileExplorer() {
     document.getElementById('fileInput')?.click();
@@ -115,17 +97,5 @@ export class AddBulkReadsComponent implements OnInit {
   upload(): void {
     this.progress = 0;
     this.message = '';
-  }
-  JobDisplayList() {
-    this.showmeterreadinfo = false;
-    this.loading = true;
-    this.uploadService.getCsvJobList().subscribe((data) => {
-      // display list in the console
-      this.loading = false;
-      this.data = data;
-      this.dataSource = new MatTableDataSource(this.data.csvJobs);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    });
   }
 }
