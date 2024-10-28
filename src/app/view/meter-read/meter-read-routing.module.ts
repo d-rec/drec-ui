@@ -7,7 +7,7 @@ const routes: Routes = [
   { path: '', redirectTo: 'Allreads', pathMatch: 'full' },
   { path: 'All', component: AllMetereadsComponent },
   { path: 'add', component: AddreadComponent },
-  { path: 'bulk_upload', component: AddBulkReadsComponent },
+  { path: 'bulk-upload', component: AddBulkReadsComponent },
   // { path: 'edit/:id', component: EditDeviceComponent },
 ];
 
