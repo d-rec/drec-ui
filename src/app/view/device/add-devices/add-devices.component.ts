@@ -52,7 +52,7 @@ export class AddDevicesComponent {
   public stepHour = 1;
   public stepMinute = 1;
   public stepSecond = 1;
-  numberregex: RegExp = /^[0-9]+(\.[0-9]*)?$/;
+  numberregex: RegExp = /^-?[0-9]+(\.[0-9]*)?$/;
   filteredCountryList: Observable<any[]>[] = [];
   subscription: Subscription;
   filteredOrgList: OrganizationInformation[] = [];
