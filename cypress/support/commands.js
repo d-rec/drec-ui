@@ -1,0 +1,34 @@
+
+Cypress.Commands.add('clearDatabase', () => {
+  cy.request({
+    method: 'DELETE',
+    url: `${Cypress.env('REACT_APP_BACKEND_URL')}/testing/clear-db`,
+    failOnStatusCode: false,
+  }).then((response) => {
+    if (response.status === 200) {
+      cy.log('Database cleared successfully');
+    } else {
+      cy.log('Failed to clear database:', response.body.error);
+    }
+  });
+});
+
+
+Cypress.Commands.add('signup', function () {
+  
+  cy.fixture('signup.js').then((data) => {
+    cy.visit('http://localhost:4200/login').wait(1000); 
+    
+    cy.get('[data-testid="register"]').click();
+    data.forEach((step) => {
+  
+    if (step.action === "type") {
+      return cy.get(step.selector).type(step.value);
+      
+    } 
+    if (step.action === "click") {
+      return cy.get(step.selector).click();
+    }
+  });
+  });
+});
