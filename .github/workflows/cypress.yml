@@ -3,36 +3,55 @@ name: Cypress Tests
 on:
   push:
     branches:
-      - main  # Run tests on pushes to the main branch
+      - main
   pull_request:
-    branches:
-      - main  # Run tests on pull requests to the main branch
 
 jobs:
-  cypress:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+   
+    - name: Checkout Frontend
+      uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'
-
-    - name: Install dependencies
+    
+    - name: Clone Backend Repository
       run: |
+        git clone https://github.com/d-rec/drec-origin.git backend
+        cd backend
         npm install
-        npm install cypress --save-dev
 
-    - name: Run Cypress tests
-      run: npm run test:e2e  # Ensure you have this script in your package.json
-
-    - name: Upload Cypress videos and screenshots
-      if: always()
-      uses: cypress-io/github-action@v2
+   
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
       with:
-        record: true
-        group: 'e2e-tests'
-        parallel: true
+        node-version: '16' 
+
+    
+    - name: Install Frontend Dependencies
+      run: npm install
+
+   
+    - name: Start Backend Server
+      run: |
+        cd backend
+        npm run start &
+      env:
+        PORT: 3040 
+
+    
+    - name: Start Frontend Server
+      run: |
+        npm run dev &
+      env:
+        VITE_BACKEND_URL: http://localhost:3040 
+
+    
+    - name: Wait for Servers
+      run: |
+        sleep 15
+    - name: Run Cypress Tests
+      run: npx cypress run
+      env:
+        CYPRESS_BASE_URL: http://localhost:4200 

@@ -27,7 +27,17 @@ Cypress.Commands.add('signup', function () {
       
     } 
     if (step.action === "click") {
-      return cy.get(step.selector).click();
+      return cy.get(step.selector).click().wait(1000);
+    }
+    if (step.action === 'select') {
+      return cy
+        .get(step.selector) // Target the dropdown
+        .click() // Open the dropdown
+        .then(() => {
+          cy.get('mat-option') // Find all dropdown options
+            .contains(step.value) // Match the option text
+            .click(); // Select the matched option
+        });
     }
   });
   });
