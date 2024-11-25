@@ -11,47 +11,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-   
     - name: Checkout Frontend
       uses: actions/checkout@v3
 
-    
     - name: Clone Backend Repository
       run: |
         git clone https://github.com/d-rec/drec-origin.git backend
         cd backend
         npm install
 
-   
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16' 
+        node-version: '16'
 
-    
     - name: Install Frontend Dependencies
       run: npm install
 
-   
     - name: Start Backend Server
       run: |
         cd backend
         npm run start &
       env:
-        PORT: 3040 
+        PORT: 3040
 
-    
+    - name: Clear Database
+      run: |
+        curl -X DELETE http://localhost:3040/api/testing/clear-db
+      env:
+        PORT: 3040
+
     - name: Start Frontend Server
       run: |
         npm run dev &
       env:
-        VITE_BACKEND_URL: http://localhost:3040 
+        VITE_BACKEND_URL: http://localhost:3040
 
-    
     - name: Wait for Servers
-      run: |
-        sleep 15
+      run: sleep 15
+
     - name: Run Cypress Tests
       run: npx cypress run
       env:
-        CYPRESS_BASE_URL: http://localhost:4200 
+        CYPRESS_BASE_URL: http://localhost:4200

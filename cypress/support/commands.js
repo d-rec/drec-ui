@@ -2,17 +2,16 @@
 Cypress.Commands.add('clearDatabase', () => {
   cy.request({
     method: 'DELETE',
-    url: `${Cypress.env('REACT_APP_BACKEND_URL')}/testing/clear-db`,
-    failOnStatusCode: false,
+    url: `${Cypress.env('REACT_APP_BACKEND_URL')}/api/testing/clear-db`,
+    failOnStatusCode: false, 
   }).then((response) => {
     if (response.status === 200) {
       cy.log('Database cleared successfully');
     } else {
-      cy.log('Failed to clear database:', response.body.error);
+      cy.log(`Failed to clear database: ${response.body.error || 'Unknown error'}`);
     }
   });
 });
-
 
 Cypress.Commands.add('signup', function () {
   
@@ -31,12 +30,12 @@ Cypress.Commands.add('signup', function () {
     }
     if (step.action === 'select') {
       return cy
-        .get(step.selector) // Target the dropdown
-        .click() // Open the dropdown
+        .get(step.selector) 
+        .click() 
         .then(() => {
-          cy.get('mat-option') // Find all dropdown options
-            .contains(step.value) // Match the option text
-            .click(); // Select the matched option
+          cy.get('mat-option') 
+            .contains(step.value) 
+            .click(); 
         });
     }
   });
