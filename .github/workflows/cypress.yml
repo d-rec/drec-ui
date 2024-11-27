@@ -16,45 +16,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '20'  
 
-      
       - name: Install Rush globally
         run: |
           curl -sL https://github.com/microsoft/rushstack/releases/download/v5.120.0/rush-5.120.0-linux-x64.tar.gz | tar xz -C /usr/local/bin
 
-      
       - name: Install dependencies using rush
         run: rush install  
 
-      
       - name: Build the projects using rush
         run: rush build  
 
-      
       - name: Start the backend server
         run: |
           cd projects/drec-origin  # Navigate to your backend directory
-          nohup rush start:dev &  # Start backend in the background
-          sleep 15  # Wait for the backend to initialize
+          nohup rush start:dev > backend.log 2>&1 &  # Start backend in the background and log output
+          sleep 20  # Wait for the backend to initialize (you can adjust this based on your backend startup time)
 
-      
-      - name: Wait for backend server to start
+      - name: Check backend server status
         run: |
-          until curl -s http://localhost:3040; do
+          # Use netcat to check if the backend server is up on port 3040
+          until nc -z localhost 3040; do
             echo "Waiting for backend server to start..."
             sleep 5
           done
 
-      
       - name: Clear the database
         run: curl -X DELETE http://localhost:3040/api/testing/clear-db
 
-      
       - name: Run frontend tests
         run: |
           cd projects/drec-ui  # Navigate to the frontend directory
