@@ -102,13 +102,6 @@ jobs:
         run: |
           nohup rush start:dev &  # Start the backend in the background
           echo "Backend server started successfully."
-
-      # 13. Clear the database (optional)
-      - name: Clear database
-        run: |
-          curl -X DELETE http://localhost:3040/api/testing/clear-db
-          echo "Database cleared successfully."
-
       # 14. Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: projects/drec-ui
