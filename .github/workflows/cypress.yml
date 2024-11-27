@@ -88,7 +88,12 @@ jobs:
       - name: Start backend server
         working-directory: projects/drec-origin
         run: |
-          echo "DB_HOST=postgres DB_PORT=5432 DB_USERNAME=drec_user DB_PASSWORD=password DB_DATABASE=drec_db" >> .env
+          # Ensure the .env file has the correct credentials for PostgreSQL
+          echo "DB_HOST=postgres" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_USERNAME=drec_user" >> .env
+          echo "DB_PASSWORD=password" >> .env
+          echo "DB_DATABASE=drec_db" >> .env
           nohup rush start:dev &  # Start the backend in the background
           sleep 60  # Allow time for the server to initialize
           echo "Backend server started successfully."
@@ -104,26 +109,30 @@ jobs:
       - name: Run migrations
         working-directory: projects/drec-origin
         run: |
-          echo "Running migrations"
-          # Run migrations command (assuming TypeORM is correctly set up to use environment variables)
+          # Run migrations (ensure the TypeORM config uses the .env values)
           npx ts-node -r tsconfig-paths/register node_modules/typeorm/cli.js migration:run --config node_modules/@energyweb/issuer-api/dist/js/ormconfig.js
           echo "Migrations completed successfully."
 
-      # 13. Install frontend dependencies
+      # 13. Clear the database (optional)
+      - name: Clear database
+        run: |
+          curl -X DELETE http://localhost:3040/api/testing/clear-db
+          echo "Database cleared successfully."
+
+      # 14. Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: projects/drec-ui
         run: |
           npm install
           echo "Frontend dependencies installed successfully."
 
-      # 14. Run frontend tests
+      # 15. Run frontend tests
       - name: Run frontend tests
         working-directory: projects/drec-ui
         run: |
           npm test
           echo "Frontend tests completed successfully."
-
-      # 15. Tear down Docker Compose environment
+      # 16. Tear down the Docker Compose environment
       - name: Tear down Docker Compose
         run: |
           docker-compose down
