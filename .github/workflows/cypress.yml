@@ -16,20 +16,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '20'
+          node-version: '20'  
 
-      - name: Install dependencies using rush (for both frontend and backend)
+      
+      - name: Install Rush globally
         run: |
-          npm install -g rush
-          rush install  # Install dependencies using rush
+          curl -sL https://github.com/microsoft/rushstack/releases/download/v5.120.0/rush-5.120.0-linux-x64.tar.gz | tar xz -C /usr/local/bin
+
+      
+      - name: Install dependencies using rush
+        run: rush install  
+
+      
+      - name: Build the projects using rush
+        run: rush build  
 
       
       - name: Start the backend server
         run: |
-          cd projects/drec-origin  # Navigate to backend directory
+          cd projects/drec-origin  # Navigate to your backend directory
           nohup rush start:dev &  # Start backend in the background
           sleep 15  # Wait for the backend to initialize
 
@@ -41,14 +50,13 @@ jobs:
             sleep 5
           done
 
-      - name: Clear database
-        run: |
-          curl -X DELETE http://localhost:3040/api/testing/clear-db
+      
+      - name: Clear the database
+        run: curl -X DELETE http://localhost:3040/api/testing/clear-db
 
       
       - name: Run frontend tests
         run: |
-          cd projects/drec-ui  # Navigate to frontend directory
+          cd projects/drec-ui  # Navigate to the frontend directory
           npm install  # Install frontend dependencies
-          npm run test  # Run frontend tests
-
+          npm run test  # Run frontend tests (if necessary)
