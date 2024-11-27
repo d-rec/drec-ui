@@ -21,7 +21,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
       - name: Start the backend server
         run: |
           nohup npm run start:dev &  # Start backend in the background
