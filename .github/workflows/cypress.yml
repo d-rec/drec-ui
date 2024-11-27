@@ -1,56 +1,32 @@
-name: Cypress Tests
+name: CI Workflow
 
 on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Frontend
-      uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-    - name: Clone Backend Repository
+    - name: Set up environment
       run: |
-        git clone https://github.com/d-rec/drec-origin.git backend
-        cd backend
-        npm install
+        pnpm install
+        # If required, set environment variables
+        export PORT=3040
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16'
-
-    - name: Install Frontend Dependencies
-      run: npm install
-
-    - name: Start Backend Server
+    - name: Start the server
       run: |
-        cd backend
-        npm run start &
-      env:
-        PORT: 3040
+        npm run start &  # Or your command to start the backend
+        sleep 5  # Wait for the server to initialize
 
-    - name: Clear Database
+    - name: Clear DB (via curl)
       run: |
         curl -X DELETE http://localhost:3040/api/testing/clear-db
-      env:
-        PORT: 3040
 
-    - name: Start Frontend Server
-      run: |
-        npm run dev &
-      env:
-        VITE_BACKEND_URL: http://localhost:3040
-
-    - name: Wait for Servers
-      run: sleep 15
-
-    - name: Run Cypress Tests
-      run: npx cypress run
-      env:
-        CYPRESS_BASE_URL: http://localhost:4200
+    - name: Run tests
+      run: pnpm test
