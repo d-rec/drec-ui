@@ -23,20 +23,21 @@ jobs:
         with:
           node-version: '20'
 
-      # 3. Install Rush globally
-      - name: Install Rush globally
+      # 3. Install Rush and pnpm globally
+      - name: Install Rush and pnpm
         run: npm install -g @microsoft/rush pnpm
 
       # 4. Set up Docker for the backend
       - name: Set up Docker
         run: |
           sudo apt-get update
+          sudo apt-get remove -y containerd  # Remove conflicting package
           sudo apt-get install -y docker.io
           sudo systemctl start docker
           sudo systemctl enable docker
           docker --version  # Confirm Docker is installed
 
-      # 5. Install dependencies for the backend
+      # 5. Install backend dependencies
       - name: Install backend dependencies
         working-directory: projects/drec-origin
         run: rush install
@@ -51,21 +52,19 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           nohup rush start:dev &  # Start backend in the background
-          sleep 15  # Wait for it to initialize
+          sleep 15  # Wait for the server to initialize
 
-      # 8. Verify backend is running
+      # 8. Verify backend server is running
       - name: Verify backend server is running
         run: |
-          until curl -s http://localhost:3040; do
-            echo "Waiting for backend server to start..."
-            sleep 5
-          done
+          set -e
+          timeout 60 bash -c "until curl -s http://localhost:3040; do echo 'Waiting for backend server to start...'; sleep 5; done"
 
-      # 9. Clear database
+      # 9. Clear the database
       - name: Clear database
         run: curl -X DELETE http://localhost:3040/api/testing/clear-db
 
-      # 10. Install dependencies for the frontend
+      # 10. Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: projects/drec-ui
         run: npm install
