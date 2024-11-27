@@ -63,13 +63,13 @@ jobs:
           docker-compose up -d
           echo "PostgreSQL container started successfully."
 
-      # 7. Wait for PostgreSQL container to be ready
+      # 7. Wait for PostgreSQL container to be ready (no `pg_isready` errors)
       - name: Wait for PostgreSQL container to be ready
         run: |
           set -e
-          container_id=$(docker ps -q -f "ancestor=postgres")
-          echo "Waiting for PostgreSQL container with ID: $container_id"
-          timeout 180 bash -c "until docker exec $container_id pg_isready -U drec_user; do echo 'Waiting for PostgreSQL to be ready...'; sleep 10; done"
+          echo "Waiting for PostgreSQL to be ready..."
+          # We are waiting for PostgreSQL to be available by checking if port 5432 is accepting connections
+          timeout 180 bash -c "until nc -z localhost 5432; do echo 'Waiting for PostgreSQL to be ready...'; sleep 5; done"
           echo "PostgreSQL is ready."
 
       # 8. Install backend dependencies
