@@ -35,51 +35,56 @@ jobs:
           npm install -g @microsoft/rush pnpm
           echo "Rush and pnpm installed successfully."
 
-      # 5. Set up Docker
-      - name: Set up Docker
+      # 5. Set up Docker Compose
+      - name: Set up Docker Compose
         run: |
           sudo apt-get update
-          sudo apt-get remove -y containerd  # Remove any conflicting package
-          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-          sudo systemctl enable docker
-          sudo systemctl start docker
-          docker --version
-          echo "Docker set up successfully."
+          sudo apt-get install -y docker-compose
+          echo "Docker Compose installed successfully."
 
-      # 6. Install PostgreSQL
-      - name: Set up PostgreSQL
+      # 6. Set up PostgreSQL using Docker Compose
+      - name: Set up PostgreSQL container
         run: |
-          sudo apt-get update
-          sudo apt-get install -y postgresql postgresql-contrib
-          sudo systemctl enable postgresql
-          sudo systemctl start postgresql
-          sudo -u postgres psql -c "CREATE DATABASE drec_db;"
-          sudo -u postgres psql -c "CREATE USER drec_user WITH PASSWORD 'password';"
-          sudo -u postgres psql -c "ALTER ROLE drec_user SET client_encoding TO 'utf8';"
-          sudo -u postgres psql -c "ALTER ROLE drec_user SET default_transaction_isolation TO 'read committed';"
-          sudo -u postgres psql -c "ALTER ROLE drec_user SET timezone TO 'UTC';"
-          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE drec_db TO drec_user;"
-          echo "PostgreSQL set up successfully."
+          echo "version: '3'
+          services:
+            postgres:
+              image: postgres:13
+              environment:
+                POSTGRES_USER: drec_user
+                POSTGRES_PASSWORD: password
+                POSTGRES_DB: drec_db
+              ports:
+                - '5432:5432'
+              networks:
+                - dbnet
+          networks:
+            dbnet:
+              driver: bridge" > docker-compose.yml
+          docker-compose up -d
+          echo "PostgreSQL container started successfully."
 
-      # 7. Install backend dependencies
+      # 7. Wait for PostgreSQL container to be ready
+      - name: Wait for PostgreSQL container to be ready
+        run: |
+          set -e
+          timeout 120 bash -c "until docker exec -it $(docker ps -q) pg_isready -U drec_user; do echo 'Waiting for PostgreSQL to be ready...'; sleep 5; done"
+          echo "PostgreSQL is ready."
+
+      # 8. Install backend dependencies
       - name: Install backend dependencies
         working-directory: projects/drec-origin
         run: |
           rush install
           echo "Backend dependencies installed successfully."
 
-      # 8. Build the backend
+      # 9. Build the backend
       - name: Build backend
         working-directory: projects/drec-origin
         run: |
           rush build
           echo "Backend built successfully."
 
-      # 9. Start the backend server
+      # 10. Start the backend server
       - name: Start backend server
         working-directory: projects/drec-origin
         run: |
@@ -87,29 +92,35 @@ jobs:
           sleep 30  # Allow time for the server to initialize
           echo "Backend server started successfully."
 
-      # 10. Verify backend server is running
+      # 11. Verify backend server is running
       - name: Verify backend server is running
         run: |
           set -e
           timeout 120 bash -c "until curl -s http://localhost:3040; do echo 'Waiting for backend server to start...'; sleep 5; done"
           echo "Backend server is running."
 
-      # 11. Clear the database
+      # 12. Clear the database (optional)
       - name: Clear database
         run: |
           curl -X DELETE http://localhost:3040/api/testing/clear-db
           echo "Database cleared successfully."
 
-      # 12. Install frontend dependencies
+      # 13. Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: projects/drec-ui
         run: |
           npm install
           echo "Frontend dependencies installed successfully."
 
-      # 13. Run frontend tests
+      # 14. Run frontend tests
       - name: Run frontend tests
         working-directory: projects/drec-ui
         run: |
           npm test
           echo "Frontend tests completed successfully."
+
+      # 15. Tear down the Docker Compose environment
+      - name: Tear down Docker Compose
+        run: |
+          docker-compose down
+          echo "Docker Compose environment torn down."
