@@ -3,24 +3,14 @@ name: CI Workflow
 on:
   push:
     branches:
-      - ft/register-new-account  
+      - ft/register-new-account
   pull_request:
     branches:
-      - ft/register-new-account  
+      - ft/register-new-account
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:latest
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        options: --health-cmd="pg_isready -U postgres" --health-timeout=30s --health-retries=3
 
     steps:
       - name: Checkout code
@@ -29,15 +19,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '20'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install dependencies using rush
+        run: |
+          npm install -g rush
+          rush install  # Install dependencies using rush
 
       - name: Start the backend server
         run: |
-          nohup npm run start:dev &  # Start backend in the background
-          sleep 10  # Wait for the app to be ready
+          nohup rush start:dev &  # Start backend in the background
+          sleep 15  # Wait for the backend to initialize
 
       - name: Wait for server to start
         run: |
@@ -49,9 +41,3 @@ jobs:
       - name: Run the DELETE request
         run: |
           curl -X DELETE http://localhost:3040/api/testing/clear-db
-          if [ $? -eq 0 ]; then
-            echo "Database cleared successfully."
-          else
-            echo "Failed to clear database."
-            exit 1
-          fi
