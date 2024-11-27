@@ -3,30 +3,36 @@ name: CI Workflow
 on:
   push:
     branches:
-      - main
-
+      - ft/register-new-account  
+  pull_request:
+    branches:
+      - ft/register-new-account  
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up environment
-      run: |
-        pnpm install
-        # If required, set environment variables
-        export PORT=3040
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
 
-    - name: Start the server
-      run: |
-        npm run start &  # Or your command to start the backend
-        sleep 5  # Wait for the server to initialize
+      - name: Install dependencies
+        run: npm install
 
-    - name: Clear DB (via curl)
-      run: |
-        curl -X DELETE http://localhost:3040/api/testing/clear-db
+      - name: Start the backend server
+        run: |
+          nohup npm run start:dev &  # Start backend in the background
+          sleep 10  # Wait for the app to be ready
 
-    - name: Run tests
-      run: pnpm test
+      - name: Wait for server to start
+        run: |
+          until curl -s http://localhost:3040; do
+            echo "Waiting for server to start..."
+            sleep 5
+          done
+
+      - name: Run the DELETE request
+        run: curl -X DELETE http://localhost:3040/api/testing/clear-db
