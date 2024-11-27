@@ -96,18 +96,21 @@ jobs:
           echo "DB_DATABASE=drec_db" >> .env
           echo "Environment variables set successfully."
 
-      # 11. Start backend server
+      # 11. Start backend server in background
       - name: Start backend server
         working-directory: projects/drec-origin
         run: |
           nohup rush start:dev &  # Start the backend in the background
           echo "Backend server started successfully."
 
-      # 12. Run database migrations
+      # 12. Run migrations (with multiple steps for migration scripts)
       - name: Run migrations
         working-directory: projects/drec-origin
         run: |
-          npx ts-node -r tsconfig-paths/register node_modules/typeorm/cli.js migration:run --config node_modules/@energyweb/issuer-api/dist/js/ormconfig.js
+          pnpm migrate
+          pnpm typeorm:run:issuer
+          pnpm typeorm:run
+          pnpm typeorm:run:certificate
           echo "Migrations completed successfully."
 
       # 13. Clear the database (optional)
