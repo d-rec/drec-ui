@@ -67,7 +67,12 @@ jobs:
       - name: Wait for PostgreSQL container to be ready
         run: |
           set -e
-          timeout 180 bash -c "until docker exec $(docker ps -q -f 'ancestor=postgres') pg_isready -U drec_user; do echo 'Waiting for PostgreSQL to be ready...'; sleep 10; done"
+          container_id=$(docker ps -q -f "ancestor=postgres:13")
+          if [ -z "$container_id" ]; then
+            echo "PostgreSQL container not found. Exiting."
+            exit 1
+          fi
+          timeout 180 bash -c "until docker exec $container_id pg_isready -U drec_user; do echo 'Waiting for PostgreSQL to be ready...'; sleep 10; done"
           echo "PostgreSQL is ready."
 
       # 8. Install backend dependencies
