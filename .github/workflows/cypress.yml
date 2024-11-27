@@ -31,11 +31,15 @@ jobs:
       - name: Set up Docker
         run: |
           sudo apt-get update
-          sudo apt-get remove -y containerd  # Remove conflicting package
-          sudo apt-get install -y docker.io
-          sudo systemctl start docker
+          sudo apt-get remove -y containerd  # Remove any conflicting package
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
           sudo systemctl enable docker
-          docker --version  # Confirm Docker is installed
+          sudo systemctl start docker
+          docker --version  # Confirm Docker installation
 
       # 5. Install backend dependencies
       - name: Install backend dependencies
@@ -51,8 +55,8 @@ jobs:
       - name: Start backend server
         working-directory: projects/drec-origin
         run: |
-          nohup rush start:dev &  # Start backend in the background
-          sleep 15  # Wait for the server to initialize
+          nohup rush start:dev &  # Start the backend server in the background
+          sleep 15  # Allow time for the server to initialize
 
       # 8. Verify backend server is running
       - name: Verify backend server is running
@@ -68,6 +72,8 @@ jobs:
       - name: Install frontend dependencies
         working-directory: projects/drec-ui
         run: npm install
+
+      # 11. Run frontend tests
       - name: Run frontend tests
         working-directory: projects/drec-ui
         run: npm test
