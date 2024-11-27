@@ -96,30 +96,24 @@ jobs:
           echo "DB_DATABASE=drec_db" >> .env
           echo "Environment variables set successfully."
 
-      # 11. Start backend server in background
-      - name: Start backend server
-        working-directory: projects/drec-origin
+      # 11. Clear the database (optional)
+      - name: Clear database
         run: |
-          nohup rush start:dev &  # Start the backend in the background
-          echo "Backend server started successfully."
-      # 14. Install frontend dependencies
-      - name: Install frontend dependencies
-        working-directory: projects/drec-ui
-        run: |
-          npm install
-          echo "Frontend dependencies installed successfully."
+          curl -X DELETE http://localhost:3040/api/testing/clear-db
+          echo "Database cleared successfully."
 
-      # 15. Run Cypress tests
+      # 12. Run Cypress tests (assuming the frontend is running on localhost:4200)
       - name: Run Cypress tests
-        working-directory: projects/drec-ui
         run: |
-          # Install Cypress dependencies (if not already installed)
-          npm install
-          # Run the Cypress tests
+          # Ensure the frontend is running before running tests
+          echo "Waiting for frontend to start..."
+          timeout 180 bash -c "until curl -s http://localhost:4200; do echo 'Waiting for frontend to be ready...'; sleep 5; done"
+          
+          # Run Cypress tests against the running frontend
           npx cypress run
           echo "Cypress tests completed successfully."
 
-      # 16. Tear down the Docker Compose environment
+      # 13. Tear down the Docker Compose environment
       - name: Tear down Docker Compose
         run: |
           docker-compose down
