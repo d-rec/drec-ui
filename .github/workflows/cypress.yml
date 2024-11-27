@@ -103,16 +103,6 @@ jobs:
           nohup rush start:dev &  # Start the backend in the background
           echo "Backend server started successfully."
 
-      # 12. Run migrations (with multiple steps for migration scripts)
-      - name: Run migrations
-        working-directory: projects/drec-origin
-        run: |
-          pnpm migrate
-          pnpm typeorm:run:issuer
-          pnpm typeorm:run
-          pnpm typeorm:run:certificate
-          echo "Migrations completed successfully."
-
       # 13. Clear the database (optional)
       - name: Clear database
         run: |
