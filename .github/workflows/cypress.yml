@@ -50,21 +50,36 @@ jobs:
           docker --version
           echo "Docker set up successfully."
 
-      # 6. Install backend dependencies
+      # 6. Install PostgreSQL
+      - name: Set up PostgreSQL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql postgresql-contrib
+          sudo systemctl enable postgresql
+          sudo systemctl start postgresql
+          sudo -u postgres psql -c "CREATE DATABASE drec_db;"
+          sudo -u postgres psql -c "CREATE USER drec_user WITH PASSWORD 'password';"
+          sudo -u postgres psql -c "ALTER ROLE drec_user SET client_encoding TO 'utf8';"
+          sudo -u postgres psql -c "ALTER ROLE drec_user SET default_transaction_isolation TO 'read committed';"
+          sudo -u postgres psql -c "ALTER ROLE drec_user SET timezone TO 'UTC';"
+          sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE drec_db TO drec_user;"
+          echo "PostgreSQL set up successfully."
+
+      # 7. Install backend dependencies
       - name: Install backend dependencies
         working-directory: projects/drec-origin
         run: |
           rush install
           echo "Backend dependencies installed successfully."
 
-      # 7. Build the backend
+      # 8. Build the backend
       - name: Build backend
         working-directory: projects/drec-origin
         run: |
           rush build
           echo "Backend built successfully."
 
-      # 8. Start the backend server
+      # 9. Start the backend server
       - name: Start backend server
         working-directory: projects/drec-origin
         run: |
@@ -72,27 +87,27 @@ jobs:
           sleep 30  # Allow time for the server to initialize
           echo "Backend server started successfully."
 
-      # 9. Verify backend server is running
+      # 10. Verify backend server is running
       - name: Verify backend server is running
         run: |
           set -e
           timeout 120 bash -c "until curl -s http://localhost:3040; do echo 'Waiting for backend server to start...'; sleep 5; done"
           echo "Backend server is running."
 
-      # 10. Clear the database
+      # 11. Clear the database
       - name: Clear database
         run: |
           curl -X DELETE http://localhost:3040/api/testing/clear-db
           echo "Database cleared successfully."
 
-      # 11. Install frontend dependencies
+      # 12. Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: projects/drec-ui
         run: |
           npm install
           echo "Frontend dependencies installed successfully."
 
-      # 12. Run frontend tests
+      # 13. Run frontend tests
       - name: Run frontend tests
         working-directory: projects/drec-ui
         run: |
