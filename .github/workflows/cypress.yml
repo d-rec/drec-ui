@@ -70,66 +70,57 @@ jobs:
           timeout 120 bash -c "until docker exec $(docker ps -q -f 'ancestor=postgres') pg_isready -U drec_user; do echo 'Waiting for PostgreSQL to be ready...'; sleep 5; done"
           echo "PostgreSQL is ready."
 
-      # 8. Set environment variables for the backend to connect to PostgreSQL
-      - name: Set environment variables for backend
-        run: |
-          echo "DB_HOST=postgres" >> projects/drec-origin/.env
-          echo "DB_PORT=5432" >> projects/drec-origin/.env
-          echo "DB_USERNAME=drec_user" >> projects/drec-origin/.env
-          echo "DB_PASSWORD=password" >> projects/drec-origin/.env
-          echo "DB_DATABASE=drec_db" >> projects/drec-origin/.env
-          echo "Environment variables set for PostgreSQL connection."
-
-      # 9. Install backend dependencies
+      # 8. Install backend dependencies
       - name: Install backend dependencies
         working-directory: projects/drec-origin
         run: |
           rush install
           echo "Backend dependencies installed successfully."
 
-      # 10. Build the backend
+      # 9. Build the backend
       - name: Build backend
         working-directory: projects/drec-origin
         run: |
           rush build
           echo "Backend built successfully."
 
-      # 11. Start the backend server
+      # 10. Start the backend server with environment variables
       - name: Start backend server
         working-directory: projects/drec-origin
         run: |
+          echo "DB_HOST=postgres DB_PORT=5432 DB_USERNAME=drec_user DB_PASSWORD=password DB_DATABASE=drec_db" >> .env
           nohup rush start:dev &  # Start the backend in the background
           sleep 30  # Allow time for the server to initialize
           echo "Backend server started successfully."
 
-      # 12. Verify backend server is running
+      # 11. Verify backend server is running
       - name: Verify backend server is running
         run: |
           set -e
           timeout 120 bash -c "until curl -s http://localhost:3040; do echo 'Waiting for backend server to start...'; sleep 5; done"
           echo "Backend server is running."
 
-      # 13. Clear the database (optional)
+      # 12. Clear the database (optional)
       - name: Clear database
         run: |
           curl -X DELETE http://localhost:3040/api/testing/clear-db
           echo "Database cleared successfully."
 
-      # 14. Install frontend dependencies
+      # 13. Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: projects/drec-ui
         run: |
           npm install
           echo "Frontend dependencies installed successfully."
 
-      # 15. Run frontend tests
+      # 14. Run frontend tests
       - name: Run frontend tests
         working-directory: projects/drec-ui
         run: |
           npm test
           echo "Frontend tests completed successfully."
 
-      # 16. Tear down the Docker Compose environment
+      # 15. Tear down the Docker Compose environment
       - name: Tear down Docker Compose
         run: |
           docker-compose down
