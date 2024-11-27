@@ -13,21 +13,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the code
-      - name: Checkout code
+      # 1. Checkout the main repository
+      - name: Checkout main repository
         uses: actions/checkout@v2
 
-      # 2. Set up Node.js for frontend and backend
+      # 2. Clone the backend repository
+      - name: Clone backend repository
+        run: |
+          git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
+          echo "Cloned backend repository successfully."
+
+      # 3. Set up Node.js for frontend and backend
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '20'
 
-      # 3. Install Rush and pnpm globally
+      # 4. Install Rush and pnpm globally
       - name: Install Rush and pnpm
         run: npm install -g @microsoft/rush pnpm
 
-      # 4. Set up Docker for the backend
+      # 5. Set up Docker for the backend
       - name: Set up Docker
         run: |
           sudo apt-get update
@@ -41,39 +47,39 @@ jobs:
           sudo systemctl start docker
           docker --version  # Confirm Docker installation
 
-      # 5. Install backend dependencies
+      # 6. Install backend dependencies
       - name: Install backend dependencies
         working-directory: projects/drec-origin
         run: rush install
 
-      # 6. Build the backend
+      # 7. Build the backend
       - name: Build backend
         working-directory: projects/drec-origin
         run: rush build
 
-      # 7. Start the backend server
+      # 8. Start the backend server
       - name: Start backend server
         working-directory: projects/drec-origin
         run: |
           nohup rush start:dev &  # Start the backend server in the background
           sleep 15  # Allow time for the server to initialize
 
-      # 8. Verify backend server is running
+      # 9. Verify backend server is running
       - name: Verify backend server is running
         run: |
           set -e
           timeout 60 bash -c "until curl -s http://localhost:3040; do echo 'Waiting for backend server to start...'; sleep 5; done"
 
-      # 9. Clear the database
+      # 10. Clear the database
       - name: Clear database
         run: curl -X DELETE http://localhost:3040/api/testing/clear-db
 
-      # 10. Install frontend dependencies
+      # 11. Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: projects/drec-ui
         run: npm install
 
-      # 11. Run frontend tests
+      # 12. Run frontend tests
       - name: Run frontend tests
         working-directory: projects/drec-ui
         run: npm test
