@@ -67,7 +67,9 @@ jobs:
       - name: Wait for PostgreSQL container to be ready
         run: |
           set -e
-          timeout 180 bash -c "until docker exec $(docker ps -q -f 'ancestor=postgres') pg_isready -U drec_user; do echo 'Waiting for PostgreSQL to be ready...'; sleep 10; done"
+          container_id=$(docker ps -q -f "ancestor=postgres")
+          echo "Waiting for PostgreSQL container with ID: $container_id"
+          timeout 180 bash -c "until docker exec $container_id pg_isready -U drec_user; do echo 'Waiting for PostgreSQL to be ready...'; sleep 10; done"
           echo "PostgreSQL is ready."
 
       # 8. Install backend dependencies
@@ -132,6 +134,7 @@ jobs:
         run: |
           npm test
           echo "Frontend tests completed successfully."
+
       # 16. Tear down the Docker Compose environment
       - name: Tear down Docker Compose
         run: |
