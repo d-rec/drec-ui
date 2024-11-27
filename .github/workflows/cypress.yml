@@ -21,23 +21,34 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies using rush
+      - name: Install dependencies using rush (for both frontend and backend)
         run: |
           npm install -g rush
           rush install  # Install dependencies using rush
 
+      
       - name: Start the backend server
         run: |
+          cd projects/drec-origin  # Navigate to backend directory
           nohup rush start:dev &  # Start backend in the background
           sleep 15  # Wait for the backend to initialize
 
-      - name: Wait for server to start
+      
+      - name: Wait for backend server to start
         run: |
           until curl -s http://localhost:3040; do
-            echo "Waiting for server to start..."
+            echo "Waiting for backend server to start..."
             sleep 5
           done
 
-      - name: Run the DELETE request
+      - name: Clear database
         run: |
           curl -X DELETE http://localhost:3040/api/testing/clear-db
+
+      
+      - name: Run frontend tests
+        run: |
+          cd projects/drec-ui  # Navigate to frontend directory
+          npm install  # Install frontend dependencies
+          npm run test  # Run frontend tests
+
