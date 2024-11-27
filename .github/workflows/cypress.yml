@@ -7,9 +7,21 @@ on:
   pull_request:
     branches:
       - ft/register-new-account  
+
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: --health-cmd="pg_isready -U postgres" --health-timeout=30s --health-retries=3
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -21,6 +33,7 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
       - name: Start the backend server
         run: |
           nohup npm run start:dev &  # Start backend in the background
@@ -34,4 +47,11 @@ jobs:
           done
 
       - name: Run the DELETE request
-        run: curl -X DELETE http://localhost:3040/api/testing/clear-db
+        run: |
+          curl -X DELETE http://localhost:3040/api/testing/clear-db
+          if [ $? -eq 0 ]; then
+            echo "Database cleared successfully."
+          else
+            echo "Failed to clear database."
+            exit 1
+          fi
