@@ -13,43 +13,64 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout the code
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # 2. Set up Node.js for frontend and backend
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '20'  
+          node-version: '20'
 
+      # 3. Install Rush globally
       - name: Install Rush globally
+        run: npm install -g @microsoft/rush pnpm
+
+      # 4. Set up Docker for the backend
+      - name: Set up Docker
         run: |
-          curl -sL https://github.com/microsoft/rushstack/releases/download/v5.120.0/rush-5.120.0-linux-x64.tar.gz | tar xz -C /usr/local/bin
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+          sudo systemctl start docker
+          sudo systemctl enable docker
+          docker --version  # Confirm Docker is installed
 
-      - name: Install dependencies using rush
-        run: rush install  
+      # 5. Install dependencies for the backend
+      - name: Install backend dependencies
+        working-directory: projects/drec-origin
+        run: rush install
 
-      - name: Build the projects using rush
-        run: rush build  
+      # 6. Build the backend
+      - name: Build backend
+        working-directory: projects/drec-origin
+        run: rush build
 
-      - name: Start the backend server
+      # 7. Start the backend server
+      - name: Start backend server
+        working-directory: projects/drec-origin
         run: |
-          cd projects/drec-origin  # Navigate to your backend directory
-          nohup rush start:dev > backend.log 2>&1 &  # Start backend in the background and log output
-          sleep 20  # Wait for the backend to initialize (you can adjust this based on your backend startup time)
+          nohup rush start:dev &  # Start backend in the background
+          sleep 15  # Wait for it to initialize
 
-      - name: Check backend server status
+      # 8. Verify backend is running
+      - name: Verify backend server is running
         run: |
-          # Use netcat to check if the backend server is up on port 3040
-          until nc -z localhost 3040; do
+          until curl -s http://localhost:3040; do
             echo "Waiting for backend server to start..."
             sleep 5
           done
 
-      - name: Clear the database
+      # 9. Clear database
+      - name: Clear database
         run: curl -X DELETE http://localhost:3040/api/testing/clear-db
 
+      # 10. Install dependencies for the frontend
+      - name: Install frontend dependencies
+        working-directory: projects/drec-ui
+        run: npm install
+
+      # 11. Run frontend tests
       - name: Run frontend tests
-        run: |
-          cd projects/drec-ui  # Navigate to the frontend directory
-          npm install  # Install frontend dependencies
-          npm run test  # Run frontend tests (if necessary)
+        working-directory: projects/drec-ui
+        run: npm test
