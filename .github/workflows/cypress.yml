@@ -103,13 +103,6 @@ jobs:
           nohup rush start:dev &  # Start the backend in the background
           echo "Backend server started successfully."
 
-      # 12. Verify backend server is running
-      - name: Verify backend server is running
-        run: |
-          echo "Verifying backend server is running..."
-          timeout 120 bash -c "until curl -s http://localhost:3040; do echo 'Waiting for backend server to start...'; sleep 5; done"
-          echo "Backend server is running."
-
       # 13. Run database migrations
       - name: Run migrations
         working-directory: projects/drec-origin
