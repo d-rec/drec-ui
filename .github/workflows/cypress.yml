@@ -96,11 +96,7 @@ jobs:
           echo "DB_DATABASE=drec_db" >> .env
           echo "Environment variables set successfully."
 
-      # 11. Clear the database (optional)
-      - name: Clear database
-        run: |
-          curl -X DELETE http://localhost:3040/api/testing/clear-db
-          echo "Database cleared successfully."
+     
 
       # 12. Run Cypress tests (assuming the frontend is running on localhost:4200)
       - name: Run Cypress tests
