@@ -67,7 +67,7 @@ jobs:
       - name: Wait for PostgreSQL container to be ready
         run: |
           set -e
-          timeout 120 bash -c "until docker exec $(docker ps -q -f 'ancestor=postgres') pg_isready -U drec_user; do echo 'Waiting for PostgreSQL to be ready...'; sleep 5; done"
+          timeout 180 bash -c "until docker exec $(docker ps -q -f 'ancestor=postgres') pg_isready -U drec_user; do echo 'Waiting for PostgreSQL to be ready...'; sleep 10; done"
           echo "PostgreSQL is ready."
 
       # 8. Install backend dependencies
@@ -90,7 +90,7 @@ jobs:
         run: |
           echo "DB_HOST=postgres DB_PORT=5432 DB_USERNAME=drec_user DB_PASSWORD=password DB_DATABASE=drec_db" >> .env
           nohup rush start:dev &  # Start the backend in the background
-          sleep 30  # Allow time for the server to initialize
+          sleep 60  # Allow time for the server to initialize
           echo "Backend server started successfully."
 
       # 11. Verify backend server is running
