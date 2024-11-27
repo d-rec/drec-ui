@@ -68,8 +68,6 @@ jobs:
       - name: Install frontend dependencies
         working-directory: projects/drec-ui
         run: npm install
-
-      # 11. Run frontend tests
       - name: Run frontend tests
         working-directory: projects/drec-ui
         run: npm test
