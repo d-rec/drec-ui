@@ -75,7 +75,118 @@ jobs:
         working-directory: projects/drec-ui
         run: |
           set -e
+          npm installname: CI Workflow
+
+on:
+  push:
+    branches:
+      - ft/register-new-account
+  pull_request:
+    branches:
+      - ft/register-new-account
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the main repository
+      - name: Checkout Main Repository
+        uses: actions/checkout@v2
+
+      # 2. Clone the backend repository
+      - name: Clone Backend Repository
+        run: |
+          set -e
+          git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
+          echo "Backend repository cloned successfully."
+
+      # 3. List the files in the repository to confirm structure
+      - name: List Files in Backend Directory
+        working-directory: projects/drec-origin
+        run: |
+          set -e
+          ls -la
+          echo "Backend directory contents listed."
+
+      # 4. Set up Node.js
+      - name: Set Up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      # 5. Install Rush and pnpm globally
+      - name: Install Rush and pnpm
+        run: |
+          set -e
+          npm install -g @microsoft/rush pnpm
+          echo "Rush and pnpm installed successfully."
+
+      # 6. Set up Docker Compose
+      - name: Install Docker Compose
+        run: |
+          set -e
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+          echo "Docker Compose installed successfully."
+
+      # 7. Install Backend Dependencies (ts-node, tsconfig-paths, etc.)
+      - name: Install Backend Dependencies
+        working-directory: projects/drec-origin
+        run: |
+          set -e
+          pnpm install
+          pnpm add ts-node tsconfig-paths --save-dev
+          echo "Backend dependencies installed successfully."
+
+      # 8. Build and Start Services using Docker Compose
+      - name: Build and Start Services
+        working-directory: projects/drec-origin
+        run: |
+          set -e
+          docker compose -f docker-compose.yml up --build -d
+          echo "Docker services built and started in the backend folder."
+
+      # 9. Start the Backend
+      - name: Start Backend (rush start:dev)
+        working-directory: projects/drec-origin
+        run: |
+          set -e
+          rush start:dev
+          echo "Backend started in dev mode."
+
+      # 10. Start the Frontend
+      - name: Start Frontend (npm run start)
+        working-directory: projects/drec-ui
+        run: |
+          set -e
           npm install
+          npm run start &
+          echo "Frontend started."
+
+      # 11. Install Cypress dependencies
+      - name: Install Cypress Dependencies
+        working-directory: cypress
+        run: |
+          set -e
+          npm install
+          echo "Cypress dependencies installed successfully."
+
+      # 12. Run Cypress Tests
+      - name: Run Cypress Tests
+        run: |
+          set -e
+          npx cypress run --config-file=cypress.config.ts
+          echo "Cypress tests completed successfully."
+
+      # 13. Tear Down Docker Compose Environment
+      - name: Tear Down Docker Compose Environment
+        working-directory: projects/drec-origin
+        run: |
+          set -e
+          docker compose down
+          echo "Docker Compose environment torn down."
+
           npm run start &
           echo "Frontend started."
  
