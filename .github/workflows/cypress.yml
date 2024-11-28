@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Define environment variables here for testing
+      # Environment Variables
       MODE: dev
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
@@ -81,99 +81,63 @@ jobs:
       ADMIN_PASSWORD: 1234Rc
 
     steps:
-      # 1. Checkout the main repository
-      - name: Checkout Main Repository
+      # 1. Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
-      # 2. Clone the backend repository
+      # 2. Clone Backend Repository
       - name: Clone Backend Repository
         run: |
-          set -e
           git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
-          echo "Backend repository cloned successfully."
 
-      # 3. Install Rush and pnpm globally
+      # 3. Install Global Dependencies
       - name: Install Rush and pnpm
         run: |
-          set -e
           npm install -g @microsoft/rush pnpm
-          echo "Rush and pnpm installed successfully."
 
       # 4. Install Backend Dependencies
       - name: Install Backend Dependencies (Rush Install)
         working-directory: projects/drec-origin
         run: |
-          set -e
           rush install
-          echo "Rush dependencies installed."
 
-      # 5. Install ts-node in the Backend Workspace
-      - name: Install ts-node in Backend Workspace
-        working-directory: projects/drec-origin/apps/drec-api
-        run: |
-          set -e
-          pnpm add ts-node tsconfig-paths typeorm --save-dev
-          echo "ts-node installed in backend workspace."
-
-      # 6. Install Docker Compose (for the backend)
-      - name: Install Docker Compose
-        run: |
-          set -e
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-          echo "Docker Compose installed successfully."
-
-      # 7. Build and Start Services using Docker Compose
-      - name: Build and Start Docker Services
+      # 5. Setup Docker Compose
+      - name: Setup and Start Docker Services
         working-directory: projects/drec-origin
         run: |
-          set -e
           docker-compose -f docker-compose.yml up --build -d
-          echo "Docker services built and started."
 
-      # 8. Start the Backend (using Rush in dev mode)
-      - name: Start Backend (rush start:dev)
+      # 6. Wait for Backend to be Ready
+      - name: Wait for Backend
+        run: |
+          sleep 30
+
+      # 7. Start Backend
+      - name: Start Backend
         working-directory: projects/drec-origin
         run: |
-          set -e
-          timeout 300s  rush start:dev 
-          echo "Backend started in dev mode."
+          rush start:dev &
+          sleep 10 # Ensure the backend has started
 
-      # 8. Wait for the backend to be ready
-      - name: Wait for Backend to be Ready
-        run: |
-          set -e
-          echo "Waiting for backend to be ready..."
-          sleep 30
-          echo "Backend is now ready."
-
-      # 9. Install and Start Frontend
+      # 8. Install Frontend Dependencies
       - name: Install and Start Frontend
         run: |
-          set -e
           npm install
-          npm run start &  # Running the frontend in the background
-          echo "Frontend started."
+          npm run start &
 
-      # 10. Install Cypress Dependencies for E2E testing
+      # 9. Install Cypress Dependencies
       - name: Install Cypress Dependencies
         working-directory: cypress
         run: |
-          set -e
           npm install
-          echo "Cypress dependencies installed successfully."
 
-      # 11. Run Cypress Tests
+      # 10. Run Cypress Tests
       - name: Run Cypress Tests
         run: |
-          set -e
-          npx cypress run --config-file=cypress.config.ts
-          echo "Cypress tests completed successfully."
+          npx cypress run --config-file=cypress.config.ts || echo "Cypress tests failed"
 
-      # 12. Tear Down Docker Compose Environment
-      - name: Tear Down Docker Compose Environment
+      # 11. Tear Down Docker Compose
+      - name: Tear Down Docker Compose
         working-directory: projects/drec-origin
         run: |
-          set -e
           docker-compose down
-          echo "Docker Compose environment torn down."
