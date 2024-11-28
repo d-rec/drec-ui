@@ -47,7 +47,13 @@ jobs:
           pnpm add ts-node tsconfig-paths typeorm --save-dev
           echo "ts-node installed in backend workspace."
 
-      
+      # 6. Set environment variables for testing (Add your private key and mnemonic here)
+      - name: Set environment variables for testing
+        run: |
+          set -e
+          export MNEMONIC="shine ability artefact river cabin copy blind hello gift hospital tenant region"
+          export PRIVATE_KEY=4773097f508a6edd206150766ee25cb5abc1635f28f9cfd27e144872e89dc9c9
+          echo "Environment variables set."
 
       # 7. Install Docker Compose (for the backend)
       - name: Install Docker Compose
