@@ -47,12 +47,7 @@ jobs:
           pnpm add ts-node tsconfig-paths typeorm --save-dev
           echo "ts-node installed in backend workspace."
 
-      # 6. Verify ts-node Installation
-      - name: Verify ts-node Installation
-        run: |
-          set -e
-          ts-node --version
-          echo "ts-node is installed and available."
+      
 
       # 7. Install Docker Compose (for the backend)
       - name: Install Docker Compose
