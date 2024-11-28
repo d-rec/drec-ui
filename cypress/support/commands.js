@@ -1,28 +1,16 @@
-
 Cypress.Commands.add('clearDatabase', () => {
-  cy.waitUntil(() => {
-    return cy.request({
-      method: 'GET',
-      url: `${Cypress.env('REACT_APP_BACKEND_URL')}/health`, 
-      failOnStatusCode: false,
-    }).then((response) => {
-      return response.status === 200;
-    });
-  }, { timeout: 60000, interval: 5000 }).then(() => {
-    cy.request({
-      method: 'DELETE',
-      url: `${Cypress.env('REACT_APP_BACKEND_URL')}/api/testing/clear-db`,
-      failOnStatusCode: false, 
-    }).then((response) => {
-      if (response.status === 200) {
-        cy.log('Database cleared successfully');
-      } else {
-        cy.log(`Failed to clear database: ${response.body.error || response.statusText || 'Unknown error'}`);
-      }
-    });
+  cy.request({
+    method: 'DELETE',
+    url: `${Cypress.env('REACT_APP_BACKEND_URL')}/api/testing/clear-db`,
+    failOnStatusCode: false, 
+  }).then((response) => {
+    if (response.status === 200) {
+      cy.log('Database cleared successfully');
+    } else {
+      cy.log(`Failed to clear database: ${response.body.error || 'Unknown error'}`);
+    }
   });
 });
-
 
 Cypress.Commands.add('signup', function () {
   
