@@ -85,7 +85,6 @@ jobs:
               driver: bridge
           EOF
           echo "Docker Compose file created in the backend folder."
-
       # 8. Build and Start Services
       - name: Build and Start Services
         working-directory: projects/drec-origin
