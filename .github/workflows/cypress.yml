@@ -109,7 +109,15 @@ jobs:
           fi
           echo "Cypress folder verified."
 
-      # 13. Run Cypress tests
+      # 13. Install Cypress dependencies
+      - name: Install Cypress dependencies
+        working-directory: cypress
+        run: |
+          set -e
+          npm install
+          echo "Cypress dependencies installed successfully."
+
+      # 14. Run Cypress tests
       - name: Run Cypress tests
         working-directory: cypress
         run: |
@@ -117,7 +125,7 @@ jobs:
           npx cypress run
           echo "Cypress tests completed successfully."
 
-      # 14. Tear down the Docker Compose environment
+      # 15. Tear down the Docker Compose environment
       - name: Tear down Docker Compose
         run: |
           set -e
