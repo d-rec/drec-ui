@@ -59,10 +59,10 @@ jobs:
         run: |
           set -e
           pnpm install
-          pnpm add ts-node tsconfig-paths --save-dev
+          pnpm add ts-node tsconfig-paths typeorm --save-dev
           echo "Backend dependencies installed successfully."
 
-      # 8. Install TypeScript and ts-node globally
+      # 8. Install TypeScript and ts-node Globally
       - name: Install TypeScript and ts-node Globally
         run: |
           set -e
