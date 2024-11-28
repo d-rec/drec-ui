@@ -77,6 +77,10 @@ jobs:
       IREC_EVIDENT_REGISTRANT_EMAIL: "<IREC_EVIDENT_REGISTRANT_EMAIL>"
       IREC_EVIDENT_Password: "<IREC_EVIDENT_Password>"
       IREC_EVIDENT_API_Token: "<IREC_EVIDENT_API_Token>"
+      ADMIN_EMAIL: drec@gmail.com
+      ADMIN_PASSWORD: 1234Rc
+
+      
 
     steps:
       # 1. Checkout the main repository
