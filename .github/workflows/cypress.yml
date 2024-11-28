@@ -24,44 +24,37 @@ jobs:
           git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
           echo "Backend repository cloned successfully."
 
-      # 3. List the files in the repository to confirm structure
-      - name: List Files in Backend Directory
-        working-directory: projects/drec-origin
-        run: |
-          set -e
-          ls -la
-          echo "Backend directory contents listed."
-
-      # 4. Set up Node.js (using the latest version of Node)
-      - name: Set Up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '20'
-
-      # 5. Install Rush and pnpm globally
+      # 3. Install Rush and pnpm globally
       - name: Install Rush and pnpm
         run: |
           set -e
           npm install -g @microsoft/rush pnpm
           echo "Rush and pnpm installed successfully."
 
-      # 6. Install Backend Dependencies (pnpm + ts-node + other necessary packages)
-      - name: Install Backend Dependencies
+      # 4. Install Backend Dependencies
+      - name: Install Backend Dependencies (Rush Install)
         working-directory: projects/drec-origin
         run: |
           set -e
-          pnpm install  # Install all backend dependencies
-          pnpm add ts-node tsconfig-paths typeorm --save-dev  # Ensure ts-node is added if not already
-          echo "Backend dependencies installed successfully."
+          rush install
+          echo "Rush dependencies installed."
 
-      # 7. Install ts-node globally
-      - name: Install ts-node Globally
+      # 5. Install ts-node in the Backend Workspace
+      - name: Install ts-node in Backend Workspace
+        working-directory: projects/drec-origin/apps/drec-api
         run: |
           set -e
-          npm install -g ts-node
-          echo "ts-node installed globally."
+          pnpm add ts-node tsconfig-paths typeorm --save-dev
+          echo "ts-node installed in backend workspace."
 
-      # 8. Set up Docker Compose (for the backend)
+      # 6. Verify ts-node Installation
+      - name: Verify ts-node Installation
+        run: |
+          set -e
+          ts-node --version
+          echo "ts-node is installed and available."
+
+      # 7. Install Docker Compose (for the backend)
       - name: Install Docker Compose
         run: |
           set -e
@@ -69,15 +62,15 @@ jobs:
           sudo apt-get install -y docker-compose
           echo "Docker Compose installed successfully."
 
-      # 9. Build and Start Services using Docker Compose
+      # 8. Build and Start Services using Docker Compose
       - name: Build and Start Docker Services
         working-directory: projects/drec-origin
         run: |
           set -e
           docker compose -f docker-compose.yml up --build -d
-          echo "Docker services built and started in the backend folder."
+          echo "Docker services built and started."
 
-      # 10. Start the Backend (using Rush in dev mode)
+      # 9. Start the Backend (using Rush in dev mode)
       - name: Start Backend (rush start:dev)
         working-directory: projects/drec-origin
         run: |
@@ -85,7 +78,7 @@ jobs:
           rush start:dev
           echo "Backend started in dev mode."
 
-      # 11. Install and Start Frontend
+      # 10. Install and Start Frontend
       - name: Install and Start Frontend
         working-directory: projects/drec-ui
         run: |
@@ -94,7 +87,7 @@ jobs:
           npm run start &
           echo "Frontend started."
 
-      # 12. Install Cypress Dependencies for E2E testing
+      # 11. Install Cypress Dependencies for E2E testing
       - name: Install Cypress Dependencies
         working-directory: cypress
         run: |
@@ -102,14 +95,14 @@ jobs:
           npm install
           echo "Cypress dependencies installed successfully."
 
-      # 13. Run Cypress Tests
+      # 12. Run Cypress Tests
       - name: Run Cypress Tests
         run: |
           set -e
           npx cypress run --config-file=cypress.config.ts
           echo "Cypress tests completed successfully."
 
-      # 14. Tear Down Docker Compose Environment
+      # 13. Tear Down Docker Compose Environment
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
         run: |
