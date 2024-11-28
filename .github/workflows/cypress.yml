@@ -78,7 +78,6 @@ jobs:
       IREC_EVIDENT_REGISTRANT_EMAIL: <IREC_EVIDENT_REGISTRANT_EMAIL>
       IREC_EVIDENT_Password: <IREC_EVIDENT_Password>
       IREC_EVIDENT_API_Token: <IREC_EVIDENT_API_Token>
-
     steps:
       # 1. Checkout the main repository
       - name: Checkout Main Repository
@@ -162,6 +161,7 @@ jobs:
           npx cypress run --config-file=cypress.config.ts
           echo "Cypress tests completed successfully."
 
+      # 12. Tear Down Docker Compose Environment
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
         run: |
