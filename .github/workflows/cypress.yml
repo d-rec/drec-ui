@@ -131,6 +131,14 @@ jobs:
           docker-compose -f docker-compose.yml up --build -d
           echo "Docker services built and started."
 
+      # 8. Start the Backend (using Rush in dev mode)
+      - name: Start Backend (rush start:dev)
+        working-directory: projects/drec-origin
+        run: |
+          set -e
+          rush start:dev
+          echo "Backend started in dev mode."
+
       # 8. Wait for the backend to be ready
       - name: Wait for Backend to be Ready
         run: |
