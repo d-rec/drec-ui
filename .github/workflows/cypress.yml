@@ -12,63 +12,160 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      # Define environment variables here for testing
+      MODE: dev
+      WEB3: https://volta-rpc.energyweb.org
+      UI_BASE_URL: http://localhost:4200
+      DEBUG_API_KEY: debug
+      BACKEND_PORT: 3040
+
+      # --- DATABASE --- #
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: origin
+
+      # --- AUTH --- #
+      JWT_SECRET: thisisnotsecret
+      JWT_EXPIRY_TIME: "7 days"
+
+      # --- BLOCKCHAIN ---#
+      MNEMONIC: "shine ability artefact river cabin copy blind hello gift hospital tenant region"
+      ISSUER_PRIVATE_KEY: 4773097f508a6edd206150766ee25cb5abc1635f28f9cfd27e144872e89dc9c9
+      DREC_BLOCKCHAIN_ADDRESS: 0xDeC1488838C65E355A9336eE8DdFc32665dB9222
+
+      CERTIFICATE_QUEUE_DELAY: 60000
+
+      # --- SMART METER READINGS --- #
+      INFLUXDB_URL: http://localhost:8086
+      INFLUXDB_TOKEN: admin:admin
+      INFLUXDB_ORG: 
+      INFLUXDB_BUCKET: energy/autogen
+      INFLUXDB_DB: energy
+      INFLUXDB_ADMIN_USER: test
+      INFLUXDB_ADMIN_PASSWORD: test
+      INFLUXDB_USER: api
+      INFLUXDB_USER_PASSWORD: secret
+
+      # --- UI & External Services --- #
+      REACT_APP_ISSUER_ADDRESS: 0x28130b5603cfcd597862a1F6786AbFEgrr645430Ddc2B92F
+      REACT_APP_SUPPORTED_NETWORK_IDS: 246
+      REACT_APP_BLOCKCHAIN_EXPLORER_URL: https://volta-explorer.energyweb.org
+      REACT_APP_GOOGLE_MAPS_API_KEY: <API_KEY>
+      REACT_APP_REGISTRATION_MESSAGE_TO_SIGN: 'I register as D-REC Origin user'
+
+      # Redis URL
+      REDIS_URL: redis://localhost:6379
+
+      # --- MAIL CONFIG --- #
+      SMTP_HOST: 'smtp.gmail.com'
+      SMTP_PORT: 587
+      SMTP_LOGIN: '247-demo@energyweb.org'
+      SMTP_PASSWORD: ****************
+      EMAIL_FROM_NAME: Energy Web Origin
+      EMAIL_FROM: no-reply@example.com
+
+      # S3 Bucket
+      accessKeyId: <accessKeyId>
+      secretAccessKey: <secretAccessKey>
+      region: <region>
+      bucketname: <bucketname>
+
+      # IREC EVIDENT
+      IREC_EVIDENT_API_URL: "https://api.sandbox.evident.dev"
+      IREC_EVIDENT_REGISTRANT_EMAIL: <IREC_EVIDENT_REGISTRANT_EMAIL>
+      IREC_EVIDENT_Password: <IREC_EVIDENT_Password>
+      IREC_EVIDENT_API_Token: <IREC_EVIDENT_API_Token>
+
     steps:
+      # 1. Checkout the main repository
       - name: Checkout Main Repository
         uses: actions/checkout@v2
 
+      # 2. Clone the backend repository
       - name: Clone Backend Repository
         run: |
+          set -e
           git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
+          echo "Backend repository cloned successfully."
 
-      - name: Install Rush and pnpm globally
+      # 3. Install Rush and pnpm globally
+      - name: Install Rush and pnpm
         run: |
+          set -e
           npm install -g @microsoft/rush pnpm
+          echo "Rush and pnpm installed successfully."
 
+      # 4. Install Backend Dependencies
       - name: Install Backend Dependencies (Rush Install)
         working-directory: projects/drec-origin
         run: |
+          set -e
           rush install
+          echo "Rush dependencies installed."
 
+      # 5. Install ts-node in the Backend Workspace
       - name: Install ts-node in Backend Workspace
         working-directory: projects/drec-origin/apps/drec-api
         run: |
+          set -e
           pnpm add ts-node tsconfig-paths typeorm --save-dev
+          echo "ts-node installed in backend workspace."
 
-      - name: Set environment variables for testing
-        run: |
-          echo "MNEMONIC=${{ secrets.MNEMONIC }}" >> $GITHUB_ENV
-          echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" >> $GITHUB_ENV
-
+      # 6. Install Docker Compose (for the backend)
       - name: Install Docker Compose
         run: |
+          set -e
           sudo apt-get update
           sudo apt-get install -y docker-compose
+          echo "Docker Compose installed successfully."
 
+      # 7. Build and Start Services using Docker Compose
       - name: Build and Start Docker Services
         working-directory: projects/drec-origin
         run: |
+          set -e
           docker compose -f docker-compose.yml up --build -d
+          echo "Docker services built and started."
 
+      # 8. Start the Backend (using Rush in dev mode)
       - name: Start Backend (rush start:dev)
         working-directory: projects/drec-origin
         run: |
+          set -e
           rush start:dev
+          echo "Backend started in dev mode."
 
-      - name: Install Frontend Dependencies
+      # 9. Install and Start Frontend
+      - name: Install and Start Frontend
         working-directory: projects/drec-ui
         run: |
+          set -e
           npm install
+          npm run start &
+          echo "Frontend started."
 
+      # 10. Install Cypress Dependencies for E2E testing
       - name: Install Cypress Dependencies
         working-directory: cypress
         run: |
+          set -e
           npm install
+          echo "Cypress dependencies installed successfully."
 
+      # 11. Run Cypress Tests
       - name: Run Cypress Tests
         run: |
+          set -e
           npx cypress run --config-file=cypress.config.ts
+          echo "Cypress tests completed successfully."
 
+      # 12. Tear Down Docker Compose Environment
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
         run: |
+          set -e
           docker compose down
+          echo "Docker Compose environment torn down."
