@@ -20,7 +20,6 @@ jobs:
       # 2. Clone the backend repository
       - name: Clone Backend Repository
         run: |
-          set -e
           git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
           echo "Backend repository cloned successfully."
 
@@ -33,66 +32,102 @@ jobs:
       # 4. Install Rush and pnpm globally
       - name: Install Rush and pnpm
         run: |
-          set -e
           npm install -g @microsoft/rush pnpm
           echo "Rush and pnpm installed successfully."
 
-      # 5. Set up Docker Compose
+      # 5. Install Docker Compose
       - name: Install Docker Compose
         run: |
-          set -e
           sudo apt-get update
-          sudo apt-get install -y docker-compose
+          sudo apt-get install -y docker.io
+          sudo apt-get install -y docker-compose-plugin
           echo "Docker Compose installed successfully."
 
-      # 6. Create Docker Compose File
+      # 6. Verify Docker Installation
+      - name: Verify Docker Installation
+        run: |
+          docker --version
+          docker compose version
+
+      # 7. Create Docker Compose File
       - name: Create Docker Compose File
         working-directory: projects/drec-origin
         run: |
-          set -e
-          printf "version: '3.8'\nservices:\n  postgres:\n    image: postgres:13\n    environment:\n      - POSTGRES_USER=drec_user\n      - POSTGRES_PASSWORD=password\n      - POSTGRES_DB=drec_db\n    ports:\n      - '5432:5432'\n\n  backend:\n    build: .\n    ports:\n      - '3000:3000'\n    environment:\n      - DB_HOST=postgres\n      - DB_PORT=5432\n      - DB_USERNAME=drec_user\n      - DB_PASSWORD=password\n      - DB_DATABASE=drec_db\n    depends_on:\n      - postgres\n\nnetworks:\n  default:\n    driver: bridge\n" > docker-compose.yml
+          cat <<EOF > docker-compose.yml
+          version: '3.8'
+          services:
+            postgres:
+              image: postgres:13
+              environment:
+                POSTGRES_USER: drec_user
+                POSTGRES_PASSWORD: password
+                POSTGRES_DB: drec_db
+              ports:
+                - '5432:5432'
+
+            backend:
+              build:
+                context: ./backend
+                dockerfile: Dockerfile
+              ports:
+                - '3000:3000'
+              environment:
+                DB_HOST: postgres
+                DB_PORT: 5432
+                DB_USERNAME: drec_user
+                DB_PASSWORD: password
+                DB_DATABASE: drec_db
+              depends_on:
+                - postgres
+
+          networks:
+            default:
+              driver: bridge
+          EOF
           echo "Docker Compose file created in the backend folder."
 
-      # 7. Build and Start Services using Docker Compose
+      # 8. Build and Start Services
       - name: Build and Start Services
         working-directory: projects/drec-origin
         run: |
-          set -e
-          docker compose up --build 
-          echo "Docker services built and started in the backend folder."
+          docker compose up --build -d
+          echo "Docker services built and started."
 
-      # 8. Wait for PostgreSQL and Backend to be Ready
+      # 9. Wait for Services to Be Ready
       - name: Wait for Services to Be Ready
         working-directory: projects/drec-origin
         run: |
-          set -e
-          echo "Waiting for PostgreSQL..."
-          timeout 180 bash -c "until nc -z localhost 5432; do echo 'Waiting for PostgreSQL...'; sleep 5; done"
-          echo "PostgreSQL is ready."
+          echo "Waiting for PostgreSQL to be ready..."
+          for i in {1..30}; do
+            nc -z localhost 5432 && echo "PostgreSQL is ready." && break
+            echo "Retrying PostgreSQL connection..."
+            sleep 5
+          done
 
-          echo "Waiting for Backend..."
-          timeout 180 bash -c "until curl -s http://localhost:3000/health | grep 'OK'; do echo 'Waiting for backend...'; sleep 5; done"
-          echo "Backend is ready."
+          echo "Waiting for backend service to be ready..."
+          for i in {1..30}; do
+            curl -s http://localhost:3000/health | grep 'OK' && echo "Backend is ready." && break
+            echo "Retrying backend connection..."
+            sleep 5
+          done
 
-      # 9. Install Cypress dependencies
+      # 10. Install Cypress dependencies
       - name: Install Cypress Dependencies
         working-directory: cypress
         run: |
-          set -e
           npm install
           echo "Cypress dependencies installed successfully."
 
-      # 10. Run Cypress tests
+      # 11. Run Cypress Tests
       - name: Run Cypress Tests
+        working-directory: cypress
         run: |
-          set -e
           npx cypress run --config-file=cypress.config.ts
           echo "Cypress tests completed successfully."
 
-      # 11. Tear Down Docker Compose Environment
+      # 12. Tear Down Docker Compose Environment
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
         run: |
-          set -e
           docker compose down
           echo "Docker Compose environment torn down."
