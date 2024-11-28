@@ -136,7 +136,7 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           set -e
-          rush start:dev --command-timeout=300000 --default-command-timeout=10000
+          timeout 3000s  rush start:dev 
           echo "Backend started in dev mode."
 
       # 8. Wait for the backend to be ready
