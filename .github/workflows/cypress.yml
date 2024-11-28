@@ -134,15 +134,6 @@ jobs:
           npm run start &  # Run the frontend server in the background
           echo "Frontend server started."
 
-      # 16. Wait for both servers to be ready (Backend & Frontend)
-      - name: Wait for both servers to be ready
-        run: |
-          set -e
-          echo "Waiting for the frontend and backend to be ready..."
-          timeout 180 bash -c "until nc -z localhost 3000; do echo 'Waiting for frontend...'; sleep 5; done"  # Wait for frontend
-          timeout 180 bash -c "until nc -z localhost 8080; do echo 'Waiting for backend...'; sleep 5; done"  # Wait for backend
-          echo "Both servers are ready."
-
       # 17. Run Cypress tests with config path explicitly set
       - name: Run Cypress tests
         run: |
