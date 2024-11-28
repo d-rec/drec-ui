@@ -33,42 +33,24 @@ jobs:
       - name: Install Rush and pnpm
         run: |
           npm install -g @microsoft/rush pnpm
-          echo "Rush and pnpm installed successfully."
 
       # 5. Set up Docker Compose
-      - name: Set up Docker Compose
+      - name: Install Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
-          echo "Docker Compose installed successfully."
 
       # 6. Set up PostgreSQL container using Docker Compose
       - name: Set up PostgreSQL container
         run: |
-          echo "version: '3'
-          services:
-            postgres:
-              image: postgres:13
-              environment:
-                POSTGRES_USER: drec_user
-                POSTGRES_PASSWORD: password
-                POSTGRES_DB: drec_db
-              ports:
-                - '5432:5432'
-              networks:
-                - dbnet
-          networks:
-            dbnet:
-              driver: bridge" > docker-compose.yml
+          printf "version: '3'\nservices:\n  postgres:\n    image: postgres:13\n    environment:\n      POSTGRES_USER: drec_user\n      POSTGRES_PASSWORD: password\n      POSTGRES_DB: drec_db\n    ports:\n      - '5432:5432'\n    networks:\n      - dbnet\nnetworks:\n  dbnet:\n    driver: bridge\n" > docker-compose.yml
           docker-compose up -d
-          echo "PostgreSQL container started successfully."
 
       # 7. Wait for PostgreSQL container to be ready
-      - name: Wait for PostgreSQL container to be ready
+      - name: Wait for PostgreSQL to be ready
         run: |
-          set -e
           echo "Waiting for PostgreSQL to be ready..."
-          timeout 180 bash -c "until nc -z localhost 5432; do echo 'Waiting for PostgreSQL to be ready...'; sleep 5; done"
+          timeout 180 bash -c "until nc -z localhost 5432; do echo 'Waiting for PostgreSQL...'; sleep 5; done"
           echo "PostgreSQL is ready."
 
       # 8. Install backend dependencies
@@ -76,39 +58,37 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           rush install
-          echo "Backend dependencies installed successfully."
 
       # 9. Build the backend
       - name: Build backend
         working-directory: projects/drec-origin
         run: |
           rush build
-          echo "Backend built successfully."
 
-      # 10. Set correct DB credentials in .env file
-      - name: Set environment variables for DB
+      # 10. Set environment variables for DB
+      - name: Configure environment variables
         working-directory: projects/drec-origin
         run: |
-          echo "DB_HOST=postgres" >> .env
-          echo "DB_PORT=5432" >> .env
-          echo "DB_USERNAME=drec_user" >> .env
-          echo "DB_PASSWORD=password" >> .env
-          echo "DB_DATABASE=drec_db" >> .env
-          echo "Environment variables set successfully."
+          cat <<EOF > .env
+          DB_HOST=postgres
+          DB_PORT=5432
+          DB_USERNAME=drec_user
+          DB_PASSWORD=password
+          DB_DATABASE=drec_db
+          EOF
+          echo "Environment variables configured."
 
-      # 12. Run Cypress tests (assuming the frontend is running on localhost:4200)
+      # 11. Run Cypress tests (assuming frontend is running on localhost:4200)
       - name: Run Cypress tests
         run: |
           # Ensure the frontend is running before running tests
           echo "Waiting for frontend to start..."
-          timeout 180 bash -c "until curl -s http://localhost:4200; do echo 'Waiting for frontend to be ready...'; sleep 5; done"
+          timeout 180 bash -c "until curl -s http://localhost:4200; do echo 'Waiting for frontend...'; sleep 5; done" || { echo "Frontend failed to start."; exit 1; }
           
-          # Run Cypress tests against the running frontend
+          # Run Cypress tests
           npx cypress run
-          echo "Cypress tests completed successfully."
 
-      # 13. Tear down the Docker Compose environment
+      # 12. Tear down the Docker Compose environment
       - name: Tear down Docker Compose
         run: |
           docker-compose down
-          echo "Docker Compose environment torn down."
