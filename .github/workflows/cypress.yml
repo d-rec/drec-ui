@@ -90,26 +90,9 @@ jobs:
       - name: Build and Start Services
         working-directory: projects/drec-origin
         run: |
-          docker compose up --build -d
+          docker compose up --build 
           echo "Docker services built and started."
 
-      # 9. Wait for Services to Be Ready
-      - name: Wait for Services to Be Ready
-        working-directory: projects/drec-origin
-        run: |
-          echo "Waiting for PostgreSQL to be ready..."
-          for i in {1..30}; do
-            nc -z localhost 5432 && echo "PostgreSQL is ready." && break
-            echo "Retrying PostgreSQL connection..."
-            sleep 5
-          done
-
-          echo "Waiting for backend service to be ready..."
-          for i in {1..30}; do
-            curl -s http://localhost:3000/health | grep 'OK' && echo "Backend is ready." && break
-            echo "Retrying backend connection..."
-            sleep 5
-          done
 
       # 10. Install Cypress dependencies
       - name: Install Cypress Dependencies
