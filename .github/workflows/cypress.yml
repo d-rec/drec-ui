@@ -121,7 +121,6 @@ jobs:
           set -e
           npm install -g @microsoft/rush pnpm
           echo "Rush and pnpm installed successfully."
-
       # 6. Set up Docker Compose
       - name: Install Docker Compose
         run: |
