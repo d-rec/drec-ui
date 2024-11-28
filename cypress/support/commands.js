@@ -1,16 +1,43 @@
 Cypress.Commands.add('clearDatabase', () => {
-  cy.request({
-    method: 'DELETE',
-    url: `${Cypress.env('REACT_APP_BACKEND_URL')}/api/testing/clear-db`,
-    failOnStatusCode: false, 
-  }).then((response) => {
-    if (response.status === 200) {
-      cy.log('Database cleared successfully');
-    } else {
-      cy.log(`Failed to clear database: ${response.body.error || 'Unknown error'}`);
-    }
-  });
+  // Custom retry logic
+  const maxRetries = 10; // Max number of retries
+  const retryInterval = 5000; // 5 seconds interval between retries
+
+  function checkBackendHealth(retries) {
+    // Make a request to the health check endpoint
+    cy.request({
+      method: 'GET',
+      url: `${Cypress.env('REACT_APP_BACKEND_URL')}/health`, // Health check endpoint
+      failOnStatusCode: false,
+    }).then((response) => {
+      if (response.status === 200) {
+        // If the backend is healthy, proceed with clearing the database
+        cy.request({
+          method: 'DELETE',
+          url: `${Cypress.env('REACT_APP_BACKEND_URL')}/api/testing/clear-db`,
+          failOnStatusCode: false,
+        }).then((deleteResponse) => {
+          if (deleteResponse.status === 200) {
+            cy.log('Database cleared successfully');
+          } else {
+            cy.log(`Failed to clear database: ${deleteResponse.body.error || 'Unknown error'}`);
+          }
+        });
+      } else if (retries < maxRetries) {
+        // If the backend is not ready, retry after an interval
+        cy.log(`Backend not ready, retrying... (${retries + 1}/${maxRetries})`);
+        cy.wait(retryInterval); // Wait before retrying
+        checkBackendHealth(retries + 1); // Retry the check
+      } else {
+        cy.log('Backend is not available after maximum retries');
+      }
+    });
+  }
+
+  // Start the retry logic
+  checkBackendHealth(0);
 });
+
 
 Cypress.Commands.add('signup', function () {
   
