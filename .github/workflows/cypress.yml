@@ -56,7 +56,7 @@ jobs:
       - name: Build and Start Services
         run: |
           set -e
-          docker-compose up --build -d
+          docker compose up --build
           echo "Docker services built and started."
 
       # 8. Wait for PostgreSQL and Backend to be Ready
