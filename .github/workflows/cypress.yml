@@ -32,7 +32,7 @@ jobs:
           ls -la
           echo "Backend directory contents listed."
 
-      # 4. Set up Node.js
+      # 4. Set up Node.js (using the latest version of Node)
       - name: Set Up Node.js
         uses: actions/setup-node@v2
         with:
@@ -45,15 +45,7 @@ jobs:
           npm install -g @microsoft/rush pnpm
           echo "Rush and pnpm installed successfully."
 
-      # 6. Set up Docker Compose
-      - name: Install Docker Compose
-        run: |
-          set -e
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-          echo "Docker Compose installed successfully."
-
-      # 7. Install Backend Dependencies
+      # 6. Install Backend Dependencies
       - name: Install Backend Dependencies
         working-directory: projects/drec-origin
         run: |
@@ -62,22 +54,23 @@ jobs:
           pnpm add ts-node tsconfig-paths typeorm --save-dev
           echo "Backend dependencies installed successfully."
 
-      # 8. Install TypeScript and ts-node Globally
-      - name: Install TypeScript and ts-node Globally
+      # 7. Set up Docker Compose (for the backend)
+      - name: Install Docker Compose
         run: |
           set -e
-          npm install -g typescript ts-node
-          echo "TypeScript and ts-node installed globally."
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+          echo "Docker Compose installed successfully."
 
-      # 9. Build and Start Services using Docker Compose
-      - name: Build and Start Services
+      # 8. Build and Start Services using Docker Compose
+      - name: Build and Start Docker Services
         working-directory: projects/drec-origin
         run: |
           set -e
           docker compose -f docker-compose.yml up --build -d
           echo "Docker services built and started in the backend folder."
 
-      # 10. Start the Backend
+      # 9. Start the Backend (using Rush in dev mode)
       - name: Start Backend (rush start:dev)
         working-directory: projects/drec-origin
         run: |
@@ -85,8 +78,8 @@ jobs:
           rush start:dev
           echo "Backend started in dev mode."
 
-      # 11. Start the Frontend
-      - name: Start Frontend (npm run start)
+      # 10. Install and Start Frontend
+      - name: Install and Start Frontend
         working-directory: projects/drec-ui
         run: |
           set -e
@@ -94,7 +87,7 @@ jobs:
           npm run start &
           echo "Frontend started."
 
-      # 12. Install Cypress dependencies
+      # 11. Install Cypress Dependencies for E2E testing
       - name: Install Cypress Dependencies
         working-directory: cypress
         run: |
@@ -102,14 +95,14 @@ jobs:
           npm install
           echo "Cypress dependencies installed successfully."
 
-      # 13. Run Cypress Tests
+      # 12. Run Cypress Tests
       - name: Run Cypress Tests
         run: |
           set -e
           npx cypress run --config-file=cypress.config.ts
           echo "Cypress tests completed successfully."
 
-      # 14. Tear Down Docker Compose Environment
+      # 13. Tear Down Docker Compose Environment
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
         run: |
