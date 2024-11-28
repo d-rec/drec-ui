@@ -96,7 +96,6 @@ jobs:
           echo "DB_DATABASE=drec_db" >> .env
           echo "Environment variables set successfully."
 
-
       # 12. Run Cypress tests (assuming the frontend is running on localhost:4200)
       - name: Run Cypress tests
         run: |
