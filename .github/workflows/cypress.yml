@@ -117,12 +117,11 @@ jobs:
           npm install
           echo "Cypress dependencies installed successfully."
 
-      # 14. Run Cypress tests
+      # 14. Run Cypress tests with config path explicitly set
       - name: Run Cypress tests
-        working-directory: cypress
         run: |
           set -e
-          npx cypress run
+          npx cypress run --config-file=cypress.config.ts
           echo "Cypress tests completed successfully."
 
       # 15. Tear down the Docker Compose environment
