@@ -131,7 +131,6 @@ jobs:
         run: |
           set -e
           # Start the frontend (React) using `npm run start` from the frontend folder
-          cd projects/drec-ui
           npm run start &  # Run the frontend server in the background
           echo "Frontend server started."
 
