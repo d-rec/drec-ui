@@ -13,100 +13,62 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the main repository
       - name: Checkout Main Repository
         uses: actions/checkout@v2
 
-      # 2. Clone the backend repository
       - name: Clone Backend Repository
         run: |
-          set -e
           git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
-          echo "Backend repository cloned successfully."
 
-      # 3. Install Rush and pnpm globally
-      - name: Install Rush and pnpm
+      - name: Install Rush and pnpm globally
         run: |
-          set -e
           npm install -g @microsoft/rush pnpm
-          echo "Rush and pnpm installed successfully."
 
-      # 4. Install Backend Dependencies
       - name: Install Backend Dependencies (Rush Install)
         working-directory: projects/drec-origin
         run: |
-          set -e
           rush install
-          echo "Rush dependencies installed."
 
-      # 5. Install ts-node in the Backend Workspace
       - name: Install ts-node in Backend Workspace
         working-directory: projects/drec-origin/apps/drec-api
         run: |
-          set -e
           pnpm add ts-node tsconfig-paths typeorm --save-dev
-          echo "ts-node installed in backend workspace."
 
-      # 6. Set environment variables for testing (Add your private key and mnemonic here)
       - name: Set environment variables for testing
         run: |
-          set -e
-          export MNEMONIC="shine ability artefact river cabin copy blind hello gift hospital tenant region"
-          export PRIVATE_KEY=4773097f508a6edd206150766ee25cb5abc1635f28f9cfd27e144872e89dc9c9
-          echo "Environment variables set."
+          echo "MNEMONIC=${{ secrets.MNEMONIC }}" >> $GITHUB_ENV
+          echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" >> $GITHUB_ENV
 
-      # 7. Install Docker Compose (for the backend)
       - name: Install Docker Compose
         run: |
-          set -e
           sudo apt-get update
           sudo apt-get install -y docker-compose
-          echo "Docker Compose installed successfully."
 
-      # 8. Build and Start Services using Docker Compose
       - name: Build and Start Docker Services
         working-directory: projects/drec-origin
         run: |
-          set -e
           docker compose -f docker-compose.yml up --build -d
-          echo "Docker services built and started."
 
-      # 9. Start the Backend (using Rush in dev mode)
       - name: Start Backend (rush start:dev)
         working-directory: projects/drec-origin
         run: |
-          set -e
           rush start:dev
-          echo "Backend started in dev mode."
 
-      # 10. Install and Start Frontend
-      - name: Install and Start Frontend
+      - name: Install Frontend Dependencies
         working-directory: projects/drec-ui
         run: |
-          set -e
           npm install
-          npm run start &
-          echo "Frontend started."
 
-      # 11. Install Cypress Dependencies for E2E testing
       - name: Install Cypress Dependencies
         working-directory: cypress
         run: |
-          set -e
           npm install
-          echo "Cypress dependencies installed successfully."
 
-      # 12. Run Cypress Tests
       - name: Run Cypress Tests
         run: |
-          set -e
           npx cypress run --config-file=cypress.config.ts
-          echo "Cypress tests completed successfully."
 
-      # 13. Tear Down Docker Compose Environment
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
         run: |
-          set -e
           docker compose down
-          echo "Docker Compose environment torn down."
