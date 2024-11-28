@@ -121,18 +121,18 @@ jobs:
       - name: Start the backend server
         run: |
           set -e
-          # Start the backend (NestJS)
+          # Start the backend using `rush start:dev` from the backend folder
           cd projects/drec-origin
-          npm run start:dev &  # Adjust this if you use a different command
+          rush start:dev &  # This assumes `rush start:dev` is the correct command for your backend
           echo "Backend server started."
 
       # 15. Start the frontend server
       - name: Start the frontend server
         run: |
           set -e
-          # Start the frontend (React)
-          cd frontend  # Adjust if the frontend folder has a different name
-          npm run dev &  # Assuming npm run dev starts the frontend
+          # Start the frontend (React) using `npm run start` from the frontend folder
+          cd projects/drec-ui
+          npm run start &  # This assumes `npm run start` starts the frontend
           echo "Frontend server started."
 
       # 16. Wait for backend and frontend to be ready
