@@ -58,7 +58,7 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           set -e
-          printf "version: '3.8'\nservices:\n  postgres:\n    image: postgres:13\n    environment:\n      - POSTGRES_USER=drec_user\n      - POSTGRES_PASSWORD=password\n      - POSTGRES_DB=drec_db\n    ports:\n      - '5432:5432'\n\n  backend:\n    build:\n      context: .\n      dockerfile: backend/Dockerfile  # Explicitly specify Dockerfile path\n    ports:\n      - '3000:3000'\n    environment:\n      - DB_HOST=postgres\n      - DB_PORT=5432\n      - DB_USERNAME=drec_user\n      - DB_PASSWORD=password\n      - DB_DATABASE=drec_db\n    depends_on:\n      - postgres\n\nnetworks:\n  default:\n    driver: bridge\n" > docker-compose.yml
+          printf "version: '3.8'\nservices:\n  postgres:\n    image: postgres:13\n    environment:\n      - POSTGRES_USER=drec_user\n      - POSTGRES_PASSWORD=password\n      - POSTGRES_DB=drec_db\n    ports:\n      - '5432:5432'\n\n  backend:\n    build: .\n    ports:\n      - '3000:3000'\n    environment:\n      - DB_HOST=postgres\n      - DB_PORT=5432\n      - DB_USERNAME=drec_user\n      - DB_PASSWORD=password\n      - DB_DATABASE=drec_db\n    depends_on:\n      - postgres\n\nnetworks:\n  default:\n    driver: bridge\n" > docker-compose.yml
           echo "Docker Compose file created in the backend folder."
 
       # 8. Build and Start Services using Docker Compose
