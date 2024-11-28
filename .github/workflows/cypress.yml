@@ -1,3 +1,4 @@
+
 name: CI Workflow
 
 on:
@@ -37,14 +38,13 @@ jobs:
           npm install -g @microsoft/rush pnpm
           echo "Rush and pnpm installed successfully."
 
-      # 5. Set up Docker and Docker Compose
-      - name: Set up Docker and Docker Compose
+      # 5. Set up Docker Compose
+      - name: Install Docker Compose
         run: |
           set -e
           sudo apt-get update
-          sudo apt-get install -y docker.io docker-compose
-          sudo systemctl enable --now docker
-          echo "Docker and Docker Compose installed successfully."
+          sudo apt-get install -y docker-compose
+          echo "Docker Compose installed successfully."
 
       # 6. Create Docker Compose File
       - name: Create Docker Compose File
@@ -59,7 +59,7 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           set -e
-          docker compose -f docker-compose.yml up --build -d
+          docker compose up --build 
           echo "Docker services built and started in the backend folder."
 
       # 8. Wait for PostgreSQL and Backend to be Ready
@@ -95,5 +95,5 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           set -e
-          docker compose -f docker-compose.yml down
+          docker compose down
           echo "Docker Compose environment torn down."
