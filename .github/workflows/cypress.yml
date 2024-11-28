@@ -162,7 +162,6 @@ jobs:
           npx cypress run --config-file=cypress.config.ts
           echo "Cypress tests completed successfully."
 
-      # 12. Tear Down Docker Compose Environment
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
         run: |
