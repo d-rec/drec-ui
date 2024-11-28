@@ -126,7 +126,15 @@ jobs:
           rush start:dev &  # Run the backend server in the background
           echo "Backend server started."
 
-      # 15. Start the frontend server in the background
+      # 15. Wait for the NestJS backend to be fully ready
+      - name: Wait for backend to be ready
+        run: |
+          set -e
+          echo "Waiting for backend to be fully ready..."
+          timeout 180 bash -c "until curl -s http://localhost:3000/health | grep 'OK'; do echo 'Waiting for backend to be ready...'; sleep 5; done"
+          echo "Backend is ready."
+
+      # 16. Start the frontend server in the background
       - name: Start the frontend server
         run: |
           set -e
