@@ -61,9 +61,44 @@ jobs:
           docker compose -f docker-compose.yml up --build -d
           echo "Docker services built and started in the backend folder."
 
-      
+      # 8. Wait for PostgreSQL and Backend to be Ready
+      - name: Wait for Services to Be Ready
+        working-directory: projects/drec-origin
+        run: |
+          set -e
+          echo "Waiting for PostgreSQL..."
+          timeout 180 bash -c "until nc -z localhost 5432; do echo 'Waiting for PostgreSQL...'; sleep 5; done"
+          echo "PostgreSQL is ready."
 
-      # 9. Install Cypress dependencies
+          echo "Waiting for Backend..."
+          timeout 180 bash -c "until curl -s http://localhost:3000/health | grep 'OK'; do echo 'Waiting for backend...'; sleep 5; done"
+          echo "Backend is ready."
+
+      # 9. Start the Backend
+      - name: Start Backend (rush start:dev)
+        working-directory: projects/drec-origin
+        run: |
+          set -e
+          rush start:dev
+          echo "Backend started in dev mode."
+
+      # 10. Start the Frontend
+      - name: Start Frontend (npm run start)
+        working-directory: projects/drec-ui
+        run: |
+          set -e
+          npm install
+          npm run start &
+          echo "Frontend started."
+
+      # 11. Wait for the frontend to be ready
+      - name: Wait for Frontend to be Ready
+        run: |
+          set -e
+          timeout 180 bash -c "until curl -s http://localhost:3000 | grep 'OK'; do echo 'Waiting for frontend...'; sleep 5; done"
+          echo "Frontend is ready."
+
+      # 12. Install Cypress dependencies
       - name: Install Cypress Dependencies
         working-directory: cypress
         run: |
@@ -71,14 +106,14 @@ jobs:
           npm install
           echo "Cypress dependencies installed successfully."
 
-      # 10. Run Cypress tests
+      # 13. Run Cypress Tests
       - name: Run Cypress Tests
         run: |
           set -e
           npx cypress run --config-file=cypress.config.ts
           echo "Cypress tests completed successfully."
 
-      # 11. Tear Down Docker Compose Environment
+      # 14. Tear Down Docker Compose Environment
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
         run: |
