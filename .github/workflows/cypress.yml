@@ -117,14 +117,29 @@ jobs:
           npm install
           echo "Cypress dependencies installed successfully."
 
-      # 14. Run Cypress tests with config path explicitly set
+      # 14. Start the server (frontend or backend) before Cypress tests
+      - name: Start the server
+        run: |
+          set -e
+          # Assuming your frontend runs on localhost:4200 and backend on localhost:3040
+          npm run start &  # This assumes `npm run start` will start the frontend server
+          echo "Server started."
+
+      # 15. Wait for the server to be ready before running tests
+      - name: Wait for server to be ready
+        run: |
+          set -e
+          timeout 180 bash -c "until nc -z localhost 4200; do echo 'Waiting for server...'; sleep 5; done"
+          echo "Server is ready."
+
+      # 16. Run Cypress tests with config path explicitly set
       - name: Run Cypress tests
         run: |
           set -e
           npx cypress run --config-file=cypress.config.ts
           echo "Cypress tests completed successfully."
 
-      # 15. Tear down the Docker Compose environment
+      # 17. Tear down the Docker Compose environment
       - name: Tear down Docker Compose
         run: |
           set -e
