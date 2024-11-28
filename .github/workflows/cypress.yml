@@ -41,7 +41,7 @@ jobs:
       # --- SMART METER READINGS --- #
       INFLUXDB_URL: http://localhost:8086
       INFLUXDB_TOKEN: admin:admin
-      INFLUXDB_ORG: 
+      INFLUXDB_ORG: ""
       INFLUXDB_BUCKET: energy/autogen
       INFLUXDB_DB: energy
       INFLUXDB_ADMIN_USER: test
@@ -53,7 +53,7 @@ jobs:
       REACT_APP_ISSUER_ADDRESS: 0x28130b5603cfcd597862a1F6786AbFEgrr645430Ddc2B92F
       REACT_APP_SUPPORTED_NETWORK_IDS: 246
       REACT_APP_BLOCKCHAIN_EXPLORER_URL: https://volta-explorer.energyweb.org
-      REACT_APP_GOOGLE_MAPS_API_KEY: <API_KEY>
+      REACT_APP_GOOGLE_MAPS_API_KEY: "<API_KEY>"
       REACT_APP_REGISTRATION_MESSAGE_TO_SIGN: 'I register as D-REC Origin user'
 
       # Redis URL
@@ -63,20 +63,20 @@ jobs:
       SMTP_HOST: 'smtp.gmail.com'
       SMTP_PORT: 587
       SMTP_LOGIN: '247-demo@energyweb.org'
-      SMTP_PASSWORD: ****************
+      SMTP_PASSWORD: '****************'
       EMAIL_FROM_NAME: Energy Web Origin
       EMAIL_FROM: no-reply@example.com
 
       # S3 Bucket
-      accessKeyId: <accessKeyId>
-      secretAccessKey: <secretAccessKey>
-      region: <region>
-      bucketname: <bucketname>
+      accessKeyId: "<accessKeyId>"
+      secretAccessKey: "<secretAccessKey>"
+      region: "<region>"
+      bucketname: "<bucketname>"
 
       IREC_EVIDENT_API_URL: "https://api.sandbox.evident.dev"
-      IREC_EVIDENT_REGISTRANT_EMAIL: <IREC_EVIDENT_REGISTRANT_EMAIL>
-      IREC_EVIDENT_Password: <IREC_EVIDENT_Password>
-      IREC_EVIDENT_API_Token: <IREC_EVIDENT_API_Token>
+      IREC_EVIDENT_REGISTRANT_EMAIL: "<IREC_EVIDENT_REGISTRANT_EMAIL>"
+      IREC_EVIDENT_Password: "<IREC_EVIDENT_Password>"
+      IREC_EVIDENT_API_Token: "<IREC_EVIDENT_API_Token>"
 
     steps:
       # 1. Checkout the main repository
@@ -143,7 +143,7 @@ jobs:
         run: |
           set -e
           npm install
-          npm run start
+          npm run start &
           echo "Frontend started."
 
       # 10. Install Cypress Dependencies for E2E testing
@@ -160,6 +160,7 @@ jobs:
           set -e
           npx cypress run --config-file=cypress.config.ts
           echo "Cypress tests completed successfully."
+
       # 12. Tear Down Docker Compose Environment
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
