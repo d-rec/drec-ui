@@ -91,14 +91,15 @@ jobs:
         run: |
           set -e
           git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
-          continue-on-error: true
+          echo "Backend repository cloned successfully."
+          
 
       # 3. Install Rush and pnpm globally
       - name: Install Rush and pnpm
         run: |
           set -e
           npm install -g @microsoft/rush pnpm
-          continue-on-error: true
+          echo "Rush and pnpm installed successfully."
 
       # 4. Install Backend Dependencies
       - name: Install Backend Dependencies (Rush Install)
@@ -106,7 +107,7 @@ jobs:
         run: |
           set -e
           rush install
-          continue-on-error: true
+          echo "Rush dependencies installed."
 
       # 5. Install ts-node in the Backend Workspace
       - name: Install ts-node in Backend Workspace
@@ -114,7 +115,7 @@ jobs:
         run: |
           set -e
           pnpm add ts-node tsconfig-paths typeorm --save-dev
-          continue-on-error: true
+          echo "ts-node installed in backend workspace."
 
       # 6. Install Docker Compose (for the backend)
       - name: Install Docker Compose
@@ -122,7 +123,7 @@ jobs:
           set -e
           sudo apt-get update
           sudo apt-get install -y docker-compose
-           continue-on-error: true
+          echo "Docker Compose installed successfully."
 
       # 7. Build and Start Services using Docker Compose
       - name: Build and Start Docker Services
@@ -130,7 +131,7 @@ jobs:
         run: |
           set -e
           docker-compose -f docker-compose.yml up --build -d
-           continue-on-error: true
+          echo "Docker services built and started."
 
       # 8. Start the Backend (using Rush in dev mode)
       - name: Start Backend (rush start:dev)
@@ -138,7 +139,7 @@ jobs:
         run: |
           set -e
           timeout 300s  rush start:dev 
-           continue-on-error: true
+          echo "Backend started in dev mode."
 
       # 8. Wait for the backend to be ready
       - name: Wait for Backend to be Ready
@@ -146,7 +147,7 @@ jobs:
           set -e
           echo "Waiting for backend to be ready..."
           sleep 30
-           continue-on-error: true
+          echo "Backend is now ready."
 
       # 9. Install and Start Frontend
       - name: Install and Start Frontend
@@ -154,7 +155,7 @@ jobs:
           set -e
           npm install
           npm run start &  # Running the frontend in the background
-           continue-on-error: true
+          echo "Frontend started."
 
       # 10. Install Cypress Dependencies for E2E testing
       - name: Install Cypress Dependencies
@@ -162,14 +163,14 @@ jobs:
         run: |
           set -e
           npm install
-           continue-on-error: true
+          echo "Cypress dependencies installed successfully."
 
       # 11. Run Cypress Tests
       - name: Run Cypress Tests
         run: |
           set -e
           npx cypress run --config-file=cypress.config.ts
-           continue-on-error: true
+          echo "Cypress tests completed successfully."
 
       # 12. Tear Down Docker Compose Environment
       - name: Tear Down Docker Compose Environment
@@ -177,4 +178,4 @@ jobs:
         run: |
           set -e
           docker-compose down
-           continue-on-error: true
+          echo "Docker Compose environment torn down."
