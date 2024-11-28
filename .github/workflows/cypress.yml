@@ -136,7 +136,7 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           set -e
-          rush start:dev
+          rush start:dev --command-timeout=300000 --default-command-timeout=10000
           echo "Backend started in dev mode."
 
       # 8. Wait for the backend to be ready
@@ -149,7 +149,6 @@ jobs:
 
       # 9. Install and Start Frontend
       - name: Install and Start Frontend
-        working-directory: projects/drec-ui
         run: |
           set -e
           npm install
