@@ -134,17 +134,6 @@ jobs:
           npm run start &  # This assumes `npm run start` starts the frontend
           echo "Frontend server started."
 
-      # 16. Wait for backend and frontend to be ready
-      - name: Wait for backend and frontend to be ready
-        run: |
-          set -e
-          # Wait for the backend (e.g., API)
-          timeout 180 bash -c "until nc -z localhost 3040; do echo 'Waiting for backend...'; sleep 5; done"
-          echo "Backend is ready."
-          # Wait for the frontend (e.g., React app)
-          timeout 180 bash -c "until nc -z localhost 4200; do echo 'Waiting for frontend...'; sleep 5; done"
-          echo "Frontend is ready."
-
       # 17. Run Cypress tests with config path explicitly set
       - name: Run Cypress tests
         run: |
