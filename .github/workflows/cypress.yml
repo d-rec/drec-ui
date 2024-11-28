@@ -190,7 +190,6 @@ jobs:
           npm run start &
           echo "Frontend started."
  
-
       # 12. Install Cypress dependencies
       - name: Install Cypress Dependencies
         working-directory: cypress
