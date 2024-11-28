@@ -45,13 +45,13 @@ jobs:
           npm install -g @microsoft/rush pnpm
           echo "Rush and pnpm installed successfully."
 
-      # 6. Install Backend Dependencies
+      # 6. Install Backend Dependencies (pnpm + ts-node + other necessary packages)
       - name: Install Backend Dependencies
         working-directory: projects/drec-origin
         run: |
           set -e
-          pnpm install
-          pnpm add ts-node tsconfig-paths typeorm --save-dev
+          pnpm install  # Install all backend dependencies including ts-node
+          pnpm add ts-node tsconfig-paths typeorm --save-dev  # Ensure ts-node is added if not already
           echo "Backend dependencies installed successfully."
 
       # 7. Set up Docker Compose (for the backend)
