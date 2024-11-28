@@ -118,12 +118,6 @@ jobs:
           sudo apt-get install -y docker-compose
           echo "Docker Compose installed successfully."
 
-      # 7. Initialize Database
-      - name: Initialize Database
-        run: |
-          psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
-          echo "Database initialized successfully."
-
       # 8. Build and Start Services using Docker Compose
       - name: Build and Start Docker Services
         working-directory: projects/drec-origin
