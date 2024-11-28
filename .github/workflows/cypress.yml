@@ -109,17 +109,7 @@ jobs:
           fi
           echo "Cypress folder verified."
 
-      # 13. Verify Cypress configuration file exists
-      - name: Verify Cypress configuration file exists
-        run: |
-          set -e
-          if [ ! -f "cypress.json" ] && [ ! -f "cypress.config.ts" ]; then
-            echo "Cypress configuration file (cypress.json or cypress.config.ts) not found. Exiting."
-            exit 1
-          fi
-          echo "Cypress configuration file verified."
-
-      # 14. Install Cypress dependencies
+      # 13. Install Cypress dependencies
       - name: Install Cypress dependencies
         working-directory: cypress
         run: |
@@ -127,7 +117,7 @@ jobs:
           npm install
           echo "Cypress dependencies installed successfully."
 
-      # 15. Run Cypress tests
+      # 14. Run Cypress tests
       - name: Run Cypress tests
         working-directory: cypress
         run: |
@@ -135,7 +125,7 @@ jobs:
           npx cypress run
           echo "Cypress tests completed successfully."
 
-      # 16. Tear down the Docker Compose environment
+      # 15. Tear down the Docker Compose environment
       - name: Tear down Docker Compose
         run: |
           set -e
