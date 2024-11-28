@@ -117,22 +117,32 @@ jobs:
           npm install
           echo "Cypress dependencies installed successfully."
 
-      # 14. Start the backend server
+      # 14. Start the backend server in the background
       - name: Start the backend server
         run: |
           set -e
           # Start the backend using `rush start:dev` from the backend folder
           cd projects/drec-origin
-          rush start:dev &  # This assumes `rush start:dev` is the correct command for your backend
+          rush start:dev &  # Run the backend server in the background
           echo "Backend server started."
 
-      # 15. Start the frontend server
+      # 15. Start the frontend server in the background
       - name: Start the frontend server
         run: |
           set -e
           # Start the frontend (React) using `npm run start` from the frontend folder
-          npm run start &  # This assumes `npm run start` starts the frontend
+          cd projects/drec-ui
+          npm run start &  # Run the frontend server in the background
           echo "Frontend server started."
+
+      # 16. Wait for both servers to be ready (Backend & Frontend)
+      - name: Wait for both servers to be ready
+        run: |
+          set -e
+          echo "Waiting for the frontend and backend to be ready..."
+          timeout 180 bash -c "until nc -z localhost 3000; do echo 'Waiting for frontend...'; sleep 5; done"  # Wait for frontend
+          timeout 180 bash -c "until nc -z localhost 8080; do echo 'Waiting for backend...'; sleep 5; done"  # Wait for backend
+          echo "Both servers are ready."
 
       # 17. Run Cypress tests with config path explicitly set
       - name: Run Cypress tests
