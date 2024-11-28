@@ -1,5 +1,5 @@
 describe('Sign Up Test', () => {
-  afterEach(() => {
+  beforeEach(() => {
    
     cy.clearDatabase();
   });
