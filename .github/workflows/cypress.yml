@@ -14,18 +14,18 @@ jobs:
 
     steps:
       # 1. Checkout the main repository
-      - name: Checkout main repository
+      - name: Checkout Main Repository
         uses: actions/checkout@v2
 
       # 2. Clone the backend repository
-      - name: Clone backend repository
+      - name: Clone Backend Repository
         run: |
           set -e
           git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
           echo "Backend repository cloned successfully."
 
       # 3. Set up Node.js
-      - name: Set up Node.js
+      - name: Set Up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '20'
@@ -46,11 +46,11 @@ jobs:
           echo "Docker Compose installed successfully."
 
       # 6. Create Docker Compose File
-      - name: Create Docker Compose file
+      - name: Create Docker Compose File
         working-directory: projects/drec-origin
         run: |
           set -e
-          printf "version: '3.8'\nservices:\n  postgres:\n    image: postgres:13\n    environment:\n      POSTGRES_USER: drec_user\n      POSTGRES_PASSWORD: password\n      POSTGRES_DB: drec_db\n    ports:\n      - '5432:5432'\n  backend:\n    build: .\n    ports:\n      - '3000:3000'\n    environment:\n      DB_HOST=postgres\n      DB_PORT=5432\n      DB_USERNAME=drec_user\n      DB_PASSWORD=password\n      DB_DATABASE=drec_db\n    depends_on:\n      - postgres\nnetworks:\n  default:\n    driver: bridge\n" > docker-compose.yml
+          printf "version: '3.8'\nservices:\n  postgres:\n    image: postgres:13\n    environment:\n      - POSTGRES_USER=drec_user\n      - POSTGRES_PASSWORD=password\n      - POSTGRES_DB=drec_db\n    ports:\n      - '5432:5432'\n\n  backend:\n    build: .\n    ports:\n      - '3000:3000'\n    environment:\n      - DB_HOST=postgres\n      - DB_PORT=5432\n      - DB_USERNAME=drec_user\n      - DB_PASSWORD=password\n      - DB_DATABASE=drec_db\n    depends_on:\n      - postgres\n\nnetworks:\n  default:\n    driver: bridge\n" > docker-compose.yml
           echo "Docker Compose file created in the backend folder."
 
       # 7. Build and Start Services using Docker Compose
@@ -62,7 +62,7 @@ jobs:
           echo "Docker services built and started in the backend folder."
 
       # 8. Wait for PostgreSQL and Backend to be Ready
-      - name: Wait for services to be ready
+      - name: Wait for Services to Be Ready
         working-directory: projects/drec-origin
         run: |
           set -e
@@ -75,7 +75,7 @@ jobs:
           echo "Backend is ready."
 
       # 9. Install Cypress dependencies
-      - name: Install Cypress dependencies
+      - name: Install Cypress Dependencies
         working-directory: cypress
         run: |
           set -e
@@ -83,14 +83,14 @@ jobs:
           echo "Cypress dependencies installed successfully."
 
       # 10. Run Cypress tests
-      - name: Run Cypress tests
+      - name: Run Cypress Tests
         run: |
           set -e
           npx cypress run --config-file=cypress.config.ts
           echo "Cypress tests completed successfully."
 
-      # 11. Tear down Docker Compose environment
-      - name: Tear down Docker Compose
+      # 11. Tear Down Docker Compose Environment
+      - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
         run: |
           set -e
