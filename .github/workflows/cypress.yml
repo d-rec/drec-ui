@@ -122,12 +122,7 @@ jobs:
           docker-compose up --build -d
           echo "Docker services started."
 
-      # 7. Create Postgres Database
-      - name: Create Postgres Database
-        run: |
-          psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
-          echo "Postgres database created successfully."
-
+     
       # 8. Install Backend Dependencies
       - name: Install Backend Dependencies (Rush Install)
         working-directory: projects/drec-origin
