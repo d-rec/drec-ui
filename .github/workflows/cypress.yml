@@ -12,89 +12,94 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-      # Other variables omitted for brevity...
-
     steps:
       # 1. Checkout the main repository
       - name: Checkout Main Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # 2. Clone the backend repository
       - name: Clone Backend Repository
         run: |
-          git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin || true
+          git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
           echo "Backend repository cloned successfully."
 
       # 3. Install Rush and pnpm globally
       - name: Install Rush and pnpm
         run: |
-          npm install -g @microsoft/rush pnpm || true
+          npm install -g @microsoft/rush pnpm
           echo "Rush and pnpm installed successfully."
 
       # 4. Install Backend Dependencies
       - name: Install Backend Dependencies (Rush Install)
         working-directory: projects/drec-origin
         run: |
-          rush install || true
+          rush install
           echo "Rush dependencies installed."
 
       # 5. Install ts-node in Backend Workspace
       - name: Install ts-node in Backend Workspace
         working-directory: projects/drec-origin/apps/drec-api
         run: |
-          pnpm add ts-node tsconfig-paths typeorm --save-dev || true
+          pnpm add ts-node tsconfig-paths typeorm --save-dev
           echo "ts-node installed in backend workspace."
 
       # 6. Install Docker Compose
       - name: Install Docker Compose
         run: |
-          sudo apt-get update || true
-          sudo apt-get install -y docker-compose || true
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
           echo "Docker Compose installed successfully."
 
       # 7. Build and Start Services using Docker Compose
       - name: Build and Start Docker Services
         working-directory: projects/drec-origin
         run: |
-          docker-compose -f docker-compose.yml up --build -d || true
+          docker-compose -f docker-compose.yml up --build -d
           echo "Docker services built and started."
 
-      # 8. Start the Backend
+      # 8. Wait for Services to Be Ready
+      - name: Wait for Docker Services
+        run: |
+          sleep 30
+          echo "Docker services are now ready."
+
+      # 9. Start the Backend
       - name: Start Backend (rush start:dev)
         working-directory: projects/drec-origin
         run: |
-          timeout 300s rush start:dev || true
+          rush start:dev &
+          sleep 10
           echo "Backend started in dev mode."
 
-      # 9. Wait for Backend to be Ready
-      - name: Wait for Backend to be Ready
+      # 10. Install Frontend Dependencies
+      - name: Install Frontend Dependencies
+        working-directory: .
         run: |
-          sleep 30 || true
-          echo "Backend is now ready."
+          npm install
+          echo "Frontend dependencies installed."
 
-      # 10. Install and Start Frontend
-      - name: Install and Start Frontend
+      # 11. Start Frontend
+      - name: Start Frontend
         run: |
-          npm install || true
-          npm run start &  # Run the frontend in the background
-          echo "Frontend started."
+          npm run start &
+          echo "Frontend started in the background."
 
-      # 11. Install Cypress Dependencies
+      # 12. Install Cypress Dependencies
       - name: Install Cypress Dependencies
         working-directory: cypress
         run: |
-          npm install || true
+          npm install
           echo "Cypress dependencies installed successfully."
 
-      # 12. Run Cypress Tests
+      # 13. Run Cypress Tests
       - name: Run Cypress Tests
         run: |
-          npx cypress run --config-file=cypress.config.ts || true
-          echo "Cypress tests completed (including any failures)."
+          npx cypress run --config-file=cypress.config.ts
+          echo "Cypress tests completed."
 
-      # 13. Tear Down Docker Compose Environment
+      # 14. Tear Down Docker Compose Environment
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
         run: |
-          docker-compose down || true
+          docker-compose down
           echo "Docker Compose environment torn down."
