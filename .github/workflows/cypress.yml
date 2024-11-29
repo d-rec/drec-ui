@@ -54,13 +54,13 @@ jobs:
       - name: Build and Start Docker Services
         working-directory: projects/drec-origin
         run: |
-          docker-compose -f docker-compose.yml up --build -d
+          docker-compose up --build 
           echo "Docker services built and started."
 
       # 8. Wait for Services to Be Ready
       - name: Wait for Docker Services
         run: |
-          sleep 30
+          sleep 50
           echo "Docker services are now ready."
 
       # 9. Start the Backend
@@ -68,7 +68,7 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           rush start:dev &
-          sleep 10
+          sleep 50
           echo "Backend started in dev mode."
 
       # 10. Install Frontend Dependencies
