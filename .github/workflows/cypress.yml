@@ -36,88 +36,94 @@ jobs:
       ADMIN_PASSWORD: 1234Rc
 
     steps:
-      # Step 1: Checkout the repository
+      # 1. Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      # Step 2: Clone the backend repository
-      - name: Clone Backend Repository
+      # 2. Install Influx Client
+      - name: Install Influx Client
         run: |
-          git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
-          echo "Backend repository cloned successfully."
+          sudo apt update
+          sudo apt install -y influxdb-client
+          echo "Influx client installed successfully."
 
-      # Step 3: Install Rush and pnpm globally
-      - name: Install Rush and pnpm
+      # 3. Install and Set Up NVM
+      - name: Install and Set Up NVM
+        run: |
+          sudo wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install 20.14.0
+          nvm use 20.14.0
+          echo "NVM installed and Node.js 20.14.0 configured."
+
+      # 4. Install Global Dependencies
+      - name: Install Global Dependencies
         run: |
           npm install -g @microsoft/rush pnpm
-          echo "Rush and pnpm installed successfully."
+          echo "Rush and pnpm installed globally."
 
-      # Step 4: Install Backend Dependencies using Rush
-      - name: Install Backend Dependencies
-        working-directory: projects/drec-origin
+      # 5. Clone Backend Repository
+      - name: Clone Backend Repository
         run: |
-          rush install
-          echo "Rush dependencies installed."
+          mkdir drec
+          cd drec
+          git clone https://github.com/drec/drec-origin.git
+          chmod -R 777 drec-origin/
+          echo "Backend repository cloned successfully."
 
-      # Step 5: Install TypeScript tools in Backend Workspace
-      - name: Install TypeScript Tools
-        working-directory: projects/drec-origin/apps/drec-api
-        run: |
-          pnpm add ts-node tsconfig-paths typeorm --save-dev
-          echo "TypeScript tools installed in backend workspace."
-
-      # Step 6: Install Docker Compose
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-          echo "Docker Compose installed successfully."
-
-      # Step 7: Build and Start Services using Docker Compose
-      - name: Build and Start Docker Services
-        working-directory: projects/drec-origin
+      # 6. Start Docker Services
+      - name: Start Docker Services
+        working-directory: drec/drec-origin
         run: |
           docker-compose up --build -d
-          echo "Docker services built and started."
+          echo "Docker services started."
 
-      # Step 8: Start the Backend in Dev Mode
-      - name: Start Backend in Dev Mode
-        working-directory: projects/drec-origin
+      # 7. Create PostgreSQL Database
+      - name: Create PostgreSQL Database
         run: |
-          timeout 300s rush start:dev
+          sleep 10 # Wait for PostgreSQL to start
+          psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
+          echo "PostgreSQL database created."
+
+      # 8. Install Project Dependencies and Build
+      - name: Install Dependencies and Build
+        working-directory: drec/drec-origin
+        run: |
+          rush install
+          rush build
+          echo "Dependencies installed and project built."
+
+      # 9. Start Backend
+      - name: Start Backend
+        working-directory: drec/drec-origin
+        run: |
+          rush start:dev &
           echo "Backend started in dev mode."
 
-      # Step 9: Wait for Backend to be Ready
-      - name: Wait for Backend to be Ready
+      # 10. Wait for Backend to Be Ready
+      - name: Wait for Backend to Be Ready
         run: |
           sleep 30
           echo "Backend is now ready."
 
-      # Step 10: Install and Start Frontend
-      - name: Install and Start Frontend
-        working-directory: projects/drec-origin
-        run: |
-          npm install
-          npm run start &
-          echo "Frontend started."
-
-      # Step 11: Install Cypress Dependencies
+      # 11. Install Cypress Dependencies
       - name: Install Cypress Dependencies
-        working-directory: cypress
+        working-directory: drec/drec-origin/cypress
         run: |
           npm install
           echo "Cypress dependencies installed successfully."
 
-      # Step 12: Run Cypress Tests
+      # 12. Run Cypress Tests
       - name: Run Cypress Tests
-        working-directory: cypress
+        working-directory: drec/drec-origin/cypress
         run: |
           npx cypress run --config-file=cypress.config.ts
-          echo "Cypress tests completed."
+          echo "Cypress tests executed."
 
-      # Step 13: Tear Down Docker Compose Environment
-      - name: Tear Down Docker Compose
-        working-directory: projects/drec-origin
+      # 13. Tear Down Docker Services
+      - name: Tear Down Docker Services
+        working-directory: drec/drec-origin
         run: |
           docker-compose down
-          echo "Docker Compose environment torn down."
+          echo "Docker services stopped."
