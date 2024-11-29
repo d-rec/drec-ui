@@ -77,7 +77,7 @@ jobs:
       - name: Start Docker Services
         working-directory: .
         run: |
-          docker-compose up --build -d
+          docker compose up --build -d
           echo "Docker services started."
 
       # 7. Create PostgreSQL Database
