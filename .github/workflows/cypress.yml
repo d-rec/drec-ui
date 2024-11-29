@@ -54,7 +54,8 @@ jobs:
       - name: Build and Start Docker Services
         working-directory: projects/drec-origin
         run: |
-          docker-compose up --build 
+          docker compose up --build 
+          sleep 50
           echo "Docker services built and started."
 
       # 8. Wait for Services to Be Ready
