@@ -54,16 +54,18 @@ jobs:
       - name: Build and Start Docker Services
         working-directory: projects/drec-origin
         run: |
-          docker compose up --build -d
+          docker compose up --build 
+              sleep 5
+            done
           echo "Docker services built and started."
 
       # 8. Wait for Services to Be Ready
       - name: Wait for Docker Services
         run: |
-          timeout 30s bash -c 'until curl -s http://localhost:3000; do echo "Waiting for backend..."; sleep 5; done'
+          timeout-minutes: 30
           echo "Docker services are now ready."
 
-      # 9. Start Backend
+      # 9. Start the Backend
       - name: Start Backend (rush start:dev)
         working-directory: projects/drec-origin
         run: |
