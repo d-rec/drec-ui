@@ -12,7 +12,138 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      # Define environment variables here for testing
+      MODE: dev
+      WEB3: https://volta-rpc.energyweb.org
+      UI_BASE_URL: http://localhost:4200
+      DEBUG_API_KEY: debug
+      BACKEND_PORT: 3040
+
+      # --- DATABASE --- #
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: origin
+
+      # --- AUTH --- #
+      JWT_SECRET: thisisnotsecret
+      JWT_EXPIRY_TIME: "7 days"
+
+      # --- BLOCKCHAIN --- #
+      MNEMONIC: "shine ability artefact river cabin copy blind hello gift hospital tenant region"
+      ISSUER_PRIVATE_KEY: 4773097f508a6edd206150766ee25cb5abc1635f28f9cfd27e144872e89dc9c9
+      DREC_BLOCKCHAIN_ADDRESS: "0xDeC1488838C65E355A9336eE8DdFc32665dB9222"
+
+      CERTIFICATE_QUEUE_DELAY: 60000
+
+      # --- SMART METER READINGS --- #
+      INFLUXDB_URL: http://localhost:8086
+      INFLUXDB_TOKEN: admin:admin
+      INFLUXDB_ORG: ""
+      INFLUXDB_BUCKET: energy/autogen
+      INFLUXDB_DB: energy
+      INFLUXDB_ADMIN_USER: test
+      INFLUXDB_ADMIN_PASSWORD: test
+      INFLUXDB_USER: api
+      INFLUXDB_USER_PASSWORD: secret
+
+      # UI & External Services
+      REACT_APP_ISSUER_ADDRESS: "0x28130b5603cfcd597862a1F6786AbFEgrr645430Ddc2B92F"
+      REACT_APP_SUPPORTED_NETWORK_IDS: 246
+      REACT_APP_BLOCKCHAIN_EXPLORER_URL: https://volta-explorer.energyweb.org
+      REACT_APP_GOOGLE_MAPS_API_KEY: "<API_KEY>"
+      REACT_APP_REGISTRATION_MESSAGE_TO_SIGN: 'I register as D-REC Origin user'
+
+      # Redis URL
+      REDIS_URL: redis://localhost:6379
+
+      # Mail Config
+      SMTP_HOST: 'smtp.gmail.com'
+      SMTP_PORT: 587
+      SMTP_LOGIN: '247-demo@energyweb.org'
+      SMTP_PASSWORD: '****************'
+      EMAIL_FROM_NAME: Energy Web Origin
+      EMAIL_FROM: no-reply@example.com
+
+      # S3 Bucket
+      accessKeyId: "<accessKeyId>"
+      secretAccessKey: "<secretAccessKey>"
+      region: "<region>"
+      bucketname: "<bucketname>"
+
+      IREC_EVIDENT_API_URL: "https://api.sandbox.evident.dev"
+      IREC_EVIDENT_REGISTRANT_EMAIL: "<IREC_EVIDENT_REGISTRANT_EMAIL>"
+      IREC_EVIDENT_Password: "<IREC_EVIDENT_Password>"
+      IREC_EVIDENT_API_Token: "<IREC_EVIDENT_API_Token>"
+      ADMIN_EMAIL: drec@gmail.com
+      ADMIN_PASSWORD: 1234Rc
+
     steps:
+      # 1. Checkout the main repository
+      - name: Checkout Main Repository
+        uses: actions/checkout@v2
+
+      # 2. Install System Dependencies
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y influxdb-client docker-compose postgresql-client
+          echo "System dependencies installed successfully."
+
+      # 3. Install and Setup nvm
+      - name: Install and Setup nvm
+        run: |
+          wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install 20.14.0
+          nvm use 20.14.0
+          echo "nvm installed and Node.js v20.14.0 setup successfully."
+
+      # 4. Install Rush and pnpm globally
+      - name: Install Rush and pnpm
+        run: |
+          npm install -g @microsoft/rush pnpm
+          echo "Rush and pnpm installed successfully."
+
+      # 5. Clone Backend Repository
+      - name: Clone Backend Repository
+        run: |
+          git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
+          chmod -R 777 projects/drec-origin
+          echo "Backend repository cloned successfully."
+
+      # 6. Start Docker Services (Postgres, Redis, InfluxDB)
+      - name: Start Docker Services
+        working-directory: projects/drec-origin
+        run: |
+          docker-compose up --build -d
+          echo "Docker services started."
+
+     
+      # 8. Install Backend Dependencies
+      - name: Install Backend Dependencies (Rush Install)
+        working-directory: projects/drec-origin
+        run: |
+          rush install
+          echo "Rush dependencies installed."
+
+      # 9. Build the Backend
+      - name: Build Backend
+        working-directory: projects/drec-origin
+        run: |
+          rush build
+          echo "Backend built successfully."
+
+      # 10. Start the Backend (using Rush in dev mode)
+      - name: Start Backend (rush start:dev)
+        working-directory: projects/drec-origin
+        run: |
+          rush start:dev &
+          echo "Backend started in dev mode."
+
       # 11. Install and Start Frontend
       - name: Install and Start Frontend
         run: |
