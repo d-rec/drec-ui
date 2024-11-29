@@ -55,7 +55,8 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           docker compose up --build 
-          timeout-minutes: 30
+              sleep 5
+            done
           echo "Docker services built and started."
 
       # 8. Wait for Services to Be Ready
