@@ -79,7 +79,7 @@ jobs:
       - name: Build and Start Docker Services
         working-directory: projects/drec-origin
         run: |
-          docker-compose -f docker-compose.yml up --build -d || true
+          docker-compose -f docker-compose.yml up --build  || true
           echo "Docker services built and started."
 
       # 8. Start the Backend
