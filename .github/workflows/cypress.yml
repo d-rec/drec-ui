@@ -146,7 +146,6 @@ jobs:
 
       # 11. Install and Start Frontend
       - name: Install and Start Frontend
-        working-directory: projects/drec-ui
         run: |
           npm install
           npm run start &
