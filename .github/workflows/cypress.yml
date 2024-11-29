@@ -58,12 +58,7 @@ jobs:
             sleep 5
           echo "Docker services built and started."
 
-      # 8. Wait for Services to Be Ready
-      - name: Wait for Docker Services
-        run: |
-          timeout-minutes: 30
-          echo "Docker services are now ready."
-
+     
       # 9. Start the Backend
       - name: Start Backend (rush start:dev)
         working-directory: projects/drec-origin
