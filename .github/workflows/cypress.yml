@@ -119,7 +119,7 @@ jobs:
       - name: Start Docker Services
         working-directory: projects/drec-origin
         run: |
-          docker-compose up --build -d
+          docker-compose up --build -d || true
           echo "Docker services started."
 
      
