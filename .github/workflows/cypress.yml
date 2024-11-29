@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Environment variables for testing
+      # Define environment variables here for testing
       MODE: dev
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
@@ -81,78 +81,97 @@ jobs:
       ADMIN_PASSWORD: 1234Rc
 
     steps:
-      # Step 1: Checkout Repository
+      # 1. Checkout the main repository
       - name: Checkout Main Repository
         uses: actions/checkout@v2
 
-      # Step 2: Install InfluxDB Client
-      - name: Install InfluxDB Client
+      # 2. Install System Dependencies
+      - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y influxdb-client
-          echo "InfluxDB Client installed."
+          sudo apt-get install -y influxdb-client docker-compose postgresql-client
+          echo "System dependencies installed successfully."
 
-      # Step 3: Install nvm and Node.js
-      - name: Install Node Version Manager (nvm) and Node.js
+      # 3. Install and Setup nvm
+      - name: Install and Setup nvm
         run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-          source ~/.nvm/nvm.sh
+          sudo wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+          source ~/.bashrc
           nvm install 20.14.0
-          echo "nvm and Node.js installed."
+          nvm use 20.14.0
+          echo "nvm installed and Node.js v20.14.0 setup successfully."
 
-      # Step 4: Install Rush and pnpm Globally
+      # 4. Install Rush and pnpm globally
       - name: Install Rush and pnpm
         run: |
           npm install -g @microsoft/rush pnpm
           echo "Rush and pnpm installed successfully."
 
-      # Step 5: Setup Database and Redis Services
-      - name: Start PostgreSQL, Redis, and InfluxDB
+      # 5. Clone Backend Repository
+      - name: Clone Backend Repository
         run: |
-          docker-compose -f docker-compose.yml up --build -d
-          echo "PostgreSQL, Redis, and InfluxDB services started."
+          git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
+          chmod -R 777 projects/drec-origin
+          echo "Backend repository cloned successfully."
 
-      # Step 6: Create Postgres Database
+      # 6. Start Docker Services (Postgres, Redis, InfluxDB)
+      - name: Start Docker Services
+        working-directory: projects/drec-origin
+        run: |
+          docker-compose up --build -d
+          echo "Docker services started."
+
+      # 7. Create Postgres Database
       - name: Create Postgres Database
         run: |
-          psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin;"
-          echo "Postgres database 'origin' created."
+          psql -h localhost -p 5432 -U postgres -c "CREATE DATABASE origin"
+          echo "Postgres database created successfully."
 
-      # Step 7: Install Backend Dependencies
-      - name: Install Backend Dependencies
+      # 8. Install Backend Dependencies
+      - name: Install Backend Dependencies (Rush Install)
+        working-directory: projects/drec-origin
         run: |
           rush install
-          echo "Backend dependencies installed."
+          echo "Rush dependencies installed."
 
-      # Step 8: Build Backend Project
-      - name: Build Backend Project
+      # 9. Build the Backend
+      - name: Build Backend
+        working-directory: projects/drec-origin
         run: |
           rush build
           echo "Backend built successfully."
 
-      # Step 9: Run Database Migrations
-      - name: Run Database Migrations
+      # 10. Start the Backend (using Rush in dev mode)
+      - name: Start Backend (rush start:dev)
+        working-directory: projects/drec-origin
         run: |
-          rush start:dev
-          echo "Database migrations executed."
+          rush start:dev &
+          echo "Backend started in dev mode."
 
-      # Step 10: Install and Run Frontend
+      # 11. Install and Start Frontend
       - name: Install and Start Frontend
         working-directory: projects/drec-ui
         run: |
           npm install
           npm run start &
-          echo "Frontend started successfully."
+          echo "Frontend started."
 
-      # Step 11: Run Tests
-      - name: Run Tests
+      # 12. Install Cypress Dependencies for E2E Testing
+      - name: Install Cypress Dependencies
+        working-directory: cypress
+        run: |
+          npm install
+          echo "Cypress dependencies installed successfully."
+
+      # 13. Run Cypress Tests
+      - name: Run Cypress Tests
+        run: |
+          npx cypress run --config-file=cypress.config.ts
+          echo "Cypress tests completed successfully."
+
+      # 14. Tear Down Docker Compose Environment
+      - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
         run: |
-          rush test
-          echo "Tests executed successfully."
-
-      # Step 12: Tear Down Docker Services
-      - name: Tear Down Docker Services
-        run: |
-          docker-compose -f docker-compose.yml down
-          echo "Docker services stopped."
+          docker-compose down
+          echo "Docker Compose environment torn down."
