@@ -55,16 +55,20 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           docker compose up --build -d
-            sleep 5
           echo "Docker services built and started."
 
-     
-      # 9. Start the Backend
+      # 8. Wait for Backend to Be Ready
+      - name: Wait for Backend to Be Ready
+        run: |
+          # Wait for the backend service to be available on the desired port (e.g., 3000)
+          timeout 30s bash -c 'until curl -s http://localhost:3000; do echo "Waiting for backend..."; sleep 5; done'
+          echo "Backend is ready and running."
+
+      # 9. Start Backend (rush start:dev)
       - name: Start Backend (rush start:dev)
         working-directory: projects/drec-origin
         run: |
           rush start:dev &
-          sleep 50
           echo "Backend started in dev mode."
 
       # 10. Install Frontend Dependencies
