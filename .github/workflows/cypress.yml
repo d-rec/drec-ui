@@ -51,7 +51,13 @@ jobs:
 
       - name: Start Docker Services
         working-directory: projects/drec-origin
-        run: docker-compose up -d
+        run: |
+          docker-compose up -d
+          # Wait for the backend to be up and running
+          until curl --silent --fail http://localhost:3040; do
+            echo "Waiting for backend to be ready..."
+            sleep 5
+          done
 
       - name: Install Backend Dependencies
         working-directory: projects/drec-origin
@@ -65,13 +71,20 @@ jobs:
         working-directory: projects/drec-origin
         run: rush start:dev &
 
-      - name: Install and Start Frontend
+      - name: Install Frontend Dependencies
+        working-directory: frontend
         run: |
           npm install
+
+      - name: Start Frontend
+        working-directory: frontend
+        run: |
           npm run start &
 
       - name: Run Cypress Tests
-        run: npx cypress run
+        run: |
+          npx cypress run
+
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
         run: docker-compose down
