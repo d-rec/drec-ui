@@ -14,6 +14,7 @@ jobs:
 
     env:
       # Define environment variables here for testing
+      REACT_APP_BACKEND_URL: http://localhost:3040
       MODE: dev
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
@@ -119,7 +120,7 @@ jobs:
       - name: Start Docker Services
         working-directory: projects/drec-origin
         run: |
-          docker-compose up --build -d || true
+          docker compose up --build 
           echo "Docker services started."
 
      
