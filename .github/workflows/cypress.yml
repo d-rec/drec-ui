@@ -80,7 +80,6 @@ jobs:
 
       - name: Run Cypress Tests
         run: npx cypress run
-
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
         run: docker-compose down
