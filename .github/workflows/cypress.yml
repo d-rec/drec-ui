@@ -62,7 +62,6 @@ jobs:
       - name: Build Backend using Rush
         working-directory: projects/drec-origin
         run: rush build 
-        
       - name: Start Backend using Rush
         working-directory: projects/drec-origin
         run: |
