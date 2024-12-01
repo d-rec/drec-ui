@@ -51,7 +51,7 @@ jobs:
 
       - name: Start Docker Services
         working-directory: projects/drec-origin
-        run: docker-compose up -d
+        run: docker-compose up 
 
       - name: Install Backend Dependencies
         working-directory: projects/drec-origin
