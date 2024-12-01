@@ -27,19 +27,22 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Install pnpm and Rush globally
+        run: |
+          npm install -g pnpm @microsoft/rush
+
       - name: Install System Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat curl
 
-      - name: Setup Node.js and pnpm
+      - name: Setup Node.js
         run: |
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
           export NVM_DIR="$HOME/.nvm"
           . "$NVM_DIR/nvm.sh"
           nvm install 20.14.0
           nvm use 20.14.0
-          npm install -g pnpm
 
       - name: Clone Backend Repository
         run: |
@@ -52,18 +55,18 @@ jobs:
           docker-compose up -d  # Run Docker in detached mode
           docker-compose logs --tail=100  # Capture logs to help with debugging
 
-      - name: Install Backend Dependencies with pnpm
+      - name: Install Backend Dependencies using Rush
         working-directory: projects/drec-origin
-        run: pnpm install
+        run: rush install  # Use Rush to install dependencies
 
-      - name: Build Backend with pnpm
+      - name: Build Backend using Rush
         working-directory: projects/drec-origin
-        run: pnpm run build
+        run: rush build  # Use Rush to build the project
 
-      - name: Start Backend with pnpm
+      - name: Start Backend using Rush
         working-directory: projects/drec-origin
         run: |
-          nohup pnpm run start:dev &  # Keep the backend process running in the background
+          nohup rush start:dev &  # Keep the backend process running in the background
           
       - name: Clear Database
         run: |
@@ -72,11 +75,11 @@ jobs:
 
       - name: Install and Start Frontend
         run: |
-          pnpm install
+          pnpm install  # Use pnpm instead of npm
           pnpm run start &
 
       - name: Run Cypress Tests
-        run: npx cypress run
+        run: pnpx cypress run  # Use pnpx instead of npx for pnpm
 
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
