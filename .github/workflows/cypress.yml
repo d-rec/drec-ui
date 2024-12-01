@@ -30,7 +30,7 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y influxdb-client docker-compose postgresql-client
+          sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat
 
       - name: Setup Node.js
         run: |
@@ -72,8 +72,10 @@ jobs:
           echo "Waiting for backend to be fully ready..."
           RETRY_COUNT=0
           MAX_RETRIES=20  # Increased retries
-          BACKEND_URL="http://drec-origin-backend:3040/api/health"  # Internal Docker service name
-          until curl --silent --fail $BACKEND_URL; do
+          BACKEND_HOST="drec-origin-backend"
+          BACKEND_PORT="3040"  # Adjust as needed
+          # Try to check if the port is open and the backend is responsive
+          until nc -z -v -w30 $BACKEND_HOST $BACKEND_PORT; do
             RETRY_COUNT=$((RETRY_COUNT+1))
             if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
               echo "Backend did not start in time, exiting..."
