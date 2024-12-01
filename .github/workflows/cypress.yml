@@ -75,6 +75,14 @@ jobs:
       ADMIN_EMAIL: drec@gmail.com
       ADMIN_PASSWORD: 1234Rc
 
+    services:
+      backend:
+        image: your-backend-image:latest  # Replace with your backend Docker image name
+        build: ./projects/drec-origin  # Adjust the path to your backend directory if necessary
+        ports:
+          - 3040:3040  # Expose port 3040 for backend access
+        options: --health-cmd="curl --fail http://localhost:3040/health || exit 1" --health-interval=30s --health-retries=3 --health-start-period=5s
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -124,7 +132,7 @@ jobs:
           npm run start &
 
       - name: Run Cypress Tests
-        run: npx cypress run 
+        run: npx cypress run
 
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin

@@ -1,16 +1,15 @@
 Cypress.Commands.add('clearDatabase', () => {
   cy.request({
     method: 'DELETE',
-    url: "http://localhost:3040/api/testing/clear-db",
+    url: "http://backend:3040/api/testing/clear-db",  // Use service name "backend"
     failOnStatusCode: false,
-    timeout: 10000, 
+    timeout: 10000,
   }).then((response) => {
     if (response.status === 200) {
       cy.log('Database cleared successfully');
     } else {
       cy.log(`Failed to clear database: ${response.body.error || 'Unknown error'}`);
     }
-    
   });
 });
 
