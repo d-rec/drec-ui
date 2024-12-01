@@ -1,7 +1,7 @@
 Cypress.Commands.add('clearDatabase', () => {
   cy.request({
     method: 'DELETE',
-    url: `${Cypress.env('REACT_APP_BACKEND_URL')}/api/testing/clear-db`,
+    url: "http://localhost:3040/api/testing/clear-db",
     failOnStatusCode: false, 
   }).then((response) => {
     if (response.status === 200) {
