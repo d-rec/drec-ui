@@ -14,6 +14,7 @@ jobs:
 
     env:
       MODE: dev
+      
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
       BACKEND_PORT: 3040
