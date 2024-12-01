@@ -51,24 +51,9 @@ jobs:
 
       - name: Start Docker Services
         working-directory: projects/drec-origin
-        run: docker-compose up -d  # Run Docker in detached mode
-
-      - name: Wait for Backend to Be Ready
         run: |
-          echo "Waiting for backend to be fully ready..."
-          RETRY_COUNT=0
-          MAX_RETRIES=10
-          BACKEND_URL="http://drec-origin-backend:3040/api/health"  # Use the internal Docker service name
-          until curl --silent --fail $BACKEND_URL; do
-            RETRY_COUNT=$((RETRY_COUNT+1))
-            if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
-              echo "Backend did not start in time, exiting..."
-              exit 1
-            fi
-            echo "Waiting for backend to be ready... Attempt $RETRY_COUNT of $MAX_RETRIES"
-            sleep 5
-          done
-          echo "Backend is ready!"
+          docker-compose up -d  # Run Docker in detached mode
+          docker-compose logs --tail=100  # Capture logs to help with debugging
 
       - name: Install Backend Dependencies
         working-directory: projects/drec-origin
@@ -81,6 +66,23 @@ jobs:
       - name: Start Backend
         working-directory: projects/drec-origin
         run: rush start:dev &
+
+      - name: Wait for Backend to Be Ready
+        run: |
+          echo "Waiting for backend to be fully ready..."
+          RETRY_COUNT=0
+          MAX_RETRIES=20  # Increased retries
+          BACKEND_URL="http://drec-origin-backend:3040/api/health"  # Internal Docker service name
+          until curl --silent --fail $BACKEND_URL; do
+            RETRY_COUNT=$((RETRY_COUNT+1))
+            if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+              echo "Backend did not start in time, exiting..."
+              exit 1
+            fi
+            echo "Waiting for backend to be ready... Attempt $RETRY_COUNT of $MAX_RETRIES"
+            sleep 10  # Increased sleep time to handle slow startup
+          done
+          echo "Backend is ready!"
 
       - name: Install and Start Frontend
         run: |
