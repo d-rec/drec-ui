@@ -68,10 +68,26 @@ jobs:
         run: |
           nohup rush start:dev &  # Keep the backend process running in the background
 
+      - name: Wait for Backend to Be Ready
+        run: |
+          echo "Waiting for backend to be fully ready..."
+          RETRY_COUNT=0
+          MAX_RETRIES=20
+          until nc -z -v -w30 localhost 3040; do
+            RETRY_COUNT=$((RETRY_COUNT+1))
+            if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+              echo "Backend did not start in time, exiting..."
+              exit 1
+            fi
+            echo "Waiting for backend to be ready... Attempt $RETRY_COUNT of $MAX_RETRIES"
+            sleep 10
+          done
+          echo "Backend is ready!"
+
       - name: Clear Database
         run: |
           echo "Clearing the database via API..."
-          curl -X DELETE http://drec-origin-backend:3040/api/testing/clear-db  # Use service name instead of localhost
+          curl -X DELETE http://localhost:3040/api/testing/clear-db
 
       - name: Install and Start Frontend
         run: |
