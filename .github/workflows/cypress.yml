@@ -1,4 +1,4 @@
-name: CI Workflow
+name: Cypress CI Workflow
 
 on:
   push:
@@ -16,72 +16,12 @@ jobs:
       MODE: dev
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
-      DEBUG_API_KEY: debug
       BACKEND_PORT: 3040
-
-      # --- DATABASE --- #
       DB_HOST: localhost
       DB_PORT: 5432
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       DB_DATABASE: origin
-
-      # --- AUTH --- #
-      JWT_SECRET: thisisnotsecret
-      JWT_EXPIRY_TIME: "7 days"
-
-      # --- BLOCKCHAIN --- #
-      MNEMONIC: "shine ability artefact river cabin copy blind hello gift hospital tenant region"
-      ISSUER_PRIVATE_KEY: 4773097f508a6edd206150766ee25cb5abc1635f28f9cfd27e144872e89dc9c9
-      DREC_BLOCKCHAIN_ADDRESS: "0xDeC1488838C65E355A9336eE8DdFc32665dB9222"
-
-      CERTIFICATE_QUEUE_DELAY: 60000
-
-      # --- SMART METER READINGS --- #
-      INFLUXDB_URL: http://localhost:8086
-      INFLUXDB_TOKEN: admin:admin
-      INFLUXDB_ORG: ""
-      INFLUXDB_BUCKET: energy/autogen
-      INFLUXDB_DB: energy
-      INFLUXDB_ADMIN_USER: test
-      INFLUXDB_ADMIN_PASSWORD: test
-      INFLUXDB_USER: api
-      INFLUXDB_USER_PASSWORD: secret
-
-      # UI & External Services
-      REACT_APP_ISSUER_ADDRESS: "0x28130b5603cfcd597862a1F6786AbFEgrr645430Ddc2B92F"
-      REACT_APP_SUPPORTED_NETWORK_IDS: 246
-      REACT_APP_BLOCKCHAIN_EXPLORER_URL: https://volta-explorer.energyweb.org
-      REACT_APP_GOOGLE_MAPS_API_KEY: "<API_KEY>"
-      REACT_APP_REGISTRATION_MESSAGE_TO_SIGN: 'I register as D-REC Origin user'
-      REDIS_URL: redis://localhost:6379
-      SMTP_HOST: 'smtp.gmail.com'
-      SMTP_PORT: 587
-      SMTP_LOGIN: '247-demo@energyweb.org'
-      SMTP_PASSWORD: '****************'
-      EMAIL_FROM_NAME: Energy Web Origin
-      EMAIL_FROM: no-reply@example.com
-
-      # S3 Bucket
-      accessKeyId: "<accessKeyId>"
-      secretAccessKey: "<secretAccessKey>"
-      region: "<region>"
-      bucketname: "<bucketname>"
-
-      IREC_EVIDENT_API_URL: "https://api.sandbox.evident.dev"
-      IREC_EVIDENT_REGISTRANT_EMAIL: "<IREC_EVIDENT_REGISTRANT_EMAIL>"
-      IREC_EVIDENT_Password: "<IREC_EVIDENT_Password>"
-      IREC_EVIDENT_API_Token: "<IREC_EVIDENT_API_Token>"
-      ADMIN_EMAIL: drec@gmail.com
-      ADMIN_PASSWORD: 1234Rc
-
-    services:
-      backend:
-        image: your-backend-image:latest  # Replace with your backend Docker image name
-        build: ./projects/drec-origin  # Adjust the path to your backend directory if necessary
-        ports:
-          - 3040:3040  # Expose port 3040 for backend access
-        options: --health-cmd="curl --fail http://localhost:3040/health || exit 1" --health-interval=30s --health-retries=3 --health-start-period=5s
 
     steps:
       - name: Checkout Repository
@@ -91,7 +31,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y influxdb-client docker-compose postgresql-client
-          echo "System dependencies installed successfully."
 
       - name: Setup Node.js
         run: |
