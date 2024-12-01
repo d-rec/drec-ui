@@ -57,12 +57,11 @@ jobs:
 
       - name: Install Backend Dependencies using Rush
         working-directory: projects/drec-origin
-        run: rush install  # Use Rush to install dependencies
+        run: rush install  
 
       - name: Build Backend using Rush
         working-directory: projects/drec-origin
-        run: rush build  # Use Rush to build the project
-
+        run: rush build 
       - name: Start Backend using Rush
         working-directory: projects/drec-origin
         run: |
