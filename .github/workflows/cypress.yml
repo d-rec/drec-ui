@@ -56,8 +56,15 @@ jobs:
       - name: Wait for Backend to Be Ready
         run: |
           echo "Waiting for backend to be fully ready..."
+          RETRY_COUNT=0
+          MAX_RETRIES=10
           until curl --silent --fail http://localhost:3040/api/health; do
-            echo "Waiting for backend to be ready..."
+            RETRY_COUNT=$((RETRY_COUNT+1))
+            if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+              echo "Backend did not start in time, exiting..."
+              exit 1
+            fi
+            echo "Waiting for backend to be ready... Attempt $RETRY_COUNT of $MAX_RETRIES"
             sleep 5
           done
           echo "Backend is ready!"
