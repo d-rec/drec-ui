@@ -65,7 +65,8 @@ jobs:
 
       - name: Start Backend
         working-directory: projects/drec-origin
-        run: rush start:dev &
+        run: |
+          nohup rush start:dev &  # Keep the backend process running in the background
 
       - name: Wait for Backend to Be Ready
         run: |
