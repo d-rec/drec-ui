@@ -72,7 +72,7 @@ jobs:
           echo "Waiting for backend to be fully ready..."
           RETRY_COUNT=0
           MAX_RETRIES=20  # Increased retries
-          BACKEND_HOST="drec-origin-backend"
+          BACKEND_HOST="localhost"  # Use localhost for direct access to backend service
           BACKEND_PORT="3040"  # Adjust as needed
           # Try to check if the port is open and the backend is responsive
           until nc -z -v -w30 $BACKEND_HOST $BACKEND_PORT; do
