@@ -1,8 +1,9 @@
 Cypress.Commands.add('clearDatabase', () => {
   cy.request({
     method: 'DELETE',
-    url: "http://localhost:3040/api/testing/clear-db", 
-    failOnStatusCode: false, 
+    url: "http://localhost:3040/api/testing/clear-db",
+    failOnStatusCode: false,
+    timeout: 10000, // Wait 10 seconds for the request to succeed
   }).then((response) => {
     if (response.status === 200) {
       cy.log('Database cleared successfully');
@@ -11,6 +12,7 @@ Cypress.Commands.add('clearDatabase', () => {
     }
   });
 });
+
 
 Cypress.Commands.add('signup', function () {
   
