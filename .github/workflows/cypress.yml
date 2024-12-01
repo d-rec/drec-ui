@@ -58,7 +58,8 @@ jobs:
           echo "Waiting for backend to be fully ready..."
           RETRY_COUNT=0
           MAX_RETRIES=10
-          until curl --silent --fail http://localhost:3040/api/health; do
+          BACKEND_URL="http://drec-origin-backend:3040/api/health"  # Use the internal Docker service name
+          until curl --silent --fail $BACKEND_URL; do
             RETRY_COUNT=$((RETRY_COUNT+1))
             if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
               echo "Backend did not start in time, exiting..."
