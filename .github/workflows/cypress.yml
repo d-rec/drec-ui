@@ -125,8 +125,7 @@ jobs:
           npm run start &
 
       - name: Run Cypress Tests
-        working-directory: cypress
-        run: npx cypress run --config-file=./cypress.config.ts 
+        run: npx cypress run 
 
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
