@@ -14,7 +14,7 @@ jobs:
 
     env:
       # Define environment variables here for testing
-      REACT_APP_BACKEND_URL: http://localhost:3040
+      
       MODE: dev
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
@@ -56,10 +56,9 @@ jobs:
       REACT_APP_BLOCKCHAIN_EXPLORER_URL: https://volta-explorer.energyweb.org
       REACT_APP_GOOGLE_MAPS_API_KEY: "<API_KEY>"
       REACT_APP_REGISTRATION_MESSAGE_TO_SIGN: 'I register as D-REC Origin user'
-
+      REACT_APP_BACKEND_URL: http://localhost:3040
       # Redis URL
       REDIS_URL: redis://localhost:6379
-
       # Mail Config
       SMTP_HOST: 'smtp.gmail.com'
       SMTP_PORT: 587
