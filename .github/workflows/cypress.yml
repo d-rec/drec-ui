@@ -71,8 +71,8 @@ jobs:
         run: |
           echo "Waiting for backend to be fully ready..."
           RETRY_COUNT=0
-          MAX_RETRIES=20  # Increased retries
-          BACKEND_HOST="localhost"  # Use localhost for direct access to backend service
+          MAX_RETRIES=30  # Increased retries to handle slow startups
+          BACKEND_HOST="drec-origin-backend"  # Use the Docker service name instead of localhost
           BACKEND_PORT="3040"  # Adjust as needed
           # Try to check if the port is open and the backend is responsive
           until nc -z -v -w30 $BACKEND_HOST $BACKEND_PORT; do
@@ -82,7 +82,7 @@ jobs:
               exit 1
             fi
             echo "Waiting for backend to be ready... Attempt $RETRY_COUNT of $MAX_RETRIES"
-            sleep 10  # Increased sleep time to handle slow startup
+            sleep 15  # Increased sleep time to handle slow startup
           done
           echo "Backend is ready!"
 
