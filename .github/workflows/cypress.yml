@@ -51,7 +51,16 @@ jobs:
 
       - name: Start Docker Services
         working-directory: projects/drec-origin
-        run: docker-compose up 
+        run: docker-compose up -d  # Run Docker in detached mode
+
+      - name: Wait for Backend to Be Ready
+        run: |
+          echo "Waiting for backend to be fully ready..."
+          until curl --silent --fail http://localhost:3040/api/health; do
+            echo "Waiting for backend to be ready..."
+            sleep 5
+          done
+          echo "Backend is ready!"
 
       - name: Install Backend Dependencies
         working-directory: projects/drec-origin
@@ -72,6 +81,7 @@ jobs:
 
       - name: Run Cypress Tests
         run: npx cypress run
+
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
         run: docker-compose down
