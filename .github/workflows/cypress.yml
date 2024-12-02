@@ -47,13 +47,6 @@ jobs:
           docker-compose up -d
           docker-compose logs --tail=100  # Capture logs to help with debugging
 
-      - name: Wait for Backend to be Ready
-        run: |
-          until curl -f http://localhost:3040/api/health; do
-            echo "Waiting for backend to be ready..."
-            sleep 10
-          done
-
       - name: Install Backend Dependencies using Rush
         working-directory: projects/drec-origin
         run: rush install  
