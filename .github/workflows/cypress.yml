@@ -52,7 +52,7 @@ jobs:
       - name: Start Docker Services
         working-directory: projects/drec-origin
         run: |
-          docker-compose up -d  # Run Docker in detached mode
+          docker compose up   # Run Docker in detached mode
           docker-compose logs --tail=100  # Capture logs to help with debugging
 
       - name: Install Backend Dependencies using Rush
@@ -62,7 +62,7 @@ jobs:
       - name: Build Backend using Rush
         working-directory: projects/drec-origin
         run: rush build 
-        
+
       - name: Start Backend using Rush
         working-directory: projects/drec-origin
         run: |
