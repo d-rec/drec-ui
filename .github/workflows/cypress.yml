@@ -14,9 +14,7 @@ jobs:
 
     services:
       webapp:
-        # If you're building the image locally from the drec-origin directory, you can use the build context.
-        # Build Docker image locally (assuming you're in the root directory and the backend is in /d-rec/drec-origin)
-        build: ./d-rec/drec-origin  # Path to the backend Dockerfile
+        image: ghcr.io/rithaven/drec-origin:latest  # This line can be omitted if you're building the image locally
         ports:
           - 4200:4200  # Exposing the frontend port
           - 3040:3040  # Exposing the backend port
@@ -26,11 +24,15 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2  # Check out the repository
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v2  # Log in to GitHub Container Registry
+      - name: Log in to Docker Hub or GHCR
+        uses: docker/login-action@v2  # Log in to Docker registry
         with:
-          username: ${{ github.actor }}  # Use the GitHub actor for authentication
-          password: ${{ secrets.GHCR_TOKEN }}  # Use GHCR_TOKEN from GitHub Secrets
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}  # Assuming you're using GitHub Container Registry
+
+      - name: Build backend Docker image
+        run: |
+          docker build -t ghcr.io/rithaven/drec-origin:latest ./d-rec/drec-origin  # Build Docker image from the backend directory
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -44,4 +46,3 @@ jobs:
 
       - name: Run Cypress tests
         run: npm run e2e  # Run Cypress tests
-
