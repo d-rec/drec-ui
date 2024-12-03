@@ -3,10 +3,10 @@ name: Run Cypress E2E Tests
 on:
   push:
     branches:
-      - main 
+      - ft/register-new-account
   pull_request:
     branches:
-      - main  
+      - ft/register-new-account 
 jobs:
   e2e:
     runs-on: ubuntu-latest
