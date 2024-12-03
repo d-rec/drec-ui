@@ -21,6 +21,7 @@ jobs:
         options: --health-cmd="curl --fail http://localhost:4200/health || exit 1" --health-interval=30s --health  # Health check for the frontend
 
     steps:
+      # Step 1: Check out repository
       - name: Check out repository
         uses: actions/checkout@v2  # Check out the repository
 
@@ -34,15 +35,35 @@ jobs:
         run: |
           docker build -t ghcr.io/rithaven/drec-origin:latest ./d-rec/drec-origin  # Build Docker image from the backend directory
 
+      # Step 2: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'  # Set up Node.js version 18
+          node-version: '18'
 
-      - name: Install dependencies
+      # Step 3: Build and start the backend
+      - name: Start backend
         run: |
-          npm install  # Install project dependencies
-          npm install cypress  # Install Cypress for E2E tests
+          cd ./d-rec/drec-origin
+          npm install
+          npm run build  # Assuming you have a build step
+          npm start &  # Start backend in the background
 
+      # Step 4: Start the frontend
+      - name: Start frontend
+        run: |
+          cd ./frontend  # Adjust path to your frontend directory
+          npm install
+          npm start &  # Start frontend in the background
+      # Step 5: Wait for services to start
+      - name: Wait for services
+        run: sleep 20  # Adjust the delay if necessary
+
+      # Step 6: Install Cypress dependencies
+      - name: Install Cypress dependencies
+        run: |
+          npm install cypress
+
+      # Step 7: Run Cypress tests
       - name: Run Cypress tests
         run: npm run e2e  # Run Cypress tests
