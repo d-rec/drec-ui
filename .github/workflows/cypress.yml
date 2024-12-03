@@ -3,37 +3,42 @@ name: Run Cypress E2E Tests
 on:
   push:
     branches:
-      - ft/register-new-account
+      - ft/register-new-account  
   pull_request:
     branches:
-      - ft/register-new-account 
-      
+      - ft/register-new-account  
+
 jobs:
   e2e:
     runs-on: ubuntu-latest
 
     services:
-      
       webapp:
-        image: ghcr.io/rithaven/drec-origin:latest
+        image: ghcr.io/rithaven/drec-origin:latest  
         ports:
-          - 4200:4200  
+          - 4200:4200 
           - 3040:3040 
-        options: --health-cmd="curl --fail http://localhost:4200/health || exit 1" --health-interval=30s --health
+        options: --health-cmd="curl --fail http://localhost:4200/health || exit 1" --health-interval=30s --health  # Health check to ensure the service is ready
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2  
 
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2  
+        with:
+          username: ${{ github.actor }}  
+          password: ${{ secrets.GHCR_TOKEN }}  
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: '18' 
 
       - name: Install dependencies
         run: |
-          npm install
-          npm install cypress
+          npm install  # Install project dependencies
+          npm install cypress  # Install Cypress for E2E tests
 
       - name: Run Cypress tests
-        run: npm run e2e
+        run: npm run e2e  
+
