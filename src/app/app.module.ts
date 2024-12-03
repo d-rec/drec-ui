@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -35,6 +35,7 @@ import { UserProfileComponent } from './view/user-profile/user-profile.component
 import { AdminModule } from './view/admin/admin.module';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { ApiuserClientReponseComponent } from './view/apiuser-client-reponse/apiuser-client-reponse.component';
+import * as Sentry from "@sentry/angular";
 
 @NgModule({
   declarations: [
@@ -83,6 +84,13 @@ import { ApiuserClientReponseComponent } from './view/apiuser-client-reponse/api
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    {
+      provide: ErrorHandler,
+      useValue: Sentry.createErrorHandler({
+        showDialog:true
+      }),
+   
+    },
   ],
   bootstrap: [AppComponent],
 })

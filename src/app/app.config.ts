@@ -1,14 +1,15 @@
 import { APP_INITIALIZER, ErrorHandler } from '@angular/core';
 import { Router } from '@angular/router';
 import * as Sentry from "@sentry/angular";
+import { environment } from 'src/environments/environment';
 
 Sentry.init({
-    dsn:"https://5447c8011f4b40f4dcb8742dfbaa1c0e@o4508380579430400.ingest.de.sentry.io/4508380582576208",
+    dsn:environment.SENTRY_DNS,
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration(),
     ],
-    // autoSessionTracking: false, 
+    autoSessionTracking: false, 
     tracesSampleRate: 1.0,
     tracePropagationTargets: ['localhost', /^https?:\/\/localhost:\d+/],
     environment: 'development', 
