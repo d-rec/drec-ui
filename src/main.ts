@@ -8,5 +8,5 @@ if (environment.production) {
 }
 
 platformBrowserDynamic()
-  .bootstrapModule(AppModule,appConfig)
+  .bootstrapModule(AppModule, appConfig)
   .catch((err) => console.error(err));

@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   API_URL: 'http://localhost:3040/api/',
   Explorer_URL: 'https://volta-explorer.energyweb.org',
-  SENTRY_DNS:'',
+  SENTRY_DNS: '',
 };
 
 /*

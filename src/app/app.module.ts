@@ -35,7 +35,7 @@ import { UserProfileComponent } from './view/user-profile/user-profile.component
 import { AdminModule } from './view/admin/admin.module';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { ApiuserClientReponseComponent } from './view/apiuser-client-reponse/apiuser-client-reponse.component';
-import * as Sentry from "@sentry/angular";
+import * as Sentry from '@sentry/angular';
 
 @NgModule({
   declarations: [
@@ -87,9 +87,8 @@ import * as Sentry from "@sentry/angular";
     {
       provide: ErrorHandler,
       useValue: Sentry.createErrorHandler({
-        showDialog:true
+        showDialog: true,
       }),
-   
     },
   ],
   bootstrap: [AppComponent],
