@@ -12,28 +12,10 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
 
-    services:
-      webapp:
-        image: ghcr.io/rithaven/drec-origin:latest  # This line can be omitted if you're building the image locally
-        ports:
-          - 4200:4200  # Exposing the frontend port
-          - 3040:3040  # Exposing the backend port
-        options: --health-cmd="curl --fail http://localhost:4200/health || exit 1" --health-interval=30s --health  # Health check for the frontend
-
     steps:
       # Step 1: Check out repository
       - name: Check out repository
-        uses: actions/checkout@v2  # Check out the repository
-
-      - name: Log in to Docker Hub or GHCR
-        uses: docker/login-action@v2  # Log in to Docker registry
-        with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}  # Assuming you're using GitHub Container Registry
-
-      - name: Build backend Docker image
-        run: |
-          docker build -t ghcr.io/rithaven/drec-origin:latest ./d-rec/drec-origin  # Build Docker image from the backend directory
+        uses: actions/checkout@v2
 
       # Step 2: Set up Node.js
       - name: Set up Node.js
@@ -55,6 +37,7 @@ jobs:
           cd ./frontend  # Adjust path to your frontend directory
           npm install
           npm start &  # Start frontend in the background
+
       # Step 5: Wait for services to start
       - name: Wait for services
         run: sleep 20  # Adjust the delay if necessary
@@ -66,4 +49,4 @@ jobs:
 
       # Step 7: Run Cypress tests
       - name: Run Cypress tests
-        run: npm run e2e  # Run Cypress tests
+        run: npm run e2e
