@@ -112,8 +112,8 @@ jobs:
       # Step 13: Install and Start Frontend
       - name: Install and Start Frontend
         run: |
-          pnpm install
-          nohup pnpm run start &  # Start frontend in the background
+          npm install
+          nohup npm run start &  # Start frontend in the background
           echo "Waiting for Frontend to be ready..."
           until curl -s http://localhost:4200; do
             sleep 5
