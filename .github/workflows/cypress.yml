@@ -17,6 +17,9 @@ jobs:
       MNEMONIC: "shine ability artefact river cabin copy blind hello gift hospital tenant region"
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
+      INFLUXDB_URL: http://localhost:8086
+      INFLUXDB_TOKEN: admin:admin
+      INFLUXDB_BUCKET: energy/autogen
       BACKEND_PORT: 3040
       DB_HOST: localhost
       DB_PORT: 5432
