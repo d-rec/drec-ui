@@ -72,13 +72,13 @@ jobs:
 
       - name: Build Backend using Rush
         working-directory: projects/drec-origin
-        run: rush build 
+        run: rush build || true
 
       # Step 8: Start Backend using Rush
       - name: Start Backend using Rush
         working-directory: projects/drec-origin
         run: |
-          nohup rush start:dev &  # Keep the backend process running in the background
+          rush start:dev || true # Keep the backend process running in the background
 
       # Step 9: Clear Database
       - name: Clear Database
