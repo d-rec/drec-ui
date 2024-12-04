@@ -1,7 +1,7 @@
 Cypress.Commands.add('clearDatabase', () => {
   cy.request({
     method: 'DELETE',
-    url: "http://backend:3040/api/testing/clear-db",  // Use service name "backend"
+    url: " REACT_APP_BACKEND_URL:3040/api/testing/clear-db",  // Use service name "backend"
     failOnStatusCode: false,
     timeout: 10000,
   }).then((response) => {

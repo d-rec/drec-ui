@@ -1,47 +1,89 @@
-name: Run Cypress E2E Tests
+name: Cypress CI Workflow
 
 on:
   push:
     branches:
-      - ft/register-new-account  # Trigger on push to this branch
+      - ft/register-new-account
   pull_request:
     branches:
-      - ft/register-new-account  # Trigger on pull requests to this branch
+      - ft/register-new-account
 
 jobs:
-  e2e:
+  test:
     runs-on: ubuntu-latest
 
-    services:
-      webapp:
-        image: ghcr.io/rithaven/drec-origin:latest  # This line can be omitted if you're building the image locally
-        ports:
-          - 4200:4200  # Exposing the frontend port
-          - 3040:3040  # Exposing the backend port
-        options: --health-cmd="curl --fail http://localhost:4200/health || exit 1" --health-interval=30s --health  # Health check for the frontend
+    env:
+      MODE: dev
+      MNEMONIC: "shine ability artefact river cabin copy blind hello gift hospital tenant region"
+      WEB3: https://volta-rpc.energyweb.org
+      UI_BASE_URL: http://localhost:4200
+      BACKEND_PORT: 3040
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: origin
+      REACT_APP_BACKEND_URL: http://localhost:3040
+      ADMIN_EMAIL: drec@energy.org
+      ADMIN_PASSWORD: 1234Rc
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v2  # Check out the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-      - name: Log in to Docker Hub or GHCR
-        uses: docker/login-action@v2  # Log in to Docker registry
-        with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_TOKEN }}  
-      - name: Build backend Docker image
+      - name: Install pnpm and Rush globally
         run: |
-          docker build -t ghcr.io/rithaven/drec-origin:latest ./d-rec/drec-origin  # Build Docker image from the backend directory
+          npm install -g pnpm @microsoft/rush
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'  # Set up Node.js version 18
-
-      - name: Install dependencies
+      - name: Install System Dependencies
         run: |
-          npm install  # Install project dependencies
-          npm install cypress  # Install Cypress for E2E tests
+          sudo apt-get update
+          sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat curl
 
-      - name: Run Cypress tests
-        run: npm run e2e  # Run Cypress tests
+      - name: Setup Node.js
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          . "$NVM_DIR/nvm.sh"
+          nvm install 20.14.0
+          nvm use 20.14.0
+
+      - name: Clone Backend Repository
+        run: |
+          git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
+          chmod -R 777 projects/drec-origin
+
+      - name: Start Docker Services
+        working-directory: projects/drec-origin
+        run: |
+          docker-compose up -d  # Run Docker in detached mode
+          docker-compose logs --tail=100  # Capture logs to help with debugging
+
+      - name: Install Backend Dependencies using Rush
+        working-directory: projects/drec-origin
+        run: rush install  
+
+      - name: Build Backend using Rush
+        working-directory: projects/drec-origin
+        run: rush build 
+      - name: Start Backend using Rush
+        working-directory: projects/drec-origin
+        run: |
+          nohup rush start:dev &  # Keep the backend process running in the background
+          
+      - name: Clear Database
+        run: |
+          echo "Clearing the database via API..."
+          curl -X DELETE http://drec-origin-backend:3040/api/testing/clear-db  # Change to Docker service name
+
+      - name: Install and Start Frontend
+        run: |
+          pnpm install  # Use pnpm instead of npm
+          pnpm run start &
+
+      - name: Run Cypress Tests
+        run: pnpx cypress run  # Use pnpx instead of npx for pnpm
+
+      - name: Tear Down Docker Environment
+        working-directory: projects/drec-origin
+        run: docker-compose down
