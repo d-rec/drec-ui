@@ -23,30 +23,38 @@ jobs:
         with:
           node-version: '18'
 
-      # Step 3: Build and start the backend
+      # Step 3: Install Rush globally
+      - name: Install Rush
+        run: npm install -g @microsoft/rush
+
+      # Step 4: Install dependencies using Rush
+      - name: Install dependencies
+        run: |
+          rush update
+          rush install
+
+      # Step 5: Start the backend using Rush
       - name: Start backend
         run: |
-          cd ./d-rec/drec-origin
-          npm install
-          npm run build  # Assuming you have a build step
-          npm start &  # Start backend in the background
-
-      # Step 4: Start the frontend
+          rush start:dev &
+          
+      # Step 6: Start the frontend
       - name: Start frontend
         run: |
           cd ./frontend  # Adjust path to your frontend directory
           npm install
-          npm start &  # Start frontend in the background
+          npm start &  # Start the frontend in the background
 
-      # Step 5: Wait for services to start
+      # Step 7: Wait for services to start
       - name: Wait for services
         run: sleep 20  # Adjust the delay if necessary
 
-      # Step 6: Install Cypress dependencies
+      # Step 8: Install Cypress dependencies
       - name: Install Cypress dependencies
         run: |
+          cd ./frontend  # Run Cypress commands in the frontend directory
           npm install cypress
 
-      # Step 7: Run Cypress tests
+      # Step 9: Run Cypress tests
       - name: Run Cypress tests
         run: npm run e2e
