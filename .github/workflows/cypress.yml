@@ -90,7 +90,6 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           nohup rush start:dev || true  # Start in the background
-
       # Step 12: Clear Database
       - name: Clear Database
         run: |
