@@ -12,49 +12,36 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
 
-    steps:
-      # Step 1: Check out repository
-      - name: Check out repository
-        uses: actions/checkout@v2
+    services:
+      webapp:
+        image: ghcr.io/rithaven/drec-origin:latest  # This line can be omitted if you're building the image locally
+        ports:
+          - 4200:4200  # Exposing the frontend port
+          - 3040:3040  # Exposing the backend port
+        options: --health-cmd="curl --fail http://localhost:4200/health || exit 1" --health-interval=30s --health  # Health check for the frontend
 
-      # Step 2: Set up Node.js
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2  # Check out the repository
+
+      - name: Log in to Docker Hub or GHCR
+        uses: docker/login-action@v2  # Log in to Docker registry
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}  
+      - name: Build backend Docker image
+        run: |
+          docker build -t ghcr.io/rithaven/drec-origin:latest ./d-rec/drec-origin  # Build Docker image from the backend directory
+
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: '18'  # Set up Node.js version 18
 
-      # Step 3: Install Rush globally
-      - name: Install Rush
-        run: npm install -g @microsoft/rush
-
-      # Step 4: Install dependencies using Rush
       - name: Install dependencies
         run: |
-          rush update
-          rush install
+          npm install  # Install project dependencies
+          npm install cypress  # Install Cypress for E2E tests
 
-      # Step 5: Start the backend using Rush
-      - name: Start backend
-        run: |
-          rush start:dev &
-          
-      # Step 6: Start the frontend
-      - name: Start frontend
-        run: |
-          cd ./frontend  # Adjust path to your frontend directory
-          npm install
-          npm start &  # Start the frontend in the background
-
-      # Step 7: Wait for services to start
-      - name: Wait for services
-        run: sleep 20  # Adjust the delay if necessary
-
-      # Step 8: Install Cypress dependencies
-      - name: Install Cypress dependencies
-        run: |
-          cd ./frontend  # Run Cypress commands in the frontend directory
-          npm install cypress
-
-      # Step 9: Run Cypress tests
       - name: Run Cypress tests
-        run: npm run e2e
+        run: npm run e2e  # Run Cypress tests
