@@ -45,12 +45,10 @@ jobs:
 
       # Step 4: Setup Node.js
       - name: Setup Node.js
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-          export NVM_DIR="$HOME/.nvm"
-          . "$NVM_DIR/nvm.sh"
-          nvm install 20.14.0
-          nvm use 20.14.0
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.14.0
+          cache: 'npm'
 
       # Step 5: Clone Backend Repository
       - name: Clone Backend Repository
@@ -68,46 +66,46 @@ jobs:
       # Step 7: Install Backend Dependencies and Build using Rush
       - name: Install Backend Dependencies using Rush
         working-directory: projects/drec-origin
-        run: rush install  
+        run: rush install
 
-      # Step 8: Debug - List files in the source directory to ensure convert-to-power-units exists
-      - name: Debug - List files in src/utils
+      # Step 8: Debug - Verify Utility Files
+      - name: Debug - Verify Utility Files
         working-directory: projects/drec-origin/apps/drec-api
         run: |
           ls -R src/utils
 
-      # Step 9: Build Backend using Rush
-      - name: Build Backend using Rush
+      # Step 9: Build Backend
+      - name: Build Backend
         working-directory: projects/drec-origin
-        run: rush build || true
+        run: rush build
 
-      # Step 10: Debug - List files in dist directory after build to ensure files are present
-      - name: Debug - List files in dist directory
+      # Step 10: Debug - Verify Build Output
+      - name: Debug - Verify Build Output
         working-directory: projects/drec-origin/apps/drec-api
         run: |
           ls -R dist
 
-      # Step 11: Start Backend using Rush
-      - name: Start Backend using Rush
+      # Step 11: Start Backend
+      - name: Start Backend
         working-directory: projects/drec-origin
         run: |
-          rush start:dev || true # Keep the backend process running in the background
+          nohup rush start:dev &  # Start in the background
 
       # Step 12: Clear Database
       - name: Clear Database
         run: |
           echo "Clearing the database via API..."
-          curl -X DELETE http://drec-origin-backend:3040/api/testing/clear-db  # Adjust for Docker service name
+          curl -X DELETE http://localhost:3040/api/testing/clear-db
 
       # Step 13: Install and Start Frontend
       - name: Install and Start Frontend
         run: |
-          pnpm install  # Use pnpm for dependency installation
-          pnpm run start &  # Start frontend in the background
+          pnpm install
+          nohup pnpm run start &  # Start frontend in the background
 
       # Step 14: Run Cypress Tests
       - name: Run Cypress Tests
-        run: pnpx cypress run  # Run Cypress tests using pnpm
+        run: pnpx cypress run
 
       # Step 15: Tear Down Docker Environment
       - name: Tear Down Docker Environment
