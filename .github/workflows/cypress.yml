@@ -48,7 +48,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat curl
-
       # Step 4: Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
