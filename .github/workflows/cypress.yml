@@ -12,8 +12,22 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # env:
-      # .env data should be added as environment variables on github 
+    env:
+      MODE: ${{ secrets.MODE }}
+      WEB3: ${{ secrets.WEB3 }}
+      UI_BASE_URL: ${{ secrets.UI_BASE_URL }}
+      INFLUXDB_URL: ${{ secrets.INFLUXDB_URL }}
+      INFLUXDB_BUCKET: ${{ secrets.INFLUXDB_BUCKET }}
+      CERTIFICATE_QUEUE_DELAY: ${{ secrets.CERTIFICATE_QUEUE_DELAY }}
+      BACKEND_PORT: ${{ secrets.BACKEND_PORT }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      REACT_APP_BACKEND_URL: ${{ secrets.REACT_APP_BACKEND_URL }}
+      ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
     steps:
       # Step 1: Checkout Repository
       - name: Checkout Repository
