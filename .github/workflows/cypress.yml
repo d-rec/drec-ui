@@ -97,12 +97,11 @@ jobs:
         run: |
           nohup rush start:dev > backend.log 2>&1 &
           echo "Waiting for Backend to be ready..."
-          until curl -s http://localhost:3040/api/health; do 
-           sleep 5
-            echo "Backend is not ready yet..."
+          while ! nc -z localhost 3040; do
+          sleep 20
+          echo "Backend is not ready yet..."
           done
           echo "Backend is ready!"
-
       # Step 12: Clear Database
       - name: Clear Database
         run: |
