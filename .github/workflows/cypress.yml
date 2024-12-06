@@ -95,11 +95,7 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           nohup rush start:dev > backend.log 2>&1 &
-          echo "Waiting for Backend to be ready..."
-          until curl -s http://localhost:3040/health | grep -q '"status":"ok"'; do
-          sleep 5
-          echo "Backend is not ready yet..."
-          done
+          
 
 
       # Step 12: Clear Database
