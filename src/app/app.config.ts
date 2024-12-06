@@ -9,7 +9,6 @@ Sentry.init({
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration(),
   ],
-  autoSessionTracking: false,
   tracesSampleRate: 1.0,
   tracePropagationTargets: ['localhost', /^https?:\/\/localhost:\d+/],
   environment: 'production',
@@ -21,9 +20,7 @@ export const appConfig: any = {
   providers: [
     {
       provide: ErrorHandler,
-      useValue: Sentry.createErrorHandler({
-        showDialog: false,
-      }),
+      useValue: Sentry.createErrorHandler(),
     },
     {
       provide: Sentry.TraceService,
