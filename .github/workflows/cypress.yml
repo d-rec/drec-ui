@@ -95,7 +95,13 @@ jobs:
       - name: Start Backend and Wait for Readiness
         working-directory: projects/drec-origin
         run: |
-         rush start:dev &
+         rush start:dev > backend.log 2>&1 &
+          echo "Waiting for Backend to be ready..."
+          while ! nc -z localhost 3040; do
+          sleep 5
+          echo "Backend is not ready yet..."
+          done
+          echo "Backend is ready!"
       # Step 12: Clear Database
       - name: Clear Database
         run: |
