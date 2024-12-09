@@ -95,7 +95,8 @@ jobs:
       - name: Start Backend and Wait for Readiness
         working-directory: projects/drec-origin
         run: |
-         rush start:dev || true
+          nohup rush start:dev || true
+         
       # Step 12: Clear Database
       - name: Clear Database
         run: |
