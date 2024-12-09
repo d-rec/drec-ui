@@ -91,14 +91,11 @@ jobs:
         run: |
           ls -R dist
 
-      # Step 11: Start Backend 
+      # Step 11: Start Backend and Wait for Readiness
       - name: Start Backend and Wait for Readiness
         working-directory: projects/drec-origin
         run: |
-          rush start:dev | tail -n +1373 | head -n 1 || true
-
-
-         
+         rush start:dev || true &
       # Step 12: Clear Database
       - name: Clear Database
         run: |
