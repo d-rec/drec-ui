@@ -11,15 +11,13 @@ if (environment.production) {
     ],
     tracesSampleRate: 1.0,
     tracePropagationTargets: ['localhost', /^https?:\/\/localhost:\d+/],
-    environment: environment.production
-      ? 'production'
-      : environment.staging
-        ? 'staging'
-        : 'development',
+    environment: environment.SENTRY_ENV,
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
+    enabled: environment.production,
   });
 }
+
 export const appConfig: any = {
   providers: [
     {
