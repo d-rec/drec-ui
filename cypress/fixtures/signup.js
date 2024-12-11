@@ -2,18 +2,18 @@
   {
     action: "type",
     selector: '[data-testid="firstName"]',
-    value: 'John'
+    value: 'testReadsi'
   },
 
   {
     action: "type",
     selector: '[data-testid="lastName"]',
-    value: 'John'
+    value: 'testorsis'
   },
   {
     action: "type",
     selector: '[data-testid="email"]',
-    value: 'John@test.com'
+    value: 'testoris@energy.org'
   },
   {
     action: "click",
@@ -28,12 +28,12 @@
   {
     action: "type",
     selector: '[data-testid="orgName"]',
-    value: 'dev'
+    value: 'developeriss'
   },
   {
     action: "type",
     selector: '[data-testid="orgAddress"]',
-    value: 'dev'
+    value: 'QAtestis'
   },
   {
     action: "click",
