@@ -3,7 +3,9 @@ name: Cypress CI Workflow
 on:
   push:
     branches:
-      - ft/register-new-account
+      - feat/user-role-permissions
+      - feature/Automated-e2e-Tests
+      - ft/add-device-test
   pull_request:
     branches:
       - ft/register-new-account
@@ -118,6 +120,7 @@ jobs:
       # Step 13: Run Cypress Tests
       - name: Run Cypress Tests
         run: pnpx cypress run
+
       # Step 14: Tear Down Docker Environment
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
