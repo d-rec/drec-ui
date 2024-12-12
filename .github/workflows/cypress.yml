@@ -118,6 +118,7 @@ jobs:
       # Step 13: Run Cypress Tests
       - name: Run Cypress Tests
         run: pnpx cypress run
+        
       # Step 14: Tear Down Docker Environment
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
