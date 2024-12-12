@@ -87,10 +87,10 @@ Cypress.Commands.add('permissions', function () {
       return cy.get(step.selector).eq(step.index).click();
     }  
     if (step.action === "check-multiple") {
-      return cy.contains("table tr", step.contains) // Locate the row containing the text
+      return cy.contains("table tr", step.contains) 
           .within(() => {
               cy.get(step.selector).each(($el) => {
-                  cy.wrap($el).click(); // Click each element matching the selector in this row
+                  cy.wrap($el).click(); 
               });
           });
   }
