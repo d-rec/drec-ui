@@ -122,6 +122,7 @@ jobs:
         run: pnpx cypress run
 
       # Step 14: Tear Down Docker Environment
+      
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
         run: docker-compose down
