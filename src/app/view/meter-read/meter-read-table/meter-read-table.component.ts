@@ -86,17 +86,17 @@ export class MeterReadTableComponent implements OnInit {
       (response: any) => {
         this.filter = true;
         this.readdata = response;
-        this.readdata.historyread.forEach((element: any) => {
+        this.readdata.historyRead.forEach((element: any) => {
           element['readtype'] = 'History';
           element['color'] = '#008000';
         });
-        this.readdata.ongoing.forEach((element: any) => {
+        this.readdata.onGoing.forEach((element: any) => {
           element['readtype'] = 'Ongoing';
           element['color'] = '#f2be1a';
         });
         this.dataSource = new MatTableDataSource([
-          ...this.readdata.historyread,
-          ...this.readdata.ongoing,
+          ...this.readdata.historyRead,
+          ...this.readdata.onGoing,
         ]);
         this.totalRows = this.readdata.numberOfReads;
 
