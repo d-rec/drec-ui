@@ -61,7 +61,7 @@ jobs:
       # Step 5: Clone Backend Repository
       - name: Clone Backend Repository
         run: |
-          git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
+          git clone  https://github.com/d-rec/drec-origin.git projects/drec-origin
           chmod -R 777 projects/drec-origin
 
       # Step 6: Start Docker Services

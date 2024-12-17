@@ -94,11 +94,11 @@
 
                                     <div class="col-md-3">
                                         <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">Commissioning Date</mat-label>
+                                            <mat-label class="text-capitalize" >Commissioning Date</mat-label>
                                             <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-                                                formControlName="commissioningDate" [max]="maxDate"data-testid="date-picker">
+                                                formControlName="commissioningDate" [max]="maxDate"data-testid="date-picker" data-testid="commissioning-date">
                                             <mat-datepicker-toggle matSuffix
-                                                [for]="$any(picker)" data-testid="commissioning-date"></mat-datepicker-toggle>
+                                                [for]="$any(picker)"></mat-datepicker-toggle>
                                             <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
                                                 [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
                                                 [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">

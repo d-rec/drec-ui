@@ -87,10 +87,10 @@ Cypress.Commands.add('permissions', function () {
       return cy.get(step.selector).eq(step.index).click();
     }  
     if (step.action === "check-multiple") {
-      return cy.contains("table tr", step.contains) // Locate the row containing the text
+      return cy.contains("table tr", step.contains) 
           .within(() => {
               cy.get(step.selector).each(($el) => {
-                  cy.wrap($el).click(); // Click each element matching the selector in this row
+                  cy.wrap($el).click(); 
               });
           });
   }
@@ -111,6 +111,12 @@ Cypress.Commands.add('addDevice', function () {
     if (step.action === "type") {
       return cy.get(step.selector).should('be.visible').type(step.value);
     }
+    if (step.action === "write") {
+      return cy.get(step.selector)
+      .should('be.visible') 
+      .clear()              
+      .type(step.value + '{enter}'); 
+        }
     if (step.action === "select") {
       return cy.get(step.selector).click()
         .get(step.option) 
@@ -118,11 +124,49 @@ Cypress.Commands.add('addDevice', function () {
         .eq(0)
         .click(); 
     }
-    if (step.action === "pick") {
-      return cy.get(step.selector).click('center', { force: true });
-    }
     if (step.action === "submit") {
       return cy.get(step.selector).click('center', { force: true });
+    }
+  });
+  });
+});
+
+Cypress.Commands.add('addMeterRead', function () {
+  
+  cy.fixture('addMeterRead.js').then((data) => { 
+    data.forEach((step) => {
+    if (step.action === "click") {
+      return cy.get(step.selector).click().wait(1000);
+    }
+    if (step.action === "select") {
+      return cy.get(step.selector).click('center', { force: true })
+        .type("t")
+        .get(step.option) 
+        .should('have.length.greaterThan', 0) 
+        .eq(0)
+        .click('center', { force: true }); 
+    }
+    if (step.action === "select-timezone") {
+      return cy.get(step.selector).click('center', { force: true })
+        .get(step.option) 
+        .should('have.length.greaterThan', 0) 
+        .eq(0)
+        .click('center', { force: true }); 
+    }
+    if (step.action === "type") {
+      return cy.get(step.selector).wait(1000)  
+      .click({ force: true }) 
+      .type('100', { force: true });
+    }
+    if (step.action === "start-date") {
+      return cy.get(step.selector).eq(0).click('center', { force: true })
+              .get(step.option).eq(0).click()
+              .get(".mat-stroked-button").click();
+    }
+    if (step.action === "end-date") {
+      return cy.get(step.selector).eq(1).click('center', { force: true })
+              .get(step.option).eq(5).click()
+              .get(".mat-stroked-button").click();
     }
   });
   });

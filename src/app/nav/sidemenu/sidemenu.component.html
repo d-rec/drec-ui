@@ -91,7 +91,7 @@
 
       <mat-expansion-panel [class.mat-elevation-z0]="true"
         *ngIf="loginuser.role != 'Buyer' && loginuser.role != 'SubBuyer'">
-        <mat-expansion-panel-header class="mdc-button ">
+        <mat-expansion-panel-header class="mdc-button " data-testid="MeterRead">
           <mat-icon>list</mat-icon>
           MeterRead
         </mat-expansion-panel-header>
@@ -105,7 +105,7 @@
             <span>All Reads</span>
           </a>
           <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/reads/add"
-            *ngIf="loginuser.role !='User'">
+            *ngIf="loginuser.role !='User'" data-testid="add-meterRead">
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add MeterRead</span>
           </a>

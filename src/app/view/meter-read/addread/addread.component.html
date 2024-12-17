@@ -149,9 +149,9 @@
                                         <mat-label class="text-capitalize">Start Datetime </mat-label>
                                         <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a start date"
                                             formControlName="starttimestamp" [max]="startmaxDate" [min]="startminDate"
-                                            autocomplete="off" (ngModelChange)="onEndChangeEvent($event)">
+                                            autocomplete="off" (ngModelChange)="onEndChangeEvent($event)" data-testid="choose-start-date">
                                         <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-                                        <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
+                                        <ngx-mat-datetime-picker #picker [showSpinners]="true" data-testid="datepicker" [showSeconds]="false"
                                             [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
                                             [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
                                         </ngx-mat-datetime-picker>
@@ -310,7 +310,7 @@
                 <div class="example-container mb-3 me-3 row">
                     <div class="col-12 d-flex justify-content-end">
                         <button type="submit" [disabled]="readForm.invalid"
-                            class="btn-primary btn text-capitalize px-4">Submit</button>
+                            class="btn-primary btn text-capitalize px-4" data-testid="submitRead">Submit</button>
                     </div>
                 </div>
             </mat-card-footer>

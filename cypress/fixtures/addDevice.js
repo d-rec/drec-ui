@@ -12,12 +12,12 @@
       {
         action: "type",
         selector: '[data-testid="project-name"]',
-        value:"test device"
+        value:"test-device"
       },
       {
         action: "type",
         selector: '[data-testid="external-id"]',
-        value:"testdevice123"
+        value:"testdevice00"
       },
       {
         action: "select",
@@ -25,13 +25,14 @@
         option: '[data-testid="country-options"]'
       },
         {
-          action: "click",
+          action: "write",
           selector: '[data-testid="commissioning-date"]',
+          value: "10/31/2024, 7:17:19 PM"
         },
-        {
-          action: "pick",
-          selector: '[data-testid="date-picker"]'
-        },
+        // {
+        //   action: "pick",
+        //   selector: '[data-testid="date-picker"]'
+        // },
         
         {
           action: "type",
