@@ -29,11 +29,6 @@
           selector: '[data-testid="commissioning-date"]',
           value: "10/31/2024, 7:17:19 PM"
         },
-        // {
-        //   action: "pick",
-        //   selector: '[data-testid="date-picker"]'
-        // },
-        
         {
           action: "type",
           selector: '[data-testid="capacity"]',
