@@ -6,6 +6,7 @@ on:
       - feat/user-role-permissions
       - feature/Automated-e2e-Tests
       - ft/add-device-test
+      - feature/add-meter-read
   pull_request:
     branches:
       - ft/register-new-account
@@ -49,7 +50,7 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat curl
+          sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat-openbsd curl
 
       # Step 4: Setup Node.js
       - name: Setup Node.js
@@ -61,7 +62,7 @@ jobs:
       # Step 5: Clone Backend Repository
       - name: Clone Backend Repository
         run: |
-          git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
+          git clone  https://github.com/d-rec/drec-origin.git projects/drec-origin
           chmod -R 777 projects/drec-origin
 
       # Step 6: Start Docker Services
@@ -122,7 +123,6 @@ jobs:
         run: pnpx cypress run
 
       # Step 14: Tear Down Docker Environment
-      
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
         run: docker-compose down
