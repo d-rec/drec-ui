@@ -17,7 +17,7 @@
       {
         action: "type",
         selector: '[data-testid="external-id"]',
-        value:"testdevice00"
+        value:"testdevice20"
       },
       {
         action: "select",
