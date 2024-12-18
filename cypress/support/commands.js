@@ -111,6 +111,12 @@ Cypress.Commands.add('addDevice', function () {
     if (step.action === "type") {
       return cy.get(step.selector).should('be.visible').type(step.value);
     }
+    if (step.action === "write") {
+      return cy.get(step.selector)
+      .should('be.visible') 
+      .clear()              
+      .type(step.value + '{enter}'); 
+        }
     if (step.action === "select") {
       return cy.get(step.selector).click()
         .get(step.option) 
@@ -118,16 +124,12 @@ Cypress.Commands.add('addDevice', function () {
         .eq(0)
         .click(); 
     }
-    if (step.action === "pick") {
-      return cy.get(step.selector).click('center', { force: true });
-    }
     if (step.action === "submit") {
       return cy.get(step.selector).click('center', { force: true });
     }
   });
   });
 });
-
 Cypress.Commands.add('devlogin', function () {
   
   cy.fixture('devlogin.js').then((data) => {
