@@ -138,21 +138,32 @@ Cypress.Commands.add('addMeterRead', function () {
     if (step.action === "click") {
       return cy.get(step.selector).click().wait(1000);
     }
-    if (step.action === "select") {
-      return cy.get(step.selector).click('center', { force: true })
-        .type("t")
-        .get(step.option) 
-        .should('have.length.greaterThan', 0) 
-        .eq(0)
-        .click('center', { force: true }); 
-    }
+    if (step.action === "selected") {
+       return  cy.get(step.selector).click({ force: true }).wait(1000)
+           .get(step.option)
+           .should('have.length.greaterThan', 0)
+           .first() 
+           .should('be.visible') 
+           .click({ force: true }) 
+           .wait(1000); 
+}
+
+    
     if (step.action === "select-timezone") {
-      return cy.get(step.selector).click('center', { force: true })
+      return cy.get(step.selector).click({ force: true })
         .get(step.option) 
         .should('have.length.greaterThan', 0) 
         .eq(0)
         .click('center', { force: true }); 
     }
+    if (step.action === "select") {
+      return cy.get(step.selector).click({ force: true })
+        .get(step.option) 
+        .should('have.length.greaterThan', 0) 
+        .eq(0)
+        .click('center', { force: true }); 
+    }
+    
     if (step.action === "type") {
       return cy.get(step.selector).wait(1000)  
       .click({ force: true }) 

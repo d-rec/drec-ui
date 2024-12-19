@@ -191,7 +191,7 @@
                                 <input matInput formControlName='externalId' [matAutocomplete]="auto"
                                     placeholder="Search External ID" [value]="selectedResult?.externalId">
                                 <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSelect($event.option.value)">
-                                    <mat-option *ngFor="let result of filteredexternalIdOptions | async" [value]="result">
+                                    <mat-option *ngFor="let result of filteredexternalIdOptions | async" [value]="result" [attr.externalid-testid]="result.externalId">
                                         {{ result.externalId }}
                                     </mat-option>
     
@@ -220,7 +220,7 @@
                                     formControlName="timezone" [matAutocomplete]="auto1">
                                 <mat-autocomplete #auto1="matAutocomplete"
                                     (optionSelected)="onTimezoneSelect($event.option.value)">
-                                    <mat-option *ngFor="let code of filteredOptions | async" [value]="code.name">
+                                    <mat-option *ngFor="let code of filteredOptions | async" [value]="code.name" [attr.timezone-testid]="code.name">
                                         {{code.name}}
                                     </mat-option>
     
@@ -236,7 +236,7 @@
     
                                 <mat-select formControlName='type' (ngModelChange)="onChangeEvent($event)">
     
-                                    <mat-option *ngFor="let code of readtype" [value]="code">
+                                    <mat-option *ngFor="let code of readtype" [value]="code" [attr.readtype-testid]="code">
                                         {{code}}
                                     </mat-option>
                                 </mat-select>
@@ -248,7 +248,7 @@
     
                                 <mat-select formControlName='unit'>
     
-                                    <mat-option *ngFor="let unit of unit" [value]="unit">
+                                    <mat-option *ngFor="let unit of unit" [value]="unit"  [attr.unit-testid]="unit">
                                         {{unit}}
                                     </mat-option>
                                 </mat-select>
