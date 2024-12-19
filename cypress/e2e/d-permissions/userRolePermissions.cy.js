@@ -5,6 +5,7 @@ describe('Add user role permissions', () => {
     })
     it('Add user role permissions', () => {
       cy.adminlogin()
+      
       cy.permissions()
     });
   });
