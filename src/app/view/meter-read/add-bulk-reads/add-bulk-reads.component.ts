@@ -4,8 +4,13 @@ import { FileuploadService } from '../../../auth/services/fileupload.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import { AdminService, OrganizationService } from '../../../auth/services';
+import {
+  AdminService,
+  MeterReadService,
+  OrganizationService,
+} from '../../../auth/services';
 import { OrganizationInformation } from '../../../models';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-add-bulk-reads',
@@ -37,6 +42,8 @@ export class AddBulkReadsComponent implements OnInit {
     private uploadService: FileuploadService,
     private adminService: AdminService,
     private orgService: OrganizationService,
+    private toasterService: ToastrService,
+    private readsService: MeterReadService,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -86,9 +93,7 @@ export class AddBulkReadsComponent implements OnInit {
   }
   reset() {
     this.currentFile = null;
- 
   }
-
 
   openFileExplorer() {
     document.getElementById('fileInput')?.click();
@@ -97,5 +102,71 @@ export class AddBulkReadsComponent implements OnInit {
   upload(): void {
     this.progress = 0;
     this.message = '';
+
+    if (this.currentFile) {
+      this.uploadService.csvupload(this.currentFile).subscribe(
+        (event: any) => {
+          const obj: any = {};
+          obj['fileName'] = event[0];
+          if (
+            this.loginuser.role === 'Admin' ||
+            this.loginuser.role === 'ApiUser'
+          ) {
+            this.readsService.bulkCSVUpload(this.orgId, obj).subscribe({
+              // next: () => {
+              //   this.JobDisplayList();
+              //   this.currentFile = null;
+              //   this.fileName = 'Please click here to Select File';
+              //   this.toasterService.success(
+              //     'Successfully!',
+              //     'Devices Uploaded in Bulk!!',
+              //   );
+              // },
+              error: (err) => {
+                //Error callback
+                console.error('error caught in component', err);
+                if (err.error.statusCode === 403) {
+                  this.toasterService.error('You are Unauthorized');
+                } else {
+                  this.toasterService.error('error!', err.error.message);
+                }
+              },
+            });
+          } else {
+            this.uploadService.addbulkDevices(obj).subscribe({
+              // next: () => {
+              //   this.JobDisplayList();
+              //   this.currentFile = null;
+              //   this.fileName = 'Please click here to Select File';
+              //   this.toasterService.success(
+              //     'Successful',
+              //     'Devices uploaded in bulk',
+              //   );
+              // },
+              error: (err) => {
+                //Error callback
+                console.error('error caught in component', err);
+                if (err.error.statusCode === 403) {
+                  this.toasterService.error('You are Unauthorized');
+                } else {
+                  this.toasterService.error('error!', err.error.message);
+                }
+              },
+            });
+          }
+        },
+        (err: any) => {
+          this.progress = 0;
+
+          if (err.error && err.error.message) {
+            this.message = err.error.message;
+          } else {
+            this.message = 'Could not upload the file!';
+          }
+
+          this.currentFile = null;
+        },
+      );
+    }
   }
 }
