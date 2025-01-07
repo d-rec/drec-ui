@@ -53,12 +53,12 @@
     index:7
   },
   {
-    action: "submit",
-    selector: '[data-testid="submit-permission"]'
-  },
-  {
     action: "check-multiple",
     selector: '[data-testid="permission-check"]',
     contains:"CERTIFICATE_LOG_MANAGEMENT_CRUDL"
+  },
+  {
+    action: "submit",
+    selector: '[data-testid="submit-permission"]'
   },
 ]
