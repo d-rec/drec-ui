@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FileuploadService } from '../../../auth/services/fileupload.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -10,7 +9,6 @@ import {
 } from '../../../auth/services';
 import { OrganizationInformation } from '../../../models';
 import { ToastrService } from 'ngx-toastr';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-add-bulk-reads',
@@ -25,7 +23,7 @@ export class AddBulkReadsComponent implements OnInit {
   loading: boolean = true;
   objectKeys = Object.keys;
   displayedColumns = [
-    'serialno',
+    'serialNo',
     'createdAt',
     'jobId',
     'fileId',
@@ -33,47 +31,45 @@ export class AddBulkReadsComponent implements OnInit {
     'actions',
   ];
   displayedColumns1 = [
-    'serialno',
+    'serialNo',
     'externalId',
     'errorsList',
     'Status',
     'Action',
   ];
   constructor(
-    private uploadService: FileuploadService,
     private adminService: AdminService,
     private orgService: OrganizationService,
     private toasterService: ToastrService,
     private readsService: MeterReadService,
-    private snackBar: MatSnackBar,
   ) {
-    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+    this.loggedInUser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   dataSource1: MatTableDataSource<any>;
   data: any;
-  orglist: any;
+  orgList: any;
   filteredOrgList: OrganizationInformation[] = [];
-  orgname: string;
+  orgName: string;
   orgId: number;
-  loginuser: any;
+  loggedInUser: any;
 
   ngOnInit(): void {
-    if (this.loginuser.role === 'Admin') {
+    if (this.loggedInUser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe((data) => {
-        this.orglist = data.organizations.filter(
+        this.orgList = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
-        this.filteredOrgList = this.orglist;
+        this.filteredOrgList = this.orgList;
       });
-    } else if (this.loginuser.role === 'ApiUser') {
+    } else if (this.loggedInUser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
-        this.orglist = data.organizations.filter(
+        this.orgList = data.organizations.filter(
           (org) => org.organizationType != 'Buyer',
         );
-        this.filteredOrgList = this.orglist;
+        this.filteredOrgList = this.orgList;
       });
     }
   }
@@ -94,14 +90,14 @@ export class AddBulkReadsComponent implements OnInit {
   }
 
   filterOrgList() {
-    this.filteredOrgList = this.orglist.filter(
+    this.filteredOrgList = this.orgList.filter(
       (org: OrganizationInformation) => {
-        return org.name.toLowerCase().includes(this.orgname.toLowerCase());
+        return org.name.toLowerCase().includes(this.orgName.toLowerCase());
       },
     );
   }
   selectOrg(event: any) {
-    const selectedCountry = this.orglist.find(
+    const selectedCountry = this.orgList.find(
       (option: any) => option.name === event.option.value,
     );
     if (selectedCountry) {
