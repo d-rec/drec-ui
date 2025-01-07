@@ -4,13 +4,15 @@ on:
   push:
     branches:
       - feat/user-role-permissions
-      - feature/Automated-e2e-Tests
+      - ft/register-new-account
       - ft/add-device-test
       - feature/add-meter-read
       - feature/add-reservation
   pull_request:
     branches:
-      - ft/register-new-account
+      - feature/Automated-e2e-Tests
+
+      
 
 jobs:
   test:
