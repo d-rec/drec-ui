@@ -29,15 +29,36 @@
   {
     action: "check",
     selector: '[data-testid="module-check"]',
+    index:4
+  },
+  {
+    action: "check-multiple",
+    selector: '[data-testid="permission-check"]',
+    contains:"BUYER_RESERVATION_MANAGEMENT_CRUDL"
+  },
+  {
+    action: "check",
+    selector: '[data-testid="module-check"]',
     index:6
   },
   {
     action: "check-multiple",
     selector: '[data-testid="permission-check"]',
     contains:"READS_MANAGEMENT_CRUDL"
+  },  
+  
+  {
+    action: "check",
+    selector: '[data-testid="module-check"]',
+    index:7
   },
   {
     action: "submit",
     selector: '[data-testid="submit-permission"]'
+  },
+  {
+    action: "check-multiple",
+    selector: '[data-testid="permission-check"]',
+    contains:"CERTIFICATE_LOG_MANAGEMENT_CRUDL"
   },
 ]
