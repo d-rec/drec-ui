@@ -18,7 +18,7 @@
       {
         action: "type",
         selector: '[data-testid="reservationStartDate"]',
-        value: '9/10/2024, 1:25:51 PM'
+        value: '11/1/2024, 1:25:51 PM'
       },
       {
         action: "type",
@@ -40,4 +40,21 @@
         selector: 'input[formControlName="countryname"]',
         option: '[country-testid]'
       },
+      {
+        action: "click",
+        selector: '[data-testid="Filterbutton"]',
+      },
+      {
+        action: "check",
+        selector: '[data-testid="device-check"]',
+        index:0
+      },
+      {
+        action: "click",
+        selector: '[data-testid="submit-reservation"]',
+      },
+      {
+        action: "click",
+        selector: '[data-testid="continue-reservation"]',
+      }
     ]

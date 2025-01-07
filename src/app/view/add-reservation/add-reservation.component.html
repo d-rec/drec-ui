@@ -238,7 +238,7 @@
                                 <div class="col-md-12 mb-3  d-flex justify-content-end">
                                     <div class="">
                                         <button class="btn-primary me-2 btn text-capitalize px-4"
-                                            (click)="applyFilter()" [disabled]="!isAnyFieldFilled">Filter</button>
+                                            (click)="applyFilter()" [disabled]="!isAnyFieldFilled" data-testid="Filterbutton">Filter</button>
                                     </div>
                                     <div class="">
                                         <button class="btn-dark btn text-capitalize px-4" (click)="reset()"
@@ -269,7 +269,7 @@
                                         <mat-cell *cdkCellDef="let row">
                                             <mat-checkbox color="primary" (click)="$event.stopPropagation()"
                                                 (change)="$event ? selection.toggle(row) : null"
-                                                [checked]="selection.isSelected(row)">
+                                                [checked]="selection.isSelected(row)" data-testid="device-check">
                                             </mat-checkbox>
                                         </mat-cell>
                                     </td>
@@ -361,7 +361,7 @@
             <div class="example-container mb-3 me-2 row">
                 <div class="col-12 d-flex justify-content-end">
                     <button type="submit" [disabled]="reservationForm.invalid"
-                        class="btn-primary btn text-capitalize px-4" (click)="onSubmit()">Submit</button>
+                        class="btn-primary btn text-capitalize px-4" (click)="onSubmit()" data-testid="submit-reservation">Submit</button>
                 </div>
             </div>
         </mat-card-footer>
@@ -397,7 +397,7 @@
     <div mat-dialog-actions class=" continue-button">
         <!-- <button mat-button (click)="onContinue()">Continue</button> -->
         <button mat-button [mat-dialog-close]="data" class="btn-primary btn text-capitalize"
-            cdkFocusInitial>Continue</button>
+            cdkFocusInitial data-testid="continue-reservation">Continue</button>
     </div>
 
 </ng-template>

@@ -129,6 +129,39 @@ Cypress.Commands.add('permissions', function () {
   });
 });
 
+
+Cypress.Commands.add('buyerpermissions', function () {
+  
+  cy.fixture('buyerpermissions.js').then((data) => { 
+    data.forEach((step) => {
+    if (step.action === "click") {
+      return cy.get(step.selector).should('be.visible').click().wait(1000);
+    }
+    if (step.action === "select") {
+      return cy.get(step.selector).click()
+        .get(step.option) 
+        .should('have.length.greaterThan', 0) 
+        .eq(3)
+        .click().wait(1000); 
+    }
+    if (step.action === "check") {
+      return cy.get(step.selector).eq(step.index).click();
+    }  
+    if (step.action === "check-multiple") {
+      return cy.contains("table tr", step.contains) 
+          .within(() => {
+              cy.get(step.selector).each(($el) => {
+                  cy.wrap($el).click(); 
+              });
+          });
+  }
+  if (step.action === "submit"){
+    return cy.get(step.selector).scrollIntoView().should('be.visible').click();
+  }
+  });
+  });
+});
+
 Cypress.Commands.add('addDevice', function () {
   
   cy.fixture('addDevice.js').then((data) => { 
@@ -229,6 +262,9 @@ Cypress.Commands.add('addReservation', function () {
         .eq(0)
         .click('center', { force: true }); 
     }
+    if (step.action === "check") {
+      return cy.get(step.selector).eq(step.index).click();
+    } 
   });
 });
 });
