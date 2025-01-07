@@ -2,12 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import {
-  AdminService,
-  MeterReadService,
-  OrganizationService,
-} from '../../../auth/services';
-import { OrganizationInformation } from '../../../models';
+import { MeterReadService } from '../../../auth/services';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -16,12 +11,9 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class AddBulkReadsComponent implements OnInit {
   currentFile?: File | null;
-  progress = 0;
-  message = '';
   fileName = 'Please click here to select file';
   pageSize: number = 10;
   loading: boolean = true;
-  objectKeys = Object.keys;
   displayedColumns = [
     'serialNo',
     'createdAt',
@@ -30,49 +22,15 @@ export class AddBulkReadsComponent implements OnInit {
     'status',
     'actions',
   ];
-  displayedColumns1 = [
-    'serialNo',
-    'externalId',
-    'errorsList',
-    'Status',
-    'Action',
-  ];
   constructor(
-    private adminService: AdminService,
-    private orgService: OrganizationService,
     private toasterService: ToastrService,
     private readsService: MeterReadService,
-  ) {
-    this.loggedInUser = JSON.parse(sessionStorage.getItem('loginuser')!);
-  }
+  ) {}
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
-  dataSource1: MatTableDataSource<any>;
-  data: any;
-  orgList: any;
-  filteredOrgList: OrganizationInformation[] = [];
-  orgName: string;
-  orgId: number;
-  loggedInUser: any;
 
-  ngOnInit(): void {
-    if (this.loggedInUser.role === 'Admin') {
-      this.adminService.GetAllOrganization().subscribe((data) => {
-        this.orgList = data.organizations.filter(
-          (org: OrganizationInformation) => org.organizationType !== 'Buyer',
-        );
-        this.filteredOrgList = this.orgList;
-      });
-    } else if (this.loggedInUser.role === 'ApiUser') {
-      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
-        this.orgList = data.organizations.filter(
-          (org) => org.organizationType != 'Buyer',
-        );
-        this.filteredOrgList = this.orgList;
-      });
-    }
-  }
+  ngOnInit(): void {}
 
   selectFile(event: any): void {
     if (event.target.files && event.target.files[0]) {
@@ -89,21 +47,6 @@ export class AddBulkReadsComponent implements OnInit {
     event.target.value = '';
   }
 
-  filterOrgList() {
-    this.filteredOrgList = this.orgList.filter(
-      (org: OrganizationInformation) => {
-        return org.name.toLowerCase().includes(this.orgName.toLowerCase());
-      },
-    );
-  }
-  selectOrg(event: any) {
-    const selectedCountry = this.orgList.find(
-      (option: any) => option.name === event.option.value,
-    );
-    if (selectedCountry) {
-      this.orgId = selectedCountry.id;
-    }
-  }
   reset() {
     this.currentFile = null;
     this.fileName = 'Please click here to select file';

@@ -18,36 +18,6 @@
     <mat-card-content>
       <form>
         <div class="row">
-          <div
-            class="col-md-3"
-            *ngIf="
-              loggedInUser.role === 'Admin' || loggedInUser.role === 'ApiUser'
-            "
-          >
-            <mat-form-field appearance="outline">
-              <mat-label class="text-capitalize">Organization</mat-label>
-
-              <input
-                matInput
-                [(ngModel)]="orgName"
-                [ngModelOptions]="{ standalone: true }"
-                [matAutocomplete]="orgAuto"
-                (input)="filterOrgList()"
-              />
-
-              <mat-autocomplete
-                #orgAuto="matAutocomplete"
-                (optionSelected)="selectOrg($event)"
-              >
-                <mat-option
-                  *ngFor="let code of filteredOrgList"
-                  [value]="code.name"
-                >
-                  {{ code.name }}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-          </div>
           <div class="col-md-3">
             <mat-form-field appearance="outline">
               <div>
