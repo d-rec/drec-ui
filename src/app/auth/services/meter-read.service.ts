@@ -18,8 +18,10 @@ export class MeterReadService {
     return this.httpClient.post<any>(addUrl, data);
   }
 
-  bulkCSVUpload(organizationId: number, data: any): Observable<any> {
-    return this.httpClient.post<any>(this.url + 'meter-reads/csv-upload', data);
+  csvupload(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.httpClient.post(this.url + 'meter-reads/csv-upload', formData);
   }
 
   PostReadByAdmin(

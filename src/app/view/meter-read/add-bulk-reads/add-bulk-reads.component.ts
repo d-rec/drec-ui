@@ -11,6 +11,7 @@ import {
 } from '../../../auth/services';
 import { OrganizationInformation } from '../../../models';
 import { ToastrService } from 'ngx-toastr';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-add-bulk-reads',
@@ -20,6 +21,7 @@ export class AddBulkReadsComponent implements OnInit {
   currentFile?: File | null;
   progress = 0;
   message = '';
+  fileName = 'Please click here to select file';
   pageSize: number = 10;
   loading: boolean = true;
   objectKeys = Object.keys;
@@ -44,6 +46,7 @@ export class AddBulkReadsComponent implements OnInit {
     private orgService: OrganizationService,
     private toasterService: ToastrService,
     private readsService: MeterReadService,
+    private snackBar: MatSnackBar,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -76,6 +79,21 @@ export class AddBulkReadsComponent implements OnInit {
     }
   }
 
+  selectFile(event: any): void {
+    if (event.target.files && event.target.files[0]) {
+      const file: File = event.target.files[0];
+      this.currentFile = file;
+      this.fileName = this.currentFile.name;
+      if (!this.fileName.endsWith('.csv')) {
+        this.fileName = 'Invalid file';
+        this.currentFile = null;
+      }
+    } else {
+      this.fileName = 'Please click here to select file';
+    }
+    event.target.value = '';
+  }
+
   filterOrgList() {
     this.filteredOrgList = this.orglist.filter(
       (org: OrganizationInformation) => {
@@ -104,69 +122,25 @@ export class AddBulkReadsComponent implements OnInit {
     this.message = '';
 
     if (this.currentFile) {
-      this.uploadService.csvupload(this.currentFile).subscribe(
-        (event: any) => {
-          const obj: any = {};
-          obj['fileName'] = event[0];
-          if (
-            this.loginuser.role === 'Admin' ||
-            this.loginuser.role === 'ApiUser'
-          ) {
-            this.readsService.bulkCSVUpload(this.orgId, obj).subscribe({
-              // next: () => {
-              //   this.JobDisplayList();
-              //   this.currentFile = null;
-              //   this.fileName = 'Please click here to Select File';
-              //   this.toasterService.success(
-              //     'Successfully!',
-              //     'Devices Uploaded in Bulk!!',
-              //   );
-              // },
-              error: (err) => {
-                //Error callback
-                console.error('error caught in component', err);
-                if (err.error.statusCode === 403) {
-                  this.toasterService.error('You are Unauthorized');
-                } else {
-                  this.toasterService.error('error!', err.error.message);
-                }
-              },
-            });
-          } else {
-            this.uploadService.addbulkDevices(obj).subscribe({
-              // next: () => {
-              //   this.JobDisplayList();
-              //   this.currentFile = null;
-              //   this.fileName = 'Please click here to Select File';
-              //   this.toasterService.success(
-              //     'Successful',
-              //     'Devices uploaded in bulk',
-              //   );
-              // },
-              error: (err) => {
-                //Error callback
-                console.error('error caught in component', err);
-                if (err.error.statusCode === 403) {
-                  this.toasterService.error('You are Unauthorized');
-                } else {
-                  this.toasterService.error('error!', err.error.message);
-                }
-              },
-            });
-          }
-        },
-        (err: any) => {
-          this.progress = 0;
-
-          if (err.error && err.error.message) {
-            this.message = err.error.message;
-          } else {
-            this.message = 'Could not upload the file!';
-          }
-
+      this.readsService.csvupload(this.currentFile).subscribe({
+        next: () => {
+          //this.JobDisplayList();
           this.currentFile = null;
+          this.fileName = 'Please click here to Select File';
+          this.toasterService.success(
+            'Successfully!',
+            'Devices Uploaded in Bulk!!',
+          );
         },
-      );
+        error: (err) => {
+          console.error('error caught in component', err);
+          if (err.error.statusCode === 403) {
+            this.toasterService.error('You are Unauthorized');
+          } else {
+            this.toasterService.error('error!', err.error.message);
+          }
+        },
+      });
     }
   }
 }

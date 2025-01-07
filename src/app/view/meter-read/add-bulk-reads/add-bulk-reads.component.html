@@ -9,10 +9,7 @@
         </h2>
       </div>
       <div>
-        <button
-          class="btn btn-dark justify-content-end px-4"
-         
-        >
+        <button class="btn btn-dark justify-content-end px-4">
           <mat-icon class="align-middle">refresh</mat-icon>
         </button>
       </div>
@@ -60,6 +57,7 @@
                     type="file"
                     hidden
                     id="fileInput"
+                    (change)="selectFile($event)"
                     name="fileInput"
                     accept=".csv"
                   />
