@@ -111,6 +111,7 @@ export class AddBulkReadsComponent implements OnInit {
   }
   reset() {
     this.currentFile = null;
+    this.fileName = 'Please click here to select file';
   }
 
   openFileExplorer() {
