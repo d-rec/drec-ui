@@ -18,7 +18,7 @@ export class MeterReadService {
     return this.httpClient.post<any>(addUrl, data);
   }
 
-  csvupload(file: File): Observable<any> {
+  readsCSVUpload(file: File): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
     return this.httpClient.post(this.url + 'meter-reads/csv-upload', formData);

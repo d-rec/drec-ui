@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs';
 import { FileuploadService } from '../../../auth/services/fileupload.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -119,13 +118,9 @@ export class AddBulkReadsComponent implements OnInit {
   }
 
   upload(): void {
-    this.progress = 0;
-    this.message = '';
-
     if (this.currentFile) {
-      this.readsService.csvupload(this.currentFile).subscribe({
+      this.readsService.readsCSVUpload(this.currentFile).subscribe({
         next: () => {
-          //this.JobDisplayList();
           this.currentFile = null;
           this.fileName = 'Please click here to Select File';
           this.toasterService.success(
@@ -134,7 +129,6 @@ export class AddBulkReadsComponent implements OnInit {
           );
         },
         error: (err) => {
-          console.error('error caught in component', err);
           if (err.error.statusCode === 403) {
             this.toasterService.error('You are Unauthorized');
           } else {
