@@ -212,7 +212,7 @@
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/add/reservation"
         *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer' || loginuser.role === 'ApiUser'">
         <mat-icon>add_circle</mat-icon>
-        <span>Add Reservation</span>
+        <span data-testid="add-reservation">Add Reservation</span>
       </button>
       <!--9th  -->
 

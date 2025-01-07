@@ -33,7 +33,7 @@
 
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Name</mat-label>
-                            <input matInput type="test" formControlName='name' min="1" autocomplete="off">
+                            <input matInput type="test" formControlName='name' min="1" autocomplete="off" data-testid="reservation-name">
 
                         </mat-form-field>
                     </div>
@@ -43,14 +43,14 @@
                             <mat-label>Target Capacity(MWh)</mat-label>
 
                             <input matInput type="number" formControlName='targetCapacityInMegaWattHour' min="1"
-                                autocomplete="off">
+                                autocomplete="off" data-testid="targetCapacity">
                         </mat-form-field>
                     </div>
                     <div class="col-md-3">
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Start Date </mat-label>
                             <input matInput [ngxMatDatetimePicker]="picker" formControlName="reservationStartDate"
-                                autocomplete="off" (ngModelChange)="onEndChangeEvent($event)">
+                                autocomplete="off" (ngModelChange)="onEndChangeEvent($event)" data-testid="reservationStartDate">
                             <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
                             <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
                                 [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
@@ -62,7 +62,7 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">End Date </mat-label>
                             <input matInput [ngxMatDatetimePicker]="picker1" formControlName="reservationEndDate"
-                                [min]="endminDate" autocomplete="off" (ngModelChange)="onExpiryEvent($event)">
+                                [min]="endminDate" autocomplete="off" (ngModelChange)="onExpiryEvent($event)" data-testid="reservationEndDate">
                             <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
                             <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
                                 [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
@@ -75,7 +75,7 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Expiry Date </mat-label>
                             <input matInput [ngxMatDatetimePicker]="picker2" formControlName="reservationExpiryDate"
-                                [min]="expiryminDate" autocomplete="off">
+                                [min]="expiryminDate" autocomplete="off" data-testid="reservationExpiryDate">
                             <mat-datepicker-toggle matSuffix [for]="$any(picker2)"></mat-datepicker-toggle>
                             <ngx-mat-datetime-picker #picker2 [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
                                 [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
@@ -91,7 +91,7 @@
                         <mat-form-field appearance="outline">
                             <mat-label class="text-capitalize">Frequency</mat-label>
                             <mat-select formControlName='frequency'>
-                                <mat-option *ngFor="let f of frequency" [value]="f">
+                                <mat-option *ngFor="let f of frequency" [value]="f" [attr.frequency-testid]="frequency">
                                     {{f}}
                                 </mat-option>
                             </mat-select>
@@ -144,7 +144,7 @@
                                             (optionSelected)="selectCountry($event)">
                                             <mat-option [value]="">---</mat-option>
                                             <mat-option *ngFor="let code of filteredOptions | async"
-                                                [value]="code.country">
+                                                [value]="code.country" [attr.country-testid]="code.country">
                                                 {{ code.country }}
                                             </mat-option>
                                         </mat-autocomplete>

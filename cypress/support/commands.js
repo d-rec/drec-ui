@@ -20,8 +20,8 @@ Cypress.Commands.add('clearDatabase', () => {
 });
 
 
-Cypress.Commands.add('signup', function () {
-  cy.fixture('signup.js').then((data) => {
+Cypress.Commands.add('signupdev', function () {
+  cy.fixture('signupdev.js').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000); 
     cy.get('[data-testid="register"]').click();
     data.forEach((step) => {
@@ -32,6 +32,34 @@ Cypress.Commands.add('signup', function () {
     } 
     if (step.action === "click") {
       return cy.get(step.selector).click().wait(1000);
+    }
+    if (step.action === 'select') {
+      return cy
+        .get(step.selector) 
+        .click() 
+        .then(() => {
+          cy.get('mat-option') 
+            .contains(step.value) 
+            .click(); 
+        });
+    }
+  });
+  });
+});
+
+Cypress.Commands.add('signupbuyer', function () {
+  cy.fixture('signupbuyer.js').then((data) => {
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000); 
+    cy.get('[data-testid="register"]').click();
+    data.forEach((step) => {
+  
+    if (step.action === "type") {
+      return cy.get(step.selector).type(step.value)
+      .should('have.value', step.value);
+      
+    } 
+    if (step.action === "click") {
+      return cy.get(step.selector).click().wait(1000);       
     }
     if (step.action === 'select') {
       return cy
@@ -183,9 +211,52 @@ Cypress.Commands.add('addMeterRead', function () {
   });
 });
 
+
+Cypress.Commands.add('addReservation', function () {
+  
+  cy.fixture('addReservation.js').then((data) => { 
+    data.forEach((step) => {
+    if (step.action === "click") {
+      return cy.get(step.selector).click().wait(1000);
+    }
+    if (step.action === "type") {
+      return cy.get(step.selector).should('be.visible').type(step.value,{ force: true });
+    }
+    if (step.action === "select") {
+      return cy.get(step.selector).click({ force: true })
+        .get(step.option) 
+        .should('have.length.greaterThan', 0) 
+        .eq(0)
+        .click('center', { force: true }); 
+    }
+  });
+});
+});
+
+
 Cypress.Commands.add('devlogin', function () {
   
   cy.fixture('devlogin.js').then((data) => {
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000); 
+    data.forEach((step) => {
+  
+    
+      if (step.action === "type") {
+        
+          return cy.get(step.selector).type(step.value);
+        }
+        
+    if (step.action === "click") {
+      return cy.get(step.selector).click().wait(1000);
+    }
+  });
+  });
+});
+
+
+Cypress.Commands.add('buyerlogin', function () {
+  
+  cy.fixture('buyerlogin.js').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000); 
     data.forEach((step) => {
   
