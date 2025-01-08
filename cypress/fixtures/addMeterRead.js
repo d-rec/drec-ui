@@ -35,14 +35,14 @@
       value:"100"
     },
     {
-      action: "start-date",
-      selector: 'mat-datepicker-toggle',
-      option: '[role="gridcell"]'
+      action: "type",
+      selector: '[placeholder="Choose a start date"]',
+      value: '12/10/2024, 12:43:54 PM'
     },
     {
-      action: "end-date",
-      selector: 'mat-datepicker-toggle',
-      option: '[role="gridcell"]'
+      action: "type",
+      selector: '[placeholder="Choose a end date"]',
+      value: '1/6/2025, 12:44:55 PM'
     },
     {
       action: "click",

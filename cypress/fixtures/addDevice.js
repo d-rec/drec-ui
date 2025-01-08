@@ -12,12 +12,12 @@
       {
         action: "type",
         selector: '[data-testid="project-name"]',
-        value:"test-device"
+        value:"test-history"
       },
       {
         action: "type",
         selector: '[data-testid="external-id"]',
-        value:"testdevice33"
+        value:"testdevice"
       },
       {
         action: "select",
@@ -27,7 +27,7 @@
         {
           action: "write",
           selector: '[data-testid="commissioning-date"]',
-          value: "10/31/2024, 7:17:19 PM"
+          value: "12/9/2024, 7:17:19 PM"
         },
         {
           action: "type",

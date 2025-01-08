@@ -228,7 +228,7 @@ Cypress.Commands.add('addMeterRead', function () {
     if (step.action === "type") {
       return cy.get(step.selector).wait(1000)  
       .click({ force: true }) 
-      .type('100', { force: true });
+      .type(step.value, { force: true });
     }
     if (step.action === "start-date") {
       return cy.get(step.selector).eq(0).click('center', { force: true })

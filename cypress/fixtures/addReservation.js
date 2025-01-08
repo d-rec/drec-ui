@@ -8,7 +8,7 @@
       {
         action: "type",
         selector: '[data-testid="reservation-name"]',
-        value: "Test reservation"
+        value: "test reservation"
       },
       {
         action: "type",
@@ -18,17 +18,17 @@
       {
         action: "type",
         selector: '[data-testid="reservationStartDate"]',
-        value: '11/1/2024, 1:25:51 PM'
+        value: '11/30/2024, 12:48:18 PM'
       },
       {
         action: "type",
         selector: '[data-testid="reservationEndDate"]',
-        value: '1/6/2025, 1:27:11 PM'
+        value: '5/31/2025, 12:48:42 PM'
       },
       {
         action: "type",
         selector: '[data-testid="reservationExpiryDate"]',
-        value: '1/31/2025, 1:27:29 PM'
+        value: '5/31/2025, 12:50:30 PM'
       },
       {
         action: "select",
