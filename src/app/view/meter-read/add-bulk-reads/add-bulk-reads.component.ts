@@ -13,8 +13,8 @@ export class AddBulkReadsComponent implements OnInit {
   currentFile?: File | null;
   fileName = 'Please click here to select file';
   pageSize: number = 10;
-  showDevicesInfo: boolean = false;
-  DevicestatusList: any = [];
+  showReadsInfo: boolean = false;
+  readsStatusList: any = [];
   loading: boolean = true;
   objectKeys = Object.keys;
   displayedColumns = [
@@ -42,7 +42,7 @@ export class AddBulkReadsComponent implements OnInit {
   dataSource1: MatTableDataSource<any>;
   data: any;
   ngOnInit(): void {
-    this.JobDisplayList();
+    this.readsJobDisplayList();
   }
 
   selectFile(event: any): void {
@@ -60,8 +60,8 @@ export class AddBulkReadsComponent implements OnInit {
     event.target.value = '';
   }
 
-  JobDisplayList() {
-    this.showDevicesInfo = false;
+  readsJobDisplayList() {
+    this.showReadsInfo = false;
     this.loading = true;
     this.readsService.getCsvJobList().subscribe((data) => {
       this.loading = false;
@@ -72,15 +72,15 @@ export class AddBulkReadsComponent implements OnInit {
     });
   }
 
-  // DisplayDeviceLogList(jobid: number, orgId: number) {
-  //   this.showDevicesInfo = true;
-  //   this.DevicestatusList = [];
-  //   this.readsService.getJobStatus(jobid, orgId).subscribe((data) => {
-  //     this.data = data.errorDetails.log.errorDetails;
-  //     this.dataSource1 = new MatTableDataSource(this.data);
-  //     this.dataSource1.paginator = this.paginator;
-  //   });
-  // }
+  displayReadsLogList(jobId: number, orgId: number) {
+    this.showReadsInfo = true;
+    this.readsStatusList = [];
+    this.readsService.getJobStatus(jobId, orgId).subscribe((data) => {
+      this.data = data.errorDetails.log.errorDetails;
+      this.dataSource1 = new MatTableDataSource(this.data);
+      this.dataSource1.paginator = this.paginator;
+    });
+  }
 
   reset() {
     this.currentFile = null;
@@ -95,7 +95,7 @@ export class AddBulkReadsComponent implements OnInit {
     if (this.currentFile) {
       this.readsService.readsCSVUpload(this.currentFile).subscribe({
         next: () => {
-          this.JobDisplayList();
+          this.readsJobDisplayList();
           this.currentFile = null;
           this.fileName = 'Please click here to Select File';
           this.toasterService.success(
