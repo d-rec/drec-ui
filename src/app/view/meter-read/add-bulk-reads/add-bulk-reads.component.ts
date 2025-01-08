@@ -13,7 +13,10 @@ export class AddBulkReadsComponent implements OnInit {
   currentFile?: File | null;
   fileName = 'Please click here to select file';
   pageSize: number = 10;
+  showDevicesInfo: boolean = false;
+  DevicestatusList: any = [];
   loading: boolean = true;
+  objectKeys = Object.keys;
   displayedColumns = [
     'serialNo',
     'createdAt',
@@ -22,6 +25,13 @@ export class AddBulkReadsComponent implements OnInit {
     'status',
     'actions',
   ];
+  displayedColumns1 = [
+    'serialNo',
+    'externalId',
+    'errorsList',
+    'Status',
+    'Action',
+  ];
   constructor(
     private toasterService: ToastrService,
     private readsService: MeterReadService,
@@ -29,8 +39,11 @@ export class AddBulkReadsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
-
-  ngOnInit(): void {}
+  dataSource1: MatTableDataSource<any>;
+  data: any;
+  ngOnInit(): void {
+    this.JobDisplayList();
+  }
 
   selectFile(event: any): void {
     if (event.target.files && event.target.files[0]) {
@@ -47,6 +60,28 @@ export class AddBulkReadsComponent implements OnInit {
     event.target.value = '';
   }
 
+  JobDisplayList() {
+    this.showDevicesInfo = false;
+    this.loading = true;
+    this.readsService.getCsvJobList().subscribe((data) => {
+      this.loading = false;
+      this.data = data;
+      this.dataSource = new MatTableDataSource(this.data.csvJobs);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    });
+  }
+
+  // DisplayDeviceLogList(jobid: number, orgId: number) {
+  //   this.showDevicesInfo = true;
+  //   this.DevicestatusList = [];
+  //   this.readsService.getJobStatus(jobid, orgId).subscribe((data) => {
+  //     this.data = data.errorDetails.log.errorDetails;
+  //     this.dataSource1 = new MatTableDataSource(this.data);
+  //     this.dataSource1.paginator = this.paginator;
+  //   });
+  // }
+
   reset() {
     this.currentFile = null;
     this.fileName = 'Please click here to select file';
@@ -60,6 +95,7 @@ export class AddBulkReadsComponent implements OnInit {
     if (this.currentFile) {
       this.readsService.readsCSVUpload(this.currentFile).subscribe({
         next: () => {
+          this.JobDisplayList();
           this.currentFile = null;
           this.fileName = 'Please click here to Select File';
           this.toasterService.success(

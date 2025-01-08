@@ -24,6 +24,10 @@ export class MeterReadService {
     return this.httpClient.post(this.url + 'meter-reads/csv-upload', formData);
   }
 
+  getCsvJobList(): Observable<any> {
+    return this.httpClient.get(`${this.url}meter-reads/get-csv-jobs`);
+  }
+
   PostReadByAdmin(
     exterenalId: string,
     data: any,
