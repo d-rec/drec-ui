@@ -308,3 +308,14 @@ Cypress.Commands.add('buyerlogin', function () {
   });
   });
 });
+
+
+Cypress.Commands.add('certficate', function () {
+  cy.fixture('certficate.js').then((data) => {
+    data.forEach((step) => {   
+    if (step.action === "click") {
+      return cy.get(step.selector).click().wait(1000);
+    }
+  });
+  });
+});

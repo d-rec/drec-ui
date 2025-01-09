@@ -3,7 +3,7 @@
     {
         action: "click",
         selector: '[data-testid="add-reservation"]',
-      },
+    },
   
       {
         action: "type",
@@ -57,4 +57,5 @@
         action: "click",
         selector: '[data-testid="continue-reservation"]',
       }
+
     ]

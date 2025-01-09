@@ -194,7 +194,7 @@
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/myreservation"
         *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'||loginuser.role==='ApiUser'">
         <mat-icon>list</mat-icon>
-        <span>Reservations</span>
+        <span data-testid="Reservations">Reservations</span>
       </button>
       <!--6th  -->
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/All_certificate"
