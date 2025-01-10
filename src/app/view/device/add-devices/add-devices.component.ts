@@ -52,7 +52,7 @@ export class AddDevicesComponent {
   public stepHour = 1;
   public stepMinute = 1;
   public stepSecond = 1;
-  numberregex: RegExp = /^[0-9]+(\.[0-9]*)?$/;
+  numberregex: RegExp = /^-?[0-9]+(\.[0-9]*)?$/;
   filteredCountryList: Observable<any[]>[] = [];
   subscription: Subscription;
   filteredOrgList: OrganizationInformation[] = [];
@@ -356,7 +356,10 @@ export class AddDevicesComponent {
           //Error callback
           console.error('error caught in component', err.error.message);
           if (err.error.statusCode === 403) {
-            this.toastrService.error('You are Unauthorized');
+            this.toastrService.error(
+              "You don't have the permissions to add a device.",
+              'Access Denied',
+            );
           } else {
             this.toastrService.error(
               'some error occurred due to ' + err.error.message,
