@@ -44,8 +44,12 @@ jobs:
       - name: Install pnpm and Rush globally
         run: |
           npm install -g pnpm @microsoft/rush
+      # Step 3: Install netcat  
+      - name: Install netcat
+        run: sudo apt-get update && sudo apt-get install -y netcat-openbsd
+        
 
-      # Step 3: Install System Dependencies
+      # Step 4: Install System Dependencies
       - name: Install System Dependencies
         run: |
           sudo apt-get update
