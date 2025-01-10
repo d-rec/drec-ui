@@ -8,6 +8,7 @@ on:
       - ft/add-device-test
       - feature/add-meter-read
       - feature/add-reservation
+      
   pull_request:
     branches:
       - ft/register-new-account
