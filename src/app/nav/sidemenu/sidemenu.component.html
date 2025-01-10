@@ -14,7 +14,7 @@
       <!--1st  -->
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header class="mdc-button ">
-          <mat-icon>account_circle</mat-icon>
+          <mat-icon>corporate_fare</mat-icon>
           Organization
         </mat-expansion-panel-header>
         <mat-nav-list>
@@ -55,7 +55,7 @@
       <mat-expansion-panel [class.mat-elevation-z0]="true"
         *ngIf="!(loginuser.role == 'Buyer' || loginuser.role == 'SubBuyer')">
         <mat-expansion-panel-header class="mdc-button d-flex align-items-center">
-          <mat-icon>devices</mat-icon>
+          <mat-icon>solar_power</mat-icon>
           Device
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -92,7 +92,7 @@
       <mat-expansion-panel [class.mat-elevation-z0]="true"
         *ngIf="loginuser.role != 'Buyer' && loginuser.role != 'SubBuyer'">
         <mat-expansion-panel-header class="mdc-button ">
-          <mat-icon>list</mat-icon>
+          <mat-icon>electric_meter</mat-icon>
           MeterRead
         </mat-expansion-panel-header>
         <mat-nav-list>
@@ -119,7 +119,7 @@
       <!--5th-->
       <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role ==='Admin'">
         <mat-expansion-panel-header class="mdc-button d-flex align-items-center">
-          <mat-icon>list</mat-icon>
+          <mat-icon>bolt</mat-icon>
           Yield Configuration
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -142,7 +142,7 @@
       <!--   add Permission-->
       <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role ==='Admin'">
         <mat-expansion-panel-header class="mdc-button d-flex align-items-center">
-          <mat-icon>list</mat-icon>
+          <mat-icon>admin_panel_settings</mat-icon>
           Permission
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -170,7 +170,7 @@
       </mat-expansion-panel>
       <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role ==='ApiUser'">
         <mat-expansion-panel-header class="mdc-button d-flex align-items-center">
-          <mat-icon>list</mat-icon>
+          <mat-icon>admin_panel_settings</mat-icon>
           Permission
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -193,19 +193,19 @@
 
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/myreservation"
         *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'||loginuser.role==='ApiUser'">
-        <mat-icon>list</mat-icon>
+        <mat-icon>bookmark</mat-icon>
         <span>Reservations</span>
       </button>
       <!--6th  -->
       <button mat-button class="menu-button" routerLinkActive="active" routerLink="/All_certificate"
         *ngIf="loginuser.role ==='Buyer' ||loginuser.role ==='SubBuyer'|| loginuser.role === 'ApiUser'">
-        <mat-icon>list</mat-icon>
+        <mat-icon>card_membership</mat-icon>
         <span>Certificate</span>
       </button>
       <!--7th  -->
       <button mat-button class="menu-button text-start" routerLinkActive="active" routerLink="/redemption-report"
         *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'">
-        <mat-icon>list</mat-icon>
+        <mat-icon>description</mat-icon>
         <span class="text-start">Redemption Report</span>
       </button>
       <!--8th  -->
@@ -218,7 +218,7 @@
 
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header class="mdc-button ">
-          <mat-icon>account_circle</mat-icon>
+          <mat-icon>manage_accounts</mat-icon>
           Account Setting
         </mat-expansion-panel-header>
         <mat-nav-list>
