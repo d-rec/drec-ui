@@ -13,8 +13,6 @@ on:
     branches:
       - feature/Automated-e2e-Tests
 
-
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -66,7 +64,7 @@ jobs:
       # Step 5: Clone Backend Repository
       - name: Clone Backend Repository
         run: |
-          git clone  https://github.com/d-rec/drec-origin.git projects/drec-origin
+          git clone https://github.com/d-rec/drec-origin.git projects/drec-origin
           chmod -R 777 projects/drec-origin
 
       # Step 6: Start Docker Services
@@ -76,7 +74,7 @@ jobs:
           docker-compose up -d || true
           docker-compose logs --tail=100
 
-      # Step 7: Install Backend Dependencies and Build using Rush
+      # Step 7: Install Backend Dependencies using Rush
       - name: Install Backend Dependencies using Rush
         working-directory: projects/drec-origin
         run: rush install
@@ -102,20 +100,20 @@ jobs:
       - name: Start Backend and Wait for Readiness
         working-directory: projects/drec-origin
         run: |
-         rush start:dev &  # Start backend in the background
+          rush start:dev &  # Start backend in the background
           echo "Waiting for backend to be ready..."
           until curl -s http://localhost:3040; do
             sleep 5
-            echo "backend is not ready yet..."
+            echo "Backend is not ready yet..."
           done
-          echo "backend is ready!"
+          echo "Backend is ready!"
 
       # Step 12: Install and Start Frontend
       - name: Install and Start Frontend
         run: |
           npm install
           nohup npm run start &  # Start frontend in the background
-          echo "Waiting for Frontend to be ready..."
+          echo "Waiting for frontend to be ready..."
           until curl -s http://localhost:4200; do
             sleep 5
             echo "Frontend is not ready yet..."
