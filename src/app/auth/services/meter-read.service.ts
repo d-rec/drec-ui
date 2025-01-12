@@ -28,8 +28,8 @@ export class MeterReadService {
     return this.httpClient.get(`${this.url}meter-reads/get-csv-jobs`);
   }
 
-  getJobStatus(id: number, orgId?: number): Observable<any> {
-    let Url = `${this.url}buyer-reservation/bulk-upload-status/` + id;
+  getJobStatus(id: number, orgId: number): Observable<any> {
+    let Url = `${this.url}meter-reads/bulk-upload-status/` + id;
     if (orgId) {
       Url += `?orgId=${orgId}`;
     }

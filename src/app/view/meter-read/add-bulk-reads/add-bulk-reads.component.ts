@@ -25,13 +25,8 @@ export class AddBulkReadsComponent implements OnInit {
     'status',
     'actions',
   ];
-  displayedColumns1 = [
-    'serialNo',
-    'externalId',
-    'errorsList',
-    'Status',
-    'Action',
-  ];
+  displayedColumns1 = ['error'];
+
   constructor(
     private toasterService: ToastrService,
     private readsService: MeterReadService,
@@ -74,9 +69,9 @@ export class AddBulkReadsComponent implements OnInit {
 
   displayReadsLogList(jobId: number, orgId: number) {
     this.showReadsInfo = true;
-    this.readsStatusList = [];
-    this.readsService.getJobStatus(jobId, orgId).subscribe((data) => {
-      this.data = data.errorDetails.log.errorDetails;
+    this.readsService.getJobStatus(jobId, orgId).subscribe((response) => {
+      const errorDetails = response.errorDetails.log.errorDetails;
+      this.data = Array.isArray(errorDetails) ? errorDetails : [errorDetails];
       this.dataSource1 = new MatTableDataSource(this.data);
       this.dataSource1.paginator = this.paginator;
     });
