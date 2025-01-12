@@ -68,12 +68,23 @@ export class AddBulkReadsComponent implements OnInit {
   }
 
   displayReadsLogList(jobId: number, orgId: number) {
-    this.showReadsInfo = true;
-    this.readsService.getJobStatus(jobId, orgId).subscribe((response) => {
-      const errorDetails = response.errorDetails.log.errorDetails;
-      this.data = Array.isArray(errorDetails) ? errorDetails : [errorDetails];
-      this.dataSource1 = new MatTableDataSource(this.data);
-      this.dataSource1.paginator = this.paginator;
+    this.readsService.getJobStatus(jobId, orgId).subscribe({
+      next: (response) => {
+        try {
+          const errorDetails = response.errorDetails.log.errorDetails;
+          if (errorDetails && errorDetails.length > 0) {
+            this.showReadsInfo = true;
+            this.data = [errorDetails];
+            this.dataSource1 = new MatTableDataSource(this.data);
+            this.dataSource1.paginator = this.paginator;
+          }
+        } catch (error) {
+          this.showReadsInfo = true;
+          this.data = ['No logs'];
+          this.dataSource1 = new MatTableDataSource(this.data);
+          this.dataSource1.paginator = this.paginator;
+        }
+      },
     });
   }
 
