@@ -1,11 +1,15 @@
 name: Cypress CI Workflow
 
 on:
+  push:
+    branches:
+      - develop
+      - stage
+      - prod
+     
   pull_request:
     branches:
-     - develop
-     - stage
-     - prod
+      - ft/register-new-account
 jobs:
   test:
     runs-on: ubuntu-latest
