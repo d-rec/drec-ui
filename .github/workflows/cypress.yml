@@ -45,7 +45,7 @@ jobs:
         run: |
           npm install -g pnpm @microsoft/rush
 
-      # Step 3: Install netcat-openbsd  
+      # Step 3: Install netcat-openbsd
       - name: Install netcat
         run: sudo apt-get update && sudo apt-get install -y netcat-openbsd
 
@@ -60,7 +60,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20.14.0
-          cache: 'npm'
+          cache: "npm"
 
       # Step 6: Clone Backend Repository
       - name: Clone Backend Repository
@@ -78,7 +78,7 @@ jobs:
       # Step 8: Install Backend Dependencies using Rush
       - name: Install Backend Dependencies using Rush
         working-directory: projects/drec-origin
-        run: rush install 
+        run: rush install
 
       # Step 9: Debug - Verify Utility Files
       - name: Debug - Verify Utility Files
@@ -89,7 +89,7 @@ jobs:
       # Step 10: Build Backend
       - name: Build Backend
         working-directory: projects/drec-origin
-        run: rush build 
+        run: rush build
 
       # Step 11: Debug - Verify Build Output
       - name: Debug - Verify Build Output
@@ -108,7 +108,7 @@ jobs:
             echo "Backend is not ready yet..."
           done
           echo "Backend is ready!"
-      
+
       # Step 13: Install and Start Frontend
       - name: Install and Start Frontend
         run: |
