@@ -6,6 +6,7 @@ on:
       - feat/user-role-permissions
       - feature/Automated-e2e-Tests
       - ft/add-device-test
+      - feature/add-meter-read
   pull_request:
     branches:
       - ft/register-new-account
@@ -23,7 +24,7 @@ jobs:
       INFLUXDB_TOKEN: admin:admin
       INFLUXDB_BUCKET: energy/autogen
       ISSUER_PRIVATE_KEY: 4773097f508a6edd206150766ee25cb5abc1635f28f9cfd27e144872e89dc9c9
-      DREC_BLOCKCHAIN_ADDRESS: 0xDeC1488838C65E355A9336eE8DdFc32665dB9222
+      DREC_BLOCKCHAIN_ADDRESS: "0xDeC1488838C65E355A9336eE8DdFc32665dB9222"
       CERTIFICATE_QUEUE_DELAY: 60000
       BACKEND_PORT: 3040
       DB_HOST: localhost
@@ -45,71 +46,67 @@ jobs:
         run: |
           npm install -g pnpm @microsoft/rush
 
-      # Step 3: Install netcat-openbsd
-      - name: Install netcat
-        run: sudo apt-get update && sudo apt-get install -y netcat-openbsd
-
-      # Step 4: Install System Dependencies
+      # Step 3: Install System Dependencies
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y influxdb-client docker-compose postgresql-client curl
+          sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat-openbsd curl
 
-      # Step 5: Setup Node.js
+      # Step 4: Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20.14.0
-          cache: npm
+          cache: 'npm'
 
-      # Step 6: Clone Backend Repository
+      # Step 5: Clone Backend Repository
       - name: Clone Backend Repository
         run: |
-          git clone --branch ft/register-new-account https://github.com/d-rec/drec-origin.git projects/drec-origin
+          git clone  https://github.com/d-rec/drec-origin.git projects/drec-origin
           chmod -R 777 projects/drec-origin
 
-      # Step 7: Start Docker Services
+      # Step 6: Start Docker Services
       - name: Start Docker Services
         working-directory: projects/drec-origin
         run: |
           docker-compose up -d || true
           docker-compose logs --tail=100
 
-      # Step 8: Install Backend Dependencies using Rush
+      # Step 7: Install Backend Dependencies and Build using Rush
       - name: Install Backend Dependencies using Rush
         working-directory: projects/drec-origin
-        run: rush install
+        run: rush install 
 
-      # Step 9: Debug - Verify Utility Files
+      # Step 8: Debug - Verify Utility Files
       - name: Debug - Verify Utility Files
         working-directory: projects/drec-origin/apps/drec-api
         run: |
           ls -R src/utils
 
-      # Step 10: Build Backend
+      # Step 9: Build Backend
       - name: Build Backend
         working-directory: projects/drec-origin
-        run: rush build
+        run: rush build 
 
-      # Step 11: Debug - Verify Build Output
+      # Step 10: Debug - Verify Build Output
       - name: Debug - Verify Build Output
         working-directory: projects/drec-origin/apps/drec-api
         run: |
           ls -R dist
 
-      # Step 12: Start Backend and Wait for Readiness
+      # Step 11: Start Backend and Wait for Readiness
       - name: Start Backend and Wait for Readiness
         working-directory: projects/drec-origin
         run: |
-          rush start:dev &  # Start backend in the background
+         rush start:dev &  # Start backend in the background
           echo "Waiting for backend to be ready..."
           until curl -s http://localhost:3040; do
             sleep 5
-            echo "Backend is not ready yet..."
+            echo "backend is not ready yet..."
           done
-          echo "Backend is ready!"
-
-      # Step 13: Install and Start Frontend
+          echo "backend is ready!"
+      
+      # Step 12: Install and Start Frontend
       - name: Install and Start Frontend
         run: |
           npm install
@@ -121,11 +118,11 @@ jobs:
           done
           echo "Frontend is ready!"
 
-      # Step 14: Run Cypress Tests
+      # Step 13: Run Cypress Tests
       - name: Run Cypress Tests
         run: pnpx cypress run
 
-      # Step 15: Tear Down Docker Environment
+      # Step 14: Tear Down Docker Environment
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
         run: docker-compose down
