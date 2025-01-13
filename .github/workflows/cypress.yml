@@ -16,7 +16,7 @@ jobs:
 
     env:
       MODE: dev
-      MNEMONIC: shine ability artefact river cabin copy blind hello gift hospital tenant region
+      MNEMONIC: "shine ability artefact river cabin copy blind hello gift hospital tenant region"
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
       INFLUXDB_URL: http://localhost:8086
