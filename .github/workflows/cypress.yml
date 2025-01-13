@@ -3,17 +3,9 @@ name: Cypress CI Workflow
 on:
   push:
     branches:
-      - feat/user-role-permissions
-      - ft/register-new-account
-      - ft/add-device-test
-      - feature/add-meter-read
-      - feature/add-reservation
-      - feature/certificate-tests
-      
-  pull_request:
-    branches:
-      - feature/Automated-e2e-Tests
-
+      - develop
+      - stage
+      - prod
       
 
 jobs:
