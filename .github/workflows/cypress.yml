@@ -1,12 +1,11 @@
 name: Cypress CI Workflow
 
 on:
-  
   pull_request:
     branches:
-      - develop
-      - stage
-      - prod
+    - develop
+    - stage
+    - prod
 jobs:
   test:
     runs-on: ubuntu-latest
