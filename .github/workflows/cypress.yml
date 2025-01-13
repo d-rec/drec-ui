@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - feat/user-role-permissions
-      - feature/Automated-e2e-Tests
       - ft/add-device-test
       - feature/add-meter-read
   pull_request:
