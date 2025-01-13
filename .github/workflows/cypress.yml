@@ -49,7 +49,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20.14.0
-          cache: "npm"
+          cache: npm
       - name: Clone Backend Repository
         run: |
           git clone  https://github.com/d-rec/drec-origin.git projects/drec-origin
