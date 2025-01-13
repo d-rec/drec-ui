@@ -27,7 +27,6 @@
     selector: '[data-testid="permission-check"]',
     contains: 'DEVICE_MANAGEMENT_CRUDL',
   },
-
   {
     action: 'submit',
     selector: '[data-testid="submit-permission"]',
