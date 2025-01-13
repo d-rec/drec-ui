@@ -1,60 +1,53 @@
-const ADMIN_EMAIL = Cypress.env("ADMIN_EMAIL");
-const ADMIN_PASSWORD = Cypress.env("ADMIN_PASSWORD");
-const REACT_APP_BACKEND_URL = Cypress.env("REACT_APP_BACKEND_URL");
-const UI_BASE_URL=Cypress.env("UI_BASE_URL");
-
+const ADMIN_EMAIL = Cypress.env('ADMIN_EMAIL');
+const ADMIN_PASSWORD = Cypress.env('ADMIN_PASSWORD');
+const REACT_APP_BACKEND_URL = Cypress.env('REACT_APP_BACKEND_URL');
+const UI_BASE_URL = Cypress.env('UI_BASE_URL');
 
 Cypress.Commands.add('clearDatabase', () => {
   cy.request({
     method: 'DELETE',
-    url: `${REACT_APP_BACKEND_URL}/api/testing/clear-db`, 
+    url: `${REACT_APP_BACKEND_URL}/api/testing/clear-db`,
     failOnStatusCode: false,
     timeout: 10000,
   }).then((response) => {
     if (response.status === 200) {
       cy.log('Database cleared successfully');
     } else {
-      cy.log(`Failed to clear database: ${response.body.error || 'Unknown error'}`);
+      cy.log(
+        `Failed to clear database: ${response.body.error || 'Unknown error'}`,
+      );
     }
   });
 });
 
-
 Cypress.Commands.add('signup', function () {
   cy.fixture('signup.js').then((data) => {
-    cy.visit(`${UI_BASE_URL}/login`).wait(1000); 
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     cy.get('[data-testid="register"]').click();
     data.forEach((step) => {
-  
-    if (step.action === "type") {
-      return cy.get(step.selector).type(step.value);
-      
-    } 
-    if (step.action === "click") {
-      return cy.get(step.selector).click().wait(1000);
-    }
-    if (step.action === 'select') {
-      return cy
-        .get(step.selector) 
-        .click() 
-        .then(() => {
-          cy.get('mat-option') 
-            .contains(step.value) 
-            .click(); 
-        });
-    }
-  });
+      if (step.action === 'type') {
+        return cy.get(step.selector).type(step.value);
+      }
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'select') {
+        return cy
+          .get(step.selector)
+          .click()
+          .then(() => {
+            cy.get('mat-option').contains(step.value).click();
+          });
+      }
+    });
   });
 });
 
 Cypress.Commands.add('adminlogin', function () {
-  
   cy.fixture('adminlogin.js').then((data) => {
-    cy.visit(`${UI_BASE_URL}/login`).wait(1000); 
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     data.forEach((step) => {
-  
-    
-      if (step.action === "type") {
+      if (step.action === 'type') {
         if (step.index === 0) {
           return cy.get(step.selector).type(ADMIN_EMAIL);
         }
@@ -62,87 +55,90 @@ Cypress.Commands.add('adminlogin', function () {
           return cy.get(step.selector).type(ADMIN_PASSWORD);
         }
       }
-    if (step.action === "click") {
-      return cy.get(step.selector).click().wait(1000);
-    }
-  });
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+    });
   });
 });
 
 Cypress.Commands.add('permissions', function () {
-  
-  cy.fixture('permissions.js').then((data) => { 
+  cy.fixture('permissions.js').then((data) => {
     data.forEach((step) => {
-    if (step.action === "click") {
-      return cy.get(step.selector).should('be.visible').click().wait(1000);
-    }
-    if (step.action === "select") {
-      return cy.get(step.selector).click()
-        .get(step.option) 
-        .should('have.length.greaterThan', 0) 
-        .eq(1)
-        .click(); 
-    }
-    if (step.action === "check") {
-      return cy.get(step.selector).eq(step.index).click();
-    }  
-    if (step.action === "check-multiple") {
-      return cy.contains("table tr", step.contains) // Locate the row containing the text
+      if (step.action === 'click') {
+        return cy.get(step.selector).should('be.visible').click().wait(1000);
+      }
+      if (step.action === 'select') {
+        return cy
+          .get(step.selector)
+          .click()
+          .get(step.option)
+          .should('have.length.greaterThan', 0)
+          .eq(1)
+          .click();
+      }
+      if (step.action === 'check') {
+        return cy.get(step.selector).eq(step.index).click();
+      }
+      if (step.action === 'check-multiple') {
+        return cy
+          .contains('table tr', step.contains) // Locate the row containing the text
           .within(() => {
-              cy.get(step.selector).each(($el) => {
-                  cy.wrap($el).click(); // Click each element matching the selector in this row
-              });
+            cy.get(step.selector).each(($el) => {
+              cy.wrap($el).click(); // Click each element matching the selector in this row
+            });
           });
-  }
-  if (step.action === "submit"){
-    return cy.get(step.selector).scrollIntoView().should('be.visible').click();
-  }
-  });
+      }
+      if (step.action === 'submit') {
+        return cy
+          .get(step.selector)
+          .scrollIntoView()
+          .should('be.visible')
+          .click();
+      }
+    });
   });
 });
 
 Cypress.Commands.add('addDevice', function () {
-  
-  cy.fixture('addDevice.js').then((data) => { 
+  cy.fixture('addDevice.js').then((data) => {
     data.forEach((step) => {
-    if (step.action === "click") {
-      return cy.get(step.selector).click().wait(1000);
-    }
-    if (step.action === "type") {
-      return cy.get(step.selector).should('be.visible').type(step.value);
-    }
-    if (step.action === "select") {
-      return cy.get(step.selector).click()
-        .get(step.option) 
-        .should('have.length.greaterThan', 0) 
-        .eq(0)
-        .click(); 
-    }
-    if (step.action === "pick") {
-      return cy.get(step.selector).click('center', { force: true });
-    }
-    if (step.action === "submit") {
-      return cy.get(step.selector).click('center', { force: true });
-    }
-  });
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'type') {
+        return cy.get(step.selector).should('be.visible').type(step.value);
+      }
+      if (step.action === 'select') {
+        return cy
+          .get(step.selector)
+          .click()
+          .get(step.option)
+          .should('have.length.greaterThan', 0)
+          .eq(0)
+          .click();
+      }
+      if (step.action === 'pick') {
+        return cy.get(step.selector).click('center', { force: true });
+      }
+      if (step.action === 'submit') {
+        return cy.get(step.selector).click('center', { force: true });
+      }
+    });
   });
 });
 
 Cypress.Commands.add('devlogin', function () {
-  
   cy.fixture('devlogin.js').then((data) => {
-    cy.visit(`${UI_BASE_URL}/login`).wait(1000); 
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     data.forEach((step) => {
-  
-    
-      if (step.action === "type") {
-        
-          return cy.get(step.selector).type(step.value);
-        }
-        
-    if (step.action === "click") {
-      return cy.get(step.selector).click().wait(1000);
-    }
-  });
+      if (step.action === 'type') {
+        return cy.get(step.selector).type(step.value);
+      }
+
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+    });
   });
 });

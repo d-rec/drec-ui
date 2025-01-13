@@ -24,10 +24,9 @@ p {
 .example-container {
   background-color: white;
   padding: 10px 20px 20px 20px;
-
 }
 
-.example-container1 mat-form-field+mat-form-field {
+.example-container1 mat-form-field + mat-form-field {
   margin-left: 8px;
   padding: 10px 0px 0px 0px;
 }
@@ -49,23 +48,22 @@ input.example-right-align::-webkit-inner-spin-button {
 input.example-right-align {
   -moz-appearance: textfield;
 }
-.danger-btn
-{
-  border-radius: 50px!important;
+.danger-btn {
+  border-radius: 50px !important;
   padding: 3px;
-  font-size: 10px!important;
+  font-size: 10px !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  .material-icons{
+  .material-icons {
     font-size: 18px !important;
   }
-  .mat-icon{
+  .mat-icon {
     height: 20px;
     width: 20px;
   }
 }
-.btn-outline-danger{
+.btn-outline-danger {
   --bs-btn-color: #f2be1a;
   --bs-btn-border-color: #f2be1a;
   --bs-btn-hover-color: #fff;
@@ -82,11 +80,9 @@ input.example-right-align {
   --bs-gradient: none;
 }
 
-.cursor-pointer
-{
+.cursor-pointer {
   cursor: pointer;
 }
-
 
 @-webkit-keyframes scroll-inner {
   from {
@@ -101,7 +97,7 @@ input.example-right-align {
 @keyframes scroll-inner {
   from {
     position: relative;
-    top:5%;
+    top: 5%;
   }
   to {
     position: relative;
@@ -124,20 +120,16 @@ input.example-right-align {
     top: 0;
   }
   to {
-     position: relative;
+    position: relative;
     top: 15px;
   }
 }
 
-
-
-
-  .scroll-down {
-
-    -webkit-animation: scroll-inner 1.5s;
-    animation: scroll-inner 1.5s;
-    -webkit-animation-iteration-count: infinite;
-    animation-iteration-count: infinite;
-    -webkit-animation-timing-function: ease;
-    animation-timing-function: ease;
-  }
+.scroll-down {
+  -webkit-animation: scroll-inner 1.5s;
+  animation: scroll-inner 1.5s;
+  -webkit-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+  -webkit-animation-timing-function: ease;
+  animation-timing-function: ease;
+}
