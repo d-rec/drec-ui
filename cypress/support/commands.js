@@ -301,7 +301,6 @@ Cypress.Commands.add('buyer_login', function () {
         
           return cy.get(step.selector).type(step.value);
         }
-        
     if (step.action === "click") {
       return cy.get(step.selector).click().wait(1000);
     }

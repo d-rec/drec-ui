@@ -4,7 +4,7 @@ describe('Sign Up Test', () => {
     // cy.clearDatabase();
   })
   
-  
+
   it('should sign up a new developer user', () => {
     cy.signup_dev();
   });
