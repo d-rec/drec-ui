@@ -3,7 +3,7 @@ describe('Add divice Test', () => {
       cy.wait(1000);
     })
     it('should add new divice', () => {
-      cy.dev-login().wait(6000);
-      cy.add-device();
+      cy.dev_login().wait(6000);
+      cy.add_device();
     });
   });
