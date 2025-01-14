@@ -6,6 +6,6 @@ describe('Sign Up Test', () => {
   
   
   it('should sign up a new developer user', () => {
-    cy.signupdev();
+    cy.signup-dev();
   });
 });

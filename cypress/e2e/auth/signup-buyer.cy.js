@@ -4,7 +4,7 @@ describe('Sign Up Test', () => {
       // cy.clearDatabase();
     })
     it('should sign up a new buyer user', () => {
-      cy.signupbuyer();
+      cy.signup-buyer();
     });
   });
   
