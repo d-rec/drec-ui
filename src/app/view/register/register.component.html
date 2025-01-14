@@ -5,7 +5,7 @@
         <mat-card-header>
             <!-- logo -->
             <div class="py-3">
-                <img src="assets/images/d-logo.svg" alt="" />
+                <img src="assets/images/d-rec-beta-logo.svg" alt="" />
                 <!-- <svg xmlns="http://www.w3.org/2000/svg" width="151" height="48" viewBox="0 0 151 48">
                     <path
                         d="M16.7,28.5V26.1a.58.58,0,0,0-.59-.58H13.7a.58.58,0,0,0-.57.58v2.4a.58.58,0,0,0,.58.58h2.41a.59.59,0,0,0,.58-.58"
@@ -201,9 +201,8 @@
                                     [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide" class="icon-eye">
                                     <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
                                 </button>
-                                <mat-hint class="password-desc text-wrap">Choose a password of at max 6 characters
-                                    (upper and/or lower case) and one
-                                    number</mat-hint>
+                                <mat-hint class="password-desc text-wrap">Choose a password of at least a minimum of 6 characters
+                                (upper or lower case) and one number.</mat-hint>
                                 <mat-error class="pb-5 " *ngIf="checkValidation('password')">
                                     {{ getErrorPassword() }}
                                 </mat-error>
@@ -216,9 +215,8 @@
                                     [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide1" class="icon-eye">
                                     <mat-icon>{{hide1 ? 'visibility_off' : 'visibility'}}</mat-icon>
                                 </button>
-                                <mat-hint class="password-desc text-wrap">Choose a password of at max 6 characters
-                                    (upper and/or lower case) and one
-                                    number</mat-hint>
+                                <mat-hint class="password-desc text-wrap">Choose a password of at least a minimum of 6 characters
+                                (upper or lower case) and one number.</mat-hint>
                                 <mat-error class="" *ngIf="checkValidation('confirmPassword')">
                                     {{ getErrorcheckconfirmPassword() }}
                                 </mat-error>
@@ -243,7 +241,7 @@
         </mat-card-content>
        
         <div class="d-flex justify-content-between mb-2 px-5">
-            <p class="mb-0 pb-0 font-siz-cont">have an account?</p>
+            <p class="mb-0 pb-0 font-siz-cont">Have an account?</p>
             <p class="mb-0 pb-0 font-siz-cont"><a routerLink="/login" class="text-warning">Login</a></p>
         </div>
 
