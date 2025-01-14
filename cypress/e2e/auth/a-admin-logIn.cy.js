@@ -4,6 +4,6 @@ describe('Admin login', () => {
      
     })
     it('Admin should login successfully', () => {
-      cy.adminlogin();
+      cy.admin-login();
     });
   });
