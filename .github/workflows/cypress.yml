@@ -6,7 +6,6 @@ on:
       - develop
       - stage
       - prod
-     
   pull_request:
     branches:
       - ft/register-new-account
