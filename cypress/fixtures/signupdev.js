@@ -1,86 +1,80 @@
 [
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="firstName"]',
-    value: 'devTest'
+    value: 'devTest',
   },
 
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="lastName"]',
-    value: 'dev'
+    value: 'dev',
   },
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="email"]',
-    value: 'developer@energy.org'
+    value: 'developer@energy.org',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="userInfo"]',
-    
   },
   {
-    action: "select",
+    action: 'select',
     selector: '[data-testid="organizationType"]',
-    value:"Developer"
+    value: 'Developer',
   },
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="orgName"]',
-    value: 'developers'
+    value: 'developers',
   },
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="orgAddress"]',
-    value: 'QAtst'
+    value: 'QAtst',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="nextToPassword"]',
-    
   },
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="password"]',
-    value: '1234Test@tst'
+    value: '1234Test@tst',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="icon-eye"]',
   },
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="confirmPassword"]',
-    value: '1234Test@tst'
+    value: '1234Test@tst',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="hideConfPwd"]',
-    
   },
-  
+
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="backToOrg"]',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="backToInfo"]',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="userInfo"]',
-    
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="nextToPassword"]',
-    
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="submitReg"]',
   },
-
-  ]
+];

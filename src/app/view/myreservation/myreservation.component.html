@@ -1,71 +1,105 @@
 <div class="body-bg">
-    <mat-card *ngIf="!showdevicesinfo">
-
-        <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center ">
-
-            <div>
-                <mat-card-title>
-                    <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">My Reservation List
-                    </h2>
-                </mat-card-title>
-            </div>
-
-        </mat-card-header>
-        <hr>
+  <mat-card *ngIf="!showdevicesinfo">
+    <mat-card-header
+      class="d-flex justify-content-between mat-crd-hide align-items-center"
+    >
+      <div>
+        <mat-card-title>
+          <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">
+            My Reservation List
+          </h2>
+        </mat-card-title>
+      </div>
+    </mat-card-header>
+    <hr />
+    <mat-card-content>
+      <mat-card>
         <mat-card-content>
-            <mat-card>
+          <h2
+            style="text-align: center; color: #f2be1a; font-size: 16px"
+            class="text-capitalize mt-0 pt-0 mb-2 pb-0"
+          >
+            <b>Select fields to filter reservation list</b>
+          </h2>
+          <form [formGroup]="FilterForm">
+            <div class="example-container1 row">
+              <div class="col-md-3" *ngIf="FilterForm.get('organizationname')">
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize"
+                    >Select Organization*</mat-label
+                  >
+                  <input
+                    type="text"
+                    matInput
+                    formControlName="organizationname"
+                    [matAutocomplete]="auto1"
+                    (ngModelChange)="checkFormValidity()"
+                  />
+                  <mat-autocomplete
+                    #auto1="matAutocomplete"
+                    (optionSelected)="selectorg($event)"
+                  >
+                    <mat-option [value]="">---</mat-option>
+                    <mat-option
+                      *ngFor="let code of filteredOrgList | async"
+                      [value]="code.name"
+                    >
+                      {{ code.name }}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+                <mat-error *ngIf="showorgerror" style="margin-top: -15px">
+                  Invalid Organization Selected
+                </mat-error>
+              </div>
+              <div class="col-md-3">
+                <input type="hidden" formControlName="countryCode" #input />
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize"
+                    >Reservation Name
+                  </mat-label>
 
-                <mat-card-content>
-                    <h2 style="text-align: center;color:#f2be1a; font-size: 16px;"
-                        class="text-capitalize mt-0 pt-0 mb-2 pb-0">
-                        <b>Select fields to filter reservation list</b>
-                    </h2>
-                    <form [formGroup]="FilterForm">
-                        <div class="example-container1 row">
-                            <div class="col-md-3" *ngIf="FilterForm.get('organizationname')">
-                                <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">Select Organization*</mat-label>
-                                    <input type="text" matInput formControlName="organizationname"
-                                        [matAutocomplete]="auto1" (ngModelChange)="checkFormValidity()">
-                                    <mat-autocomplete #auto1="matAutocomplete" (optionSelected)="selectorg($event)">
-                                        <mat-option [value]="">---</mat-option>
-                                        <mat-option *ngFor="let code of filteredOrgList | async" [value]="code.name">
-                                            {{ code.name }}
-                                        </mat-option>
-                                    </mat-autocomplete>
+                  <input
+                    type="text"
+                    aria-label="text"
+                    matInput
+                    formControlName="name"
+                    (ngModelChange)="checkFormValidity()"
+                  />
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <input type="hidden" formControlName="countryCode" #input />
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">Select country </mat-label>
 
-                                </mat-form-field>
-                                <mat-error *ngIf="showorgerror" style="margin-top: -15px;"> Invalid Organization
-                                    Selected </mat-error>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="hidden" formControlName='countryCode' #input>
-                                <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">Reservation Name </mat-label>
-
-                                    <input type="text" aria-label="text" matInput formControlName="name" (ngModelChange)="checkFormValidity()">
-                                </mat-form-field>
-                               
-                            </div>
-                            <div class="col-md-3">
-                                <input type="hidden" formControlName='countryCode' #input>
-                                <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">Select country </mat-label>
-
-                                    <input type="text" aria-label="text" matInput formControlName="countryname"
-                                        (ngModelChange)="checkFormValidity()" [matAutocomplete]="auto" multiple>
-                                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectCountry($event)">
-                                        <mat-option [value]="">---</mat-option>
-                                        <mat-option *ngFor="let code of filteredOptions | async" [value]="code.country">
-                                            {{code.country}}
-                                        </mat-option>
-                                    </mat-autocomplete>
-
-                                </mat-form-field>
-                                <mat-error *ngIf="showerror" style="margin-top: -15px;"> Invalid Country Selected
-                                </mat-error>
-                            </div>
-                            <!-- <div class="col-md-3">
+                  <input
+                    type="text"
+                    aria-label="text"
+                    matInput
+                    formControlName="countryname"
+                    (ngModelChange)="checkFormValidity()"
+                    [matAutocomplete]="auto"
+                    multiple
+                  />
+                  <mat-autocomplete
+                    #auto="matAutocomplete"
+                    (optionSelected)="selectCountry($event)"
+                  >
+                    <mat-option [value]="">---</mat-option>
+                    <mat-option
+                      *ngFor="let code of filteredOptions | async"
+                      [value]="code.country"
+                    >
+                      {{ code.country }}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+                <mat-error *ngIf="showerror" style="margin-top: -15px">
+                  Invalid Country Selected
+                </mat-error>
+              </div>
+              <!-- <div class="col-md-3">
                                 <mat-form-field>
                                     <mat-label class="text-capitalize">Fuel Code</mat-label>
 
@@ -79,384 +113,555 @@
                                 </mat-form-field>
                             </div> -->
 
-                            <div class="col-md-3">
-                                <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">Off Taker</mat-label>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">Off Taker</mat-label>
 
-                                    <mat-select formControlName='offTaker' (ngModelChange)="checkFormValidity()"
-                                        multiple>
-                                        <mat-option [value]="">---</mat-option>
-                                        <mat-option *ngFor="let code of offtaker" [value]="code">
-                                            {{code}}
-                                        </mat-option>
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="col-md-3">
-                                <mat-form-field appearance="outline">
-                                    <mat-label class="text-capitalize">SDG Benefits</mat-label>
+                  <mat-select
+                    formControlName="offTaker"
+                    (ngModelChange)="checkFormValidity()"
+                    multiple
+                  >
+                    <mat-option [value]="">---</mat-option>
+                    <mat-option *ngFor="let code of offtaker" [value]="code">
+                      {{ code }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">SDG Benefits</mat-label>
 
-                                    <mat-select formControlName="SDGBenefits" (ngModelChange)="checkFormValidity()"
-                                        multiple>
-                                        <mat-option [value]="">---</mat-option>
-                                        <mat-option *ngFor="let sdgb of sdgblist"
-                                            [value]="sdgb.value">{{sdgb.value}}</mat-option>
+                  <mat-select
+                    formControlName="SDGBenefits"
+                    (ngModelChange)="checkFormValidity()"
+                    multiple
+                  >
+                    <mat-option [value]="">---</mat-option>
+                    <mat-option
+                      *ngFor="let sdgb of sdgblist"
+                      [value]="sdgb.value"
+                      >{{ sdgb.value }}</mat-option
+                    >
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3 d-flex flex-column">
+                <span>Reservation Status:</span>
+                <mat-radio-group
+                  formControlName="reservationActive"
+                  (ngModelChange)="checkFormValidity()"
+                >
+                  <mat-radio-button value="All">All</mat-radio-button>
+                  <mat-radio-button value="Active" class="ms-2"
+                    >Active</mat-radio-button
+                  >
+                  <!-- <mat-radio-button value="Deactive" class="ms-2">Deactive</mat-radio-button> -->
+                </mat-radio-group>
+              </div>
+              <div class="col-md-4 h6-margin-remove">
+                <h6>Reservation Date:</h6>
+                <mat-form-field appearance="outline">
+                  <mat-label>Enter a date range</mat-label>
+                  <mat-date-range-input [rangePicker]="$any(picker)">
+                    <input
+                      matStartDate
+                      formControlName="reservationStartDate"
+                      (ngModelChange)="checkFormValidity()"
+                    />
+                    <input
+                      matEndDate
+                      formControlName="reservationEndDate"
+                      (ngModelChange)="checkFormValidity()"
+                    />
+                  </mat-date-range-input>
+                  <mat-datepicker-toggle
+                    matSuffix
+                    [for]="$any(picker)"
+                  ></mat-datepicker-toggle>
+                  <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
+              </div>
 
-                                    </mat-select>
-                                </mat-form-field>
-                            </div>
-                            <div class="col-md-3 d-flex flex-column">
-                                <span>Reservation Status:</span>
-                                <mat-radio-group formControlName='reservationActive'
-                                    (ngModelChange)="checkFormValidity()">
-                                    <mat-radio-button value="All">All</mat-radio-button>
-                                    <mat-radio-button value="Active" class="ms-2">Active</mat-radio-button>
-                                    <!-- <mat-radio-button value="Deactive" class="ms-2">Deactive</mat-radio-button> -->
-                                </mat-radio-group>
+              <div class="col-md-12 mb-3 d-flex justify-content-end">
+                <div class="">
+                  <button
+                    class="btn-primary me-2 btn text-capitalize px-4"
+                    [disabled]="!isAnyFieldFilled"
+                    (click)="formfilter()"
+                  >
+                    filter
+                  </button>
+                </div>
+                <div class="">
+                  <button
+                    class="btn-dark btn text-capitalize px-4"
+                    [disabled]="!isAnyFieldFilled"
+                    (click)="reset()"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+      <hr />
+      <mat-progress-spinner
+        [mode]="'indeterminate'"
+        *ngIf="isLoadingResults"
+      ></mat-progress-spinner>
+      <!-- <div class="mat-elevation-z8"> -->
 
-
-                            </div>
-                            <div class="col-md-4 h6-margin-remove">
-                                <h6>Reservation Date:</h6>
-                                <mat-form-field appearance="outline">
-                                    <mat-label>Enter a date range</mat-label>
-                                    <mat-date-range-input [rangePicker]="$any(picker)">
-                                        <input matStartDate formControlName="reservationStartDate"
-                                            (ngModelChange)="checkFormValidity()" />
-                                        <input matEndDate formControlName="reservationEndDate"
-                                            (ngModelChange)="checkFormValidity()" />
-                                    </mat-date-range-input>
-                                    <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-                                    <mat-date-range-picker #picker></mat-date-range-picker>
-
-                                </mat-form-field>
-                            </div>
-
-
-                            <div class="col-md-12 mb-3  d-flex justify-content-end">
-                                <div class="">
-                                    <button class="btn-primary me-2 btn text-capitalize px-4"
-                                        [disabled]="!isAnyFieldFilled" (click)="formfilter()">filter</button>
-                                </div>
-                                <div class="">
-                                    <button class="btn-dark btn text-capitalize px-4" [disabled]="!isAnyFieldFilled"
-                                        (click)="reset()">Reset</button>
-                                </div>
-
-
-                            </div>
-
-                        </div>
-                    </form>
-                </mat-card-content>
-            </mat-card>
-            <hr>
-            <mat-progress-spinner [mode]="'indeterminate'" *ngIf="isLoadingResults"></mat-progress-spinner>
-            <!-- <div class="mat-elevation-z8"> -->
-
-            <!--            
+      <!--            
                 <mat-form-field class="mat-form-filte ">
                     <mat-label class="filter-box pb-0 mb-0 ">Filter</mat-label>
                     <input matInput (keyup)="applyFilter($event)" placeholder="Search" #input
                         class="filetr-desc pb-0 mb-0">
                 </mat-form-field> -->
-            <div class="content mat-elevation-z8 thead-width d-flex flex-column">
-                <table mat-table [dataSource]="dataSource" matSort>
-                    <ng-container matColumnDef="actions" sticky>
-                        <th mat-header-cell *matHeaderCellDef class="text-truncate">Action</th>
-                        <td mat-cell *matCellDef="let row; let i=index;" class="table-data-myreservation">
-                            <tr class="d-flex">
-                                <!-- <a class="btn-primary d-flex me-2 align-items-center btn-pad btn btn-sm"
+      <div class="content mat-elevation-z8 thead-width d-flex flex-column">
+        <table mat-table [dataSource]="dataSource" matSort>
+          <ng-container matColumnDef="actions" sticky>
+            <th mat-header-cell *matHeaderCellDef class="text-truncate">
+              Action
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let row; let i = index"
+              class="table-data-myreservation"
+            >
+              <tr class="d-flex">
+                <!-- <a class="btn-primary d-flex me-2 align-items-center btn-pad btn btn-sm"
                         [routerLink]="['/certificate']" [queryParams]="{id: row.devicegroup_uid,name:row.name}"
                         target="_blank"><mat-icon class="fs-6 mt-2" matTooltip="Certificate"  [matTooltipPosition]="'right'"
                         aria-label="Button that displays a tooltip when focused or hovered over">visibility</mat-icon></a> -->
-                                <a matTooltip="Certificate" [matTooltipPosition]="'left'" class="action-icons edit-icon"
-                                    aria-label="Button that displays a tooltip when focused or hovered over"
-                                    (click)="DisplayCertificatepage(row)">
-                                    <mat-icon class=" mt-2 cursor-pointer" data-testid="certificate">card_membership</mat-icon></a>
-                                &nbsp;&nbsp;
-                                <a matTooltip="Devices" [matTooltipPosition]="'above'" class="action-icons edit-icon"
-                                    aria-label="Button that displays a tooltip when focused or hovered over"
-                                    (click)="DisplayDeviceList(row)"><mat-icon
-                                        class=" mt-2 cursor-pointer">solar_power</mat-icon> </a>
+                <a
+                  matTooltip="Certificate"
+                  [matTooltipPosition]="'left'"
+                  class="action-icons edit-icon"
+                  aria-label="Button that displays a tooltip when focused or hovered over"
+                  (click)="DisplayCertificatepage(row)"
+                >
+                  <mat-icon
+                    class="mt-2 cursor-pointer"
+                    data-testid="certificate"
+                    >card_membership</mat-icon
+                  ></a
+                >
+                &nbsp;&nbsp;
+                <a
+                  matTooltip="Devices"
+                  [matTooltipPosition]="'above'"
+                  class="action-icons edit-icon"
+                  aria-label="Button that displays a tooltip when focused or hovered over"
+                  (click)="DisplayDeviceList(row)"
+                  ><mat-icon class="mt-2 cursor-pointer">solar_power</mat-icon>
+                </a>
 
-                                <a matTooltip="Export Per Devicelog" [matTooltipPosition]="'above'" class="action-icons edit-icon"
-                                    aria-label="Button that displays a tooltip when focused or hovered over"
-                                    (click)="ExpoertPerDevice_csv(row)"><mat-icon
-                                        class=" mt-2 cursor-pointer">import_export</mat-icon> </a>
-                            </tr>
-                            <!-- <button>certificate</button> -->
+                <a
+                  matTooltip="Export Per Devicelog"
+                  [matTooltipPosition]="'above'"
+                  class="action-icons edit-icon"
+                  aria-label="Button that displays a tooltip when focused or hovered over"
+                  (click)="ExpoertPerDevice_csv(row)"
+                  ><mat-icon class="mt-2 cursor-pointer"
+                    >import_export</mat-icon
+                  >
+                </a>
+              </tr>
+              <!-- <button>certificate</button> -->
 
-                            <!-- <button class="btn-primary btn btn-sm"  ><mat-icon>visibility</mat-icon> Devices</button> -->
-                        </td>
-                    </ng-container>
-                    <!-- Progress Column -->
-                    <ng-container matColumnDef="createAt">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Onboarding Date </th>
-                        <td mat-cell *matCellDef="let row" class="table-data-myreservation"> {{row.createdAt|date:'long'}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Name </th>
-                        <td mat-cell *matCellDef="let row" class="table-data-myreservation"> {{row.name}} </td>
-                    </ng-container>
+              <!-- <button class="btn-primary btn btn-sm"  ><mat-icon>visibility</mat-icon> Devices</button> -->
+            </td>
+          </ng-container>
+          <!-- Progress Column -->
+          <ng-container matColumnDef="createAt">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-truncate"
+            >
+              Onboarding Date
+            </th>
+            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+              {{ row.createdAt | date: 'long' }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="name">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-truncate"
+            >
+              Name
+            </th>
+            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+              {{ row.name }}
+            </td>
+          </ng-container>
 
-                   
-                    <ng-container matColumnDef="aggregatedCapacity">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Aggregate
-                            Capacity</th>
-                        <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-                            {{row.aggregatedCapacity}} </td>
-                    </ng-container>
+          <ng-container matColumnDef="aggregatedCapacity">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-truncate"
+            >
+              Aggregate Capacity
+            </th>
+            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+              {{ row.aggregatedCapacity }}
+            </td>
+          </ng-container>
 
-                    <ng-container matColumnDef="reservationActive">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-                        <td mat-cell *matCellDef="let row"><span *ngIf="row.reservationActive">Active</span> <span
-                                *ngIf="!row.reservationActive">Inactive</span> </td>
-                    </ng-container>
+          <ng-container matColumnDef="reservationActive">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let row">
+              <span *ngIf="row.reservationActive">Active</span>
+              <span *ngIf="!row.reservationActive">Inactive</span>
+            </td>
+          </ng-container>
 
-                    <!-- Name Column -->
-                    <ng-container matColumnDef="frequency">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate">Issuance
-                            Frequency </th>
-                        <td mat-cell *matCellDef="let row" class="table-data-myreservation"> {{row.frequency}} </td>
-                    </ng-container>
+          <!-- Name Column -->
+          <ng-container matColumnDef="frequency">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-truncate"
+            >
+              Issuance Frequency
+            </th>
+            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+              {{ row.frequency }}
+            </td>
+          </ng-container>
 
-                    <!-- Fruit Column -->
-                    <ng-container matColumnDef="reservationStartDate">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Start </th>
-                        <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-                            {{row.reservationStartDate| date:'dd MMM y hh:mm'}} </td>
-                    </ng-container>
-                    <!-- Fruit Column -->
-                    <ng-container matColumnDef="reservationEndDate">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> End </th>
-                        <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-                            {{row.reservationEndDate| date:'dd MMM y hh:mm'}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="targetVolumeInMegaWattHour">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Target </th>
-                        <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-                            {{row.targetVolumeInMegaWattHour}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="SDGBenefits">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> SDGBenefits </th>
-                        <td mat-cell *matCellDef="let row"> {{row.SDGBenefits}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="number Of Devices">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-truncate"> Number Of
-                            Devices </th>
-                        <td mat-cell *matCellDef="let row" class="table-data-myreservation"> {{row.numberOfdevices}}
-                        </td>
-                    </ng-container>
+          <!-- Fruit Column -->
+          <ng-container matColumnDef="reservationStartDate">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-truncate"
+            >
+              Start
+            </th>
+            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+              {{ row.reservationStartDate | date: 'dd MMM y hh:mm' }}
+            </td>
+          </ng-container>
+          <!-- Fruit Column -->
+          <ng-container matColumnDef="reservationEndDate">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-truncate"
+            >
+              End
+            </th>
+            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+              {{ row.reservationEndDate | date: 'dd MMM y hh:mm' }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="targetVolumeInMegaWattHour">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-truncate"
+            >
+              Target
+            </th>
+            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+              {{ row.targetVolumeInMegaWattHour }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="SDGBenefits">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              SDGBenefits
+            </th>
+            <td mat-cell *matCellDef="let row">{{ row.SDGBenefits }}</td>
+          </ng-container>
+          <ng-container matColumnDef="number Of Devices">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-truncate"
+            >
+              Number Of Devices
+            </th>
+            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+              {{ row.numberOfdevices }}
+            </td>
+          </ng-container>
 
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
 
-                    <!-- Row shown when there is no matching data. -->
-                    <tr class="mat-row" *matNoDataRow>
-                        <td class="mat-cell" colspan="10" style="text-align: center">No Reservation Found</td>
-                    </tr>
+          <!-- Row shown when there is no matching data. -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="10" style="text-align: center">
+              No Reservation Found
+            </td>
+          </tr>
+        </table>
 
-                </table>
+        <div
+          *ngIf="totalPages != 0"
+          style="padding: 10px"
+          class="pagenation-btns"
+        >
+          <button
+            class="btn-primary me-2 btn text-capitalize px-4"
+            (click)="previousPage()"
+            [disabled]="p === 1"
+          >
+            Previous</button
+          >&nbsp;&nbsp; Total Pages:&nbsp;{{
+            totalPages
+          }}&nbsp;&nbsp;&nbsp;&nbsp;
+          <button
+            class="btn-primary me-2 btn text-capitalize px-4"
+            (click)="nextPage()"
+            [disabled]="p === totalPages"
+          >
+            Next
+          </button>
+          <p
+            style="
+              width: 150px;
+              height: 25px;
+              margin-left: 420px;
+              padding: 10px 5px 0px 0px;
+            "
+          >
+            <b>Page Number:&nbsp;</b>{{ p }}
+          </p>
+        </div>
+      </div>
 
-                <div *ngIf="totalPages!=0" style="padding: 10px;" class="pagenation-btns">
-                    <button class="btn-primary me-2 btn text-capitalize px-4" (click)="previousPage()"
-                        [disabled]="p === 1">Previous</button>&nbsp;&nbsp;
-                    Total Pages:&nbsp;{{totalPages}}&nbsp;&nbsp;&nbsp;&nbsp;
-                    <button class="btn-primary me-2 btn text-capitalize px-4" (click)="nextPage()"
-                        [disabled]="p === totalPages">Next</button>
-                    <p style="width: 150px;
-                        height: 25px;
-                        margin-left: 420px;
-                        padding: 10px 5px 0px 0px"><b>Page Number:&nbsp;</b>{{p}}</p>
-                </div>
-            </div>
+      <!-- </div> -->
+      <mat-card-footer></mat-card-footer>
+    </mat-card-content>
+  </mat-card>
+  <mat-card *ngIf="showdevicesinfo">
+    <mat-card-header class="d-flex justify-content-between align-items-center">
+      <mat-card-title class="d-flex justify-content-between">
+        <div>
+          <h2 class="pb-0 mb-0 fw-bold text-capitalize">
+            All devices information
+          </h2>
+        </div>
+      </mat-card-title>
 
+      <div class="d-flex justify-content-end">
+        <button
+          class="btn-content-back btn d-flex justify-content-end align-items-center btn-sm"
+          (click)="Gobacklist()"
+        >
+          <mat-icon class="fs-5 me-2 mt-1">arrow_back</mat-icon> Go Back
+        </button>
+      </div>
+    </mat-card-header>
+    <hr />
 
-            <!-- </div> -->
-            <mat-card-footer></mat-card-footer>
-        </mat-card-content>
-    </mat-card>
-    <mat-card *ngIf="showdevicesinfo">
-        <mat-card-header class="d-flex justify-content-between  align-items-center">
-            <mat-card-title class="d-flex justify-content-between">
-                <div>
-                    <h2 class="pb-0 mb-0 fw-bold text-capitalize">All devices information
-                    </h2>
-                </div>
-            </mat-card-title>
-
-            <div class="d-flex justify-content-end">
-                <button class=" btn-content-back btn d-flex justify-content-end align-items-center btn-sm"
-                    (click)="Gobacklist()"><mat-icon class="fs-5 me-2 mt-1">arrow_back</mat-icon> Go
-                    Back</button>
-            </div>
-
-
-        </mat-card-header>
-        <hr>
-
+    <mat-card-content>
+      <mat-card>
         <mat-card-content>
-            <mat-card>
+          <h2
+            style="text-align: center; color: #f2be1a; font-size: 25px"
+            class="text-capitalize"
+          >
+            <b>Reservation details</b>
+          </h2>
 
-                <mat-card-content>
-                    <h2 style="text-align: center;color:#f2be1a; font-size: 25px;" class="text-capitalize">
-                        <b>Reservation details</b>
-                    </h2>
-
-                    <div class='content'>
-                        <div class='column col-4'>
-                            <div class='row '>
-                                <p><b> Name</b>:&nbsp;
-                                    <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
-                                    {{group_info.name}}
-                                </p>
-                            </div>
-                        </div>
-                        <div class='column col-4'>
-                            <div class='row'>
-                                <p><b> Start
-                                        Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                                    {{group_info.reservationStartDate |date:'EEE d MMMM y'}}</p>
-
-                            </div>
-
-                        </div>
-                        <div class='column col-4'>
-                            <div class='row'>
-                                <p><b> End
-                                        Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                                    {{group_info.reservationEndDate |date:'EEE d MMMM y'}}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class='content '>
-                        <div class='column col-4'>
-                            <div class='row '>
-                                <p><b> Target Capacity</b>:&nbsp;
-                                    <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
-                                    {{group_info.targetVolumeInMegaWattHour}}(Mwh)
-                                </p>
-                            </div>
-                        </div>
-                        <div class='column col-4'>
-                            <div class='row'>
-                                <p><b>Frequency</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                                    {{group_info.frequency}}</p>
-
-                            </div>
-
-                        </div>
-
-                        <div class='column col-4'>
-                            <div class='row'>
-                                <p><b> Off
-                                        Takers</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                                    {{group_info.offTakers}}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class='content'>
-
-                        <div class='column col-4'>
-                            <div class='row'>
-                                <p><b> Number of
-                                        Devices</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                                    {{group_info.numberOfdevices}}</p>
-                            </div>
-                        </div>
-                        <div class='column col-4'>
-                            <div class='row'>
-                                <p *ngIf="!(group_info.reservationActive)"><b>Status</b>:
-                                    &nbsp;Deactive</p>
-                                <p *ngIf="(group_info.reservationActive)"><b>Status</b>:
-                                    &nbsp;Active</p>
-                            </div>
-
-                        </div>
-                        <div class='column col-4'>
-                            <div class='row'>
-                                <p><b>SDG benefits</b>:
-                                    &nbsp;{{group_info.SDGBenefits}}</p>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class='content'>
-                        <div class='column col-4'>
-                            <div class='row'>
-                                <p><b> Expiry
-                                        Date</b>:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                                    {{group_info.reservationExpiryDate |date:'EEE d MMMM y'}}</p>
-
-                            </div>
-                        </div> 
-                    </div>
-                    <br>
-                </mat-card-content>
-            </mat-card>
-            <hr>
-            <!-- <mat-progress-spinner [mode]="'indeterminate'" *ngIf="isLoadingResults"></mat-progress-spinner>
-             -->
-            <div class="content mat-elevation-z8 thead-width d-flex flex-column">
-                <table mat-table [dataSource]="dataSource1" matSort>
-                    <ng-container matColumnDef="createdAt">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> OnBoarding Date </th>
-                        <td mat-cell *matCellDef="let row"> {{row.createdAt| date:' dd MMM y hh:mm'}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="projectName">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Project Name </th>
-                        <td mat-cell *matCellDef="let row"> {{row.projectName}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="Name">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Name </th>
-                        <td mat-cell *matCellDef="let row"> {{row.developerExternalId}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="internalexternalId" class="text-left">
-                        <th mat-header-cell *matHeaderCellDef> Internal SiteId </th>
-                        <td mat-cell *matCellDef="let element"> {{element.externalId}} </td>
-                      </ng-container>
-                    <ng-container matColumnDef="countryCode">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Country</th>
-                        <td mat-cell *matCellDef="let row"> {{row.countryname}} </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="capacity">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>Capacity(kW) </th>
-                        <td mat-cell *matCellDef="let row"> {{row.capacity}} </td>
-                    </ng-container>
-
-                    <!-- Fruit Column -->
-
-                    <!-- Fruit Column -->
-                    <ng-container matColumnDef="commissioningDate">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Commissioning Date </th>
-                        <td mat-cell *matCellDef="let row"> {{row.commissioningDate| date:'EEE dd MMM y'}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="offTaker">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> OffTaker </th>
-                        <td mat-cell *matCellDef="let row"> {{row.offTaker}} </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="deviceTypeCode">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> Device Code </th>
-                        <td mat-cell *matCellDef="let row"> {{row.devicetypename}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="SDGBenefits">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> SDGBenefits </th>
-                        <td mat-cell *matCellDef="let row"> {{row.SDGBenefits}} </td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns1"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns1;"></tr>
-                    <tr class="mat-row" *matNoDataRow>
-                        <td class="mat-cell" colspan="4" style="text-align: center">No Reservation found </td>
-                    </tr>
-                </table>
+          <div class="content">
+            <div class="column col-4">
+              <div class="row">
+                <p>
+                  <b> Name</b>:&nbsp;
+                  <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
+                  {{ group_info.name }}
+                </p>
+              </div>
+            </div>
+            <div class="column col-4">
+              <div class="row">
+                <p>
+                  <b> Start Date</b
+                  >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                  {{ group_info.reservationStartDate | date: 'EEE d MMMM y' }}
+                </p>
+              </div>
+            </div>
+            <div class="column col-4">
+              <div class="row">
+                <p>
+                  <b> End Date</b
+                  >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                  {{ group_info.reservationEndDate | date: 'EEE d MMMM y' }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="content">
+            <div class="column col-4">
+              <div class="row">
+                <p>
+                  <b> Target Capacity</b>:&nbsp;
+                  <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
+                  {{ group_info.targetVolumeInMegaWattHour }}(Mwh)
+                </p>
+              </div>
+            </div>
+            <div class="column col-4">
+              <div class="row">
+                <p>
+                  <b>Frequency</b
+                  >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                  {{ group_info.frequency }}
+                </p>
+              </div>
             </div>
 
-            <mat-card-footer></mat-card-footer>
+            <div class="column col-4">
+              <div class="row">
+                <p>
+                  <b> Off Takers</b
+                  >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                  {{ group_info.offTakers }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="content">
+            <div class="column col-4">
+              <div class="row">
+                <p>
+                  <b> Number of Devices</b
+                  >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                  {{ group_info.numberOfdevices }}
+                </p>
+              </div>
+            </div>
+            <div class="column col-4">
+              <div class="row">
+                <p *ngIf="!group_info.reservationActive">
+                  <b>Status</b>: &nbsp;Deactive
+                </p>
+                <p *ngIf="group_info.reservationActive">
+                  <b>Status</b>: &nbsp;Active
+                </p>
+              </div>
+            </div>
+            <div class="column col-4">
+              <div class="row">
+                <p><b>SDG benefits</b>: &nbsp;{{ group_info.SDGBenefits }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="content">
+            <div class="column col-4">
+              <div class="row">
+                <p>
+                  <b> Expiry Date</b
+                  >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+                  {{ group_info.reservationExpiryDate | date: 'EEE d MMMM y' }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <br />
         </mat-card-content>
-        <mat-card-footer></mat-card-footer>
-    </mat-card>
+      </mat-card>
+      <hr />
+      <!-- <mat-progress-spinner [mode]="'indeterminate'" *ngIf="isLoadingResults"></mat-progress-spinner>
+             -->
+      <div class="content mat-elevation-z8 thead-width d-flex flex-column">
+        <table mat-table [dataSource]="dataSource1" matSort>
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              OnBoarding Date
+            </th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.createdAt | date: ' dd MMM y hh:mm' }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="projectName">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Project Name
+            </th>
+            <td mat-cell *matCellDef="let row">{{ row.projectName }}</td>
+          </ng-container>
+          <ng-container matColumnDef="Name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.developerExternalId }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="internalexternalId" class="text-left">
+            <th mat-header-cell *matHeaderCellDef>Internal SiteId</th>
+            <td mat-cell *matCellDef="let element">{{ element.externalId }}</td>
+          </ng-container>
+          <ng-container matColumnDef="countryCode">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Country</th>
+            <td mat-cell *matCellDef="let row">{{ row.countryname }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="capacity">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Capacity(kW)
+            </th>
+            <td mat-cell *matCellDef="let row">{{ row.capacity }}</td>
+          </ng-container>
+
+          <!-- Fruit Column -->
+
+          <!-- Fruit Column -->
+          <ng-container matColumnDef="commissioningDate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Commissioning Date
+            </th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.commissioningDate | date: 'EEE dd MMM y' }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="offTaker">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>OffTaker</th>
+            <td mat-cell *matCellDef="let row">{{ row.offTaker }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="deviceTypeCode">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Device Code
+            </th>
+            <td mat-cell *matCellDef="let row">{{ row.devicetypename }}</td>
+          </ng-container>
+          <ng-container matColumnDef="SDGBenefits">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              SDGBenefits
+            </th>
+            <td mat-cell *matCellDef="let row">{{ row.SDGBenefits }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns1"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns1"></tr>
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4" style="text-align: center">
+              No Reservation found
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <mat-card-footer></mat-card-footer>
+    </mat-card-content>
+    <mat-card-footer></mat-card-footer>
+  </mat-card>
 </div>
