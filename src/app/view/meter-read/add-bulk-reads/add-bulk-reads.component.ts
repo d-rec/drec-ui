@@ -2,8 +2,14 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import { MeterReadService } from '../../../auth/services';
+import {
+  AdminService,
+  MeterReadService,
+  OrganizationService,
+} from '../../../auth/services';
 import { ToastrService } from 'ngx-toastr';
+import { OrganizationInformation } from '../../../models';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-add-bulk-reads',
@@ -11,7 +17,10 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class AddBulkReadsComponent implements OnInit {
   currentFile?: File | null;
+  progress = 0;
+  message = '';
   fileName = 'Please click here to select file';
+  fileInfos?: Observable<any>;
   pageSize: number = 10;
   showReadsInfo: boolean = false;
   readsStatusList: any = [];
@@ -30,14 +39,55 @@ export class AddBulkReadsComponent implements OnInit {
   constructor(
     private toasterService: ToastrService,
     private readsService: MeterReadService,
-  ) {}
+    private adminService: AdminService,
+    private orgService: OrganizationService,
+  ) {
+    this.loggedInUser = JSON.parse(sessionStorage.getItem('loginuser')!);
+  }
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   dataSource1: MatTableDataSource<any>;
   data: any;
+  orgList: any;
+  filteredOrgList: OrganizationInformation[] = [];
+  orgName: string;
+  orgId: number;
+  loggedInUser: any;
   ngOnInit(): void {
+    if (this.loggedInUser.role === 'Admin') {
+      this.adminService.GetAllOrganization().subscribe((data) => {
+        this.orgList = data.organizations.filter(
+          (org: OrganizationInformation) => org.organizationType !== 'Buyer',
+        );
+        this.filteredOrgList = this.orgList;
+      });
+    } else if (this.loggedInUser.role === 'ApiUser') {
+      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+        this.orgList = data.organizations.filter(
+          (org) => org.organizationType != 'Buyer',
+        );
+        this.filteredOrgList = this.orgList;
+      });
+    }
     this.readsJobDisplayList();
+  }
+
+  filterOrgList() {
+    this.filteredOrgList = this.orgList.filter(
+      (org: OrganizationInformation) => {
+        return org.name.toLowerCase().includes(this.orgName.toLowerCase());
+      },
+    );
+  }
+
+  selectOrg(event: any) {
+    const selectedCountry = this.orgList.find(
+      (option: any) => option.name === event.option.value,
+    );
+    if (selectedCountry) {
+      this.orgId = selectedCountry.id;
+    }
   }
 
   selectFile(event: any): void {
