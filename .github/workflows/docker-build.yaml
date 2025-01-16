@@ -33,7 +33,7 @@ jobs:
        run: |
          # Build with namespace tag
          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:dev-$BUILD_NUMBER \
-                     -f apps/drec-ui/Dockerfile apps/drec-ui
+                     -f Dockerfile .
          
          # Push the image
          docker push $ECR_REGISTRY/$ECR_REPOSITORY:dev-$BUILD_NUMBER
