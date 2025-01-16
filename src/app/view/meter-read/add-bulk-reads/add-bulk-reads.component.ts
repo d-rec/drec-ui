@@ -115,11 +115,11 @@ export class AddBulkReadsComponent implements OnInit {
     });
   }
 
-  displayReadsLogList(jobId: number, organizationId: number) {
-    this.readsService.getJobStatus(jobId, organizationId).subscribe({
+  displayReadsLogList(id: number, organizationId: number) {
+    this.readsService.getJobStatus(id, organizationId).subscribe({
       next: (response) => {
         try {
-          const errorDetails = response.errorDetails.log.errorDetails;
+          const errorDetails = response.errorDetails;
           if (errorDetails && errorDetails.length > 0) {
             this.showReadsInfo = true;
             this.data = [errorDetails];
