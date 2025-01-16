@@ -20,8 +20,7 @@ export class AddBulkReadsComponent implements OnInit {
   fileName = 'Please click here to select file';
   fileInfos?: Observable<any>;
   pageSize: number = 10;
-  showReadsInfo: boolean = false;
-  readsStatusList: any = [];
+  showBulkUploadInfo: boolean = false;
   loading: boolean = true;
   objectKeys = Object.keys;
   displayedColumns = [
@@ -68,7 +67,7 @@ export class AddBulkReadsComponent implements OnInit {
         this.filteredOrgList = this.orgList;
       });
     }
-    this.readsJobDisplayList();
+    this.bulkUploadDisplay();
   }
 
   filterOrgList() {
@@ -103,10 +102,10 @@ export class AddBulkReadsComponent implements OnInit {
     event.target.value = '';
   }
 
-  readsJobDisplayList() {
-    this.showReadsInfo = false;
+  bulkUploadDisplay() {
+    this.showBulkUploadInfo = false;
     this.loading = true;
-    this.readsService.getCsvJobList().subscribe((data) => {
+    this.readsService.getBulkUploads().subscribe((data) => {
       this.loading = false;
       this.data = data;
       this.dataSource = new MatTableDataSource(this.data.csvJobs);
@@ -115,19 +114,19 @@ export class AddBulkReadsComponent implements OnInit {
     });
   }
 
-  displayReadsLogList(id: number, organizationId: number) {
-    this.readsService.getJobStatus(id, organizationId).subscribe({
+  displayBulkUploadLogs(id: number, organizationId: number) {
+    this.readsService.getBulkUploadLogs(id, organizationId).subscribe({
       next: (response) => {
         try {
           const errorDetails = response.errorDetails;
           if (errorDetails && errorDetails.length > 0) {
-            this.showReadsInfo = true;
+            this.showBulkUploadInfo = true;
             this.data = [errorDetails];
             this.dataSource1 = new MatTableDataSource(this.data);
             this.dataSource1.paginator = this.paginator;
           }
         } catch (error) {
-          this.showReadsInfo = true;
+          this.showBulkUploadInfo = true;
           this.data = ['No logs'];
           this.dataSource1 = new MatTableDataSource(this.data);
           this.dataSource1.paginator = this.paginator;
@@ -148,13 +147,13 @@ export class AddBulkReadsComponent implements OnInit {
   upload(): void {
     if (this.currentFile) {
       this.readsService
-        .readsBulkUpload(
+        .bulkUpload(
           this.currentFile,
           this.organizationId ?? this.loggedInUser.id,
         )
         .subscribe({
           next: () => {
-            this.readsJobDisplayList();
+            this.bulkUploadDisplay();
             this.currentFile = null;
             this.fileName = 'Please click here to Select File';
             this.toasterService.success(

@@ -18,7 +18,7 @@ export class MeterReadService {
     return this.httpClient.post<any>(addUrl, data);
   }
 
-  readsBulkUpload(file: File, organizationId: number): Observable<any> {
+  bulkUpload(file: File, organizationId: number): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
     return this.httpClient.post(
@@ -27,11 +27,11 @@ export class MeterReadService {
     );
   }
 
-  getCsvJobList(): Observable<any> {
+  getBulkUploads(): Observable<any> {
     return this.httpClient.get(`${this.url}meter-reads/get-csv-jobs`);
   }
 
-  getJobStatus(id: number, organizationId: number): Observable<any> {
+  getBulkUploadLogs(id: number, organizationId: number): Observable<any> {
     let Url = `${this.url}meter-reads/bulk-upload-status/` + id;
     if (organizationId) {
       Url += `?organizationId=${organizationId}`;
