@@ -17,8 +17,6 @@ import { Observable } from 'rxjs';
 })
 export class AddBulkReadsComponent implements OnInit {
   currentFile?: File | null;
-  progress = 0;
-  message = '';
   fileName = 'Please click here to select file';
   fileInfos?: Observable<any>;
   pageSize: number = 10;
@@ -52,7 +50,7 @@ export class AddBulkReadsComponent implements OnInit {
   orgList: any;
   filteredOrgList: OrganizationInformation[] = [];
   orgName: string;
-  orgId: number;
+  organizationId: number;
   loggedInUser: any;
   ngOnInit(): void {
     if (this.loggedInUser.role === 'Admin') {
@@ -86,7 +84,7 @@ export class AddBulkReadsComponent implements OnInit {
       (option: any) => option.name === event.option.value,
     );
     if (selectedCountry) {
-      this.orgId = selectedCountry.id;
+      this.organizationId = selectedCountry.id;
     }
   }
 
@@ -117,8 +115,8 @@ export class AddBulkReadsComponent implements OnInit {
     });
   }
 
-  displayReadsLogList(jobId: number, orgId: number) {
-    this.readsService.getJobStatus(jobId, orgId).subscribe({
+  displayReadsLogList(jobId: number, organizationId: number) {
+    this.readsService.getJobStatus(jobId, organizationId).subscribe({
       next: (response) => {
         try {
           const errorDetails = response.errorDetails.log.errorDetails;
@@ -149,24 +147,29 @@ export class AddBulkReadsComponent implements OnInit {
 
   upload(): void {
     if (this.currentFile) {
-      this.readsService.readsCSVUpload(this.currentFile).subscribe({
-        next: () => {
-          this.readsJobDisplayList();
-          this.currentFile = null;
-          this.fileName = 'Please click here to Select File';
-          this.toasterService.success(
-            'Successfully!',
-            'Devices Uploaded in Bulk!!',
-          );
-        },
-        error: (err) => {
-          if (err.error.statusCode === 403) {
-            this.toasterService.error('You are Unauthorized');
-          } else {
-            this.toasterService.error('error!', err.error.message);
-          }
-        },
-      });
+      this.readsService
+        .readsBulkUpload(
+          this.currentFile,
+          this.organizationId ?? this.loggedInUser.id,
+        )
+        .subscribe({
+          next: () => {
+            this.readsJobDisplayList();
+            this.currentFile = null;
+            this.fileName = 'Please click here to Select File';
+            this.toasterService.success(
+              'Successfully!',
+              'Devices Uploaded in Bulk!!',
+            );
+          },
+          error: (err) => {
+            if (err.error.statusCode === 403) {
+              this.toasterService.error('You are Unauthorized');
+            } else {
+              this.toasterService.error('error!', err.error.message);
+            }
+          },
+        });
     }
   }
 }

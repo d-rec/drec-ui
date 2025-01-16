@@ -18,20 +18,23 @@ export class MeterReadService {
     return this.httpClient.post<any>(addUrl, data);
   }
 
-  readsCSVUpload(file: File): Observable<any> {
+  readsBulkUpload(file: File, organizationId: number): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.httpClient.post(this.url + 'meter-reads/csv-upload', formData);
+    return this.httpClient.post(
+      `${this.url}meter-reads/bulk-upload/${organizationId}`,
+      formData,
+    );
   }
 
   getCsvJobList(): Observable<any> {
     return this.httpClient.get(`${this.url}meter-reads/get-csv-jobs`);
   }
 
-  getJobStatus(id: number, orgId: number): Observable<any> {
+  getJobStatus(id: number, organizationId: number): Observable<any> {
     let Url = `${this.url}meter-reads/bulk-upload-status/` + id;
-    if (orgId) {
-      Url += `?orgId=${orgId}`;
+    if (organizationId) {
+      Url += `?organizationId=${organizationId}`;
     }
     return this.httpClient.get(Url);
   }
@@ -39,11 +42,11 @@ export class MeterReadService {
   PostReadByAdmin(
     exterenalId: string,
     data: any,
-    orgId?: number,
+    organizationId?: number,
   ): Observable<any> {
     let addUrl = `${this.url}meter-reads/addByAdmin/new/` + exterenalId;
-    if (orgId != undefined) {
-      addUrl += `?organizationId=${orgId}`;
+    if (organizationId != undefined) {
+      addUrl += `?organizationId=${organizationId}`;
     }
     return this.httpClient.post<any>(addUrl, data);
   }

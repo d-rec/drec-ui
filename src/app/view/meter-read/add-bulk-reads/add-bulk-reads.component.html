@@ -53,13 +53,18 @@
             <mat-form-field appearance="outline">
               <div>
                 <mat-toolbar class="bg-transparent h-auto p-0">
-                  <input matInput (click)="openFileExplorer()" />
+                  <input
+                    matInput
+                    [value]="fileName"
+                    (click)="openFileExplorer()"
+                  />
                 </mat-toolbar>
                 <div class="d-flex justify-content-center">
                   <input
                     type="file"
                     hidden
                     id="fileInput"
+                    (change)="selectFile($event)"
                     name="fileInput"
                     accept=".csv"
                   />
