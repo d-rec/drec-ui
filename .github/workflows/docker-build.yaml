@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - ft/move-deployment-to-gh-actions
   workflow_dispatch:
 
 jobs:
@@ -57,4 +58,3 @@ jobs:
         run: |
           kubectl -n dev set image deployment/drec-ui \
             drec-ui=$ECR_REGISTRY/$ECR_REPOSITORY:dev-$BUILD_NUMBER
-            
