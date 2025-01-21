@@ -29,7 +29,7 @@ jobs:
       DB_DATABASE: origin
       REACT_APP_BACKEND_URL: http://localhost:3040
       ADMIN_EMAIL: drec@energy.org
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
 
     steps:
       - name: Checkout Repository
