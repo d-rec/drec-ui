@@ -1,12 +1,11 @@
 name: Code Quality
 
 on:
-  push:
-    branches:
-      - develop
   pull_request:
     branches:
       - develop
+      - stage
+      - prod
 
 jobs:
   lint-prettier:
@@ -19,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: lts/*
+          node-version: lts/iron
 
       - name: Install dependencies
         run: npm install
@@ -37,7 +36,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: lts/*
+          node-version: lts/iron
 
       - name: Install dependencies
         run: npm install
@@ -58,7 +57,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: lts/*
+          node-version: lts/iron
 
       - name: Install dependencies
         run: npm install

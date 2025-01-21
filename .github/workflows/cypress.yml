@@ -18,7 +18,7 @@ jobs:
       INFLUXDB_URL: http://localhost:8086
       INFLUXDB_TOKEN: admin:admin
       INFLUXDB_BUCKET: energy/autogen
-      ISSUER_PRIVATE_KEY: 4773097f508a6edd206150766ee25cb5abc1635f28f9cfd27e144872e89dc9c9
+      ISSUER_PRIVATE_KEY: ${{ secrets.ISSUER_PRIVATE_KEY }}
       DREC_BLOCKCHAIN_ADDRESS: "0xDeC1488838C65E355A9336eE8DdFc32665dB9222"
       CERTIFICATE_QUEUE_DELAY: 60000
       BACKEND_PORT: 3040
@@ -29,7 +29,7 @@ jobs:
       DB_DATABASE: origin
       REACT_APP_BACKEND_URL: http://localhost:3040
       ADMIN_EMAIL: drec@energy.org
-      ADMIN_PASSWORD: 1234Rc
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
     steps:
       - name: Checkout Repository
@@ -44,7 +44,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20.14.0
+          node-version: lts/iron
           cache: npm
       - name: Clone Backend Repository
         run: |
