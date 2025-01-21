@@ -3,7 +3,7 @@
 name: Check Generic
 
 on:
- pull_request:
+  pull_request:
     branches:
       - develop
       - stage
