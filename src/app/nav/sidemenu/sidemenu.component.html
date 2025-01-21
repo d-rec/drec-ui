@@ -349,10 +349,11 @@
       <!--8th  -->
 
       <mat-expansion-panel [class.mat-elevation-z0]="true">
-        <mat-expansion-panel-header class="mdc-button">
+        <mat-expansion-panel-header class="mdc-button" [attr.data-testid]="'account-setting-header'">
           <mat-icon>manage_accounts</mat-icon>
           Account Setting
         </mat-expansion-panel-header>
+        
         <mat-nav-list class="p-0">
           <a
             mat-button
