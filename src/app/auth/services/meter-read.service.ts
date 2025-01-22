@@ -18,27 +18,6 @@ export class MeterReadService {
     return this.httpClient.post<any>(addUrl, data);
   }
 
-  bulkUpload(file: File, organizationId: number): Observable<any> {
-    const formData = new FormData();
-    formData.append('file', file);
-    return this.httpClient.post(
-      `${this.url}meter-reads/bulk-upload/${organizationId}`,
-      formData,
-    );
-  }
-
-  getBulkUploads(): Observable<any> {
-    return this.httpClient.get(`${this.url}meter-reads/get-csv-jobs`);
-  }
-
-  getBulkUploadLogs(id: number, organizationId: number): Observable<any> {
-    let Url = `${this.url}meter-reads/bulk-upload-status/` + id;
-    if (organizationId) {
-      Url += `?organizationId=${organizationId}`;
-    }
-    return this.httpClient.get(Url);
-  }
-
   PostReadByAdmin(
     exterenalId: string,
     data: any,

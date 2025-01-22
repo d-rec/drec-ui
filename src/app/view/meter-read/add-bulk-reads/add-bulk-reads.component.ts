@@ -2,14 +2,12 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import {
-  AdminService,
-  MeterReadService,
-  OrganizationService,
-} from '../../../auth/services';
+import { AdminService, OrganizationService } from '../../../auth/services';
 import { ToastrService } from 'ngx-toastr';
 import { OrganizationInformation } from '../../../models';
 import { Observable } from 'rxjs';
+import { BulkUploadService } from '../../../auth/services/bulk-upload.service';
+import { BulkUploadType } from '../../../utils/enums/bulk-upload-type.enum';
 
 @Component({
   selector: 'app-add-bulk-reads',
@@ -35,9 +33,9 @@ export class AddBulkReadsComponent implements OnInit {
 
   constructor(
     private toasterService: ToastrService,
-    private readsService: MeterReadService,
     private adminService: AdminService,
     private orgService: OrganizationService,
+    private bulkUploadService: BulkUploadService,
   ) {
     this.loggedInUser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -105,34 +103,37 @@ export class AddBulkReadsComponent implements OnInit {
   bulkUploadDisplay() {
     this.showBulkUploadInfo = false;
     this.loading = true;
-    this.readsService.getBulkUploads().subscribe((data) => {
+    this.bulkUploadService.getBulkUploads().subscribe((data) => {
       this.loading = false;
       this.data = data;
-      this.dataSource = new MatTableDataSource(this.data.csvJobs);
+      this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
       this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
     });
   }
 
-  displayBulkUploadLogs(id: number, organizationId: number) {
-    this.readsService.getBulkUploadLogs(id, organizationId).subscribe({
-      next: (response) => {
-        try {
-          const errorDetails = response.errorDetails;
-          if (errorDetails && errorDetails.length > 0) {
+  getBulkUploadLogs(bulkUploadId: number, organizationId: number) {
+    this.bulkUploadService
+      .getBulkUploadLogs(bulkUploadId, organizationId)
+      .subscribe({
+        next: (response) => {
+          try {
+            console.log(response);
+            const errorDetails = response.details;
+            if (errorDetails && errorDetails.length > 0) {
+              this.showBulkUploadInfo = true;
+              this.data = [errorDetails];
+              this.dataSource1 = new MatTableDataSource(this.data);
+              this.dataSource1.paginator = this.paginator;
+            }
+          } catch (error) {
             this.showBulkUploadInfo = true;
-            this.data = [errorDetails];
+            this.data = ['No logs'];
             this.dataSource1 = new MatTableDataSource(this.data);
             this.dataSource1.paginator = this.paginator;
           }
-        } catch (error) {
-          this.showBulkUploadInfo = true;
-          this.data = ['No logs'];
-          this.dataSource1 = new MatTableDataSource(this.data);
-          this.dataSource1.paginator = this.paginator;
-        }
-      },
-    });
+        },
+      });
   }
 
   reset() {
@@ -146,10 +147,11 @@ export class AddBulkReadsComponent implements OnInit {
 
   upload(): void {
     if (this.currentFile) {
-      this.readsService
+      this.bulkUploadService
         .bulkUpload(
           this.currentFile,
           this.organizationId ?? this.loggedInUser.id,
+          BulkUploadType.Reads,
         )
         .subscribe({
           next: () => {
