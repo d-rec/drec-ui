@@ -8,6 +8,9 @@ import { BulkUploadType } from '../../../app/utils/enums/bulk-upload-type.enum';
 })
 export class BulkUploadService {
   private baseUrl = `${environment.API_URL}bulk-upload`;
+  private filePath =
+    '../../assets/files/d-rec_bulk_upload_meter_read_template.csv';
+  private downloadedFileName = 'd-rec_bulk_upload_meter_read_template.csv';
 
   constructor(private http: HttpClient) {}
 
@@ -40,5 +43,17 @@ export class BulkUploadService {
       Url += `?organizationId=${organizationId}`;
     }
     return this.http.get(Url);
+  }
+  downloadFile(): void {
+    try {
+      const anchor = document.createElement('a');
+      anchor.href = this.filePath;
+      anchor.download = this.downloadedFileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+    } catch (error) {
+      throw new Error('Error downloading file:');
+    }
   }
 }

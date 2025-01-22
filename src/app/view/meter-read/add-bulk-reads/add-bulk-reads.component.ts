@@ -44,32 +44,32 @@ export class AddBulkReadsComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
   dataSource1: MatTableDataSource<any>;
   data: any;
-  orgList: any;
-  filteredOrgList: OrganizationInformation[] = [];
+  organizationList: any;
+  filteredOrganizationList: OrganizationInformation[] = [];
   orgName: string;
   organizationId: number;
   loggedInUser: any;
   ngOnInit(): void {
     if (this.loggedInUser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe((data) => {
-        this.orgList = data.organizations.filter(
+        this.organizationList = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
-        this.filteredOrgList = this.orgList;
+        this.filteredOrganizationList = this.organizationList;
       });
     } else if (this.loggedInUser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
-        this.orgList = data.organizations.filter(
+        this.organizationList = data.organizations.filter(
           (org) => org.organizationType != 'Buyer',
         );
-        this.filteredOrgList = this.orgList;
+        this.filteredOrganizationList = this.organizationList;
       });
     }
     this.bulkUploadDisplay();
   }
 
   filterOrgList() {
-    this.filteredOrgList = this.orgList.filter(
+    this.filteredOrganizationList = this.organizationList.filter(
       (org: OrganizationInformation) => {
         return org.name.toLowerCase().includes(this.orgName.toLowerCase());
       },
@@ -77,9 +77,10 @@ export class AddBulkReadsComponent implements OnInit {
   }
 
   selectOrg(event: any) {
-    const selectedCountry = this.orgList.find(
+    const selectedCountry = this.organizationList.find(
       (option: any) => option.name === event.option.value,
     );
+    console.log(selectedCountry);
     if (selectedCountry) {
       this.organizationId = selectedCountry.id;
     }
@@ -143,6 +144,11 @@ export class AddBulkReadsComponent implements OnInit {
 
   openFileExplorer() {
     document.getElementById('fileInput')?.click();
+  }
+
+  async downloadFile() {
+    await this.bulkUploadService.downloadFile();
+    this.toasterService.success('File downloaded successfully');
   }
 
   upload(): void {
