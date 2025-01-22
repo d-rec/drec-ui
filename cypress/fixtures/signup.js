@@ -4,7 +4,6 @@
     selector: '[data-testid="firstName"]',
     value: 'testReadsi'
   },
-
   {
     action: "type",
     selector: '[data-testid="lastName"]',
@@ -81,6 +80,5 @@
   {
     action: "click",
     selector: '[data-testid="submitReg"]',
-  },
-
+  }
   ]
