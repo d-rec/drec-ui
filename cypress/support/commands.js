@@ -20,8 +20,8 @@ Cypress.Commands.add('clearDatabase', () => {
 });
 
 
-Cypress.Commands.add('signup_dev', function () {
-  cy.fixture('signup_dev.js').then((data) => {
+Cypress.Commands.add('signup', function () {
+  cy.fixture('signup.js').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000); 
     cy.get('[data-testid="register"]').click();
     data.forEach((step) => {
