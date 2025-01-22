@@ -1,4 +1,3 @@
-# Generic checks to ease collaboration:
 # - consistent file encoding in UNIX style
 # - whitespaces in all purposes files like markdown, yaml, etc
 name: Check Generic
@@ -7,9 +6,13 @@ on:
   push:
     branches:
       - develop
+      - stage
+      - prod
   pull_request:
     branches:
       - develop
+      - stage
+      - prod
 
 jobs:
   editorconfig-checker:
