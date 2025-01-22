@@ -3,6 +3,6 @@ describe('Admin login', () => {
     cy.wait(1000);
   });
   it('Admin should login successfully', () => {
-    cy.adminlogin();
+    cy.admin_login();
   });
 });
