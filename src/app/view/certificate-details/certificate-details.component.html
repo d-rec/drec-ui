@@ -172,6 +172,20 @@
 
 								</mat-form-field>
 							</div>
+				
+								<div class="col-md-4 h6-margin-remove">
+									<h6>Device Name: </h6>
+									<mat-form-field appearance="outline">
+										<mat-label class="text-capitalize"> enter device name</mat-label>
+										<mat-select formControlName='names' (ngModelChange)="checkFormValidity()" multiple>
+											<mat-option [value]="">---</mat-option>
+											<mat-option *ngFor="let deviceId of names" [value]="deviceId">
+												{{deviceId}}
+											</mat-option>
+										</mat-select>
+									</mat-form-field>
+								</div>
+					
 							<!-- 				
 							<div class="col-md-4  h6-margin-remove">
 								<h6>Select Read Volume(Wh): </h6>

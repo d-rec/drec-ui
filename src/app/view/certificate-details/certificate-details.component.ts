@@ -105,6 +105,7 @@ export class CertificateDetailsComponent {
   showorgerror: boolean = false;
   oldlog: boolean = false;
   oldcertificatelog: boolean;
+  names: string[] = [];
   constructor(
     private blockchainDRECService: BlockchainDrecService,
     private authService: AuthbaseService,
@@ -132,6 +133,7 @@ export class CertificateDetailsComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
+      names: [],
       // fromAmountread: [null],
       // toAmountread: [null],
       // pagenumber: [this.p]
@@ -167,6 +169,7 @@ export class CertificateDetailsComponent {
       // display list in the console
       this.sdgblist = data;
     });
+
     setTimeout(() => {
       if (this.countrycodeLoded) {
         this.applycountryFilter();
@@ -341,10 +344,12 @@ export class CertificateDetailsComponent {
           ) {
             this.FilterForm.controls['SDGBenefits'].setValue(null);
           }
+          if (formValues.names[0] === undefined) {
+            this.FilterForm.controls['names'].setValue(null);
+          }
           // Other code...
         }
       });
-
     setTimeout(() => {
       const updatedFormValues = this.FilterForm.value;
       const isAllValuesNull = Object.values(updatedFormValues).some(
@@ -413,7 +418,14 @@ export class CertificateDetailsComponent {
           this.oldcertificatelog = data.oldcertificatelog;
           if (data.certificatelog.length > 0) {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);
-
+            this.names = [];
+            this.data.forEach((log: any) => {
+              log.perDeviceCertificateLog.forEach((deviceLog: any) => {
+                if (!this.names.includes(deviceLog.externalId)) {
+                  this.names.push(deviceLog.externalId);
+                }
+              });
+            });
             this.data.forEach((ele: any) => {
               ele['generationStartTimeinUTC'] = new Date(
                 ele.generationStartTime * 1000,
