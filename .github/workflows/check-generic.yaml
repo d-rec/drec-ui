@@ -3,12 +3,11 @@
 name: Check Generic
 
 on:
-  push:
-    branches:
-      - develop
   pull_request:
     branches:
       - develop
+      - stage
+      - prod
 
 jobs:
   editorconfig-checker:
