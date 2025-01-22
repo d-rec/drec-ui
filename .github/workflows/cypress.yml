@@ -1,6 +1,11 @@
 name: Cypress CI Workflow
 
 on:
+  push:
+    branches:
+      - develop
+      - stage
+      - prod
   pull_request:
     branches:
       - develop
