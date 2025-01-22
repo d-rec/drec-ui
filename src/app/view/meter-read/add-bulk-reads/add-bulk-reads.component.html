@@ -1,5 +1,5 @@
 <div class="body-bg p-5">
-  <mat-card *ngIf="!showBulkUploadInfo">
+  <mat-card *ngIf="!showBulkUploadLogs">
     <mat-card-header
       class="d-flex justify-content-between mat-crd-hide align-items-center"
     >
@@ -19,7 +19,7 @@
         </button>
         <button
           class="btn btn-dark justify-content-end px-4"
-          (click)="bulkUploadDisplay()"
+          (click)="displayBulkUploads()"
         >
           <mat-icon class="align-middle">refresh</mat-icon>
         </button>
@@ -39,7 +39,7 @@
               <mat-label class="text-capitalize">Organization</mat-label>
               <input
                 matInput
-                [(ngModel)]="orgName"
+                [(ngModel)]="organizationName"
                 [ngModelOptions]="{ standalone: true }"
                 [matAutocomplete]="orgAuto"
                 (input)="filterOrgList()"
@@ -49,7 +49,7 @@
                 (optionSelected)="selectOrg($event)"
               >
                 <mat-option
-                  *ngFor="let code of filteredOrganizationList"
+                  *ngFor="let code of filteredOrganizationsList"
                   [value]="code.name"
                 >
                   {{ code.name }}
@@ -98,10 +98,6 @@
           </div>
         </div>
       </form>
-      <!-- <mat-progress-spinner
-        [mode]="'indeterminate'"
-        *ngIf="loading"
-      ></mat-progress-spinner> -->
       <div class="mat-elevation-z8 text-center">
         <table
           mat-table
@@ -151,8 +147,8 @@
               </button>
             </td>
           </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr mat-header-row *matHeaderRowDef="bulkUploadColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: bulkUploadColumns"></tr>
         </table>
         <mat-paginator
           [pageSize]="pageSize"
@@ -161,7 +157,7 @@
       </div>
     </mat-card-content>
   </mat-card>
-  <mat-card *ngIf="showBulkUploadInfo">
+  <mat-card *ngIf="showBulkUploadLogs">
     <mat-card-header class="d-flex justify-content-between align-items-center">
       <mat-card-title class="d-flex justify-content-between">
         <div>
@@ -174,7 +170,7 @@
       <div class="d-flex justify-content-end">
         <button
           class="btn-content-back btn d-flex justify-content-end align-items-center btn-sm"
-          (click)="bulkUploadDisplay()"
+          (click)="displayBulkUploads()"
         >
           <mat-icon class="fs-5 me-2 mt-1">arrow_back</mat-icon> Go Back
         </button>
@@ -190,8 +186,8 @@
               {{ element }}
             </td>
           </ng-container>
-          <tr mat-header-row *matHeaderRowDef="displayedColumns1"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns1"></tr>
+          <tr mat-header-row *matHeaderRowDef="bulkUploadLogsColumn"></tr>
+          <tr mat-row *matRowDef="let row; columns: bulkUploadLogsColumn"></tr>
         </table>
         <mat-paginator
           [pageSize]="pageSize"

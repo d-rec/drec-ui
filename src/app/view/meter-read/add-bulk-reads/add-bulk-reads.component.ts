@@ -8,6 +8,7 @@ import { OrganizationInformation } from '../../../models';
 import { Observable } from 'rxjs';
 import { BulkUploadService } from '../../../auth/services/bulk-upload.service';
 import { BulkUploadType } from '../../../utils/enums/bulk-upload-type.enum';
+import { OrganizationType } from '../../../utils/enums/organization-types.enum';
 
 @Component({
   selector: 'app-add-bulk-reads',
@@ -18,10 +19,8 @@ export class AddBulkReadsComponent implements OnInit {
   fileName = 'Please click here to select file';
   fileInfos?: Observable<any>;
   pageSize: number = 10;
-  showBulkUploadInfo: boolean = false;
-  loading: boolean = true;
-  objectKeys = Object.keys;
-  displayedColumns = [
+  showBulkUploadLogs: boolean = false;
+  bulkUploadColumns = [
     'serialNo',
     'createdAt',
     'jobId',
@@ -29,7 +28,7 @@ export class AddBulkReadsComponent implements OnInit {
     'status',
     'actions',
   ];
-  displayedColumns1 = ['error'];
+  bulkUploadLogsColumn = ['error'];
 
   constructor(
     private toasterService: ToastrService,
@@ -45,44 +44,46 @@ export class AddBulkReadsComponent implements OnInit {
   dataSource1: MatTableDataSource<any>;
   data: any;
   organizationList: any;
-  filteredOrganizationList: OrganizationInformation[] = [];
-  orgName: string;
+  filteredOrganizationsList: OrganizationInformation[] = [];
+  organizationName: string;
   organizationId: number;
   loggedInUser: any;
   ngOnInit(): void {
-    if (this.loggedInUser.role === 'Admin') {
+    if (this.loggedInUser.role === OrganizationType.Admin) {
       this.adminService.GetAllOrganization().subscribe((data) => {
         this.organizationList = data.organizations.filter(
-          (org: OrganizationInformation) => org.organizationType !== 'Buyer',
+          (org: OrganizationInformation) =>
+            org.organizationType !== OrganizationType.Buyer,
         );
-        this.filteredOrganizationList = this.organizationList;
+        this.filteredOrganizationsList = this.organizationList;
       });
-    } else if (this.loggedInUser.role === 'ApiUser') {
+    } else if (this.loggedInUser.role === OrganizationType.ApiUser) {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.organizationList = data.organizations.filter(
-          (org) => org.organizationType != 'Buyer',
+          (org) => org.organizationType != OrganizationType.Buyer,
         );
-        this.filteredOrganizationList = this.organizationList;
+        this.filteredOrganizationsList = this.organizationList;
       });
     }
-    this.bulkUploadDisplay();
+    this.displayBulkUploads();
   }
 
   filterOrgList() {
-    this.filteredOrganizationList = this.organizationList.filter(
+    this.filteredOrganizationsList = this.organizationList.filter(
       (org: OrganizationInformation) => {
-        return org.name.toLowerCase().includes(this.orgName.toLowerCase());
+        return org.name
+          .toLowerCase()
+          .includes(this.organizationName.toLowerCase());
       },
     );
   }
 
   selectOrg(event: any) {
-    const selectedCountry = this.organizationList.find(
+    const selectedOrganization = this.organizationList.find(
       (option: any) => option.name === event.option.value,
     );
-    console.log(selectedCountry);
-    if (selectedCountry) {
-      this.organizationId = selectedCountry.id;
+    if (selectedOrganization) {
+      this.organizationId = selectedOrganization.id;
     }
   }
 
@@ -101,11 +102,9 @@ export class AddBulkReadsComponent implements OnInit {
     event.target.value = '';
   }
 
-  bulkUploadDisplay() {
-    this.showBulkUploadInfo = false;
-    this.loading = true;
+  displayBulkUploads() {
+    this.showBulkUploadLogs = false;
     this.bulkUploadService.getBulkUploads().subscribe((data) => {
-      this.loading = false;
       this.data = data;
       this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
       this.dataSource.paginator = this.paginator;
@@ -119,16 +118,15 @@ export class AddBulkReadsComponent implements OnInit {
       .subscribe({
         next: (response) => {
           try {
-            console.log(response);
             const errorDetails = response.details;
             if (errorDetails && errorDetails.length > 0) {
-              this.showBulkUploadInfo = true;
+              this.showBulkUploadLogs = true;
               this.data = [errorDetails];
               this.dataSource1 = new MatTableDataSource(this.data);
               this.dataSource1.paginator = this.paginator;
             }
           } catch (error) {
-            this.showBulkUploadInfo = true;
+            this.showBulkUploadLogs = true;
             this.data = ['No logs'];
             this.dataSource1 = new MatTableDataSource(this.data);
             this.dataSource1.paginator = this.paginator;
@@ -147,26 +145,27 @@ export class AddBulkReadsComponent implements OnInit {
   }
 
   async downloadFile() {
-    await this.bulkUploadService.downloadFile();
-    this.toasterService.success('File downloaded successfully');
+    try {
+      await this.bulkUploadService.downloadFile();
+      this.toasterService.success('File downloaded successfully');
+    } catch (error) {
+      this.toasterService.error('Failed to download file');
+    }
   }
 
   upload(): void {
     if (this.currentFile) {
+      const organizationId = this.organizationId ?? this.loggedInUser.id;
       this.bulkUploadService
-        .bulkUpload(
-          this.currentFile,
-          this.organizationId ?? this.loggedInUser.id,
-          BulkUploadType.Reads,
-        )
+        .bulkUpload(this.currentFile, organizationId, BulkUploadType.Reads)
         .subscribe({
           next: () => {
-            this.bulkUploadDisplay();
+            this.displayBulkUploads();
             this.currentFile = null;
             this.fileName = 'Please click here to Select File';
             this.toasterService.success(
               'Successfully!',
-              'Devices Uploaded in Bulk!!',
+              'File Uploaded in Bulk!!',
             );
           },
           error: (err) => {

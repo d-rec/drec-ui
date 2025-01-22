@@ -44,16 +44,19 @@ export class BulkUploadService {
     }
     return this.http.get(Url);
   }
-  downloadFile(): void {
-    try {
-      const anchor = document.createElement('a');
-      anchor.href = this.filePath;
-      anchor.download = this.downloadedFileName;
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-    } catch (error) {
-      throw new Error('Error downloading file:');
-    }
+  downloadFile(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      try {
+        const anchor = document.createElement('a');
+        anchor.href = this.filePath;
+        anchor.download = this.downloadedFileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        resolve(true);
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 }
