@@ -47,7 +47,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat-openbsd curl
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: lts/iron 
           cache: npm
