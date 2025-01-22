@@ -6,6 +6,7 @@ on:
       - develop
       - stage
       - prod
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -44,7 +45,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20.14.0
+          node-version: lts/iron
           cache: npm
       - name: Clone Backend Repository
         run: |
