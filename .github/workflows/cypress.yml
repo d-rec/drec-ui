@@ -1,5 +1,4 @@
-name: Cypress CI Workflow
-
+name: Cypress E2E Workflow
 on:
   push:
     branches:
@@ -14,10 +13,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-
     env:
       MODE: dev
-      MNEMONIC: shine ability artefact river cabin copy blind hello gift hospital tenant region
+      MNEMONIC: shine ability artefact river cabin copy blind hello gift hospital
+        tenant region
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
       INFLUXDB_URL: http://localhost:8086
@@ -35,7 +34,6 @@ jobs:
       REACT_APP_BACKEND_URL: http://localhost:3040
       ADMIN_EMAIL: drec@energy.org
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -43,17 +41,19 @@ jobs:
         run: |
           npm install -g pnpm @microsoft/rush
       - name: Install System Dependencies
-        run: |
+        run: >
           sudo apt-get update
+
           sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat-openbsd curl
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: lts/iron 
+          node-version: lts/iron
           cache: npm
       - name: Clone Backend Repository
-        run: |
+        run: >
           git clone  https://github.com/d-rec/drec-origin.git projects/drec-origin
+
           chmod -R 777 projects/drec-origin
       - name: Start Docker Services
         working-directory: projects/drec-origin
