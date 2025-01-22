@@ -98,14 +98,10 @@
       <!--2st  -->
 
       <!--3rd  -->
-      <mat-expansion-panel
-        [class.mat-elevation-z0]="true"
-        *ngIf="!(loginuser.role == 'Buyer' || loginuser.role == 'SubBuyer')"
-      >
-        <mat-expansion-panel-header
-          class="mdc-button d-flex align-items-center"
-        >
-          <mat-icon>solar_power</mat-icon>
+      <mat-expansion-panel [class.mat-elevation-z0]="true"
+        *ngIf="!(loginuser.role == 'Buyer' || loginuser.role == 'SubBuyer')">
+        <mat-expansion-panel-header class="mdc-button d-flex align-items-center" data-testid="devices">
+          <mat-icon>devices</mat-icon>
           Device
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -137,13 +133,8 @@
             <!-- <mat-icon>list</mat-icon> -->
             <span>My Devices</span>
           </a>
-          <a
-            mat-button
-            class="menu-button inside-menu-button"
-            routerLinkActive="active"
-            routerLink="/device/add"
-            *ngIf="loginuser.role != 'User'"
-          >
+          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active" routerLink="/device/add"
+            *ngIf="loginuser.role !='User'" data-testid="add-devices">
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add Devices</span>
           </a>
@@ -243,14 +234,9 @@
         </mat-nav-list>
       </mat-expansion-panel>
       <!--   add Permission-->
-      <mat-expansion-panel
-        [class.mat-elevation-z0]="true"
-        *ngIf="loginuser.role === 'Admin'"
-      >
-        <mat-expansion-panel-header
-          class="mdc-button d-flex align-items-center"
-        >
-          <mat-icon>admin_panel_settings</mat-icon>
+      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role ==='Admin'">
+        <mat-expansion-panel-header class="mdc-button d-flex align-items-center" data-testid="permission">
+          <mat-icon>list</mat-icon>
           Permission
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -258,30 +244,18 @@
               <mat-icon>list</mat-icon>
               <span>My Devices</span>
             </a> -->
-          <a
-            mat-button
-            class="menu-button inside-menu-button"
-            routerLinkActive="active"
-            routerLink="/admin/permission/acl_module"
-          >
+          <a mat-button class="menu-button inside-menu-button" routerLinkActive="active"
+            routerLink="/admin/permission/acl_module" data-testid="acl_module">
             <!-- <mat-icon>list</mat-icon> -->
             <span>ACL Module</span>
           </a>
-          <a
-            mat-button
-            class="menu-button max-height-content inside-menu-button"
-            routerLinkActive="active"
-            routerLink="/admin/permission/user_role/list"
-          >
+          <a mat-button class="menu-button max-height-content inside-menu-button" routerLinkActive="active"
+            routerLink="/admin/permission/user_role/list" data-testid="user_role_permission">
             <!-- <mat-icon>list</mat-icon> -->
             <span>User Role Permission </span>
           </a>
-          <a
-            mat-button
-            class="menu-button max-height-content inside-menu-button"
-            routerLinkActive="active"
-            routerLink="/admin/permission/api_user_role/list"
-          >
+          <a mat-button class="menu-button max-height-content inside-menu-button" routerLinkActive="active"
+            routerLink="/admin/permission/api_user_role/list" data-testid="apiuser_permission">
             <!-- <mat-icon>list</mat-icon> -->
             <span>ApiUser Permission </span>
           </a>
