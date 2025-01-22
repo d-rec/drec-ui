@@ -11,7 +11,8 @@
     "prettier:fix": "prettier --write './{src,migrations,test}/**/*{.ts,.tsx}'",
     "lint": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\"",
     "lint:error": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --quiet",
-    "lint:fix": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --fix"
+    "lint:fix": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --fix",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org na-ssd --project drec-frontend ./ && sentry-cli sourcemaps upload --org na-ssd --project drec-frontend ./"
   },
   "private": true,
   "dependencies": {
@@ -30,6 +31,9 @@
     "@angular/router": "^15.0.0",
     "@energyweb/issuer": "7.0.1",
     "@energyweb/utils-general": "^11.2.3",
+    "@sentry/angular": "^8.42.0",
+    "@sentry/cli": "^2.39.1",
+    "@sentry/tracing": "^7.114.0",
     "autoprefixer": "^10.4.19",
     "bootstrap": "^5.2.3",
     "braces": "^3.0.3",
@@ -53,6 +57,7 @@
     "@types/jasmine": "~4.3.0",
     "@types/react": "^18.0.26",
     "@typescript-eslint/eslint-plugin": "^7.9.0",
+    "cypress": "^13.15.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "jasmine-core": "~4.5.0",
