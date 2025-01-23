@@ -14,7 +14,7 @@
         </p>
         <small>
           {{ loginuser.role }}
-      </small>
+        </small>
       </div>
       <mat-divider></mat-divider>
       <button
@@ -184,6 +184,16 @@
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add MeterRead</span>
+          </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="/reads/bulk-upload"
+            *ngIf="loginuser.role != 'User'"
+          >
+            <!-- <mat-icon>list</mat-icon> -->
+            <span>Bulk Upload</span>
           </a>
           <a
             mat-button

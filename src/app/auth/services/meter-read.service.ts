@@ -17,14 +17,15 @@ export class MeterReadService {
 
     return this.httpClient.post<any>(addUrl, data);
   }
+
   PostReadByAdmin(
     exterenalId: string,
     data: any,
-    orgId?: number,
+    organizationId?: number,
   ): Observable<any> {
     let addUrl = `${this.url}meter-reads/addByAdmin/new/` + exterenalId;
-    if (orgId != undefined) {
-      addUrl += `?organizationId=${orgId}`;
+    if (organizationId != undefined) {
+      addUrl += `?organizationId=${organizationId}`;
     }
     return this.httpClient.post<any>(addUrl, data);
   }

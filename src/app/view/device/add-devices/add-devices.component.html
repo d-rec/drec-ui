@@ -1,296 +1,296 @@
 <div class="body-bg">
-    <mat-card>
-        <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+  <mat-card>
+      <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
 
-            <div>
-                <h2 class="pb-0 mb-0 fw-bold text-capitalize">Device Registration
-                </h2>
-            </div>
-            <div>
-                <button class="btn btn-dark justify-content-end  d-flex align-items-center px-4" (click)="adddevice()" data-testid="add-more-devices">
-                    <mat-icon class="align-middle me-2">add_circle</mat-icon> Add More Device
-                </button>
-            </div>
-
-
-        </mat-card-header>
-        <hr class="mb-0 pb-0">
-        <form [formGroup]="myform" (ngSubmit)="onSubmit()">
-            <mat-card-content>
-                <div class="col-md-3" *ngIf="loginuser.role ==='Admin'||loginuser.role ==='ApiUser'">
-                   
-                    <mat-form-field appearance="outline">
-                        <mat-label class="text-capitalize" data-testid="Organization">Organization</mat-label>
-
-                        <input matInput [(ngModel)]="orgname" [ngModelOptions]="{ standalone: true }"
-                            [matAutocomplete]="orgAuto" (input)="filterOrgList()">
-
-                        <mat-autocomplete #orgAuto="matAutocomplete" (optionSelected)="selectOrg($event)">
-                            <mat-option *ngFor="let code of filteredOrgList" [value]="code.name">
-                                {{ code.name }}
-                            </mat-option>
-                        </mat-autocomplete>
-                    </mat-form-field>
-
-                </div>
-
-                <div formArrayName='devices'>
-                    <div *ngFor="let phone of deviceForms.controls; let i=index" [formGroupName]="i">
-                        <mat-card>
-
-                            <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
-                                <div>
-                                    <h3 class="pb-0 mb-0 fw-bold text-capitalize">Device &nbsp;{{1+i}}
-                                    </h3>
-                                </div>
-                                <div>
-                                    <button class="btn btn-danger danger-btn justify-content-end btn-sm"
-                                        (click)='deleteDevice(i)' *ngIf="deviceForms.controls.length>1">
-                                        <mat-icon class="align-middle">delete</mat-icon>
-                                    </button>
-                                </div>
-
-                            </mat-card-header>
-
-                            <hr>
-                            <mat-card-content>
-                                <div class="example-container1 row">
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize" data-testid="project-name">project Name</mat-label>
-                                            <input matInput autocomplete="off" formControlName='projectName'>
-                                            <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                                            <!-- <mat-hint>Hint</mat-hint> -->
-                                        </mat-form-field>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize" data-testid="external-id">External ID</mat-label>
-                                            <input matInput formControlName='externalId'>
-                                            <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                                            <!-- <mat-hint>contain only (a-zA-Z),(0 to 9),(-),(_) & spaces</mat-hint> -->
-                                            <!-- <mat-error class="pb-3" *ngIf="checkValidation('email')">
-                                                {{ emaiErrors() }}
-            
-                                            </mat-error> -->
-                                        </mat-form-field>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize" data-testid="select-countly">Select country </mat-label>
-                                            <input type="text" matInput formControlName='countryCodename'
-                                                [matAutocomplete]="auto">
-                                            <mat-autocomplete #auto="matAutocomplete">
-                                                <mat-option *ngFor="let code of filteredCountryList[i] | async"
-                                                    [value]="code.country" data-testid="country-options">
-                                                    {{code.country}}
-                                                </mat-option>
-                                            </mat-autocomplete>
-                                        </mat-form-field>
-                                        <mat-error *ngIf="showerror[i]" style="margin-top: -15px;" data-testid="Invalid-country"> Invalid Country
-                                            Selected </mat-error>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">Commissioning Date</mat-label>
-                                            <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-                                                formControlName="commissioningDate" [max]="maxDate"data-testid="commissioning-date">
-                                            <mat-datepicker-toggle matSuffix
-                                                [for]="$any(picker)"></mat-datepicker-toggle>
-                                            <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
-                                                [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
-                                                [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
-                                            </ngx-mat-datetime-picker>
-                                        </mat-form-field>
-                                    </div>
-                                </div>
-                                <div class="example-container1 row">
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label data-testid="capacity">Capacity(kW)</mat-label>
-                                            <input matInput type="number" formControlName='capacity' [min]=1
-                                                autocomplete="off" >
-                                            <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                                            <!-- <mat-hint>Hint</mat-hint> -->
-                                        </mat-form-field>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize" data-testid="address">Address</mat-label>
-                                            <input autocomplete="off" matInput formControlName='address'>
-                                            <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                                            <!-- <mat-hint>Hint</mat-hint> -->
-                                        </mat-form-field>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize" data-testid="latitude">Latitude</mat-label>
-                                            <input matInput formControlName='latitude' >
-                                            <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                                            <mat-error>please enter the valid value</mat-error>
-                                        </mat-form-field>
-                                    </div>
-
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize" data-testid="longitude">longitude</mat-label>
-                                            <input matInput formControlName='longitude'>
-                                            <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                                            <mat-error>please enter the valid value</mat-error>
-                                        </mat-form-field>
-                                    </div>
+          <div>
+              <h2 class="pb-0 mb-0 fw-bold text-capitalize">Device Registration
+              </h2>
+          </div>
+          <div>
+              <button class="btn btn-dark justify-content-end  d-flex align-items-center px-4" (click)="adddevice()" data-testid="add-more-devices">
+                  <mat-icon class="align-middle me-2">add_circle</mat-icon> Add More Device
+              </button>
+          </div>
 
 
+      </mat-card-header>
+      <hr class="mb-0 pb-0">
+      <form [formGroup]="myform" (ngSubmit)="onSubmit()">
+          <mat-card-content>
+              <div class="col-md-3" *ngIf="loginuser.role ==='Admin'||loginuser.role ==='ApiUser'">
+                 
+                  <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize" data-testid="Organization">Organization</mat-label>
 
-                                </div>
+                      <input matInput [(ngModel)]="orgname" [ngModelOptions]="{ standalone: true }"
+                          [matAutocomplete]="orgAuto" (input)="filterOrgList()">
 
-                                <div class="example-container1 row">
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize" data-testid="fuelcode">Fuel Code</mat-label>
+                      <mat-autocomplete #orgAuto="matAutocomplete" (optionSelected)="selectOrg($event)">
+                          <mat-option *ngFor="let code of filteredOrgList" [value]="code.name">
+                              {{ code.name }}
+                          </mat-option>
+                      </mat-autocomplete>
+                  </mat-form-field>
 
-                                            <mat-select formControlName='fuelCode'>
+              </div>
 
-                                                <mat-option *ngFor="let code of fuellist" [value]="code.code" data-testid="fuel-option">
-                                                    {{code.name}}
-                                                </mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+              <div formArrayName='devices'>
+                  <div *ngFor="let phone of deviceForms.controls; let i=index" [formGroupName]="i">
+                      <mat-card>
 
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize" data-testid="device-type">Device Type Code</mat-label>
+                          <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+                              <div>
+                                  <h3 class="pb-0 mb-0 fw-bold text-capitalize">Device &nbsp;{{1+i}}
+                                  </h3>
+                              </div>
+                              <div>
+                                  <button class="btn btn-danger danger-btn justify-content-end btn-sm"
+                                      (click)='deleteDevice(i)' *ngIf="deviceForms.controls.length>1">
+                                      <mat-icon class="align-middle">delete</mat-icon>
+                                  </button>
+                              </div>
 
-                                            <mat-select formControlName='deviceTypeCode'>
+                          </mat-card-header>
 
-                                                <mat-option *ngFor="let code of devicetypelist" [value]="code.code" data-testid="typecode-option">
-                                                    {{code.name}}
-                                                </mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize" data-testid="SDGBenefits">SDG Benefits</mat-label>
+                          <hr>
+                          <mat-card-content>
+                              <div class="example-container1 row">
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize" data-testid="project-name">project Name</mat-label>
+                                          <input matInput autocomplete="off" formControlName='projectName'>
+                                          <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                          <!-- <mat-hint>Hint</mat-hint> -->
+                                      </mat-form-field>
+                                  </div>
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize" data-testid="external-id">External ID</mat-label>
+                                          <input matInput formControlName='externalId'>
+                                          <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                          <!-- <mat-hint>contain only (a-zA-Z),(0 to 9),(-),(_) & spaces</mat-hint> -->
+                                          <!-- <mat-error class="pb-3" *ngIf="checkValidation('email')">
+                                              {{ emaiErrors() }}
+          
+                                          </mat-error> -->
+                                      </mat-form-field>
+                                  </div>
 
-                                            <mat-select formControlName="SDGBenefits" multiple>
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize" data-testid="select-countly">Select country </mat-label>
+                                          <input type="text" matInput formControlName='countryCodename'
+                                              [matAutocomplete]="auto">
+                                          <mat-autocomplete #auto="matAutocomplete">
+                                              <mat-option *ngFor="let code of filteredCountryList[i] | async"
+                                                  [value]="code.country" data-testid="country-options">
+                                                  {{code.country}}
+                                              </mat-option>
+                                          </mat-autocomplete>
+                                      </mat-form-field>
+                                      <mat-error *ngIf="showerror[i]" style="margin-top: -15px;" data-testid="Invalid-country"> Invalid Country
+                                          Selected </mat-error>
+                                  </div>
 
-                                                <mat-option *ngFor="let sdgb of sdgblist"
-                                                    [value]="sdgb.name" data-testid="SDGBenefits-option">{{sdgb.value}}</mat-option>
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize">Commissioning Date</mat-label>
+                                          <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
+                                              formControlName="commissioningDate" [max]="maxDate"data-testid="commissioning-date">
+                                          <mat-datepicker-toggle matSuffix
+                                              [for]="$any(picker)"></mat-datepicker-toggle>
+                                          <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
+                                              [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
+                                              [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
+                                          </ngx-mat-datetime-picker>
+                                      </mat-form-field>
+                                  </div>
+                              </div>
+                              <div class="example-container1 row">
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label data-testid="capacity">Capacity(kW)</mat-label>
+                                          <input matInput type="number" formControlName='capacity' [min]=1
+                                              autocomplete="off" >
+                                          <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                          <!-- <mat-hint>Hint</mat-hint> -->
+                                      </mat-form-field>
+                                  </div>
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize" data-testid="address">Address</mat-label>
+                                          <input autocomplete="off" matInput formControlName='address'>
+                                          <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                          <!-- <mat-hint>Hint</mat-hint> -->
+                                      </mat-form-field>
+                                  </div>
 
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize" data-testid="latitude">Latitude</mat-label>
+                                          <input matInput formControlName='latitude' >
+                                          <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                          <mat-error>please enter the valid value</mat-error>
+                                      </mat-form-field>
+                                  </div>
 
-                                    <!-- <mat-form-field appearance="outline">
-                                        <mat-label>Version</mat-label>
-                                        <input matInput placeholder="version" formControlName='version'>
-                                    </mat-form-field> -->
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize" data-testid="longitude">longitude</mat-label>
+                                          <input matInput formControlName='longitude'>
+                                          <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                                          <mat-error>please enter the valid value</mat-error>
+                                      </mat-form-field>
+                                  </div>
 
-                                    <div class="col-md-3">
-                                        <button
-                                            class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
-                                            (click)="addmore(i)" *ngIf="showaddmore[i]" data-testid="add-more">
-                                            Add more details <mat-icon
-                                                class="pt-2 scroll-down">keyboard_arrow_down</mat-icon>
-                                        </button>
 
-                                        <button
-                                            class="btn py-2 pb-3 fw-bold btn-outline-dark d-block w-100 text-capitalize align-middle cursor-pointer"
-                                            (click)="nomore(i)" *ngIf="shownomore[i]">
-                                            hide details <mat-icon class="pt-2 scroll-down">keyboard_arrow_up</mat-icon>
-                                        </button>
 
-                                    </div>
-                                </div>
-                                <div class="example-container1 row" *ngIf="addmoredetals[i]">
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">off Taker</mat-label>
+                              </div>
 
-                                            <mat-select formControlName='offTaker' data-testid="off-taker">
+                              <div class="example-container1 row">
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize" data-testid="fuelcode">Fuel Code</mat-label>
 
-                                                <mat-option *ngFor="let code of offtaker" [value]="code">
-                                                    {{code}}
-                                                </mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
-                                    </div>
+                                          <mat-select formControlName='fuelCode'>
 
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">Device Description</mat-label>
+                                              <mat-option *ngFor="let code of fuellist" [value]="code.code" data-testid="fuel-option">
+                                                  {{code.name}}
+                                              </mat-option>
+                                          </mat-select>
+                                      </mat-form-field>
+                                  </div>
 
-                                            <mat-select formControlName='deviceDescription' data-testid="device-description">
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize" data-testid="device-type">Device Type Code</mat-label>
 
-                                                <mat-option *ngFor="let code of devicedescription" [value]="code">
-                                                    {{code}}
-                                                </mat-option>
-                                            </mat-select>
-                                        </mat-form-field>
+                                          <mat-select formControlName='deviceTypeCode'>
 
-                                    </div>
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">impact Story</mat-label>
-                                            <input matInput formControlName='impactStory' data-testid="impact-story" autocomplete="off">
-                                        </mat-form-field>
-                                    </div>
+                                              <mat-option *ngFor="let code of devicetypelist" [value]="code.code" data-testid="typecode-option">
+                                                  {{code.name}}
+                                              </mat-option>
+                                          </mat-select>
+                                      </mat-form-field>
+                                  </div>
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize" data-testid="SDGBenefits">SDG Benefits</mat-label>
 
-                                    <div class="col-md-3">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">Quality Labels</mat-label>
-                                            <input matInput formControlName='qualityLabels' data-testid="quality">
-                                        </mat-form-field>
-                                    </div>
+                                          <mat-select formControlName="SDGBenefits" multiple>
 
-                                </div>
+                                              <mat-option *ngFor="let sdgb of sdgblist"
+                                                  [value]="sdgb.name" data-testid="SDGBenefits-option">{{sdgb.value}}</mat-option>
 
-                                <div class="example-container1 row" *ngIf="addmoredetals[i]">
-                                    <div class="col-md-3 d-flex flex-column">
-                                        <span>Grid Inter-connection:</span>
-                                        <mat-radio-group formControlName='gridInterconnection' data-testid="gridInterconnection">
-                                            <mat-radio-button [value]=true>Yes</mat-radio-button>
-                                            <mat-radio-button [value]=false>No</mat-radio-button>
-                                        </mat-radio-group>
-                                    </div>
-                                    <div class="col-md-3 d-flex flex-column">
-                                        <span>Energy Storage:</span>
-                                        <mat-radio-group formControlName='energyStorage'
-                                            (ngModelChange)="showenergycapacity_input(i,$event)" data-testid="energyStorage">
-                                            <mat-radio-button [value]=true>Yes</mat-radio-button>
-                                            <mat-radio-button [value]=false>No</mat-radio-button>
-                                        </mat-radio-group>
+                                          </mat-select>
+                                      </mat-form-field>
+                                  </div>
 
-                                    </div>
+                                  <!-- <mat-form-field appearance="outline">
+                                      <mat-label>Version</mat-label>
+                                      <input matInput placeholder="version" formControlName='version'>
+                                  </mat-form-field> -->
 
-                                    <div class="col-md-3" *ngIf="showinput[i]">
-                                        <mat-form-field appearance="outline">
-                                            <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
-                                            <input matInput autocomplete="off" type="number"
-                                                formControlName='energyStorageCapacity' data-testid="energy-storage"> 
-                                        </mat-form-field>
-                                    </div>
-                                </div>
+                                  <div class="col-md-3">
+                                      <button
+                                          class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
+                                          (click)="addmore(i)" *ngIf="showaddmore[i]" data-testid="add-more">
+                                          Add more details <mat-icon
+                                              class="pt-2 scroll-down">keyboard_arrow_down</mat-icon>
+                                      </button>
 
-                            </mat-card-content>
-                            <!-- <mat-card-footer></mat-card-footer> -->
-                        </mat-card>
-                    </div>
-                </div>
-            </mat-card-content>
-            <mat-card-footer>
-                <div class="example-container mt-3  ">
-                    <div class="col-12 d-flex justify-content-end">
-                        <button type="submit" class="btn-primary btn text-capitalize px-4"
-                            [disabled]="myform.invalid" data-testid="submit-device">Submit</button>
-                    </div>
-                </div>
-            </mat-card-footer>
-        </form>
-    </mat-card>
+                                      <button
+                                          class="btn py-2 pb-3 fw-bold btn-outline-dark d-block w-100 text-capitalize align-middle cursor-pointer"
+                                          (click)="nomore(i)" *ngIf="shownomore[i]">
+                                          hide details <mat-icon class="pt-2 scroll-down">keyboard_arrow_up</mat-icon>
+                                      </button>
+
+                                  </div>
+                              </div>
+                              <div class="example-container1 row" *ngIf="addmoredetals[i]">
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize">off Taker</mat-label>
+
+                                          <mat-select formControlName='offTaker' data-testid="off-taker">
+
+                                              <mat-option *ngFor="let code of offtaker" [value]="code">
+                                                  {{code}}
+                                              </mat-option>
+                                          </mat-select>
+                                      </mat-form-field>
+                                  </div>
+
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize">Device Description</mat-label>
+
+                                          <mat-select formControlName='deviceDescription' data-testid="device-description">
+
+                                              <mat-option *ngFor="let code of devicedescription" [value]="code">
+                                                  {{code}}
+                                              </mat-option>
+                                          </mat-select>
+                                      </mat-form-field>
+
+                                  </div>
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize">impact Story</mat-label>
+                                          <input matInput formControlName='impactStory' data-testid="impact-story" autocomplete="off">
+                                      </mat-form-field>
+                                  </div>
+
+                                  <div class="col-md-3">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize">Quality Labels</mat-label>
+                                          <input matInput formControlName='qualityLabels' data-testid="quality">
+                                      </mat-form-field>
+                                  </div>
+
+                              </div>
+
+                              <div class="example-container1 row" *ngIf="addmoredetals[i]">
+                                  <div class="col-md-3 d-flex flex-column">
+                                      <span>Grid Inter-connection:</span>
+                                      <mat-radio-group formControlName='gridInterconnection' data-testid="gridInterconnection">
+                                          <mat-radio-button [value]=true>Yes</mat-radio-button>
+                                          <mat-radio-button [value]=false>No</mat-radio-button>
+                                      </mat-radio-group>
+                                  </div>
+                                  <div class="col-md-3 d-flex flex-column">
+                                      <span>Energy Storage:</span>
+                                      <mat-radio-group formControlName='energyStorage'
+                                          (ngModelChange)="showenergycapacity_input(i,$event)" data-testid="energyStorage">
+                                          <mat-radio-button [value]=true>Yes</mat-radio-button>
+                                          <mat-radio-button [value]=false>No</mat-radio-button>
+                                      </mat-radio-group>
+
+                                  </div>
+
+                                  <div class="col-md-3" *ngIf="showinput[i]">
+                                      <mat-form-field appearance="outline">
+                                          <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
+                                          <input matInput autocomplete="off" type="number"
+                                              formControlName='energyStorageCapacity' data-testid="energy-storage"> 
+                                      </mat-form-field>
+                                  </div>
+                              </div>
+
+                          </mat-card-content>
+                          <!-- <mat-card-footer></mat-card-footer> -->
+                      </mat-card>
+                  </div>
+              </div>
+          </mat-card-content>
+          <mat-card-footer>
+              <div class="example-container mt-3  ">
+                  <div class="col-12 d-flex justify-content-end">
+                      <button type="submit" class="btn-primary btn text-capitalize px-4"
+                          [disabled]="myform.invalid" data-testid="submit-device">Submit</button>
+                  </div>
+              </div>
+          </mat-card-footer>
+      </form>
+  </mat-card>
 </div>
