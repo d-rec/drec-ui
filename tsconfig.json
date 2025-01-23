@@ -22,15 +22,9 @@
     "allowSyntheticDefaultImports": true,
     "useDefineForClassFields": false,
     "strictPropertyInitialization": false,
-    "lib": [
-      "ES2022",
-      "dom"
-    ]
+    "lib": ["ES2022", "dom"]
   },
-  "include": [
-    "src",
-    "global.d.ts"
-  ],
+  "include": ["src", "global.d.ts"],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
