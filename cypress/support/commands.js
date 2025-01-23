@@ -131,6 +131,7 @@ Cypress.Commands.add('add_device', function () {
     if (step.action === "type") {
       return cy.get(step.selector).should('be.visible').type(step.value);
     }
+    
     if (step.action === "write") {
       return cy.get(step.selector)
       .should('be.visible') 
