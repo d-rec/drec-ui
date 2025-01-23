@@ -56,4 +56,4 @@
     action: 'click',
     selector: '[data-testid="continue-reservation"]',
   },
-];
+]
