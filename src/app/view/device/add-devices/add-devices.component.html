@@ -144,38 +144,68 @@
                     </mat-error>
                   </div>
 
-                                  <div class="col-md-3">
-                                      <mat-form-field appearance="outline">
-                                          <mat-label class="text-capitalize">Commissioning Date</mat-label>
-                                          <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-                                              formControlName="commissioningDate" [max]="maxDate"data-testid="commissioning-date">
-                                          <mat-datepicker-toggle matSuffix
-                                              [for]="$any(picker)"></mat-datepicker-toggle>
-                                          <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false"
-                                              [stepHour]="1" [stepMinute]="1" [stepSecond]="1" [touchUi]="false"
-                                              [enableMeridian]="false" [disableMinute]="false" [hideTime]="false">
-                                          </ngx-mat-datetime-picker>
-                                      </mat-form-field>
-                                  </div>
-                              </div>
-                              <div class="example-container1 row">
-                                  <div class="col-md-3">
-                                      <mat-form-field appearance="outline">
-                                          <mat-label data-testid="capacity">Capacity(kW)</mat-label>
-                                          <input matInput type="number" formControlName='capacity' [min]=1
-                                              autocomplete="off" >
-                                          <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                                          <!-- <mat-hint>Hint</mat-hint> -->
-                                      </mat-form-field>
-                                  </div>
-                                  <div class="col-md-3">
-                                      <mat-form-field appearance="outline">
-                                          <mat-label class="text-capitalize" data-testid="address">Address</mat-label>
-                                          <input autocomplete="off" matInput formControlName='address'>
-                                          <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                                          <!-- <mat-hint>Hint</mat-hint> -->
-                                      </mat-form-field>
-                                  </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize"
+                        >Commissioning Date</mat-label
+                      >
+                      <input
+                        matInput
+                        [ngxMatDatetimePicker]="picker"
+                        placeholder="Choose a date"
+                        formControlName="commissioningDate"
+                        [max]="maxDate"
+                        data-testid="commissioning-date"
+                      />
+                      <mat-datepicker-toggle
+                        matSuffix
+                        [for]="$any(picker)"
+                      ></mat-datepicker-toggle>
+                      <ngx-mat-datetime-picker
+                        #picker
+                        [showSpinners]="true"
+                        [showSeconds]="false"
+                        [stepHour]="1"
+                        [stepMinute]="1"
+                        [stepSecond]="1"
+                        [touchUi]="false"
+                        [enableMeridian]="false"
+                        [disableMinute]="false"
+                        [hideTime]="false"
+                      >
+                      </ngx-mat-datetime-picker>
+                    </mat-form-field>
+                  </div>
+                </div>
+                <div class="example-container1 row">
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label data-testid="capacity">Capacity(kW)</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        formControlName="capacity"
+                        [min]="1"
+                        autocomplete="off"
+                      />
+                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                      <!-- <mat-hint>Hint</mat-hint> -->
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize" data-testid="address"
+                        >Address</mat-label
+                      >
+                      <input
+                        autocomplete="off"
+                        matInput
+                        formControlName="address"
+                      />
+                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                      <!-- <mat-hint>Hint</mat-hint> -->
+                    </mat-form-field>
+                  </div>
 
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">

@@ -47,4 +47,4 @@
     action: 'click',
     selector: '[data-testid="submitRead"]',
   },
-]
+];
