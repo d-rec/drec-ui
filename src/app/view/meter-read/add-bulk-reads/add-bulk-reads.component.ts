@@ -44,7 +44,7 @@ export class AddBulkReadsComponent implements OnInit {
   dataSource1: MatTableDataSource<any>;
   data: any;
   organizationList: any;
-  filteredOrganizationsList: OrganizationInformation[] = [];
+  filteredOrganizations: OrganizationInformation[] = [];
   organizationName: string;
   organizationId: number;
   loggedInUser: any;
@@ -52,33 +52,34 @@ export class AddBulkReadsComponent implements OnInit {
     if (this.loggedInUser.role === OrganizationType.Admin) {
       this.adminService.GetAllOrganization().subscribe((data) => {
         this.organizationList = data.organizations.filter(
-          (org: OrganizationInformation) =>
-            org.organizationType !== OrganizationType.Buyer,
+          (organization: OrganizationInformation) =>
+            organization.organizationType !== OrganizationType.Buyer,
         );
-        this.filteredOrganizationsList = this.organizationList;
+        this.filteredOrganizations = this.organizationList;
       });
     } else if (this.loggedInUser.role === OrganizationType.ApiUser) {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.organizationList = data.organizations.filter(
-          (org) => org.organizationType != OrganizationType.Buyer,
+          (organization) =>
+            organization.organizationType != OrganizationType.Buyer,
         );
-        this.filteredOrganizationsList = this.organizationList;
+        this.filteredOrganizations = this.organizationList;
       });
     }
     this.displayBulkUploads();
   }
 
-  filterOrgList() {
-    this.filteredOrganizationsList = this.organizationList.filter(
-      (org: OrganizationInformation) => {
-        return org.name
+  filterOrganization() {
+    this.filteredOrganizations = this.organizationList.filter(
+      (organization: OrganizationInformation) => {
+        return organization.name
           .toLowerCase()
           .includes(this.organizationName.toLowerCase());
       },
     );
   }
 
-  selectOrg(event: any) {
+  selectOrganization(event: any) {
     const selectedOrganization = this.organizationList.find(
       (option: any) => option.name === event.option.value,
     );

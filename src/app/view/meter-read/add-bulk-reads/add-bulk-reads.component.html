@@ -42,14 +42,14 @@
                 [(ngModel)]="organizationName"
                 [ngModelOptions]="{ standalone: true }"
                 [matAutocomplete]="orgAuto"
-                (input)="filterOrgList()"
+                (input)="filterOrganization()"
               />
               <mat-autocomplete
                 #orgAuto="matAutocomplete"
-                (optionSelected)="selectOrg($event)"
+                (optionSelected)="selectOrganization($event)"
               >
                 <mat-option
-                  *ngFor="let code of filteredOrganizationsList"
+                  *ngFor="let code of filteredOrganizations"
                   [value]="code.name"
                 >
                   {{ code.name }}
