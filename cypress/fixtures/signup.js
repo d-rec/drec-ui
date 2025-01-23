@@ -76,4 +76,4 @@
     action: 'click',
     selector: '[data-testid="submitReg"]',
   },
-];
+]
