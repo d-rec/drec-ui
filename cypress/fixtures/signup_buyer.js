@@ -94,4 +94,4 @@
     selector: '[data-testid="submitReg"]',
     log: 'Button clicked successfully',
   },
-]
+];

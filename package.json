@@ -37,7 +37,6 @@
     "autoprefixer": "^10.4.19",
     "bootstrap": "^5.2.3",
     "braces": "^3.0.3",
-    "dotenv": "^16.4.5",
     "ethers": "^5.7.2",
     "express": "^4.19.2",
     "follow-redirects": "^1.15.6",
