@@ -18,7 +18,6 @@ $danger: #f44336;
         padding-left: 3px;
       }
     }
-
   }
 
   .mat-mdc-card {
@@ -85,7 +84,6 @@ tr.example-element-row:not(.example-expanded-row):active {
 }
 
 .example-card1 {
-
   width: 100%;
 }
 
@@ -93,8 +91,6 @@ tr.example-element-row:not(.example-expanded-row):active {
   background-image: url('https://material.angular.io/assets/img/examples/shiba1.jpg');
   background-size: cover;
 }
-
-
 
 .innermat-card {
   border: 1px $gray solid;
@@ -105,7 +101,7 @@ tr.example-element-row:not(.example-expanded-row):active {
 //   background: #12121212;
 //   padding: 10px 5px;
 //   color:rgb(228, 67, 67);
-// } 
+// }
 mat-card-content {
   padding: 10px;
 }
@@ -150,7 +146,6 @@ mat-card-content {
 .group-id {
   display: flex;
   justify-content: center;
-
 }
 
 .certificate-text {
@@ -163,7 +158,6 @@ mat-card-content {
     width: 74px;
     height: 76px;
   }
-
 }
 
 .group-name-text {
@@ -172,7 +166,6 @@ mat-card-content {
   font-family: serif !important;
   font-size: 25px;
   font-weight: bold;
-
 }
 
 .button-click-here {
@@ -491,7 +484,7 @@ mat-card-content {
   background-color: #ef5da8;
 }
 
-// this is for spinner 
+// this is for spinner
 mat-progress-spinner {
   // position: absolute;
   top: 50%;
@@ -512,7 +505,7 @@ mat-slider {
 }
 
 .sliderexample-margin {
-  margin: 10px 0px 0px 10px
+  margin: 10px 0px 0px 10px;
 }
 
 .pagenumber {
