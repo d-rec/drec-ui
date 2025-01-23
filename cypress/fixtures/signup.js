@@ -1,84 +1,79 @@
 [
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="firstName"]',
-    value: 'testReadsi'
+    value: 'testReadsi',
   },
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="lastName"]',
-    value: 'testorsis'
+    value: 'testorsis',
   },
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="email"]',
-    value: 'testoris@energy.org'
+    value: 'testoris@energy.org',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="userInfo"]',
-    
   },
   {
-    action: "select",
+    action: 'select',
     selector: '[data-testid="organizationType"]',
-    value:"Developer"
+    value: 'Developer',
   },
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="orgName"]',
-    value: 'developeriss'
+    value: 'developeriss',
   },
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="orgAddress"]',
-    value: 'QAtestis'
+    value: 'QAtestis',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="nextToPassword"]',
-    
   },
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="password"]',
-    value: '1234Test@tst'
+    value: '1234Test@tst',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="icon-eye"]',
   },
   {
-    action: "type",
+    action: 'type',
     selector: '[data-testid="confirmPassword"]',
-    value: '1234Test@tst'
+    value: '1234Test@tst',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="hideConfPwd"]',
-    
   },
-  
+
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="backToOrg"]',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="backToInfo"]',
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="userInfo"]',
-    
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="nextToPassword"]',
-    
   },
   {
-    action: "click",
+    action: 'click',
     selector: '[data-testid="submitReg"]',
-  }
-  ]
+  },
+]

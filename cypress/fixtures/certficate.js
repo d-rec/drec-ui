@@ -7,4 +7,4 @@
     action: 'click',
     selector: '[data-testid="certificate"]',
   },
-];
+]
