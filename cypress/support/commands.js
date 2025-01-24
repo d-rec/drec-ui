@@ -281,7 +281,6 @@ Cypress.Commands.add('add_reservation', function () {
         return cy
           .get(step.selector)
           .click({ force: true })
-          .wait(6000)
           .get(step.option)
           .should('have.length.greaterThan', 0)
           .eq(0)
