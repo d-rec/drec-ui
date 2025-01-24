@@ -27,6 +27,16 @@
     selector: '[data-testid="permission-check"]',
     contains: 'DEVICE_MANAGEMENT_CRUDL',
   },
+  {
+    action: 'check',
+    selector: '[data-testid="module-check"]',
+    index: 6,
+  },
+  {
+    action: 'check-multiple',
+    selector: '[data-testid="permission-check"]',
+    contains: 'READS_MANAGEMENT_CRUDL',
+  },
 
   {
     action: 'submit',
