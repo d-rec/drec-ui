@@ -70,37 +70,44 @@
 .login-wrapper .mat-stroked-button {
   border: 1px solid currentColor;
   line-height: 54px;
-  background: #FFF7FA;
+  background: #fff7fa;
 }
 
 .login-wrapper .mat-form-field-appearance-legacy .mat-form-field-infix {
   padding: 0.8375em 0;
 }
 
-
-
-// Body Background 
+// Body Background
 ::ng-deep body {
   height: 100vh;
   background: rgb(254, 240, 73);
-  background: -moz-linear-gradient(144deg, rgba(254, 240, 73, 1) 0%, rgba(242, 196, 26, 1) 48%);
-  background: -webkit-linear-gradient(144deg, rgba(254, 240, 73, 1) 0%, rgba(242, 196, 26, 1) 48%);
-  background: linear-gradient(144deg, rgba(254, 240, 73, 1) 0%, rgba(242, 196, 26, 1) 48%);
+  background: -moz-linear-gradient(
+    144deg,
+    rgba(254, 240, 73, 1) 0%,
+    rgba(242, 196, 26, 1) 48%
+  );
+  background: -webkit-linear-gradient(
+    144deg,
+    rgba(254, 240, 73, 1) 0%,
+    rgba(242, 196, 26, 1) 48%
+  );
+  background: linear-gradient(
+    144deg,
+    rgba(254, 240, 73, 1) 0%,
+    rgba(242, 196, 26, 1) 48%
+  );
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#fef049", endColorstr="#f2c41a", GradientType=1);
   overflow: auto;
 }
-
 
 .h-100vh {
   height: 100vh;
 }
 
 .drec-login {
-
   .mat-mdc-card {
     border-radius: 10px !important;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    ;
   }
 
   .form-content input,
@@ -114,7 +121,7 @@
     background-color: #fff;
     font-size: 15px;
     font-weight: 300;
-    color: #8D8D8D;
+    color: #8d8d8d;
     -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;
     margin-bottom: 14px;
@@ -126,10 +133,8 @@
   .form-content .dropdown-toggle.btn-default:focus {
     border: 0;
     background-color: #ebeff8;
-    color: #8D8D8D;
+    color: #8d8d8d;
   }
-
-
 }
 
 .mat-mdc-form-field {
@@ -137,7 +142,7 @@
 }
 
 .bg-solar {
-  background-image: url("../../../assets/images/solar-image.jpg");
+  background-image: url('../../../assets/images/solar-image.jpg');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;
@@ -148,10 +153,9 @@
   height: 100vh;
 }
 
-.form-scroll
-{
+.form-scroll {
   height: 200px;
-  overflow-y:scroll ;
+  overflow-y: scroll;
 }
 .example-stepper {
   margin-top: 8px;
@@ -161,33 +165,30 @@
   margin-top: 16px;
 }
 
-
-.font-siz-cont{
+.font-siz-cont {
   font-size: 12px !important;
 }
-.mat-labels-cont{
+.mat-labels-cont {
   font-size: 10px !important;
 }
-.password-desc{
+.password-desc {
   font-size: 10px !important;
   letter-spacing: 0px;
   white-space: nowrap;
 }
-.secret-desc{
+.secret-desc {
   font-size: 10px !important;
 }
-.icon-eye{
+.icon-eye {
   font-size: 10px !important;
 }
-.icon-eye{
-  .mat-icon{
+.icon-eye {
+  .mat-icon {
     height: 55px !important;
     font-size: 18px !important;
-  
   }
-
 }
-.value-fs{
+.value-fs {
   font-size: 17px !important;
 }
 
@@ -213,4 +214,3 @@
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
-

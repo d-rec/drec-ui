@@ -1,43 +1,54 @@
 <div class="body-bg">
-  
-    <mat-card>
-      <mat-card-header class="d-flex mb-3 justify-content-between mat-crd-hide align-items-center ">
-  
-        <div>
-          <mat-card-title>
-            <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">Meter Read List
-            </h2>
+  <mat-card>
+    <mat-card-header
+      class="d-flex mb-3 justify-content-between mat-crd-hide align-items-center"
+    >
+      <div>
+        <mat-card-title>
+          <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">
+            Meter Read List
+          </h2>
         </mat-card-title>
-        </div>
-       
-      
-  
+      </div>
     </mat-card-header>
-    <hr class="mt-0 pt-0">
-      
-      <mat-card-content class="mat-body-cont text-center" >
+    <hr class="mt-0 pt-0" />
 
-        <form [formGroup]="FilterForm" *ngIf="showfilterform">
-            <div class="example-container1 row" *ngIf="loginuser.role ==='Admin'||loginuser.role ==='ApiUser'">
-                <p>Select Organization</p>
-            <div class="col-md-3" >
-                <mat-form-field appearance="outline">
-                    <mat-label class="text-capitalize">Organization</mat-label>
+    <mat-card-content class="mat-body-cont text-center">
+      <form [formGroup]="FilterForm" *ngIf="showfilterform">
+        <div
+          class="example-container1 row"
+          *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
+        >
+          <p>Select Organization</p>
+          <div class="col-md-3">
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">Organization</mat-label>
 
-                    <input matInput [(ngModel)]="orgname" [ngModelOptions]="{ standalone: true }"
-                        [matAutocomplete]="orgAuto" (input)="filterOrgList()">
+              <input
+                matInput
+                [(ngModel)]="orgname"
+                [ngModelOptions]="{ standalone: true }"
+                [matAutocomplete]="orgAuto"
+                (input)="filterOrgList()"
+              />
 
-                    <mat-autocomplete #orgAuto="matAutocomplete" (optionSelected)="selectOrg($event)">
-                        <mat-option *ngFor="let code of filteredOrgList" [value]="code.name">
-                            {{ code.name }}
-                        </mat-option>
-                    </mat-autocomplete>
-                </mat-form-field>
-            </div>
-            </div>
-            <div class="example-container1 row">
-              <div class="col-md-4" >
-                <!-- <mat-form-field appearance="outline">
+              <mat-autocomplete
+                #orgAuto="matAutocomplete"
+                (optionSelected)="selectOrg($event)"
+              >
+                <mat-option
+                  *ngFor="let code of filteredOrgList"
+                  [value]="code.name"
+                >
+                  {{ code.name }}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="example-container1 row">
+          <div class="col-md-4">
+            <!-- <mat-form-field appearance="outline">
                     <mat-label class="text-capitalize">ExternalId</mat-label>
                     <input [(ngModel)]="exterenalId"  type="text"> 
                     <input matInput placeholder="name" [(ngModel)]="exterenalId" [ngModelOptions]="{standalone: true}">
@@ -47,37 +58,61 @@
                         </mat-option>
                     </mat-select>
                 </mat-form-field> -->
-               
-                <mat-form-field appearance="outline" *ngIf="loginuser.role!='Admin'">
-                    <mat-label class="text-capitalize">External ID</mat-label>
-                    <input matInput formControlName='externalId' [matAutocomplete]="auto"
-                        placeholder="Search External ID" [value]="selectedResult?.externalId">
-                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSelect($event.option.value)">
-                        <mat-option *ngFor="let result of filteredexternalIdOptions | async" [value]="result">
-                            {{ result.externalId }}
-                        </mat-option>
 
-                    </mat-autocomplete>
+            <mat-form-field
+              appearance="outline"
+              *ngIf="loginuser.role != 'Admin'"
+            >
+              <mat-label class="text-capitalize">External ID</mat-label>
+              <input
+                matInput
+                formControlName="externalId"
+                [matAutocomplete]="auto"
+                placeholder="Search External ID"
+                [value]="selectedResult?.externalId"
+              />
+              <mat-autocomplete
+                #auto="matAutocomplete"
+                (optionSelected)="onSelect($event.option.value)"
+              >
+                <mat-option
+                  *ngFor="let result of filteredexternalIdOptions | async"
+                  [value]="result"
+                >
+                  {{ result.externalId }}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+            <mat-form-field
+              appearance="outline"
+              *ngIf="loginuser.role === 'Admin'"
+            >
+              <mat-label class="text-capitalize">External ID</mat-label>
+              <input
+                matInput
+                formControlName="externalId"
+                [matAutocomplete]="auto"
+                placeholder="Search External ID"
+                [value]="selectedResult?.externalId"
+              />
 
+              <mat-autocomplete
+                #auto="matAutocomplete"
+                (optionSelected)="onSelect($event.option.value)"
+              >
+                <mat-option
+                  *ngFor="let result of filteredexternalIdOptions | async"
+                  [value]="result"
+                >
+                  {{ result.developerExternalId }}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+            <mat-error *ngIf="showerrorexternalid" style="margin-top: -15px">
+              Invalid externalId
+            </mat-error>
 
-                </mat-form-field>
-                <mat-form-field appearance="outline" *ngIf="loginuser.role==='Admin'">
-                    <mat-label class="text-capitalize">External ID</mat-label>
-                    <input matInput formControlName='externalId' [matAutocomplete]="auto"
-                        placeholder="Search External ID" [value]="selectedResult?.externalId">
-
-
-                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onSelect($event.option.value)">
-                        <mat-option *ngFor="let result of filteredexternalIdOptions | async" [value]="result">
-                            {{ result.developerExternalId }}
-                        </mat-option>
-
-                    </mat-autocomplete>
-                </mat-form-field>
-                <mat-error *ngIf="showerrorexternalid" style="margin-top: -15px;"> Invalid externalId
-                </mat-error>
-
-                    <!-- <mat-form-field appearance="outline">
+            <!-- <mat-form-field appearance="outline">
                         <mat-label class="text-capitalize">External ID</mat-label>
                         <input matInput formControlName='externalId'  [matAutocomplete]="auto" placeholder="Search External ID" (input)="search()" [value]="selectedResult?.externalId">
                         <mat-autocomplete #auto="matAutocomplete"  (optionSelected)="onSelect($event.option.value)">
@@ -88,7 +123,7 @@
                       </mat-form-field>
                       <mat-error *ngIf="showerrorexternalid" style="margin-top: -15px;"> Invalid externalId  </mat-error>
         -->
-                  <!-- <mat-form-field appearance="outline">
+            <!-- <mat-form-field appearance="outline">
                     <mat-label class="text-capitalize">External ID</mat-label>
                     <input matInput formControlName='externalId'  [matAutocomplete]="auto" placeholder="Search External ID" (input)="search()" [value]="selectedResult?.externalId">
                     <mat-autocomplete #auto="matAutocomplete"  (optionSelected)="onSelect($event.option.value)">
@@ -99,8 +134,8 @@
                   </mat-form-field>
                   <mat-error *ngIf="showerrorexternalid" style="margin-top: -15px;"> Invalid externalId 
                  </mat-error> -->
-            </div>
-            <!-- <div class="col-md-4" *ngIf="loginuser.role !='OrganizationAdmin'">
+          </div>
+          <!-- <div class="col-md-4" *ngIf="loginuser.role !='OrganizationAdmin'">
               <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize">ExternalId</mat-label>
                 
@@ -111,53 +146,94 @@
                   </mat-select>
               </mat-form-field>
           </div> -->
-                <div class="col-md-4">
-                    <mat-form-field appearance="outline">
-                        <mat-label class="text-capitalize">Start Date </mat-label>
-                        <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-                            formControlName="start" autocomplete="off" (ngModelChange)="onEndChangeEvent($event)"
-                            >
-                        <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-                        <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
-                            [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
-                            [disableMinute]="false" [hideTime]="false">
-                        </ngx-mat-datetime-picker>
-                    </mat-form-field>
-                </div>
-                <div class="col-md-4">
-                    <mat-form-field appearance="outline">
-                        <mat-label class="text-capitalize">End Date </mat-label>
-                        <input matInput [ngxMatDatetimePicker]="picker1" placeholder="Choose a date"
-                            formControlName="end" [min]="endminDate" autocomplete="off">
-                        <mat-datepicker-toggle matSuffix [for]="$any(picker1)"></mat-datepicker-toggle>
-                        <ngx-mat-datetime-picker #picker1 [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
-                            [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
-                            [disableMinute]="false" [hideTime]="false">
-                        </ngx-mat-datetime-picker>
-                        <!-- <mat-error *ngIf="checkValidation('endtimestamp')">
+          <div class="col-md-4">
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">Start Date </mat-label>
+              <input
+                matInput
+                [ngxMatDatetimePicker]="picker"
+                placeholder="Choose a date"
+                formControlName="start"
+                autocomplete="off"
+                (ngModelChange)="onEndChangeEvent($event)"
+              />
+              <mat-datepicker-toggle
+                matSuffix
+                [for]="$any(picker)"
+              ></mat-datepicker-toggle>
+              <ngx-mat-datetime-picker
+                #picker
+                [showSpinners]="true"
+                [showSeconds]="false"
+                [stepHour]="1"
+                [stepMinute]="1"
+                [stepSecond]="1"
+                [touchUi]="false"
+                [enableMeridian]="false"
+                [disableMinute]="false"
+                [hideTime]="false"
+              >
+              </ngx-mat-datetime-picker>
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">End Date </mat-label>
+              <input
+                matInput
+                [ngxMatDatetimePicker]="picker1"
+                placeholder="Choose a date"
+                formControlName="end"
+                [min]="endminDate"
+                autocomplete="off"
+              />
+              <mat-datepicker-toggle
+                matSuffix
+                [for]="$any(picker1)"
+              ></mat-datepicker-toggle>
+              <ngx-mat-datetime-picker
+                #picker1
+                [showSpinners]="true"
+                [showSeconds]="false"
+                [stepHour]="1"
+                [stepMinute]="1"
+                [stepSecond]="1"
+                [touchUi]="false"
+                [enableMeridian]="false"
+                [disableMinute]="false"
+                [hideTime]="false"
+              >
+              </ngx-mat-datetime-picker>
+              <!-- <mat-error *ngIf="checkValidation('endtimestamp')">
                        <b> {{getErrorcheckdatavalidation()}}</b>
                       </mat-error> -->
-                    </mat-form-field>
-                </div>
+            </mat-form-field>
+          </div>
 
-                <div class="d-flex align-items-center justify-content-end">
-                    <div class="me-3">
-                        <button class="btn-primary btn text-capitalize px-4"
-                            (click)="getPagedData()">Filter</button>
-                    </div>
-                    <div class="">
-                        <button class="btn-dark btn text-capitalize px-4"
-                            (click)="reset()">Reset</button>
-                    </div>
-                </div>
-                
-
+          <div class="d-flex align-items-center justify-content-end">
+            <div class="me-3">
+              <button
+                class="btn-primary btn text-capitalize px-4"
+                (click)="getPagedData()"
+              >
+                Filter
+              </button>
             </div>
-        </form>
-        <hr>
-        <!-- <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner> -->
-    <app-meter-read-table ></app-meter-read-table>
-      </mat-card-content>
-      <mat-card-footer></mat-card-footer>
-    </mat-card>
-  </div>
+            <div class="">
+              <button
+                class="btn-dark btn text-capitalize px-4"
+                (click)="reset()"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+      <hr />
+      <!-- <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner> -->
+      <app-meter-read-table></app-meter-read-table>
+    </mat-card-content>
+    <mat-card-footer></mat-card-footer>
+  </mat-card>
+</div>
