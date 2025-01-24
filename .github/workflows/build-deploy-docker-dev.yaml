@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - develop
-      - ft/move-deployment-to-gh-actions
   workflow_dispatch:
 
 jobs:
   build:
-    uses: d-rec/drec-ui/.github/workflows/build-docker-ecr.yaml@ft/move-deployment-to-gh-actions
+    uses: d-rec/drec-ui/.github/workflows/build-docker-ecr.yaml@develop
     with:
       environment: dev
     secrets:
@@ -20,7 +19,7 @@ jobs:
 
   deploy:
     needs: build
-    uses: d-rec/drec-ui/.github/workflows/deploy-ecr-k8s.yaml@ft/move-deployment-to-gh-actions
+    uses: d-rec/drec-ui/.github/workflows/deploy-ecr-k8s.yaml@develop
     with:
       environment: dev
     secrets:
