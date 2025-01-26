@@ -228,6 +228,16 @@
         </div>
       </form>
       <hr />
+      <mat-form-field>
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-label>Search</mat-label>
+        <input
+          matInput
+          (keyup)="applyFilter($event)"
+          placeholder="Search with device external id"
+          #input
+        />
+      </mat-form-field>
       <mat-progress-spinner
         [mode]="'indeterminate'"
         *ngIf="loading"
