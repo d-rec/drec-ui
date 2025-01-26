@@ -114,6 +114,7 @@ export class AddreadComponent implements OnInit {
       },
       {
         validators: (control: FormGroup) => {
+
           const startTimestampControl = control.get('starttimestamp');
           const endTimestampControl = control.get('endtimestamp');
 
@@ -389,21 +390,24 @@ export class AddreadComponent implements OnInit {
   }
 
   onChangeEvent(event: any) {
-    if (event === 'Delta' || event === 'Aggregate') {
+   if (event === 'Delta' || event === 'Aggregate') {
+    this.hidestarttime = event === 'Delta';
       this.endmaxdate = new Date();
-      this.endminDate = this.devicecreateddate;
+      this.endminDate = this.lastreaddate;
+      this.startminDate = this.lastreaddate ? new Date(this.lastreaddate) : this.devicecreateddate;
+      this.startmaxDate = new Date();
       if (this.readForm.value.timezone != null) {
         this.endmaxdate = new Date(
           momentTimeZone
-            .tz(new Date(), this.readForm.value.timezone)
-            .format('YYYY-MM-DDTHH:mm:ss'),
+          .tz(new Date(), this.readForm.value.timezone)
+          .format('YYYY-MM-DDTHH:mm:ss'),
         );
+        console.log("endmaxxxxxxx",this.endmaxdate)
       }
-      this.hidestarttime = false;
-    } else {
+  } else {
       if (
         new Date(this.commissioningDate).getTime() >
-        new Date(this.historyAge).getTime()
+       new Date(this.historyAge).getTime()
       ) {
         this.startminDate = this.commissioningDate;
         this.endminDate = this.commissioningDate;
@@ -418,10 +422,12 @@ export class AddreadComponent implements OnInit {
       this.hidestarttime = true;
     }
   }
-  onEndChangeEvent(event: any) {
-    this.endmaxdate = this.devicecreateddate;
-    this.endminDate = event;
-  }
+  // onEndChangeEvent(event: any) {
+  //   this.endmaxdate = this.devicecreateddate;
+  //   this.endminDate = event;
+  //   // this.endmaxdate = event;
+  //   // this.endminDate = this.devicecreateddate;
+  // }
 
   getErrorcheckdatavalidation() {
     return this.readForm.controls['reads']
@@ -478,13 +484,20 @@ export class AddreadComponent implements OnInit {
         myobj['unit'] = this.readForm.value.unit;
         const newreads: any = [];
         this.readForm.value.reads.forEach((ele: any) => {
+          const read= this.readService.Getlastread(externalId).subscribe({
+            next: (data) => {
+              this.lastreaddate = data.enddate;
+              console.log("222222222",this.lastreaddate);
+              
+              this.lastreadvalue = data.value;
+            },})
+            console.log("1111111111111111111",read);
           newreads.push({
-            starttimestamp: '',
-            endtimestamp: moment(ele.endtimestamp).format(
-              'YYYY-MM-DD HH:mm:ss',
-            ),
+            starttimestamp:  ele.starttimestamp ? moment(ele.starttimestamp).format('YYYY-MM-DD HH:mm:ss') : newreads[0],
+            endtimestamp: moment(ele.endtimestamp).format('YYYY-MM-DD HH:mm:ss'),
             value: ele.value,
           });
+          
         });
         myobj['reads'] = newreads;
       } else {
@@ -500,6 +513,8 @@ export class AddreadComponent implements OnInit {
         });
         myobj['reads'] = newreads;
       }
+
+      console.log('Added Readssssssssssssssssssss:', myobj)
       if (this.loginuser.role === 'Admin') {
         this.readService
           .PostReadByAdmin(externalId, myobj, this.orgId)
@@ -528,6 +543,7 @@ export class AddreadComponent implements OnInit {
       } else {
         this.readService.PostRead(externalId, myobj).subscribe({
           next: () => {
+            console.log('Added Readddddddddddddddddddddddddddd:', myobj)
             this.readForm.reset();
             this.selectedResult = null;
             const formControls = this.readForm.controls;
