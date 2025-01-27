@@ -73,7 +73,6 @@ export class MeterReadTableComponent implements OnInit {
     this.exterenalId = exterenalId;
 
     this.FilterForm = FilterForm;
-    console.log('Start Date Time:', this.FilterForm.value);
     this.filter = filter;
     if (filter) {
       this.getPagedData();
@@ -87,7 +86,6 @@ export class MeterReadTableComponent implements OnInit {
       (response: any) => {
         this.filter = true;
         this.readdata = response;
-
         this.readdata.historyread.forEach((element: any) => {
           element['readtype'] = 'History';
           element['color'] = '#008000';
