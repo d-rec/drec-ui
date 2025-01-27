@@ -321,3 +321,19 @@ Cypress.Commands.add('buyer_login', function () {
     });
   });
 });
+
+Cypress.Commands.add('certficate', function () {
+  cy.fixture('certficate.js').then((data) => {
+    data.forEach((step) => {
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'type') {
+        return cy
+          .get(step.selector)
+          .should('be.visible')
+          .type(step.value, { force: true });
+      }
+    });
+  });
+});
