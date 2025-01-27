@@ -119,19 +119,44 @@
       <form class="example-form px-3" [formGroup]="loginForm">
         <mat-form-field class="example-full-width">
           <mat-label class="mat-labels-cont">Username</mat-label>
-          <input matInput formControlName="username" required data-testid="login-username">
+          <input
+            matInput
+            formControlName="username"
+            required
+            data-testid="login-username"
+          />
         </mat-form-field>
         <mat-form-field class="example-full-width">
           <mat-label class="mat-labels-cont">Password</mat-label>
-          <input matInput [type]="hide ? 'password' : 'text'" formControlName="password" required data-testid="login-password">
-          <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
-            [attr.aria-pressed]="hide" class="icon-eye" data-testid="login-hide">
-            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+          <input
+            matInput
+            [type]="hide ? 'password' : 'text'"
+            formControlName="password"
+            required
+            data-testid="login-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="hide = !hide"
+            [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hide"
+            class="icon-eye"
+            data-testid="login-hide"
+          >
+            <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
         </mat-form-field>
 
         <div class="p-3">
-          <button type="submit" class="btn-primary btn   btn-block" (click)="onSubmit()" data-testid="login-submit">Login</button>
+          <button
+            type="submit"
+            class="btn-primary btn btn-block"
+            (click)="onSubmit()"
+            data-testid="login-submit"
+          >
+            Login
+          </button>
         </div>
       </form>
     </mat-card-content>
@@ -145,7 +170,11 @@
     </div>
     <div class="d-flex justify-content-between pb-4 mb-2 px-3">
       <p class="mb-0 pb-0 font-siz-cont">Don't have an account?</p>
-      <p class="mb-0 pb-0 font-siz-cont"><a routerLink="/register" class="text-warning" data-testid="register">Register</a></p>
+      <p class="mb-0 pb-0 font-siz-cont">
+        <a routerLink="/register" class="text-warning" data-testid="register"
+          >Register</a
+        >
+      </p>
     </div>
   </mat-card>
 </div>

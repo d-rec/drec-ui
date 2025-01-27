@@ -2,12 +2,12 @@
   {
     action: 'type',
     selector: '[data-testid="login-username"]',
-    index: 0,
+    value: 'buyertest@energy.org',
   },
   {
     action: 'type',
     selector: '[data-testid="login-password"]',
-    index: 1,
+    value: '1234Test@tst',
   },
   {
     action: 'click',
