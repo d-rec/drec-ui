@@ -105,7 +105,7 @@ export class CertificateDetailsComponent {
   showorgerror: boolean = false;
   oldlog: boolean = false;
   oldcertificatelog: boolean;
-  names: string[] = [];
+  deviceIds: string[] = [];
   constructor(
     private blockchainDRECService: BlockchainDrecService,
     private authService: AuthbaseService,
@@ -133,7 +133,7 @@ export class CertificateDetailsComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-      names: [],
+      deviceIds: [],
       // fromAmountread: [null],
       // toAmountread: [null],
       // pagenumber: [this.p]
@@ -344,8 +344,8 @@ export class CertificateDetailsComponent {
           ) {
             this.FilterForm.controls['SDGBenefits'].setValue(null);
           }
-          if (formValues.names[0] === undefined) {
-            this.FilterForm.controls['names'].setValue(null);
+          if (formValues.deviceIds[0] === undefined) {
+            this.FilterForm.controls['deviceIds'].setValue(null);
           }
           // Other code...
         }
@@ -418,11 +418,11 @@ export class CertificateDetailsComponent {
           this.oldcertificatelog = data.oldcertificatelog;
           if (data.certificatelog.length > 0) {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);
-            this.names = [];
+            this.deviceIds = [];
             this.data.forEach((log: any) => {
               log.perDeviceCertificateLog.forEach((deviceLog: any) => {
-                if (!this.names.includes(deviceLog.externalId)) {
-                  this.names.push(deviceLog.externalId);
+                if (!this.deviceIds.includes(deviceLog.externalId)) {
+                  this.deviceIds.push(deviceLog.externalId);
                 }
               });
             });

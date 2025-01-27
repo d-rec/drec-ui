@@ -35,8 +35,8 @@ export class CertificateService {
       ) {
         searchUrl += `&organizationId=${searchData.organizationId}`;
       }
-      if (searchData.names) {
-        searchUrl += `&deviceId=${searchData.names}`;
+      if (searchData.deviceIds) {
+        searchUrl += `&deviceId=${searchData.deviceIds}`;
       }
       if (
         !(
