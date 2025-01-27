@@ -43,6 +43,32 @@ Cypress.Commands.add('signup', function () {
   });
 });
 
+Cypress.Commands.add('signup_buyer', function () {
+  cy.fixture('signup_buyer.js').then((data) => {
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
+    cy.get('[data-testid="register"]').click();
+    data.forEach((step) => {
+      if (step.action === 'type') {
+        return cy
+          .get(step.selector)
+          .type(step.value)
+          .should('have.value', step.value);
+      }
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'select') {
+        return cy
+          .get(step.selector)
+          .click()
+          .then(() => {
+            cy.get('mat-option').contains(step.value).click();
+          });
+      }
+    });
+  });
+});
+
 Cypress.Commands.add('admin_login', function () {
   cy.fixture('admin_login.js').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
@@ -98,16 +124,38 @@ Cypress.Commands.add('permissions', function () {
   });
 });
 
-Cypress.Commands.add('dev_login', function () {
-  cy.fixture('dev_login.js').then((data) => {
-    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
+Cypress.Commands.add('buyer_permissions', function () {
+  cy.fixture('buyer_permissions.js').then((data) => {
     data.forEach((step) => {
-      if (step.action === 'type') {
-        return cy.get(step.selector).type(step.value);
-      }
-
       if (step.action === 'click') {
-        return cy.get(step.selector).click().wait(1000);
+        return cy.get(step.selector).should('be.visible').click().wait(1000);
+      }
+      if (step.action === 'select') {
+        return cy
+          .get(step.selector)
+          .click()
+          .get(step.option)
+          .should('have.length.greaterThan', 0)
+          .eq(3)
+          .click()
+          .wait(1000);
+      }
+      if (step.action === 'check') {
+        return cy.get(step.selector).eq(step.index).click();
+      }
+      if (step.action === 'check-multiple') {
+        return cy.contains('table tr', step.contains).within(() => {
+          cy.get(step.selector).each(($el) => {
+            cy.wrap($el).click();
+          });
+        });
+      }
+      if (step.action === 'submit') {
+        return cy
+          .get(step.selector)
+          .scrollIntoView()
+          .should('be.visible')
+          .click();
       }
     });
   });
@@ -212,6 +260,63 @@ Cypress.Commands.add('add_meter_read', function () {
           .click()
           .get('.mat-stroked-button')
           .click();
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('add_reservation', function () {
+  cy.fixture('add_reservation.js').then((data) => {
+    data.forEach((step) => {
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'type') {
+        return cy
+          .get(step.selector)
+          .should('be.visible')
+          .type(step.value, { force: true });
+      }
+      if (step.action === 'select') {
+        return cy
+          .get(step.selector)
+          .click({ force: true })
+          .get(step.option)
+          .should('have.length.greaterThan', 0)
+          .eq(0)
+          .click('center', { force: true });
+      }
+      if (step.action === 'check') {
+        return cy.get(step.selector).eq(step.index).click();
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('dev_login', function () {
+  cy.fixture('dev_login.js').then((data) => {
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
+    data.forEach((step) => {
+      if (step.action === 'type') {
+        return cy.get(step.selector).type(step.value);
+      }
+
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('buyer_login', function () {
+  cy.fixture('buyer_login.js').then((data) => {
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
+    data.forEach((step) => {
+      if (step.action === 'type') {
+        return cy.get(step.selector).type(step.value);
+      }
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
       }
     });
   });
