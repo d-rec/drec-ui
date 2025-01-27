@@ -62,18 +62,18 @@ export class MeterReadTableComponent implements OnInit {
         pagenumber: [this.p],
       });
       this.exterenalId = this.data.rexternalid;
-      
+
       if (this.exterenalId != undefined) {
         this.getPagedData();
       }
     }
   }
-  
+
   start(FilterForm: any, exterenalId: any, filter: boolean) {
     this.exterenalId = exterenalId;
-    
+
     this.FilterForm = FilterForm;
-    console.log('Start Date Time:', this.FilterForm.value); 
+    console.log('Start Date Time:', this.FilterForm.value);
     this.filter = filter;
     if (filter) {
       this.getPagedData();
@@ -87,8 +87,7 @@ export class MeterReadTableComponent implements OnInit {
       (response: any) => {
         this.filter = true;
         this.readdata = response;
-      console.log("read data",this.readdata.ongoing);
-      
+
         this.readdata.historyread.forEach((element: any) => {
           element['readtype'] = 'History';
           element['color'] = '#008000';
