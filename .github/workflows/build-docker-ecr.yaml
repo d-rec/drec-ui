@@ -42,7 +42,8 @@ jobs:
           ECR_REGISTRY: ${{ secrets.ecr-registry }}
           ECR_REPOSITORY: drec-ui
           GITHUB_SHA: ${{ github.sha }}
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:dev-${GITHUB_SHA} \
-                      -f Dockerfile .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:dev-${GITHUB_SHA}
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${ENVIRONMENT}-${GITHUB_SHA} \
+                      -f Dockerfile --build-arg build_environment=${ENVIRONMENT} .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${ENVIRONMENT}-${GITHUB_SHA}
