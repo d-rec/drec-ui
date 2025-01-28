@@ -1,7 +1,11 @@
 [
   {
     action: 'click',
-    selector: '[data-testid="Reservations"]',
+    selector: '[data-testid="reservations"]',
+  },
+  {
+    action: 'click',
+    selector: '[data-testid="all-reservations"]',
   },
   {
     action: 'click',

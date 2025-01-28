@@ -347,6 +347,7 @@
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
+          data-testid="reservations"
         >
           <mat-icon>bookmark</mat-icon>
           <span>Reservations</span>
@@ -357,17 +358,18 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/myreservation"
-            data-testid="Reservations"
+            
           >
-            <span>All Reservations</span>
+            <span data-testid="all-reservations">All Reservations</span>
           </a>
           <a
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/add/reservation"
+            data-testid="add-reservation"
           >
-            <span data-testid="add-reservation">Add Reservation</span>
+            <span>Add Reservation</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
