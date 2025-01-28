@@ -35,9 +35,9 @@ jobs:
         env:
           ECR_REGISTRY: ${{ secrets.ecr-registry }}
           ECR_REPOSITORY: drec-ui
+          CONTAINER_NAME: drec-ui
           GITHUB_SHA: ${{ github.sha }}
+          ENVIRONMENT: ${{ inputs.environment }}
         run: |
-          kubectl -n ${{ inputs.environment }} set image deployment/drec-ui \
-            drec-ui=$ECR_REGISTRY/$ECR_REPOSITORY:dev-${GITHUB_SHA}
-
-            kubectl -n ${{ inputs.environment }} rollout status deployment/drec-api --timeout=300s
+          kubectl -n ${ENVIRONMENT} set image deployment/${ECR_REPOSITORY} \
+            ${CONTAINER_NAME}=$ECR_REGISTRY/$ECR_REPOSITORY:${ENVIRONMENT}-${GITHUB_SHA}
