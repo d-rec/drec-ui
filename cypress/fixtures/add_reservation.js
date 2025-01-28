@@ -1,6 +1,10 @@
 [
   {
     action: 'click',
+    selector: '[data-testid="reservations"]',
+  },
+  {
+    action: 'click',
     selector: '[data-testid="add-reservation"]',
   },
 
