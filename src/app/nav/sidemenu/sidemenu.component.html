@@ -106,7 +106,7 @@
           class="mdc-button d-flex align-items-center"
           data-testid="devices"
         >
-          <mat-icon>devices</mat-icon>
+        <mat-icon>solar_power</mat-icon>
           Device
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -169,7 +169,7 @@
         *ngIf="loginuser.role != 'Buyer' && loginuser.role != 'SubBuyer'"
       >
         <mat-expansion-panel-header class="mdc-button" data-testid="MeterRead">
-          <mat-icon>list</mat-icon>
+          <mat-icon>electric_meter</mat-icon>
           MeterRead
         </mat-expansion-panel-header>
         <mat-nav-list>
@@ -264,7 +264,7 @@
           class="mdc-button d-flex align-items-center"
           data-testid="permission"
         >
-          <mat-icon>list</mat-icon>
+        <mat-icon>admin_panel_settings</mat-icon>
           Permission
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -337,21 +337,40 @@
       </mat-expansion-panel>
 
       <!--6th  -->
-
-      <button
-        mat-button
-        class="menu-button"
-        routerLinkActive="active"
-        routerLink="/myreservation"
+      <mat-expansion-panel
+        [class.mat-elevation-z0]="true"
         *ngIf="
           loginuser.role === 'Buyer' ||
           loginuser.role === 'SubBuyer' ||
           loginuser.role === 'ApiUser'
         "
       >
-        <mat-icon>list</mat-icon>
-        <span data-testid="Reservations">Reservations</span>
-      </button>
+        <mat-expansion-panel-header
+          class="mdc-button d-flex align-items-center"
+        >
+          <mat-icon>bookmark</mat-icon>
+          <span>Reservations</span>
+        </mat-expansion-panel-header>
+        <mat-nav-list class="p-0">
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="/myreservation"
+            data-testid="Reservations"
+          >
+            <span>All Reservations</span>
+          </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="/add/reservation"
+          >
+            <span data-testid="add-reservation">Add Reservation</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
       <!--6th  -->
       <button
         mat-button
@@ -379,21 +398,6 @@
         <span class="text-start">Redemption Report</span>
       </button>
       <!--8th  -->
-      <button
-        mat-button
-        class="menu-button"
-        routerLinkActive="active"
-        routerLink="/add/reservation"
-        *ngIf="
-          loginuser.role === 'Buyer' ||
-          loginuser.role === 'SubBuyer' ||
-          loginuser.role === 'ApiUser'
-        "
-      >
-        <mat-icon>add_circle</mat-icon>
-        <span data-testid="add-reservation">Add Reservation</span>
-      </button>
-      <!--9th  -->
 
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header
