@@ -337,3 +337,19 @@ Cypress.Commands.add('certficate', function () {
     });
   });
 });
+
+Cypress.Commands.add('bulkUpload', function () {
+  cy.fixture('bulk_upload.js').then((data) => {
+    data.forEach((step) => {
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'upload') {
+        return cy
+          .get(step.selector)
+          .attachFile('src/assets/files/d-rec_bulk_upload_meter_read_template.csv')
+          .wait(1000);
+      }
+    });
+  });
+});
