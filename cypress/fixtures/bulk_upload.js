@@ -9,14 +9,14 @@
   },
   {
     action: 'click',
+    selector: '[data-testid="browse"]'
+  },
+  {
+    action: 'upload',
     selector: '[data-testid="fileName"]',
   },
   {
     action: 'click',
     selector: '[ data-testid="upload"]',
-  },
-  {
-    action: 'click',
-    selector: '[data-testid="resetfileName"]',
   }
 ]
