@@ -347,8 +347,8 @@ Cypress.Commands.add('bulkUpload', function () {
       if (step.action === 'upload') {
         return cy
           .get(step.selector)
-          .attachFile('files/d-rec_bulk_upload_meter_read_template.csv', { force: true })
-          .wait(1000);
+          .attachFile('files/d-rec_bulk_upload_meter_read_template.csv', { force: true }).wait(5000);
+         
       }
     });
   });
