@@ -13,6 +13,6 @@
     },
     {
       action: 'click',
-      selector: '[data-testid="resetfileName"]',
+      selector: '[data-testid="resetfileName"]'
     }
 ]
