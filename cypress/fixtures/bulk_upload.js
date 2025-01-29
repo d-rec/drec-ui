@@ -18,5 +18,5 @@
   {
     action: 'click',
     selector: '[data-testid="resetfileName"]',
-  },
-];
+  }
+]
