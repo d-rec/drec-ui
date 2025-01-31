@@ -28,8 +28,8 @@
   },
   {
     action: 'click',
-    selector: ":contains('Security Setting')",
-  },
+    selector: '.mdc-tab__text-label:contains("Security Setting")',
+  },  
   {
     action: 'type',
     selector: '[data-testid="newpassword"]',
@@ -38,7 +38,7 @@
   {
     action: 'type',
     selector: '[data-testid="confirmPassword"]',
-    value: '1234@Drc',
+    value: '1234@Drec',
   },
   {
     action: 'click',

@@ -349,7 +349,7 @@ Cypress.Commands.add('account_settings', function () {
         return cy
           .get(step.selector)
           .should('be.visible')
-          .clear()
+          .clear({ force: true })
           .type(step.value, { force: true });
       }
     });
