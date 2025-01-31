@@ -70,5 +70,5 @@
   {
     action: 'submit',
     selector: '[data-testid="submit-permission"]',
-  },
+  }
 ]
