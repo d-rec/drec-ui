@@ -2,17 +2,18 @@
   {
     action: 'type',
     selector: '[data-testid="firstName"]',
-    value: 'testReadsi',
+    value: 'devTest',
   },
+
   {
     action: 'type',
     selector: '[data-testid="lastName"]',
-    value: 'testorsis',
+    value: 'dev',
   },
   {
     action: 'type',
     selector: '[data-testid="email"]',
-    value: 'testoris@energy.org',
+    value: 'developer@energy.org',
   },
   {
     action: 'click',
@@ -26,12 +27,12 @@
   {
     action: 'type',
     selector: '[data-testid="orgName"]',
-    value: 'developeriss',
+    value: 'developers',
   },
   {
     action: 'type',
     selector: '[data-testid="orgAddress"]',
-    value: 'QAtestis',
+    value: 'QAtst',
   },
   {
     action: 'click',

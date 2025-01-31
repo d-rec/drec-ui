@@ -1,9 +1,8 @@
 describe('Admin login', () => {
-    beforeEach(()=>{
-      cy.wait(1000);
-     
-    })
-    it('Admin should login successfully', () => {
-      cy.admin_login();
-    });
+  beforeEach(() => {
+    cy.wait(1000);
   });
+  it('Admin should login successfully', () => {
+    cy.admin_login();
+  });
+});

@@ -108,19 +108,30 @@
             </mat-card-content>
           </mat-card>
         </mat-tab>
-        <mat-tab label="Add User Role Permissions" labelClass="add-user-role-permissions"> <!-- labelClass is for testing purpose -->
+        <mat-tab
+          label="Add User Role Permissions"
+          labelClass="add-user-role-permissions"
+        >
+          <!-- labelClass is for testing purpose -->
           <mat-card class="mb-3">
             <hr />
             <mat-card-content>
               <form [formGroup]="UserPermissionForm" (ngSubmit)="onSubmit()">
                 <div class="example-container1 row">
                   <div class="col-md-3">
-
-                    <mat-form-field appearance="outline" >
-                      <mat-label class="text-capitalize" data-testid="add-user-role">UserRole</mat-label>
+                    <mat-form-field appearance="outline">
+                      <mat-label
+                        class="text-capitalize"
+                        data-testid="add-user-role"
+                        >UserRole</mat-label
+                      >
                       <mat-select formControlName="entityId">
-                        <mat-option *ngFor="let role of rolelist" [value]="role.id" data-testid="userRole-option">
-                          {{role.name}}
+                        <mat-option
+                          *ngFor="let role of rolelist"
+                          [value]="role.id"
+                          data-testid="userRole-option"
+                        >
+                          {{ role.name }}
                         </mat-option>
                       </mat-select>
                     </mat-form-field>
@@ -170,12 +181,18 @@
                       </mat-header-cell>
                     </th>
                     <td>
-                        <mat-cell *cdkCellDef="let row" data-testid="module-check">
-                            <mat-checkbox color="primary" (click)="$event.stopPropagation()"
-                                (change)="$event ? selection.toggle(row) : null"
-                                [checked]="selection.isSelected(row)">
-                            </mat-checkbox>
-                        </mat-cell>
+                      <mat-cell
+                        *cdkCellDef="let row"
+                        data-testid="module-check"
+                      >
+                        <mat-checkbox
+                          color="primary"
+                          (click)="$event.stopPropagation()"
+                          (change)="$event ? selection.toggle(row) : null"
+                          [checked]="selection.isSelected(row)"
+                        >
+                        </mat-checkbox>
+                      </mat-cell>
                     </td>
                   </ng-container>
                   <ng-container matColumnDef="name">
@@ -187,9 +204,18 @@
                   <ng-container matColumnDef="permissions">
                     <th mat-header-cell *matHeaderCellDef>Permissions</th>
                     <td mat-cell *matCellDef="let row">
-                      <ng-container *ngFor="let permission of row.permissions; let j = index">
-                        <mat-checkbox color="primary" data-testid="permission-check"
-                          [checked]="row.selectedPermissions.includes(permission)"
+                      <ng-container
+                        *ngFor="
+                          let permission of row.permissions;
+                          let j = index
+                        "
+                      >
+                        <mat-checkbox
+                          color="primary"
+                          data-testid="permission-check"
+                          [checked]="
+                            row.selectedPermissions.includes(permission)
+                          "
                           [disabled]="!selection.isSelected(row)"
                           (change)="togglePermission(row, permission)"
                         >
@@ -263,9 +289,13 @@
                   </div> 
 
                 </div> -->
-                <hr>
-                <button type="submit" class="btn-primary btn text-capitalize px-4"
-                  [disabled]="UserPermissionForm.invalid" data-testid="submit-permission">
+                <hr />
+                <button
+                  type="submit"
+                  class="btn-primary btn text-capitalize px-4"
+                  [disabled]="UserPermissionForm.invalid"
+                  data-testid="submit-permission"
+                >
                   Submit
                 </button>
               </form>

@@ -3,7 +3,6 @@
     action: 'click',
     selector: '[data-testid="permission"]',
   },
-
   {
     action: 'click',
     selector: '[data-testid="user_role_permission"]',
@@ -30,6 +29,16 @@
   {
     action: 'check',
     selector: '[data-testid="module-check"]',
+    index: 4,
+  },
+  {
+    action: 'check-multiple',
+    selector: '[data-testid="permission-check"]',
+    contains: 'BUYER_RESERVATION_MANAGEMENT_CRUDL',
+  },
+  {
+    action: 'check',
+    selector: '[data-testid="module-check"]',
     index: 6,
   },
   {
@@ -38,6 +47,16 @@
     contains: 'READS_MANAGEMENT_CRUDL',
   },
 
+  {
+    action: 'check',
+    selector: '[data-testid="module-check"]',
+    index: 7,
+  },
+  {
+    action: 'check-multiple',
+    selector: '[data-testid="permission-check"]',
+    contains: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL',
+  },
   {
     action: 'submit',
     selector: '[data-testid="submit-permission"]',
