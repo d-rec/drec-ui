@@ -37,6 +37,16 @@
     selector: '[data-testid="permission-check"]',
     contains: 'READS_MANAGEMENT_CRUDL',
   },
+  {
+    action: 'check',
+    selector: '[data-testid="module-check"]',
+    index: 10,
+  },
+  {
+    action: 'check-multiple',
+    selector: '[data-testid="permission-check"]',
+    contains: 'PASSWORD_MANAGEMENT_CRUDL',
+  },
 
   {
     action: 'submit',

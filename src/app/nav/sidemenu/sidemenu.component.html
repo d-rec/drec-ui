@@ -404,7 +404,7 @@
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header
           class="mdc-button"
-          [attr.data-testid]="'account-setting-header'"
+          [attr.settings-testid]="'account-setting-header'"
         >
           <mat-icon>manage_accounts</mat-icon>
           Account Setting
@@ -416,6 +416,8 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/user/profile"
+            data-testid="profile"
+
           >
             <span>Profile</span>
           </a>

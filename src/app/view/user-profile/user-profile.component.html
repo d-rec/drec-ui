@@ -28,6 +28,7 @@
                         matInput
                         formControlName="firstName"
                         [(ngModel)]="firstName"
+                        data-testid="firstName"
                       />
                     </mat-form-field>
                   </div>
@@ -40,6 +41,7 @@
                         matInput
                         formControlName="lastName"
                         [(ngModel)]="lastName"
+                        data-testid="lastName"
                       />
                     </mat-form-field>
                   </div>
@@ -53,6 +55,7 @@
                         matInput
                         formControlName="email"
                         [(ngModel)]="email"
+                        data-testid="email"
                       />
                     </mat-form-field>
                   </div>
@@ -69,6 +72,7 @@
                       type="submit"
                       class="btn-primary btn text-capitalize px-4"
                       [disabled]="updateForm.invalid"
+                      data-testid="updateprofile"
                     >
                       Update</button
                     >&nbsp;&nbsp;
@@ -97,6 +101,7 @@
                         matInput
                         [type]="hide ? 'password' : 'text'"
                         formControlName="newPassword"
+                        data-testid="newpassword"
                       />
                       <button
                         mat-icon-button
@@ -133,6 +138,7 @@
                         [type]="hide1 ? 'password' : 'text'"
                         matInput
                         formControlName="confirmPassword"
+                        data-testid="confirmPassword"
                       />
                       <button
                         mat-icon-button
@@ -165,6 +171,7 @@
                       type="submit"
                       class="btn-primary btn text-capitalize px-4"
                       [disabled]="resetpasswordform.invalid"
+                      data-testid="resetpasswordform"
                     >
                       Reset Password</button
                     >&nbsp;&nbsp;

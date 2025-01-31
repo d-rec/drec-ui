@@ -1,3 +1,4 @@
+import 'cypress-file-upload';
 const ADMIN_EMAIL = Cypress.env('ADMIN_EMAIL');
 const ADMIN_PASSWORD = Cypress.env('ADMIN_PASSWORD');
 const REACT_APP_BACKEND_URL = Cypress.env('REACT_APP_BACKEND_URL');
@@ -332,6 +333,23 @@ Cypress.Commands.add('certficate', function () {
         return cy
           .get(step.selector)
           .should('be.visible')
+          .type(step.value, { force: true });
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('account_settings', function () {
+  cy.fixture('account_settings.js').then((data) => {
+    data.forEach((step) => {
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'type') {
+        return cy
+          .get(step.selector)
+          .should('be.visible')
+          .clear()
           .type(step.value, { force: true });
       }
     });
