@@ -43,5 +43,5 @@
   {
     action: 'click',
     selector: '[data-testid="resetpasswordform"]',
-  },
-];
+  }
+]
