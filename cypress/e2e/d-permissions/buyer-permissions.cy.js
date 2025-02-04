@@ -1,8 +1,8 @@
-describe('Add user role permissions', () => {
+describe('Test Buyer User Permissions', () => {
   beforeEach(() => {
     cy.wait(1000);
   });
-  it('Add user role permissions', () => {
+  it('Should assign and verify buyer role permissions', () => {
     cy.admin_login();
 
     cy.buyer_permissions();
