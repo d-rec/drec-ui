@@ -104,7 +104,7 @@
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
-          data-testid="devices"
+          test-id="devices"
         >
         <mat-icon>solar_power</mat-icon>
           Device
@@ -144,7 +144,7 @@
             routerLinkActive="active"
             routerLink="/device/add"
             *ngIf="loginuser.role != 'User'"
-            data-testid="add-devices"
+            test-id="add-devices"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add Devices</span>
@@ -168,7 +168,7 @@
         [class.mat-elevation-z0]="true"
         *ngIf="loginuser.role != 'Buyer' && loginuser.role != 'SubBuyer'"
       >
-        <mat-expansion-panel-header class="mdc-button" data-testid="MeterRead">
+        <mat-expansion-panel-header class="mdc-button" test-id="meter-read">
           <mat-icon>electric_meter</mat-icon>
           MeterRead
         </mat-expansion-panel-header>
@@ -192,7 +192,7 @@
             routerLinkActive="active"
             routerLink="/reads/add"
             *ngIf="loginuser.role != 'User'"
-            data-testid="add-meterRead"
+            test-id="add-meter-read"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add MeterRead</span>
@@ -262,7 +262,7 @@
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
-          data-testid="permission"
+          test-id="permission"
         >
         <mat-icon>admin_panel_settings</mat-icon>
           Permission
@@ -277,7 +277,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/admin/permission/acl_module"
-            data-testid="acl_module"
+            test-id="acl-module"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>ACL Module</span>
@@ -287,7 +287,7 @@
             class="menu-button max-height-content inside-menu-button"
             routerLinkActive="active"
             routerLink="/admin/permission/user_role/list"
-            data-testid="user_role_permission"
+            test-id="user-role-permission"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>User Role Permission </span>
@@ -297,7 +297,7 @@
             class="menu-button max-height-content inside-menu-button"
             routerLinkActive="active"
             routerLink="/admin/permission/api_user_role/list"
-            data-testid="apiuser_permission"
+            test-id="api-user-permission"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>ApiUser Permission </span>
@@ -347,7 +347,7 @@
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
-          data-testid="reservations"
+          test-id="reservations"
         >
           <mat-icon>bookmark</mat-icon>
           <span>Reservations</span>
@@ -360,14 +360,14 @@
             routerLink="/myreservation"
             
           >
-            <span data-testid="all-reservations">All Reservations</span>
+            <span test-id="all-reservations">All Reservations</span>
           </a>
           <a
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/add/reservation"
-            data-testid="add-reservation"
+            test-id="add-reservation"
           >
             <span>Add Reservation</span>
           </a>
@@ -404,7 +404,7 @@
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header
           class="mdc-button"
-          [attr.settings-testid]="'account-setting-header'"
+          [attr.settings-test-id]="'account-setting-header'"
         >
           <mat-icon>manage_accounts</mat-icon>
           Account Setting
@@ -416,7 +416,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/user/profile"
-            data-testid="profile"
+            test-id="profile"
 
           >
             <span>Profile</span>

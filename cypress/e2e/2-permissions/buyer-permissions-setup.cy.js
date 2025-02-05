@@ -3,8 +3,8 @@ describe('Test Buyer User Permissions', () => {
     cy.wait(1000);
   });
   it('Should assign and verify buyer role permissions', () => {
-    cy.admin_login();
+    cy.adminLogin();
 
-    cy.buyer_permissions();
+    cy.buyerUserPermissionsSetup();
   });
 });

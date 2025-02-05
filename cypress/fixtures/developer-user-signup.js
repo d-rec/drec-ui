@@ -1,0 +1,80 @@
+[
+  {
+    action: 'type',
+    selector: '[test-id="first-name"]',
+    value: 'devTest'
+  },
+
+  {
+    action: 'type',
+    selector: '[test-id="last-name"]',
+    value: 'dev'
+  },
+  {
+    action: 'type',
+    selector: '[test-id="email"]',
+    value: 'developer@energy.org'
+  },
+  {
+    action: 'click',
+    selector: '[test-id="user-info"]'
+  },
+  {
+    action: 'select',
+    selector: '[test-id="organization-type"]',
+    value: 'Developer'
+  },
+  {
+    action: 'type',
+    selector: '[test-id="organization-name"]',
+    value: 'developers'
+  },
+  {
+    action: 'type',
+    selector: '[test-id="organization-address"]',
+    value: 'QAtst'
+  },
+  {
+    action: 'click',
+    selector: '[test-id="next-to-password"]'
+  },
+  {
+    action: 'type',
+    selector: '[test-id="password"]',
+    value: '1234Test@tst'
+  },
+  {
+    action: 'click',
+    selector: '[test-id="icon-eye"]'
+  },
+  {
+    action: 'type',
+    selector: '[test-id="confirm-password"]',
+    value: '1234Test@tst'
+  },
+  {
+    action: 'click',
+    selector: '[test-id="hide-confirm-password"]'
+  },
+
+  {
+    action: 'click',
+    selector: '[test-id="back-to-organization"]'
+  },
+  {
+    action: 'click',
+    selector: '[test-id="back-to-info"]'
+  },
+  {
+    action: 'click',
+    selector: '[test-id="user-info"]'
+  },
+  {
+    action: 'click',
+    selector: '[test-id="next-to-password"]'
+  },
+  {
+    action: 'click',
+    selector: '[test-id="submit-registration"]'
+  }
+]

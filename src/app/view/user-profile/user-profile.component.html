@@ -28,7 +28,7 @@
                         matInput
                         formControlName="firstName"
                         [(ngModel)]="firstName"
-                        data-testid="firstName"
+                        test-id="first-name"
                       />
                     </mat-form-field>
                   </div>
@@ -41,7 +41,7 @@
                         matInput
                         formControlName="lastName"
                         [(ngModel)]="lastName"
-                        data-testid="lastName"
+                        test-id="last-name"
                       />
                     </mat-form-field>
                   </div>
@@ -55,7 +55,7 @@
                         matInput
                         formControlName="email"
                         [(ngModel)]="email"
-                        data-testid="email"
+                        test-id="email"
                       />
                     </mat-form-field>
                   </div>
@@ -72,7 +72,7 @@
                       type="submit"
                       class="btn-primary btn text-capitalize px-4"
                       [disabled]="updateForm.invalid"
-                      data-testid="updateprofile"
+                      test-id="update-profile"
                     >
                       Update</button
                     >&nbsp;&nbsp;
@@ -101,7 +101,7 @@
                         matInput
                         [type]="hide ? 'password' : 'text'"
                         formControlName="newPassword"
-                        data-testid="newpassword"
+                        test-id="new-password"
                       />
                       <button
                         mat-icon-button
@@ -138,7 +138,7 @@
                         [type]="hide1 ? 'password' : 'text'"
                         matInput
                         formControlName="confirmPassword"
-                        data-testid="confirmPassword"
+                        test-id="confirm-password"
                       />
                       <button
                         mat-icon-button
@@ -171,7 +171,7 @@
                       type="submit"
                       class="btn-primary btn text-capitalize px-4"
                       [disabled]="resetpasswordform.invalid"
-                      data-testid="resetpasswordform"
+                      test-id="reset-password-form"
                     >
                       Reset Password</button
                     >&nbsp;&nbsp;

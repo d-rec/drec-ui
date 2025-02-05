@@ -48,7 +48,7 @@
                 formControlName="name"
                 min="1"
                 autocomplete="off"
-                data-testid="reservation-name"
+                test-id="reservation-name"
               />
             </mat-form-field>
           </div>
@@ -62,7 +62,7 @@
                 formControlName="targetCapacityInMegaWattHour"
                 min="1"
                 autocomplete="off"
-                data-testid="targetCapacity"
+                test-id="target-capacity"
               />
             </mat-form-field>
           </div>
@@ -75,7 +75,7 @@
                 formControlName="reservationStartDate"
                 autocomplete="off"
                 (ngModelChange)="onEndChangeEvent($event)"
-                data-testid="reservationStartDate"
+                test-id="reservation-start-date"
               />
               <mat-datepicker-toggle
                 matSuffix
@@ -106,7 +106,7 @@
                 [min]="endminDate"
                 autocomplete="off"
                 (ngModelChange)="onExpiryEvent($event)"
-                data-testid="reservationEndDate"
+                test-id="reservation-end-date"
               />
               <mat-datepicker-toggle
                 matSuffix
@@ -136,7 +136,7 @@
                 formControlName="reservationExpiryDate"
                 [min]="expiryminDate"
                 autocomplete="off"
-                data-testid="reservationExpiryDate"
+                test-id="reservation-expiry-date"
               />
               <mat-datepicker-toggle
                 matSuffix
@@ -166,7 +166,7 @@
                 <mat-option
                   *ngFor="let f of frequency"
                   [value]="f"
-                  [attr.frequency-testid]="frequency"
+                  [attr.frequency-test-id]="frequency"
                 >
                   {{ f }}
                 </mat-option>
@@ -232,7 +232,7 @@
                       <mat-option
                         *ngFor="let code of filteredOptions | async"
                         [value]="code.country"
-                        [attr.country-testid]="code.country"
+                        [attr.country-test-id]="code.country"
                       >
                         {{ code.country }}
                       </mat-option>
@@ -359,7 +359,7 @@
                       class="btn-primary me-2 btn text-capitalize px-4"
                       (click)="applyFilter()"
                       [disabled]="!isAnyFieldFilled"
-                      data-testid="Filterbutton"
+                      test-id="filter-button"
                     >
                       Filter
                     </button>
@@ -407,7 +407,7 @@
                         (click)="$event.stopPropagation()"
                         (change)="$event ? selection.toggle(row) : null"
                         [checked]="selection.isSelected(row)"
-                        data-testid="device-check"
+                        test-id="select-device"
                       >
                       </mat-checkbox>
                     </mat-cell>
@@ -566,7 +566,7 @@
             [disabled]="reservationForm.invalid"
             class="btn-primary btn text-capitalize px-4"
             (click)="onSubmit()"
-            data-testid="submit-reservation"
+            test-id="submit-reservation"
           >
             Submit
           </button>
@@ -609,7 +609,7 @@
       [mat-dialog-close]="data"
       class="btn-primary btn text-capitalize"
       cdkFocusInitial
-      data-testid="continue-reservation"
+      test-id="continue-reservation"
     >
       Continue
     </button>
