@@ -213,7 +213,6 @@ Cypress.Commands.add('addMeterRead', function () {
           .click({ force: true })
           .wait(1000);
       }
-
       if (step.action === 'select-timezone') {
         return cy
           .get(step.selector)
