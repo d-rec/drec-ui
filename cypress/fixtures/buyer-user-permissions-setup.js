@@ -29,8 +29,29 @@
     {
       action: 'check',
       selector: '[test-id="select-module"]',
+      index: 3
+    },
+    {
+      action: 'check-multiple',
+      selector: '[test-id="select-permission"]',
+      contains: 'DEVICE_MANAGEMENT_CRUDL'
+    },
+    {
+      action: 'check',
+      selector: '[test-id="select-module"]',
+      index: 5
+    },
+    {
+      action: 'check-multiple',
+      selector: '[test-id="select-permission"]',
+      contains: 'DEVICE_BULK_MANAGEMENT_CRUDL'
+    },
+    {
+      action: 'check',
+      selector: '[test-id="select-module"]',
       index: 6
     },
+
     {
       action: 'check-multiple',
       selector: '[test-id="select-permission"]',
