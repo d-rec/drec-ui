@@ -391,12 +391,12 @@ export class AddreadComponent implements OnInit {
   onChangeEvent(event: any) {
     if (event === 'Delta' || event === 'Aggregate') {
       this.hidestarttime = event === 'Delta';
-      this.endmaxdate = new Date();
-      this.endminDate = this.devicecreateddate;
       this.startminDate = this.lastreaddate
         ? new Date(this.lastreaddate)
         : this.devicecreateddate;
       this.startmaxDate = new Date();
+      this.endminDate = this.devicecreateddate;
+      this.endmaxdate = new Date();
       if (this.readForm.value.timezone != null) {
         this.endmaxdate = new Date(
           momentTimeZone
@@ -420,6 +420,12 @@ export class AddreadComponent implements OnInit {
       this.endmaxdate = this.devicecreateddate;
 
       this.hidestarttime = true;
+    }
+  }
+  onEndChangeEvent(event: any) {
+    if (this.readForm.value.type === 'History') {
+    this.endmaxdate = this.devicecreateddate;
+    this.endminDate = event;
     }
   }
 

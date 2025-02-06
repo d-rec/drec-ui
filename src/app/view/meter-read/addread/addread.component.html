@@ -205,7 +205,9 @@
                       [max]="startmaxDate"
                       [min]="startminDate"
                       autocomplete="off"
+                      (ngModelChange)="onEndChangeEvent($event)"
                       data-testid="choose-start-date"
+
                     />
                     <mat-datepicker-toggle
                       matSuffix
@@ -403,6 +405,7 @@
                     [max]="startmaxDate"
                     [min]="startminDate"
                     autocomplete="off"
+                    (ngModelChange)="onEndChangeEvent($event)"
         
                   />
                   <mat-datepicker-toggle
