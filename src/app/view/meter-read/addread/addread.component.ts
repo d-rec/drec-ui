@@ -424,8 +424,8 @@ export class AddreadComponent implements OnInit {
   }
   onEndChangeEvent(event: any) {
     if (this.readForm.value.type === 'History') {
-    this.endmaxdate = this.devicecreateddate;
-    this.endminDate = event;
+      this.endmaxdate = this.devicecreateddate;
+      this.endminDate = event;
     }
   }
 
