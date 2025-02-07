@@ -65,7 +65,7 @@
                     matInput
                     [value]="fileName"
                     (click)="openFileExplorer()"
-                    data-testid="browse"
+                    test-id="browse"
                   />
                 </mat-toolbar>
                 <div class="d-flex justify-content-center">
@@ -76,7 +76,7 @@
                     (change)="selectFile($event)"
                     name="fileInput"
                     accept=".csv"
-                    data-testid="fileName"
+                    test-id="file-name"
                   />
                 </div>
               </div>
@@ -87,7 +87,7 @@
               class="btn btn-primary"
               [disabled]="!currentFile"
               (click)="upload()"
-              data-testid="upload"
+              test-id="upload"
             >
               Upload</button
             >&nbsp;
@@ -95,7 +95,7 @@
               class="btn btn-dark"
               [disabled]="!currentFile"
               (click)="reset()"
-              data-testid="resetfileName"
+              test-id="resetfile-name"
             >
               Clear
             </button>

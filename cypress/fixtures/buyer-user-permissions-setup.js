@@ -1,11 +1,11 @@
 [
   {
     action: 'click',
-    selector: '[data-testid="permission"]',
+    selector: '[test-id="permission"]',
   },
   {
     action: 'click',
-    selector: '[data-testid="user_role_permission"]',
+    selector: '[test-id="user-role-permission"]',
   },
   {
     action: 'click',
@@ -13,52 +13,52 @@
   },
   {
     action: 'select',
-    selector: '[data-testid="add-user-role"]',
-    option: '[data-testid="userRole-option"]',
+    selector: '[test-id="add-user-role"]',
+    option: '[test-id="user-role-option"]',
   },
   {
     action: 'check',
-    selector: '[data-testid="module-check"]',
+    selector: '[test-id="select-module"]',
     index: 3,
   },
   {
     action: 'check-multiple',
-    selector: '[data-testid="permission-check"]',
+    selector: '[test-id="permission-check"]',
     contains: 'DEVICE_MANAGEMENT_CRUDL',
   },
   {
     action: 'check',
-    selector: '[data-testid="module-check"]',
+    selector: '[test-id="select-module"]',
     index: 4,
   },
   {
     action: 'check-multiple',
-    selector: '[data-testid="permission-check"]',
+    selector: '[test-id="permission-check"]',
     contains: 'BUYER_RESERVATION_MANAGEMENT_CRUDL',
   },
   {
     action: 'check',
-    selector: '[data-testid="module-check"]',
+    selector: '[test-id="select-module"]',
     index: 6,
   },
   {
     action: 'check-multiple',
-    selector: '[data-testid="permission-check"]',
+    selector: '[test-id="permission-check"]',
     contains: 'READS_MANAGEMENT_CRUDL',
   },
 
   {
     action: 'check',
-    selector: '[data-testid="module-check"]',
+    selector: '[test-id="select-module"]',
     index: 7,
   },
   {
     action: 'check-multiple',
-    selector: '[data-testid="permission-check"]',
+    selector: '[test-id="permission-check"]',
     contains: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL',
   },
   {
     action: 'submit',
-    selector: '[data-testid="submit-permission"]',
+    selector: '[test-id="submit-permission"]',
   },
 ]

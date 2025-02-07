@@ -123,7 +123,7 @@
             matInput
             formControlName="username"
             required
-            data-testid="login-username"
+            test-id="login-username"
           />
         </mat-form-field>
         <mat-form-field class="example-full-width">
@@ -133,7 +133,7 @@
             [type]="hide ? 'password' : 'text'"
             formControlName="password"
             required
-            data-testid="login-password"
+            test-id="login-password"
           />
           <button
             mat-icon-button
@@ -142,7 +142,7 @@
             [attr.aria-label]="'Hide password'"
             [attr.aria-pressed]="hide"
             class="icon-eye"
-            data-testid="login-hide"
+            test-id="hide-password"
           >
             <mat-icon>{{ hide ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
@@ -153,7 +153,7 @@
             type="submit"
             class="btn-primary btn btn-block"
             (click)="onSubmit()"
-            data-testid="login-submit"
+            test-id="login-submit"
           >
             Login
           </button>
@@ -171,7 +171,7 @@
     <div class="d-flex justify-content-between pb-4 mb-2 px-3">
       <p class="mb-0 pb-0 font-siz-cont">Don't have an account?</p>
       <p class="mb-0 pb-0 font-siz-cont">
-        <a routerLink="/register" class="text-warning" data-testid="register"
+        <a routerLink="/register" class="text-warning" test-id="register"
           >Register</a
         >
       </p>

@@ -21,10 +21,10 @@ Cypress.Commands.add('clearDatabase', () => {
   });
 });
 
-Cypress.Commands.add('signup', function () {
-  cy.fixture('signup.js').then((data) => {
+Cypress.Commands.add('developerUserSignup', function () {
+  cy.fixture('developer-user-signup.js').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
-    cy.get('[data-testid="register"]').click();
+    cy.get('[test-id="register"]').click();
     data.forEach((step) => {
       if (step.action === 'type') {
         return cy.get(step.selector).type(step.value);
@@ -44,10 +44,10 @@ Cypress.Commands.add('signup', function () {
   });
 });
 
-Cypress.Commands.add('signup_buyer', function () {
-  cy.fixture('signup_buyer.js').then((data) => {
+Cypress.Commands.add('buyerUserSignup', function () {
+  cy.fixture('buyer-user-signup.js').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
-    cy.get('[data-testid="register"]').click();
+    cy.get('[test-id="register"]').click();
     data.forEach((step) => {
       if (step.action === 'type') {
         return cy
@@ -70,8 +70,8 @@ Cypress.Commands.add('signup_buyer', function () {
   });
 });
 
-Cypress.Commands.add('admin_login', function () {
-  cy.fixture('admin_login.js').then((data) => {
+Cypress.Commands.add('adminLogin', function () {
+  cy.fixture('admin-login.js').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     data.forEach((step) => {
       if (step.action === 'type') {
@@ -89,8 +89,8 @@ Cypress.Commands.add('admin_login', function () {
   });
 });
 
-Cypress.Commands.add('permissions', function () {
-  cy.fixture('permissions.js').then((data) => {
+Cypress.Commands.add('developerUserPermissionsSetup', function () {
+  cy.fixture('developer-user-permissions-setup.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).should('be.visible').click().wait(1000);
@@ -125,8 +125,8 @@ Cypress.Commands.add('permissions', function () {
   });
 });
 
-Cypress.Commands.add('buyer_permissions', function () {
-  cy.fixture('buyer_permissions.js').then((data) => {
+Cypress.Commands.add('buyerUserPermissionsSetup', function () {
+  cy.fixture('buyer-user-permissions-setup.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).should('be.visible').click().wait(1000);
@@ -162,8 +162,23 @@ Cypress.Commands.add('buyer_permissions', function () {
   });
 });
 
-Cypress.Commands.add('add_device', function () {
-  cy.fixture('add_device.js').then((data) => {
+Cypress.Commands.add('developerUserLogin', function () {
+  cy.fixture('developer-user-login.js').then((data) => {
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
+    data.forEach((step) => {
+      if (step.action === 'type') {
+        return cy.get(step.selector).type(step.value);
+      }
+
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('addDevice', function () {
+  cy.fixture('add-device.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).click().wait(1000);
@@ -195,8 +210,8 @@ Cypress.Commands.add('add_device', function () {
   });
 });
 
-Cypress.Commands.add('add_meter_read', function () {
-  cy.fixture('add_meter_read.js').then((data) => {
+Cypress.Commands.add('addMeterRead', function () {
+  cy.fixture('add-meter-read.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).click().wait(1000);
@@ -266,8 +281,22 @@ Cypress.Commands.add('add_meter_read', function () {
   });
 });
 
-Cypress.Commands.add('add_reservation', function () {
-  cy.fixture('add_reservation.js').then((data) => {
+Cypress.Commands.add('buyerUserLogin', function () {
+  cy.fixture('buyer-user-login.js').then((data) => {
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
+    data.forEach((step) => {
+      if (step.action === 'type') {
+        return cy.get(step.selector).type(step.value);
+      }
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('addReservation', function () {
+  cy.fixture('add-reservation.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).click().wait(1000);
@@ -294,37 +323,8 @@ Cypress.Commands.add('add_reservation', function () {
   });
 });
 
-Cypress.Commands.add('dev_login', function () {
-  cy.fixture('dev_login.js').then((data) => {
-    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
-    data.forEach((step) => {
-      if (step.action === 'type') {
-        return cy.get(step.selector).type(step.value);
-      }
-
-      if (step.action === 'click') {
-        return cy.get(step.selector).click().wait(1000);
-      }
-    });
-  });
-});
-
-Cypress.Commands.add('buyer_login', function () {
-  cy.fixture('buyer_login.js').then((data) => {
-    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
-    data.forEach((step) => {
-      if (step.action === 'type') {
-        return cy.get(step.selector).type(step.value);
-      }
-      if (step.action === 'click') {
-        return cy.get(step.selector).click().wait(1000);
-      }
-    });
-  });
-});
-
-Cypress.Commands.add('certficate', function () {
-  cy.fixture('certficate.js').then((data) => {
+Cypress.Commands.add('certificate', function () {
+  cy.fixture('certificate.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).click().wait(1000);
@@ -340,7 +340,7 @@ Cypress.Commands.add('certficate', function () {
 });
 
 Cypress.Commands.add('bulkUpload', function () {
-  cy.fixture('bulk_upload.js').then((data) => {
+  cy.fixture('bulk-upload.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).click().wait(1000);

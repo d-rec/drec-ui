@@ -3,7 +3,7 @@ describe('Bulk Upload Test', () => {
         cy.wait(1000);
       });
     it('should upload a file', () => {
-      cy.dev_login().wait(60000);
+      cy.developerUserLogin().wait(60000);
       cy.bulkUpload('device-bulk-upload-template'); 
     });
   });

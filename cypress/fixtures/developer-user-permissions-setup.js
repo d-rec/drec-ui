@@ -1,12 +1,12 @@
 [
   {
     action: 'click',
-    selector: '[data-testid="permission"]',
+    selector: '[test-id="permission"]',
   },
 
   {
     action: 'click',
-    selector: '[data-testid="user_role_permission"]',
+    selector: '[test-id="user-role-permission"]',
   },
   {
     action: 'click',
@@ -14,32 +14,32 @@
   },
   {
     action: 'select',
-    selector: '[data-testid="add-user-role"]',
-    option: '[data-testid="userRole-option"]',
+    selector: '[test-id="add-user-role"]',
+    option: '[test-id="user-role-option"]',
   },
   {
     action: 'check',
-    selector: '[data-testid="module-check"]',
+    selector: '[test-id="select-module"]',
     index: 3,
   },
   {
     action: 'check-multiple',
-    selector: '[data-testid="permission-check"]',
+    selector: '[test-id="select-permission"]',
     contains: 'DEVICE_MANAGEMENT_CRUDL',
   },
   {
     action: 'check',
-    selector: '[data-testid="module-check"]',
+    selector: '[test-id="select-module"]',
     index: 6,
   },
   {
     action: 'check-multiple',
-    selector: '[data-testid="permission-check"]',
+    selector: '[test-id="select-permission"]',
     contains: 'READS_MANAGEMENT_CRUDL',
   },
 
   {
     action: 'submit',
-    selector: '[data-testid="submit-permission"]',
+    selector: '[test-id="submit-permission"]',
   },
-]
+];
