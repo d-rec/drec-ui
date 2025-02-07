@@ -23,7 +23,7 @@
   },
   {
     action: 'check-multiple',
-    selector: '[test-id="permission-check"]',
+    selector: '[test-id="select-permission"]',
     contains: 'DEVICE_MANAGEMENT_CRUDL',
   },
   {
@@ -33,7 +33,7 @@
   },
   {
     action: 'check-multiple',
-    selector: '[test-id="permission-check"]',
+    selector: '[test-id="select-permission"]',
     contains: 'BUYER_RESERVATION_MANAGEMENT_CRUDL',
   },
   {
@@ -43,7 +43,7 @@
   },
   {
     action: 'check-multiple',
-    selector: '[test-id="permission-check"]',
+    selector: '[test-id="select-permission"]',
     contains: 'READS_MANAGEMENT_CRUDL',
   },
 
@@ -54,7 +54,7 @@
   },
   {
     action: 'check-multiple',
-    selector: '[test-id="permission-check"]',
+    selector: '[test-id="select-permission"]',
     contains: 'CERTIFICATE_LOG_MANAGEMENT_CRUDL',
   },
   {

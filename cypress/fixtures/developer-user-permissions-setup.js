@@ -42,4 +42,4 @@
     action: 'submit',
     selector: '[test-id="submit-permission"]',
   },
-];
+]

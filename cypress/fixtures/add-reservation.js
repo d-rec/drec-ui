@@ -15,7 +15,7 @@
   },
   {
     action: 'type',
-    selector: '[test-id="target-Capacity"]',
+    selector: '[test-id="target-capacity"]',
     value: 100,
   },
   {
@@ -40,7 +40,7 @@
   },
   {
     action: 'select',
-    selector: 'input[formControlName="country-name"]',
+    selector: 'input[formControlName="countryname"]',
     option: '[country-test-id]',
   },
   {
