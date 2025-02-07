@@ -1,4 +1,4 @@
-describe('Sign Up Test', () => {
+describe('Sign up Test', () => {
   beforeEach(() => {
     cy.wait(5000);
     // cy.clearDatabase();

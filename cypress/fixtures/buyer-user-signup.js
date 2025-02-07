@@ -2,96 +2,96 @@
   {
     action: 'type',
     selector: '[test-id="first-name"]',
-    value: 'buyerTst',
-    log: 'First name entered successfully'
+    value: 'just buyer test',
+    log: 'First name entered successfully',
   },
 
   {
     action: 'type',
     selector: '[test-id="last-name"]',
-    value: 'buyertst',
-    log: 'Last name entered successfully'
+    value: 'buyer test',
+    log: 'Last name entered successfully',
   },
   {
     action: 'type',
     selector: '[test-id="email"]',
     value: 'buyertest@energy.org',
-    log: 'Email entered successfully'
+    log: 'Email entered successfully',
   },
   {
     action: 'click',
     selector: '[test-id="user-info"]',
-    log: 'Button clicked successfully'
+    log: 'Button clicked successfully',
   },
   {
     action: 'select',
     selector: '[test-id="organization-type"]',
     value: 'Buyer',
-    log: 'Organization type is selected'
+    log: 'Organization type is selected',
   },
   {
     action: 'type',
     selector: '[test-id="organization-name"]',
-    value: 'buyertst',
-    log: 'Organization name Entered successfully'
+    value: 'test buyer',
+    log: 'Organization name Entered successfully',
   },
   {
     action: 'type',
     selector: '[test-id="organization-address"]',
-    value: 'QAtst',
-    log: 'Organization address entered successfully'
+    value: 'test organization',
+    log: 'Organization address entered successfully',
   },
   {
     action: 'click',
     selector: '[test-id="next-to-password"]',
-    log: 'Button clicked successfully'
+    log: 'Button clicked successfully',
   },
   {
     action: 'type',
     selector: '[test-id="password"]',
     value: '1234Test@tst',
-    log: 'Password entered successfully'
+    log: 'Password entered successfully',
   },
   {
     action: 'click',
     selector: '[test-id="icon-eye"]',
-    log: 'Icon clicked successfully'
+    log: 'Icon clicked successfully',
   },
   {
     action: 'type',
     selector: '[test-id="confirm-password"]',
     value: '1234Test@tst',
-    log: 'Confirm password entered successfully'
+    log: 'Confirm password entered successfully',
   },
   {
     action: 'click',
     selector: '[test-id="hide-confirm-password"]',
-    log: 'icon clicked successfully'
+    log: 'icon clicked successfully',
   },
 
   {
     action: 'click',
     selector: '[test-id="back-to-organization"]',
-    log: 'Button clicked successfully'
+    log: 'Button clicked successfully',
   },
   {
     action: 'click',
     selector: '[test-id="back-to-info"]',
-    log: 'Button clicked successfully'
+    log: 'Button clicked successfully',
   },
   {
     action: 'click',
     selector: '[test-id="user-info"]',
-    log: 'Button clicked successfully'
+    log: 'Button clicked successfully',
   },
   {
     action: 'click',
     selector: '[test-id="next-to-password"]',
-    log: 'Button clicked successfully'
+    log: 'Button clicked successfully',
   },
   {
     action: 'click',
     selector: '[test-id="submit-registration"]',
-    log: 'Button clicked successfully'
-  }
+    log: 'Button clicked successfully',
+  },
 ]

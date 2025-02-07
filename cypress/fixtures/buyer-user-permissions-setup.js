@@ -9,7 +9,7 @@
     },
     {
       action: 'click',
-      selector: '.add-user-role-permissions'
+      selector: '[aria-label="add-user-role-permissions-test-id"]'
     },
     {
       action: 'select',
