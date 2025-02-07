@@ -65,7 +65,7 @@
   },
   {
     action: 'click',
-    selector: '[test-id="hide-Confirm-password"]',
+    selector: '[test-id="hide-confirm-password"]',
     log: 'icon clicked successfully',
   },
 
