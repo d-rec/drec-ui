@@ -149,6 +149,16 @@ export class UserpermissionComponent {
   }
   onSubmit(): void {
     if (this.selection.selected.length > 0) {
+      // //console.log(this.UserPermissionForm.controls['entityId'].value);
+      if (
+        typeof this.UserPermissionForm.controls['entityId'].value !== 'number'
+      ) {
+        this.toastrService.error(
+          'Please select at least one user role',
+          'Validation Error!',
+        );
+        return;
+      }
       this.selection.selected.forEach((ele: any) => {
         const request = {
           aclmodulesId: ele.id,
