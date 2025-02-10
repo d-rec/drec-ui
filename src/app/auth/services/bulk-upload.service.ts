@@ -9,8 +9,8 @@ import { BulkUploadType } from '../../../app/utils/enums/bulk-upload-type.enum';
 export class BulkUploadService {
   private baseUrl = `${environment.API_URL}bulk-upload`;
   private filePath =
-    '../../assets/files/d-rec_bulk_upload_meter_read_template.csv';
-  private downloadedFileName = 'd-rec_bulk_upload_meter_read_template.csv';
+    '../../assets/files/d-rec-bulk-upload-meter-read-template.csv';
+  private downloadedFileName = 'd-rec-bulk-upload-meter-read-template.csv';
 
   constructor(private http: HttpClient) {}
 
@@ -44,15 +44,17 @@ export class BulkUploadService {
     }
     return this.http.get(Url);
   }
-  downloadFile(): Promise<boolean> {
+  downloadFile(type: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       try {
-        const anchor = document.createElement('a');
-        anchor.href = this.filePath;
-        anchor.download = this.downloadedFileName;
-        document.body.appendChild(anchor);
-        anchor.click();
-        document.body.removeChild(anchor);
+        if (type === BulkUploadType.Reads) {
+          const anchor = document.createElement('a');
+          anchor.href = this.filePath;
+          anchor.download = this.downloadedFileName;
+          document.body.appendChild(anchor);
+          anchor.click();
+          document.body.removeChild(anchor);
+        }
         resolve(true);
       } catch (error) {
         reject(error);

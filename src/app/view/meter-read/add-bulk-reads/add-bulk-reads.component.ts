@@ -147,7 +147,7 @@ export class AddBulkReadsComponent implements OnInit {
 
   async downloadFile() {
     try {
-      await this.bulkUploadService.downloadFile();
+      await this.bulkUploadService.downloadFile(BulkUploadType.Reads);
       this.toasterService.success('File downloaded successfully');
     } catch (error) {
       this.toasterService.error('Failed to download file');

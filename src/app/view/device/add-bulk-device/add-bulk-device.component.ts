@@ -12,6 +12,8 @@ import {
 } from '../../../auth/services';
 import { Router } from '@angular/router';
 import { OrganizationInformation } from '../../../models';
+import { BulkUploadService } from '../../../auth/services/bulk-upload.service';
+import { BulkUploadType } from '../../../utils/enums/bulk-upload-type.enum';
 
 @Component({
   selector: 'app-add-bulk-device',
@@ -51,6 +53,7 @@ export class AddBulkDeviceComponent implements OnInit {
     private toastrService: ToastrService,
     private adminService: AdminService,
     private orgService: OrganizationService,
+    private bulkUploadService: BulkUploadService,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -123,8 +126,13 @@ export class AddBulkDeviceComponent implements OnInit {
     document.getElementById('fileInput')?.click();
   }
 
-  downloadFile(): any {
-    return;
+  async downloadFile() {
+    try {
+      await this.bulkUploadService.downloadFile(BulkUploadType.Devices);
+      this.toastrService.success('File downloaded successfully');
+    } catch (error) {
+      this.toastrService.error('Failed to download file');
+    }
   }
 
   upload(): void {
