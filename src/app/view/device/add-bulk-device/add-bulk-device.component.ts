@@ -123,6 +123,10 @@ export class AddBulkDeviceComponent implements OnInit {
     document.getElementById('fileInput')?.click();
   }
 
+  downloadFile(): any {
+    return;
+  }
+
   upload(): void {
     this.progress = 0;
     this.message = '';

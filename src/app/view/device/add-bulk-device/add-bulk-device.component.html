@@ -8,7 +8,15 @@
           Device Bulk Registration
         </h2>
       </div>
-      <div>
+      <div class="d-flex gap-3">
+        <button
+          mat-raised-button
+          class="btn btn-primary"
+          (click)="downloadFile()"
+        >
+          <mat-icon>download</mat-icon>
+          Download Template
+        </button>
         <button
           class="btn btn-dark justify-content-end px-4"
           (click)="JobDisplayList()"
