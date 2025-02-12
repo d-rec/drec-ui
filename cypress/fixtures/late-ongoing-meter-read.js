@@ -40,6 +40,6 @@
     {
       action: 'click',
       selector: '[test-id="submit-read"]',
-    },
+    }
   ]
   
