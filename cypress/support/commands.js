@@ -281,6 +281,80 @@ Cypress.Commands.add('addMeterRead', function () {
   });
 });
 
+Cypress.Commands.add('lateOngoingMeterRead', function () {
+  cy.fixture('late-ongoing-meter-read.js').then((data) => {
+    data.forEach((step) => {
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'selected') {
+        return cy
+          .get(step.selector)
+          .click({ force: true })
+          .wait(1000)
+          .get(step.option)
+          .should('have.length.greaterThan', 0)
+          .first()
+          .should('be.visible')
+          .click({ force: true })
+          .wait(1000);
+      }
+
+      if (step.action === 'select-timezone') {
+        return cy
+          .get(step.selector)
+          .click({ force: true })
+          .get(step.option)
+          .should('have.length.greaterThan', 0)
+          .eq(0)
+          .click('center', { force: true });
+      }
+      if (step.action === 'select') {
+        return cy
+          .get(step.selector)
+          .click({ force: true })
+          .get(step.option)
+          .should('have.length.greaterThan', 0)
+          .eq(1)
+          .click('center', { force: true });
+      }
+
+      if (step.action === 'type') {
+        return cy
+          .get(step.selector)
+          .wait(1000)
+          .click({ force: true })
+          .type(step.value, { force: true });
+      }
+      if (step.action === 'date-picker') {
+        // Get the current time and add two hours
+        const currentTime = new Date();
+        currentTime.setHours(currentTime.getHours() + 2); // Adds 2 hours
+      
+        // Format the time in the required format: 1/6/2025, 2:46 PM (Example)
+        const formattedTime = currentTime.toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        });
+      
+        return cy
+          .get(step.selector)
+          .wait(1000)
+          .click({ force: true })
+          .type(formattedTime, { force: true })  // Type the calculated time
+          .click();  // Click on the button
+      }
+      
+    });
+  });
+});
+
+
 Cypress.Commands.add('buyerUserLogin', function () {
   cy.fixture('buyer-user-login.js').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
@@ -349,7 +423,7 @@ Cypress.Commands.add('bulkUpload', function () {
         return cy.get(step.selector).click().wait(1000);
       }
       if (step.action === 'upload') {
-        cy.get(step.selector) 
+        cy.get(step.selector)
           .attachFile('files/d-rec_bulk_upload_meter_read_template.csv', { force: true })
           .wait(5000);
       }
