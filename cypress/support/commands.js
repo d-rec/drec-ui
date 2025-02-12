@@ -93,7 +93,7 @@ Cypress.Commands.add('developerUserPermissionsSetup', function () {
   cy.fixture('developer-user-permissions-setup.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
-        return cy.get(step.selector).should('be.visible').click().wait(10000);
+        return cy.get(step.selector).should('be.visible').click().wait(1000);
       }
       if (step.action === 'select') {
         return cy
@@ -129,7 +129,7 @@ Cypress.Commands.add('buyerUserPermissionsSetup', function () {
   cy.fixture('buyer-user-permissions-setup.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
-        return cy.get(step.selector).should('be.visible').click().wait(10000);
+        return cy.get(step.selector).wait(10000).should('be.visible').click();
       }
       if (step.action === 'select') {
         return cy
