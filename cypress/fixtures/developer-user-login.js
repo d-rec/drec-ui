@@ -7,7 +7,7 @@
   {
     action: 'type',
     selector: '[test-id="login-password"]',
-    value: '1234Test@tst',
+    value: '1234Test@tst'
   },
   {
     action: 'click',
