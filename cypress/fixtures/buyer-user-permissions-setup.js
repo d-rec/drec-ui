@@ -59,6 +59,6 @@
   },
   {
     action: 'submit',
-    selector: '[test-id="submit-permission"]',
-  },
+    selector: '[test-id="submit-permission"]'
+  }
 ]
