@@ -58,6 +58,6 @@
   },
   {
     action: 'click',
-    selector: '[test-id="continue-reservation"]',
-  },
+    selector: '[test-id="continue-reservation"]'
+  }
 ]
