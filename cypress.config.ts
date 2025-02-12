@@ -2,6 +2,7 @@ import { defineConfig } from 'cypress';
 
 export default defineConfig({
   e2e: {
+    defaultCommandTimeout: 10000, 
     env: {
       REACT_APP_BACKEND_URL: 'http://localhost:3040',
       ADMIN_EMAIL: 'test@drec.energy',
