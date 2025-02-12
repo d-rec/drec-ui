@@ -17,6 +17,6 @@
   },
   {
     action: 'click',
-    selector: '[test-id="upload"]',
-  },
+    selector: '[test-id="upload"]'
+  }
 ]
