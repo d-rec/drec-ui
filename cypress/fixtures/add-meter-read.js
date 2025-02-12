@@ -45,6 +45,6 @@
   },
   {
     action: 'click',
-    selector: '[test-id="submit-read"]',
-  },
+    selector: '[test-id="submit-read"]'
+  }
 ]
