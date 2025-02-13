@@ -149,9 +149,7 @@ export class UserpermissionComponent {
   }
   onSubmit(): any {
     if (this.selection.selected.length > 0) {
-      if (
-        typeof this.UserPermissionForm.controls['entityId'].value !== 'number'
-      ) {
+      if (this.UserPermissionForm.get('entityId')?.value?.length === 1) {
         return this.toastrService.error(
           'Please select at least one user role',
           'Validation Error!',
