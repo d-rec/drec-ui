@@ -10,7 +10,7 @@
         <button
           class="btn btn-dark justify-content-end d-flex align-items-center px-4"
           (click)="adddevice()"
-          data-testid="add-more-devices"
+          test-id="add-more-devices"
         >
           <mat-icon class="align-middle me-2">add_circle</mat-icon> Add More
           Device
@@ -25,7 +25,7 @@
           *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
         >
           <mat-form-field appearance="outline">
-            <mat-label class="text-capitalize" data-testid="Organization"
+            <mat-label class="text-capitalize" test-id="organization"
               >Organization</mat-label
             >
 
@@ -83,7 +83,7 @@
                     <mat-form-field appearance="outline">
                       <mat-label
                         class="text-capitalize"
-                        data-testid="project-name"
+                        test-id="project-name"
                         >project Name</mat-label
                       >
                       <input
@@ -99,7 +99,7 @@
                     <mat-form-field appearance="outline">
                       <mat-label
                         class="text-capitalize"
-                        data-testid="external-id"
+                        test-id="external-id"
                         >External ID</mat-label
                       >
                       <input matInput formControlName="externalId" />
@@ -116,7 +116,7 @@
                     <mat-form-field appearance="outline">
                       <mat-label
                         class="text-capitalize"
-                        data-testid="select-countly"
+                        test-id="select-country"
                         >Select country
                       </mat-label>
                       <input
@@ -129,7 +129,7 @@
                         <mat-option
                           *ngFor="let code of filteredCountryList[i] | async"
                           [value]="code.country"
-                          data-testid="country-options"
+                          test-id="country-options"
                         >
                           {{ code.country }}
                         </mat-option>
@@ -138,7 +138,7 @@
                     <mat-error
                       *ngIf="showerror[i]"
                       style="margin-top: -15px"
-                      data-testid="Invalid-country"
+                      test-id="invalid-country"
                     >
                       Invalid Country Selected
                     </mat-error>
@@ -155,7 +155,7 @@
                         placeholder="Choose a date"
                         formControlName="commissioningDate"
                         [max]="maxDate"
-                        data-testid="commissioning-date"
+                        test-id="commissioning-date"
                       />
                       <mat-datepicker-toggle
                         matSuffix
@@ -180,7 +180,7 @@
                 <div class="example-container1 row">
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label data-testid="capacity">Capacity(kW)</mat-label>
+                      <mat-label test-id="capacity">Capacity(kW)</mat-label>
                       <input
                         matInput
                         type="number"
@@ -194,7 +194,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" data-testid="address"
+                      <mat-label class="text-capitalize" test-id="address"
                         >Address</mat-label
                       >
                       <input
@@ -209,7 +209,7 @@
 
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" data-testid="latitude"
+                      <mat-label class="text-capitalize" test-id="latitude"
                         >Latitude</mat-label
                       >
                       <input matInput formControlName="latitude" />
@@ -220,7 +220,7 @@
 
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" data-testid="longitude"
+                      <mat-label class="text-capitalize" test-id="longitude"
                         >longitude</mat-label
                       >
                       <input matInput formControlName="longitude" />
@@ -233,7 +233,7 @@
                 <div class="example-container1 row">
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" data-testid="fuelcode"
+                      <mat-label class="text-capitalize" test-id="fuel-code"
                         >Fuel Code</mat-label
                       >
 
@@ -241,7 +241,7 @@
                         <mat-option
                           *ngFor="let code of fuellist"
                           [value]="code.code"
-                          data-testid="fuel-option"
+                          test-id="fuel-option"
                         >
                           {{ code.name }}
                         </mat-option>
@@ -253,7 +253,7 @@
                     <mat-form-field appearance="outline">
                       <mat-label
                         class="text-capitalize"
-                        data-testid="device-type"
+                        test-id="device-type"
                         >Device Type Code</mat-label
                       >
 
@@ -261,7 +261,7 @@
                         <mat-option
                           *ngFor="let code of devicetypelist"
                           [value]="code.code"
-                          data-testid="typecode-option"
+                          test-id="type-code-option"
                         >
                           {{ code.name }}
                         </mat-option>
@@ -272,7 +272,7 @@
                     <mat-form-field appearance="outline">
                       <mat-label
                         class="text-capitalize"
-                        data-testid="SDGBenefits"
+                        test-id="SDGBenefits"
                         >SDG Benefits</mat-label
                       >
 
@@ -280,7 +280,7 @@
                         <mat-option
                           *ngFor="let sdgb of sdgblist"
                           [value]="sdgb.name"
-                          data-testid="SDGBenefits-option"
+                          test-id="SDGBenefits-option"
                           >{{ sdgb.value }}</mat-option
                         >
                       </mat-select>
@@ -297,7 +297,7 @@
                       class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
                       (click)="addmore(i)"
                       *ngIf="showaddmore[i]"
-                      data-testid="add-more"
+                      test-id="add-more"
                     >
                       Add more details
                       <mat-icon class="pt-2 scroll-down"
@@ -324,7 +324,7 @@
 
                       <mat-select
                         formControlName="offTaker"
-                        data-testid="off-taker"
+                        test-id="off-taker"
                       >
                         <mat-option
                           *ngFor="let code of offtaker"
@@ -344,7 +344,7 @@
 
                       <mat-select
                         formControlName="deviceDescription"
-                        data-testid="device-description"
+                        test-id="device-description"
                       >
                         <mat-option
                           *ngFor="let code of devicedescription"
@@ -363,7 +363,7 @@
                       <input
                         matInput
                         formControlName="impactStory"
-                        data-testid="impact-story"
+                        test-id="impact-story"
                         autocomplete="off"
                       />
                     </mat-form-field>
@@ -377,7 +377,7 @@
                       <input
                         matInput
                         formControlName="qualityLabels"
-                        data-testid="quality"
+                        test-id="quality"
                       />
                     </mat-form-field>
                   </div>
@@ -388,7 +388,7 @@
                     <span>Grid Inter-connection:</span>
                     <mat-radio-group
                       formControlName="gridInterconnection"
-                      data-testid="gridInterconnection"
+                      test-id="grid-interconnection"
                     >
                       <mat-radio-button [value]="true">Yes</mat-radio-button>
                       <mat-radio-button [value]="false">No</mat-radio-button>
@@ -399,7 +399,7 @@
                     <mat-radio-group
                       formControlName="energyStorage"
                       (ngModelChange)="showenergycapacity_input(i, $event)"
-                      data-testid="energyStorage"
+                      test-id="energy-storage"
                     >
                       <mat-radio-button [value]="true">Yes</mat-radio-button>
                       <mat-radio-button [value]="false">No</mat-radio-button>
@@ -416,7 +416,7 @@
                         autocomplete="off"
                         type="number"
                         formControlName="energyStorageCapacity"
-                        data-testid="energy-storage"
+                        test-id="energy-storage"
                       />
                     </mat-form-field>
                   </div>
@@ -434,7 +434,7 @@
               type="submit"
               class="btn-primary btn text-capitalize px-4"
               [disabled]="myform.invalid"
-              data-testid="submit-device"
+              test-id="submit-device"
             >
               Submit
             </button>
