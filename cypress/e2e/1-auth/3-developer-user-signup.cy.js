@@ -3,7 +3,8 @@ describe('Sign Up Test', () => {
     cy.wait(5000);
     // cy.clearDatabase();
   });
-  it('should sign up a new buyer user', () => {
-    cy.signup_buyer();
+
+  it('should sign up a new developer user', () => {
+    cy.developerUserSignup();
   });
 });
