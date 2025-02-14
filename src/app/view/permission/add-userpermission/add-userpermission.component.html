@@ -123,14 +123,14 @@
                     <mat-form-field appearance="outline">
                       <mat-label
                         class="text-capitalize"
-                       test-id="add-user-role"
+                        test-id="add-user-role"
                         >UserRole</mat-label
                       >
                       <mat-select formControlName="entityId">
                         <mat-option
                           *ngFor="let role of rolelist"
                           [value]="role.id"
-                         test-id="user-role-option"
+                          test-id="user-role-option"
                         >
                           {{ role.name }}
                         </mat-option>
@@ -184,7 +184,7 @@
                     <td>
                       <mat-cell
                         *cdkCellDef="let row"
-                       test-id="select-module"
+                        test-id="select-module"
                       >
                         <mat-checkbox
                           color="primary"
@@ -213,7 +213,7 @@
                       >
                         <mat-checkbox
                           color="primary"
-                         test-id="select-permission"
+                          test-id="select-permission"
                           [checked]="
                             row.selectedPermissions.includes(permission)
                           "
@@ -295,7 +295,7 @@
                   type="submit"
                   class="btn-primary btn text-capitalize px-4"
                   [disabled]="UserPermissionForm.invalid"
-                 test-id="submit-permission"
+                  test-id="submit-permission"
                 >
                   Submit
                 </button>

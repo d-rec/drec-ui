@@ -3,6 +3,7 @@ const ADMIN_EMAIL = Cypress.env('ADMIN_EMAIL');
 const ADMIN_PASSWORD = Cypress.env('ADMIN_PASSWORD');
 const REACT_APP_BACKEND_URL = Cypress.env('REACT_APP_BACKEND_URL');
 const UI_BASE_URL = Cypress.env('UI_BASE_URL');
+import 'cypress-file-upload';
 
 Cypress.Commands.add('clearDatabase', () => {
   cy.request({
@@ -333,6 +334,25 @@ Cypress.Commands.add('certificate', function () {
           .get(step.selector)
           .should('be.visible')
           .type(step.value, { force: true });
+      }
+    });
+  });
+});
+
+
+Cypress.Commands.add('bulkUpload', function () {
+  cy.fixture('bulk-upload.js').then((data) => {
+    data.forEach((step) => {
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'upload') {
+        cy.get(step.selector) 
+          .attachFile('files/d-rec_bulk_upload_meter_read_template.csv', { force: true })
+          .wait(5000);
       }
     });
   });

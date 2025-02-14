@@ -155,6 +155,7 @@
             routerLinkActive="active"
             routerLink="/device/bulk_upload"
             *ngIf="loginuser.role != 'User'"
+            test-id="bulk-upload"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span> Bulk Upload</span>
@@ -404,7 +405,7 @@
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header
           class="mdc-button"
-          [attr.settings-test-id]="'account-setting-header'"
+          [attr.test-id]="'account-setting-header'"
         >
           <mat-icon>manage_accounts</mat-icon>
           Account Setting
