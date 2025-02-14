@@ -1,4 +1,4 @@
-describe('setup user role permissions', () => {
+describe('setup buyer user role permissions', () => {
   beforeEach(() => {
     cy.wait(1000);
   });
