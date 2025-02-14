@@ -1,7 +1,7 @@
 [
   {
     action: 'click',
-    selector: '[settings-test-id="account-setting-header"]'
+    selector: '[test-id="account-setting-header"]'
   },
   {
     action: 'click',
