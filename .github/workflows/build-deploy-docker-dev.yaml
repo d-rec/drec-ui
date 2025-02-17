@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Print AWS Region
-        run: echo "AWS_REION = eu-east-1"
+        run: echo "AWS_REION = eu-west-1"
         # run: echo "AWS_REGION=${{ secrets.AWS_REGION }}"
 
   build:
