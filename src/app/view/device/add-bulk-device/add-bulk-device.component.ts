@@ -237,18 +237,6 @@ export class AddBulkDeviceComponent implements OnInit {
         });
     }
   }
-  // JobDisplayList() {
-  //   this.showdevicesinfo = false;
-  //   this.loading = true;
-  //   this.uploadService.getCsvJobList().subscribe((data) => {
-  //     // display list in the console
-  //     this.loading = false;
-  //     this.data = data;
-  //     this.dataSource = new MatTableDataSource(this.data.csvJobs);
-  //     this.dataSource.paginator = this.paginator;
-  //     this.dataSource.sort = this.sort;
-  //   });
-  // }
 
   displayBulkUploads() {
     this.showBulkUploadLogs = false;
@@ -261,14 +249,28 @@ export class AddBulkDeviceComponent implements OnInit {
         this.dataSource.sort = this.sort;
       });
   }
-  DisplayDeviceLogList(jobid: number, orgId: number) {
-    this.showBulkUploadLogs = true;
-    this.DevicestatusList = [];
-    this.uploadService.getJobStatus(jobid, orgId).subscribe((data) => {
-      this.data = data.errorDetails.log.errorDetails;
-      this.dataSource1 = new MatTableDataSource(this.data);
-      this.dataSource1.paginator = this.paginator;
-    });
+
+  getBulkUploadLogs(bulkUploadId: number, organizationId: number) {
+    this.bulkUploadService
+      .getBulkUploadLogs(bulkUploadId, organizationId)
+      .subscribe({
+        next: (response) => {
+          try {
+            const errorDetails = response.details;
+            if (errorDetails && errorDetails.length > 0) {
+              this.showBulkUploadLogs = true;
+              this.data = [errorDetails];
+              this.dataSource1 = new MatTableDataSource(this.data);
+              this.dataSource1.paginator = this.paginator;
+            }
+          } catch (error) {
+            this.showBulkUploadLogs = true;
+            this.data = ['No logs'];
+            this.dataSource1 = new MatTableDataSource(this.data);
+            this.dataSource1.paginator = this.paginator;
+          }
+        },
+      });
   }
 
   UpdateDevice(externalId: any) {
