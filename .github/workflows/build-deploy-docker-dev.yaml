@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - fx/hardcoded-region
   workflow_dispatch:
 
 jobs:
@@ -14,7 +15,7 @@ jobs:
     secrets:
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      aws-region: eu-west-1
+      aws-region: ${{ secrets.AWS_REGION}}
       ecr-registry: ${{ secrets.ECR_REGISTRY }}
 
   deploy:
@@ -25,5 +26,5 @@ jobs:
     secrets:
       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      aws-region: eu-west-1
+      aws-region: ${{ secrets.AWS_REGION}}
       ecr-registry: ${{ secrets.ECR_REGISTRY }}
