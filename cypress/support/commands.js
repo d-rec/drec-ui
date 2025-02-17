@@ -327,11 +327,10 @@ Cypress.Commands.add('lateOngoingMeterRead', function () {
           .type(step.value, { force: true });
       }
       if (step.action === 'date-picker') {
-        // Get the current time and add two hours
+        
         const currentTime = new Date();
-        currentTime.setHours(currentTime.getHours() + 2); // Adds 2 hours
-
-        // Format the time in the required format: 1/6/2025, 2:46 PM (Example)
+        currentTime.setHours(currentTime.getHours() + 2); 
+        
         const formattedTime = currentTime.toLocaleString('en-US', {
           year: 'numeric',
           month: 'numeric',
@@ -346,8 +345,8 @@ Cypress.Commands.add('lateOngoingMeterRead', function () {
           .get(step.selector)
           .wait(1000)
           .click({ force: true })
-          .type(formattedTime, { force: true })  // Type the calculated time
-          .click();  // Click on the button
+          .type(formattedTime, { force: true })  
+          .click();  
       }
 
     });
