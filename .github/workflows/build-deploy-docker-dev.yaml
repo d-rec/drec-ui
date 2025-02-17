@@ -8,7 +8,14 @@ on:
   workflow_dispatch:
 
 jobs:
+  debug-region:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print AWS Region
+        run: echo "AWS_REGION=${{ secrets.AWS_REGION }}"
+
   build:
+    needs: debug-region
     uses: d-rec/drec-ui/.github/workflows/build-docker-ecr.yaml@develop
     with:
       environment: dev
