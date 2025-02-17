@@ -105,12 +105,14 @@ export class AddBulkReadsComponent implements OnInit {
 
   displayBulkUploads() {
     this.showBulkUploadLogs = false;
-    this.bulkUploadService.getBulkUploads().subscribe((data) => {
-      this.data = data;
-      this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    });
+    this.bulkUploadService
+      .getBulkUploads(BulkUploadType.Reads)
+      .subscribe((data) => {
+        this.data = data;
+        this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      });
   }
 
   getBulkUploadLogs(bulkUploadId: number, organizationId: number) {

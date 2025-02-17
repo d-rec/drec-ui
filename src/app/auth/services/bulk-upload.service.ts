@@ -27,11 +27,17 @@ export class BulkUploadService {
     );
   }
 
-  getBulkUploads(organizationId?: number): Observable<any> {
+  getBulkUploads(
+    bulkUploadType: BulkUploadType,
+    organizationId?: number,
+  ): Observable<any> {
+    let url = `${this.baseUrl}/?bulkUploadType=${bulkUploadType}`;
+
     if (organizationId) {
-      return this.http.get(`${this.baseUrl}/?organizationId=${organizationId}`);
+      url += `&organizationId=${organizationId}`;
     }
-    return this.http.get(this.baseUrl);
+
+    return this.http.get(url);
   }
 
   getBulkUploadLogs(

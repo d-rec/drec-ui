@@ -27,7 +27,7 @@ export class AddBulkDeviceComponent implements OnInit {
   pageSize: number = 10;
   fileName = 'Please click here to select file';
   fileInfos?: Observable<any>;
-  showdevicesinfo: boolean = false;
+  showBulkUploadLogs: boolean = false;
   DevicestatusList: any = [];
   loading: boolean = true;
   objectKeys = Object.keys;
@@ -85,7 +85,7 @@ export class AddBulkDeviceComponent implements OnInit {
         this.filteredOrgList = this.orglist;
       });
     }
-    this.JobDisplayList();
+    this.displayBulkUploads();
   }
 
   filterOrgList() {
@@ -135,98 +135,134 @@ export class AddBulkDeviceComponent implements OnInit {
     }
   }
 
+  // upload(): void {
+  //   this.progress = 0;
+  //   this.message = '';
+
+  // if (this.currentFile) {
+  //   this.uploadService.csvupload(this.currentFile).subscribe(
+  //     (event: any) => {
+  //       const obj: any = {};
+  //       obj['fileName'] = event[0];
+  //       if (
+  //         this.loginuser.role === 'Admin' ||
+  //         this.loginuser.role === 'ApiUser'
+  //       ) {
+  //         this.deviceService
+  //           .addByAdminbulkDevices(this.orgId, obj)
+  //           .subscribe({
+  //             next: () => {
+  //               this.JobDisplayList();
+  //               this.currentFile = null;
+  //               this.fileName = 'Please click here to Select File';
+  //               this.toastrService.success(
+  //                 'Successfully!',
+  //                 'Devices Uploaded in Bulk!!',
+  //               );
+  //             },
+  //             error: (err) => {
+  //               //Error callback
+  //               console.error('error caught in component', err);
+  //               if (err.error.statusCode === 403) {
+  //                 this.toastrService.error(
+  //                   "You don't have the permissions to add devices.",
+  //                   'Access Denied',
+  //                 );
+  //               } else {
+  //                 this.toastrService.error('error!', err.error.message);
+  //               }
+  //             },
+  //           });
+  //       } else {
+  //   this.uploadService.addbulkDevices(obj).subscribe({
+  //     next: () => {
+  //       this.JobDisplayList();
+  //       this.currentFile = null;
+  //       this.fileName = 'Please click here to Select File';
+  //       this.toastrService.success(
+  //         'Successful',
+  //         'Devices uploaded in bulk',
+  //       );
+  //     },
+  //     error: (err) => {
+  //       //Error callback
+  //       console.error('error caught in component', err);
+  //       if (err.error.statusCode === 403) {
+  //         this.toastrService.error(
+  //           "You don't have the permissions to add  devices.",
+  //           'Access Denied',
+  //         );
+  //       } else {
+  //         this.toastrService.error('error!', err.error.message);
+  //       }
+  //     },
+  //   });
+  // }
+  //     (err: any) => {
+  //       this.progress = 0;
+
+  //       if (err.error && err.error.message) {
+  //         this.message = err.error.message;
+  //       } else {
+  //         this.message = 'Could not upload the file!';
+  //       }
+
+  //       this.currentFile = null;
+  //     },
+  //   );
+  // }
+
   upload(): void {
-    this.progress = 0;
-    this.message = '';
-
     if (this.currentFile) {
-      this.uploadService.csvupload(this.currentFile).subscribe(
-        (event: any) => {
-          const obj: any = {};
-          obj['fileName'] = event[0];
-          if (
-            this.loginuser.role === 'Admin' ||
-            this.loginuser.role === 'ApiUser'
-          ) {
-            this.deviceService
-              .addByAdminbulkDevices(this.orgId, obj)
-              .subscribe({
-                next: () => {
-                  this.JobDisplayList();
-                  this.currentFile = null;
-                  this.fileName = 'Please click here to Select File';
-                  this.toastrService.success(
-                    'Successfully!',
-                    'Devices Uploaded in Bulk!!',
-                  );
-                },
-                error: (err) => {
-                  //Error callback
-                  console.error('error caught in component', err);
-                  if (err.error.statusCode === 403) {
-                    this.toastrService.error(
-                      "You don't have the permissions to add devices.",
-                      'Access Denied',
-                    );
-                  } else {
-                    this.toastrService.error('error!', err.error.message);
-                  }
-                },
-              });
-          } else {
-            this.uploadService.addbulkDevices(obj).subscribe({
-              next: () => {
-                this.JobDisplayList();
-                this.currentFile = null;
-                this.fileName = 'Please click here to Select File';
-                this.toastrService.success(
-                  'Successful',
-                  'Devices uploaded in bulk',
-                );
-              },
-              error: (err) => {
-                //Error callback
-                console.error('error caught in component', err);
-                if (err.error.statusCode === 403) {
-                  this.toastrService.error(
-                    "You don't have the permissions to add  devices.",
-                    'Access Denied',
-                  );
-                } else {
-                  this.toastrService.error('error!', err.error.message);
-                }
-              },
-            });
-          }
-        },
-        (err: any) => {
-          this.progress = 0;
-
-          if (err.error && err.error.message) {
-            this.message = err.error.message;
-          } else {
-            this.message = 'Could not upload the file!';
-          }
-
-          this.currentFile = null;
-        },
-      );
+      const organizationId = this.orgId ?? this.loginuser.id;
+      this.bulkUploadService
+        .bulkUpload(this.currentFile, organizationId, BulkUploadType.Devices)
+        .subscribe({
+          next: () => {
+            this.displayBulkUploads();
+            this.currentFile = null;
+            this.fileName = 'Please click here to Select File';
+            this.toastrService.success(
+              'Successfully!',
+              'File Uploaded in Bulk!!',
+            );
+          },
+          error: (err) => {
+            if (err.error.statusCode === 403) {
+              this.toastrService.error('You are Unauthorized');
+            } else {
+              this.toastrService.error('error!', err.error.message);
+            }
+          },
+        });
     }
   }
-  JobDisplayList() {
-    this.showdevicesinfo = false;
-    this.loading = true;
-    this.uploadService.getCsvJobList().subscribe((data) => {
-      // display list in the console
-      this.loading = false;
-      this.data = data;
-      this.dataSource = new MatTableDataSource(this.data.csvJobs);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    });
+  // JobDisplayList() {
+  //   this.showdevicesinfo = false;
+  //   this.loading = true;
+  //   this.uploadService.getCsvJobList().subscribe((data) => {
+  //     // display list in the console
+  //     this.loading = false;
+  //     this.data = data;
+  //     this.dataSource = new MatTableDataSource(this.data.csvJobs);
+  //     this.dataSource.paginator = this.paginator;
+  //     this.dataSource.sort = this.sort;
+  //   });
+  // }
+
+  displayBulkUploads() {
+    this.showBulkUploadLogs = false;
+    this.bulkUploadService
+      .getBulkUploads(BulkUploadType.Devices)
+      .subscribe((data) => {
+        this.data = data;
+        this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      });
   }
   DisplayDeviceLogList(jobid: number, orgId: number) {
-    this.showdevicesinfo = true;
+    this.showBulkUploadLogs = true;
     this.DevicestatusList = [];
     this.uploadService.getJobStatus(jobid, orgId).subscribe((data) => {
       this.data = data.errorDetails.log.errorDetails;
