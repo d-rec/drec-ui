@@ -49,7 +49,7 @@
   },
   {
     action: 'check',
-    selector: '[test-id="device-check"]',
+    selector: '[test-id="select-device]',
     index: 0,
   },
   {
