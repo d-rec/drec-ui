@@ -217,11 +217,11 @@
 				
 								<div class="col-md-4 h6-margin-remove">
 									<h6>Device External Id: </h6>
-									<mat-form-field appearance="outline">
+									<mat-form-field appearance="outline" test-id="devices-selector">
 										<mat-label class="text-capitalize"> enter device Id</mat-label>
-										<mat-select formControlName='deviceIds' (ngModelChange)="checkFormValidity()" multiple>
-											<mat-option [value]="">---</mat-option>
-											<mat-option *ngFor="let deviceId of deviceIds" [value]="deviceId">
+										<mat-select formControlName='deviceIds' (ngModelChange)="checkFormValidity()" multiple [attr.test-id]="'select-devices'">
+											<mat-option [value]="" test-id="empty">---</mat-option>
+											<mat-option *ngFor="let deviceId of deviceIds" [value]="deviceId" [attr.test-id]="'device-options'">
 												{{deviceId}}
 											</mat-option>
 										</mat-select>
@@ -246,6 +246,7 @@
                     class="btn-primary me-2 btn text-capitalize px-4"
                     (click)="DisplayListFilter()"
                     [disabled]="!isAnyFieldFilled"
+                    test-id="filter-button"
                   >
                     Filter
                   </button>
@@ -462,7 +463,7 @@
           </button>
           <p class="pagenumber"><b>Page Number:</b>{{ p }}</p>
         </div>
-        <div *ngIf="!data?.length" style="text-align: center; color: #f2be1a">
+        <div *ngIf="!data?.length" style="text-align: center; color: #f2be1a" test-id="no-certificate">
           No Certificate
         </div>
       </ng-container>

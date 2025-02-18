@@ -1,8 +1,8 @@
-describe('Add reservation', () => {
+describe('Generate certificate', () => {
   beforeEach(() => {
     cy.wait(1000);
   });
-  it('should add reservation', () => {
+  it('should generate certificate', () => {
     cy.buyerUserLogin().wait(20000);
     cy.certificate();
   });
