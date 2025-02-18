@@ -15,6 +15,6 @@
   },
   {
     action: 'click',
-    selector: '[test-id="login-submit"]',
-  },
+    selector: '[test-id="login-submit"]'
+  }
 ]
