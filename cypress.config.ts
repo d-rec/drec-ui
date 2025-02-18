@@ -8,5 +8,8 @@ export default defineConfig({
       ADMIN_PASSWORD: '1234Rc',
       UI_BASE_URL: 'http://localhost:4200',
     },
+    setupNodeEvents(on, config) {
+      // implement node event listeners here
+    },
   },
 });
