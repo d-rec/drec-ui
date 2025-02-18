@@ -39,7 +39,9 @@
         <div class="example-container1 row">
           <div
             class="col-md-3"
-            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
+            *ngIf="
+              loggedInUser.role === 'Admin' || loggedInUser.role === 'ApiUser'
+            "
           >
             <mat-form-field appearance="outline">
               <mat-label class="text-capitalize">Organization</mat-label>

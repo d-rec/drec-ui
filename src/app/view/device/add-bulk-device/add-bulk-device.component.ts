@@ -55,7 +55,7 @@ export class AddBulkDeviceComponent implements OnInit {
     private orgService: OrganizationService,
     private bulkUploadService: BulkUploadService,
   ) {
-    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+    this.loggedInUser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -67,17 +67,17 @@ export class AddBulkDeviceComponent implements OnInit {
   //public color: ThemePalette = 'primary';
   orgname: string;
   orgId: number;
-  loginuser: any;
+  loggedInUser: any;
 
   ngOnInit(): void {
-    if (this.loginuser.role === 'Admin') {
+    if (this.loggedInUser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
         this.filteredOrgList = this.orglist;
       });
-    } else if (this.loginuser.role === 'ApiUser') {
+    } else if (this.loggedInUser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org) => org.organizationType != 'Buyer',
@@ -137,7 +137,7 @@ export class AddBulkDeviceComponent implements OnInit {
 
   upload(): void {
     if (this.currentFile) {
-      const organizationId = this.orgId ?? this.loginuser.id;
+      const organizationId = this.orgId ?? this.loggedInUser.id;
       this.bulkUploadService
         .bulkUpload(this.currentFile, organizationId, BulkUploadType.Devices)
         .subscribe({
@@ -163,8 +163,9 @@ export class AddBulkDeviceComponent implements OnInit {
 
   displayBulkUploads() {
     this.showBulkUploadLogs = false;
+    const userId = this.loggedInUser.id;
     this.bulkUploadService
-      .getBulkUploads(BulkUploadType.Devices)
+      .getBulkUploads(userId, BulkUploadType.Devices)
       .subscribe((data) => {
         this.data = data;
         this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
