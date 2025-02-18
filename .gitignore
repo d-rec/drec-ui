@@ -44,3 +44,7 @@ Thumbs.db
 # Sentry Config File
 .sentryclirc
 .env
+
+# Sentry Config File
+.sentryclirc
+.env
