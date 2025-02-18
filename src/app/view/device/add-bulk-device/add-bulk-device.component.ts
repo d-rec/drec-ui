@@ -179,10 +179,11 @@ export class AddBulkDeviceComponent implements OnInit {
       .subscribe({
         next: (response) => {
           try {
-            const errorDetails = response.details;
+            const errorDetails = response.details.log.errorDetails;
+            console.log(errorDetails);
             if (errorDetails && errorDetails.length > 0) {
               this.showBulkUploadLogs = true;
-              this.data = [errorDetails];
+              this.data = errorDetails;
               this.dataSource1 = new MatTableDataSource(this.data);
               this.dataSource1.paginator = this.paginator;
             }
