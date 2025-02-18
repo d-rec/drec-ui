@@ -1,14 +1,14 @@
 [
   {
     action: 'click',
-    selector: '[test-id="reservations"]',
+    selector: '[test-id="reservations"]'
   },
   {
     action: 'click',
-    selector: '[test-id="all-reservations"]',
+    selector: '[test-id="all-reservations"]'
   },
   {
     action: 'click',
-    selector: '[test-id="certificate"]',
-  },
+    selector: '[test-id="certificate"]'
+  }
 ]

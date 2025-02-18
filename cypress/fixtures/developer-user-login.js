@@ -2,7 +2,7 @@
   {
     action: 'type',
     selector: '[test-id="login-username"]',
-    value: 'developer@energy.org',
+    value: 'developer@energy.org'
   },
   {
     action: 'type',
@@ -11,7 +11,7 @@
   },
   {
     action: 'click',
-    selector: '[test-id="hide-password"]',
+    selector: '[test-id="hide-password"]'
   },
   {
     action: 'click',
