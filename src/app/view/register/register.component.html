@@ -124,7 +124,7 @@
                   type="text"
                   matInput
                   formControlName="firstName"
-                  data-testid="firstName"
+                  test-id="first-name"
                 />
                 <mat-error class="pb-1" *ngIf="checkValidation('firstName')">
                   {{ fieldRequired }}
@@ -138,7 +138,7 @@
                   type="text"
                   matInput
                   formControlName="lastName"
-                  data-testid="lastName"
+                  test-id="last-name"
                 />
                 <mat-error class="pb-1" *ngIf="checkValidation('lastName')">
                   {{ fieldRequired }}
@@ -151,7 +151,7 @@
                   type="email"
                   matInput
                   formControlName="email"
-                  data-testid="email"
+                  test-id="email"
                 />
                 <mat-error class="pb-3" *ngIf="checkValidation('email')">
                   {{ emaiErrors() }}
@@ -162,7 +162,7 @@
                   mat-button
                   matStepperNext
                   class="btn-primary btn btn-block"
-                  data-testid="userInfo"
+                  test-id="user-info"
                 >
                   Next
                 </button>
@@ -182,7 +182,7 @@
                 <mat-select
                   formControlName="organizationType"
                   class="value-fs"
-                  data-testid="organizationType"
+                  test-id="organization-type"
                 >
                   <mat-option *ngFor="let org of orgtype" [value]="org.value">
                     {{ org.viewValue }}
@@ -202,7 +202,7 @@
                   type="text"
                   matInput
                   formControlName="orgName"
-                  data-testid="orgName"
+                  test-id="organization-name"
                 />
                 <mat-error class="pb-1" *ngIf="checkValidation('orgName')">
                   {{ fieldRequired }}
@@ -217,7 +217,7 @@
                   type="text"
                   matInput
                   formControlName="orgAddress"
-                  data-testid="orgAddress"
+                  test-id="organization-address"
                 />
                 <mat-error class="pb-3" *ngIf="checkValidation('orgAddress')">
                   {{ fieldRequired }}
@@ -228,7 +228,7 @@
                   mat-button
                   matStepperPrevious
                   class="btn-primary btn btn-content-back me-2 btn-block"
-                  data-testid="backToInfo"
+                  test-id="back-to-info"
                 >
                   Back
                 </button>
@@ -236,7 +236,7 @@
                   mat-button
                   matStepperNext
                   class="btn-primary btn ms-2 btn-block"
-                  data-testid="nextToPassword"
+                  test-id="next-to-password"
                 >
                   Next
                 </button>
@@ -253,7 +253,7 @@
                   matInput
                   [type]="hide ? 'password' : 'text'"
                   formControlName="password"
-                  data-testid="password"
+                  test-id="password"
                 />
                 <button
                   mat-icon-button
@@ -262,7 +262,7 @@
                   [attr.aria-label]="'Hide password'"
                   [attr.aria-pressed]="hide"
                   class="icon-eye"
-                  data-testid="icon-eye"
+                  test-id="icon-eye"
                 >
                   <mat-icon>{{
                     hide ? 'visibility_off' : 'visibility'
@@ -283,7 +283,7 @@
                   [type]="hide1 ? 'password' : 'text'"
                   matInput
                   formControlName="confirmPassword"
-                  data-testid="confirmPassword"
+                  test-id="confirm-password"
                 />
                 <button
                   mat-icon-button
@@ -292,7 +292,7 @@
                   [attr.aria-label]="'Hide password'"
                   [attr.aria-pressed]="hide1"
                   class="icon-eye"
-                  data-testid="hideConfPwd"
+                  test-id="hide-confirm-password"
                 >
                   <mat-icon>{{
                     hide1 ? 'visibility_off' : 'visibility'
@@ -311,7 +311,7 @@
                   mat-button
                   matStepperPrevious
                   class="btn-primary btn btn-content-back me-2 btn-block"
-                  data-testid="backToOrg"
+                  test-id="back-to-organization"
                 >
                   Back
                 </button>
@@ -322,7 +322,7 @@
                   class="btn-primary btn ms-2 btn-block"
                   [disabled]="registerForm.invalid"
                   (click)="onSubmit()"
-                  data-testid="submitReg"
+                  test-id="submit-registration"
                 >
                   Submit
                 </button>

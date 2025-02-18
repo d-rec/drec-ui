@@ -206,7 +206,7 @@
                       [min]="startminDate"
                       autocomplete="off"
                       (ngModelChange)="onEndChangeEvent($event)"
-                      data-testid="choose-start-date"
+                      test-id="choose-start-date"
                     />
                     <mat-datepicker-toggle
                       matSuffix
@@ -215,7 +215,7 @@
                     <ngx-mat-datetime-picker
                       #picker
                       [showSpinners]="true"
-                      data-testid="datepicker"
+                      test-id="date-picker"
                       [showSeconds]="false"
                       [stepHour]="1"
                       [stepMinute]="1"
@@ -289,7 +289,7 @@
                 <mat-option
                   *ngFor="let result of filteredexternalIdOptions | async"
                   [value]="result"
-                  [attr.externalid-testid]="result.externalId"
+                  [attr.external-id-test-id]="result.externalId"
                 >
                   {{ result.externalId }}
                 </mat-option>
@@ -328,7 +328,7 @@
                 <mat-option
                   *ngFor="let code of filteredOptions | async"
                   [value]="code.name"
-                  [attr.timezone-testid]="code.name"
+                  [attr.timezone-test-id]="code.name"
                 >
                   {{ code.name }}
                 </mat-option>
@@ -347,7 +347,7 @@
                 <mat-option
                   *ngFor="let code of readtype"
                   [value]="code"
-                  [attr.readtype-testid]="code"
+                  [attr.read-type-test-id]="code"
                 >
                   {{ code }}
                 </mat-option>
@@ -362,7 +362,7 @@
                 <mat-option
                   *ngFor="let unit of unit"
                   [value]="unit"
-                  [attr.unit-testid]="unit"
+                  [attr.unit-test-id]="unit"
                 >
                   {{ unit }}
                 </mat-option>
@@ -470,7 +470,7 @@
               type="submit"
               [disabled]="readForm.invalid"
               class="btn-primary btn text-capitalize px-4"
-              data-testid="submitRead"
+              test-id="submit-read"
             >
               Submit
             </button>
