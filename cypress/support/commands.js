@@ -1,3 +1,4 @@
+import 'cypress-file-upload';
 const ADMIN_EMAIL = Cypress.env('ADMIN_EMAIL');
 const ADMIN_PASSWORD = Cypress.env('ADMIN_PASSWORD');
 const REACT_APP_BACKEND_URL = Cypress.env('REACT_APP_BACKEND_URL');
@@ -27,7 +28,10 @@ Cypress.Commands.add('developerUserSignup', function () {
     cy.get('[test-id="register"]').click();
     data.forEach((step) => {
       if (step.action === 'type') {
-        return cy.get(step.selector).type(step.value);
+        return cy
+          .get(step.selector)
+          .type(step.value)
+          .should('have.value', step.value);
       }
       if (step.action === 'click') {
         return cy.get(step.selector).click().wait(1000);
@@ -75,55 +79,15 @@ Cypress.Commands.add('adminLogin', function () {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     data.forEach((step) => {
       if (step.action === 'type') {
-        if (step.index === 0) {
-          return cy.get(step.selector).type(ADMIN_EMAIL);
-        }
-        if (step.index === 1) {
-          return cy.get(step.selector).type(ADMIN_PASSWORD);
-        }
+        cy.get(step.selector).type(step.index === 0 ? ADMIN_EMAIL : ADMIN_PASSWORD);
       }
       if (step.action === 'click') {
-        return cy.get(step.selector).click().wait(1000);
+        cy.get(step.selector).click();
       }
     });
   });
 });
 
-Cypress.Commands.add('developerUserPermissionsSetup', function () {
-  cy.fixture('developer-user-permissions-setup.js').then((data) => {
-    data.forEach((step) => {
-      if (step.action === 'click') {
-        return cy.get(step.selector).should('be.visible').click().wait(1000);
-      }
-      if (step.action === 'select') {
-        return cy
-          .get(step.selector)
-          .click()
-          .get(step.option)
-          .should('have.length.greaterThan', 0)
-          .eq(1)
-          .click();
-      }
-      if (step.action === 'check') {
-        return cy.get(step.selector).eq(step.index).click();
-      }
-      if (step.action === 'check-multiple') {
-        return cy.contains('table tr', step.contains).within(() => {
-          cy.get(step.selector).each(($el) => {
-            cy.wrap($el).click();
-          });
-        });
-      }
-      if (step.action === 'submit') {
-        return cy
-          .get(step.selector)
-          .scrollIntoView()
-          .should('be.visible')
-          .click();
-      }
-    });
-  });
-});
 
 Cypress.Commands.add('buyerUserPermissionsSetup', function () {
   cy.fixture('buyer-user-permissions-setup.js').then((data) => {
@@ -162,16 +126,38 @@ Cypress.Commands.add('buyerUserPermissionsSetup', function () {
   });
 });
 
-Cypress.Commands.add('developerUserLogin', function () {
-  cy.fixture('developer-user-login.js').then((data) => {
-    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
+Cypress.Commands.add('developerUserPermissionsSetup', function () {
+  cy.fixture('developer-user-permissions-setup.js').then((data) => {
     data.forEach((step) => {
-      if (step.action === 'type') {
-        return cy.get(step.selector).type(step.value);
-      }
-
       if (step.action === 'click') {
-        return cy.get(step.selector).click().wait(1000);
+        return cy.get(step.selector).should('be.visible').click().wait(1000);
+      }
+      if (step.action === 'select') {
+        return cy
+          .get(step.selector)
+          .click()
+          .get(step.option)
+          .should('have.length.greaterThan', 0)
+          .eq(1)
+          .click()
+          .wait(1000);
+      }
+      if (step.action === 'check') {
+        return cy.get(step.selector).eq(step.index).click();
+      }
+      if (step.action === 'check-multiple') {
+        return cy.contains('table tr', step.contains).within(() => {
+          cy.get(step.selector).each(($el) => {
+            cy.wrap($el).click();
+          });
+        });
+      }
+      if (step.action === 'submit') {
+        return cy
+          .get(step.selector)
+          .scrollIntoView()
+          .should('be.visible')
+          .click();
       }
     });
   });
@@ -228,7 +214,6 @@ Cypress.Commands.add('addMeterRead', function () {
           .click({ force: true })
           .wait(1000);
       }
-
       if (step.action === 'select-timezone') {
         return cy
           .get(step.selector)
@@ -396,6 +381,35 @@ Cypress.Commands.add('addReservation', function () {
   });
 });
 
+Cypress.Commands.add('developerUserLogin', function () {
+  cy.fixture('developer-user-login.js').then((data) => {
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
+    data.forEach((step) => {
+      if (step.action === 'type') {
+        return cy.get(step.selector).type(step.value);
+      }
+
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('buyerUserLogin', function () {
+  cy.fixture('buyer-user-login.js').then((data) => {
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
+    data.forEach((step) => {
+      if (step.action === 'type') {
+        return cy.get(step.selector).type(step.value);
+      }
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+    });
+  });
+});
+
 Cypress.Commands.add('certificate', function () {
   cy.fixture('certificate.js').then((data) => {
     data.forEach((step) => {
@@ -411,6 +425,7 @@ Cypress.Commands.add('certificate', function () {
     });
   });
 });
+
 
 Cypress.Commands.add('bulkUpload', function () {
   cy.fixture('bulk-upload.js').then((data) => {
@@ -429,6 +444,7 @@ Cypress.Commands.add('bulkUpload', function () {
     });
   });
 });
+
 
 
 Cypress.Commands.add('certificateFilter', function () {
@@ -454,6 +470,24 @@ Cypress.Commands.add('certificateFilter', function () {
               .should('contain', 'No Certificate');
           }
         });
+      }
+    });
+  });
+});
+
+
+Cypress.Commands.add('accountSettings', function () {
+  cy.fixture('account-settings.js').then((data) => {
+    data.forEach((step) => {
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'type') {
+        return cy
+          .get(step.selector)
+          .should('be.visible')
+          .clear({ force: true })
+          .type(step.value, { force: true });
       }
     });
   });
