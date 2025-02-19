@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BulkUploadType } from '../../../app/utils/enums/bulk-upload-type.enum';
+import { OrganizationType } from 'src/app/utils/enums/organization-types.enum';
 @Injectable({
   providedIn: 'root',
 })
@@ -27,14 +28,11 @@ export class BulkUploadService {
     );
   }
 
-  getBulkUploads(
-    organizationId: number,
-    bulkUploadType: BulkUploadType,
-  ): Observable<any> {
+  getBulkUploads(user: any, bulkUploadType: BulkUploadType): Observable<any> {
     let url = `${this.baseUrl}/?bulkUploadType=${bulkUploadType}`;
 
-    if (organizationId) {
-      url += `&organizationId=${organizationId}`;
+    if (user.role === OrganizationType.ApiUser) {
+      url += `&organizationId=${user.id}`;
     }
 
     return this.http.get(url);

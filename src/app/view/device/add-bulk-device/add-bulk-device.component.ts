@@ -163,9 +163,8 @@ export class AddBulkDeviceComponent implements OnInit {
 
   displayBulkUploads() {
     this.showBulkUploadLogs = false;
-    const userId = this.loggedInUser.id;
     this.bulkUploadService
-      .getBulkUploads(userId, BulkUploadType.Devices)
+      .getBulkUploads(this.loggedInUser, BulkUploadType.Devices)
       .subscribe((data) => {
         this.data = data;
         this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);

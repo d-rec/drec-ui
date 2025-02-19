@@ -105,9 +105,8 @@ export class AddBulkReadsComponent implements OnInit {
 
   displayBulkUploads() {
     this.showBulkUploadLogs = false;
-    const userId = this.loggedInUser.id;
     this.bulkUploadService
-      .getBulkUploads(userId, BulkUploadType.Reads)
+      .getBulkUploads(this.loggedInUser, BulkUploadType.Reads)
       .subscribe((data) => {
         this.data = data;
         this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
