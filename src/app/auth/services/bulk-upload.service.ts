@@ -31,7 +31,6 @@ export class BulkUploadService {
     organizationId: number,
     bulkUploadType: BulkUploadType,
   ): Observable<any> {
-    console.log(organizationId);
     let url = `${this.baseUrl}/?bulkUploadType=${bulkUploadType}`;
 
     if (organizationId) {

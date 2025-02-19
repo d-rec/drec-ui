@@ -181,7 +181,6 @@ export class AddBulkDeviceComponent implements OnInit {
         next: (response) => {
           try {
             const errorDetails = response.details.log.errorDetails;
-            console.log(errorDetails);
             if (errorDetails && errorDetails.length > 0) {
               this.showBulkUploadLogs = true;
               this.data = errorDetails;
