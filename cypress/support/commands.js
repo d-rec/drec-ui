@@ -274,7 +274,7 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
       }
       if (step.action === 'selected') {
         return cy
-          .get(step.selector)h
+          .get(step.selector)
           .click({ force: true })
           .wait(1000)
           .get(step.option)
