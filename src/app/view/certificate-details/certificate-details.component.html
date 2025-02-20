@@ -220,7 +220,7 @@
 									<mat-form-field appearance="outline" test-id="devices-selector">
 										<mat-label class="text-capitalize"> enter device Id</mat-label>
 										<mat-select formControlName='deviceIds' (ngModelChange)="checkFormValidity()" multiple [attr.test-id]="'select-devices'">
-											<mat-option [value]="" test-id="empty">---</mat-option>
+											<mat-option [value]="" test-id="dropdown-no-selection">---</mat-option>
 											<mat-option *ngFor="let deviceId of deviceIds" [value]="deviceId" [attr.test-id]="'device-options'">
 												{{deviceId}}
 											</mat-option>
