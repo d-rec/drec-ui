@@ -66,7 +66,7 @@ export class AddBulkDeviceComponent implements OnInit {
   filteredOrgList: OrganizationInformation[] = [];
   //public color: ThemePalette = 'primary';
   orgname: string;
-  orgId: number;
+  organizationId: number;
   loggedInUser: any;
 
   ngOnInit(): void {
@@ -100,7 +100,7 @@ export class AddBulkDeviceComponent implements OnInit {
       (option: any) => option.name === event.option.value,
     );
     if (selectedCountry) {
-      this.orgId = selectedCountry.id;
+      this.organizationId = selectedCountry.id;
     }
   }
   reset() {
@@ -137,7 +137,7 @@ export class AddBulkDeviceComponent implements OnInit {
 
   upload(): void {
     if (this.currentFile) {
-      const organizationId = this.orgId ?? this.loggedInUser.id;
+      const organizationId = this.organizationId ?? this.loggedInUser.id;
       this.bulkUploadService
         .bulkUpload(this.currentFile, organizationId, BulkUploadType.Devices)
         .subscribe({
@@ -163,8 +163,9 @@ export class AddBulkDeviceComponent implements OnInit {
 
   displayBulkUploads() {
     this.showBulkUploadLogs = false;
+    const organizationId = this.organizationId ?? this.loggedInUser.id;
     this.bulkUploadService
-      .getBulkUploads(this.loggedInUser, BulkUploadType.Devices)
+      .getBulkUploads(organizationId, BulkUploadType.Devices)
       .subscribe((data) => {
         this.data = data;
         this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
