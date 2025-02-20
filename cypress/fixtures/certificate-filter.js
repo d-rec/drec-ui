@@ -9,4 +9,4 @@
     selector: '[test-id="select-devices"]',
     option: '[test-id="device-options"]',
   },
-];
+]
