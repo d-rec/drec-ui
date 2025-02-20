@@ -35,7 +35,7 @@
     },
     {
       action: 'date-picker',
-      selector: '[placeholder="Choose a end date"]',
+      selector: '[test-id="choose-end-date"]',
     },
     {
       action: 'click',

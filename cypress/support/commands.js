@@ -196,8 +196,8 @@ Cypress.Commands.add('addDevice', function () {
   });
 });
 
-Cypress.Commands.add('addMeterRead', function () {
-  cy.fixture('add-meter-read.js').then((data) => {
+Cypress.Commands.add('addHistoryMeterRead', function () {
+  cy.fixture('add-history-meter-read.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).click().wait(1000);
@@ -266,8 +266,8 @@ Cypress.Commands.add('addMeterRead', function () {
   });
 });
 
-Cypress.Commands.add('lateOngoingMeterRead', function () {
-  cy.fixture('late-ongoing-meter-read.js').then((data) => {
+Cypress.Commands.add('addDeltaMeterRead', function () {
+  cy.fixture('add-delta-meter-read.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).click().wait(1000);
