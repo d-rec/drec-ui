@@ -7,6 +7,6 @@
   {
     action: 'select',
     selector: '[test-id="select-devices"]',
-    option: '[test-id="device-options"]',
-  },
+    option: '[test-id="device-options"]'
+  }
 ]
