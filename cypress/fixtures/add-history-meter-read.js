@@ -40,7 +40,7 @@
   },
   {
     action: 'type',
-    selector: '[placeholder="Choose a end date"]',
+    selector: '[]',
     value: '1/6/2025, 12:44:55 PM',
   },
   {
