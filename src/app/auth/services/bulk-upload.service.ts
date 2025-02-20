@@ -10,8 +10,10 @@ import { OrganizationType } from 'src/app/utils/enums/organization-types.enum';
 export class BulkUploadService {
   private baseUrl = `${environment.API_URL}bulk-upload`;
   private filePath = '../../assets/files/';
-  private readsDownloadedFileName = 'd-rec-bulk-upload-meter-read-template.csv';
-  private devicesDownloadedFileName = 'd-rec-device-bulk-upload-template.csv';
+  private templates = {
+    [BulkUploadType.Reads]: 'd-rec-bulk-upload-meter-read-template.csv',
+    [BulkUploadType.Devices]: 'd-rec-device-bulk-upload-template.csv',
+  };
 
   constructor(private http: HttpClient) {}
 
@@ -48,27 +50,15 @@ export class BulkUploadService {
     }
     return this.http.get(Url);
   }
-  downloadFile(type: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      try {
-        const anchor = document.createElement('a');
-        if (type === BulkUploadType.Reads) {
-          anchor.href = `${this.filePath}${this.readsDownloadedFileName}`;
-          anchor.download = this.readsDownloadedFileName;
-          document.body.appendChild(anchor);
-          anchor.click();
-          document.body.removeChild(anchor);
-        } else {
-          anchor.href = `${this.filePath}${this.devicesDownloadedFileName}`;
-          anchor.download = this.devicesDownloadedFileName;
-          document.body.appendChild(anchor);
-          anchor.click();
-          document.body.removeChild(anchor);
-        }
-        resolve(true);
-      } catch (error) {
-        reject(error);
-      }
-    });
+  downloadFile(type: BulkUploadType): Promise<boolean> {
+    const filename = this.templates[type];
+    if (!filename) throw new Error('Invalid template');
+    const anchor = document.createElement('a');
+    anchor.href = `${this.filePath}${filename}`;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    return Promise.resolve(true);
   }
 }
