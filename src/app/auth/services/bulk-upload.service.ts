@@ -30,7 +30,6 @@ export class BulkUploadService {
   }
 
   getBulkUploads(bulkUploadType: BulkUploadType): Observable<any> {
-    console.log(bulkUploadType);
     const url = `${this.baseUrl}/?bulkUploadType=${bulkUploadType}`;
     return this.http.get(url);
   }

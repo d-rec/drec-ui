@@ -126,7 +126,7 @@ export class AllMetereadsComponent implements OnInit {
   }
   selectOrg(event: any) {
     const selectedCountry = this.orglist.find(
-      (option) => option.name === event.option.value.name.toString(),
+      (option) => option.name === event.option.value,
     );
     if (selectedCountry) {
       this.filteredexternalIdOptions = of([]);
