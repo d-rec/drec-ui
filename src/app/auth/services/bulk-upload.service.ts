@@ -29,11 +29,9 @@ export class BulkUploadService {
     );
   }
 
-  getBulkUploads(
-    organizationId: number,
-    bulkUploadType: BulkUploadType,
-  ): Observable<any> {
-    const url = `${this.baseUrl}/?organizationId=${organizationId}&bulkUploadType=${bulkUploadType}`;
+  getBulkUploads(bulkUploadType: BulkUploadType): Observable<any> {
+    console.log(bulkUploadType);
+    const url = `${this.baseUrl}/?bulkUploadType=${bulkUploadType}`;
     return this.http.get(url);
   }
 
