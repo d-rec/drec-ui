@@ -40,11 +40,11 @@
   },
   {
     action: 'type',
-    selector: '[placeholder="Choose a end date"]',
+    selector: '[test-id="choose-end-date"]',
     value: '1/6/2025, 12:44:55 PM',
   },
   {
     action: 'click',
-    selector: '[test-id="submit-read"]',
-  },
+    selector: '[test-id="submit-read"]'
+  }
 ]

@@ -79,7 +79,9 @@ Cypress.Commands.add('adminLogin', function () {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     data.forEach((step) => {
       if (step.action === 'type') {
-        cy.get(step.selector).type(step.index === 0 ? ADMIN_EMAIL : ADMIN_PASSWORD);
+        cy.get(step.selector).type(
+          step.index === 0 ? ADMIN_EMAIL : ADMIN_PASSWORD,
+        );
       }
       if (step.action === 'click') {
         cy.get(step.selector).click();
@@ -88,12 +90,11 @@ Cypress.Commands.add('adminLogin', function () {
   });
 });
 
-
 Cypress.Commands.add('buyerUserPermissionsSetup', function () {
   cy.fixture('buyer-user-permissions-setup.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
-        return cy.get(step.selector).should('be.visible').click().wait(1000);
+        return cy.get(step.selector).wait(10000).should('be.visible').click();
       }
       if (step.action === 'select') {
         return cy
@@ -196,8 +197,8 @@ Cypress.Commands.add('addDevice', function () {
   });
 });
 
-Cypress.Commands.add('addMeterRead', function () {
-  cy.fixture('add-meter-read.js').then((data) => {
+Cypress.Commands.add('addHistoryMeterRead', function () {
+  cy.fixture('add-history-meter-read.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).click().wait(1000);
@@ -261,6 +262,89 @@ Cypress.Commands.add('addMeterRead', function () {
           .click()
           .get('.mat-stroked-button')
           .click();
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('addDeltaMeterRead', function () {
+  cy.fixture('add-delta-meter-read.js').then((data) => {
+    data.forEach((step) => {
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'selected') {
+        return cy
+          .get(step.selector)
+          .click({ force: true })
+          .wait(1000)
+          .get(step.option)
+          .should('have.length.greaterThan', 0)
+          .first()
+          .should('be.visible')
+          .click({ force: true })
+          .wait(1000);
+      }
+      if (step.action === 'select-timezone') {
+        return cy
+          .get(step.selector)
+          .click({ force: true })
+          .get(step.option)
+          .should('have.length.greaterThan', 0)
+          .eq(0)
+          .click('center', { force: true });
+      }
+      if (step.action === 'select') {
+        return cy
+          .get(step.selector)
+          .click({ force: true })
+          .get(step.option)
+          .should('have.length.greaterThan', 0)
+          .eq(1)
+          .click('center', { force: true });
+      }
+
+      if (step.action === 'type') {
+        return cy
+          .get(step.selector)
+          .wait(1000)
+          .click({ force: true })
+          .type(step.value, { force: true });
+      }
+      if (step.action === 'date-picker') {
+        const currentTime = new Date();
+        currentTime.setHours(currentTime.getHours() + 2);
+
+        const formattedTime = currentTime.toLocaleString('en-US', {
+          year: 'numeric',
+          month: 'numeric',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true,
+        });
+
+        return cy
+          .get(step.selector)
+          .wait(1000)
+          .click({ force: true })
+          .type(formattedTime, { force: true })
+          .click();
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('buyerUserLogin', function () {
+  cy.fixture('buyer-user-login.js').then((data) => {
+    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
+    data.forEach((step) => {
+      if (step.action === 'type') {
+        return cy.get(step.selector).type(step.value);
+      }
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
       }
     });
   });
@@ -339,7 +423,6 @@ Cypress.Commands.add('certificate', function () {
   });
 });
 
-
 Cypress.Commands.add('bulkUpload', function () {
   cy.fixture('bulk-upload.js').then((data) => {
     data.forEach((step) => {
@@ -350,9 +433,39 @@ Cypress.Commands.add('bulkUpload', function () {
         return cy.get(step.selector).click().wait(1000);
       }
       if (step.action === 'upload') {
-        cy.get(step.selector) 
-          .attachFile('files/d-rec_bulk_upload_meter_read_template.csv', { force: true })
+        cy.get(step.selector)
+          .attachFile('files/d-rec_bulk_upload_meter_read_template.csv', {
+            force: true,
+          })
           .wait(5000);
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('certificateFilter', function () {
+  cy.fixture('certificate-filter.js').then((data) => {
+    data.forEach((step) => {
+      if (step.action === 'click') {
+        cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'select') {
+        cy.get(step.selector).click({ force: true });
+        cy.get('body').then(($body) => {
+          if ($body.find(step.option).length > 0) {
+            cy.get(step.option)
+              .should('have.length.greaterThan', 0)
+              .eq(0)
+              .click('center', { force: true });
+            cy.get('[test-id="filter-button"]').click({ force: true });
+          } else {
+            cy.get('[test-id="dropdown-no-selection"]').click({ force: true });
+            cy.get('[test-id="filter-button"]').click({ force: true });
+            cy.get('[test-id="no-certificate"]', { timeout: 5000 })
+              .should('be.visible')
+              .should('contain', 'No Certificate');
+          }
+        });
       }
     });
   });
