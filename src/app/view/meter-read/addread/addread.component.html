@@ -63,6 +63,7 @@
                   formControlName="externalId"
                   [matAutocomplete]="auto"
                   placeholder="Search External ID"
+                  test-id="search-External-Id"
                   [value]="selectedResult?.externalId"
                 />
                 <mat-autocomplete
@@ -182,6 +183,7 @@
                     <input
                       matInput
                       placeholder="Read value"
+                      test-id="read-value"
                       type="number"
                       formControlName="value"
                       min="1"
@@ -316,6 +318,7 @@
               <input
                 type="text"
                 placeholder="Please Enter Timezone"
+                test-id="enter-time-zone"
                 aria-label="text"
                 matInput
                 formControlName="timezone"
