@@ -4,7 +4,7 @@ describe('Setup developer user role permissions', () => {
   });
   it('should setup developer user role permissions', () => {
     cy.adminLogin();
-
+    cy.wait(2000);
     cy.developerUserPermissionsSetup();
   });
 });
