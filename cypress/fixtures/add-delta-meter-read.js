@@ -10,7 +10,7 @@
     },
     {
       action: 'selected',
-      selector: '[test-id="search-External-Id"]',
+      selector: '[test-id="search-external-id"]',
       option: '[external-id-test-id]',
     },
     {
