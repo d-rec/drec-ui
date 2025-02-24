@@ -1,5 +1,5 @@
 <div class="body-bg bulk-upload-device">
-  <mat-card *ngIf="!showdevicesinfo">
+  <mat-card *ngIf="!showBulkUploadLogs">
     <mat-card-header
       class="d-flex justify-content-between mat-crd-hide align-items-center"
     >
@@ -8,10 +8,18 @@
           Device Bulk Registration
         </h2>
       </div>
-      <div>
+      <div class="d-flex gap-3">
+        <button
+          mat-raised-button
+          class="btn btn-primary"
+          (click)="downloadFile()"
+        >
+          <mat-icon>download</mat-icon>
+          Download Template
+        </button>
         <button
           class="btn btn-dark justify-content-end px-4"
-          (click)="JobDisplayList()"
+          (click)="displayBulkUploads()"
         >
           <mat-icon class="align-middle">refresh</mat-icon>
         </button>
@@ -31,7 +39,9 @@
         <div class="example-container1 row">
           <div
             class="col-md-3"
-            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
+            *ngIf="
+              loggedInUser.role === 'Admin' || loggedInUser.role === 'ApiUser'
+            "
           >
             <mat-form-field appearance="outline">
               <mat-label class="text-capitalize">Organization</mat-label>
@@ -106,10 +116,6 @@
           {{ message }}
         </div>
       </form>
-      <mat-progress-spinner
-        [mode]="'indeterminate'"
-        *ngIf="loading"
-      ></mat-progress-spinner>
       <div class="content mat-elevation-z8 text-center">
         <table
           mat-table
@@ -155,7 +161,7 @@
 
               <button
                 class="btn-primary d-flex align-items-center btn-pad btn btn-sm action-icons"
-                (click)="DisplayDeviceLogList(row.jobId, row.organizationId)"
+                (click)="getBulkUploadLogs(row.id, row.organizationId)"
               >
                 <mat-icon class="mt-2">visibility</mat-icon> Logs
               </button>
@@ -171,7 +177,7 @@
       </div>
     </mat-card-content>
   </mat-card>
-  <mat-card *ngIf="showdevicesinfo">
+  <mat-card *ngIf="showBulkUploadLogs">
     <mat-card-header class="d-flex justify-content-between align-items-center">
       <mat-card-title class="d-flex justify-content-between">
         <div>
@@ -184,7 +190,7 @@
       <div class="d-flex justify-content-end">
         <button
           class="btn-content-back btn d-flex justify-content-end align-items-center btn-sm"
-          (click)="JobDisplayList()"
+          (click)="displayBulkUploads()"
         >
           <mat-icon class="fs-5 me-2 mt-1">arrow_back</mat-icon> Go Back
         </button>

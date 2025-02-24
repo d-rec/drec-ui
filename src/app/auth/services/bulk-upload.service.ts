@@ -8,9 +8,11 @@ import { BulkUploadType } from '../../../app/utils/enums/bulk-upload-type.enum';
 })
 export class BulkUploadService {
   private baseUrl = `${environment.API_URL}bulk-upload`;
-  private filePath =
-    '../../assets/files/d-rec_bulk_upload_meter_read_template.csv';
-  private downloadedFileName = 'd-rec_bulk_upload_meter_read_template.csv';
+  private filePath = '../../assets/files/';
+  private templates = {
+    [BulkUploadType.Reads]: 'd-rec-bulk-upload-meter-read-template.csv',
+    [BulkUploadType.Devices]: 'd-rec-device-bulk-upload-template.csv',
+  };
 
   constructor(private http: HttpClient) {}
 
@@ -27,11 +29,9 @@ export class BulkUploadService {
     );
   }
 
-  getBulkUploads(organizationId?: number): Observable<any> {
-    if (organizationId) {
-      return this.http.get(`${this.baseUrl}/?organizationId=${organizationId}`);
-    }
-    return this.http.get(this.baseUrl);
+  getBulkUploads(bulkUploadType: BulkUploadType): Observable<any> {
+    const url = `${this.baseUrl}/?bulkUploadType=${bulkUploadType}`;
+    return this.http.get(url);
   }
 
   getBulkUploadLogs(
@@ -44,19 +44,15 @@ export class BulkUploadService {
     }
     return this.http.get(Url);
   }
-  downloadFile(): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      try {
-        const anchor = document.createElement('a');
-        anchor.href = this.filePath;
-        anchor.download = this.downloadedFileName;
-        document.body.appendChild(anchor);
-        anchor.click();
-        document.body.removeChild(anchor);
-        resolve(true);
-      } catch (error) {
-        reject(error);
-      }
-    });
+  downloadFile(type: BulkUploadType): Promise<boolean> {
+    const filename = this.templates[type];
+    if (!filename) throw new Error('Invalid template');
+    const anchor = document.createElement('a');
+    anchor.href = `${this.filePath}${filename}`;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    return Promise.resolve(true);
   }
 }
