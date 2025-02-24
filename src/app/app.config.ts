@@ -10,7 +10,7 @@ if (environment.production || environment.staging) {
       Sentry.replayIntegration(),
     ],
     tracesSampleRate: 1.0,
-    tracePropagationTargets: ['localhost', /^https?:\/\/localhost:\d+/],
+    tracePropagationTargets: [/^\/api/],
     environment: environment.SENTRY_ENV,
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
