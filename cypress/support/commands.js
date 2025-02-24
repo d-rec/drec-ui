@@ -312,9 +312,10 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
           .type(step.value, { force: true });
       }
       if (step.action === 'date-picker') {
+        
         const currentTime = new Date();
-        currentTime.setHours(currentTime.getHours() + 2);
-
+        currentTime.setHours(currentTime.getHours() + 2); 
+        
         const formattedTime = currentTime.toLocaleString('en-US', {
           year: 'numeric',
           month: 'numeric',
@@ -329,9 +330,10 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
           .get(step.selector)
           .wait(1000)
           .click({ force: true })
-          .type(formattedTime, { force: true })
-          .click();
+          .type(formattedTime, { force: true })  
+          .click();  
       }
+
     });
   });
 });

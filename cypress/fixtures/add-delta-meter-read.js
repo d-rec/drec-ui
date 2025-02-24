@@ -10,12 +10,12 @@
     },
     {
       action: 'selected',
-      selector: '[placeholder="Search External ID"]',
+      selector: '[test-id="search-external-id"]',
       option: '[external-id-test-id]',
     },
     {
       action: 'select-timezone',
-      selector: '[placeholder="Please Enter Timezone"]',
+      selector: '[test-id="enter-time-zone"]',
       option: '[timezone-test-id]',
     },
     {
@@ -30,7 +30,7 @@
     },
     {
       action: 'type',
-      selector: '[placeholder="Read value"]',
+      selector: '[test-id="read-value"]',
       value: '100',
     },
     {
