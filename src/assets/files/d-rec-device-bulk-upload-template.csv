@@ -1,5 +1,0 @@
-externalId,projectName,address,latitude,longitude,countryCode,fuelCode,deviceTypeCode,capacity,commissioningDate,gridInterconnection,offTaker,impactStory,energyStorage,energyStorageCapacity,qualityLabels,SDGBenefits
-REPLACE WITH DEVICE EXTERNAL ID,Project Name,Address of the device or project,0,0,3 letters for the country code,Default: ES100,Evident. I-REC Code for I-REC(E),39.0,Device commissioning date,FALSE,Off-Grid Community,Highlight the device's positive contributions,TRUE,144.0,Add quality labels,No poverty
-LGF2325P8O93,Random Project Name," 28 Great George St, Leeds LS1 3DL",0.0,78.5,USA,ES100,TC110,36.0,2023-03-30T00:40:00.000Z,TRUE,School,Social Impact,FALSE,144.0,Eco Energy,Gender Equality
-LGF2325P8O94,Falcon,"123 Main St, Toronto ON M4B 1A1 ",23.42,40,CHN,ES100,TC120,99.0,2020-04-04T00:01:00.000Z,FALSE,Commercial,Climate Adaptation,TRUE,216.0,P-RECs,Quality Education
-LGF2325P8O95,Eagle,"123 Main Street, Anytown, CA 12345",40,20,COL,ES100,TC130,35.4,2024-09-07T00:00:00.000Z,TRUE,Industrial,Environmental Impact,FALSE,115.2,P-RECss,Cllimate Action

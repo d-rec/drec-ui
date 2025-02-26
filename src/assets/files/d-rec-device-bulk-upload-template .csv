@@ -1,0 +1,5 @@
+externalId,projectName,address,latitude,longitude,countryCode,fuelCode,deviceTypeCode,capacity,commissioningDate,gridInterconnection,offTaker,impactStory,energyStorage,energyStorageCapacity,qualityLabels,SDGBenefits
+REPLACE WITH DEVICE EXTERNAL ID,Project Name,Address of the device or project,0,0,3 letters for the country code,Select the matching fuelCode from this list LINK_HERE,Evident. I-REC Code for I-REC(E) Check this document for the allowed values LINK_HERE,39,Device commissioning date,FALSE,Add an offTaker,A short impact story,Does the device store energy TRUE OR FALSE,144,Add quality labels,Add a SDGBenefit
+LGF2325P8O93,Random Project Name," 28 Great George St, Leeds LS1 3DL",0,78.5,USA,ES100,TC110,36,2023-03-30T00:40:00.000Z,TRUE,School,Social Impact,FALSE,144,Eco Energy,Gender Equality
+LGF2325P8O94,Falcon,"123 Main St, Toronto ON M4B 1A1 ",23.42,40,CHN,ES100,TC120,99,2020-04-04T00:01:00.000Z,FALSE,Commercial,Climate Adaptation,TRUE,216,P-RECs,Quality Education
+LGF2325P8O95,Eagle,"123 Main Street, Anytown, CA 12345",40,20,COL,ES100,TC130,35.4,2024-09-07T00:00:00.000Z,TRUE,Industrial,Environmental Impact,FALSE,115.2,P-RECss,Cllimate Action
