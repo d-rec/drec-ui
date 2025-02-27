@@ -14,7 +14,7 @@
         </p>
         <small>
           {{ loginuser.role }}
-      </small>
+        </small>
       </div>
       <mat-divider></mat-divider>
       <button
@@ -104,8 +104,9 @@
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
+          test-id="devices"
         >
-          <mat-icon>solar_power</mat-icon>
+        <mat-icon>solar_power</mat-icon>
           Device
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -143,6 +144,7 @@
             routerLinkActive="active"
             routerLink="/device/add"
             *ngIf="loginuser.role != 'User'"
+            test-id="add-devices"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add Devices</span>
@@ -153,6 +155,7 @@
             routerLinkActive="active"
             routerLink="/device/bulk_upload"
             *ngIf="loginuser.role != 'User'"
+            test-id="bulk-upload"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span> Bulk Upload</span>
@@ -166,7 +169,7 @@
         [class.mat-elevation-z0]="true"
         *ngIf="loginuser.role != 'Buyer' && loginuser.role != 'SubBuyer'"
       >
-        <mat-expansion-panel-header class="mdc-button">
+        <mat-expansion-panel-header class="mdc-button" test-id="meter-read">
           <mat-icon>electric_meter</mat-icon>
           MeterRead
         </mat-expansion-panel-header>
@@ -190,9 +193,20 @@
             routerLinkActive="active"
             routerLink="/reads/add"
             *ngIf="loginuser.role != 'User'"
+            test-id="add-meter-read"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>Add MeterRead</span>
+          </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="/reads/bulk-upload"
+            *ngIf="loginuser.role != 'User'"
+          >
+            <!-- <mat-icon>list</mat-icon> -->
+            <span>Bulk Upload</span>
           </a>
           <a
             mat-button
@@ -249,8 +263,9 @@
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
+          test-id="permission"
         >
-          <mat-icon>admin_panel_settings</mat-icon>
+        <mat-icon>admin_panel_settings</mat-icon>
           Permission
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -263,6 +278,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/admin/permission/acl_module"
+            test-id="acl-module"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>ACL Module</span>
@@ -272,6 +288,7 @@
             class="menu-button max-height-content inside-menu-button"
             routerLinkActive="active"
             routerLink="/admin/permission/user_role/list"
+            test-id="user-role-permission"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>User Role Permission </span>
@@ -281,6 +298,7 @@
             class="menu-button max-height-content inside-menu-button"
             routerLinkActive="active"
             routerLink="/admin/permission/api_user_role/list"
+            test-id="api-user-permission"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>ApiUser Permission </span>
@@ -330,6 +348,7 @@
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
+          test-id="reservations"
         >
           <mat-icon>bookmark</mat-icon>
           <span>Reservations</span>
@@ -340,14 +359,16 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/myreservation"
+            
           >
-            <span>All Reservations</span>
+            <span test-id="all-reservations">All Reservations</span>
           </a>
           <a
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/add/reservation"
+            test-id="add-reservation"
           >
             <span>Add Reservation</span>
           </a>
@@ -366,7 +387,7 @@
         "
       >
         <mat-icon>card_membership</mat-icon>
-        <span>Certificate</span>
+        <span test-id="all-certificates">Certificate</span>
       </button>
       <!--7th  -->
       <button
@@ -382,16 +403,22 @@
       <!--8th  -->
 
       <mat-expansion-panel [class.mat-elevation-z0]="true">
-        <mat-expansion-panel-header class="mdc-button">
+        <mat-expansion-panel-header
+          class="mdc-button"
+          [attr.test-id]="'account-setting-header'"
+        >
           <mat-icon>manage_accounts</mat-icon>
           Account Setting
         </mat-expansion-panel-header>
+
         <mat-nav-list class="p-0">
           <a
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/user/profile"
+            test-id="profile"
+
           >
             <span>Profile</span>
           </a>

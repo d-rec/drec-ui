@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - develop
+      - stage
+      - prod
   pull_request:
     branches:
       - develop
+      - stage
+      - prod
 
 jobs:
   lint-prettier:
@@ -14,13 +18,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: lts/iron
 
-      - name: Install drec-ui
+      - name: Install dependencies
         run: npm install
 
       - name: Run Prettier
@@ -31,13 +36,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: lts/iron
 
-      - name: Install drec-ui
+      - name: Install dependencies
         run: npm install
 
       - name: Run ESLint (error)
@@ -51,13 +57,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: lts/iron
 
-      - name: Install drec-ui
+      - name: Install dependencies
         run: npm install
 
       - name: Build drec-origin
