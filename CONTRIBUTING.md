@@ -46,7 +46,6 @@ Used for release tasks and long-term maintenance versions. These branches are cr
 ## Commits
 
 - **Follow Conventional Commits:** Adhere to the guidelines provided by [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit messages.
-
   - Example:
 
     ```bash
@@ -57,7 +56,6 @@ Used for release tasks and long-term maintenance versions. These branches are cr
 - **Create Logically Consistent Pull Requests:** Each pull request should represent a logically consistent contribution. If you have many unrelated changes, split them into multiple pull requests, ensuring each has an independent and clear purpose that is well described in its description. You can include multiple small commits in a single pull request. Pull requests should be merged using the “Squash and Merge” option to maintain a clean project history.
 
 - **Break Down Changes:** Make sure each change is logical and standalone. Avoid combining unrelated changes in a single commit.
-
   - Example of good practice:
 
     ```bash
