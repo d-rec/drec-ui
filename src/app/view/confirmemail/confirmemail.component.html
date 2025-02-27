@@ -1,6 +1,7 @@
 <div class="bg-solar"></div>
 <div
-  class="login-wrapper d-flex align-self-center align-items-center flex-column h-100vh justify-content-center drec-login">
+  class="login-wrapper d-flex align-self-center align-items-center flex-column h-100vh justify-content-center drec-login"
+>
   <mat-card class="box">
     <mat-card-header>
       <!-- logo -->
@@ -102,21 +103,26 @@
             fill="#f2be1a"></path>
         </svg> -->
       </div>
-      <h2 class="pb-0 mb-0 fw-bold">Email-Confirmation
-      </h2>
+      <h2 class="pb-0 mb-0 fw-bold">Email-Confirmation</h2>
     </mat-card-header>
-   
-      <mat-card-content>
-      <p *ngIf="fromregister&&success">Thankyou for registration in D-REC, Please check email and confirm Your email address</p>
-      <p *ngIf="!fromregister&&success">Welcome to in D-REC, Your {{message}} </p>
-      <p *ngIf="!success">Your {{message}} ,your token has expired</p>
+
+    <mat-card-content>
+      <p *ngIf="fromregister && success">
+        Thankyou for registration in D-REC, Please check email and confirm Your
+        email address
+      </p>
+      <p *ngIf="!fromregister && success">
+        Welcome to in D-REC, Your {{ message }}
+      </p>
+      <p *ngIf="!success">Your {{ message }} ,your token has expired</p>
     </mat-card-content>
-      <div class="p-3">
-        <button routerLink="/login" class="btn-primary btn   btn-block">Login</button>
-      </div>
-      <!-- <div class="d-flex justify-content-between pb-4 mb-2 px-3">
+    <div class="p-3">
+      <button routerLink="/login" class="btn-primary btn btn-block">
+        Login
+      </button>
+    </div>
+    <!-- <div class="d-flex justify-content-between pb-4 mb-2 px-3">
         <p class="mb-0 pb-0 font-siz-cont"><a routerLink="/login" class="text-warning">Login</a></p>
       </div> -->
-   
   </mat-card>
 </div>

@@ -99,41 +99,41 @@ Used for release tasks and long-term maintenance versions. These branches are cr
 ## Naming Convention
 
 1. File names: **`kebab-case`**
-    - All file names should be written in **`kebab-case`**
-    - Use lowercase letters and separate words with a hyphen
-    - Example: **`measurements-type.handle.ts`**
+   - All file names should be written in **`kebab-case`**
+   - Use lowercase letters and separate words with a hyphen
+   - Example: **`measurements-type.handle.ts`**
 2. Component names: **`PascalCase`**
-    - All components names should be written in **`PascalCase`**.
-    - Start with an uppercase letter, and capitalize the first letter of each subsequent word.
-    - Example: **`CartCard`**
+   - All components names should be written in **`PascalCase`**.
+   - Start with an uppercase letter, and capitalize the first letter of each subsequent word.
+   - Example: **`CartCard`**
 3. Function names: **`camelCase`**
-    - All function names should be written in **`camelCase`**.
-    - Start with a lowercase letter, and capitalize the first letter of each subsequent word.
-    - Example: **`calculateTotalPrice()`**
+   - All function names should be written in **`camelCase`**.
+   - Start with a lowercase letter, and capitalize the first letter of each subsequent word.
+   - Example: **`calculateTotalPrice()`**
 4. Class names Interface Names(Js Class Names): **`PascalCase`**
-    - All class names should be written in **`PascalCase`**.
-    - Start with an uppercase letter, and capitalize the first letter of each subsequent word.
-    - Example: **`CustomerOrder`**
+   - All class names should be written in **`PascalCase`**.
+   - Start with an uppercase letter, and capitalize the first letter of each subsequent word.
+   - Example: **`CustomerOrder`**
 5. CSS class names: **`kebab-case`**
-    - All CSS class names should be written in **`kebab-case**.`
-    - Use lowercase letters and separate words with a hyphen.
-    - Example: `main-layout`
+   - All CSS class names should be written in **`kebab-case**.`
+   - Use lowercase letters and separate words with a hyphen.
+   - Example: `main-layout`
 6. Variables, props and parameters names: **`camelCase`**
-    - All variable names should be written in **`camelCase`**.
-    - Start with a lowercase letter, and capitalize the first letter of each subsequent word.
-    - Example: `currentUser`
+   - All variable names should be written in **`camelCase`**.
+   - Start with a lowercase letter, and capitalize the first letter of each subsequent word.
+   - Example: `currentUser`
 7. HTML id attribute: **`kebab-case`**
-    - All HTML id attributes should be written in **kebab-case**.
-    - Use lowercase letters and separate words with a hyphen.
-    - Example: **customer-name-field**
+   - All HTML id attributes should be written in **kebab-case**.
+   - Use lowercase letters and separate words with a hyphen.
+   - Example: **customer-name-field**
 8. Constants and env variables: **`UPPER_SNAKE_CASE`**
-    - All constant's variable names should be written in **`UPPER_SNAKE_CASE**.`
-    - Use uppercase letters and separate words with an underscore.
-    - Example: **`MAX_NUM_OF_RETRIES`**
+   - All constant's variable names should be written in **`UPPER_SNAKE_CASE**.`
+   - Use uppercase letters and separate words with an underscore.
+   - Example: **`MAX_NUM_OF_RETRIES`**
 9. Enums names: **`PascalCase`**
-    - All enum's names should be written in **`PascalCase`**.
-    - Start with an uppercase letter, and capitalize the first letter of each subsequent word.
-    - Example: **`Color`**
+   - All enum's names should be written in **`PascalCase`**.
+   - Start with an uppercase letter, and capitalize the first letter of each subsequent word.
+   - Example: **`Color`**
 
 Makes sure your naming also satisfies the following conditions:
 
