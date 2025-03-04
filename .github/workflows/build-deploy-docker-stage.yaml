@@ -1,4 +1,4 @@
-name: Staging Environment Workflow
+name: Staging - Build, Push to ECR & Deploy to Kubernetes
 
 on:
   push:
