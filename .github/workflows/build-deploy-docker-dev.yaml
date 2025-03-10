@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - ref/remove-aws-CodePipeline
   workflow_dispatch:
 
 jobs:
