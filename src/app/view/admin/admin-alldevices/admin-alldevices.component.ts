@@ -113,6 +113,8 @@ export class AdminAlldevicesComponent {
       this.orglist = data.organizations.filter(
         (org: OrganizationInformation) => org.organizationType !== 'Buyer',
       );
+      this.applyorgFilter();
+      this.loading = false;
     });
     this.authService.GetMethod('device/fuel-type').subscribe((data1: any) => {
       this.fuellist = data1;
@@ -124,19 +126,13 @@ export class AdminAlldevicesComponent {
     });
     this.authService.GetMethod('countrycode/list').subscribe((data3: any) => {
       this.countrylist = data3;
-      this.countrycodeLoded = true;
+      this.applycountryFilter();
     });
     this.authService.GetMethod('sdgbenefit/code').subscribe((data) => {
       this.sdgblist = data;
     });
-    setTimeout(() => {
-      if (this.countrycodeLoded) {
-        this.applycountryFilter();
-      }
-      this.applyorgFilter();
-      this.loading = false;
-      this.getDeviceListData(this.p);
-    }, 2000);
+
+    this.getDeviceListData(this.p);
   }
 
   ngOnDestroy() {
