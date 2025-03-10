@@ -59,7 +59,7 @@ export class MyreservationComponent implements OnInit {
   showdevicesinfo: boolean = false;
   DevicesList: any;
   isLoadingResults: boolean = true;
-  countrylist: any;
+  countriesList: any;
   fuellist: any;
   devicetypelist: any;
   FilterForm: FormGroup;
@@ -118,7 +118,7 @@ export class MyreservationComponent implements OnInit {
 
       // pagenumber: [this.p]
     });
-    this.DisplaycountryList();
+    this.displayCountriesList();
     this.DisplayfuelList();
     this.DisplaytypeList();
     if (this.loginuser.role === 'ApiUser') {
@@ -143,10 +143,10 @@ export class MyreservationComponent implements OnInit {
     this.DisplayList(this.p);
   }
 
-  DisplaycountryList() {
+  displayCountriesList() {
     this.authService.GetMethod('countrycode/list').subscribe((data) => {
-      this.countrylist = data;
-      this.applycountryFilter();
+      this.countriesList = data;
+      this.applyCountryFilter();
     });
   }
   DisplayfuelList() {
@@ -205,13 +205,7 @@ export class MyreservationComponent implements OnInit {
       }
     });
   }
-  applycountryFilter() {
-    if (!this.FilterForm.controls['countryname']) {
-      console.warn('Country name control is missing in the form.');
-      return;
-    }
-
-    console.log('Applying country filter...');
+  applyCountryFilter() {
     this.filteredOptions = this.FilterForm.controls[
       'countryname'
     ].valueChanges.pipe(
@@ -223,7 +217,7 @@ export class MyreservationComponent implements OnInit {
     const filterValue = value.toLowerCase();
     if (
       !(
-        this.countrylist.filter((option: any) =>
+        this.countriesList.filter((option: any) =>
           option.country.toLowerCase().includes(filterValue),
         ).length > 0
       )
@@ -232,7 +226,7 @@ export class MyreservationComponent implements OnInit {
     } else {
       this.showerror = false;
     }
-    return this.countrylist.filter(
+    return this.countriesList.filter(
       (option: any) =>
         option.country.toLowerCase().indexOf(filterValue.toLowerCase()) === 0,
     );
@@ -424,7 +418,7 @@ export class MyreservationComponent implements OnInit {
           (devicetype: devicecodeType) =>
             devicetype.code == this.data.deviceTypeCode,
         )?.name;
-        this.data['countryname'] = this.countrylist.find(
+        this.data['countryname'] = this.countriesList.find(
           (countrycode: CountryInfo) =>
             countrycode.alpha3 == this.data.countryCode,
         )?.country;
