@@ -141,15 +141,12 @@ export class MyreservationComponent implements OnInit {
     }
     this.DisplaySDGBList();
     this.DisplayList(this.p);
-
-    setTimeout(() => {
-      this.applycountryFilter();
-    }, 2000);
   }
 
   DisplaycountryList() {
     this.authService.GetMethod('countrycode/list').subscribe((data) => {
       this.countrylist = data;
+      this.applycountryFilter();
     });
   }
   DisplayfuelList() {
@@ -209,8 +206,12 @@ export class MyreservationComponent implements OnInit {
     });
   }
   applycountryFilter() {
-    this.FilterForm.controls['countryname'];
+    if (!this.FilterForm.controls['countryname']) {
+      console.warn('Country name control is missing in the form.');
+      return;
+    }
 
+    console.log('Applying country filter...');
     this.filteredOptions = this.FilterForm.controls[
       'countryname'
     ].valueChanges.pipe(
