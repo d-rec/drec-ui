@@ -134,7 +134,7 @@ export class CertificateDetailsComponent {
       start_date: [null],
       end_date: [null],
       deviceIds: [],
-      organizationName: [null],
+      organizationname: [null],
       organizationId: [null],
       // fromAmountread: [null],
       // toAmountread: [null],
@@ -145,7 +145,7 @@ export class CertificateDetailsComponent {
     this.energyurl = environment.Explorer_URL + '/block/';
     if (this.loginuser.role === 'ApiUser') {
       this.FilterForm.addControl(
-        'organizationName',
+        'organizationname',
         this.formBuilder.control(''),
       );
       this.FilterForm.addControl(
@@ -204,9 +204,9 @@ export class CertificateDetailsComponent {
     });
   }
   applyorgFilter() {
-    this.FilterForm.controls['organizationName'];
+    this.FilterForm.controls['organizationname'];
     this.filteredOrgList = this.FilterForm.controls[
-      'organizationName'
+      'organizationname'
     ].valueChanges.pipe(
       startWith(''),
       map((value) => this._orgfilter(value || '')),
@@ -325,7 +325,7 @@ export class CertificateDetailsComponent {
             formValues.organizationId === undefined ||
             formValues.organizationId === ''
           ) {
-            this.FilterForm.controls['organizationName']?.setValue(null);
+            this.FilterForm.controls['organizationname']?.setValue(null);
             this.FilterForm.controls['organizationId']?.setValue(null);
           }
 

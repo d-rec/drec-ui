@@ -18,7 +18,7 @@
           <form [formGroup]="FilterForm">
             <div
               class="example-container1 row"
-              *ngIf="FilterForm.get('organizationName')"
+              *ngIf="FilterForm.get('organizationname')"
             >
               <div class="col-md-3 d-flex flex-column">
                 <span>Select type for get certificate </span>
@@ -43,7 +43,7 @@
                   <input
                     type="text"
                     matInput
-                    formControlName="organizationName"
+                    formControlName="organizationname"
                     [matAutocomplete]="auto1"
                     (ngModelChange)="checkFormValidity()"
                   />
