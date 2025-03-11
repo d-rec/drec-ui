@@ -175,10 +175,11 @@ export class AdminAlldevicesComponent {
     );
   }
   applyCountryFilter() {
-    this.FilterForm.controls['countryname'];
-    this.filteredOptions = this.FilterForm.controls[
-      'countryname'
-    ].valueChanges.pipe(
+    const countryInput = this.FilterForm.get('countryname');
+
+    if (!countryInput) return;
+
+    this.filteredOptions = countryInput.valueChanges.pipe(
       startWith(''),
       map((value) => this._filter(value || '')),
     );
