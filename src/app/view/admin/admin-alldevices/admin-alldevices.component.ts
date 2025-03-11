@@ -114,7 +114,7 @@ export class AdminAlldevicesComponent {
       this.orglist = data.organizations.filter(
         (org: OrganizationInformation) => org.organizationType !== 'Buyer',
       );
-      this.applyorgFilter();
+      this.applyOrganizationFilter();
       this.loading = false;
     });
 
@@ -130,7 +130,7 @@ export class AdminAlldevicesComponent {
 
     this.authService.GetMethod('countrycode/list').subscribe((data3: any) => {
       this.countrylist = data3;
-      this.applycountryFilter();
+      this.applyCountryFilter();
       this.countrycodeLoded = true;
     });
 
@@ -147,7 +147,7 @@ export class AdminAlldevicesComponent {
     }
   }
 
-  applyorgFilter() {
+  applyOrganizationFilter() {
     this.FilterForm.controls['organizationname'];
     this.filteredOptions1 = this.FilterForm.controls[
       'organizationname'
@@ -174,7 +174,7 @@ export class AdminAlldevicesComponent {
         option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0,
     );
   }
-  applycountryFilter() {
+  applyCountryFilter() {
     this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls[
       'countryname'
