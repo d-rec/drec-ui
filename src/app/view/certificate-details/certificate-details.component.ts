@@ -321,7 +321,10 @@ export class CertificateDetailsComponent {
       )
       .subscribe((formValues) => {
         if (isUserInteraction) {
-          if (formValues.organizationId === undefined || formValues.organizationId === '') {
+          if (
+            formValues.organizationId === undefined ||
+            formValues.organizationId === ''
+          ) {
             this.FilterForm.controls['organizationName']?.setValue(null);
             this.FilterForm.controls['organizationId']?.setValue(null);
           }
