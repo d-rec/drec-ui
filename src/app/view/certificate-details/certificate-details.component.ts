@@ -134,6 +134,8 @@ export class CertificateDetailsComponent {
       start_date: [null],
       end_date: [null],
       deviceIds: [],
+      organizationName: [null],
+      organizationId: [null],
       // fromAmountread: [null],
       // toAmountread: [null],
       // pagenumber: [this.p]
@@ -143,7 +145,7 @@ export class CertificateDetailsComponent {
     this.energyurl = environment.Explorer_URL + '/block/';
     if (this.loginuser.role === 'ApiUser') {
       this.FilterForm.addControl(
-        'organizationname',
+        'organizationName',
         this.formBuilder.control(''),
       );
       this.FilterForm.addControl(
@@ -202,9 +204,9 @@ export class CertificateDetailsComponent {
     });
   }
   applyorgFilter() {
-    this.FilterForm.controls['organizationname'];
+    this.FilterForm.controls['organizationName'];
     this.filteredOrgList = this.FilterForm.controls[
-      'organizationname'
+      'organizationName'
     ].valueChanges.pipe(
       startWith(''),
       map((value) => this._orgfilter(value || '')),
@@ -319,13 +321,11 @@ export class CertificateDetailsComponent {
       )
       .subscribe((formValues) => {
         if (isUserInteraction) {
-          if (
-            formValues.organizationId === undefined ||
-            formValues.organizationId === ''
-          ) {
-            this.FilterForm.controls['organizationname'].setValue(null);
-            this.FilterForm.controls['organizationId'].setValue(null);
+          if (formValues.organizationId === undefined || formValues.organizationId === '') {
+            this.FilterForm.controls['organizationName']?.setValue(null);
+            this.FilterForm.controls['organizationId']?.setValue(null);
           }
+
           const countryValue = formValues.countryname;
           if (countryValue === undefined || countryValue === '') {
             this.FilterForm.controls['countryname'].setValue(null);
