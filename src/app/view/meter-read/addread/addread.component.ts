@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -70,7 +70,6 @@ export class AddreadComponent implements OnInit {
     private toastrService: ToastrService,
     private adminService: AdminService,
     private orgService: OrganizationService,
-    private cdr: ChangeDetectorRef,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
 
@@ -148,7 +147,6 @@ export class AddreadComponent implements OnInit {
           startWith(''),
           map((value) => this._externalIdfilter(value ?? '')),
         );
-        this.cdr.detectChanges();
       }
       //  this.getDeviceinfo();
     }, 2000);
@@ -191,7 +189,6 @@ export class AddreadComponent implements OnInit {
             startWith(''),
             map((value) => this._externalIdfilterbyAdmin(value ?? '')),
           );
-          this.cdr.detectChanges();
         }
       },
     });
@@ -224,10 +221,6 @@ export class AddreadComponent implements OnInit {
   }
 
   _externalIdfilter(value: string): string[] {
-    console.log('Filter value:', value);
-    console.log('Type of value:', typeof value);
-
-    // Ensure value is always a string
     if (!value || typeof value !== 'string') {
       console.warn('Invalid filter value, defaulting to empty string:', value);
       value = '';
@@ -235,13 +228,11 @@ export class AddreadComponent implements OnInit {
 
     const filterValue = value.toLowerCase();
 
-    // Ensure devicelist is an array
     if (!Array.isArray(this.devicelist)) {
       console.warn('Device list is not an array:', this.devicelist);
       return [];
     }
 
-    // Perform filtering safely
     const filteredResults = this.devicelist.filter((option: any) =>
       option?.externalId?.toLowerCase().includes(filterValue),
     );
@@ -251,34 +242,6 @@ export class AddreadComponent implements OnInit {
 
     return filteredResults;
   }
-
-  // _externalIdfilterbyAdmin(value: string): string[] {
-  //   const filterValue = value.toLowerCase();
-  //   console.log('Filter value:', value);
-  //   console.log('Type of value:', typeof value);
-
-  //   if (
-  //     !(
-  //       this.devicelist.filter((option: any) =>
-  //         option.developerExternalId.toLowerCase().includes(filterValue),
-  //       ).length > 0
-  //     ) &&
-  //     filterValue != ''
-  //   ) {
-  //     this.showerror = true;
-  //     this.showerrorexternalid = true;
-  //   } else {
-  //     this.showerror = false;
-  //     this.showerrorexternalid = false;
-  //   }
-  //   if (filterValue) {
-  //     return this.devicelist.filter((option: any) =>
-  //       option.developerExternalId.toLowerCase().includes(filterValue),
-  //     );
-  //   }
-  //   return [];
-  //   //  this.endmaxdate = new Date();
-  // }
 
   _externalIdfilterbyAdmin(value: any): string[] {
     if (!value || typeof value !== 'string') {
@@ -378,6 +341,7 @@ export class AddreadComponent implements OnInit {
       this.readForm.controls['externalId'].setValue(result.externalId);
       deivceid = result.externalId;
     }
+    console.log(deivceid, 'fda');
     this.readService.Getlastread(deivceid).subscribe({
       next: (data) => {
         this.lastreaddate = data.enddate;
