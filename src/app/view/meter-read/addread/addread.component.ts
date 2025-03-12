@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -70,6 +70,7 @@ export class AddreadComponent implements OnInit {
     private toastrService: ToastrService,
     private adminService: AdminService,
     private orgService: OrganizationService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
 
@@ -137,18 +138,18 @@ export class AddreadComponent implements OnInit {
     this.authService.GetMethod('countrycode/list').subscribe((data3) => {
       this.countrylist = data3;
     });
-    setTimeout(() => {
-      if (this.loginuser.role != 'Admin') {
-        this.readForm.controls['externalId'];
-        this.filteredexternalIdOptions = this.readForm.controls[
-          'externalId'
-        ].valueChanges.pipe(
-          startWith(''),
-          map((value) => this._externalIdfilter(value || '')),
-        );
-      }
-      //  this.getDeviceinfo();
-    }, 2000);
+
+    if (this.loginuser.role != 'Admin') {
+      this.readForm.controls['externalId'];
+      this.filteredexternalIdOptions = this.readForm.controls[
+        'externalId'
+      ].valueChanges.pipe(
+        startWith(''),
+        map((value) => this._externalIdfilter(value || '')),
+      );
+      this.cdr.detectChanges();
+    }
+    //  this.getDeviceinfo();
   }
 
   get addreads() {
@@ -186,6 +187,7 @@ export class AddreadComponent implements OnInit {
           startWith(''),
           map((value) => this._externalIdfilterbyAdmin(value || '')),
         );
+        this.cdr.detectChanges();
       },
     });
   }
