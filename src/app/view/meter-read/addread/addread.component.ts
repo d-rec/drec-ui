@@ -139,16 +139,19 @@ export class AddreadComponent implements OnInit {
       this.countrylist = data3;
     });
 
-    if (this.loginuser.role != 'Admin') {
-      this.readForm.controls['externalId'];
-      this.filteredexternalIdOptions = this.readForm.controls[
-        'externalId'
-      ].valueChanges.pipe(
-        startWith(''),
-        map((value) => this._externalIdfilter(value || '')),
-      );
-      this.cdr.detectChanges();
-    }
+    setTimeout(() => {
+      if (this.loginuser.role != 'Admin') {
+        this.readForm.controls['externalId'];
+        this.filteredexternalIdOptions = this.readForm.controls[
+          'externalId'
+        ].valueChanges.pipe(
+          startWith(''),
+          map((value) => this._externalIdfilter(value ?? '')),
+        );
+        this.cdr.detectChanges();
+      }
+      //  this.getDeviceinfo();
+    }, 2000);
     //  this.getDeviceinfo();
   }
 
@@ -180,14 +183,16 @@ export class AddreadComponent implements OnInit {
     this.deviceservice.GetMyDevices(deviceurl).subscribe({
       next: (data) => {
         this.devicelist = data.devices;
-        this.readForm.controls['externalId'];
-        this.filteredexternalIdOptions = this.readForm.controls[
-          'externalId'
-        ].valueChanges.pipe(
-          startWith(''),
-          map((value) => this._externalIdfilterbyAdmin(value || '')),
-        );
-        this.cdr.detectChanges();
+        if (this.readForm.controls['externalId']) {
+          console.log('values', this.readForm.controls['externalId']);
+          this.filteredexternalIdOptions = this.readForm.controls[
+            'externalId'
+          ].valueChanges.pipe(
+            startWith(''),
+            map((value) => this._externalIdfilterbyAdmin(value ?? '')),
+          );
+          this.cdr.detectChanges();
+        }
       },
     });
   }
@@ -204,7 +209,7 @@ export class AddreadComponent implements OnInit {
             'externalId'
           ].valueChanges.pipe(
             startWith(''),
-            map((value) => this._externalIdfilter(value || '')),
+            map((value) => this._externalIdfilter(value ?? '')),
           );
         },
       });
@@ -219,47 +224,85 @@ export class AddreadComponent implements OnInit {
   }
 
   _externalIdfilter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    if (
-      !(
-        this.devicelist.filter((option: any) =>
-          option.externalId.toLowerCase().includes(filterValue),
-        ).length > 0
-      ) &&
-      filterValue != ''
-    ) {
-      this.showerror = true;
-      this.showerrorexternalid = true;
-    } else {
-      this.showerror = false;
-      this.showerrorexternalid = false;
+    console.log('Filter value:', value);
+    console.log('Type of value:', typeof value);
+
+    // Ensure value is always a string
+    if (!value || typeof value !== 'string') {
+      console.warn('Invalid filter value, defaulting to empty string:', value);
+      value = '';
     }
-    return this.devicelist.filter((option: any) =>
-      option.externalId.toLowerCase().includes(filterValue),
+
+    const filterValue = value.toLowerCase();
+
+    // Ensure devicelist is an array
+    if (!Array.isArray(this.devicelist)) {
+      console.warn('Device list is not an array:', this.devicelist);
+      return [];
+    }
+
+    // Perform filtering safely
+    const filteredResults = this.devicelist.filter((option: any) =>
+      option?.externalId?.toLowerCase().includes(filterValue),
     );
+
+    this.showerror = filteredResults.length === 0 && filterValue !== '';
+    this.showerrorexternalid = this.showerror;
+
+    return filteredResults;
   }
 
-  _externalIdfilterbyAdmin(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    if (
-      !(
-        this.devicelist.filter((option: any) =>
-          option.developerExternalId.toLowerCase().includes(filterValue),
-        ).length > 0
-      ) &&
-      filterValue != ''
-    ) {
-      this.showerror = true;
-      this.showerrorexternalid = true;
-    } else {
-      this.showerror = false;
-      this.showerrorexternalid = false;
+  // _externalIdfilterbyAdmin(value: string): string[] {
+  //   const filterValue = value.toLowerCase();
+  //   console.log('Filter value:', value);
+  //   console.log('Type of value:', typeof value);
+
+  //   if (
+  //     !(
+  //       this.devicelist.filter((option: any) =>
+  //         option.developerExternalId.toLowerCase().includes(filterValue),
+  //       ).length > 0
+  //     ) &&
+  //     filterValue != ''
+  //   ) {
+  //     this.showerror = true;
+  //     this.showerrorexternalid = true;
+  //   } else {
+  //     this.showerror = false;
+  //     this.showerrorexternalid = false;
+  //   }
+  //   if (filterValue) {
+  //     return this.devicelist.filter((option: any) =>
+  //       option.developerExternalId.toLowerCase().includes(filterValue),
+  //     );
+  //   }
+  //   return [];
+  //   //  this.endmaxdate = new Date();
+  // }
+
+  _externalIdfilterbyAdmin(value: any): string[] {
+    if (!value || typeof value !== 'string') {
+      console.warn('Invalid filter value, defaulting to empty string:', value);
+      value = '';
     }
-    //  this.endmaxdate = new Date();
-    return this.devicelist.filter((option: any) =>
-      option.developerExternalId.toLowerCase().includes(filterValue),
+
+    const filterValue = value.toLowerCase();
+
+    if (!Array.isArray(this.devicelist)) {
+      console.warn('Device list is not an array:', this.devicelist);
+      return [];
+    }
+
+    const filteredResults = this.devicelist.filter((option: any) =>
+      option?.developerExternalId?.toLowerCase().includes(filterValue),
     );
+
+    this.showerror = filteredResults.length === 0 && filterValue !== '';
+    this.showerrorexternalid = this.showerror;
+
+    return filteredResults;
   }
+
   search() {
     // const input = this.readForm.controls['externalId'].value;
     //if (input && input != '') {
