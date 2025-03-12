@@ -148,9 +148,7 @@ export class AddreadComponent implements OnInit {
           map((value) => this._externalIdfilter(value ?? '')),
         );
       }
-      //  this.getDeviceinfo();
     }, 2000);
-    //  this.getDeviceinfo();
   }
 
   get addreads() {
@@ -182,7 +180,6 @@ export class AddreadComponent implements OnInit {
       next: (data) => {
         this.devicelist = data.devices;
         if (this.readForm.controls['externalId']) {
-          console.log('values', this.readForm.controls['externalId']);
           this.filteredexternalIdOptions = this.readForm.controls[
             'externalId'
           ].valueChanges.pipe(
@@ -222,14 +219,12 @@ export class AddreadComponent implements OnInit {
 
   _externalIdfilter(value: string): string[] {
     if (!value || typeof value !== 'string') {
-      console.warn('Invalid filter value, defaulting to empty string:', value);
       value = '';
     }
 
     const filterValue = value.toLowerCase();
 
     if (!Array.isArray(this.devicelist)) {
-      console.warn('Device list is not an array:', this.devicelist);
       return [];
     }
 
@@ -245,14 +240,12 @@ export class AddreadComponent implements OnInit {
 
   _externalIdfilterbyAdmin(value: any): string[] {
     if (!value || typeof value !== 'string') {
-      console.warn('Invalid filter value, defaulting to empty string:', value);
       value = '';
     }
 
     const filterValue = value.toLowerCase();
 
     if (!Array.isArray(this.devicelist)) {
-      console.warn('Device list is not an array:', this.devicelist);
       return [];
     }
 
@@ -341,7 +334,6 @@ export class AddreadComponent implements OnInit {
       this.readForm.controls['externalId'].setValue(result.externalId);
       deivceid = result.externalId;
     }
-    console.log(deivceid, 'fda');
     this.readService.Getlastread(deivceid).subscribe({
       next: (data) => {
         this.lastreaddate = data.enddate;
