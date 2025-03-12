@@ -154,7 +154,6 @@ export class CertificateDetailsComponent {
       );
     }
     this.authService.GetMethod('device/fuel-type').subscribe((data1) => {
-      // display list in the console
       this.fuellist = data1;
       // this.fuellistLoaded = true;
     });
