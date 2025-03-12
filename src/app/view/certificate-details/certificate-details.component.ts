@@ -134,8 +134,6 @@ export class CertificateDetailsComponent {
       start_date: [null],
       end_date: [null],
       deviceIds: [],
-      organizationname: [null],
-      organizationId: [null],
       // fromAmountread: [null],
       // toAmountread: [null],
       // pagenumber: [this.p]
@@ -154,6 +152,7 @@ export class CertificateDetailsComponent {
       );
     }
     this.authService.GetMethod('device/fuel-type').subscribe((data1) => {
+      // display list in the console
       this.fuellist = data1;
       // this.fuellistLoaded = true;
     });
