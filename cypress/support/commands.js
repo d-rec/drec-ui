@@ -503,7 +503,7 @@ Cypress.Commands.add('certificate', function () {
   });
 });
 
-Cypress.Commands.add('DeviceBulkUpload', function () {
+Cypress.Commands.add('deviceBulkUpload', function () {
   cy.fixture('device-bulk-upload.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
