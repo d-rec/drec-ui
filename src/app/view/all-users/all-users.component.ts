@@ -111,35 +111,28 @@ export class AllUsersComponent {
     }
   }
   applyorgFilter() {
-    this.FilterForm.controls['organizationName'];
     this.filteredOptions = this.FilterForm.controls[
       'organizationName'
     ].valueChanges.pipe(
       startWith(''),
-      map((value) => this._filter(value || '')),
+      map((value) => this._filter(value ?? '')),
     );
   }
 
   private _filter(value: any): string[] {
-    const filterValue = value.toLowerCase();
-    if (
-      !(
-        this.orglist.filter((option: any) =>
-          option.name.toLowerCase().includes(filterValue),
-        ).length > 0
-      )
-    ) {
-      this.showerror = true;
-      // const updatedFormValues = this.FilterForm.value;
-      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
-      // this.isAnyFieldFilled = false;
-    } else {
-      this.showerror = false;
+    if (!value || typeof value !== 'string') {
+      return this.orglist;
     }
-    return this.orglist.filter(
-      (option: any) =>
-        option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0,
+
+    const filterValue = value.toLowerCase();
+
+    const filteredList = this.orglist.filter((option: any) =>
+      option.name.toLowerCase().includes(filterValue),
     );
+
+    this.showerror = filteredList.length === 0;
+
+    return filteredList;
   }
 
   selectOrg(event: any) {
