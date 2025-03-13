@@ -5,7 +5,7 @@
   },
   {
     action: 'click',
-    selector: '[test-id="bulk-upload"]',
+    selector: '[test-id="device-bulk-upload"]',
   },
   {
     action: 'click',
