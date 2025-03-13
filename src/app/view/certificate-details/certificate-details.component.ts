@@ -345,7 +345,10 @@ export class CertificateDetailsComponent {
           ) {
             this.FilterForm.controls['SDGBenefits'].setValue(null);
           }
-          if (formValues.deviceIds[0] === undefined) {
+          if (
+            Array.isArray(formValues.deviceIds) &&
+            formValues.deviceIds[0] === undefined
+          ) {
             this.FilterForm.controls['deviceIds'].setValue(null);
           }
           // Other code...
