@@ -137,6 +137,7 @@ export class AddreadComponent implements OnInit {
     this.authService.GetMethod('countrycode/list').subscribe((data3) => {
       this.countrylist = data3;
     });
+
     setTimeout(() => {
       if (this.loginuser.role != 'Admin') {
         this.readForm.controls['externalId'];
@@ -144,10 +145,9 @@ export class AddreadComponent implements OnInit {
           'externalId'
         ].valueChanges.pipe(
           startWith(''),
-          map((value) => this._externalIdfilter(value || '')),
+          map((value) => this._externalIdfilter(value ?? '')),
         );
       }
-      //  this.getDeviceinfo();
     }, 2000);
   }
 
@@ -179,13 +179,14 @@ export class AddreadComponent implements OnInit {
     this.deviceservice.GetMyDevices(deviceurl).subscribe({
       next: (data) => {
         this.devicelist = data.devices;
-        this.readForm.controls['externalId'];
-        this.filteredexternalIdOptions = this.readForm.controls[
-          'externalId'
-        ].valueChanges.pipe(
-          startWith(''),
-          map((value) => this._externalIdfilterbyAdmin(value || '')),
-        );
+        if (this.readForm.controls['externalId']) {
+          this.filteredexternalIdOptions = this.readForm.controls[
+            'externalId'
+          ].valueChanges.pipe(
+            startWith(''),
+            map((value) => this._externalIdfilterbyAdmin(value ?? '')),
+          );
+        }
       },
     });
   }
@@ -202,7 +203,7 @@ export class AddreadComponent implements OnInit {
             'externalId'
           ].valueChanges.pipe(
             startWith(''),
-            map((value) => this._externalIdfilter(value || '')),
+            map((value) => this._externalIdfilter(value ?? '')),
           );
         },
       });
@@ -217,45 +218,47 @@ export class AddreadComponent implements OnInit {
   }
 
   _externalIdfilter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    if (
-      !(
-        this.devicelist.filter((option: any) =>
-          option.externalId.toLowerCase().includes(filterValue),
-        ).length > 0
-      ) &&
-      filterValue != ''
-    ) {
-      this.showerrorexternalid = true;
-    } else {
-      this.showerrorexternalid = false;
+    if (!value || typeof value !== 'string') {
+      value = '';
     }
-    return this.devicelist.filter((option: any) =>
-      option.externalId.toLowerCase().includes(filterValue),
+
+    const filterValue = value.toLowerCase();
+
+    if (!Array.isArray(this.devicelist)) {
+      return [];
+    }
+
+    const filteredResults = this.devicelist.filter((option: any) =>
+      option?.externalId?.toLowerCase().includes(filterValue),
     );
+
+    this.showerrorexternalid =
+      filteredResults.length === 0 && filterValue !== '';
+
+    return filteredResults;
   }
 
-  _externalIdfilterbyAdmin(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    if (
-      !(
-        this.devicelist.filter((option: any) =>
-          option.developerExternalId.toLowerCase().includes(filterValue),
-        ).length > 0
-      ) &&
-      filterValue != ''
-    ) {
-      this.showerror = true;
-      this.showerrorexternalid = true;
-    } else {
-      this.showerror = false;
-      this.showerrorexternalid = false;
+  _externalIdfilterbyAdmin(value: any): string[] {
+    if (!value || typeof value !== 'string') {
+      value = '';
     }
-    //  this.endmaxdate = new Date();
-    return this.devicelist.filter((option: any) =>
-      option.developerExternalId.toLowerCase().includes(filterValue),
+
+    const filterValue = value.toLowerCase();
+
+    if (!Array.isArray(this.devicelist)) {
+      return [];
+    }
+
+    const filteredResults = this.devicelist.filter((option: any) =>
+      option?.developerExternalId?.toLowerCase().includes(filterValue),
     );
+
+    this.showerrorexternalid =
+      filteredResults.length === 0 && filterValue !== '';
+
+    return filteredResults;
   }
+
   search() {
     // const input = this.readForm.controls['externalId'].value;
     //if (input && input != '') {
