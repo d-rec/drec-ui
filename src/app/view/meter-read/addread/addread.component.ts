@@ -226,10 +226,8 @@ export class AddreadComponent implements OnInit {
       ) &&
       filterValue != ''
     ) {
-      this.showerror = true;
       this.showerrorexternalid = true;
     } else {
-      this.showerror = false;
       this.showerrorexternalid = false;
     }
     return this.devicelist.filter((option: any) =>
