@@ -1,3 +1,6 @@
+import bulkUpload from '../support/commands/bulk-upload'
+import developerUserLogin from '../support/commands/developer-user-login'
+
 describe('Bulk Upload Test', () => {
     beforeEach(() => {
         cy.wait(1000);

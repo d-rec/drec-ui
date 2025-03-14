@@ -1,3 +1,6 @@
+import addHistoryMeterRead from '../support/commands/add-history- meter-reads'
+import developerUserLogin from '../support/commands/developer-user-login'
+
 describe('Add history meter Read', () => {
   beforeEach(() => {
     cy.wait(1000);

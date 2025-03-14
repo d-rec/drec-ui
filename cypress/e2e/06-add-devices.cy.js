@@ -1,3 +1,6 @@
+import addDevice from '../support/commands/add-device'
+import developerUserLogin from '../support/commands/developer-user-login'
+
 describe('Add device Test', () => {
   beforeEach(() => {
     cy.wait(1000);

@@ -1,3 +1,6 @@
+import developerUserPermissionsSetup from '../support/commands/developer-user-permission-setup'
+import adminLogin from '../support/commands/admin-login'
+
 describe('Setup developer user role permissions', () => {
   beforeEach(() => {
     cy.wait(1000);

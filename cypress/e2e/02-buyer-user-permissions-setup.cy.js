@@ -1,3 +1,6 @@
+import buyerUserPermissionsSetup from '../support/commands/buyer-user-permission-setup'
+import adminLogin from '../support/commands/admin-login'
+
 describe('setup buyer user role permissions', () => {
   beforeEach(() => {
     cy.wait(1000);

@@ -1,3 +1,6 @@
+import accountSettings from '../support/commands/account-setting'
+import adminLogin from '../support/commands/admin-login'
+
 describe('User Account Update', () => {
   beforeEach(() => {
     cy.wait(1000);

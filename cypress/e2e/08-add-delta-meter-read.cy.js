@@ -1,3 +1,6 @@
+import addDeltaMeterRead from '../support/commands/add-delta-meter-reads'
+import developerUserLogin from '../support/commands/developer-user-login'
+
 describe('Add delta meter Read', () => {
     beforeEach(() => {
       cy.wait(1000);

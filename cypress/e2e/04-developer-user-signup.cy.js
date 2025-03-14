@@ -1,3 +1,6 @@
+import clearDatabase from '../support/commands/clear-database'
+import developerUserSignup from '../support/commands/developer-user-signup'
+
 describe('Sign up Test', () => {
   beforeEach(() => {
     cy.wait(5000);

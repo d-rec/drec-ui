@@ -1,3 +1,5 @@
+import buyerUserSignup from '../support/commands/buyer-user-signup'
+
 describe('Sign Up Test', () => {
   beforeEach(() => {
     cy.wait(5000);
