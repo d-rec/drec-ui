@@ -16,17 +16,26 @@ export class BulkUploadService {
 
   constructor(private http: HttpClient) {}
 
-  bulkUpload(
-    file: File,
-    organizationId: number,
-    bulkUploadType: BulkUploadType,
-  ): Observable<any> {
+  bulkUpload({
+    file,
+    organizationId,
+    bulkUploadType,
+  }: {
+    file: File;
+    organizationId?: number;
+    bulkUploadType: BulkUploadType;
+  }): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post(
-      `${this.baseUrl}/?organizationId=${organizationId}&bulkUploadType=${bulkUploadType}`,
-      formData,
-    );
+    const params: any = {
+      bulkUploadType,
+    };
+    if (organizationId) {
+      params['organizationId'] = organizationId;
+    }
+    return this.http.post(`${this.baseUrl}`, formData, {
+      params,
+    });
   }
 
   getBulkUploads(bulkUploadType: BulkUploadType): Observable<any> {
