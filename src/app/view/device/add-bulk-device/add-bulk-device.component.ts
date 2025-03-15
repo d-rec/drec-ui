@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FileuploadService } from '../../../auth/services/fileupload.service';
 import { ToastrService } from 'ngx-toastr';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -47,7 +46,6 @@ export class AddBulkDeviceComponent implements OnInit {
     'Action',
   ];
   constructor(
-    private uploadService: FileuploadService,
     private deviceService: DeviceService,
     private router: Router,
     private toastrService: ToastrService,
@@ -136,29 +134,32 @@ export class AddBulkDeviceComponent implements OnInit {
   }
 
   upload(): void {
-    if (this.currentFile) {
-      const organizationId = this.organizationId ?? this.loggedInUser.id;
-      this.bulkUploadService
-        .bulkUpload(this.currentFile, organizationId, BulkUploadType.Devices)
-        .subscribe({
-          next: () => {
-            this.displayBulkUploads();
-            this.currentFile = null;
-            this.fileName = 'Please click here to Select File';
-            this.toastrService.success(
-              'Successfully!',
-              'File Uploaded in Bulk!!',
-            );
-          },
-          error: (err) => {
-            if (err.error.statusCode === 403) {
-              this.toastrService.error('You are Unauthorized');
-            } else {
-              this.toastrService.error('error!', err.error.message);
-            }
-          },
-        });
-    }
+    if (!this.currentFile) return;
+    const organizationId = this.organizationId;
+    this.bulkUploadService
+      .bulkUpload({
+        file: this.currentFile,
+        organizationId,
+        bulkUploadType: BulkUploadType.Devices,
+      })
+      .subscribe({
+        next: () => {
+          this.displayBulkUploads();
+          this.currentFile = null;
+          this.fileName = 'Please click here to Select File';
+          this.toastrService.success(
+            'Successfully!',
+            'File Uploaded in Bulk!!',
+          );
+        },
+        error: (err) => {
+          if (err.error.statusCode === 403) {
+            this.toastrService.error('You are Unauthorized');
+          } else {
+            this.toastrService.error('error!', err.error.message);
+          }
+        },
+      });
   }
 
   displayBulkUploads() {
