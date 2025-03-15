@@ -157,28 +157,31 @@ export class AddBulkReadsComponent implements OnInit {
   }
 
   upload(): void {
-    if (this.currentFile) {
-      const organizationId = this.organizationId ?? this.loggedInUser.id;
-      this.bulkUploadService
-        .bulkUpload(this.currentFile, organizationId, BulkUploadType.Reads)
-        .subscribe({
-          next: () => {
-            this.displayBulkUploads();
-            this.currentFile = null;
-            this.fileName = 'Please click here to Select File';
-            this.toasterService.success(
-              'Successfully!',
-              'File Uploaded in Bulk!!',
-            );
-          },
-          error: (err) => {
-            if (err.error.statusCode === 403) {
-              this.toasterService.error('You are Unauthorized');
-            } else {
-              this.toasterService.error('error!', err.error.message);
-            }
-          },
-        });
-    }
+    if (!this.currentFile) return;
+    const organizationId = this.organizationId;
+    this.bulkUploadService
+      .bulkUpload({
+        file: this.currentFile,
+        organizationId,
+        bulkUploadType: BulkUploadType.Reads,
+      })
+      .subscribe({
+        next: () => {
+          this.displayBulkUploads();
+          this.currentFile = null;
+          this.fileName = 'Please click here to Select File';
+          this.toasterService.success(
+            'Successfully!',
+            'File Uploaded in Bulk!!',
+          );
+        },
+        error: (err) => {
+          if (err.error.statusCode === 403) {
+            this.toasterService.error('You are Unauthorized');
+          } else {
+            this.toasterService.error('error!', err.error.message);
+          }
+        },
+      });
   }
 }
