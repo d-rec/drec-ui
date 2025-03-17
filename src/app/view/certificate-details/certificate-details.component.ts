@@ -134,8 +134,8 @@ export class CertificateDetailsComponent {
       start_date: [null],
       end_date: [null],
       deviceIds: [],
-      // fromAmountread: [null],
-      // toAmountread: [null],
+      fromAmountread: [null],
+      toAmountread: [null],
       // pagenumber: [this.p]
     });
   }
