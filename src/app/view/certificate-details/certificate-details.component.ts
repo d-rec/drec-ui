@@ -336,7 +336,10 @@ export class CertificateDetailsComponent {
           if (fuelCodeValue === undefined) {
             this.FilterForm.controls['fuelCode'].setValue(null);
           }
-          if (formValues.offTaker[0] === undefined) {
+          if (
+            Array.isArray(formValues.offTaker) &&
+            formValues.offTaker[0] === undefined
+          ) {
             this.FilterForm.controls['offTaker'].setValue(null);
           }
           if (
