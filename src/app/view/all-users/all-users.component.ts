@@ -78,6 +78,11 @@ export class AllUsersComponent {
     }
   }
   ngOnInit(): void {
+    if (!this.loginuser) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.FilterForm = this.formBuilder.group({
       organizationName: [],
 
