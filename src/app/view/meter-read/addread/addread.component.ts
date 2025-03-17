@@ -232,8 +232,8 @@ export class AddreadComponent implements OnInit {
       option?.externalId?.toLowerCase().includes(filterValue),
     );
 
-    this.showerror = filteredResults.length === 0 && filterValue !== '';
-    this.showerrorexternalid = this.showerror;
+    this.showerrorexternalid =
+      filteredResults.length === 0 && filterValue !== '';
 
     return filteredResults;
   }
@@ -253,8 +253,8 @@ export class AddreadComponent implements OnInit {
       option?.developerExternalId?.toLowerCase().includes(filterValue),
     );
 
-    this.showerror = filteredResults.length === 0 && filterValue !== '';
-    this.showerrorexternalid = this.showerror;
+    this.showerrorexternalid =
+      filteredResults.length === 0 && filterValue !== '';
 
     return filteredResults;
   }
