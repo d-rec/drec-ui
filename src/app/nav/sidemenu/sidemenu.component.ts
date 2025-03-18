@@ -16,6 +16,9 @@ export class SidemenuComponent implements OnInit {
   ngOnInit() {
     this.showmenu = environment.production;
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+    if (!this.loginuser) {
+      return this.logout();
+    }
     if (this.loginuser?.role === 'ApiUser') {
       this.devcieurl = '/apiuser/All_devices';
       this.Alluserurl = './apiuser/All_users';
