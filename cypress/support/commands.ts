@@ -6,7 +6,7 @@ const REACT_APP_BACKEND_URL = Cypress.env('REACT_APP_BACKEND_URL');
 const UI_BASE_URL = Cypress.env('UI_BASE_URL');
 import 'cypress-file-upload';
 
-Cypress.Commands.add<any>('clearDatabase', () => {
+Cypress.Commands.add('clearDatabase', () => {
   cy.request({
     method: 'DELETE',
     url: `${REACT_APP_BACKEND_URL}/api/testing/clear-db`,
@@ -23,7 +23,7 @@ Cypress.Commands.add<any>('clearDatabase', () => {
   });
 });
 
-Cypress.Commands.add<any>('developerUserSignup', function () {
+Cypress.Commands.add('developerUserSignup', function () {
   cy.fixture('developer-user-signup.json').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     cy.get('[test-id="register"]').click();
@@ -49,7 +49,7 @@ Cypress.Commands.add<any>('developerUserSignup', function () {
   });
 });
 
-Cypress.Commands.add<any>('buyerUserSignup', function () {
+Cypress.Commands.add('buyerUserSignup', function () {
   cy.fixture('buyer-user-signup.json').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     cy.get('[test-id="register"]').click();
@@ -75,7 +75,7 @@ Cypress.Commands.add<any>('buyerUserSignup', function () {
   });
 });
 
-Cypress.Commands.add<any>('adminLogin', function () {
+Cypress.Commands.add('adminLogin', function () {
   cy.fixture('admin-login.json').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
 
@@ -96,7 +96,7 @@ Cypress.Commands.add<any>('adminLogin', function () {
   });
 });
 
-Cypress.Commands.add<any>('buyerUserPermissionsSetup', function () {
+Cypress.Commands.add('buyerUserPermissionsSetup', function () {
   cy.fixture('buyer-user-permissions-setup.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
@@ -133,7 +133,7 @@ Cypress.Commands.add<any>('buyerUserPermissionsSetup', function () {
   });
 });
 
-Cypress.Commands.add<any>('developerUserPermissionsSetup', function () {
+Cypress.Commands.add('developerUserPermissionsSetup', function () {
   cy.fixture('developer-user-permissions-setup.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
@@ -170,7 +170,7 @@ Cypress.Commands.add<any>('developerUserPermissionsSetup', function () {
   });
 });
 
-Cypress.Commands.add<any>('addDevice', function () {
+Cypress.Commands.add('addDevice', function () {
   cy.fixture('add-device.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
@@ -203,7 +203,7 @@ Cypress.Commands.add<any>('addDevice', function () {
   });
 });
 
-Cypress.Commands.add<any>('addHistoryMeterRead', function () {
+Cypress.Commands.add('addHistoryMeterRead', function () {
   cy.fixture('add-history-meter-read.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
@@ -273,7 +273,7 @@ Cypress.Commands.add<any>('addHistoryMeterRead', function () {
   });
 });
 
-Cypress.Commands.add<any>('addDeltaMeterRead', function () {
+Cypress.Commands.add('addDeltaMeterRead', function () {
   cy.fixture('add-delta-meter-read.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
@@ -342,7 +342,7 @@ Cypress.Commands.add<any>('addDeltaMeterRead', function () {
   });
 });
 
-Cypress.Commands.add<any>('addAggregateMeterRead', function () {
+Cypress.Commands.add('addAggregateMeterRead', function () {
   cy.fixture('add-aggregate-meter-read.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
@@ -411,7 +411,7 @@ Cypress.Commands.add<any>('addAggregateMeterRead', function () {
   });
 });
 
-Cypress.Commands.add<any>('buyerUserLogin', function () {
+Cypress.Commands.add('buyerUserLogin', function () {
   cy.fixture('buyer-user-login.json').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     data.forEach((step) => {
@@ -425,7 +425,7 @@ Cypress.Commands.add<any>('buyerUserLogin', function () {
   });
 });
 
-Cypress.Commands.add<any>('addReservation', function () {
+Cypress.Commands.add('addReservation', function () {
   cy.fixture('add-reservation.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
@@ -453,7 +453,7 @@ Cypress.Commands.add<any>('addReservation', function () {
   });
 });
 
-Cypress.Commands.add<any>('developerUserLogin', function () {
+Cypress.Commands.add('developerUserLogin', function () {
   cy.fixture('developer-user-login.json').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     data.forEach((step) => {
@@ -468,7 +468,7 @@ Cypress.Commands.add<any>('developerUserLogin', function () {
   });
 });
 
-Cypress.Commands.add<any>('buyerUserLogin', function () {
+Cypress.Commands.add('buyerUserLogin', function () {
   cy.fixture('buyer-user-login.json').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     data.forEach((step) => {
@@ -482,7 +482,7 @@ Cypress.Commands.add<any>('buyerUserLogin', function () {
   });
 });
 
-Cypress.Commands.add<any>('certificate', function () {
+Cypress.Commands.add('certificate', function () {
   cy.fixture('certificate.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
@@ -498,7 +498,7 @@ Cypress.Commands.add<any>('certificate', function () {
   });
 });
 
-Cypress.Commands.add<any>('bulkUpload', function () {
+Cypress.Commands.add('bulkUpload', function () {
   cy.fixture('bulk-upload.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
@@ -518,7 +518,7 @@ Cypress.Commands.add<any>('bulkUpload', function () {
   });
 });
 
-Cypress.Commands.add<any>('certificateFilter', function () {
+Cypress.Commands.add('certificateFilter', function () {
   cy.fixture('certificate-filter.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
@@ -546,7 +546,7 @@ Cypress.Commands.add<any>('certificateFilter', function () {
   });
 });
 
-Cypress.Commands.add<any>('accountSettings', function () {
+Cypress.Commands.add('accountSettings', function () {
   cy.fixture('account-settings.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
