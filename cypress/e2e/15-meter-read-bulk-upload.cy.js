@@ -4,7 +4,7 @@ describe('Bulk Upload Test', () => {
       });
     it('should upload a file', () => {
       cy.developerUserLogin().wait(60000);
-      cy.deviceBulkUpload('device-bulk-upload-template'); 
+      cy.meterReadBulkUpload('meter-bulk-upload-template'); 
     });
   });
   
