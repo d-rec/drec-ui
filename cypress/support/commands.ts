@@ -498,8 +498,28 @@ Cypress.Commands.add('certificate', function () {
   });
 });
 
-Cypress.Commands.add('bulkUpload', function () {
-  cy.fixture('bulk-upload.json').then((data) => {
+Cypress.Commands.add('deviceBulkUpload', function () {
+  cy.fixture('device-bulk-upload.json').then((data) => {
+    data.forEach((step) => {
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'click') {
+        return cy.get(step.selector).click().wait(1000);
+      }
+      if (step.action === 'upload') {
+        cy.get(step.selector)
+          .attachFile('files/d-rec_bulk_upload_meter_read_template.csv', {
+            force: true,
+          })
+          .wait(5000);
+      }
+    });
+  });
+});
+
+Cypress.Commands.add('meterReadBulkUpload', function () {
+  cy.fixture('meter-read-bulk-upload.js').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).click().wait(1000);

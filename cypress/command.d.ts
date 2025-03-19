@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 declare namespace Cypress {
   interface Chainable {
     clearDatabase(): Chainable<void>;
@@ -15,7 +17,8 @@ declare namespace Cypress {
     addReservation(): Chainable<void>;
     certificate(): Chainable<void>;
     certificateFilter(): Chainable<void>;
-    bulkUpload(filename: string): Chainable<void>;
+    deviceBulkUpload(filename: string): Chainable<void>;
     accountSettings(): Chainable<void>;
+    meterReadBulkUpload(): Chainable<void>;
   }
 }
