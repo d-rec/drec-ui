@@ -4,7 +4,6 @@ const ADMIN_EMAIL = Cypress.env('ADMIN_EMAIL');
 const ADMIN_PASSWORD = Cypress.env('ADMIN_PASSWORD');
 const REACT_APP_BACKEND_URL = Cypress.env('REACT_APP_BACKEND_URL');
 const UI_BASE_URL = Cypress.env('UI_BASE_URL');
-import 'cypress-file-upload';
 
 Cypress.Commands.add('clearDatabase', () => {
   cy.request({
