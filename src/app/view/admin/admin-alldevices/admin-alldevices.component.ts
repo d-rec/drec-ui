@@ -109,34 +109,36 @@ export class AdminAlldevicesComponent {
     if (this.loginuser.role === 'ApiUser') {
       this.showapiuser_devices = true;
     }
+
     this.adminService.GetAllOrganization().subscribe((data) => {
       this.orglist = data.organizations.filter(
         (org: OrganizationInformation) => org.organizationType !== 'Buyer',
       );
+      this.applyOrganizationFilter();
+      this.loading = false;
     });
+
     this.authService.GetMethod('device/fuel-type').subscribe((data1: any) => {
       this.fuellist = data1;
       this.fuellistLoaded = true;
     });
+
     this.authService.GetMethod('device/device-type').subscribe((data2: any) => {
       this.devicetypelist = data2;
       this.devicetypeLoded = true;
     });
+
     this.authService.GetMethod('countrycode/list').subscribe((data3: any) => {
       this.countrylist = data3;
+      this.applyCountryFilter();
       this.countrycodeLoded = true;
     });
+
     this.authService.GetMethod('sdgbenefit/code').subscribe((data) => {
       this.sdgblist = data;
     });
-    setTimeout(() => {
-      if (this.countrycodeLoded) {
-        this.applycountryFilter();
-      }
-      this.applyorgFilter();
-      this.loading = false;
-      this.getDeviceListData(this.p);
-    }, 2000);
+
+    this.getDeviceListData(this.p);
   }
 
   ngOnDestroy() {
@@ -145,7 +147,7 @@ export class AdminAlldevicesComponent {
     }
   }
 
-  applyorgFilter() {
+  applyOrganizationFilter() {
     this.FilterForm.controls['organizationname'];
     this.filteredOptions1 = this.FilterForm.controls[
       'organizationname'
@@ -172,11 +174,12 @@ export class AdminAlldevicesComponent {
         option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0,
     );
   }
-  applycountryFilter() {
-    this.FilterForm.controls['countryname'];
-    this.filteredOptions = this.FilterForm.controls[
-      'countryname'
-    ].valueChanges.pipe(
+  applyCountryFilter() {
+    const countryInput = this.FilterForm.get('countryname');
+
+    if (!countryInput) return;
+
+    this.filteredOptions = countryInput.valueChanges.pipe(
       startWith(''),
       map((value) => this._filter(value || '')),
     );
