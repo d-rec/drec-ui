@@ -519,7 +519,7 @@ Cypress.Commands.add('deviceBulkUpload', function () {
 });
 
 Cypress.Commands.add('meterReadBulkUpload', function () {
-  cy.fixture('meter-read-bulk-upload.js').then((data) => {
+  cy.fixture('meter-read-bulk-upload.json').then((data) => {
     data.forEach((step) => {
       if (step.action === 'click') {
         return cy.get(step.selector).click().wait(1000);

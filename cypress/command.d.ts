@@ -19,6 +19,6 @@ declare namespace Cypress {
     certificateFilter(): Chainable<void>;
     deviceBulkUpload(filename: string): Chainable<void>;
     accountSettings(): Chainable<void>;
-    meterReadBulkUpload(): Chainable<void>;
+    meterReadBulkUpload(filename: string): Chainable<void>;
   }
 }
