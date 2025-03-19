@@ -199,36 +199,57 @@
 								</mat-form-field>
 							</div>  -->
 
-							<div class="col-md-4  h6-margin-remove">
-								<h6>Certificate Date: </h6>
-								<mat-form-field appearance="outline">
-									<mat-label>Enter a date range</mat-label>
-									<mat-date-range-input [rangePicker]="$any(picker)">
-										<input matStartDate formControlName="start_date"
-											(ngModelChange)="checkFormValidity()" />
-										<input matEndDate formControlName="end_date"
-											(ngModelChange)="checkFormValidity()" />
-									</mat-date-range-input>
-									<mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-									<mat-date-range-picker #picker></mat-date-range-picker>
+              <div class="col-md-4 h6-margin-remove">
+                <h6>Certificate Date:</h6>
+                <mat-form-field appearance="outline">
+                  <mat-label>Enter a date range</mat-label>
+                  <mat-date-range-input [rangePicker]="$any(picker)">
+                    <input
+                      matStartDate
+                      formControlName="start_date"
+                      (ngModelChange)="checkFormValidity()"
+                    />
+                    <input
+                      matEndDate
+                      formControlName="end_date"
+                      (ngModelChange)="checkFormValidity()"
+                    />
+                  </mat-date-range-input>
+                  <mat-datepicker-toggle
+                    matSuffix
+                    [for]="$any(picker)"
+                  ></mat-datepicker-toggle>
+                  <mat-date-range-picker #picker></mat-date-range-picker>
+                </mat-form-field>
+              </div>
 
-								</mat-form-field>
-							</div>
-				
-								<div class="col-md-4 h6-margin-remove">
-									<h6>Device External Id: </h6>
-									<mat-form-field appearance="outline" test-id="devices-selector">
-										<mat-label class="text-capitalize"> enter device Id</mat-label>
-										<mat-select formControlName='deviceIds' (ngModelChange)="checkFormValidity()" multiple [attr.test-id]="'select-devices'">
-											<mat-option [value]="" test-id="dropdown-no-selection">---</mat-option>
-											<mat-option *ngFor="let deviceId of deviceIds" [value]="deviceId" [attr.test-id]="'device-options'">
-												{{deviceId}}
-											</mat-option>
-										</mat-select>
-									</mat-form-field>
-								</div>
-					
-							<!-- 				
+              <div class="col-md-4 h6-margin-remove">
+                <h6>Device External Id:</h6>
+                <mat-form-field appearance="outline" test-id="devices-selector">
+                  <mat-label class="text-capitalize">
+                    enter device Id</mat-label
+                  >
+                  <mat-select
+                    formControlName="deviceIds"
+                    (ngModelChange)="checkFormValidity()"
+                    multiple
+                    [attr.test-id]="'select-devices'"
+                  >
+                    <mat-option [value]="" test-id="dropdown-no-selection"
+                      >---</mat-option
+                    >
+                    <mat-option
+                      *ngFor="let deviceId of deviceIds"
+                      [value]="deviceId"
+                      [attr.test-id]="'device-options'"
+                    >
+                      {{ deviceId }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <!-- 				
 							<div class="col-md-4  h6-margin-remove">
 								<h6>Select Read Volume(Wh): </h6>
 								
@@ -340,7 +361,7 @@
                     <p>
                       <b>Generation Start Date</b>:&nbsp;
                       <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
-                      {{ item.generationStartTimeinUTC | date: 'long' }}
+                      {{ item.generationStartTimeinUTC }}
                     </p>
                   </div>
                 </div>
@@ -349,7 +370,7 @@
                     <p>
                       <b>Generation End Date</b
                       >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                      {{ item.generationEndTimeinUTC | date: 'long' }}
+                      {{ item.generationEndTimeinUTC }}
                     </p>
                   </div>
                 </div>
@@ -405,7 +426,7 @@
                     </ng-container>
 
                     <ng-container matColumnDef="externalId">
-                      <th mat-header-cell *matHeaderCellDef>Device Id </th>
+                      <th mat-header-cell *matHeaderCellDef>Device Id</th>
                       <td mat-cell *matCellDef="let element" class="table-data">
                         {{ element.externalId }}
                       </td>
@@ -463,7 +484,11 @@
           </button>
           <p class="pagenumber"><b>Page Number:</b>{{ p }}</p>
         </div>
-        <div *ngIf="!data?.length" style="text-align: center; color: #f2be1a" test-id="no-certificate">
+        <div
+          *ngIf="!data?.length"
+          style="text-align: center; color: #f2be1a"
+          test-id="no-certificate"
+        >
           No Certificate
         </div>
       </ng-container>
