@@ -27,7 +27,6 @@ import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { DeviceDetailsComponent } from '../device/device-details/device-details.component';
 import { MatDialog } from '@angular/material/dialog';
-import moment from 'moment-timezone';
 
 @Component({
   selector: 'app-certificate-details',
@@ -424,7 +423,6 @@ export class CertificateDetailsComponent {
         next: (data: any) => {
           this.loading = false;
           // display list in the console
-          console.log(data);
           this.oldcertificatelog = data.oldcertificatelog;
           if (data.certificatelog.length > 0) {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);
@@ -437,17 +435,6 @@ export class CertificateDetailsComponent {
               });
             });
             this.data.forEach((ele: any) => {
-              ele['generationStartTimeinUTC'] = moment(
-                ele.generationStartTime * 1000,
-              )
-                .tz(ele.perDeviceCertificateLog[0].timezone)
-                .format('MMMM D, YYYY [at] hh:mm:ss A [GMT]Z');
-
-              ele['generationEndTimeinUTC'] = moment(
-                ele.generationEndTime * 1000,
-              )
-                .tz(ele.perDeviceCertificateLog[0].timezone)
-                .format('MMMM D, YYYY [at] hh:mm:ss A [GMT]Z');
               //converting blockchain address to lower case
               if (ele.claims != null && ele.claims.length > 0) {
                 ele['CertificateClaimed'] = true;
