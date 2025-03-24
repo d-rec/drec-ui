@@ -27,6 +27,8 @@ import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { DeviceDetailsComponent } from '../device/device-details/device-details.component';
 import { MatDialog } from '@angular/material/dialog';
+import { DATE_FORMATS } from '../../constants/date-formats';
+import { formatDateWithTimezone } from '../../utils/date-formatter';
 
 @Component({
   selector: 'app-certificate-details',
@@ -410,6 +412,23 @@ export class CertificateDetailsComponent {
       this.dataSource.paginator.firstPage();
     }
   }
+
+  formatCertificateDate(date: string | number, timezone: string): string {
+    if (typeof date === 'number') {
+      return formatDateWithTimezone(
+        date * 1000,
+        timezone,
+        DATE_FORMATS.CERTIFICATE_DATETIME,
+      );
+    }
+
+    return formatDateWithTimezone(
+      date,
+      timezone,
+      DATE_FORMATS.CERTIFICATE_DATETIME,
+    );
+  }
+
   DisplayListFilter() {
     this.loading = true;
     this.p = 1;

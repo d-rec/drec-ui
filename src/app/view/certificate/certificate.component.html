@@ -539,10 +539,10 @@
                     <b>Generation Start Date</b>:&nbsp;
                     <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
                     {{
-                      item.generationStartTime * 1000
-                        | timezone
-                          : item.perDeviceCertificateLog[0].timezone
-                          : 'MMMM D, YYYY [at] hh:mm:ss A [GMT]Z'
+                      formatCertificateDate(
+                        item.generationStartTime,
+                        item.perDeviceCertificateLog[0].timezone
+                      )
                     }}
                   </p>
                 </div>
@@ -553,10 +553,10 @@
                     <b>Generation End Date</b
                     >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
                     {{
-                      item.generationEndTime * 1000
-                        | timezone
-                          : item.perDeviceCertificateLog[0].timezone
-                          : 'MMMM D, YYYY [at] hh:mm:ss A [GMT]Z'
+                      formatCertificateDate(
+                        item.generationEndTime,
+                        item.perDeviceCertificateLog[0].timezone
+                      )
                     }}
                   </p>
                 </div>
@@ -598,10 +598,10 @@
                     <th mat-header-cell *matHeaderCellDef>Start Date</th>
                     <td mat-cell *matCellDef="let element" class="table-data">
                       {{
-                        element.certificate_issuance_startdate
-                          | timezone
-                            : element.timezone
-                            : 'MMMM D, YYYY [at] hh:mm:ss A [GMT]Z'
+                        formatCertificateDate(
+                          element.certificate_issuance_startdate,
+                          element.timezone
+                        )
                       }}
                     </td>
                   </ng-container>
@@ -610,10 +610,10 @@
                     <th mat-header-cell *matHeaderCellDef>End Date</th>
                     <td mat-cell *matCellDef="let element" class="table-data">
                       {{
-                        element.certificate_issuance_enddate
-                          | timezone
-                            : element.timezone
-                            : 'MMMM D, YYYY [at] hh:mm:ss A [GMT]Z'
+                        formatCertificateDate(
+                          element.certificate_issuance_enddate,
+                          element.timezone
+                        )
                       }}
                     </td>
                   </ng-container>
