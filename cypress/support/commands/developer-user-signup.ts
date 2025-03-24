@@ -6,22 +6,21 @@ Cypress.Commands.add('developerUserSignup', function () {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     cy.get('[test-id="register"]').click();
     data.forEach((step) => {
-      if (step.action === 'type') {
-        return cy
-          .get(step.selector)
-          .type(step.value)
-          .should('have.value', step.value);
-      }
-      if (step.action === 'click') {
-        return cy.get(step.selector).click().wait(1000);
-      }
-      if (step.action === 'select') {
-        return cy
-          .get(step.selector)
-          .click()
-          .then(() => {
-            cy.get('mat-option').contains(step.value).click();
-          });
+      switch (step.action) {
+        case 'type':
+          cy.get(step.selector)
+            .type(step.value)
+            .should('have.value', step.value);
+          break;
+        case 'click':
+          cy.get(step.selector).click();
+          break;
+        case 'select':
+          cy.get(step.selector)
+            .click()
+            .then(() => {
+              cy.get('mat-option').contains(step.value).click();
+            });
       }
     });
   });
