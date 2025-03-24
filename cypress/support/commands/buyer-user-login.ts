@@ -3,13 +3,14 @@ const UI_BASE_URL = Cypress.env('UI_BASE_URL');
 
 Cypress.Commands.add('buyerUserLogin', function () {
   cy.fixture('buyer-user-login.json').then((data) => {
-    cy.visit(`${UI_BASE_URL}/login`).wait(1000);
+    cy.visit(`${UI_BASE_URL}/login`);
     data.forEach((step) => {
-      if (step.action === 'type') {
-        return cy.get(step.selector).type(step.value);
-      }
-      if (step.action === 'click') {
-        return cy.get(step.selector).click().wait(1000);
+      switch (step.action) {
+        case 'type':
+          cy.get(step.selector).type(step.value);
+          break;
+        case 'click':
+          cy.get(step.selector).click();
       }
     });
   });
