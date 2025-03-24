@@ -285,7 +285,7 @@
               Onboarding Date
             </th>
             <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-              {{ row.createdAt | date: 'long' }}
+              {{ row.createdAt | date: 'full' }}
             </td>
           </ng-container>
           <ng-container matColumnDef="name">
