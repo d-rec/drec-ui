@@ -8,17 +8,19 @@ Cypress.Commands.add('adminLogin', function () {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
 
     data.forEach((step) => {
-      if (step.action === 'type') {
-        cy.get(step.selector).type(
-          step.index === 0 ? ADMIN_EMAIL : ADMIN_PASSWORD,
-        );
-      }
-      if (step.action === 'click') {
-        cy.get(step.selector).click();
-        if (step.selector === '[test-id="login-submit"]') {
-          cy.contains('Login Success').should('be.visible');
-          cy.contains(`Login user ${ADMIN_EMAIL}`).should('be.visible');
-        }
+      switch (step.action) {
+        case 'type':
+          cy.get(step.selector).type(
+            step.index === 0 ? ADMIN_EMAIL : ADMIN_PASSWORD,
+          );
+          break;
+        case 'click':
+          cy.get(step.selector).click();
+          switch (step.selector) {
+            case '[test-id="login-submit"]':
+              cy.contains('Login Success').should('be.visible');
+              cy.contains(`Login user ${ADMIN_EMAIL}`).should('be.visible');
+          }
       }
     });
   });
