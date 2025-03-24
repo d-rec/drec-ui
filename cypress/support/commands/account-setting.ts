@@ -13,7 +13,6 @@ Cypress.Commands.add('accountSettings', function () {
             .should('be.visible')
             .clear({ force: true })
             .type(step.value, { force: true });
-          break;
       }
     });
   });

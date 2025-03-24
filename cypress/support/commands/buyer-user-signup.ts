@@ -21,7 +21,6 @@ Cypress.Commands.add('buyerUserSignup', function () {
             .then(() => {
               cy.get('mat-option').contains(step.value).click();
             });
-          break;
       }
     });
   });

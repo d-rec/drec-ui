@@ -27,7 +27,6 @@ Cypress.Commands.add('buyerUserPermissionsSetup', function () {
           break;
         case 'submit':
           cy.get(step.selector).scrollIntoView().should('be.visible').click();
-          break;
       }
     });
   });

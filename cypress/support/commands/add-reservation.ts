@@ -24,7 +24,6 @@ Cypress.Commands.add('addReservation', function () {
 
         case 'check':
           cy.get(step.selector).eq(step.index).click();
-          break;
       }
     });
   });

@@ -5,12 +5,12 @@ Cypress.Commands.add('developerUserLogin', function () {
   cy.fixture('developer-user-login.json').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     data.forEach((step) => {
-      if (step.action === 'type') {
-        return cy.get(step.selector).type(step.value);
-      }
-
-      if (step.action === 'click') {
-        return cy.get(step.selector).click().wait(1000);
+      switch (step.action) {
+        case 'type':
+          cy.get(step.selector).type(step.value);
+          break;
+        case 'click':
+          cy.get(step.selector).click();
       }
     });
   });

@@ -29,7 +29,6 @@ Cypress.Commands.add('addDevice', function () {
 
         case 'submit':
           cy.get(step.selector).click('center', { force: true });
-          break;
       }
     });
   });

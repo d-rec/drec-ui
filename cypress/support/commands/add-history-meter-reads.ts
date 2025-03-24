@@ -62,7 +62,6 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .click()
             .get('.mat-stroked-button')
             .click();
-          break;
       }
     });
   });
