@@ -418,14 +418,14 @@ export class CertificateDetailsComponent {
       return formatDateWithTimezone(
         date * 1000,
         timezone,
-        DATE_FORMATS.CERTIFICATE_DATETIME,
+        DATE_FORMATS.DATETIME_WITH_TIMEZONE,
       );
     }
 
     return formatDateWithTimezone(
       date,
       timezone,
-      DATE_FORMATS.CERTIFICATE_DATETIME,
+      DATE_FORMATS.DATETIME_WITH_TIMEZONE,
     );
   }
 
