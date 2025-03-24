@@ -39,7 +39,6 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
           });
 
           cy.get(step.selector)
-            .wait(1000)
             .click({ force: true })
             .type(formattedTime, { force: true })
             .click();
