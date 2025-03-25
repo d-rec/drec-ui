@@ -13,7 +13,7 @@ Cypress.Commands.add('developerUserSignup', function () {
             .should('have.value', step.value);
           break;
         case 'click':
-          cy.get(step.selector).click();
+          cy.get(step.selector).click().wait(1000);
           break;
         case 'select':
           cy.get(step.selector)

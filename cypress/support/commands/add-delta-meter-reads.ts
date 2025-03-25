@@ -3,7 +3,7 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).should('be.visible').click();
+          cy.get(step.selector).should('be.visible').click().wait(1000);
           break;
 
         case 'selected':
@@ -14,7 +14,8 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
             .should('have.length.greaterThan', 0)
             .first()
             .should('be.visible')
-            .click({ force: true });
+            .click({ force: true })
+            .wait(1000);
           break;
 
         case 'type':

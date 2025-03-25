@@ -4,7 +4,7 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).click();
+          cy.get(step.selector).click().wait(1000);
           break;
 
         case 'selected':

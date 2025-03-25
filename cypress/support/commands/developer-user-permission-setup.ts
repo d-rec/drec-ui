@@ -5,7 +5,7 @@ Cypress.Commands.add('developerUserPermissionsSetup', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).should('be.visible').click();
+          cy.get(step.selector).should('be.visible').click().wait(1000);
           break;
         case 'select':
           cy.get(step.selector)
@@ -13,7 +13,8 @@ Cypress.Commands.add('developerUserPermissionsSetup', function () {
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(1)
-            .click();
+            .click()
+            .wait(1000);
           break;
         case 'check':
           cy.get(step.selector).eq(step.index).click();

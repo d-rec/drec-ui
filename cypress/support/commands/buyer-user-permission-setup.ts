@@ -5,7 +5,7 @@ Cypress.Commands.add('buyerUserPermissionsSetup', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).should('be.visible').click();
+          cy.get(step.selector).wait(10000).should('be.visible').click();
           break;
         case 'select':
           cy.get(step.selector)
