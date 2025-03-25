@@ -160,13 +160,13 @@
               <mat-form-field appearance="fill" class="mt-3">
                 <mat-label class="mat-labels-cont">Phone Number</mat-label>
                 <input
-                  type="number"
+                  type="text"
                   matInput
-                  formControlName="phoneNumber"
+                  formControlName="telephone"
                   placeholder="912212345678"
-                  test-id="phone-number"
+                  test-id="telephone"
                 />
-                <mat-error class="pb-3" *ngIf="checkValidation('phoneNumber')">
+                <mat-error class="pb-3" *ngIf="checkValidation('telephone')">
                   {{ phoneNumberErrors() }}
                 </mat-error>
               </mat-form-field>

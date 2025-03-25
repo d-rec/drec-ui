@@ -56,7 +56,7 @@ export class RegisterComponent implements OnInit {
           Validators.required,
           Validators.pattern(this.emailregex),
         ]),
-        phoneNumber: new FormControl(null, [
+        telephone: new FormControl(null, [
           Validators.required,
           Validators.pattern(this.phoneRegex),
         ]),
@@ -95,9 +95,9 @@ export class RegisterComponent implements OnInit {
   }
 
   phoneNumberErrors() {
-    return this.registerForm.get('phoneNumber')?.hasError('required')
+    return this.registerForm.get('telephone')?.hasError('required')
       ? 'This field is required'
-      : this.registerForm.get('phoneNumber')?.hasError('pattern')
+      : this.registerForm.get('telephone')?.hasError('pattern')
         ? 'Please enter a valid 10-digit phone number and must contain the country code'
         : '';
   }

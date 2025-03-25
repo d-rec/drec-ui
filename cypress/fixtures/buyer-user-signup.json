@@ -20,7 +20,7 @@
   },
   {
     "action": "type",
-    "selector": "[test-id='phone-number']",
+    "selector": "[test-id='telephone']",
     "value": "912212345678"
   },
   {
