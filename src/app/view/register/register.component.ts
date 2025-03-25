@@ -31,6 +31,9 @@ export class RegisterComponent implements OnInit {
   emailregex: RegExp =
     // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+  phoneRegex: RegExp = /^[0-9]{12}$/;
+
   constructor(
     private authService: AuthbaseService,
     private toastrService: ToastrService,
@@ -52,6 +55,10 @@ export class RegisterComponent implements OnInit {
         email: new FormControl(null, [
           Validators.required,
           Validators.pattern(this.emailregex),
+        ]),
+        phoneNumber: new FormControl(null, [
+          Validators.required,
+          Validators.pattern(this.phoneRegex),
         ]),
         password: new FormControl(null, [
           Validators.required,
@@ -86,6 +93,15 @@ export class RegisterComponent implements OnInit {
         ? 'Not a valid emailaddress'
         : '';
   }
+
+  phoneNumberErrors() {
+    return this.registerForm.get('phoneNumber')?.hasError('required')
+      ? 'This field is required'
+      : this.registerForm.get('phoneNumber')?.hasError('pattern')
+        ? 'Please enter a valid 10-digit phone number and must contain the country code'
+        : '';
+  }
+
   checkPassword(control: any) {
     const enteredPassword = control.value;
     const passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
