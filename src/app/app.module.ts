@@ -36,6 +36,7 @@ import { AdminModule } from './view/admin/admin.module';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { ApiuserClientReponseComponent } from './view/apiuser-client-reponse/apiuser-client-reponse.component';
 import * as Sentry from '@sentry/angular';
+import { NgxIntlTelInputModule } from 'ngx-intl-tel-input';
 
 @NgModule({
   declarations: [
@@ -81,6 +82,7 @@ import * as Sentry from '@sentry/angular';
       timeOut: 15000, // 15 seconds
       progressBar: true,
     }),
+    NgxIntlTelInputModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

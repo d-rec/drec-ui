@@ -157,6 +157,58 @@
                   {{ emaiErrors() }}
                 </mat-error>
               </mat-form-field>
+              <div class="phone-input-container">
+                <mat-label class="mat-labels-cont">Phone Number</mat-label>
+                <div class="phone-input-wrapper">
+                  <mat-form-field
+                    appearance="outline"
+                    class="country-code-select"
+                  >
+                    <mat-select
+                      [(ngModel)]="selectedCountry"
+                      [ngModelOptions]="{ standalone: true }"
+                    >
+                      <mat-option
+                        *ngFor="let country of countries"
+                        [value]="country"
+                      >
+                        <img
+                          class="country-flag"
+                          [src]="
+                            'https://flagcdn.com/' +
+                            country.code.toLowerCase() +
+                            '.svg'
+                          "
+                          width="24"
+                        />
+                        {{ country.name }} +{{ country.dialCode }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field
+                    appearance="outline"
+                    class="phone-number-input"
+                  >
+                    <input
+                      matInput
+                      type="tel"
+                      formControlName="phone"
+                      placeholder="Phone number"
+                      [maxlength]="15"
+                      (input)="onPhoneNumberChange($event)"
+                    />
+                  </mat-form-field>
+                </div>
+                <div class="error-message" *ngIf="checkValidation('phone')">
+                  <span *ngIf="registerForm.get('phone')?.hasError('required')">
+                    {{ fieldRequired }}
+                  </span>
+                  <span *ngIf="registerForm.get('phone')?.hasError('pattern')">
+                    Please enter a valid phone number
+                  </span>
+                </div>
+              </div>
               <div class="d-flex justify-content-end mt-2">
                 <button
                   mat-button

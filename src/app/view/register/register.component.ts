@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../auth/services';
+import { CountryISO, SearchCountryField } from 'ngx-intl-tel-input';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -19,6 +20,25 @@ import { UserService } from '../../auth/services';
 export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   fieldRequired: string = 'This field is required';
+  selectedCountry: any = { code: 'US', name: 'United States', dialCode: '1' };
+  countries = [
+    { code: 'US', name: 'United States', dialCode: '1' },
+    { code: 'GB', name: 'United Kingdom', dialCode: '44' },
+    { code: 'IN', name: 'India', dialCode: '91' },
+    { code: 'DE', name: 'Germany', dialCode: '49' },
+    { code: 'FR', name: 'France', dialCode: '33' },
+    { code: 'IT', name: 'Italy', dialCode: '39' },
+    { code: 'ES', name: 'Spain', dialCode: '34' },
+    { code: 'AU', name: 'Australia', dialCode: '61' },
+    { code: 'CA', name: 'Canada', dialCode: '1' },
+    { code: 'BR', name: 'Brazil', dialCode: '55' },
+    { code: 'JP', name: 'Japan', dialCode: '81' },
+    { code: 'KR', name: 'South Korea', dialCode: '82' },
+    { code: 'CN', name: 'China', dialCode: '86' },
+    { code: 'RU', name: 'Russia', dialCode: '7' },
+    { code: 'HR', name: 'Croatia', dialCode: '385' },
+    // Add more countries as needed
+  ];
   orgtype: any[] = [
     { value: 'Developer', viewValue: 'Developer' },
     { value: 'Buyer', viewValue: 'Buyer' },
@@ -31,6 +51,8 @@ export class RegisterComponent implements OnInit {
   emailregex: RegExp =
     // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  CountryISO = CountryISO;
+  SearchCountryField = SearchCountryField;
   constructor(
     private authService: AuthbaseService,
     private toastrService: ToastrService,
@@ -52,6 +74,10 @@ export class RegisterComponent implements OnInit {
         email: new FormControl(null, [
           Validators.required,
           Validators.pattern(this.emailregex),
+        ]),
+        phone: new FormControl(null, [
+          Validators.required,
+          Validators.pattern(/^\d{10,15}$/),
         ]),
         password: new FormControl(null, [
           Validators.required,
@@ -151,9 +177,12 @@ export class RegisterComponent implements OnInit {
   }
   response: any;
   onSubmit(): void {
-    this.authService
-      .PostAuth('user/register', this.registerForm.value)
-      .subscribe({
+    if (this.registerForm.valid) {
+      // Format the phone number with country code before submitting
+      const formValue = this.registerForm.value;
+      formValue.phone = '+' + this.selectedCountry.dialCode + formValue.phone;
+
+      this.authService.PostAuth('user/register', formValue).subscribe({
         next: (data) => {
           const loginobj = {
             username: this.registerForm.value.email,
@@ -231,6 +260,7 @@ export class RegisterComponent implements OnInit {
           this.toastrService.error('error!', err.error.message);
         },
       });
+    }
   }
   showkeypopup(ketdata: any, logininfo: any) {
     setTimeout(() => {
@@ -286,5 +316,16 @@ export class RegisterComponent implements OnInit {
         );
       },
     });
+  }
+  onPhoneNumberChange(event: any) {
+    const phoneNumber = event.target.value;
+    if (phoneNumber) {
+      // Remove any non-digit characters
+      const cleanNumber = phoneNumber.replace(/\D/g, '');
+      // Update the form control with the clean number
+      this.registerForm
+        .get('phone')
+        ?.setValue(cleanNumber, { emitEvent: false });
+    }
   }
 }

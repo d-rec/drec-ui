@@ -214,3 +214,86 @@
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
+::ng-deep {
+  .iti {
+    width: 100%;
+    display: block;
+  }
+
+  .iti__flag {
+    background-image: url('https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/img/flags.png');
+  }
+
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .iti__flag {
+      background-image: url('https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/img/flags@2x.png');
+    }
+  }
+}
+
+.phone-input-container {
+  margin-bottom: 1.5rem;
+
+  .mat-labels-cont {
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .phone-input-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+
+    .country-code-select {
+      width: 200px;
+      flex-shrink: 0;
+
+      ::ng-deep {
+        .mat-mdc-select-trigger {
+          height: 40px;
+          padding: 0 8px;
+        }
+
+        .country-flag {
+          margin-right: 8px;
+          vertical-align: middle;
+        }
+      }
+    }
+
+    .phone-number-input {
+      flex-grow: 1;
+
+      ::ng-deep {
+        input {
+          height: 40px;
+        }
+      }
+    }
+  }
+
+  .error-message {
+    color: #f44336;
+    font-size: 12px;
+    margin-top: 4px;
+
+    span {
+      display: block;
+    }
+  }
+}
+
+::ng-deep {
+  .mat-mdc-option {
+    .country-flag {
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+  }
+
+  .mat-mdc-select-panel {
+    max-height: 300px !important;
+  }
+}
