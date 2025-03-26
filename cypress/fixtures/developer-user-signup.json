@@ -18,7 +18,7 @@
   {
     "action": "type",
     "selector": "[test-id='telephone']",
-    "value": "912212345678"
+    "value": "+912212345678"
   },
   {
     "action": "click",
