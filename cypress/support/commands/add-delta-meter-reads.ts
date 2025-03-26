@@ -3,27 +3,26 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).should('be.visible').click().wait(1000);
-          break;
+          return cy.get(step.selector).should('be.visible').click().wait(1000);
 
         case 'selected':
         case 'select-timezone':
         case 'select':
           cy.get(step.selector).should('be.visible').click({ force: true });
-          cy.get(step.option)
+          return cy
+            .get(step.option)
             .should('have.length.greaterThan', 0)
             .first()
             .should('be.visible')
             .click({ force: true })
             .wait(1000);
-          break;
 
         case 'type':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .should('be.visible')
             .click({ force: true })
             .type(step.value, { force: true });
-          break;
 
         case 'date-picker':
           const currentTime = new Date();
@@ -39,7 +38,8 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
             hour12: true,
           });
 
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click({ force: true })
             .type(formattedTime, { force: true })
             .click();

@@ -7,10 +7,9 @@ Cypress.Commands.add('buyerUserLogin', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'type':
-          cy.get(step.selector).type(step.value);
-          break;
+          return cy.get(step.selector).type(step.value);
         case 'click':
-          cy.get(step.selector).click().wait(1000);
+          return cy.get(step.selector).click().wait(1000);
       }
     });
   });

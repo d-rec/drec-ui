@@ -4,31 +4,29 @@ Cypress.Commands.add('addDevice', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).click().wait(1000);
-          break;
+          return cy.get(step.selector).click().wait(1000);
 
         case 'type':
-          cy.get(step.selector).should('be.visible').type(step.value);
-          break;
+          return cy.get(step.selector).should('be.visible').type(step.value);
 
         case 'write':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .should('be.visible')
             .clear()
             .type(step.value + '{enter}');
-          break;
 
         case 'select':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click()
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(0)
             .click();
-          break;
 
         case 'submit':
-          cy.get(step.selector).click('center', { force: true });
+          return cy.get(step.selector).click('center', { force: true });
       }
     });
   });

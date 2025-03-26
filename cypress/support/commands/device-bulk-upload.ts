@@ -5,15 +5,13 @@ Cypress.Commands.add('deviceBulkUpload', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).click().wait(1000);
-          break;
+          return cy.get(step.selector).click().wait(1000);
         case 'upload':
-          cy.get(step.selector).attachFile(
-            'files/d-rec_bulk_upload_meter_read_template.csv',
-            {
+          return cy
+            .get(step.selector)
+            .attachFile('files/d-rec_bulk_upload_meter_read_template.csv', {
               force: true,
-            },
-          );
+            });
       }
     });
   });

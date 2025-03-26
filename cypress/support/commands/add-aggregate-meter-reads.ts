@@ -3,11 +3,11 @@ Cypress.Commands.add('addAggregateMeterRead', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).click().wait(1000);
-          break;
+          return cy.get(step.selector).click().wait(1000);
 
         case 'selected':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click({ force: true })
             .get(step.option)
             .should('have.length.greaterThan', 0)
@@ -15,31 +15,30 @@ Cypress.Commands.add('addAggregateMeterRead', function () {
             .should('be.visible')
             .click({ force: true })
             .wait(1000);
-          break;
 
         case 'select-timezone':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click({ force: true })
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(0)
             .click('center', { force: true });
-          break;
 
         case 'select':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click({ force: true })
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(2)
             .click('center', { force: true });
-          break;
 
         case 'type':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click({ force: true })
             .type(step.value, { force: true });
-          break;
 
         case 'date-picker':
           const currentTime = new Date();
@@ -55,7 +54,8 @@ Cypress.Commands.add('addAggregateMeterRead', function () {
             hour12: true,
           });
 
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click({ force: true })
             .type(formattedTime, { force: true })
             .click();

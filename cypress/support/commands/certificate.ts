@@ -5,10 +5,10 @@ Cypress.Commands.add('certificate', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).click().wait(1000);
-          break;
+          return cy.get(step.selector).click().wait(1000);
         case 'type':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .should('be.visible')
             .type(step.value, { force: true });
       }

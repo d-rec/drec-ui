@@ -10,10 +10,9 @@ Cypress.Commands.add('adminLogin', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'type':
-          cy.get(step.selector).type(
-            step.index === 0 ? ADMIN_EMAIL : ADMIN_PASSWORD,
-          );
-          break;
+          return cy
+            .get(step.selector)
+            .type(step.index === 0 ? ADMIN_EMAIL : ADMIN_PASSWORD);
         case 'click':
           cy.get(step.selector).click();
           switch (step.selector) {

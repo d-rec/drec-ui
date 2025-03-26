@@ -8,15 +8,15 @@ Cypress.Commands.add('developerUserSignup', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'type':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .type(step.value)
             .should('have.value', step.value);
-          break;
         case 'click':
-          cy.get(step.selector).click().wait(1000);
-          break;
+          return cy.get(step.selector).click().wait(1000);
         case 'select':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click()
             .then(() => {
               cy.get('mat-option').contains(step.value).click();

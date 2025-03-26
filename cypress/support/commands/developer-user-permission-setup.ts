@@ -5,29 +5,30 @@ Cypress.Commands.add('developerUserPermissionsSetup', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).should('be.visible').click().wait(1000);
-          break;
+          return cy.get(step.selector).should('be.visible').click().wait(1000);
         case 'select':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click()
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(1)
             .click()
             .wait(1000);
-          break;
         case 'check':
-          cy.get(step.selector).eq(step.index).click();
-          break;
+          return cy.get(step.selector).eq(step.index).click();
         case 'check-multiple':
-          cy.contains('table tr', step.contains).within(() => {
+          return cy.contains('table tr', step.contains).within(() => {
             cy.get(step.selector).each(($el) => {
               cy.wrap($el).click();
             });
           });
-          break;
         case 'submit':
-          cy.get(step.selector).scrollIntoView().should('be.visible').click();
+          return cy
+            .get(step.selector)
+            .scrollIntoView()
+            .should('be.visible')
+            .click();
       }
     });
   });

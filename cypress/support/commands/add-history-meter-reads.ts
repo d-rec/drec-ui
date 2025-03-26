@@ -4,11 +4,11 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).click().wait(1000);
-          break;
+          return cy.get(step.selector).click().wait(1000);
 
         case 'selected':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click({ force: true })
             .get(step.option)
             .should('have.length.greaterThan', 0)
@@ -16,34 +16,34 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .should('be.visible')
             .click({ force: true })
             .wait(1000);
-          break;
 
         case 'select-timezone':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click({ force: true })
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(0)
             .click('center', { force: true });
-          break;
 
         case 'select':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click({ force: true })
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(0)
             .click('center', { force: true });
-          break;
 
         case 'type':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .click({ force: true })
             .type(step.value, { force: true });
-          break;
 
         case 'start-date':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .eq(0)
             .click('center', { force: true })
             .get(step.option)
@@ -51,10 +51,10 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .click()
             .get('.mat-stroked-button')
             .click();
-          break;
 
         case 'end-date':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .eq(1)
             .click('center', { force: true })
             .get(step.option)

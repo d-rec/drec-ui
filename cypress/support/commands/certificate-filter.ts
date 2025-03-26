@@ -5,8 +5,7 @@ Cypress.Commands.add('certificateFilter', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).click();
-          break;
+          return cy.get(step.selector).click();
         case 'select':
           cy.get(step.selector).click({ force: true });
           cy.get('body').then(($body) => {
@@ -16,15 +15,17 @@ Cypress.Commands.add('certificateFilter', function () {
                   .should('have.length.greaterThan', 0)
                   .eq(0)
                   .click('center', { force: true });
-                cy.get('[test-id="filter-button"]').click({ force: true });
-                break;
+                return cy
+                  .get('[test-id="filter-button"]')
+                  .click({ force: true });
               case false:
                 cy.get('[test-id="dropdown-no-selection"]').click({
                   force: true,
                 });
                 cy.get('[test-id="filter-button"]').click({ force: true });
 
-                cy.get('[test-id="no-certificate"]', { timeout: 5000 })
+                return cy
+                  .get('[test-id="no-certificate"]', { timeout: 5000 })
                   .should('exist')
                   .then(($el) => {
                     switch ($el.is(':visible')) {
@@ -33,7 +34,6 @@ Cypress.Commands.add('certificateFilter', function () {
                         break;
                     }
                   });
-                break;
             }
           });
       }
