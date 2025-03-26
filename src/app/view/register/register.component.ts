@@ -32,7 +32,7 @@ export class RegisterComponent implements OnInit {
     // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
-  phoneRegex: RegExp = /^[0-9]{12}$/;
+  phoneRegex: RegExp = /^\+[1-9]\d{10,14}$/;
 
   constructor(
     private authService: AuthbaseService,
@@ -95,11 +95,14 @@ export class RegisterComponent implements OnInit {
   }
 
   phoneNumberErrors() {
-    return this.registerForm.get('telephone')?.hasError('required')
-      ? 'This field is required'
-      : this.registerForm.get('telephone')?.hasError('pattern')
-        ? 'Please enter a valid 10-digit phone number and must contain the country code'
-        : '';
+    const phoneControl = this.registerForm.get('telephone');
+    if (phoneControl?.hasError('required')) {
+      return 'This field is required';
+    }
+    if (phoneControl?.hasError('pattern')) {
+      return 'Please enter a valid international phone number starting with + (e.g., +1234567890)';
+    }
+    return '';
   }
 
   checkPassword(control: any) {

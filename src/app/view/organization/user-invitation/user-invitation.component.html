@@ -87,9 +87,12 @@
                           placeholder="+912212345678"
                           test-id="telephone"
                         />
-                        <!-- <mat-error class="pb-3" *ngIf="checkValidation('telephone')">
-                  {{ phoneNumberErrors() }}
-                </mat-error> -->
+                        <mat-error
+                          class="pb-3"
+                          *ngIf="checkValidation('telephone')"
+                        >
+                          {{ phoneNumberErrors() }}
+                        </mat-error>
                       </mat-form-field>
                     </div>
                     <div class="col-md-3">

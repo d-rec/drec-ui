@@ -38,6 +38,7 @@ export class UserInvitationComponent {
   emailregex: RegExp =
     // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  phoneRegex: RegExp = /^\+[1-9]\d{10,14}$/;
   orgtype: any[] = [
     { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
     { value: 'User', viewValue: 'User' },
@@ -79,6 +80,10 @@ export class UserInvitationComponent {
       firstName: [null],
       lastName: [null],
       email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
+      telephone: [
+        null,
+        [Validators.required, Validators.pattern(this.phoneRegex)],
+      ],
       role: [null, [Validators.required]],
     });
 
@@ -86,6 +91,26 @@ export class UserInvitationComponent {
       this.getorginviteuserlist();
     }, 1000);
   }
+
+  checkValidation(input: string) {
+    const validation =
+      this.inviteForm.get(input)?.invalid &&
+      (this.inviteForm.get(input)?.dirty ||
+        this.inviteForm.get(input)?.touched);
+    return validation;
+  }
+
+  phoneNumberErrors() {
+    const phoneControl = this.inviteForm.get('telephone');
+    if (phoneControl?.hasError('required')) {
+      return 'This field is required';
+    }
+    if (phoneControl?.hasError('pattern')) {
+      return 'Please enter a valid international phone number starting with + (e.g., +1234567890)';
+    }
+    return '';
+  }
+
   filterOrgList() {
     this.filteredOrgList = this.orglist.filter(
       (org: OrganizationInformation) => {
