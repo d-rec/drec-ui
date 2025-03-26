@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../auth/services';
+import { EMAIL_REGEX, PHONE_REGEX } from '../../constants/index';
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -28,11 +29,6 @@ export class RegisterComponent implements OnInit {
   hide1 = true;
   matchconfirm: boolean = false;
   showPopup: boolean = false;
-  emailregex: RegExp =
-    // eslint-disable-next-line no-useless-escape
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
-  phoneRegex: RegExp = /^\+[1-9]\d{10,14}$/;
 
   constructor(
     private authService: AuthbaseService,
@@ -54,11 +50,11 @@ export class RegisterComponent implements OnInit {
         orgAddress: new FormControl(null),
         email: new FormControl(null, [
           Validators.required,
-          Validators.pattern(this.emailregex),
+          Validators.pattern(EMAIL_REGEX),
         ]),
         telephone: new FormControl(null, [
           Validators.required,
-          Validators.pattern(this.phoneRegex),
+          Validators.pattern(PHONE_REGEX),
         ]),
         password: new FormControl(null, [
           Validators.required,

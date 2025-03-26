@@ -13,6 +13,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatTabGroup } from '@angular/material/tabs';
 import { OrganizationInformation } from '../../../models';
+import { EMAIL_REGEX, PHONE_REGEX } from '../../../constants/index';
 
 @Component({
   selector: 'app-user-invitation',
@@ -35,10 +36,6 @@ export class UserInvitationComponent {
   orginviteuser: any;
   showorginviteuser: boolean = false;
   loading: boolean = false;
-  emailregex: RegExp =
-    // eslint-disable-next-line no-useless-escape
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  phoneRegex: RegExp = /^\+[1-9]\d{10,14}$/;
   orgtype: any[] = [
     { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
     { value: 'User', viewValue: 'User' },
@@ -53,6 +50,7 @@ export class UserInvitationComponent {
   orgname: string;
   orgId: number;
   orglist: OrganizationInformation[] = [];
+
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -79,11 +77,8 @@ export class UserInvitationComponent {
     this.inviteForm = this.fb.group({
       firstName: [null],
       lastName: [null],
-      email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
-      telephone: [
-        null,
-        [Validators.required, Validators.pattern(this.phoneRegex)],
-      ],
+      email: [null, [Validators.required, Validators.pattern(EMAIL_REGEX)]],
+      telephone: [null, [Validators.required, Validators.pattern(PHONE_REGEX)]],
       role: [null, [Validators.required]],
     });
 
