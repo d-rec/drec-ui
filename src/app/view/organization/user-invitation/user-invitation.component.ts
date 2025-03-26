@@ -139,11 +139,8 @@ export class UserInvitationComponent {
           this.getorginviteuserlist();
         }
       },
-      error: () => {
-        this.toastrService.error(
-          "You don't have the permissions to invite a user to this organization",
-          'Access Denied',
-        );
+      error: (error) => {
+        this.toastrService.error(error.error.message);
       },
     });
   }
