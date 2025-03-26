@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { UserService } from '../../../auth/services';
 import { ToastrService } from 'ngx-toastr';
+import { EMAIL_REGEX, PHONE_REGEX } from '../../../constants/index';
 @Component({
   selector: 'app-add-users',
   templateUrl: './add-users.component.html',
@@ -33,9 +34,7 @@ export class AddUsersComponent {
   matchconfirm: boolean = false;
   loginuser: any;
   apiuserId: string;
-  emailregex: RegExp =
-    // eslint-disable-next-line no-useless-escape
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
   constructor(
     private authService: AuthbaseService,
     private _formBuilder: FormBuilder,
@@ -58,7 +57,11 @@ export class AddUsersComponent {
       orgAddress: new FormControl(null),
       email: new FormControl(null, [
         Validators.required,
-        Validators.pattern(this.emailregex),
+        Validators.pattern(EMAIL_REGEX),
+      ]),
+      telephone: new FormControl(null, [
+        Validators.required,
+        Validators.pattern(PHONE_REGEX),
       ]),
       password: new FormControl(null),
       confirmPassword: new FormControl(null),
@@ -70,6 +73,17 @@ export class AddUsersComponent {
       : this.registerForm.get('email')?.hasError('pattern')
         ? 'Not a valid emailaddress'
         : '';
+  }
+
+  phoneNumberErrors() {
+    const phoneControl = this.registerForm.get('telephone');
+    if (phoneControl?.hasError('required')) {
+      return 'This field is required';
+    }
+    if (phoneControl?.hasError('pattern')) {
+      return 'Please enter a valid international phone number starting with + (e.g., +1234567890)';
+    }
+    return '';
   }
 
   checkValidation(input: string) {
