@@ -1,10 +1,9 @@
 describe('Bulk Upload Test', () => {
-    beforeEach(() => {
-        cy.wait(1000);
-      });
-    it('should upload a file', () => {
-      cy.developerUserLogin().wait(60000);
-      cy.meterReadBulkUpload('meter-bulk-upload-template'); 
-    });
+  beforeEach(() => {
+    cy.wait(1000);
   });
-  
+  it('should upload a file', () => {
+    cy.developerUserLogin().wait(60000);
+    cy.meterReadBulkUpload('meter-bulk-upload-template');
+  });
+});
