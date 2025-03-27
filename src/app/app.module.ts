@@ -36,6 +36,7 @@ import { AdminModule } from './view/admin/admin.module';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { ApiuserClientReponseComponent } from './view/apiuser-client-reponse/apiuser-client-reponse.component';
 import * as Sentry from '@sentry/angular';
+import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import * as Sentry from '@sentry/angular';
     UserAcceptInvitationComponent,
     // UserInvitationComponent,
     ApiuserClientReponseComponent,
+    TermsAndConditionsComponent,
   ],
   imports: [
     BrowserModule,
