@@ -49,4 +49,12 @@ export class ConfirmemailComponent implements OnInit {
       },
     });
   }
+  resendConfirmemail() {
+    this.authService.ResendConfirmEmail().subscribe({
+      next: () => {},
+      error: (err) => {
+        this.success = err.error.success;
+      },
+    });
+  }
 }

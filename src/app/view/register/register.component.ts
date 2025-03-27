@@ -28,6 +28,7 @@ export class RegisterComponent implements OnInit {
   hide1 = true;
   matchconfirm: boolean = false;
   showPopup: boolean = false;
+  currentUser: any;
   emailregex: RegExp =
     // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -176,45 +177,7 @@ export class RegisterComponent implements OnInit {
                 },
               });
           } else {
-            this.authService.login('auth/login', loginobj).subscribe({
-              next: (data) => {
-                if (data['accessToken'] != null) {
-                  sessionStorage.setItem('access-token', data['accessToken']);
-                  const jwtObj = JSON.parse(
-                    this.b64DecodeUnicode(
-                      this.padBase64(data['accessToken'].split('.')[1]),
-                    ),
-                  );
-                  //sessionStorage.setItem('loginuser', jwtObj);
-                  sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-                  //var obj = JSON.parse(sessionStorage.loginuser);
-
-                  if (jwtObj.role === 'Buyer') {
-                    this.router.navigate(['/myreservation']);
-                  } else {
-                    this.router.navigate(['/device/AllList']);
-                  }
-                  this.toastrService.success(
-                    'login user ' + jwtObj.email + '!',
-                    'login Success',
-                  );
-                } else {
-                  this.toastrService.info(
-                    'Message Failure!',
-                    'check your credentials !!',
-                  );
-                  this.router.navigate(['/login']);
-                }
-              },
-              error: (err) => {
-                //Error callback
-                console.error('error caught in component', err);
-                this.toastrService.error(
-                  'check your credentials!',
-                  'login Fail!!',
-                );
-              },
-            });
+            this.router.navigate(['/confirm-email']);
             this.registerForm.reset();
             const formControls = this.registerForm.controls;
 
