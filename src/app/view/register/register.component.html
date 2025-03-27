@@ -312,15 +312,14 @@
                   color="primary"
                   test-id="terms-and-conditions"
                 >
-                  I agree to the
-                  <a
-                    routerLink="/terms-and-conditions"
-                    class="text-warning"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    >Terms and Conditions</a
-                  >
-                </mat-checkbox>
+                  I agree to the &nbsp;</mat-checkbox
+                ><a
+                  routerLink="/terms-and-conditions"
+                  class="text-warning"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Terms and Conditions</a
+                >
                 <mat-error
                   *ngIf="checkValidation('termsAndConditions')"
                   class="checkbox-error"

@@ -71,7 +71,7 @@
   {
     "action": "click",
     "selector": "[test-id='terms-and-conditions']",
-    "value": "true"
+    "value": "checked"
   },
   {
     "action": "click",
