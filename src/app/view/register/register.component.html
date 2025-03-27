@@ -306,6 +306,22 @@
                   {{ getErrorcheckconfirmPassword() }}
                 </mat-error>
               </mat-form-field>
+              <div class="terms-checkbox mb-4">
+                <mat-checkbox
+                  formControlName="termsAndConditions"
+                  color="primary"
+                  test-id="terms-checkbox"
+                >
+                  I agree to the
+                  <a href="#" class="text-warning">Terms and Conditions</a>
+                </mat-checkbox>
+                <mat-error
+                  *ngIf="checkValidation('termsAndConditions')"
+                  class="checkbox-error"
+                >
+                  You must accept the terms and conditions
+                </mat-error>
+              </div>
               <div class="d-flex mt-2">
                 <button
                   mat-button

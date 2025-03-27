@@ -61,6 +61,7 @@ export class RegisterComponent implements OnInit {
           Validators.required,
           this.checkconfirmPassword,
         ]),
+        termsAndConditions: new FormControl(false, [Validators.required]),
       },
       {
         validators: (control) => {
