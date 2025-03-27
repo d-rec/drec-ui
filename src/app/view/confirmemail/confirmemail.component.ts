@@ -49,8 +49,8 @@ export class ConfirmemailComponent implements OnInit {
       },
     });
   }
-  resendConfirmemail() {
-    this.authService.ResendConfirmEmail().subscribe({
+  resendConfirmationEmail() {
+    this.authService.ResendConfirmationEmail().subscribe({
       next: () => {},
       error: (err) => {
         this.success = err.error.success;

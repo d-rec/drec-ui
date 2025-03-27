@@ -23,7 +23,7 @@ export class UserService {
       {},
     );
   }
-  public ResendConfirmEmail(): Observable<any> {
+  public ResendConfirmationEmail(): Observable<any> {
     return this.httpClient.put<any>(
       this.url + 'user/resend-confirm-email/',
       {},
