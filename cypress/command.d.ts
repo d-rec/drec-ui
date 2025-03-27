@@ -20,5 +20,6 @@ declare namespace Cypress {
     deviceBulkUpload(filename: string): Chainable<void>;
     accountSettings(): Chainable<void>;
     meterReadBulkUpload(filename: string): Chainable<void>;
+    certifiedMeterRead(): Chainable<void>;
   }
 }
