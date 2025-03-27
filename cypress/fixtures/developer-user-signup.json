@@ -58,7 +58,8 @@
   },
   {
     "action": "click",
-    "selector": "[test-id='terms-checkbox']"
+    "selector": "[test-id='terms-and-conditions']",
+    "value": "true"
   },
   {
     "action": "click",
