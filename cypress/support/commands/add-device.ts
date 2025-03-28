@@ -26,7 +26,8 @@ Cypress.Commands.add('addDevice', function () {
             .click();
 
         case 'submit':
-          return cy.get(step.selector).click('center', { force: true });
+          cy.get(step.selector).click('center', { force: true });
+          return cy.contains('Added Successfully !!').should('be.visible');
       }
     });
   });
