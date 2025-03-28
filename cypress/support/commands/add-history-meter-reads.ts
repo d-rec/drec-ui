@@ -62,6 +62,9 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .click()
             .get('.mat-stroked-button')
             .click();
+        case 'submit':
+          cy.get(step.selector).click('center', { force: true });
+          return cy.contains('Read Added!!').should('be.visible');
       }
     });
   });
