@@ -90,7 +90,7 @@
     "log": "Button clicked successfully"
   },
   {
-    "action": "click",
+    "action": "submit",
     "selector": "[test-id='submit-registration']",
     "log": "Button clicked successfully"
   }

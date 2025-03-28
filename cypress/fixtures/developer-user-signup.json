@@ -74,7 +74,7 @@
     "selector": "[test-id='next-to-password']"
   },
   {
-    "action": "click",
+    "action": "submit",
     "selector": "[test-id='submit-registration']"
   }
 ]
