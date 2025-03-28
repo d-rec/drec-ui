@@ -177,7 +177,9 @@ export class RegisterComponent implements OnInit {
                 },
               });
           } else {
+            // this.router.navigate(['/confirm-email']);
             this.router.navigate(['/confirm-email']);
+           
             this.registerForm.reset();
             const formControls = this.registerForm.controls;
 
@@ -185,7 +187,6 @@ export class RegisterComponent implements OnInit {
               const control = formControls[key];
               control.setErrors(null);
             });
-            // this.router.navigate(['/confirm-email']);
           }
         },
         error: (err) => {

@@ -51,6 +51,23 @@ export class LoginComponent implements OnInit {
 
           //sessionStorage.setItem('loginuser', jwtObj);
           sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
+          this.userService
+            .getuserByEmail(this.loginForm.value.username)
+            .subscribe({
+              next: (userData) => {
+                if (!userData.emailConfirmed) {
+                  this.authService.logout('auth/logout').subscribe(() => {
+                    this.toastrService.warning(
+                      'Please confirm your email before logging in.',
+                    );
+                    this.router.navigate(['/confirm-email'], {
+                      queryParams: { email: this.loginForm.value.username },
+                    });
+                  });
+                  return;
+                }
+              },
+            });
           //var obj = JSON.parse(sessionStorage.loginuser);
           this.userService.userProfile().subscribe({
             next: (data1) => {

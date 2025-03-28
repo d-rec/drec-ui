@@ -56,4 +56,7 @@ export class UserService {
   public getuserById(id: number): Observable<any> {
     return this.httpClient.get<any>(this.url + 'user/' + id);
   }
+  getuserByEmail(email: string) {
+    return this.httpClient.get<any>(this.url + 'user/email/' + email);
+  }
 }
