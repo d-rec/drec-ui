@@ -3,27 +3,40 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          return cy.get(step.selector).should('be.visible').click().wait(1000);
-
+          return cy.get(step.selector).click().wait(1000);
         case 'selected':
-        case 'select-timezone':
-        case 'select':
-          cy.get(step.selector).should('be.visible').click({ force: true });
           return cy
+            .get(step.selector)
+            .click({ force: true })
+            .wait(1000)
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .first()
             .should('be.visible')
             .click({ force: true })
             .wait(1000);
-
+        case 'select-timezone':
+          return cy
+            .get(step.selector)
+            .click({ force: true })
+            .get(step.option)
+            .should('have.length.greaterThan', 0)
+            .eq(0)
+            .click('center', { force: true });
+        case 'select':
+          return cy
+            .get(step.selector)
+            .click({ force: true })
+            .get(step.option)
+            .should('have.length.greaterThan', 0)
+            .eq(1)
+            .click('center', { force: true });
         case 'type':
           return cy
             .get(step.selector)
-            .should('be.visible')
+            .wait(1000)
             .click({ force: true })
             .type(step.value, { force: true });
-
         case 'date-picker':
           const currentTime = new Date();
           currentTime.setHours(currentTime.getHours() + 2);
@@ -40,9 +53,13 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
 
           return cy
             .get(step.selector)
+            .wait(1000)
             .click({ force: true })
             .type(formattedTime, { force: true })
             .click();
+        case 'submit':
+          cy.get(step.selector).click('center', { force: true });
+          return cy.contains('Read Added!!').should('be.visible');
       }
     });
   });

@@ -38,7 +38,7 @@
       "selector": "[test-id='choose-end-date']"
     },
     {
-      "action": "click",
+      "action": "submit",
       "selector": "[test-id='submit-read']"
     }
   ]
