@@ -23,9 +23,9 @@ export class UserService {
       {},
     );
   }
-  public ResendConfirmationEmail(): Observable<any> {
+  public ResendConfirmationEmail(email: string): Observable<any> {
     return this.httpClient.put<any>(
-      this.url + 'user/resend-confirm-email/',
+      this.url + 'user/resend-confirm-email/' + email,
       {},
     );
   }

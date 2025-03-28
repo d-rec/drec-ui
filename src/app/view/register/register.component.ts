@@ -160,6 +160,7 @@ export class RegisterComponent implements OnInit {
             username: this.registerForm.value.email,
             password: this.registerForm.value.password,
           };
+          sessionStorage.setItem('email', loginobj.username);
           if (this.registerForm.value.organizationType === 'ApiUser') {
             this.response = data;
             this.toastrService.success('User Register Successfull');
@@ -177,9 +178,8 @@ export class RegisterComponent implements OnInit {
                 },
               });
           } else {
-            // this.router.navigate(['/confirm-email']);
             this.router.navigate(['/confirm-email']);
-           
+
             this.registerForm.reset();
             const formControls = this.registerForm.controls;
 

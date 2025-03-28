@@ -50,7 +50,9 @@ export class ConfirmemailComponent implements OnInit {
     });
   }
   resendConfirmationEmail() {
-    this.authService.ResendConfirmationEmail().subscribe({
+    const email: string | null = sessionStorage.getItem('email');
+    if (!email) return;
+    this.authService.ResendConfirmationEmail(email).subscribe({
       next: () => {},
       error: (err) => {
         this.success = err.error.success;
