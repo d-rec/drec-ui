@@ -13,8 +13,9 @@
           {{ loginuser.email }}
         </p>
         <small>
-          {{ loginuser.role }}
+          {{ loginuser.role === 'ApiUser' ? 'Market Intermediary' : loginuser.role }}
         </small>
+        
       </div>
       <mat-divider></mat-divider>
       <button
@@ -77,7 +78,7 @@
             routerLink="/admin/All_apiusers"
             *ngIf="loginuser.role === 'Admin'"
           >
-            <span>All ApiUser</span>
+            <span>All Market Intermediaries</span>
           </a>
           <a
             mat-button
@@ -302,7 +303,7 @@
             test-id="api-user-permission"
           >
             <!-- <mat-icon>list</mat-icon> -->
-            <span>ApiUser Permission </span>
+            <span>Intermediary user Permission </span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>

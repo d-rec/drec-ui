@@ -175,7 +175,9 @@
             >
               Role
             </th>
-            <td mat-cell *matCellDef="let element">{{ element.role }}</td>
+            <td mat-cell *matCellDef="let element">
+              {{ element.role  === 'ApiUser' ? 'Market Intermediary' : element.role   }}
+            </td>
           </ng-container>
           <!-- Status Column -->
           <!-- <ng-container matColumnDef="commissioningDate">

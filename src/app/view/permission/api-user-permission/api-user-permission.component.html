@@ -81,7 +81,7 @@
                 <p>
                   <b>Role</b
                   >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                  {{ userdetails?.role }}
+                  {{ userdetails?.role === 'ApiUser' ? 'Market Intermediary' : userdetails?.role }}
                 </p>
               </div>
             </div>
