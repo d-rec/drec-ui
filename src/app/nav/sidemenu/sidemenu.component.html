@@ -13,7 +13,8 @@
           {{ loginuser.email }}
         </p>
         <small>
-          {{ loginuser.role === 'ApiUser' ? 'Market Intermediary' : loginuser.role }}
+          {{ getUserRoleDisplay(loginuser.role) }}
+
         </small>
         
       </div>
