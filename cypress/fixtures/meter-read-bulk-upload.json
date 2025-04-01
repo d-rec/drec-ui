@@ -1,0 +1,22 @@
+[
+  {
+    "action": "click",
+    "selector": "[test-id='meter-read']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='meter-read-bulk-upload']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='select-file']"
+  },
+  {
+    "action": "upload",
+    "selector": "[test-id='choose-read-bulk-file']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='upload-read-bulk-file']"
+  }
+]

@@ -155,7 +155,7 @@
             routerLinkActive="active"
             routerLink="/device/bulk_upload"
             *ngIf="loginuser.role != 'User'"
-            test-id="bulk-upload"
+            test-id="device-bulk-upload"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span> Bulk Upload</span>
@@ -204,6 +204,7 @@
             routerLinkActive="active"
             routerLink="/reads/bulk-upload"
             *ngIf="loginuser.role != 'User'"
+            test-id="meter-read-bulk-upload"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>Bulk Upload</span>
