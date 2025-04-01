@@ -1,0 +1,20 @@
+[
+    {
+      "action": "click",
+      "selector": "[test-id='meter-read']"
+    },
+    {
+      "action": "click",
+      "selector": "[test-id='certified-meter-read']"
+    },
+    {
+      "action": "click",
+      "selector": "[test-id='select-country-code']"
+    },
+    {
+        "action": "select",
+        "selector": "[test-id='filter-certified-meter-read']",
+        "option": "[test-id='select-country-option']"
+    }
+  ]
+  
