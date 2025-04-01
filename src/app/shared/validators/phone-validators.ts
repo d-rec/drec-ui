@@ -6,25 +6,21 @@ export function phoneNumberValidator(): ValidatorFn {
     const value = control.value;
 
     if (!value) {
-      return null; // Let required validator handle empty values
+      return null;
     }
 
-    // Check if number starts with +
     if (!value.startsWith('+')) {
       return { invalidFormat: true };
     }
 
     try {
-      // Check if number is valid using libphonenumber-js
       if (!isValidPhoneNumber(value)) {
         return { invalidNumber: true };
       }
 
-      // Get more details about the number
       const phoneNumber = parsePhoneNumber(value);
 
       if (!phoneNumber.isValid()) {
-        // Check specific validation issues
         if (phoneNumber.country && phoneNumber.nationalNumber.length < 5) {
           return { tooShort: true };
         } else if (

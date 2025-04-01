@@ -12,7 +12,7 @@ export class PhoneFormatDirective {
   @HostListener('input', ['$event'])
   onInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    let value = input.value;
+    const value = input.value;
 
     if (value.length < this.previousValue.length) {
       this.previousValue = value;
@@ -20,20 +20,15 @@ export class PhoneFormatDirective {
     }
 
     if (value.startsWith('+')) {
-      try {
-        const formatter = new AsYouType();
-        const formattedValue = formatter.input(value);
+      const formatter = new AsYouType();
+      const formattedValue = formatter?.input(value) || value;
 
-        if (formattedValue !== input.value) {
-          const cursorPos = input.selectionStart || 0;
-          const diff = formattedValue.length - value.length;
+      if (formattedValue !== input.value) {
+        const cursorPos = input.selectionStart || 0;
+        const diff = formattedValue.length - value.length;
 
-          input.value = formattedValue;
-
-          input.setSelectionRange(cursorPos + diff, cursorPos + diff);
-        }
-      } catch (e) {
-        // Keep original on error
+        input.value = formattedValue;
+        input.setSelectionRange(cursorPos + diff, cursorPos + diff);
       }
     } else if (value.length > 0) {
       const digitsOnly = value.replace(/\D/g, '');
@@ -60,13 +55,9 @@ export class PhoneFormatDirective {
     const value = input.value;
 
     if (value && value.startsWith('+')) {
-      try {
-        const phoneNumber = parsePhoneNumberFromString(value);
-        if (phoneNumber?.isValid()) {
-          input.dataset['originalValue'] = phoneNumber.number.toString();
-        }
-      } catch (e) {
-        /* Ignore errors */
+      const phoneNumber = parsePhoneNumberFromString(value);
+      if (phoneNumber?.isValid()) {
+        input.dataset['originalValue'] = phoneNumber.number.toString();
       }
     }
   }
