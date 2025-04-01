@@ -10,7 +10,11 @@ import { Router } from '@angular/router';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { UserService } from '../../../auth/services';
 import { ToastrService } from 'ngx-toastr';
-import { EMAIL_REGEX, PHONE_REGEX } from '../../../constants/index';
+import { EMAIL_REGEX } from '../../../constants/index';
+import {
+  getPhoneNumberErrorMessage,
+  phoneNumberValidator,
+} from '../../../shared/validators/phone-validators';
 @Component({
   selector: 'app-add-users',
   templateUrl: './add-users.component.html',
@@ -61,7 +65,7 @@ export class AddUsersComponent {
       ]),
       telephone: new FormControl(null, [
         Validators.required,
-        Validators.pattern(PHONE_REGEX),
+        phoneNumberValidator(),
       ]),
       password: new FormControl(null),
       confirmPassword: new FormControl(null),
@@ -76,14 +80,21 @@ export class AddUsersComponent {
   }
 
   phoneNumberErrors() {
-    const phoneControl = this.registerForm.get('telephone');
-    if (phoneControl?.hasError('required')) {
-      return 'This field is required';
+    return getPhoneNumberErrorMessage(this.registerForm.get('telephone'));
+  }
+
+  markAsTouched(controlName: string): void {
+    const control = this.registerForm.get(controlName);
+    if (control) {
+      control.markAsTouched();
+      control.updateValueAndValidity();
     }
-    if (phoneControl?.hasError('pattern')) {
-      return 'Please enter a valid international phone number starting with + (e.g., +1234567890)';
-    }
-    return '';
+  }
+
+  showPhoneNumberError(): boolean {
+    const control = this.registerForm.get('telephone');
+    if (!control) return false;
+    return control.invalid && (control.value || control.touched);
   }
 
   checkValidation(input: string) {

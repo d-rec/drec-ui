@@ -23,10 +23,8 @@ export function phoneNumberValidator(): ValidatorFn {
       if (!phoneNumber.isValid()) {
         if (phoneNumber.country && phoneNumber.nationalNumber.length < 5) {
           return { tooShort: true };
-        } else if (
-          phoneNumber.country &&
-          phoneNumber.nationalNumber.length > 15
-        ) {
+        }
+        if (phoneNumber.country && phoneNumber.nationalNumber.length > 15) {
           return { tooLong: true };
         }
         return { invalidNumber: true };

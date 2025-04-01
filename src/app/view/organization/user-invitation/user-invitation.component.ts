@@ -13,7 +13,11 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatTabGroup } from '@angular/material/tabs';
 import { OrganizationInformation } from '../../../models';
-import { EMAIL_REGEX, PHONE_REGEX } from '../../../constants/index';
+import { EMAIL_REGEX } from '../../../constants/index';
+import {
+  getPhoneNumberErrorMessage,
+  phoneNumberValidator,
+} from '../../../shared/validators/phone-validators';
 
 @Component({
   selector: 'app-user-invitation',
@@ -78,7 +82,7 @@ export class UserInvitationComponent {
       firstName: [null],
       lastName: [null],
       email: [null, [Validators.required, Validators.pattern(EMAIL_REGEX)]],
-      telephone: [null, [Validators.required, Validators.pattern(PHONE_REGEX)]],
+      telephone: [null, [Validators.required, phoneNumberValidator()]],
       role: [null, [Validators.required]],
     });
 
@@ -96,14 +100,21 @@ export class UserInvitationComponent {
   }
 
   phoneNumberErrors() {
-    const phoneControl = this.inviteForm.get('telephone');
-    if (phoneControl?.hasError('required')) {
-      return 'This field is required';
+    return getPhoneNumberErrorMessage(this.inviteForm.get('telephone'));
+  }
+
+  markAsTouched(controlName: string): void {
+    const control = this.inviteForm.get(controlName);
+    if (control) {
+      control.markAsTouched();
+      control.updateValueAndValidity();
     }
-    if (phoneControl?.hasError('pattern')) {
-      return 'Please enter a valid international phone number starting with + (e.g., +1234567890)';
-    }
-    return '';
+  }
+
+  showPhoneNumberError(): boolean {
+    const control = this.inviteForm.get('telephone');
+    if (!control) return false;
+    return control.invalid && (control.value || control.touched);
   }
 
   filterOrgList() {
