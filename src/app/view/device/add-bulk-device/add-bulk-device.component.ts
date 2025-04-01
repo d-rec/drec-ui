@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
-import { FileuploadService } from '../../../auth/services/fileupload.service';
 import { ToastrService } from 'ngx-toastr';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
@@ -12,6 +11,8 @@ import {
 } from '../../../auth/services';
 import { Router } from '@angular/router';
 import { OrganizationInformation } from '../../../models';
+import { BulkUploadService } from '../../../auth/services/bulk-upload.service';
+import { BulkUploadType } from '../../../utils/enums/bulk-upload-type.enum';
 
 @Component({
   selector: 'app-add-bulk-device',
@@ -25,7 +26,7 @@ export class AddBulkDeviceComponent implements OnInit {
   pageSize: number = 10;
   fileName = 'Please click here to select file';
   fileInfos?: Observable<any>;
-  showdevicesinfo: boolean = false;
+  showBulkUploadLogs: boolean = false;
   DevicestatusList: any = [];
   loading: boolean = true;
   objectKeys = Object.keys;
@@ -45,14 +46,14 @@ export class AddBulkDeviceComponent implements OnInit {
     'Action',
   ];
   constructor(
-    private uploadService: FileuploadService,
     private deviceService: DeviceService,
     private router: Router,
     private toastrService: ToastrService,
     private adminService: AdminService,
     private orgService: OrganizationService,
+    private bulkUploadService: BulkUploadService,
   ) {
-    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+    this.loggedInUser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -63,18 +64,18 @@ export class AddBulkDeviceComponent implements OnInit {
   filteredOrgList: OrganizationInformation[] = [];
   //public color: ThemePalette = 'primary';
   orgname: string;
-  orgId: number;
-  loginuser: any;
+  organizationId: number;
+  loggedInUser: any;
 
   ngOnInit(): void {
-    if (this.loginuser.role === 'Admin') {
+    if (this.loggedInUser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
         this.filteredOrgList = this.orglist;
       });
-    } else if (this.loginuser.role === 'ApiUser') {
+    } else if (this.loggedInUser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org) => org.organizationType != 'Buyer',
@@ -82,7 +83,7 @@ export class AddBulkDeviceComponent implements OnInit {
         this.filteredOrgList = this.orglist;
       });
     }
-    this.JobDisplayList();
+    this.displayBulkUploads();
   }
 
   filterOrgList() {
@@ -97,7 +98,7 @@ export class AddBulkDeviceComponent implements OnInit {
       (option: any) => option.name === event.option.value,
     );
     if (selectedCountry) {
-      this.orgId = selectedCountry.id;
+      this.organizationId = selectedCountry.id;
     }
   }
   reset() {
@@ -123,104 +124,77 @@ export class AddBulkDeviceComponent implements OnInit {
     document.getElementById('fileInput')?.click();
   }
 
-  upload(): void {
-    this.progress = 0;
-    this.message = '';
-
-    if (this.currentFile) {
-      this.uploadService.csvupload(this.currentFile).subscribe(
-        (event: any) => {
-          const obj: any = {};
-          obj['fileName'] = event[0];
-          if (
-            this.loginuser.role === 'Admin' ||
-            this.loginuser.role === 'ApiUser'
-          ) {
-            this.deviceService
-              .addByAdminbulkDevices(this.orgId, obj)
-              .subscribe({
-                next: () => {
-                  this.JobDisplayList();
-                  this.currentFile = null;
-                  this.fileName = 'Please click here to Select File';
-                  this.toastrService.success(
-                    'Successfully!',
-                    'Devices Uploaded in Bulk!!',
-                  );
-                },
-                error: (err) => {
-                  //Error callback
-                  console.error('error caught in component', err);
-                  if (err.error.statusCode === 403) {
-                    this.toastrService.error(
-                      "You don't have the permissions to add devices.",
-                      'Access Denied',
-                    );
-                  } else {
-                    this.toastrService.error('error!', err.error.message);
-                  }
-                },
-              });
-          } else {
-            this.uploadService.addbulkDevices(obj).subscribe({
-              next: () => {
-                this.JobDisplayList();
-                this.currentFile = null;
-                this.fileName = 'Please click here to Select File';
-                this.toastrService.success(
-                  'Successful',
-                  'Devices uploaded in bulk',
-                );
-              },
-              error: (err) => {
-                //Error callback
-                console.error('error caught in component', err);
-                if (err.error.statusCode === 403) {
-                  this.toastrService.error(
-                    "You don't have the permissions to add  devices.",
-                    'Access Denied',
-                  );
-                } else {
-                  this.toastrService.error('error!', err.error.message);
-                }
-              },
-            });
-          }
-        },
-        (err: any) => {
-          this.progress = 0;
-
-          if (err.error && err.error.message) {
-            this.message = err.error.message;
-          } else {
-            this.message = 'Could not upload the file!';
-          }
-
-          this.currentFile = null;
-        },
-      );
+  async downloadFile() {
+    try {
+      await this.bulkUploadService.downloadFile(BulkUploadType.Devices);
+      this.toastrService.success('File downloaded successfully');
+    } catch (error) {
+      this.toastrService.error('Failed to download file');
     }
   }
-  JobDisplayList() {
-    this.showdevicesinfo = false;
-    this.loading = true;
-    this.uploadService.getCsvJobList().subscribe((data) => {
-      // display list in the console
-      this.loading = false;
-      this.data = data;
-      this.dataSource = new MatTableDataSource(this.data.csvJobs);
-      this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
-    });
+
+  upload(): void {
+    if (!this.currentFile) return;
+    const organizationId = this.organizationId;
+    this.bulkUploadService
+      .bulkUpload({
+        file: this.currentFile,
+        organizationId,
+        bulkUploadType: BulkUploadType.Devices,
+      })
+      .subscribe({
+        next: () => {
+          this.displayBulkUploads();
+          this.currentFile = null;
+          this.fileName = 'Please click here to Select File';
+          this.toastrService.success(
+            'Successfully!',
+            'File Uploaded in Bulk!!',
+          );
+        },
+        error: (err) => {
+          if (err.error.statusCode === 403) {
+            this.toastrService.error('You are Unauthorized');
+          } else {
+            this.toastrService.error('error!', err.error.message);
+          }
+        },
+      });
   }
-  DisplayDeviceLogList(jobid: number, orgId: number) {
-    this.showdevicesinfo = true;
-    this.DevicestatusList = [];
-    this.uploadService.getJobStatus(jobid, orgId).subscribe((data) => {
-      this.data = data.errorDetails.log.errorDetails;
-      this.dataSource1 = new MatTableDataSource(this.data);
-      this.dataSource1.paginator = this.paginator;
-    });
+
+  displayBulkUploads() {
+    this.showBulkUploadLogs = false;
+    this.bulkUploadService
+      .getBulkUploads(BulkUploadType.Devices)
+      .subscribe((data) => {
+        this.data = data;
+        this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      });
+  }
+
+  getBulkUploadLogs(bulkUploadId: number, organizationId: number) {
+    this.bulkUploadService
+      .getBulkUploadLogs(bulkUploadId, organizationId)
+      .subscribe({
+        next: (response) => {
+          try {
+            const errorDetails = response.details.log.errorDetails;
+            if (errorDetails && errorDetails.length > 0) {
+              this.showBulkUploadLogs = true;
+              this.data = errorDetails;
+              this.dataSource1 = new MatTableDataSource(this.data);
+              this.dataSource1.paginator = this.paginator;
+            }
+          } catch (error) {
+            this.showBulkUploadLogs = true;
+            this.data = ['No logs'];
+            this.dataSource1 = new MatTableDataSource(this.data);
+            this.dataSource1.paginator = this.paginator;
+          }
+        },
+      });
   }
 
   UpdateDevice(externalId: any) {

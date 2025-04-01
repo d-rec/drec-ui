@@ -40,6 +40,8 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { DeviceService } from '../../auth/services/device.service';
+import { formatDateWithTimezone } from '../../utils/date-formatter';
+import { DATE_FORMATS } from '../../constants/date-formats';
 @Component({
   selector: 'app-certificate',
   templateUrl: './certificate.component.html',
@@ -307,6 +309,23 @@ export class CertificateComponent implements OnDestroy {
       this.dataSource.paginator.firstPage();
     }
   }
+
+  formatCertificateDate(date: string | number, timezone: string): string {
+    if (typeof date === 'number') {
+      return formatDateWithTimezone(
+        date * 1000,
+        timezone,
+        DATE_FORMATS.DATETIME_WITH_TIMEZONE,
+      );
+    }
+
+    return formatDateWithTimezone(
+      date,
+      timezone,
+      DATE_FORMATS.DATETIME_WITH_TIMEZONE,
+    );
+  }
+
   // CertificateClaimed:boolean=false;
   DisplayList(p: number) {
     this.certificateauthService
@@ -318,12 +337,6 @@ export class CertificateComponent implements OnDestroy {
           this.totalPages = data.totalPages;
 
           this.data.forEach((ele: any) => {
-            ele['generationStartTimeinUTC'] = new Date(
-              ele.generationStartTime * 1000,
-            ).toISOString();
-            ele['generationEndTimeinUTC'] = new Date(
-              ele.generationEndTime * 1000,
-            ).toISOString();
             //converting blockchain address to lower case
             if (ele.claims != null && ele.claims.length > 0) {
               ele['CertificateClaimed'] = true;

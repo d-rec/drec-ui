@@ -27,6 +27,9 @@ import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { DeviceDetailsComponent } from '../device/device-details/device-details.component';
 import { MatDialog } from '@angular/material/dialog';
+import { DATE_FORMATS } from '../../constants/date-formats';
+import { formatDateWithTimezone } from '../../utils/date-formatter';
+
 @Component({
   selector: 'app-certificate-details',
   templateUrl: './certificate-details.component.html',
@@ -105,6 +108,7 @@ export class CertificateDetailsComponent {
   showorgerror: boolean = false;
   oldlog: boolean = false;
   oldcertificatelog: boolean;
+  deviceIds: string[] = [];
   constructor(
     private blockchainDRECService: BlockchainDrecService,
     private authService: AuthbaseService,
@@ -132,8 +136,9 @@ export class CertificateDetailsComponent {
       SDGBenefits: [],
       start_date: [null],
       end_date: [null],
-      // fromAmountread: [null],
-      // toAmountread: [null],
+      deviceIds: [],
+      fromAmountread: [null],
+      toAmountread: [null],
       // pagenumber: [this.p]
     });
   }
@@ -167,6 +172,7 @@ export class CertificateDetailsComponent {
       // display list in the console
       this.sdgblist = data;
     });
+
     setTimeout(() => {
       if (this.countrycodeLoded) {
         this.applycountryFilter();
@@ -320,9 +326,10 @@ export class CertificateDetailsComponent {
             formValues.organizationId === undefined ||
             formValues.organizationId === ''
           ) {
-            this.FilterForm.controls['organizationname'].setValue(null);
-            this.FilterForm.controls['organizationId'].setValue(null);
+            this.FilterForm.controls['organizationname']?.setValue(null);
+            this.FilterForm.controls['organizationId']?.setValue(null);
           }
+
           const countryValue = formValues.countryname;
           if (countryValue === undefined || countryValue === '') {
             this.FilterForm.controls['countryname'].setValue(null);
@@ -332,7 +339,10 @@ export class CertificateDetailsComponent {
           if (fuelCodeValue === undefined) {
             this.FilterForm.controls['fuelCode'].setValue(null);
           }
-          if (formValues.offTaker[0] === undefined) {
+          if (
+            Array.isArray(formValues.offTaker) &&
+            formValues.offTaker[0] === undefined
+          ) {
             this.FilterForm.controls['offTaker'].setValue(null);
           }
           if (
@@ -341,10 +351,15 @@ export class CertificateDetailsComponent {
           ) {
             this.FilterForm.controls['SDGBenefits'].setValue(null);
           }
+          if (
+            Array.isArray(formValues.deviceIds) &&
+            formValues.deviceIds[0] === undefined
+          ) {
+            this.FilterForm.controls['deviceIds'].setValue(null);
+          }
           // Other code...
         }
       });
-
     setTimeout(() => {
       const updatedFormValues = this.FilterForm.value;
       const isAllValuesNull = Object.values(updatedFormValues).some(
@@ -397,6 +412,23 @@ export class CertificateDetailsComponent {
       this.dataSource.paginator.firstPage();
     }
   }
+
+  formatCertificateDate(date: string | number, timezone: string): string {
+    if (typeof date === 'number') {
+      return formatDateWithTimezone(
+        date * 1000,
+        timezone,
+        DATE_FORMATS.DATETIME_WITH_TIMEZONE,
+      );
+    }
+
+    return formatDateWithTimezone(
+      date,
+      timezone,
+      DATE_FORMATS.DATETIME_WITH_TIMEZONE,
+    );
+  }
+
   DisplayListFilter() {
     this.loading = true;
     this.p = 1;
@@ -413,14 +445,15 @@ export class CertificateDetailsComponent {
           this.oldcertificatelog = data.oldcertificatelog;
           if (data.certificatelog.length > 0) {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);
-
+            this.deviceIds = [];
+            this.data.forEach((log: any) => {
+              log.perDeviceCertificateLog.forEach((deviceLog: any) => {
+                if (!this.deviceIds.includes(deviceLog.externalId)) {
+                  this.deviceIds.push(deviceLog.externalId);
+                }
+              });
+            });
             this.data.forEach((ele: any) => {
-              ele['generationStartTimeinUTC'] = new Date(
-                ele.generationStartTime * 1000,
-              ).toISOString();
-              ele['generationEndTimeinUTC'] = new Date(
-                ele.generationEndTime * 1000,
-              ).toISOString();
               //converting blockchain address to lower case
               if (ele.claims != null && ele.claims.length > 0) {
                 ele['CertificateClaimed'] = true;

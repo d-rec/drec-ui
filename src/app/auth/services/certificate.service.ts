@@ -35,6 +35,9 @@ export class CertificateService {
       ) {
         searchUrl += `&organizationId=${searchData.organizationId}`;
       }
+      if (searchData.deviceIds) {
+        searchUrl += `&deviceId=${searchData.deviceIds}`;
+      }
       if (
         !(
           searchData.countryCode === undefined ||
