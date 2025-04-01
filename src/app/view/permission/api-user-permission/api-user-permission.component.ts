@@ -33,7 +33,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
 import { EditPermissionComponent } from '../edit-permission/edit-permission.component';
-import { getUserRoleDisplay } from '../../../utils/role-helper';
+import { getRoleName } from '../../../utils/role-helper';
 @Component({
   selector: 'app-api-user-permission',
   templateUrl: './api-user-permission.component.html',
@@ -67,7 +67,7 @@ export class ApiUserPermissionComponent {
   client_secret: string;
   form: FormGroup;
   showclientform: boolean = true;
-  getUserRoleDisplay = getUserRoleDisplay;
+  getRoleName = getRoleName;
   constructor(
     private userService: UserService,
     private orgService: OrganizationService,
