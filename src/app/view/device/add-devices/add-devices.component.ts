@@ -277,22 +277,22 @@ export class AddDevicesComponent {
       map((value) => this._filter(value || '', index)),
     );
   }
+
   private _filter(value: string, i: number): CountryInfo[] {
-    const filterValue = value.toLowerCase();
-    if (
-      !(
-        this.countrylist.filter((option: CountryInfo) =>
-          option.country.toLowerCase().includes(filterValue),
-        ).length > 0
-      )
-    ) {
-      this.showerror[i] = true;
-    } else {
+    const filterValue = value?.toLowerCase() || '';
+
+    if (!filterValue) {
       this.showerror[i] = false;
+      return this.countrylist;
     }
-    return this.countrylist.filter((code) =>
-      code.country.toLowerCase().includes(filterValue),
+
+    const filteredCountries = this.countrylist.filter((option: CountryInfo) =>
+      option?.country?.toLowerCase().includes(filterValue),
     );
+
+    this.showerror[i] = filteredCountries.length === 0;
+
+    return filteredCountries;
   }
 
   addmore(i: number) {
