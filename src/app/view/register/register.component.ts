@@ -5,7 +5,12 @@ import { Router } from '@angular/router';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../auth/services';
-import { EMAIL_REGEX, PHONE_REGEX } from '../../constants/index';
+import { EMAIL_REGEX } from '../../constants/index';
+import {
+  phoneNumberValidator,
+  getPhoneNumberErrorMessage,
+} from '../../shared/validators/phone-validators';
+
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -40,6 +45,7 @@ export class RegisterComponent implements OnInit {
   ngOnInit() {
     this.createForm();
   }
+
   createForm() {
     this.registerForm = new FormGroup(
       {
@@ -54,7 +60,7 @@ export class RegisterComponent implements OnInit {
         ]),
         telephone: new FormControl(null, [
           Validators.required,
-          Validators.pattern(PHONE_REGEX),
+          phoneNumberValidator(),
         ]),
         password: new FormControl(null, [
           Validators.required,
@@ -82,6 +88,7 @@ export class RegisterComponent implements OnInit {
       },
     );
   }
+
   emaiErrors() {
     return this.registerForm.get('email')?.hasError('required')
       ? 'This field is required'
@@ -91,14 +98,21 @@ export class RegisterComponent implements OnInit {
   }
 
   phoneNumberErrors() {
-    const phoneControl = this.registerForm.get('telephone');
-    if (phoneControl?.hasError('required')) {
-      return 'This field is required';
+    return getPhoneNumberErrorMessage(this.registerForm.get('telephone'));
+  }
+
+  markAsTouched(controlName: string): void {
+    const control = this.registerForm.get(controlName);
+    if (control) {
+      control.markAsTouched();
+      control.updateValueAndValidity();
     }
-    if (phoneControl?.hasError('pattern')) {
-      return 'Please enter a valid international phone number starting with + (e.g., +1234567890)';
-    }
-    return '';
+  }
+
+  showPhoneNumberError(): boolean {
+    const control = this.registerForm.get('telephone');
+    if (!control) return false;
+    return control.invalid && (control.value || control.touched);
   }
 
   checkPassword(control: any) {

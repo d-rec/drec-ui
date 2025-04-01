@@ -36,6 +36,7 @@ import { AdminModule } from './view/admin/admin.module';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { ApiuserClientReponseComponent } from './view/apiuser-client-reponse/apiuser-client-reponse.component';
 import * as Sentry from '@sentry/angular';
+import { PhoneFormatDirective } from './shared/directives/phone-number-formatter.directive';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import * as Sentry from '@sentry/angular';
     UserAcceptInvitationComponent,
     // UserInvitationComponent,
     ApiuserClientReponseComponent,
+    PhoneFormatDirective,
   ],
   imports: [
     BrowserModule,
