@@ -57,7 +57,7 @@
     "selector": "[test-id='submit-reservation']"
   },
   {
-    "action": "click",
+    "action": "continue",
     "selector": "[test-id='continue-reservation']"
   }
 ]

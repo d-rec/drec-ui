@@ -20,9 +20,11 @@ Cypress.Commands.add('addReservation', function () {
             .should('have.length.greaterThan', 0)
             .eq(0)
             .click('center', { force: true });
-
         case 'check':
           return cy.get(step.selector).eq(step.index).click();
+        case 'continue':
+          cy.get(step.selector).click('center', { force: true });
+          return cy.contains('Reservation Added').should('be.visible');
       }
     });
   });

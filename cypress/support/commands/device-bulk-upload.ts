@@ -12,6 +12,9 @@ Cypress.Commands.add('deviceBulkUpload', function () {
             .attachFile('files/d-rec_bulk_upload_meter_read_template.csv', {
               force: true,
             });
+        case 'upload-bulk':
+          cy.get(step.selector).click('center', { force: true });
+          return cy.contains('Successfully!').should('be.visible');
       }
     });
   });
