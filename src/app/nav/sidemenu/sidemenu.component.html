@@ -1,6 +1,6 @@
 <mat-sidenav-container class="example-container">
   <mat-sidenav #sidenav mode="side" opened class="example-sidenav">
-    <mat-nav-list>
+    <mat-nav-list *ngIf="loginuser">
       <div style="padding: 10px">
         <p
           style="
@@ -106,7 +106,7 @@
           class="mdc-button d-flex align-items-center"
           test-id="devices"
         >
-        <mat-icon>solar_power</mat-icon>
+          <mat-icon>solar_power</mat-icon>
           Device
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -266,7 +266,7 @@
           class="mdc-button d-flex align-items-center"
           test-id="permission"
         >
-        <mat-icon>admin_panel_settings</mat-icon>
+          <mat-icon>admin_panel_settings</mat-icon>
           Permission
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -360,7 +360,6 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/myreservation"
-            
           >
             <span test-id="all-reservations">All Reservations</span>
           </a>
@@ -419,7 +418,6 @@
             routerLinkActive="active"
             routerLink="/user/profile"
             test-id="profile"
-
           >
             <span>Profile</span>
           </a>
