@@ -64,7 +64,16 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .click();
         case 'submit':
           cy.get(step.selector).click('center', { force: true });
-        // return cy.contains('Read Added!!').should('be.visible');
+
+          return cy.document().then((doc) => {
+            if (doc.body.innerText.includes('Read Added!!')) {
+              cy.contains('Read Added!!').should('be.visible');
+            } else {
+              cy.contains(
+                'There are already one or more historical entries for this device which are conflicting current reading start date and/or end date',
+              ).should('be.visible');
+            }
+          });
       }
     });
   });
