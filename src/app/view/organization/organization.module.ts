@@ -6,6 +6,7 @@ import { OrganizationRoutingModule } from './organization-routing.module';
 import { InformationComponent } from './information/information.component';
 import { AdminOrganizationComponent } from './admin-organization/admin-organization.component';
 import { UserInvitationComponent } from './user-invitation/user-invitation.component';
+import { SharedModule } from '../../shared.module';
 
 @NgModule({
   declarations: [
@@ -19,6 +20,7 @@ import { UserInvitationComponent } from './user-invitation/user-invitation.compo
     MaterialModule,
     FormsModule,
     ReactiveFormsModule,
+    SharedModule,
   ],
 })
 export class OrganizationModule {}

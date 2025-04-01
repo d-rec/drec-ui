@@ -36,7 +36,7 @@ import { AdminModule } from './view/admin/admin.module';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { ApiuserClientReponseComponent } from './view/apiuser-client-reponse/apiuser-client-reponse.component';
 import * as Sentry from '@sentry/angular';
-import { PhoneFormatDirective } from './shared/directives/phone-number-formatter.directive';
+import { SharedModule } from './shared.module';
 
 @NgModule({
   declarations: [
@@ -66,7 +66,6 @@ import { PhoneFormatDirective } from './shared/directives/phone-number-formatter
     UserAcceptInvitationComponent,
     // UserInvitationComponent,
     ApiuserClientReponseComponent,
-    PhoneFormatDirective,
   ],
   imports: [
     BrowserModule,
@@ -83,6 +82,7 @@ import { PhoneFormatDirective } from './shared/directives/phone-number-formatter
       timeOut: 15000, // 15 seconds
       progressBar: true,
     }),
+    SharedModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
