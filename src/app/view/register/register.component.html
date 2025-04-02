@@ -126,7 +126,7 @@
                   formControlName="firstName"
                   test-id="first-name"
                 />
-                <mat-hint>Legal representative's first name.</mat-hint>
+                <mat-hint class="password-desc text-wrap">Legal representative's first name.</mat-hint>
                 <mat-error class="pb-1" *ngIf="checkValidation('firstName')">
                   {{ fieldRequired }}
                 </mat-error>
@@ -141,7 +141,7 @@
                   formControlName="lastName"
                   test-id="last-name"
                 />
-                <mat-hint>Legal representative's last name.</mat-hint>
+                <mat-hint class="password-desc text-wrap">Legal representative's last name.</mat-hint>
                 <mat-error class="pb-1" *ngIf="checkValidation('lastName')">
                   {{ fieldRequired }}
                 </mat-error>
