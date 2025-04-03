@@ -25,13 +25,13 @@ Cypress.Commands.add('developerUserSignup', function () {
           cy.get(step.selector).scrollIntoView().should('be.visible').click();
           return cy.contains('login Success').should('be.visible');
 
-        // return cy.document().then((doc) => {
-        //   if (doc.body.innerText.includes('login Success')) {
-        //     cy.contains('login Success').should('be.visible');
-        //   } else {
-        //     cy.contains('User with email').should('be.visible');
-        //   }
-        // });
+          return cy.document().then((doc) => {
+            if (doc.body.innerText.includes('login Success')) {
+              cy.contains('login Success').should('be.visible');
+            } else {
+              cy.contains('User with email').should('be.visible');
+            }
+          });
       }
     });
   });

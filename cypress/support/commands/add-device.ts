@@ -29,13 +29,13 @@ Cypress.Commands.add('addDevice', function () {
           cy.get(step.selector).click('center', { force: true });
           return cy.contains('Added Successfully !!').should('be.visible');
 
-        // return cy.document().then((doc) => {
-        //   if (doc.body.innerText.includes('Added Successfully !!')) {
-        //     cy.contains('Added Successfully !!').should('be.visible');
-        //   } else {
-        //     cy.contains('Device!device test').should('be.visible');
-        //   }
-        // });
+          return cy.document().then((doc) => {
+            if (doc.body.innerText.includes('Added Successfully !!')) {
+              cy.contains('Added Successfully !!').should('be.visible');
+            } else {
+              cy.contains('Device!device test').should('be.visible');
+            }
+          });
       }
     });
   });

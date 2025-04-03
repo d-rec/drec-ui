@@ -59,15 +59,14 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
             .click();
         case 'submit':
           cy.get(step.selector).click('center', { force: true });
-          return cy.contains('Read Added!!').should('be.visible');
 
-        // return cy.document().then((doc) => {
-        //   if (doc.body.innerText.includes('Read Added!!')) {
-        //     cy.contains('Read Added!!').should('be.visible');
-        //   } else {
-        //     cy.contains('Failed, MaxEnergy:').should('be.visible');
-        //   }
-        // });
+          return cy.document().then((doc) => {
+            if (doc.body.innerText.includes('Read Added!!')) {
+              cy.contains('Read Added!!').should('be.visible');
+            } else {
+              cy.contains('Failed, MaxEnergy:').should('be.visible');
+            }
+          });
       }
     });
   });
