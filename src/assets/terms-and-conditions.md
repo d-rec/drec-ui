@@ -43,9 +43,3 @@ D-REC shall not be liable for any indirect, incidental, special, consequential, 
 ## 8. Changes to Terms
 
 We reserve the right to modify these terms at any time. We will notify users of any material changes via the Platform or email. Continued use of the Platform after such changes constitutes acceptance of the new terms.
-
-## 9. Contact Information
-
-For any questions regarding these Terms and Conditions, please contact us at:
-
-Email: support@drec.com
