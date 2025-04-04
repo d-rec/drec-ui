@@ -132,7 +132,10 @@ export class LoginComponent implements OnInit {
       (error) => {
         //Error callback
         console.error('error caught in component', error);
-        this.toastrService.error('Check Your Credential!', 'Login Fail!!');
+        this.toastrService.error(error.error.message, 'Login Fail!!');
+        this.router.navigate(['/confirm-email'], {
+          queryParams: { email: this.loginForm.value.username },
+        });
       },
     );
   }
