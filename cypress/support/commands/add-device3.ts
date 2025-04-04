@@ -1,6 +1,6 @@
 import 'cypress-file-upload';
-Cypress.Commands.add('addDevice', function () {
-  cy.fixture('add-device.json').then((data) => {
+Cypress.Commands.add('addDevice3', function () {
+  cy.fixture('add-device3.json').then((data) => {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':

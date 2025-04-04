@@ -24,7 +24,8 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(0)
-            .click('center', { force: true });
+            .click('center', { force: true })
+            .wait(1000);
 
         case 'select':
           return cy
@@ -39,7 +40,8 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
           return cy
             .get(step.selector)
             .click({ force: true })
-            .type(step.value, { force: true });
+            .type(step.value, { force: true })
+            .wait(1000);
 
         case 'start-date':
           return cy
@@ -50,7 +52,8 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .eq(0)
             .click()
             .get('.mat-stroked-button')
-            .click();
+            .click()
+            .wait(1000);
 
         case 'end-date':
           return cy
@@ -61,7 +64,8 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .eq(5)
             .click()
             .get('.mat-stroked-button')
-            .click();
+            .click()
+            .wait(1000);
         case 'submit':
           cy.get(step.selector).click('center', { force: true });
 

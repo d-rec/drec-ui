@@ -17,3 +17,5 @@ import '../support/commands/developer-user-permission-setup';
 import '../support/commands/developer-user-signup';
 import '../support/commands/device-bulk-upload';
 import '../support/commands/meter-read-bulk-upload';
+import '../support/commands/add-device2';
+import '../support/commands/add-device3';

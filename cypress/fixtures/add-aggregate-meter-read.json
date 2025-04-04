@@ -31,7 +31,7 @@
     {
       "action": "type",
       "selector": "[test-id='read-value']",
-      "value": "100"
+      "value": "1"
     },
     {
       "action": "date-picker",
