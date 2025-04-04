@@ -13,6 +13,7 @@ import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.comp
 import { EditUserComponent } from '../../edit-user/edit-user.component';
 import { ToastrService } from 'ngx-toastr';
 import { InvitationformComponent } from '../../admin/invitationform/invitationform.component';
+import { getRoleName } from '../../../utils/role-helper';
 @Component({
   selector: 'app-all-apiuser',
   templateUrl: './all-apiuser.component.html',
@@ -47,6 +48,7 @@ export class AllApiuserComponent {
   subscription: Subscription;
   showerror: boolean = false;
   apiuserId: string;
+  getRoleName = getRoleName;
   constructor(
     private authService: AuthbaseService,
     private orgService: OrganizationService,
