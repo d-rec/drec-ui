@@ -12,7 +12,7 @@ Cypress.Commands.add('meterReadBulkUpload', function () {
             });
         case 'upload-bulk':
           cy.get(step.selector).click('center', { force: true });
-        // return cy.contains('Successfully!').should('be.visible');
+          return cy.contains('Successfully!').should('be.visible');
       }
     });
   });
