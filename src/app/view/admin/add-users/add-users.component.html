@@ -71,10 +71,10 @@
                       type="text"
                       matInput
                       phoneFormat
-                      formControlName="telephone"
+                      formControlName="phoneNumber"
                       placeholder="+91 22 1234 5678"
-                      test-id="telephone"
-                      (input)="markAsTouched('telephone')"
+                      test-id="phone-number"
+                      (input)="markAsTouched('phoneNumber')"
                     />
                     <mat-error class="pb-3" *ngIf="showPhoneNumberError()">
                       {{ phoneNumberErrors() }}

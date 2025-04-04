@@ -63,7 +63,7 @@ export class AddUsersComponent {
         Validators.required,
         Validators.pattern(EMAIL_REGEX),
       ]),
-      telephone: new FormControl(null, [
+      phoneNumber: new FormControl(null, [
         Validators.required,
         phoneNumberValidator(),
       ]),
@@ -80,7 +80,7 @@ export class AddUsersComponent {
   }
 
   phoneNumberErrors() {
-    return getPhoneNumberErrorMessage(this.registerForm.get('telephone'));
+    return getPhoneNumberErrorMessage(this.registerForm.get('phoneNumber'));
   }
 
   markAsTouched(controlName: string): void {
@@ -92,7 +92,7 @@ export class AddUsersComponent {
   }
 
   showPhoneNumberError(): boolean {
-    const control = this.registerForm.get('telephone');
+    const control = this.registerForm.get('phoneNumber');
     if (!control) return false;
     return control.invalid && (control.value || control.touched);
   }

@@ -82,7 +82,7 @@ export class UserInvitationComponent {
       firstName: [null],
       lastName: [null],
       email: [null, [Validators.required, Validators.pattern(EMAIL_REGEX)]],
-      telephone: [null, [Validators.required, phoneNumberValidator()]],
+      phoneNumber: [null, [Validators.required, phoneNumberValidator()]],
       role: [null, [Validators.required]],
     });
 
@@ -100,7 +100,7 @@ export class UserInvitationComponent {
   }
 
   phoneNumberErrors() {
-    return getPhoneNumberErrorMessage(this.inviteForm.get('telephone'));
+    return getPhoneNumberErrorMessage(this.inviteForm.get('phoneNumber'));
   }
 
   markAsTouched(controlName: string): void {
@@ -112,7 +112,7 @@ export class UserInvitationComponent {
   }
 
   showPhoneNumberError(): boolean {
-    const control = this.inviteForm.get('telephone');
+    const control = this.inviteForm.get('phoneNumber');
     if (!control) return false;
     return control.invalid && (control.value || control.touched);
   }
