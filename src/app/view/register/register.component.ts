@@ -22,7 +22,7 @@ export class RegisterComponent implements OnInit {
   orgtype: any[] = [
     { value: 'Developer', viewValue: 'Developer' },
     { value: 'Buyer', viewValue: 'Buyer' },
-    { value: 'ApiUser', viewValue: 'ApiUser' },
+    { value: 'ApiUser', viewValue: 'Market Intermediary' },
   ];
   hide = true;
   hide1 = true;
