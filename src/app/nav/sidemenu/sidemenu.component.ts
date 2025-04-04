@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { getRoleName } from '../../utils/role-helper';
 @Component({
   selector: 'app-sidemenu',
   templateUrl: './sidemenu.component.html',
@@ -12,6 +13,7 @@ export class SidemenuComponent implements OnInit {
   devcieurl: string;
   Alluserurl: string;
   adduserorg_url: string;
+  getRoleName = getRoleName;
   constructor(private router: Router) {}
   ngOnInit() {
     this.showmenu = environment.production;
