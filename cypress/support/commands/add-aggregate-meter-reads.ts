@@ -62,15 +62,7 @@ Cypress.Commands.add('addAggregateMeterRead', function () {
         case 'submit':
           cy.get(step.selector).click('center', { force: true });
 
-          return cy.document().then((doc) => {
-            if (doc.body.innerText.includes('Read Added!!')) {
-              cy.contains('Read Added!!').should('be.visible');
-            } else {
-              cy.contains(
-                'In this device you can add read for Delta type but you are sending Aggregate',
-              ).should('be.visible');
-            }
-          });
+          return cy.contains('Read Added!!').should('be.visible');
       }
     });
   });

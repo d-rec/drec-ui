@@ -65,16 +65,7 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
         case 'submit':
           cy.get(step.selector).click('center', { force: true });
 
-          cy.get('.toast-message', { timeout: 5000 }).then(($toast) => {
-            if ($toast.text().includes('Read Added!!')) {
-              cy.contains('Read Added!!').should('be.visible');
-            } else {
-              cy.contains(
-                'There are already one or more historical entries for this device which are conflicting current reading start date and/or end date',
-                { timeout: 5000 },
-              ).should('be.visible');
-            }
-          });
+          return cy.contains('Read Added!!').should('be.visible');
       }
     });
   });
