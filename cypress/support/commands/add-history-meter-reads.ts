@@ -68,6 +68,7 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .wait(1000);
         case 'submit':
           cy.get(step.selector).click('center', { force: true });
+          // cy.get(step.selector).scrollIntoView().should('be.visible').click();
 
           return cy.contains('Read Added!!').should('be.visible');
       }
