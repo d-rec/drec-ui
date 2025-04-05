@@ -37,6 +37,8 @@ import { UserAcceptInvitationComponent } from './view/user-accept-invitation/use
 import { ApiuserClientReponseComponent } from './view/apiuser-client-reponse/apiuser-client-reponse.component';
 import * as Sentry from '@sentry/angular';
 import { SharedModule } from './shared.module';
+import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
+import { MarkdownModule } from 'ngx-markdown';
 
 @NgModule({
   declarations: [
@@ -66,6 +68,7 @@ import { SharedModule } from './shared.module';
     UserAcceptInvitationComponent,
     // UserInvitationComponent,
     ApiuserClientReponseComponent,
+    TermsAndConditionsComponent,
   ],
   imports: [
     BrowserModule,
@@ -77,6 +80,7 @@ import { SharedModule } from './shared.module';
     HttpClientModule,
     PipesModule,
     AdminModule,
+    MarkdownModule.forRoot(),
     ToastrModule.forRoot({
       closeButton: true,
       timeOut: 15000, // 15 seconds

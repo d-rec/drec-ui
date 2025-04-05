@@ -1,6 +1,6 @@
 <mat-sidenav-container class="example-container">
   <mat-sidenav #sidenav mode="side" opened class="example-sidenav">
-    <mat-nav-list>
+    <mat-nav-list *ngIf="loginuser">
       <div style="padding: 10px">
         <p
           style="
@@ -13,8 +13,10 @@
           {{ loginuser.email }}
         </p>
         <small>
-          {{ loginuser.role }}
+          {{ getRoleName(loginuser.role) }}
+
         </small>
+        
       </div>
       <mat-divider></mat-divider>
       <button
@@ -77,7 +79,7 @@
             routerLink="/admin/All_apiusers"
             *ngIf="loginuser.role === 'Admin'"
           >
-            <span>All ApiUser</span>
+            <span>All Market Intermediaries</span>
           </a>
           <a
             mat-button
@@ -106,7 +108,7 @@
           class="mdc-button d-flex align-items-center"
           test-id="devices"
         >
-        <mat-icon>solar_power</mat-icon>
+          <mat-icon>solar_power</mat-icon>
           Device
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -215,6 +217,7 @@
             routerLinkActive="active"
             routerLink="/device/certifiedin_reservation"
             *ngIf="loginuser.role === 'OrganizationAdmin'"
+            test-id="certified-meter-read"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span> Certified MeterReads</span>
@@ -266,7 +269,7 @@
           class="mdc-button d-flex align-items-center"
           test-id="permission"
         >
-        <mat-icon>admin_panel_settings</mat-icon>
+          <mat-icon>admin_panel_settings</mat-icon>
           Permission
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -302,7 +305,7 @@
             test-id="api-user-permission"
           >
             <!-- <mat-icon>list</mat-icon> -->
-            <span>ApiUser Permission </span>
+            <span>Market Intermediary User Permission </span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
@@ -360,7 +363,6 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/myreservation"
-            
           >
             <span test-id="all-reservations">All Reservations</span>
           </a>
@@ -419,7 +421,6 @@
             routerLinkActive="active"
             routerLink="/user/profile"
             test-id="profile"
-
           >
             <span>Profile</span>
           </a>

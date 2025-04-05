@@ -538,7 +538,12 @@
                   <p>
                     <b>Generation Start Date</b>:&nbsp;
                     <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
-                    {{ item.generationStartTimeinUTC | date: 'long' }}
+                    {{
+                      formatCertificateDate(
+                        item.generationStartTime,
+                        item.perDeviceCertificateLog[0].timezone
+                      )
+                    }}
                   </p>
                 </div>
               </div>
@@ -547,7 +552,12 @@
                   <p>
                     <b>Generation End Date</b
                     >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                    {{ item.generationEndTimeinUTC | date: 'long' }}
+                    {{
+                      formatCertificateDate(
+                        item.generationEndTime,
+                        item.perDeviceCertificateLog[0].timezone
+                      )
+                    }}
                   </p>
                 </div>
               </div>
@@ -588,9 +598,10 @@
                     <th mat-header-cell *matHeaderCellDef>Start Date</th>
                     <td mat-cell *matCellDef="let element" class="table-data">
                       {{
-                        element.certificate_issuance_startdate
-                          | timezone: element.timezone : 'YYYY-MM-DD HH:mm:ss'
-                          | date: 'long'
+                        formatCertificateDate(
+                          element.certificate_issuance_startdate,
+                          element.timezone
+                        )
                       }}
                     </td>
                   </ng-container>
@@ -599,9 +610,10 @@
                     <th mat-header-cell *matHeaderCellDef>End Date</th>
                     <td mat-cell *matCellDef="let element" class="table-data">
                       {{
-                        element.certificate_issuance_enddate
-                          | timezone: element.timezone : 'YYYY-MM-DD HH:mm:ss'
-                          | date: 'long'
+                        formatCertificateDate(
+                          element.certificate_issuance_enddate,
+                          element.timezone
+                        )
                       }}
                     </td>
                   </ng-container>

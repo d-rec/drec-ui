@@ -1,2 +1,20 @@
-// Import commands.js using ES2015 syntax:
-import './commands';
+import '../support/commands/admin-login';
+import '../support/commands/account-setting';
+import '../support/commands/add-aggregate-meter-reads';
+import '../support/commands/add-delta-meter-reads';
+import '../support/commands/add-device';
+import './commands/add-history-meter-reads';
+import '../support/commands/add-reservation';
+import '../support/commands/admin-login';
+import '../support/commands/buyer-user-login';
+import '../support/commands/buyer-user-permission-setup';
+import '../support/commands/buyer-user-signup';
+import '../support/commands/certificate';
+import '../support/commands/certificate-filter';
+import '../support/commands/clear-database';
+import '../support/commands/developer-user-login';
+import '../support/commands/developer-user-permission-setup';
+import '../support/commands/developer-user-signup';
+import '../support/commands/device-bulk-upload';
+import '../support/commands/meter-read-bulk-upload';
+import '../support/commands/certified-meter-read';

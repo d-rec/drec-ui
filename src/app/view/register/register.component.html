@@ -126,6 +126,7 @@
                   formControlName="firstName"
                   test-id="first-name"
                 />
+                <mat-hint class="password-desc text-wrap">Legal representative's first name.</mat-hint>
                 <mat-error class="pb-1" *ngIf="checkValidation('firstName')">
                   {{ fieldRequired }}
                 </mat-error>
@@ -140,6 +141,7 @@
                   formControlName="lastName"
                   test-id="last-name"
                 />
+                <mat-hint class="password-desc text-wrap">Legal representative's last name.</mat-hint>
                 <mat-error class="pb-1" *ngIf="checkValidation('lastName')">
                   {{ fieldRequired }}
                 </mat-error>
@@ -211,7 +213,7 @@
                 </mat-error>
               </mat-form-field>
               <mat-form-field appearance="fill" class="mt-0">
-                <mat-label class="mat-labels-cont">Organization Name</mat-label>
+                <mat-label class="mat-labels-cont">Legal Entity Name</mat-label>
                 <input
                   autofocus
                   type="text"
@@ -321,6 +323,27 @@
                   {{ getErrorcheckconfirmPassword() }}
                 </mat-error>
               </mat-form-field>
+              <div class="terms-checkbox mb-4">
+                <mat-checkbox
+                  formControlName="termsAndConditions"
+                  color="primary"
+                  test-id="terms-and-conditions"
+                >
+                  I agree to the &nbsp;</mat-checkbox
+                ><a
+                  routerLink="/terms-and-conditions"
+                  class="text-warning"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Terms and Conditions</a
+                >
+                <mat-error
+                  *ngIf="checkValidation('termsAndConditions')"
+                  class="checkbox-error"
+                >
+                  You must accept the terms and conditions
+                </mat-error>
+              </div>
               <div class="d-flex mt-2">
                 <button
                   mat-button
