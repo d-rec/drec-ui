@@ -23,21 +23,31 @@ Cypress.Commands.add('addDevice', function () {
             .wait(1000);
 
         case 'select':
-          return cy
-            .get(step.selector)
-            .click()
-            .get(step.option)
-            .should('have.length.greaterThan', 0)
-            .eq(0)
-            .click()
-            .wait(1000);
+          if (step.option === "[test-id='country-options']") {
+            return cy
+              .get(step.selector)
+              .click()
+              .get(step.option)
+              .contains('Rwanda')
+              .click()
+              .wait(1000);
+          } else {
+            return cy
+              .get(step.selector)
+              .click()
+              .get(step.option)
+              .should('have.length.greaterThan', 0)
+              .eq(0)
+              .click()
+              .wait(1000);
+          }
 
         case 'submit':
           cy.get(step.selector).click('center', { force: true });
           return cy
             .contains('Added Successfully !!')
             .should('be.visible')
-            .wait(60000);
+            .wait(45000);
       }
     });
   });
