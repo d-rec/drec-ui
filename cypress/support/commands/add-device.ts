@@ -6,7 +6,6 @@ Cypress.Commands.add('addDevice', function () {
         ? { ...d, value: Math.floor(Math.random() * (100 - 10 + 1) + 10) }
         : { ...d },
     );
-    console.log('===new devices===>', { new_data });
     new_data.forEach((step) => {
       switch (step.action) {
         case 'click':
