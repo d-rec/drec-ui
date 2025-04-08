@@ -1,7 +1,13 @@
 import 'cypress-file-upload';
 Cypress.Commands.add('addDevice', function () {
   cy.fixture('add-device.json').then((data) => {
-    data.forEach((step) => {
+    const new_data = data.map((d) =>
+      d.selector === "[test-id='external-id']"
+        ? { ...d, value: Math.floor(Math.random() * (100 - 10 + 1) + 10) }
+        : { ...d },
+    );
+    console.log('===new devices===>', { new_data });
+    new_data.forEach((step) => {
       switch (step.action) {
         case 'click':
           return cy.get(step.selector).click().wait(1000);

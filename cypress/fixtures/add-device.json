@@ -16,7 +16,7 @@
   {
     "action": "type",
     "selector": "[test-id='external-id']",
-    "value": "25"
+    "value": "26"
   },
   {
     "action": "select",
