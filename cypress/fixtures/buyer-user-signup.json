@@ -68,7 +68,11 @@
     "selector": "[test-id='hide-confirm-password']",
     "log": "icon clicked successfully"
   },
-
+  {
+    "action": "click",
+    "selector": "[test-id='terms-and-conditions']",
+    "value": "checked"
+  },
   {
     "action": "click",
     "selector": "[test-id='back-to-organization']",

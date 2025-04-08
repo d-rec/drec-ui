@@ -54,7 +54,7 @@ export class ConfirmemailComponent implements OnInit {
       sessionStorage.getItem('email') ||
       this.activatedRoute.snapshot.queryParams['email'];
     if (!email) return;
-    this.authService.ResendConfirmationEmail(email).subscribe({
+    this.authService.resendConfirmationEmail(email).subscribe({
       next: () => {
         this.toastrService.success('Email sent successfully');
       },

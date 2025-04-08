@@ -19,7 +19,7 @@
             <div class="example-container1 row">
               <div class="col-md-4">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize"
+                  <mat-label class="text-capitalize" test-id="select-country-code"
                     >Select country Code</mat-label
                   >
                   <input
@@ -35,10 +35,11 @@
                     #auto="matAutocomplete"
                     (optionSelected)="selectCountry($event)"
                   >
-                    <mat-option [value]="">---</mat-option>
+                    <mat-option [value]="" test-id="country-dropdown-no-selection">---</mat-option>
                     <mat-option
                       *ngFor="let code of filteredOptions | async"
                       [value]="code.country"
+                      test-id="select-country-option"
                     >
                       {{ code.country }}
                     </mat-option>
@@ -139,6 +140,7 @@
                     class="btn-primary me-2 btn text-capitalize px-4"
                     (click)="DisplayListFilter()"
                     [disabled]="!isAnyFieldFilled"
+                    test-id="filter-certified-meter-read"
                   >
                     Filter
                   </button>
@@ -343,7 +345,7 @@
 				aria-label="Select page">
 			</mat-paginator> -->
 
-        <div *ngIf="!data?.length" style="text-align: center; color: #f2be1a">
+        <div *ngIf="!data?.length" style="text-align: center; color: #f2be1a" test-id="no-certified-meter-read">
           No Certificate
         </div>
       </ng-container>

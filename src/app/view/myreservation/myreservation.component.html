@@ -244,9 +244,7 @@
                   aria-label="Button that displays a tooltip when focused or hovered over"
                   (click)="DisplayCertificatepage(row)"
                 >
-                  <mat-icon
-                    class="mt-2 cursor-pointer"
-                    test-id="certificate"
+                  <mat-icon class="mt-2 cursor-pointer" test-id="certificate"
                     >card_membership</mat-icon
                   ></a
                 >
@@ -287,7 +285,7 @@
               Onboarding Date
             </th>
             <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-              {{ row.createdAt | date: 'long' }}
+              {{ row.createdAt | date: 'full' }}
             </td>
           </ng-container>
           <ng-container matColumnDef="name">
@@ -352,7 +350,7 @@
               Start
             </th>
             <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-              {{ row.reservationStartDate | date: 'dd MMM y hh:mm' }}
+              {{ row.reservationStartDate | date: 'dd MMM y hh:mm:ss' }}
             </td>
           </ng-container>
           <!-- Fruit Column -->
@@ -366,7 +364,7 @@
               End
             </th>
             <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-              {{ row.reservationEndDate | date: 'dd MMM y hh:mm' }}
+              {{ row.reservationEndDate | date: 'dd MMM y hh:mm:ss' }}
             </td>
           </ng-container>
           <ng-container matColumnDef="targetVolumeInMegaWattHour">
