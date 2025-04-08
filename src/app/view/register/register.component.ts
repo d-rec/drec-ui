@@ -5,6 +5,12 @@ import { Router } from '@angular/router';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../auth/services';
+import { EMAIL_REGEX } from '../../constants/index';
+import {
+  phoneNumberValidator,
+  getPhoneNumberErrorMessage,
+} from '../../shared/validators/phone-validators';
+
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -28,9 +34,7 @@ export class RegisterComponent implements OnInit {
   hide1 = true;
   matchconfirm: boolean = false;
   showPopup: boolean = false;
-  emailregex: RegExp =
-    // eslint-disable-next-line no-useless-escape
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
   constructor(
     private authService: AuthbaseService,
     private toastrService: ToastrService,
@@ -41,6 +45,7 @@ export class RegisterComponent implements OnInit {
   ngOnInit() {
     this.createForm();
   }
+
   createForm() {
     this.registerForm = new FormGroup(
       {
@@ -51,7 +56,11 @@ export class RegisterComponent implements OnInit {
         orgAddress: new FormControl(null),
         email: new FormControl(null, [
           Validators.required,
-          Validators.pattern(this.emailregex),
+          Validators.pattern(EMAIL_REGEX),
+        ]),
+        phoneNumber: new FormControl(null, [
+          Validators.required,
+          phoneNumberValidator(),
         ]),
         password: new FormControl(null, [
           Validators.required,
@@ -80,6 +89,7 @@ export class RegisterComponent implements OnInit {
       },
     );
   }
+
   emaiErrors() {
     return this.registerForm.get('email')?.hasError('required')
       ? 'This field is required'
@@ -87,6 +97,25 @@ export class RegisterComponent implements OnInit {
         ? 'Not a valid emailaddress'
         : '';
   }
+
+  phoneNumberErrors() {
+    return getPhoneNumberErrorMessage(this.registerForm.get('phoneNumber'));
+  }
+
+  markAsTouched(controlName: string): void {
+    const control = this.registerForm.get(controlName);
+    if (control) {
+      control.markAsTouched();
+      control.updateValueAndValidity();
+    }
+  }
+
+  showPhoneNumberError(): boolean {
+    const control = this.registerForm.get('phoneNumber');
+    if (!control) return false;
+    return control.invalid && (control.value || control.touched);
+  }
+
   checkPassword(control: any) {
     const enteredPassword = control.value;
     const passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
