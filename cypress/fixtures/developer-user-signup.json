@@ -16,6 +16,11 @@
     "value": "developer@energy.org"
   },
   {
+    "action": "type",
+    "selector": "[test-id='phone-number']",
+    "value": "+91 22 1234 5678"
+  },
+  {
     "action": "click",
     "selector": "[test-id='user-info']"
   },

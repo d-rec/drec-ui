@@ -13,6 +13,11 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatTabGroup } from '@angular/material/tabs';
 import { OrganizationInformation } from '../../../models';
+import { EMAIL_REGEX } from '../../../constants/index';
+import {
+  getPhoneNumberErrorMessage,
+  phoneNumberValidator,
+} from '../../../shared/validators/phone-validators';
 
 @Component({
   selector: 'app-user-invitation',
@@ -35,9 +40,6 @@ export class UserInvitationComponent {
   orginviteuser: any;
   showorginviteuser: boolean = false;
   loading: boolean = false;
-  emailregex: RegExp =
-    // eslint-disable-next-line no-useless-escape
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   orgtype: any[] = [
     { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
     { value: 'User', viewValue: 'User' },
@@ -52,6 +54,7 @@ export class UserInvitationComponent {
   orgname: string;
   orgId: number;
   orglist: OrganizationInformation[] = [];
+
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -78,7 +81,8 @@ export class UserInvitationComponent {
     this.inviteForm = this.fb.group({
       firstName: [null],
       lastName: [null],
-      email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
+      email: [null, [Validators.required, Validators.pattern(EMAIL_REGEX)]],
+      phoneNumber: [null, [Validators.required, phoneNumberValidator()]],
       role: [null, [Validators.required]],
     });
 
@@ -86,6 +90,33 @@ export class UserInvitationComponent {
       this.getorginviteuserlist();
     }, 1000);
   }
+
+  checkValidation(input: string) {
+    const validation =
+      this.inviteForm.get(input)?.invalid &&
+      (this.inviteForm.get(input)?.dirty ||
+        this.inviteForm.get(input)?.touched);
+    return validation;
+  }
+
+  phoneNumberErrors() {
+    return getPhoneNumberErrorMessage(this.inviteForm.get('phoneNumber'));
+  }
+
+  markAsTouched(controlName: string): void {
+    const control = this.inviteForm.get(controlName);
+    if (control) {
+      control.markAsTouched();
+      control.updateValueAndValidity();
+    }
+  }
+
+  showPhoneNumberError(): boolean {
+    const control = this.inviteForm.get('phoneNumber');
+    if (!control) return false;
+    return control.invalid && (control.value || control.touched);
+  }
+
   filterOrgList() {
     this.filteredOrgList = this.orglist.filter(
       (org: OrganizationInformation) => {
@@ -114,11 +145,8 @@ export class UserInvitationComponent {
           this.getorginviteuserlist();
         }
       },
-      error: () => {
-        this.toastrService.error(
-          "You don't have the permissions to invite a user to this organization",
-          'Access Denied',
-        );
+      error: (error) => {
+        this.toastrService.error(error.error.message);
       },
     });
   }
