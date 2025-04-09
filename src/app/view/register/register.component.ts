@@ -34,7 +34,7 @@ export class RegisterComponent implements OnInit {
   hide1 = true;
   matchconfirm: boolean = false;
   showPopup: boolean = false;
-  
+
   constructor(
     private authService: AuthbaseService,
     private toastrService: ToastrService,
