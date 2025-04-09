@@ -12,14 +12,33 @@ Cypress.Commands.add('addReservation', function () {
             .should('be.visible')
             .type(step.value, { force: true });
 
+        // case 'select':
+        //   return cy
+        //     .get(step.selector)
+        //     .click({ force: true })
+        //     .get(step.option)
+        //     .should('have.length.greaterThan', 0)
+        //     .eq(0)
+        //     .click('center', { force: true });
+
         case 'select':
-          return cy
-            .get(step.selector)
-            .click({ force: true })
-            .get(step.option)
-            .should('have.length.greaterThan', 0)
-            .eq(0)
-            .click('center', { force: true });
+          if (step.option === '[country-test-id]') {
+            return cy
+              .get(step.selector)
+              .click({ force: true })
+              .get(step.option)
+              .contains('Rwanda')
+              .eq(0)
+              .click('center', { force: true });
+          } else {
+            return cy
+              .get(step.selector)
+              .click({ force: true })
+              .get(step.option)
+              .should('have.length.greaterThan', 0)
+              .eq(0)
+              .click('center', { force: true });
+          }
         case 'check':
           return cy.get(step.selector).eq(step.index).click();
         case 'continue':
