@@ -19,6 +19,11 @@
     "log": "Email entered successfully"
   },
   {
+    "action": "type",
+    "selector": "[test-id='phone-number']",
+    "value": "+91 22 1234 5678"
+  },
+  {
     "action": "click",
     "selector": "[test-id='user-info']",
     "log": "Button clicked successfully"
@@ -68,7 +73,11 @@
     "selector": "[test-id='hide-confirm-password']",
     "log": "icon clicked successfully"
   },
-
+  {
+    "action": "click",
+    "selector": "[test-id='terms-and-conditions']",
+    "value": "checked"
+  },
   {
     "action": "click",
     "selector": "[test-id='back-to-organization']",

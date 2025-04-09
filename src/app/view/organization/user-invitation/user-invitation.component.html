@@ -76,6 +76,25 @@
                       </mat-form-field>
                     </div>
                     <div class="col-md-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label class="mat-labels-cont"
+                          >Phone Number</mat-label
+                        >
+                        <input
+                          type="text"
+                          matInput
+                          phoneFormat
+                          formControlName="phoneNumber"
+                          placeholder="+91 22 1234 5678"
+                          test-id="phone-number"
+                          (input)="markAsTouched('phoneNumber')"
+                        />
+                        <mat-error class="pb-3" *ngIf="showPhoneNumberError()">
+                          {{ phoneNumberErrors() }}
+                        </mat-error>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
                       <mat-form-field
                         appearance="outline"
                         class="mt-0"

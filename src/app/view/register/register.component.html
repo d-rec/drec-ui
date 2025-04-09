@@ -159,7 +159,22 @@
                   {{ emaiErrors() }}
                 </mat-error>
               </mat-form-field>
-              <div class="d-flex justify-content-end mt-2">
+              <mat-form-field appearance="fill" class="mt-3">
+                <mat-label class="mat-labels-cont">Phone Number</mat-label>
+                <input
+                  type="text"
+                  matInput
+                  phoneFormat
+                  formControlName="phoneNumber"
+                  placeholder="+91 22 1234 5678"
+                  test-id="phone-number"
+                  (input)="markAsTouched('phoneNumber')"
+                />
+                <mat-error class="pb-3" *ngIf="showPhoneNumberError()">
+                  {{ phoneNumberErrors() }}
+                </mat-error>
+              </mat-form-field>
+              <div class="d-flex justify-content-end mt-3">
                 <button
                   mat-button
                   matStepperNext
@@ -308,6 +323,27 @@
                   {{ getErrorcheckconfirmPassword() }}
                 </mat-error>
               </mat-form-field>
+              <div class="terms-checkbox mb-4">
+                <mat-checkbox
+                  formControlName="termsAndConditions"
+                  color="primary"
+                  test-id="terms-and-conditions"
+                >
+                  I agree to the &nbsp;</mat-checkbox
+                ><a
+                  routerLink="/terms-and-conditions"
+                  class="text-warning"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Terms and Conditions</a
+                >
+                <mat-error
+                  *ngIf="checkValidation('termsAndConditions')"
+                  class="checkbox-error"
+                >
+                  You must accept the terms and conditions
+                </mat-error>
+              </div>
               <div class="d-flex mt-2">
                 <button
                   mat-button
