@@ -10,6 +10,11 @@ import { Router } from '@angular/router';
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { UserService } from '../../../auth/services';
 import { ToastrService } from 'ngx-toastr';
+import { EMAIL_REGEX } from '../../../constants/index';
+import {
+  getPhoneNumberErrorMessage,
+  phoneNumberValidator,
+} from '../../../shared/validators/phone-validators';
 @Component({
   selector: 'app-add-users',
   templateUrl: './add-users.component.html',
@@ -33,9 +38,7 @@ export class AddUsersComponent {
   matchconfirm: boolean = false;
   loginuser: any;
   apiuserId: string;
-  emailregex: RegExp =
-    // eslint-disable-next-line no-useless-escape
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
   constructor(
     private authService: AuthbaseService,
     private _formBuilder: FormBuilder,
@@ -58,7 +61,11 @@ export class AddUsersComponent {
       orgAddress: new FormControl(null),
       email: new FormControl(null, [
         Validators.required,
-        Validators.pattern(this.emailregex),
+        Validators.pattern(EMAIL_REGEX),
+      ]),
+      phoneNumber: new FormControl(null, [
+        Validators.required,
+        phoneNumberValidator(),
       ]),
       password: new FormControl(null),
       confirmPassword: new FormControl(null),
@@ -70,6 +77,24 @@ export class AddUsersComponent {
       : this.registerForm.get('email')?.hasError('pattern')
         ? 'Not a valid emailaddress'
         : '';
+  }
+
+  phoneNumberErrors() {
+    return getPhoneNumberErrorMessage(this.registerForm.get('phoneNumber'));
+  }
+
+  markAsTouched(controlName: string): void {
+    const control = this.registerForm.get(controlName);
+    if (control) {
+      control.markAsTouched();
+      control.updateValueAndValidity();
+    }
+  }
+
+  showPhoneNumberError(): boolean {
+    const control = this.registerForm.get('phoneNumber');
+    if (!control) return false;
+    return control.invalid && (control.value || control.touched);
   }
 
   checkValidation(input: string) {
