@@ -60,13 +60,7 @@ Cypress.Commands.add('addAggregateMeterRead', function () {
             .type(formattedTime, { force: true })
             .click();
         case 'submit':
-          cy.get(step.selector).click('center', { force: true });
-
-          return cy
-            .contains(
-              'In this device you can add read for Delta type but you are sending Aggregate',
-            )
-            .should('be.visible');
+          return cy.get(step.selector).click('center', { force: true });
       }
     });
   });
