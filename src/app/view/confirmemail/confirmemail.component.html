@@ -2,7 +2,7 @@
 <div
   class="login-wrapper d-flex align-self-center align-items-center flex-column h-100vh justify-content-center drec-login"
 >
-  <mat-card class="box">
+  <mat-card class="box w-45">
     <mat-card-header>
       <!-- logo -->
       <div class="py-4">
@@ -12,31 +12,27 @@
     </mat-card-header>
 
     <mat-card-content>
-      <div *ngIf="fromregister && success">
-
-        <p >
-          Thankyou for registration in D-REC, Please check email and confirm Your
-          email address
+      <div *ngIf="fromregister && success" class="text-center">
+        <p class="w-75 mx-auto">
+          Thank you for registration in D-REC, Please check email and confirm
+          your email address
         </p>
 
-          <button 
-           (click)="resendConfirmationEmail()" class="btn-primary btn btn-block">
-            Resend confirmation email
-          </button>
+        <button
+          (click)="resendConfirmationEmail()"
+          class="btn-primary btn btn-block w-25"
+        >
+          Resend email
+        </button>
       </div>
-       <div *ngIf="!fromregister && success">
-
-         <p >
-           Welcome to in D-REC, Your {{ message }}
-         </p>
-         <button routerLink="/login" class="btn-primary btn btn-block">
-           Login
-         </button>
-       </div>
+      <div *ngIf="!fromregister && success" class="text-center">
+        <p>Welcome to in D-REC, Your {{ message }}</p>
+        <button routerLink="/login" class="btn-primary btn btn-block w-50">
+          Login
+        </button>
+      </div>
       <p *ngIf="!success">Your {{ message }} ,your token has expired</p>
     </mat-card-content>
-    <div class="p-3">
-    </div>
-
+    <div class="p-3"></div>
   </mat-card>
 </div>

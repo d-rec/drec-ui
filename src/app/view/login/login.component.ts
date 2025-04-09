@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit {
   }
   onSubmit() {
     this.authService.login('auth/login', this.loginForm.value).subscribe(
-      (data) => {
+      (data): any => {
         if (data['accessToken'] != null) {
           sessionStorage.setItem('access-token', data['accessToken']);
           const jwtObj = JSON.parse(
@@ -102,6 +102,7 @@ export class LoginComponent implements OnInit {
             },
             error: (err) => {
               this.toastrService.error('Error!', err.error.message);
+              this.router.navigate(['/login']);
             },
           });
         } else {
@@ -109,16 +110,23 @@ export class LoginComponent implements OnInit {
             'Message Failure!',
             'Check Your Credentials !!',
           );
-          this.router.navigate(['/login']);
         }
       },
       (error) => {
         //Error callback
         console.error('error caught in component', error);
-        this.toastrService.error(error.error.message, 'Login Fail!!');
-        this.router.navigate(['/confirm-email'], {
-          queryParams: { email: this.loginForm.value.username },
-        });
+        if (error.status === 401) {
+          this.toastrService.error(error.error.message, 'Login Fail!!');
+
+          if (
+            error.error?.message?.toLowerCase().includes('verify') ||
+            error.error?.message?.toLowerCase().includes('confirm')
+          ) {
+            this.router.navigate(['/confirm-email'], {
+              queryParams: { email: this.loginForm.value.username },
+            });
+          }
+        }
       },
     );
   }
