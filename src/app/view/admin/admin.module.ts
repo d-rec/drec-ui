@@ -8,7 +8,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddUsersComponent } from './add-users/add-users.component';
 import { InvitationformComponent } from './invitationform/invitationform.component';
 import { ApiuserComponent } from './apiuser/apiuser.component';
-
+import { SharedModule } from '../../shared.module';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -23,6 +23,7 @@ import { ApiuserComponent } from './apiuser/apiuser.component';
     AdminRoutingModule,
     FormsModule,
     ReactiveFormsModule,
+    SharedModule,
   ],
 })
 export class AdminModule {}
