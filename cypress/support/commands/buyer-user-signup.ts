@@ -23,7 +23,11 @@ Cypress.Commands.add('buyerUserSignup', function () {
             });
 
         case 'submit':
-          cy.get(step.selector).scrollIntoView().should('be.visible').click();
+          cy.get(step.selector)
+            .scrollIntoView()
+            .should('be.visible')
+            .click()
+            .wait(1000);
           return cy.contains('login Success').should('be.visible');
       }
     });

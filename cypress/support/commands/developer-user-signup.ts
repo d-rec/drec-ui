@@ -22,7 +22,11 @@ Cypress.Commands.add('developerUserSignup', function () {
               cy.get('mat-option').contains(step.value).click();
             });
         case 'submit':
-          cy.get(step.selector).scrollIntoView().should('be.visible').click();
+          cy.get(step.selector)
+            .scrollIntoView()
+            .should('be.visible')
+            .click()
+            .wait(1000);
           return cy.contains('login Success').should('be.visible');
       }
     });
