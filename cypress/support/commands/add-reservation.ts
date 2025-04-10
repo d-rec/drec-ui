@@ -22,7 +22,7 @@ Cypress.Commands.add('addReservation', function () {
             .click('center', { force: true });
 
         case 'check':
-          return cy.get(step.selector).eq(step.index).click();
+          return cy.get(step.selector).eq(step.index).click().wait(10000);
       }
     });
   });
