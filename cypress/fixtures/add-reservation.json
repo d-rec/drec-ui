@@ -11,7 +11,7 @@
   {
     "action": "type",
     "selector": "[test-id='reservation-name']",
-    "value": "test reservation"
+    "value": "test21 reservation"
   },
   {
     "action": "type",
