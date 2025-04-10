@@ -47,7 +47,7 @@ Cypress.Commands.add('addDevice', function () {
           return cy
             .contains('Added Successfully !!')
             .should('be.visible')
-            .wait(50000);
+            .wait(60000);
       }
     });
   });
