@@ -21,7 +21,7 @@
   {
     "action": "type",
     "selector": "[test-id='phone-number']",
-    "value": "+91 22 1224 5678"
+    "value": "+91 22 1334 5678"
   },
   {
     "action": "click",
