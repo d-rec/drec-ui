@@ -39,6 +39,7 @@ import * as Sentry from '@sentry/angular';
 import { SharedModule } from './shared.module';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
+import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
 
 @NgModule({
   declarations: [
@@ -69,6 +70,7 @@ import { MarkdownModule } from 'ngx-markdown';
     // UserInvitationComponent,
     ApiuserClientReponseComponent,
     TermsAndConditionsComponent,
+    DocumentsUploadComponent,
   ],
   imports: [
     BrowserModule,

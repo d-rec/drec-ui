@@ -15,7 +15,7 @@ import { ResetPasswordComponent } from './view/reset-password/reset-password.com
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
-('./view/UserAcceptInvitationComponent');
+import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
 const routes: Routes = [
   {
     path: '',
@@ -40,6 +40,7 @@ const routes: Routes = [
         path: 'user/acceptInvitaion',
         component: UserAcceptInvitationComponent,
       },
+      { path: 'documents-upload', component: DocumentsUploadComponent },
     ],
   },
   {
