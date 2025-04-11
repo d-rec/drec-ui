@@ -180,87 +180,96 @@ export class RegisterComponent implements OnInit {
     return base64Payload;
   }
   response: any;
+
+  private removePhoneNumberSpaces(phone: string): string {
+    return phone.replace(/\s+/g, '');
+  }
+
   onSubmit(): void {
-    this.authService
-      .PostAuth('user/register', this.registerForm.value)
-      .subscribe({
-        next: (data) => {
-          const loginobj = {
-            username: this.registerForm.value.email,
-            password: this.registerForm.value.password,
-          };
-          if (this.registerForm.value.organizationType === 'ApiUser') {
-            this.response = data;
-            this.toastrService.success('User Register Successfull');
-            this.showPopup = true;
-            this.authService
-              .ApiUserExportAccesskey(
-                'user/export-accesskey/',
-                this.response.api_user_id,
-              )
-              .subscribe({
-                next: (keydata) => {
-                  setTimeout(() => {
-                    this.showkeypopup(keydata, loginobj);
-                  }, 1000);
-                },
-              });
-          } else {
-            this.authService.login('auth/login', loginobj).subscribe({
-              next: (data) => {
-                if (data['accessToken'] != null) {
-                  sessionStorage.setItem('access-token', data['accessToken']);
-                  const jwtObj = JSON.parse(
-                    this.b64DecodeUnicode(
-                      this.padBase64(data['accessToken'].split('.')[1]),
-                    ),
-                  );
-                  //sessionStorage.setItem('loginuser', jwtObj);
-                  sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-                  //var obj = JSON.parse(sessionStorage.loginuser);
-
-                  if (jwtObj.role === 'Buyer') {
-                    this.router.navigate(['/myreservation']);
-                  } else {
-                    this.router.navigate(['/device/AllList']);
-                  }
-                  this.toastrService.success(
-                    'login user ' + jwtObj.email + '!',
-                    'login Success',
-                  );
-                } else {
-                  this.toastrService.info(
-                    'Message Failure!',
-                    'check your credentials !!',
-                  );
-                  this.router.navigate(['/login']);
-                }
+    const formValues = { ...this.registerForm.value };
+    if (formValues.phoneNumber) {
+      formValues.phoneNumber = this.removePhoneNumberSpaces(
+        formValues.phoneNumber,
+      );
+    }
+    this.authService.PostAuth('user/register', formValues).subscribe({
+      next: (data) => {
+        const loginobj = {
+          username: this.registerForm.value.email,
+          password: this.registerForm.value.password,
+        };
+        if (this.registerForm.value.organizationType === 'ApiUser') {
+          this.response = data;
+          this.toastrService.success('User Register Successfull');
+          this.showPopup = true;
+          this.authService
+            .ApiUserExportAccesskey(
+              'user/export-accesskey/',
+              this.response.api_user_id,
+            )
+            .subscribe({
+              next: (keydata) => {
+                setTimeout(() => {
+                  this.showkeypopup(keydata, loginobj);
+                }, 1000);
               },
-              error: (err) => {
-                //Error callback
-                console.error('error caught in component', err);
-                this.toastrService.error(
-                  'check your credentials!',
-                  'login Fail!!',
+            });
+        } else {
+          this.authService.login('auth/login', loginobj).subscribe({
+            next: (data) => {
+              if (data['accessToken'] != null) {
+                sessionStorage.setItem('access-token', data['accessToken']);
+                const jwtObj = JSON.parse(
+                  this.b64DecodeUnicode(
+                    this.padBase64(data['accessToken'].split('.')[1]),
+                  ),
                 );
-              },
-            });
-            this.registerForm.reset();
-            const formControls = this.registerForm.controls;
+                //sessionStorage.setItem('loginuser', jwtObj);
+                sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
+                //var obj = JSON.parse(sessionStorage.loginuser);
 
-            Object.keys(formControls).forEach((key) => {
-              const control = formControls[key];
-              control.setErrors(null);
-            });
-            // this.router.navigate(['/confirm-email']);
-          }
-        },
-        error: (err) => {
-          //Error callback
-          console.error('error caught in component', err);
-          this.toastrService.error('error!', err.error.message);
-        },
-      });
+                if (jwtObj.role === 'Buyer') {
+                  this.router.navigate(['/myreservation']);
+                } else {
+                  this.router.navigate(['/device/AllList']);
+                }
+                this.toastrService.success(
+                  'login user ' + jwtObj.email + '!',
+                  'login Success',
+                );
+              } else {
+                this.toastrService.info(
+                  'Message Failure!',
+                  'check your credentials !!',
+                );
+                this.router.navigate(['/login']);
+              }
+            },
+            error: (err) => {
+              //Error callback
+              console.error('error caught in component', err);
+              this.toastrService.error(
+                'check your credentials!',
+                'login Fail!!',
+              );
+            },
+          });
+          this.registerForm.reset();
+          const formControls = this.registerForm.controls;
+
+          Object.keys(formControls).forEach((key) => {
+            const control = formControls[key];
+            control.setErrors(null);
+          });
+          // this.router.navigate(['/confirm-email']);
+        }
+      },
+      error: (err) => {
+        //Error callback
+        console.error('error caught in component', err);
+        this.toastrService.error('error!', err.error.message);
+      },
+    });
   }
   showkeypopup(ketdata: any, logininfo: any) {
     setTimeout(() => {
