@@ -14,7 +14,7 @@ Cypress.Commands.add('deviceBulkUpload', function () {
             });
         case 'upload-bulk':
           cy.get(step.selector).click('center', { force: true });
-          return cy.contains('Successfully!').should('be.visible');
+          return cy.contains('File Uploaded in Bulk!!').should('be.visible');
       }
     });
   });
