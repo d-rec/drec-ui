@@ -16,6 +16,7 @@ import { UserProfileComponent } from './view/user-profile/user-profile.component
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
+import { WaitVerificationComponent } from './view/wait-verification/wait-verification.component';
 const routes: Routes = [
   {
     path: '',
@@ -41,6 +42,7 @@ const routes: Routes = [
         component: UserAcceptInvitationComponent,
       },
       { path: 'documents-upload', component: DocumentsUploadComponent },
+      { path: 'wait-verification', component: WaitVerificationComponent },
     ],
   },
   {

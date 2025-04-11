@@ -40,7 +40,7 @@ import { SharedModule } from './shared.module';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
-
+import { WaitVerificationComponent } from './view/wait-verification/wait-verification.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -71,6 +71,7 @@ import { DocumentsUploadComponent } from './view/documents-upload/documents-uplo
     ApiuserClientReponseComponent,
     TermsAndConditionsComponent,
     DocumentsUploadComponent,
+    WaitVerificationComponent,
   ],
   imports: [
     BrowserModule,

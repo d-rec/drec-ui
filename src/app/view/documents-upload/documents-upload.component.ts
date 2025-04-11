@@ -4,6 +4,7 @@ export interface DocumentUpload {
   title: string;
   isRecommended: boolean;
   isOptional?: boolean;
+  file?: File;
 }
 
 @Component({
@@ -19,20 +20,58 @@ export class DocumentsUploadComponent {
     'If you require any help with the document uploads, please create a draft, and contact your Local Issuer.';
   @Input() documents: DocumentUpload[] = [
     {
-      title: 'Form SF-02 - Production Facility Registration',
+      title: 'Legal Entity Incorporation certificate/document',
       isRecommended: true,
     },
+    { title: "The legal representative's passport", isRecommended: true },
     {
-      title: "SF-02C Owner's Declaration or Proof of Ownership",
+      title:
+        'Address proof (latest utility bill: mobile phone, electricity bill, bank statement, etc.)',
       isRecommended: true,
     },
-    { title: 'Metering Evidence', isRecommended: true },
-    { title: 'Single Line Diagram', isRecommended: true },
-    { title: 'Project Photos', isRecommended: true },
-    {
-      title: 'Additional documents and notes',
-      isRecommended: false,
-      isOptional: true,
-    },
+    { title: "Owner's Declaration Document", isRecommended: true },
   ];
+
+  onFileSelected(event: any, document: DocumentUpload) {
+    const file = event.target.files[0];
+    if (file) {
+      document.file = file;
+    }
+  }
+
+  uploadFile(document: DocumentUpload) {
+    if (!document.file) {
+      return;
+    }
+    // Here you would typically call your service to handle the file upload
+    console.log(`Uploading file for ${document.title}:`, document.file);
+  }
+
+  openFileInput(index: number) {
+    document.getElementById('fileInput' + index)?.click();
+  }
+
+  submitDocuments() {
+    const uploadedDocs = this.documents.filter((doc) => doc.file);
+    const missingRecommendedDocs = this.documents.filter(
+      (doc) => doc.isRecommended && !doc.file,
+    );
+
+    if (missingRecommendedDocs.length > 0) {
+      console.warn(
+        'Missing recommended documents:',
+        missingRecommendedDocs.map((doc) => doc.title),
+      );
+      // Here you might want to show a warning to the user about missing recommended documents
+      return;
+    }
+
+    if (uploadedDocs.length === 0) {
+      console.warn('No documents uploaded');
+      return;
+    }
+
+    // Here you would typically call your service to submit all documents
+    console.log('Submitting documents:', uploadedDocs);
+  }
 }

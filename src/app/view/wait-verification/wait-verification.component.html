@@ -1,0 +1,44 @@
+<div class="bg-solar"></div>
+<div
+  class="login-wrapper d-flex align-self-center align-items-center flex-column h-100vh justify-content-center drec-login"
+>
+  <mat-card class="box">
+    <mat-card-header>
+      <!-- logo -->
+      <div class="py-4">
+        <img src="assets/images/d-rec-beta-logo.svg" alt="" />
+      </div>
+      <h2 class="pb-0 mb-3 fw-bold">Document Verification Pending</h2>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="text-center mb-4">
+        <mat-icon class="verification-icon">pending_actions</mat-icon>
+      </div>
+      <p class="mb-3">
+        Thank you for submitting your documents. Your account is currently in
+        the verification process.
+      </p>
+      <p class="mb-3">
+        Our team will review your submitted documents to ensure compliance with
+        platform requirements. This verification is necessary before you can
+        start using the D-REC platform.
+      </p>
+      <div class="alert alert-info mb-4">
+        <p class="mb-0"><strong>What happens next?</strong></p>
+        <ul class="text-start mb-0 mt-2">
+          <li>Our team will review your documents</li>
+          <li>
+            You will receive an email notification once verification is complete
+          </li>
+          <li>After approval, you can log in and start using the platform</li>
+        </ul>
+      </div>
+    </mat-card-content>
+    <div class="p-3">
+      <button routerLink="/login" class="btn-primary btn btn-block">
+        Return to Login
+      </button>
+    </div>
+  </mat-card>
+</div>

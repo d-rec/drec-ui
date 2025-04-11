@@ -1,36 +1,54 @@
-<app-header></app-header>
-<div class="container-fluid bg-light p-4 rounded mt-150">
-  <div class="mb-4">
-    <h3 class="d-flex align-items-center gap-2 fw-bold mb-3">
-      <mat-icon class="text-secondary">description</mat-icon>
-      {{ title }}
-    </h3>
-    <p class="text-secondary mb-2 small">{{ description }}</p>
-    <p class="text-secondary mb-2 small">{{ helperText }}</p>
-  </div>
+<div class="d-flex flex-column h-100">
+  <app-header></app-header>
+  <div class="container-fluid bg-light p-4 mt-5 pt-5">
+    <div class="bg-info-subtle mb-4 p-4 rounded">
+      <h3 class="d-flex align-items-center gap-2 fw-bold mb-3">
+        <mat-icon>info</mat-icon>
+        {{ title }}
+      </h3>
+      <p class="text-secondary mb-2 small">{{ description }}</p>
+      <p class="text-secondary mb-2 small">{{ helperText }}</p>
+    </div>
 
-  <div class="list-group">
-    <div
-      *ngFor="let doc of documents"
-      class="list-group-item d-flex justify-content-between align-items-center p-3 mb-2 border rounded bg-white hover-shadow"
-    >
-      <div class="d-flex align-items-center gap-2 text-dark">
-        <mat-icon class="text-secondary small">arrow_forward</mat-icon>
-        {{ doc.title }}
-      </div>
-      <div>
-        <span
-          *ngIf="doc.isRecommended"
-          class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
-          >Recommended</span
-        >
-        <span
-          *ngIf="doc.isOptional"
-          class="badge bg-warning bg-opacity-10 text-warning px-3 py-2"
-          >Optional</span
-        >
+    <div class="list-group">
+      <div
+        *ngFor="let doc of documents; let i = index"
+        class="list-group-item d-flex justify-content-between align-items-center p-3 mb-2 border rounded bg-white hover-shadow"
+      >
+        <div class="d-flex align-items-center gap-2 text-dark">
+          <mat-icon class="text-secondary small">arrow_forward</mat-icon>
+          {{ doc.title }}
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span
+            *ngIf="doc.isRecommended"
+            class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
+            >Recommended</span
+          >
+          <div class="upload-buttons d-flex gap-2 align-items-center">
+            <input
+              type="file"
+              [id]="'fileInput' + i"
+              class="d-none"
+              (change)="onFileSelected($event, doc)"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+            />
+            <button
+              class="btn btn-warning btn-sm"
+              (click)="doc.file ? uploadFile(doc) : openFileInput(i)"
+            >
+              {{ doc.file ? 'Upload ' + doc.file.name : 'Upload' }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
+
+    <div class="d-flex justify-content-end mt-4">
+      <button class="btn btn-primary" (click)="submitDocuments()">
+        Submit Documents
+      </button>
+    </div>
   </div>
+  <app-footer></app-footer>
 </div>
-<app-footer></app-footer>
