@@ -14,35 +14,21 @@ interface AbstractControlWithPhone extends AbstractControl {
 
 export function phoneNumberValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
-    const value = control.value;
-
-    if (!value) {
-      return null;
-    }
-
-    if (!value.startsWith('+')) {
-      return { missingPlus: true };
-    }
+    if (!control.value) return null;
+    if (!control.value.startsWith('+')) return { missingPlus: true };
 
     try {
-      const phoneNumber = parsePhoneNumberFromString(value);
+      const phoneNumber = parsePhoneNumberFromString(control.value);
+      if (!phoneNumber) return { invalidNumber: true };
+      if (!phoneNumber.country) return { invalidCountryCode: true };
 
-      if (!phoneNumber) {
-        return { invalidNumber: true };
-      }
-
-      if (!phoneNumber.country) {
-        return { invalidCountryCode: true };
-      }
-
+      const nationalLength = phoneNumber.nationalNumber.length;
       if (!phoneNumber.isValid()) {
-        if (phoneNumber.nationalNumber.length < 5) {
-          return { tooShort: true };
-        }
-        if (phoneNumber.nationalNumber.length > 15) {
-          return { tooLong: true };
-        }
-        return { invalidNumber: true };
+        return nationalLength < 5
+          ? { tooShort: true }
+          : nationalLength > 15
+            ? { tooLong: true }
+            : { invalidNumber: true };
       }
 
       (control as AbstractControlWithPhone).phoneMetadata = {
@@ -71,88 +57,57 @@ export function getPhoneNumberErrorMessage(
 ): string {
   if (!control) return '';
 
-  if (control.hasError('required')) {
-    return 'This field is required';
-  }
-  if (control.hasError('missingPlus')) {
-    return 'Phone number must start with + symbol';
-  }
-  if (control.hasError('invalidCountryCode')) {
-    return 'Invalid or missing country code';
-  }
-  if (control.hasError('tooShort')) {
-    return 'Phone number is too short for the specified country code';
-  }
-  if (control.hasError('tooLong')) {
-    return 'Phone number is too long for the specified country code';
-  }
-  if (control.hasError('invalidNumber')) {
-    return 'Please enter a valid international phone number (e.g., +1 234 567 8901)';
-  }
-  return '';
+  const errorMap: Record<string, string> = {
+    required: 'This field is required',
+    missingPlus: 'Phone number must start with + symbol',
+    invalidCountryCode: 'Invalid or missing country code',
+    tooShort: 'Phone number is too short for the specified country code',
+    tooLong: 'Phone number is too long for the specified country code',
+    invalidNumber:
+      'Please enter a valid international phone number (e.g., +1 234 567 8901)',
+  };
+
+  const errorKey = Object.keys(errorMap).find((key) => control.hasError(key));
+  return errorKey ? errorMap[errorKey] : '';
 }
 
-/**
- * Retrieves phone metadata that was stored during validation
- */
-export function getPhoneMetadata(
+export const getPhoneMetadata = (
   control: AbstractControl,
-): PhoneMetadata | null {
-  return (control as AbstractControlWithPhone).phoneMetadata || null;
-}
+): PhoneMetadata | null =>
+  (control as AbstractControlWithPhone).phoneMetadata || null;
 
-/**
- * Automatically tries to format a phone input value
- * @param value The input value to format
- * @param defaultCountry Optional default country to use if no country code is provided
- * @returns Formatted phone number starting with +
- */
 export function formatPhoneInput(
   value: string,
   defaultCountry?: CountryCode,
 ): string {
   if (!value) return '';
 
-  if (value.startsWith('+')) {
+  const formatWithCountry = (val: string, country?: CountryCode) => {
     try {
-      const phoneNumber = parsePhoneNumberFromString(value);
-      if (phoneNumber && phoneNumber.isValid()) {
-        return phoneNumber.formatInternational();
-      }
+      const phoneNumber = parsePhoneNumberFromString(val, country);
+      return phoneNumber?.isValid() ? phoneNumber.formatInternational() : null;
     } catch (error) {
       console.warn('Phone formatting error:', error);
-      return value.startsWith('+') ? value : '+' + value;
+      return null;
     }
-  } else if (defaultCountry) {
+  };
+
+  if (value.startsWith('+')) {
+    return formatWithCountry(value) || value;
+  }
+
+  if (defaultCountry) {
+    const formatted = formatWithCountry(value, defaultCountry);
+    if (formatted) return formatted;
+
     try {
-      const phoneNumber = parsePhoneNumberFromString(value, defaultCountry);
-      if (phoneNumber && phoneNumber.isValid()) {
-        return phoneNumber.formatInternational();
-      }
+      const dummyPhone = parsePhoneNumberFromString('1', defaultCountry);
+      const countryCode = dummyPhone?.formatInternational().split(' ')[0];
+      return value ? `${countryCode} ${value}` : countryCode || `+${value}`;
     } catch (error) {
-      console.warn('Phone parsing error with default country:', error);
-    }
-
-    if (value && !value.startsWith('+')) {
-      try {
-        const dummyPhone = parsePhoneNumberFromString('1', defaultCountry);
-        if (dummyPhone) {
-          const countryCodePart = dummyPhone
-            .formatInternational()
-            .split(' ')[0];
-
-          if (value.length > 0) {
-            return `${countryCodePart} ${value}`;
-          } else {
-            return countryCodePart;
-          }
-        }
-      } catch (error) {
-        console.warn('Country code formatting error:', error);
-        return '+' + value;
-      }
+      console.warn('Country code formatting error:', error);
     }
   }
 
-  return value.startsWith('+') ? value : '+' + value;
+  return `+${value}`;
 }
