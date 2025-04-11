@@ -9,7 +9,7 @@ Cypress.Commands.add('deviceBulkUpload', function () {
         case 'upload':
           return cy
             .get(step.selector)
-            .attachFile('files/d-rec_bulk_upload_meter_read_template.csv', {
+            .attachFile('files/d-rec-device-bulk-upload-template.csv', {
               force: true,
             });
         case 'upload-bulk':
