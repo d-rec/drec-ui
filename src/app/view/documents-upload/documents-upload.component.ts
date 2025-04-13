@@ -7,6 +7,10 @@ export interface DocumentUpload {
   file?: File;
 }
 
+export interface UploadedFilesMap {
+  [documentTitle: string]: File;
+}
+
 @Component({
   selector: 'app-documents-upload',
   templateUrl: './documents-upload.component.html',
@@ -32,18 +36,39 @@ export class DocumentsUploadComponent {
     { title: "Owner's Declaration Document", isRecommended: true },
   ];
 
+  uploadedFiles: UploadedFilesMap = {};
+
   onFileSelected(event: any, document: DocumentUpload) {
     const file = event.target.files[0];
     if (file) {
       document.file = file;
+      this.updateUploadedFiles();
     }
+  }
+
+  updateUploadedFiles() {
+    this.uploadedFiles = {};
+    this.documents.forEach((doc) => {
+      if (doc.file) {
+        this.uploadedFiles[doc.title] = doc.file;
+      }
+    });
+
+    console.log('All uploaded files:', this.uploadedFiles);
+  }
+
+  getAllUploadedFiles(): File[] {
+    return Object.values(this.uploadedFiles);
+  }
+
+  getUploadedFilesCount(): number {
+    return Object.keys(this.uploadedFiles).length;
   }
 
   uploadFile(document: DocumentUpload) {
     if (!document.file) {
       return;
     }
-    // Here you would typically call your service to handle the file upload
     console.log(`Uploading file for ${document.title}:`, document.file);
   }
 
@@ -62,7 +87,6 @@ export class DocumentsUploadComponent {
         'Missing recommended documents:',
         missingRecommendedDocs.map((doc) => doc.title),
       );
-      // Here you might want to show a warning to the user about missing recommended documents
       return;
     }
 
@@ -70,8 +94,5 @@ export class DocumentsUploadComponent {
       console.warn('No documents uploaded');
       return;
     }
-
-    // Here you would typically call your service to submit all documents
-    console.log('Submitting documents:', uploadedDocs);
   }
 }
