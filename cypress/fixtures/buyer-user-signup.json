@@ -102,5 +102,9 @@
     "action": "click",
     "selector": "[test-id='submit-registration']",
     "log": "Button clicked successfully"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='resend-email']"
   }
 ]

@@ -85,5 +85,9 @@
   {
     "action": "click",
     "selector": "[test-id='submit-registration']"
+  }, 
+  {
+    "action": "click",
+    "selector": "[test-id='resend-email']"
   }
 ]
