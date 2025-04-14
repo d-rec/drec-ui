@@ -15,6 +15,7 @@ import { ResetPasswordComponent } from './view/reset-password/reset-password.com
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
+import { VerificationComponent } from './view/verification/verification.component';
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
   {
@@ -36,6 +37,7 @@ const routes: Routes = [
       { path: 'forgot-password', component: ForgetPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
       { path: 'terms-and-conditions', component: TermsAndConditionsComponent },
+      { path: 'verify-otp', component: VerificationComponent },
       {
         path: 'user/acceptInvitaion',
         component: UserAcceptInvitationComponent,

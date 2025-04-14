@@ -41,6 +41,7 @@ export class ConfirmemailComponent implements OnInit {
         this.message = data2.message;
 
         this.toastrService.success(' Successful !!', 'Email Confirmed! ');
+        this.router.navigate(['/verify-otp']);
       },
       error: (err) => {
         this.success = err.error.success;

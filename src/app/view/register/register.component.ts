@@ -206,6 +206,8 @@ export class RegisterComponent implements OnInit {
                 },
               });
           } else {
+            sessionStorage.setItem('phoneNumber', data.phoneNumber);
+            this.router.navigate(['/verify-otp']);
             this.authService.login('auth/login', loginobj).subscribe({
               next: (data) => {
                 if (data['accessToken'] != null) {
@@ -252,7 +254,6 @@ export class RegisterComponent implements OnInit {
               const control = formControls[key];
               control.setErrors(null);
             });
-            // this.router.navigate(['/confirm-email']);
           }
         },
         error: (err) => {
