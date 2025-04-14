@@ -34,20 +34,22 @@
               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
             />
             <button
-              class="btn btn-warning btn-sm"
-              (click)="doc.file ? uploadFile(doc) : openFileInput(i)"
+              class="btn btn-outline-primary btn-sm"
+              (click)="openFileExplorer(i)"
+              [disabled]="doc.isUploaded"
             >
-              {{ doc.file ? 'Upload ' + doc.file.name : 'Upload' }}
+              {{ doc.file ? doc.file.name : 'Select document' }}
+            </button>
+            <button
+              class="btn btn-warning btn-sm"
+              (click)="upload(doc)"
+              [disabled]="!doc.file || doc.isUploaded"
+            >
+              {{ doc.isUploaded ? 'Uploaded' : 'Upload' }}
             </button>
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="d-flex justify-content-end mt-4">
-      <button class="btn btn-primary" (click)="submitDocuments()">
-        Submit Documents
-      </button>
     </div>
   </div>
   <app-footer></app-footer>
