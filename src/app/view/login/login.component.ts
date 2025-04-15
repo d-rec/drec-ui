@@ -4,6 +4,7 @@ import { AuthbaseService } from '../../auth/authbase.service';
 import { UserService, InvitationService } from '../../auth/services';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { ErrorTypes } from 'src/app/utils/enums/error-types.enum';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -113,9 +114,14 @@ export class LoginComponent implements OnInit {
         }
       },
       (error) => {
-        //Error callback
-        console.error('error caught in component', error);
-        this.toastrService.error('Check Your Credential!', 'Login Fail!!');
+        switch (error.error.errorType) {
+          case ErrorTypes.Documents:
+            this.toastrService.error(error.error.message, 'Login Fail!!');
+            this.router.navigate(['/documents-upload']);
+            break;
+          default:
+            this.toastrService.error('Check your credentials!', 'Login Fail!!');
+        }
       },
     );
   }

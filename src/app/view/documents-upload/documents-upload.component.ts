@@ -37,9 +37,9 @@ export class DocumentsUploadComponent {
 
   @Input() title: string = 'Document Uploads';
   @Input() description: string =
-    'For the best chance of approval, there are 5 recommended documents to upload for your facility registration.';
+    '4 recommended documents to upload for your facility registration.';
   @Input() helperText: string =
-    'If you require any help with the document uploads, please create a draft, and contact your Local Issuer.';
+    'If you require any help with the document uploads, please create a draft, and contact our support team.';
   @Input() documents: DocumentUpload[] = [
     {
       title: 'Legal Entity Incorporation certificate/document',
