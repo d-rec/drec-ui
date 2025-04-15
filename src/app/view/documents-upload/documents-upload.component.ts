@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { DocumentsUploadService } from 'src/app/auth/services/documents-upload.service';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 export interface DocumentUpload {
   title: string;
   isRecommended: boolean;
@@ -33,8 +34,9 @@ export class DocumentsUploadComponent {
   constructor(
     private documentService: DocumentsUploadService,
     private toastrService: ToastrService,
+    private router: Router,
   ) {}
-
+  countUploadedDocuments: number = 0;
   @Input() title: string = 'Document Uploads';
   @Input() description: string =
     '4 recommended documents to upload for your facility registration.';
@@ -107,6 +109,10 @@ export class DocumentsUploadComponent {
           document.isUploaded = true;
           document.file = undefined;
           this.toastrService.success('Document uploaded successfully');
+          this.countUploadedDocuments++;
+          if (this.countUploadedDocuments === 4) {
+            this.router.navigate(['/wait-verification']);
+          }
         },
         error: (err) => {
           this.toastrService.error(
