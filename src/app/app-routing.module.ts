@@ -17,6 +17,8 @@ import { UserAcceptInvitationComponent } from './view/user-accept-invitation/use
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
 import { WaitVerificationComponent } from './view/wait-verification/wait-verification.component';
+import { ValidationGuard } from './auth/guards/validation.guard';
+
 const routes: Routes = [
   {
     path: '',
@@ -48,6 +50,7 @@ const routes: Routes = [
   {
     path: '',
     component: WithloginlayoutComponent,
+    canActivate: [ValidationGuard],
     children: [
       { path: '', redirectTo: 'device', pathMatch: 'full' },
 
