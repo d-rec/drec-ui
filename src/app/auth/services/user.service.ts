@@ -50,4 +50,10 @@ export class UserService {
   public getuserById(id: number): Observable<any> {
     return this.httpClient.get<any>(this.url + 'user/' + id);
   }
+  public acceptTermsAndConditions(email: string): Observable<any> {
+    return this.httpClient.patch<any>(
+      this.url + 'user/accept-terms-and-conditons',
+      { email: email },
+    );
+  }
 }

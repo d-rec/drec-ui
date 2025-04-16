@@ -15,6 +15,7 @@ import { ResetPasswordComponent } from './view/reset-password/reset-password.com
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
+import { termsAndConditionsGuard } from './guards/teamrs-and-condition.guard';
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
   {
@@ -45,6 +46,7 @@ const routes: Routes = [
   {
     path: '',
     component: WithloginlayoutComponent,
+    canActivateChild: [termsAndConditionsGuard],
     children: [
       { path: '', redirectTo: 'device', pathMatch: 'full' },
 
