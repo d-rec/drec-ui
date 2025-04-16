@@ -109,6 +109,7 @@ export class LoginComponent implements OnInit {
             'Message Failure!',
             'Check Your Credentials !!',
           );
+          this.router.navigate(['/login']);
         }
       },
       (error) => {
