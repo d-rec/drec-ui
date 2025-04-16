@@ -23,11 +23,8 @@ export class UserService {
       {},
     );
   }
-  public resendConfirmationEmail(email: string): Observable<any> {
-    return this.httpClient.put<any>(
-      this.url + 'user/resend-confirm-email/' + email,
-      {},
-    );
+  public resendConfirmationEmail(): Observable<any> {
+    return this.httpClient.put<any>(this.url + 'user/resend-confirm-email', {});
   }
   public UserForgetPassword(data: any): Observable<any> {
     return this.httpClient.post<any>(this.url + 'user/forget-password', data);
