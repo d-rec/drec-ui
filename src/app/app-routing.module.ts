@@ -16,6 +16,7 @@ import { UserProfileComponent } from './view/user-profile/user-profile.component
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { ValidationGuard } from './auth/guards/validation.guard';
+import { AuthGuard } from './auth/guards/auth.guard';
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
   {
@@ -33,7 +34,11 @@ const routes: Routes = [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      { path: 'confirm-email', component: ConfirmemailComponent },
+      {
+        path: 'confirm-email',
+        canActivate: [AuthGuard],
+        component: ConfirmemailComponent,
+      },
       { path: 'forgot-password', component: ForgetPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
       { path: 'terms-and-conditions', component: TermsAndConditionsComponent },
