@@ -14,23 +14,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
-      # app:
-      #   image: drec
-      #   networks:
-      #     - cypress
       maildev:
         image: maildev/maildev
         ports:
           - 1080:1080
-
-      cypress:
-        image: cypress/included:latest
-        networks:
-          - cypress
-        depends_on:
-          - app
-          - maildev
-
     env:
       MODE: dev
       MNEMONIC: ${{secrets.WALLET_MNEMONIC }}
@@ -123,6 +110,6 @@ jobs:
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
         run: docker-compose down
-# networks:
-#   cypress:
-#     driver: bridge
+networks:
+  cypress:
+    driver: bridge
