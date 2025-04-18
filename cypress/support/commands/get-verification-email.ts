@@ -1,43 +1,39 @@
+// Cypress.Commands.add<any>('getVerificationEmail', () => {
+//   const inboxId = Cypress.env('MAILTRAP_INBOX_ID');
+//   const apiToken = Cypress.env('MAILTRAP_API_TOKEN');
+
+//   return cy.request({
+//     method: 'GET',
+//     url: `https://mailtrap.io/api/accounts/2283066/inboxes/3618064/message`,
+//     headers: {
+//       Authorization: `Bearer ${apiToken}`,
+//     },
+//   });
+// });
+
+// cypress/support/get-verification-email.ts or commands.ts
 Cypress.Commands.add<any>('getVerificationEmail', () => {
   const inboxId = Cypress.env('MAILTRAP_INBOX_ID');
-  const token = Cypress.env('MAILTRAP_API_TOKEN');
+  const apiToken = Cypress.env('MAILTRAP_API_TOKEN');
 
   return cy
     .request({
       method: 'GET',
-      url: 'https://mailtrap.io/api/accounts/2283066/inboxes/3618064/messages',
+      url: `https://mailtrap.io/api/accounts/2283066/inboxes/3618064/messages`,
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${apiToken}`,
       },
     })
-    .then((response) => {
-      console.log(
-        `first=========== ${JSON.stringify(response.body)}=================`,
-      );
-      const messages = response.body;
+    .then((res) => {
+      const latestEmailId = res.body[0]?.id;
+      if (!latestEmailId) throw new Error('No email found in Mailtrap inbox');
 
-      const latest = messages.find((msg: any) =>
-        msg.subject.includes('Verify your email'),
-      );
-
-      // expect(latest, 'Email with verification link').to.exist;
-
-      // return cy
-      //   .request({
-      //     method: 'GET',
-      //     url: `https://mailtrap.io/api/v1/inboxes/3618064/messages/${latest.id}`,
-      //     headers: {
-      //       Authorization: `Bearer ${token}`,
-      //     },
-      //   })
-      //   .then((htmlResponse) => {
-      //     const html = htmlResponse.body;
-      //     const match = html.match(/https?:\/\/[^"]+/);
-      //     const link = match ? match[0] : null;
-
-      //     expect(link, 'Verification link').to.exist;
-
-      //     return cy.wrap(link);
-      //   });
+      return cy.request({
+        method: 'GET',
+        url: `https://mailtrap.io/api/accounts/2283066/inboxes/3618064/messages/${latestEmailId}`,
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+        },
+      });
     });
 });
