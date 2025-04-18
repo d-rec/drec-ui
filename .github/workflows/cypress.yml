@@ -13,6 +13,24 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      app:
+        image: drec
+        networks:
+          - cypress
+      maildev:
+        image: maildev/maildev
+        ports:
+          - 1080:1080
+        networks:
+          - cypress
+      cypress:
+        image: cypress/included:latest
+        networks:
+          - cypress
+        depends_on:
+          - app
+          - maildev
 
     env:
       MODE: dev
@@ -84,16 +102,16 @@ jobs:
              echo "backend is not ready yet..."
            done
            echo "backend is ready!"
-      # - name: Install and Start Frontend
-      #   run: |
-      #     npm install
-      #     nohup npm run start &  # Start frontend in the background
-      #     echo "Waiting for Frontend to be ready..."
-      #     until curl -s http://localhost:4200; do
-      #       sleep 5
-      #       echo "Frontend is not ready yet..."
-      #     done
-      #     echo "Frontend is ready!"
+      - name: Install and Start Frontend
+        run: |
+          npm install
+          nohup npm run start &  # Start frontend in the background
+          echo "Waiting for Frontend to be ready..."
+          until curl -s http://localhost:4200; do
+            sleep 5
+            echo "Frontend is not ready yet..."
+          done
+          echo "Frontend is ready!"
       - name: Wait for Maildev to be ready
         run: |
           until curl -s http://maildev:1080; do
