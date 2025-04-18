@@ -13,24 +13,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      app:
-        image: drec
-        networks:
-          - cypress
-      maildev:
-        image: maildev/maildev
-        ports:
-          - 1080:1080
-        networks:
-          - cypress
-      cypress:
-        image: cypress/included:latest
-        networks:
-          - cypress
-        depends_on:
-          - app
-          - maildev
 
     env:
       MODE: dev
