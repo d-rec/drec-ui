@@ -25,7 +25,7 @@ jobs:
       maildev:
         image: maildev/maildev
         ports:
-          - "1080:1080"
+          - 1080:1080
         networks:
           - cypress
       cypress:
