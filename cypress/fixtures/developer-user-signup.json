@@ -13,7 +13,7 @@
   {
     "action": "type",
     "selector": "[test-id='email']",
-    "value": "developer3@energy.org"
+    "value": "developer@energy.org"
   },
   {
     "action": "type",
@@ -32,7 +32,7 @@
   {
     "action": "type",
     "selector": "[test-id='organization-name']",
-    "value": "developers3"
+    "value": "developers"
   },
   {
     "action": "type",
