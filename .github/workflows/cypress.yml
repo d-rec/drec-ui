@@ -11,8 +11,8 @@ on:
       - stage
       - prod
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  # test:
+  #   runs-on: ubuntu-latest
 
   cypress:
     needs: build
