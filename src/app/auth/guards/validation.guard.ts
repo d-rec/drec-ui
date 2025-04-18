@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router, UrlTree } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { UserService } from '../services/user.service';
 import { AuthbaseService } from '../authbase.service';
@@ -16,10 +16,6 @@ export class ValidationGuard implements CanActivate {
   ) {}
 
   canActivate(): Observable<boolean | UrlTree> {
-    if (!this.authService.isLoggedIn()) {
-      return of(this.router.createUrlTree(['/login']));
-    }
-
     return this.userService.userProfile().pipe(
       map((user) => {
         if (user.emailVerifiedAt === null) {

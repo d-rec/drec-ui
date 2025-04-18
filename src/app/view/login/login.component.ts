@@ -4,6 +4,8 @@ import { AuthbaseService } from '../../auth/authbase.service';
 import { UserService, InvitationService } from '../../auth/services';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { decodeJwtToken, storeUserSession } from '../../utils/token-utils';
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -39,25 +41,26 @@ export class LoginComponent implements OnInit {
     return base64Payload;
   }
   onSubmit() {
-    this.authService.login('auth/login', this.loginForm.value).subscribe(
-      (data) => {
+    this.authService.login('auth/login', this.loginForm.value).subscribe({
+      next: (data) => {
         if (data['accessToken'] != null) {
-          sessionStorage.setItem('access-token', data['accessToken']);
-          const jwtObj = JSON.parse(
-            this.b64DecodeUnicode(
-              this.padBase64(data['accessToken'].split('.')[1]),
-            ),
-          );
+          // Use utility function to store user session data
+          storeUserSession(data['accessToken']);
 
-          //sessionStorage.setItem('loginuser', jwtObj);
-          sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-          //var obj = JSON.parse(sessionStorage.loginuser);
+          // Get the decoded token
+          const jwtObj = decodeJwtToken(data['accessToken']);
+
+          // Get additional user profile data
           this.userService.userProfile().subscribe({
-            next: (data1) => {
-              sessionStorage.setItem('status', data1.status);
-              sessionStorage.setItem('apiuserId', data1.api_user_id);
-              if (data1.status != 'Pending' && data1.organization != null) {
-                if (data1.organization.organizationType === 'Buyer') {
+            next: (userData) => {
+              // Store additional user data
+              storeUserSession(data['accessToken'], userData);
+
+              if (
+                userData.status != 'Pending' &&
+                userData.organization != null
+              ) {
+                if (userData.organization.organizationType === 'Buyer') {
                   this.router.navigate(['/myreservation']);
                 } else if (jwtObj.role === 'Admin') {
                   this.router.navigate(['/admin/All_devices']);
@@ -70,13 +73,13 @@ export class LoginComponent implements OnInit {
                 );
               } else {
                 this.inviteservice.getinvitationByemail().subscribe({
-                  next: (data) => {
-                    const invitationId = data.id;
+                  next: (invitationData) => {
+                    const invitationId = invitationData.id;
                     const loginuser = JSON.parse(
                       sessionStorage.getItem('loginuser') as any,
                     );
                     // Update the role property of the loginuser object with the new value
-                    loginuser.role = data.role;
+                    loginuser.role = invitationData.role;
                     // Save the updated loginuser object back to sessionStorage
                     sessionStorage.setItem(
                       'loginuser',
@@ -112,12 +115,12 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['/login']);
         }
       },
-      (error) => {
+      error: (error) => {
         //Error callback
         console.error('error caught in component', error);
         this.toastrService.error('Check Your Credential!', 'Login Fail!!');
       },
-    );
+    });
   }
 
   @Output() submitEM = new EventEmitter();
