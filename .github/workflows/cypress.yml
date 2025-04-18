@@ -31,8 +31,6 @@ jobs:
         image: cypress/included
         depends_on:
           - maildev
-    networks:
-      - appnet
 
 networks:
   appnet:
