@@ -51,6 +51,7 @@ Cypress.Commands.add('developerUserSignup', function () {
       cy.waitUntil(
         () =>
           cy.request('http://localhost:1080/email').then((res) => {
+            console.log('📬 Fetched emails:', res.body);
             const email = res.body.find(
               (e) => e.to[0].address === 'developer@energy.org',
             );
