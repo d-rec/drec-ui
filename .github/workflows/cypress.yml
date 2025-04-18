@@ -116,6 +116,13 @@ jobs:
             echo "Frontend is not ready yet..."
           done
           echo "Frontend is ready!"
+      - name: Wait for Maildev to be ready
+        run: |
+          until curl -s http://maildev:1080; do
+            echo "Waiting for Maildev to be ready..."
+            sleep 5
+          done
+          echo "Maildev is ready!"
       - name: Run Cypress Tests
         run: pnpx cypress run
       - name: Tear Down Docker Environment
