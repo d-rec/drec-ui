@@ -19,6 +19,23 @@ jobs:
         ports:
           - 1080:1080
           - 1025:1025
+
+      frontend:
+        build: .
+        depends_on:
+          - maildev
+        networks:
+          - appnet
+
+      cypress:
+        image: cypress/included
+        depends_on:
+          - maildev
+    networks:
+      - appnet
+
+networks:
+  appnet:
     env:
       MODE: dev
       MNEMONIC: ${{secrets.WALLET_MNEMONIC }}
