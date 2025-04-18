@@ -20,11 +20,6 @@ jobs:
           - 1080:1080
           - 1025:1025
 
-      frontend:
-        build: .
-        depends_on:
-          - maildev
-
 networks:
   appnet:
     env:
