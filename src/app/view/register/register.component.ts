@@ -176,7 +176,6 @@ export class RegisterComponent implements OnInit {
       return null;
     }
 
-    // Use utility functions to decode and store token
     const jwtObj = decodeJwtToken(accessToken);
     storeUserSession(accessToken);
 

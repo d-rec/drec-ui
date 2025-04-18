@@ -30,38 +30,27 @@ export class ConfirmemailComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    // Component initialization
-  }
+  ngOnInit() {}
 
   getConfirmemail(accesstoken: any) {
-    console.log('Confirming email with token:', accesstoken);
     this.userService.UserConfirmEmail(accesstoken).subscribe({
       next: (data) => {
         this.message = data.message;
         this.success = data.success;
 
         if (data.success && data.accessToken) {
-          // Use utility function to store user session
           storeUserSession(data.accessToken);
 
-          // Get JWT data for navigation
           const jwtObj = decodeJwtToken(data.accessToken);
-          console.log('JWT data from token:', jwtObj);
 
           this.toastrService.success(
             'Email verified successfully. You are now logged in!',
           );
 
-          // Get user profile to set additional session data
           this.userService.userProfile().subscribe({
             next: (userData) => {
-              console.log('User profile data:', userData);
-
-              // Update session with user profile data
               storeUserSession(data.accessToken, userData);
 
-              // Navigate based on role
               if (
                 userData.organization &&
                 userData.organization.organizationType === 'Buyer'
@@ -86,7 +75,6 @@ export class ConfirmemailComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('EMAIL CONFIRMATION ERROR:', err);
         this.success = false;
         this.message = err.error?.message || 'Unknown error occurred';
         this.toastrService.error(this.message || 'Email confirmation failed');

@@ -44,16 +44,11 @@ export class LoginComponent implements OnInit {
     this.authService.login('auth/login', this.loginForm.value).subscribe({
       next: (data) => {
         if (data['accessToken'] != null) {
-          // Use utility function to store user session data
           storeUserSession(data['accessToken']);
-
-          // Get the decoded token
           const jwtObj = decodeJwtToken(data['accessToken']);
 
-          // Get additional user profile data
           this.userService.userProfile().subscribe({
             next: (userData) => {
-              // Store additional user data
               storeUserSession(data['accessToken'], userData);
 
               if (
