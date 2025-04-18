@@ -24,8 +24,6 @@ jobs:
         build: .
         depends_on:
           - maildev
-        networks:
-          - appnet
 
 networks:
   appnet:
