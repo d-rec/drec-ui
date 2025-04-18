@@ -29,14 +29,19 @@ Cypress.Commands.add('developerUserSignup', function () {
     cy.wait(3000);
     cy.request('http://localhost:1080/email').then((res) => {
       const email = res.body.find(
-        (e) => e.to[0].address === 'developer1@energy.org',
+        (e) => e.to[0].address === 'developer3@energy.org',
       );
+      cy.log('============', JSON.stringify(email), '=================');
       expect(email).to.exist;
 
       const linkRegex = /https?:\/\/[^\s"]+/;
       const emailBody = email.text || email.html;
       expect(emailBody).to.exist;
-      cy.log(emailBody);
+      cy.log(
+        '111111111111111111',
+        JSON.stringify(emailBody),
+        '22222222222222222222222',
+      );
 
       const verificationLink = emailBody.match(linkRegex)?.[0];
       expect(verificationLink, 'Verification link should exist in email').to
