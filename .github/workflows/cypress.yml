@@ -100,7 +100,7 @@ jobs:
           echo "Frontend is ready!"
       - name: Wait for Maildev to be ready
         run: |
-          until curl -v http://localhost:1080 2>&1 | tee /tmp/maildev-check.log;; do
+          until curl -v http://localhost:1080 2>&1 | tee /tmp/maildev-check.log; do
             echo "Waiting for Maildev to be ready..."
             sleep 5
           done
