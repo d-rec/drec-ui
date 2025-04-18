@@ -21,5 +21,10 @@ declare namespace Cypress {
     accountSettings(): Chainable<void>;
     meterReadBulkUpload(filename: string): Chainable<void>;
     certifiedMeterRead(): Chainable<void>;
+    getVerificationEmail(...args: any[]): Chainable<void>;
+    checkEmailForSpamTriggers(...args: any[]): Chainable<void>;
+    checkEmailBranding(...args: any[]): Chainable<void>;
+    sendEmailToMailtrap(...args: any[]): Chainable<void>;
+    checkMessageDelivery(...args: any[]): Chainable<void>;
   }
 }

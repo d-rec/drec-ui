@@ -10,5 +10,7 @@ export default defineConfig({
     ADMIN_EMAIL: 'drec@energy.org',
     ADMIN_PASSWORD: '1234Rc',
     UI_BASE_URL: 'http://localhost:4200',
+    MAILTRAP_API_TOKEN: 'e7ef1dc4f7d32417988eb86460ba65be',
+    MAILTRAP_INBOX_ID: '3618064',
   },
 });

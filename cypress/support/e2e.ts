@@ -1,3 +1,4 @@
+import 'cypress-mailisk';
 import '../support/commands/admin-login';
 import '../support/commands/account-setting';
 import '../support/commands/add-aggregate-meter-reads';
@@ -18,3 +19,4 @@ import '../support/commands/developer-user-signup';
 import '../support/commands/device-bulk-upload';
 import '../support/commands/meter-read-bulk-upload';
 import '../support/commands/certified-meter-read';
+import '../support/commands/get-verification-email';
