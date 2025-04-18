@@ -110,6 +110,3 @@ jobs:
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
         run: docker-compose down
-networks:
-  cypress:
-    driver: bridge
