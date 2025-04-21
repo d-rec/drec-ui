@@ -19,9 +19,6 @@ jobs:
         ports:
           - 1080:1080
           - 1025:1025
-
-networks:
-  appnet:
     env:
       MODE: dev
       MNEMONIC: ${{secrets.WALLET_MNEMONIC }}
