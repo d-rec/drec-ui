@@ -14,11 +14,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     services:
-      maildev:
-        image: maildev/maildev
-        ports:
-          - 1080:1080
-          - 1025:1025
 
 networks:
   appnet:
