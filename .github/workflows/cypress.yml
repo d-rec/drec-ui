@@ -93,6 +93,9 @@ jobs:
             echo "Frontend is not ready yet..."
           done
           echo "Frontend is ready!"
+      - name: Start MailDev
+        run: |
+          docker run -d -p 1080:1080 -p 1025:1025 --name maildev maildev/maildev
       - name: Wait for Maildev to be ready
         run: |
           until curl -v http://localhost:1080 2>&1 | tee /tmp/maildev-check.log; do
