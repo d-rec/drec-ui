@@ -2,7 +2,7 @@
   {
     "action": "type",
     "selector": "[test-id='login-username']",
-    "value": "buyertest1@energy.org"
+    "value": "buyertest32@energy.org"
   },
   {
     "action": "type",
