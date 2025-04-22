@@ -59,7 +59,6 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
             .click();
         case 'submit':
           cy.get(step.selector).click('center', { force: true });
-
           return cy.contains('Read Added!!').should('be.visible');
       }
     });
