@@ -12,7 +12,11 @@
     "lint": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\"",
     "lint:error": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --quiet",
     "lint:fix": "eslint \"{src,migrations,test}/**/*{.ts,.tsx}\" --fix",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org na-ssd --project drec-frontend ./ && sentry-cli sourcemaps upload --org na-ssd --project drec-frontend ./"
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org na-ssd --project drec-frontend ./ && sentry-cli sourcemaps upload --org na-ssd --project drec-frontend ./",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:patch": "standard-version --release-as patch",
+    "release:major": "standard-version --release-as major"
   },
   "private": true,
   "dependencies": {
@@ -47,7 +51,8 @@
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "web3": "^4.9.0",
-    "zone.js": "~0.12.0"
+    "zone.js": "~0.12.0",
+    "standard-version": "^9.5.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.0.3",
@@ -69,5 +74,10 @@
     "karma-jasmine-html-reporter": "~2.0.0",
     "prettier": "3.2.5",
     "typescript": "~4.8.2"
+  },
+  "standard-version": {
+    "scripts": {
+      "postchangelog": "prettier --write ./CHANGELOG.md"
+    }
   }
 }
