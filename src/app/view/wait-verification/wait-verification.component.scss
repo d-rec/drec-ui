@@ -6,12 +6,6 @@ $gray: #3f3f3f;
 $white: #fff;
 $danger: #f44336;
 
-// :host {
-//     display: flex;
-//     justify-content: center;
-//     margin: 100px 0px;
-
-//   }
 .mat-card {
   width: 500px;
   min-width: 500px;
@@ -31,9 +25,6 @@ $danger: #f44336;
   min-width: 500px;
 }
 
-// .mat-form-field {
-//   display: block;
-// }
 .mat-card-title .mat-card-content {
   display: flex;
   justify-content: center;

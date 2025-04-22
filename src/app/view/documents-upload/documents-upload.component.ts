@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { DocumentsUploadService } from 'src/app/auth/services/documents-upload.service';
+import { DocumentsUploadService } from '../../auth/services/documents-upload.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 export interface DocumentUpload {
