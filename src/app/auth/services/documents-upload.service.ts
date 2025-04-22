@@ -11,19 +11,22 @@ export class DocumentsUploadService {
   constructor(private httpClient: HttpClient) {}
 
   uploadDocument(
-    targetId: number,
     targetType: string,
     documentType: string,
     file: File,
   ): Observable<any> {
-    console.log(targetId, targetType, documentType, file);
     const params: any = {
       targetType,
       documentType,
     };
-    const searchUrl = `${this.url}document-uploads/${targetId}`;
+    const searchUrl = `${this.url}document-uploads`;
     const formData = new FormData();
     formData.append('document', file);
     return this.httpClient.post(searchUrl, formData, { params });
+  }
+
+  getDocumentUploads(): Observable<any> {
+    const searchUrl = `${this.url}document-uploads`;
+    return this.httpClient.get(searchUrl);
   }
 }

@@ -38,7 +38,9 @@
               (click)="openFileExplorer(i)"
               [disabled]="doc.isUploaded"
             >
-              {{ doc.file ? doc.file.name : 'Select document' }}
+              {{
+                doc.file ? shortenFileName(doc.file.name) : 'Select document'
+              }}
             </button>
             <button
               class="btn btn-warning btn-sm"
