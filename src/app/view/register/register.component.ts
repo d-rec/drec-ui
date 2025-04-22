@@ -185,9 +185,6 @@ export class RegisterComponent implements OnInit {
     const paddedPayload = this.padBase64(encodedPayload);
     const jwtObj = JSON.parse(this.b64DecodeUnicode(paddedPayload));
 
-    sessionStorage.setItem('access-token', accessToken);
-    sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-
     return jwtObj;
   }
 
@@ -282,7 +279,8 @@ export class RegisterComponent implements OnInit {
           this.handleApiUserRegistration(data, loginCredentials);
           return;
         }
-        this.handleUserLogin(loginCredentials);
+        sessionStorage.setItem('phoneNumber', data.phoneNumber);
+        this.router.navigate(['/verify-otp']);
         this.registerForm.reset();
       },
       error: (err) => {
