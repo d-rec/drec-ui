@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
 export class TermsAndConditionsComponent {
   termsForm: FormGroup;
   isSubmitting = false;
-  email: string = JSON.parse(sessionStorage.getItem('loginuser') || '{}').email;
+
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
@@ -25,11 +25,11 @@ export class TermsAndConditionsComponent {
 
   onSubmit() {
     this.isSubmitting = true;
-    this.termsAndConditions(this.email);
+    this.termsAndConditions();
   }
 
-  termsAndConditions(email: string) {
-    this.userService.acceptTermsAndConditions(email).subscribe({
+  termsAndConditions() {
+    this.userService.acceptTermsAndConditions().subscribe({
       next: () => {
         const redirectUrl = sessionStorage.getItem('redirectUrl');
         if (redirectUrl) {

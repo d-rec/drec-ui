@@ -26,7 +26,7 @@ export const termsAndConditionsGuard: CanActivateFn = async (
 
     if (userData.terms_accept_at === null) {
       sessionStorage.setItem('redirectUrl', state.url);
-      await router.navigate(['/terms-and-conditions']);
+      window.location.href = '/terms-and-conditions';
       return false;
     }
 
