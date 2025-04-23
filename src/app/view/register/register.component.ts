@@ -34,6 +34,7 @@ export class RegisterComponent implements OnInit {
   hide1 = true;
   matchconfirm: boolean = false;
   showPopup: boolean = false;
+  response: any;
 
   constructor(
     private authService: AuthbaseService,
@@ -171,150 +172,136 @@ export class RegisterComponent implements OnInit {
         this.registerForm.get(input)?.touched);
     return validation;
   }
+
+  private handleJwtAuthentication(accessToken: string): any {
+    if (!accessToken) {
+      this.toastrService.info('Message Failure!', 'check your credentials !!');
+      this.router.navigate(['/login']);
+      return null;
+    }
+
+    const tokenParts = accessToken.split('.');
+    const encodedPayload = tokenParts[1];
+    const paddedPayload = this.padBase64(encodedPayload);
+    const jwtObj = JSON.parse(this.b64DecodeUnicode(paddedPayload));
+
+    sessionStorage.setItem('access-token', accessToken);
+    sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
+
+    return jwtObj;
+  }
+
+  private handleUserLogin(loginCredentials: any, isApiUser = false): void {
+    this.authService.login('auth/login', loginCredentials).subscribe({
+      next: (data) => {
+        const jwtObj = this.handleJwtAuthentication(data['accessToken']);
+        if (!jwtObj) return;
+
+        if (isApiUser) {
+          this.handleApiUserLogin();
+          return;
+        }
+
+        const route =
+          jwtObj.role === 'Buyer' ? '/myreservation' : '/device/AllList';
+        this.router.navigate([route]);
+        this.toastrService.success(
+          `login user ${jwtObj.email}!`,
+          'login Success',
+        );
+      },
+      error: (error) => {
+        console.error('Login error:', error);
+        this.toastrService.error(
+          `Error: ${error.error?.message || 'Unknown error'}, Check your credentials!`,
+          'Login Failed!',
+        );
+      },
+    });
+  }
+
+  private handleApiUserLogin(): void {
+    this.userService.userProfile().subscribe({
+      next: (userData: any) => {
+        sessionStorage.setItem('apiuserId', userData.api_user_id);
+        sessionStorage.setItem('status', userData.status);
+        this.router.navigate(['/apiuser/permission/request/form']);
+      },
+      error: (err) => {
+        this.toastrService.error('Error!', err.error.message);
+      },
+    });
+  }
+
+  private handleApiUserRegistration(data: any, loginCredentials: any): void {
+    this.response = data;
+    this.showPopup = true;
+    this.toastrService.success('User Register Successful');
+
+    this.authService
+      .ApiUserExportAccesskey(
+        'user/export-accesskey/',
+        this.response.api_user_id,
+      )
+      .subscribe({
+        next: (keydata) => {
+          this.downloadAccessKey(keydata);
+          setTimeout(() => this.handleUserLogin(loginCredentials, true), 1000);
+        },
+      });
+  }
+
+  private downloadAccessKey(keydata: any): void {
+    const blob = new Blob([keydata], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.response.api_user_id}.pem`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    this.showPopup = false;
+  }
+
+  onSubmit(): void {
+    const formValues = { ...this.registerForm.value };
+
+    if (formValues.phoneNumber) {
+      formValues.phoneNumber = formValues.phoneNumber.replace(/\s+/g, '');
+    }
+
+    const loginCredentials = {
+      username: formValues.email,
+      password: formValues.password,
+    };
+
+    this.authService.PostAuth('user/register', formValues).subscribe({
+      next: (data) => {
+        if (formValues.organizationType === 'ApiUser') {
+          this.handleApiUserRegistration(data, loginCredentials);
+          return;
+        }
+        this.handleUserLogin(loginCredentials);
+        this.registerForm.reset();
+      },
+      error: (err) => {
+        console.error('Registration error:', err);
+        this.toastrService.error(
+          err.error?.message || 'Registration failed',
+          'Error!',
+        );
+      },
+    });
+  }
+
   padBase64(token: any) {
     const base64 = token.replace('-', '+').replace('_', '/');
     return base64;
   }
+
   b64DecodeUnicode(token: any) {
     const base64Payload = window.atob(token);
     return base64Payload;
-  }
-  response: any;
-  onSubmit(): void {
-    this.authService
-      .PostAuth('user/register', this.registerForm.value)
-      .subscribe({
-        next: (data) => {
-          const loginobj = {
-            username: this.registerForm.value.email,
-            password: this.registerForm.value.password,
-          };
-          if (this.registerForm.value.organizationType === 'ApiUser') {
-            this.response = data;
-            this.toastrService.success('User Register Successfull');
-            this.showPopup = true;
-            this.authService
-              .ApiUserExportAccesskey(
-                'user/export-accesskey/',
-                this.response.api_user_id,
-              )
-              .subscribe({
-                next: (keydata) => {
-                  setTimeout(() => {
-                    this.showkeypopup(keydata, loginobj);
-                  }, 1000);
-                },
-              });
-          } else {
-            this.authService.login('auth/login', loginobj).subscribe({
-              next: (data) => {
-                if (data['accessToken'] != null) {
-                  sessionStorage.setItem('access-token', data['accessToken']);
-                  const jwtObj = JSON.parse(
-                    this.b64DecodeUnicode(
-                      this.padBase64(data['accessToken'].split('.')[1]),
-                    ),
-                  );
-                  //sessionStorage.setItem('loginuser', jwtObj);
-                  sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-                  //var obj = JSON.parse(sessionStorage.loginuser);
-
-                  if (jwtObj.role === 'Buyer') {
-                    this.router.navigate(['/myreservation']);
-                  } else {
-                    this.router.navigate(['/device/AllList']);
-                  }
-                  this.toastrService.success(
-                    'login user ' + jwtObj.email + '!',
-                    'login Success',
-                  );
-                } else {
-                  this.toastrService.info(
-                    'Message Failure!',
-                    'check your credentials !!',
-                  );
-                  this.router.navigate(['/login']);
-                }
-              },
-              error: (err) => {
-                //Error callback
-                console.error('error caught in component', err);
-                this.toastrService.error(
-                  'check your credentials!',
-                  'login Fail!!',
-                );
-              },
-            });
-            this.registerForm.reset();
-            const formControls = this.registerForm.controls;
-
-            Object.keys(formControls).forEach((key) => {
-              const control = formControls[key];
-              control.setErrors(null);
-            });
-            // this.router.navigate(['/confirm-email']);
-          }
-        },
-        error: (err) => {
-          //Error callback
-          console.error('error caught in component', err);
-          this.toastrService.error('error!', err.error.message);
-        },
-      });
-  }
-  showkeypopup(ketdata: any, logininfo: any) {
-    setTimeout(() => {
-      const blob = new Blob([ketdata], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${this.response.api_user_id}.pem`; // Replace with the desired file name
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url); //
-      // this.toastrService.success('Access Key downloaded successfully' ,'Please keep it confidential');
-      this.showPopup = false;
-      this.loginapiuser(logininfo);
-    }, 5000);
-  }
-  loginapiuser(logininfo: any) {
-    this.authService.login('auth/login', logininfo).subscribe({
-      next: (data: any) => {
-        if (data['accessToken'] != null) {
-          sessionStorage.setItem('access-token', data['accessToken']);
-          const jwtObj = JSON.parse(
-            this.b64DecodeUnicode(
-              this.padBase64(data['accessToken'].split('.')[1]),
-            ),
-          );
-          sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-          this.userService.userProfile().subscribe({
-            next: (data1: any) => {
-              sessionStorage.setItem('apiuserId', data1.api_user_id);
-              sessionStorage.setItem('status', data1.status);
-              this.router.navigate(['/apiuser/permission/request/form']);
-            },
-            error: (err: any) => {
-              this.toastrService.error('Error!', err.error.message);
-            },
-          });
-        } else {
-          this.toastrService.info(
-            'Message Failure!',
-            'Check your credentials !!',
-          );
-          this.router.navigate(['/login']);
-        }
-      },
-      error: (error) => {
-        //Error callback
-        console.error('error caught in component', error);
-        this.toastrService.error(
-          'Error:' + error.error.message + ',Check your credentials!',
-          'Login Fail!!',
-        );
-      },
-    });
   }
 }
