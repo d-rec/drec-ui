@@ -37,7 +37,7 @@ export class SimpleMapComponent implements AfterViewInit {
     const iconUrl = 'assets/marker-icon.png';
     const shadowUrl = 'assets/marker-shadow.png';
 
-    // @ts-ignore
+    // @ts-expect-error - Leaflet typings don't expose _getIconUrl but it needs to be deleted
     delete L.Icon.Default.prototype._getIconUrl;
 
     L.Icon.Default.mergeOptions({
@@ -50,11 +50,15 @@ export class SimpleMapComponent implements AfterViewInit {
   // Map options
   options = {
     layers: [
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }),
+      L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+        {
+          minZoom: 3,
+          maxZoom: 17,
+          attribution:
+            '&copy; <a href="https://carto.com/">carto.com</a> contributors',
+        },
+      ),
     ],
     zoom: 3,
     center: L.latLng(20, 0), // Center of the world map

@@ -80,7 +80,8 @@ export class AdminAlldevicesComponent {
   orglist: OrganizationInformation[] = [];
   showapiuser_devices: boolean = false;
   apiuserId: string;
-  showMap: boolean = true;
+  hideMap: boolean = false;
+  hideFilterDevices: boolean = false;
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -420,6 +421,10 @@ export class AdminAlldevicesComponent {
   }
 
   toggleMap() {
-    this.showMap = !this.showMap;
+    this.hideMap = !this.hideMap;
+  }
+
+  toggleFilterDevices() {
+    this.hideFilterDevices = !this.hideFilterDevices;
   }
 }
