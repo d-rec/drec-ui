@@ -9,7 +9,7 @@ import { AddUsersComponent } from './add-users/add-users.component';
 import { InvitationformComponent } from './invitationform/invitationform.component';
 import { ApiuserComponent } from './apiuser/apiuser.component';
 import { SharedModule } from '../../shared.module';
-import { SimpleMapModule } from '../map/simple-map.module';
+import { MapDevicesModule } from '../map/map-devices.module';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -25,7 +25,7 @@ import { SimpleMapModule } from '../map/simple-map.module';
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
-    SimpleMapModule,
+    MapDevicesModule,
   ],
 })
 export class AdminModule {}
