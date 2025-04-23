@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.component';
 import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
-import { WithloginunverifiedlayoutComponent } from './nav/withloginunverifiedlayout/withloginunverifiedlayout.component';
+import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlayout/with-login-unverified-layout.component';
 import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
@@ -46,7 +46,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    component: WithloginunverifiedlayoutComponent,
+    component: WithLoginUnverifiedLayoutComponent,
     canActivate: [AuthGuard],
     children: [
       // Other routes available only to logged-in but unverified users
