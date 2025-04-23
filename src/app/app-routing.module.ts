@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.component';
-import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
+import { WithLoginLayoutComponent } from './nav/withloginlayout/with-login-layout.component';
+import { WithoutLoginLayoutComponent } from './nav/withoutloginlayout/without-login-layout.component';
 import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlayout/with-login-unverified-layout.component';
 import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
@@ -29,7 +29,7 @@ const routes: Routes = [
 
   {
     path: '',
-    component: WithoutloginlayoutComponent,
+    component: WithoutLoginLayoutComponent,
     data: { title: 'First Component' },
     children: [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -55,7 +55,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    component: WithloginlayoutComponent,
+    component: WithLoginLayoutComponent,
     canActivate: [AuthVerifiedGuard],
     children: [
       { path: '', redirectTo: 'device', pathMatch: 'full' },

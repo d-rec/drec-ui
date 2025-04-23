@@ -16,8 +16,8 @@ import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
-import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.component';
-import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
+import { WithLoginLayoutComponent } from './nav/withloginlayout/with-login-layout.component';
+import { WithoutLoginLayoutComponent } from './nav/withoutloginlayout/without-login-layout.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
@@ -52,9 +52,9 @@ import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlay
     CertificateComponent,
     MyreservationComponent,
     CertificateDetailsComponent,
-    WithloginlayoutComponent,
+    WithLoginLayoutComponent,
     WithLoginUnverifiedLayoutComponent,
-    WithoutloginlayoutComponent,
+    WithoutLoginLayoutComponent,
     RedemptionReportComponent,
     // AddreadComponent,
     AddReservationComponent,
