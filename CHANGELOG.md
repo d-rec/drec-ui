@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## 0.1.0 (2025-04-01)
 
-### Features
+### Features(0.1.0)
 
 * add autometed test for account setting ([#239](https://github.com/d-rec/drec-ui/issues/239)) ([39a1d41](https://github.com/d-rec/drec-ui/commit/39a1d412f2cb89e1161a2606eb16874d2fb06563))
 * add second on start and end dates ([#284](https://github.com/d-rec/drec-ui/issues/284)) ([2b7d7b7](https://github.com/d-rec/drec-ui/commit/2b7d7b7a70c2ec8d9820e5eb6cfbf332cffbcb82))
@@ -25,7 +25,7 @@ All notable changes to this project will be documented in this file. See [standa
 * Updated the typo ([a46926a](https://github.com/d-rec/drec-ui/commit/a46926a299b58e06a638423033eb5b89a00aa964))
 * Updating the d-rec logo ([1e9c71d](https://github.com/d-rec/drec-ui/commit/1e9c71d3cb22b4550f1e31059b42440763468969))
 
-### Bug Fixes
+### Bug Fixes(0.1.0)
 
 * build issue on dev ([afa9846](https://github.com/d-rec/drec-ui/commit/afa9846fc5c397f5b1ae094f9bfc6c88ca94e21a))
 * dashboard icons ([f7e6489](https://github.com/d-rec/drec-ui/commit/f7e64896139e723a99f99e697b46fb333da67e02))
