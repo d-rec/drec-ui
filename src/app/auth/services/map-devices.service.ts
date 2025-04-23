@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
-import { Device } from '../../view/map/models/device.model';
+import { Device } from '../../models/device.model';
 
 @Injectable({
   providedIn: 'root',

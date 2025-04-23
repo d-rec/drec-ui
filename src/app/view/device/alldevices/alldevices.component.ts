@@ -82,6 +82,8 @@ export class AlldevicesComponent {
   orgname: string;
   orgId: number;
   filteredOrgList: Observable<any[]>;
+  hideMap: boolean = false;
+  hideFilterDevices: boolean = false;
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -441,6 +443,14 @@ export class AlldevicesComponent {
         this.toastrService.error(response.message, 'Failure');
       }
     });
+  }
+
+  toggleMap() {
+    this.hideMap = !this.hideMap;
+  }
+
+  toggleFilterDevices() {
+    this.hideFilterDevices = !this.hideFilterDevices;
   }
 }
 
