@@ -68,7 +68,6 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .wait(1000);
         case 'submit':
           cy.get(step.selector).click('center', { force: true });
-
         // return cy.contains('Read Added!!').should('be.visible');
       }
     });
