@@ -33,6 +33,7 @@
     "@angular/platform-browser": "^15.0.0",
     "@angular/platform-browser-dynamic": "^15.0.0",
     "@angular/router": "^15.0.0",
+    "@asymmetrik/ngx-leaflet": "^15.0.1",
     "@energyweb/issuer": "7.0.1",
     "@energyweb/utils-general": "^11.2.3",
     "@sentry/angular": "^8.42.0",
@@ -45,6 +46,7 @@
     "express": "^4.19.2",
     "follow-redirects": "^1.15.6",
     "ip": "^2.0.1",
+    "leaflet": "^1.9.4",
     "libphonenumber-js": "^1.12.6",
     "marked": "^4.3.0",
     "moment": "^2.30.1",
@@ -52,10 +54,10 @@
     "ngx-markdown": "^15.1.2",
     "ngx-toastr": "^16.0.1",
     "rxjs": "~7.5.0",
+    "standard-version": "^9.5.0",
     "tslib": "^2.3.0",
     "web3": "^4.9.0",
-    "zone.js": "~0.12.0",
-    "standard-version": "^9.5.0"
+    "zone.js": "~0.12.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^15.0.3",
@@ -63,6 +65,7 @@
     "@angular/compiler-cli": "^15.0.0",
     "@types/bn.js": "^5.1.5",
     "@types/jasmine": "~4.3.0",
+    "@types/leaflet": "^1.9.17",
     "@types/marked": "^4.3.2",
     "@types/react": "^18.0.26",
     "@typescript-eslint/eslint-plugin": "^7.9.0",
