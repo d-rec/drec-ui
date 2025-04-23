@@ -80,6 +80,7 @@ export class AdminAlldevicesComponent {
   orglist: OrganizationInformation[] = [];
   showapiuser_devices: boolean = false;
   apiuserId: string;
+  showMap: boolean = true;
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -416,5 +417,9 @@ export class AdminAlldevicesComponent {
         this.toastrService.error('Failure', err);
       },
     });
+  }
+
+  toggleMap() {
+    this.showMap = !this.showMap;
   }
 }

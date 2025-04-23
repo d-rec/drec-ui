@@ -19,8 +19,11 @@
         </button>
       </div>
     </mat-card-header>
-    <div>
+    <div *ngIf="showMap">
       <app-simple-map></app-simple-map>
+    </div>
+    <div>
+      <button class="btn btn-primary" (click)="toggleMap()">Hide Map</button>
     </div>
     <hr class="mt-0 pt-0" />
 
@@ -34,7 +37,7 @@
       >
         Use Filters For Device Search
       </h3>
-      <form [formGroup]="FilterForm">
+      <form *ngIf="!showMap" [formGroup]="FilterForm">
         <div class="example-container1 row">
           <div class="col-md-3">
             <mat-form-field appearance="outline">
