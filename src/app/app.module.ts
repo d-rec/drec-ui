@@ -39,6 +39,7 @@ import * as Sentry from '@sentry/angular';
 import { SharedModule } from './shared.module';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
+import { WithloginunverifiedlayoutComponent } from './nav/withloginunverifiedlayout/withloginunverifiedlayout.component';
 
 @NgModule({
   declarations: [
@@ -52,6 +53,7 @@ import { MarkdownModule } from 'ngx-markdown';
     MyreservationComponent,
     CertificateDetailsComponent,
     WithloginlayoutComponent,
+    WithloginunverifiedlayoutComponent,
     WithoutloginlayoutComponent,
     RedemptionReportComponent,
     // AddreadComponent,
