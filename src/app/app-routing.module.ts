@@ -17,6 +17,7 @@ import { UserProfileComponent } from './view/user-profile/user-profile.component
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { AuthGuard } from './guards/auth.guard';
+import { AuthVerifiedGuard } from './guards/auth-verified.guard';
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
   {
@@ -55,8 +56,7 @@ const routes: Routes = [
   {
     path: '',
     component: WithloginlayoutComponent,
-    //auther authentication guards will be added here
-    canActivate: [AuthGuard],
+    canActivate: [AuthVerifiedGuard],
     children: [
       { path: '', redirectTo: 'device', pathMatch: 'full' },
 

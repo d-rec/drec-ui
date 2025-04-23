@@ -3,7 +3,7 @@ import { CanActivateFn } from '@angular/router';
 import { AuthbaseService } from '../auth/authbase.service';
 import { Router } from '@angular/router';
 
-export const AuthGuard: CanActivateFn = () => {
+export const AuthVerifiedGuard: CanActivateFn = () => {
   const authService = inject(AuthbaseService);
   const router = inject(Router);
   if (!authService.isLoggedIn()) {
