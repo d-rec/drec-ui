@@ -42,17 +42,32 @@
                 doc.file ? shortenFileName(doc.file.name) : 'Select document'
               }}
             </button>
-            <button
-              class="btn btn-warning btn-sm"
-              (click)="upload(doc)"
-              [disabled]="!doc.file || doc.isUploaded"
-            >
-              {{ doc.isUploaded ? 'Uploaded' : 'Upload' }}
-            </button>
           </div>
         </div>
       </div>
+
+      <div class="d-flex justify-content-end mt-4">
+        <button
+          class="btn btn-primary"
+          (click)="submitAllDocuments()"
+          [disabled]="
+            !hasDocumentsToUpload() ||
+            getSelectedDocumentsCount() < 4 ||
+            isUploading
+          "
+        >
+          <span *ngIf="!isUploading">Submit All Documents</span>
+          <span *ngIf="isUploading" class="d-flex align-items-center gap-2">
+            <span
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            Uploading Documents...
+          </span>
+        </button>
+      </div>
     </div>
+    <app-footer></app-footer>
   </div>
-  <app-footer></app-footer>
 </div>

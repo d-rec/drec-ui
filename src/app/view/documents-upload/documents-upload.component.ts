@@ -2,6 +2,8 @@ import { Component, Input } from '@angular/core';
 import { DocumentsUploadService } from '../../auth/services/documents-upload.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+
 export interface DocumentUpload {
   title: string;
   isRecommended: boolean;
@@ -31,17 +33,12 @@ export enum DocumentUploadDocumentType {
   styleUrls: ['./documents-upload.component.scss'],
 })
 export class DocumentsUploadComponent {
-  constructor(
-    private documentService: DocumentsUploadService,
-    private toastrService: ToastrService,
-    private router: Router,
-  ) {}
-  countUploadedDocuments: number = 0;
   @Input() title: string = 'Document Uploads';
   @Input() description: string =
     '4 recommended documents to upload for your facility registration.';
   @Input() helperText: string =
     'If you require any help with the document uploads, please create a draft, and contact our support team.';
+  isUploading: boolean = false;
   @Input() documents: DocumentUpload[] = [
     {
       title: 'Legal Entity Incorporation certificate/document',
@@ -82,7 +79,13 @@ export class DocumentsUploadComponent {
     },
   ];
 
-  onFileSelected(event: any, document: DocumentUpload) {
+  constructor(
+    private documentService: DocumentsUploadService,
+    private toastrService: ToastrService,
+    private router: Router,
+  ) {}
+
+  onFileSelected(event: any, document: DocumentUpload): void {
     const file = event.target.files[0];
     if (file) {
       document.file = file;
@@ -90,7 +93,7 @@ export class DocumentsUploadComponent {
     }
   }
 
-  openFileExplorer(index: number) {
+  openFileExplorer(index: number): void {
     document.getElementById('fileInput' + index)?.click();
   }
 
@@ -113,32 +116,59 @@ export class DocumentsUploadComponent {
     return `${start}...${end}${extension}`;
   }
 
-  upload(document: DocumentUpload) {
-    if (!document.file) return;
+  hasDocumentsToUpload(): boolean {
+    return this.documents.some((doc) => doc.file && !doc.isUploaded);
+  }
 
-    this.documentService
-      .uploadDocument(document.targetType, document.documentType, document.file)
-      .subscribe({
-        next: () => {
-          document.isUploaded = true;
-          document.file = undefined;
-          this.toastrService.success('Document uploaded successfully');
-          this.countUploadedDocuments++;
-          if (this.countUploadedDocuments === 4) {
-            this.router.navigate(['/wait-verification']);
+  getSelectedDocumentsCount(): number {
+    return this.documents.filter((doc) => doc.file && !doc.isUploaded).length;
+  }
+
+  submitAllDocuments(): void {
+    const selectedDocuments = this.documents.filter(
+      (doc) => doc.file && !doc.isUploaded,
+    );
+
+    if (selectedDocuments.length < 4) {
+      this.toastrService.warning(
+        'Please select all 4 required documents before submitting',
+      );
+      return;
+    }
+
+    this.isUploading = true;
+    const uploadObservables = selectedDocuments.map((doc) =>
+      this.documentService.uploadDocument(
+        doc.targetType,
+        doc.documentType,
+        doc.file!,
+      ),
+    );
+
+    forkJoin(uploadObservables).subscribe({
+      next: () => {
+        this.documents.forEach((doc) => {
+          if (doc.file) {
+            doc.isUploaded = true;
+            doc.file = undefined;
           }
-        },
-        error: (err) => {
-          if (err.error.errorType == 'DOCUMENT_ALREADY_UPLOADED') {
-            this.countUploadedDocuments++;
-            document.isUploaded = true;
-            document.file = undefined;
-          }
+        });
+        this.toastrService.success('All documents uploaded successfully');
+        this.router.navigate(['/wait-verification']);
+      },
+      error: (err) => {
+        if (err.error.errorType === 'DOCUMENT_ALREADY_UPLOADED') {
+          this.toastrService.warning('Some documents were already uploaded');
+        } else {
           this.toastrService.error(
-            'Error uploading document',
+            'Error uploading documents',
             err.error.message,
           );
-        },
-      });
+        }
+      },
+      complete: () => {
+        this.isUploading = false;
+      },
+    });
   }
 }
