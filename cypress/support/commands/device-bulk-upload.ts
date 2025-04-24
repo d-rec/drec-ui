@@ -12,6 +12,7 @@ Cypress.Commands.add('deviceBulkUpload', function () {
             .attachFile('files/d-rec-device-bulk-upload-template.csv', {
               force: true,
             });
+
         case 'upload-bulk':
           cy.get(step.selector)
             .scrollIntoView()
