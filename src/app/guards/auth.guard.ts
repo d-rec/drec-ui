@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 export const AuthGuard: CanActivateFn = () => {
   const authService = inject(AuthbaseService);
   const router = inject(Router);
-  
+
   if (!authService.isLoggedIn()) {
     router.navigate(['/login']);
     return false;
