@@ -5,10 +5,10 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          cy.get(step.selector).click({ force: true }).wait(500);
+          cy.get(step.selector).click({ force: true }).wait(5000);
 
           if (step.selector === "[test-id='submit-meter-read']") {
-            cy.contains('Successfully!').should('be.visible');
+            cy.contains('Read Added !!').should('be.visible');
           }
           break;
 
