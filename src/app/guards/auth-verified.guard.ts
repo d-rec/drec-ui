@@ -12,17 +12,14 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
     return loggedInResult;
   }
 
-  // const router = inject(Router);
-
-  const user = JSON.parse(sessionStorage.getItem('loginuser')!);
   const userService = inject(UserService);
   const router = inject(Router);
-  userService.getuserById(user.id).subscribe({
+  userService.userProfile().subscribe({
     next: (data) => {
-      if (data.isPhoneVerified === false) {
-        sessionStorage.setItem('phoneNumber', data.phoneNumber);
-        sessionStorage.setItem('redirectUrl', state.url);
+      if (data.is_phone_verified === false) {
         router.navigate(['/verify-otp']);
+        sessionStorage.setItem('redirectUrl', state.url);
+        sessionStorage.setItem('phoneNumber', data.phoneNumber);
       }
     },
   });

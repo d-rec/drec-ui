@@ -202,7 +202,8 @@ export class RegisterComponent implements OnInit {
 
         const route =
           jwtObj.role === 'Buyer' ? '/myreservation' : '/device/AllList';
-        this.router.navigate([route]);
+        this.router.navigate(['/verify-otp']);
+        sessionStorage.setItem('redirectUrl', route);
         this.toastrService.success(
           `login user ${jwtObj.email}!`,
           'login Success',
@@ -280,9 +281,8 @@ export class RegisterComponent implements OnInit {
           this.handleApiUserRegistration(data, loginCredentials);
           return;
         }
-        sessionStorage.setItem('phoneNumber', data.phoneNumber);
-        this.router.navigate(['/verify-otp']);
-        this.registerForm.reset();
+        sessionStorage.setItem('phoneNumber', formValues.phoneNumber);
+        this.handleUserLogin(loginCredentials);
       },
       error: (err) => {
         console.error('Registration error:', err);
