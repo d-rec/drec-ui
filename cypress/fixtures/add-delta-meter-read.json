@@ -39,7 +39,7 @@
     },
     {
       "action": "submit",
-      "selector": "[test-id='submit-read']"
+      "selector": "[test-id='submit-meter-read']"
     }
   ]
   
