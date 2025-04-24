@@ -184,6 +184,7 @@ export class AddDevicesComponent {
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
+      postalCode: [null],
     });
     this.deviceForms.push(device);
 
@@ -265,6 +266,7 @@ export class AddDevicesComponent {
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
+      postalCode: [null],
     });
     this.deviceForms.push(device);
     this.showaddmore[this.deviceForms.length - 1] = true;
