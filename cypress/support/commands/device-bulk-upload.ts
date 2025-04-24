@@ -13,8 +13,12 @@ Cypress.Commands.add('deviceBulkUpload', function () {
               force: true,
             });
         case 'upload-bulk':
-          cy.get(step.selector).scrollIntoView().should('be.visible').click();
-          return cy.contains('Successfully!').should('be.visible');
+          cy.get(step.selector)
+            .scrollIntoView()
+            .should('be.visible')
+            .click()
+            .wait(1000);
+          return cy.contains('File Uploaded in Bulk!!').should('be.visible');
       }
     });
   });
