@@ -66,7 +66,7 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .get('.mat-stroked-button')
             .click()
             .wait(1000);
-        case 'submit':
+        case 'submt':
           cy.get(step.selector).click('center', { force: true });
           return cy.contains('Successfully!').should('be.visible').wait(30000);
       }
