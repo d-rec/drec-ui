@@ -81,9 +81,7 @@
                 <div class="example-container1 row">
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label
-                        class="text-capitalize"
-                        test-id="project-name"
+                      <mat-label class="text-capitalize" test-id="project-name"
                         >project Name</mat-label
                       >
                       <input
@@ -97,9 +95,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label
-                        class="text-capitalize"
-                        test-id="external-id"
+                      <mat-label class="text-capitalize" test-id="external-id"
                         >External ID</mat-label
                       >
                       <input matInput formControlName="externalId" />
@@ -251,9 +247,7 @@
 
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label
-                        class="text-capitalize"
-                        test-id="device-type"
+                      <mat-label class="text-capitalize" test-id="device-type"
                         >Device Type Code</mat-label
                       >
 
@@ -270,9 +264,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label
-                        class="text-capitalize"
-                        test-id="SDGBenefits"
+                      <mat-label class="text-capitalize" test-id="SDGBenefits"
                         >SDG Benefits</mat-label
                       >
 
@@ -384,6 +376,33 @@
                 </div>
 
                 <div class="example-container1 row" *ngIf="addmoredetals[i]">
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize"
+                        >Postal Code (Zip Code)</mat-label
+                      >
+                      <input
+                        matInput
+                        type="string"
+                        formControlName="postalCode"
+                        test-id="postal-code"
+                      />
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-3" *ngIf="showinput[i]">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize"
+                        >Energy Storage Capacity</mat-label
+                      >
+                      <input
+                        matInput
+                        autocomplete="off"
+                        type="number"
+                        formControlName="energyStorageCapacity"
+                        test-id="energy-storage"
+                      />
+                    </mat-form-field>
+                  </div>
                   <div class="col-md-3 d-flex flex-column">
                     <span>Grid Inter-connection:</span>
                     <mat-radio-group
@@ -404,21 +423,6 @@
                       <mat-radio-button [value]="true">Yes</mat-radio-button>
                       <mat-radio-button [value]="false">No</mat-radio-button>
                     </mat-radio-group>
-                  </div>
-
-                  <div class="col-md-3" *ngIf="showinput[i]">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize"
-                        >Energy Storage Capacity</mat-label
-                      >
-                      <input
-                        matInput
-                        autocomplete="off"
-                        type="number"
-                        formControlName="energyStorageCapacity"
-                        test-id="energy-storage"
-                      />
-                    </mat-form-field>
                   </div>
                 </div>
               </mat-card-content>
