@@ -2,7 +2,7 @@ import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { UserService, InvitationService } from '../../auth/services';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { decodeJwtToken, storeUserSession } from '../../utils/token-utils';
 
@@ -16,30 +16,49 @@ export class LoginComponent implements OnInit {
     username: new FormControl(''),
     password: new FormControl(''),
   });
+
   selectedOption: string;
   clientid: string;
   client_secret: string;
   hide = true;
-  // loginForm: FormGroup;
+  accesstoken: any;
+  fromregister: boolean = true;
+  message: string;
+  success: boolean = true;
+
+  @Output() submitEM = new EventEmitter();
+
   constructor(
     private authService: AuthbaseService,
     private router: Router,
     private toastrService: ToastrService,
     private userService: UserService,
     private inviteservice: InvitationService,
-  ) {}
+    private activatedRoute: ActivatedRoute,
+  ) {
+    this.checkForEmailConfirmationToken();
+  }
+
   ngOnInit() {
-    // Set the default option here (e.g., "option1")
     this.selectedOption = 'Form1';
   }
-  padBase64(token: any) {
-    const base64 = token.replace('-', '+').replace('_', '/');
-    return base64;
+
+  /**
+   * Check if there's an email confirmation token in the URL
+   */
+  private checkForEmailConfirmationToken(): void {
+    this.activatedRoute.queryParams.subscribe((params) => {
+      if (params['token'] != undefined) {
+        this.accesstoken = params['token'];
+        this.fromregister = false;
+        this.getConfirmemail(this.accesstoken);
+      }
+    });
   }
-  b64DecodeUnicode(token: any) {
-    const base64Payload = window.atob(token);
-    return base64Payload;
-  }
+
+  /**
+   * Handle login form submission
+   */
   onSubmit() {
     this.authService.login('auth/login', this.loginForm.value).subscribe({
       next: (data) => {
@@ -55,47 +74,9 @@ export class LoginComponent implements OnInit {
                 userData.status != 'Pending' &&
                 userData.organization != null
               ) {
-                if (userData.organization.organizationType === 'Buyer') {
-                  this.router.navigate(['/myreservation']);
-                } else if (jwtObj.role === 'Admin') {
-                  this.router.navigate(['/admin/All_devices']);
-                } else {
-                  this.router.navigate(['/device/AllList']);
-                }
-                this.toastrService.success(
-                  'Login user ' + jwtObj.email + '!',
-                  'Login Success',
-                );
+                this.navigateBasedOnUserType(userData, jwtObj);
               } else {
-                this.inviteservice.getinvitationByemail().subscribe({
-                  next: (invitationData) => {
-                    const invitationId = invitationData.id;
-                    const loginuser = JSON.parse(
-                      sessionStorage.getItem('loginuser') as any,
-                    );
-                    // Update the role property of the loginuser object with the new value
-                    loginuser.role = invitationData.role;
-                    // Save the updated loginuser object back to sessionStorage
-                    sessionStorage.setItem(
-                      'loginuser',
-                      JSON.stringify(loginuser),
-                    );
-                    this.inviteservice
-                      .acceptinvitaion(invitationId, {
-                        email: jwtObj.email,
-                        status: 'Accepted',
-                      })
-                      .subscribe({
-                        next: () => {
-                          this.toastrService.success(
-                            'Accept Sucessful!',
-                            'Invitation ',
-                          );
-                          this.onSubmit();
-                        },
-                      });
-                  },
-                });
+                this.handlePendingUser(jwtObj);
               }
             },
             error: (err) => {
@@ -111,12 +92,109 @@ export class LoginComponent implements OnInit {
         }
       },
       error: (error) => {
-        //Error callback
         console.error('error caught in component', error);
         this.toastrService.error('Check Your Credential!', 'Login Fail!!');
       },
     });
   }
 
-  @Output() submitEM = new EventEmitter();
+  /**
+   * Navigate user to appropriate page based on their type
+   */
+  private navigateBasedOnUserType(userData: any, jwtObj: any): void {
+    if (userData.organization.organizationType === 'Buyer') {
+      this.router.navigate(['/myreservation']);
+    } else if (jwtObj.role === 'Admin') {
+      this.router.navigate(['/admin/All_devices']);
+    } else {
+      this.router.navigate(['/device/AllList']);
+    }
+
+    this.toastrService.success(
+      'Login user ' + jwtObj.email + '!',
+      'Login Success',
+    );
+  }
+
+  /**
+   * Handle pending user by checking for invitations
+   */
+  private handlePendingUser(jwtObj: any): void {
+    this.inviteservice.getinvitationByemail().subscribe({
+      next: (invitationData) => {
+        const invitationId = invitationData.id;
+        const loginuser = JSON.parse(
+          sessionStorage.getItem('loginuser') as any,
+        );
+
+        loginuser.role = invitationData.role;
+
+        sessionStorage.setItem('loginuser', JSON.stringify(loginuser));
+
+        this.inviteservice
+          .acceptinvitaion(invitationId, {
+            email: jwtObj.email,
+            status: 'Accepted',
+          })
+          .subscribe({
+            next: () => {
+              this.toastrService.success('Accept Sucessful!', 'Invitation ');
+              this.onSubmit();
+            },
+            error: (err) =>
+              this.toastrService.error(
+                'Error accepting invitation!',
+                err.error.message,
+              ),
+          });
+      },
+      error: (err) =>
+        this.toastrService.error(
+          'Error fetching invitation!',
+          err.error.message,
+        ),
+    });
+  }
+
+  /**
+   * Handle email confirmation
+   */
+  getConfirmemail(accesstoken: any) {
+    this.userService.UserConfirmEmail(accesstoken).subscribe({
+      next: (data) => {
+        this.message = data.message;
+        this.success = data.success;
+
+        if (data.success && data.accessToken) {
+          storeUserSession(data.accessToken);
+          const jwtObj = decodeJwtToken(data.accessToken);
+
+          this.toastrService.success(
+            'Email verified successfully. You are now logged in!',
+          );
+
+          this.userService.userProfile().subscribe({
+            next: (userData) => {
+              storeUserSession(data.accessToken, userData);
+              this.navigateBasedOnUserType(userData, jwtObj);
+            },
+            error: (err) =>
+              this.toastrService.error(
+                'Error fetching profile!',
+                err.error.message,
+              ),
+          });
+        } else {
+          this.toastrService.warning(
+            this.message || 'Email confirmation process failed',
+          );
+        }
+      },
+      error: (err) => {
+        this.success = false;
+        this.message = err.error?.message || 'Unknown error occurred';
+        this.toastrService.error(this.message || 'Email confirmation failed');
+      },
+    });
+  }
 }

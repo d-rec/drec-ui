@@ -7,7 +7,7 @@ import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
-import { ConfirmemailComponent } from './view/confirmemail/confirmemail.component';
+import { ConfirmEmailComponent } from './view/confirmemail/confirmemail.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
 import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
@@ -35,10 +35,6 @@ const routes: Routes = [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      {
-        path: 'confirm-email',
-        component: ConfirmemailComponent,
-      },
       { path: 'forgot-password', component: ForgetPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
       { path: 'terms-and-conditions', component: TermsAndConditionsComponent },
@@ -53,7 +49,10 @@ const routes: Routes = [
     component: WithLoginUnverifiedLayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      // Other routes available only to logged-in but unverified users
+      {
+        path: 'confirm-email',
+        component: ConfirmEmailComponent,
+      },
     ],
   },
   {
