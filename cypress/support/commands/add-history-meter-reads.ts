@@ -1,75 +1,73 @@
 import 'cypress-file-upload';
-Cypress.Commands.add('addHistoryMeterRead', function () {
-  cy.fixture('add-history-meter-read.json').then((data) => {
-    data.forEach((step) => {
+
+Cypress.Commands.add('addHistoryMeterRead', () => {
+  cy.fixture('add-history-meter-read.json').then(async (data) => {
+    for (const step of data) {
       switch (step.action) {
         case 'click':
-          return cy.get(step.selector).click().wait(1000);
+          cy.get(step.selector).should('be.visible').click();
+          break;
 
         case 'selected':
-          return cy
-            .get(step.selector)
-            .click({ force: true })
-            .get(step.option)
+          cy.get(step.selector).should('be.visible').click({ force: true });
+          cy.get(step.option)
             .should('have.length.greaterThan', 0)
             .first()
             .should('be.visible')
-            .click({ force: true })
-            .wait(1000);
+            .click({ force: true });
+          break;
 
         case 'select-timezone':
-          return cy
-            .get(step.selector)
-            .click({ force: true })
-            .get(step.option)
+          cy.get(step.selector).should('be.visible').click({ force: true });
+          cy.get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(0)
-            .click('center', { force: true })
-            .wait(1000);
+            .should('be.visible')
+            .click('center', { force: true });
+          break;
 
         case 'select':
-          return cy
-            .get(step.selector)
-            .click({ force: true })
-            .get(step.option)
+          cy.get(step.selector).should('be.visible').click({ force: true });
+          cy.get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(0)
+            .should('be.visible')
             .click('center', { force: true });
+          break;
 
         case 'type':
-          return cy
-            .get(step.selector)
+          cy.get(step.selector)
+            .should('be.visible')
             .click({ force: true })
-            .type(step.value, { force: true })
-            .wait(1000);
+            .type(step.value, { force: true });
+          break;
 
         case 'start-date':
-          return cy
-            .get(step.selector)
+          cy.get(step.selector)
             .eq(0)
-            .click('center', { force: true })
-            .get(step.option)
-            .eq(0)
-            .click()
-            .get('.mat-stroked-button')
-            .click()
-            .wait(1000);
+            .should('be.visible')
+            .click('center', { force: true });
+          cy.get(step.option).eq(0).should('be.visible').click();
+          cy.get('.mat-stroked-button').should('be.visible').click();
+          break;
 
         case 'end-date':
-          return cy
-            .get(step.selector)
+          cy.get(step.selector)
             .eq(1)
-            .click('center', { force: true })
-            .get(step.option)
-            .eq(5)
-            .click()
-            .get('.mat-stroked-button')
-            .click()
-            .wait(1000);
+            .should('be.visible')
+            .click('center', { force: true });
+          cy.get(step.option).eq(5).should('be.visible').click();
+          cy.get('.mat-stroked-button').should('be.visible').click();
+          break;
+
         case 'submit':
           cy.get(step.selector).scrollIntoView().should('be.visible').click();
-          return cy.contains('Successfully!').should('be.visible').wait(60000);
+          cy.contains('Successfully!').should('be.visible');
+          break;
+
+        default:
+          throw new Error(`Unknown action type: ${step.action}`);
       }
-    });
+    }
   });
 });
