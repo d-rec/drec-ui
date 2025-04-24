@@ -16,8 +16,8 @@ import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
-import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.component';
-import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
+import { WithLoginLayoutComponent } from './nav/withloginlayout/with-login-layout.component';
+import { WithoutLoginLayoutComponent } from './nav/withoutloginlayout/without-login-layout.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
@@ -41,6 +41,8 @@ import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-a
 import { MarkdownModule } from 'ngx-markdown';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
 import { WaitVerificationComponent } from './view/wait-verification/wait-verification.component';
+import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlayout/with-login-unverified-layout.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -52,8 +54,9 @@ import { WaitVerificationComponent } from './view/wait-verification/wait-verific
     CertificateComponent,
     MyreservationComponent,
     CertificateDetailsComponent,
-    WithloginlayoutComponent,
-    WithoutloginlayoutComponent,
+    WithLoginLayoutComponent,
+    WithLoginUnverifiedLayoutComponent,
+    WithoutLoginLayoutComponent,
     RedemptionReportComponent,
     // AddreadComponent,
     AddReservationComponent,
