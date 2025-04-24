@@ -65,7 +65,13 @@ export class VerificationComponent implements AfterViewInit {
     this.userService.verifyOtp(this.phoneNumber, code).subscribe(
       (response) => {
         this.toastrService.success(response.message);
-        this.router.navigate(['/login']);
+        const redirectUrl = sessionStorage.getItem('redirectUrl');
+        const phoneNumber = sessionStorage.getItem('phoneNumber');
+        if (redirectUrl) {
+          this.router.navigateByUrl(redirectUrl);
+          sessionStorage.removeItem('redirectUrl');
+          if (phoneNumber) return sessionStorage.removeItem('phoneNumber');
+        }
       },
       (error) => {
         this.toastrService.error('Error!', error.error.message);

@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { WithoutloginlayoutComponent } from './withoutloginlayout.component';
+import { WithoutLoginLayoutComponent } from './without-login-layout.component';
 
 describe('WithoutloginlayoutComponent', () => {
-  let component: WithoutloginlayoutComponent;
-  let fixture: ComponentFixture<WithoutloginlayoutComponent>;
+  let component: WithoutLoginLayoutComponent;
+  let fixture: ComponentFixture<WithoutLoginLayoutComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [WithoutloginlayoutComponent],
+      declarations: [WithoutLoginLayoutComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(WithoutloginlayoutComponent);
+    fixture = TestBed.createComponent(WithoutLoginLayoutComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
