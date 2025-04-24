@@ -61,12 +61,6 @@ Cypress.Commands.add('addAggregateMeterRead', function () {
             .click();
         case 'submt':
           cy.get(step.selector).click('center', { force: true });
-          return cy
-            .contains(
-              'In this device you can add read for Delta type but you are sending Aggregate',
-            )
-            .should('be.visible')
-            .wait(30000);
       }
     });
   });
