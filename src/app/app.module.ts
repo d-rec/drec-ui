@@ -16,8 +16,8 @@ import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
-import { WithloginlayoutComponent } from './nav/withloginlayout/withloginlayout.component';
-import { WithoutloginlayoutComponent } from './nav/withoutloginlayout/withoutloginlayout.component';
+import { WithLoginLayoutComponent } from './nav/withloginlayout/with-login-layout.component';
+import { WithoutLoginLayoutComponent } from './nav/withoutloginlayout/without-login-layout.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
@@ -39,6 +39,8 @@ import * as Sentry from '@sentry/angular';
 import { SharedModule } from './shared.module';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
+import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlayout/with-login-unverified-layout.component';
+import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
 
 @NgModule({
   declarations: [
@@ -51,8 +53,9 @@ import { MarkdownModule } from 'ngx-markdown';
     CertificateComponent,
     MyreservationComponent,
     CertificateDetailsComponent,
-    WithloginlayoutComponent,
-    WithoutloginlayoutComponent,
+    WithLoginLayoutComponent,
+    WithLoginUnverifiedLayoutComponent,
+    WithoutLoginLayoutComponent,
     RedemptionReportComponent,
     // AddreadComponent,
     AddReservationComponent,
@@ -69,6 +72,7 @@ import { MarkdownModule } from 'ngx-markdown';
     // UserInvitationComponent,
     ApiuserClientReponseComponent,
     TermsAndConditionsComponent,
+    AcceptTermsAndConditionsComponent,
   ],
   imports: [
     BrowserModule,

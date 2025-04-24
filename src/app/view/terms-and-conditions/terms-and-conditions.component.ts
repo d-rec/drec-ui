@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { UserService } from '../../auth/services/user.service';
 import { ToastrService } from 'ngx-toastr';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-terms-and-conditions',
@@ -17,37 +17,5 @@ export class TermsAndConditionsComponent {
     private userService: UserService,
     private toastrService: ToastrService,
     private router: Router,
-  ) {
-    this.termsForm = this.fb.group({
-      termsAndConditions: [false, Validators.requiredTrue],
-    });
-  }
-
-  onSubmit() {
-    this.isSubmitting = true;
-    this.termsAndConditions();
-  }
-
-  termsAndConditions() {
-    this.userService.acceptTermsAndConditions().subscribe({
-      next: () => {
-        const redirectUrl = sessionStorage.getItem('redirectUrl');
-        if (redirectUrl) {
-          this.router.navigateByUrl(redirectUrl);
-          sessionStorage.removeItem('redirectUrl');
-        }
-        this.toastrService.success(
-          'Successful !!',
-          'Terms and Conditions Accepted',
-        );
-      },
-      error: (err) => {
-        this.toastrService.error('Error', err.error);
-      },
-    });
-  }
-  logout() {
-    sessionStorage.clear();
-    this.router.navigate(['/login']);
-  }
+  ) {}
 }

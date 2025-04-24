@@ -1,0 +1,14 @@
+
+<app-terms-and-conditions></app-terms-and-conditions>
+<div>
+    <div class="terms-and-conditions">
+      <form [formGroup]="termsForm" (ngSubmit)="onSubmit()">
+        <mat-checkbox formControlName="termsAndConditions" color="primary" test-id="terms-and-conditions">
+          I agree to the Terms and Conditions
+        </mat-checkbox>
+        <button mat-raised-button class="btn-primary btn ms-2 btn-block" [disabled]="termsForm.invalid|| isSubmitting"
+          (click)="onSubmit()" type="submit">Accept</button>
+      </form>
+      <button mat-raised-button class="btn-primary btn ms-2 btn-block" (click)="logout()">Decline</button>
+    </div>
+  </div>
