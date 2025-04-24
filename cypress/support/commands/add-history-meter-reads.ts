@@ -68,7 +68,7 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .wait(1000);
         case 'submit':
           cy.get(step.selector).scrollIntoView().should('be.visible').click();
-          cy.contains('Successfully!').should('be.visible');
+          return cy.contains('Successfully!').should('be.visible');
       }
     });
   });
