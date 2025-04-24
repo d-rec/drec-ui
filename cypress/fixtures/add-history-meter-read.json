@@ -44,7 +44,7 @@
     "value": "04/01/2025, 2:57:02 PM"
   },
   {
-    "action": "submit",
+    "action": "click",
     "selector": "[test-id='submit-meter-read']"
   }
 ]

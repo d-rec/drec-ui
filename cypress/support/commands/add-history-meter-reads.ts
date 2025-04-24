@@ -1,51 +1,56 @@
 import 'cypress-file-upload';
+
 Cypress.Commands.add('addHistoryMeterRead', function () {
   cy.fixture('add-history-meter-read.json').then((data) => {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          return cy.get(step.selector).click().wait(1000);
+          cy.get(step.selector).click({ force: true }).wait(500);
+
+          if (step.selector === "[test-id='submit-meter-read']") {
+            cy.contains('Successfully!').should('be.visible');
+          }
+          break;
 
         case 'selected':
-          return cy
-            .get(step.selector)
+          cy.get(step.selector)
             .click({ force: true })
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .first()
             .should('be.visible')
             .click({ force: true })
-            .wait(1000);
+            .wait(500);
+          break;
 
         case 'select-timezone':
-          return cy
-            .get(step.selector)
+          cy.get(step.selector)
             .click({ force: true })
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(0)
             .click('center', { force: true })
-            .wait(1000);
+            .wait(500);
+          break;
 
         case 'select':
-          return cy
-            .get(step.selector)
+          cy.get(step.selector)
             .click({ force: true })
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .eq(0)
             .click('center', { force: true });
+          break;
 
         case 'type':
-          return cy
-            .get(step.selector)
+          cy.get(step.selector)
             .click({ force: true })
             .type(step.value, { force: true })
-            .wait(1000);
+            .wait(500);
+          break;
 
         case 'start-date':
-          return cy
-            .get(step.selector)
+          cy.get(step.selector)
             .eq(0)
             .click('center', { force: true })
             .get(step.option)
@@ -53,11 +58,11 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .click()
             .get('.mat-stroked-button')
             .click()
-            .wait(1000);
+            .wait(500);
+          break;
 
         case 'end-date':
-          return cy
-            .get(step.selector)
+          cy.get(step.selector)
             .eq(1)
             .click('center', { force: true })
             .get(step.option)
@@ -65,10 +70,8 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .click()
             .get('.mat-stroked-button')
             .click()
-            .wait(1000);
-        case 'submit':
-          cy.get(step.selector).scrollIntoView().should('be.visible').click();
-          return cy.contains('Successfully!').should('be.visible');
+            .wait(500);
+          break;
       }
     });
   });
