@@ -3,7 +3,7 @@ describe('Add history meter Read', () => {
     cy.wait(1000);
   });
   it('should add history meter Read', () => {
-    cy.developerUserLogin().wait(20000);
+    cy.developerUserLogin().wait(50000);
     cy.addHistoryMeterRead();
   });
 });

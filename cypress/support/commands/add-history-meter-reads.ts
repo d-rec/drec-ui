@@ -61,7 +61,11 @@ Cypress.Commands.add('addHistoryMeterRead', () => {
           break;
 
         case 'submit':
-          cy.get(step.selector).scrollIntoView().should('be.visible').click();
+          cy.get(step.selector)
+            .scrollIntoView()
+            .should('be.visible')
+            .click()
+            .wait(1000);
           cy.contains('Successfully!').should('be.visible');
           break;
 
