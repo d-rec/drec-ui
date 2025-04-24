@@ -1,15 +1,13 @@
-import { inject } from '@angular/core';
 import { CanActivateFn } from '@angular/router';
-import { AuthbaseService } from '../auth/authbase.service';
-import { Router } from '@angular/router';
-import { checkLoggedIn } from '../utils/authentication-check';
+import { AuthGuard } from './auth.guard';
 
-export const AuthVerifiedGuard: CanActivateFn = () => {
-  const authService = inject(AuthbaseService);
-  const router = inject(Router);
-  if (!checkLoggedIn(authService, router)) {
-    return false;
+export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
+  const result = AuthGuard(route, state);
+
+  if (result !== true) {
+    return result;
   }
-  // additional access checks  will be added here
+
+  // Additional access checks can go here
   return true;
 };
