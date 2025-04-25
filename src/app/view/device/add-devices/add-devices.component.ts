@@ -184,7 +184,7 @@ export class AddDevicesComponent {
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
-      postalCode: [null],
+      postalCode: [null, [this.postalCodeValidator()]],
     });
     this.deviceForms.push(device);
 
@@ -266,7 +266,7 @@ export class AddDevicesComponent {
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
-      postalCode: [null],
+      postalCode: [null, [this.postalCodeValidator()]],
     });
     this.deviceForms.push(device);
     this.showaddmore[this.deviceForms.length - 1] = true;
@@ -371,5 +371,21 @@ export class AddDevicesComponent {
         },
       });
     });
+  }
+
+  postalCodeValidator() {
+    return (control: FormControl) => {
+      if (!control.value) {
+        return null;
+      }
+
+      const postalCodeRegex = /^[a-zA-Z0-9\s-]+$/;
+
+      if (!postalCodeRegex.test(control.value)) {
+        return { invalidPostalCode: true };
+      }
+
+      return null;
+    };
   }
 }
