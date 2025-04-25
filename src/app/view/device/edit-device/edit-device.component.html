@@ -342,6 +342,35 @@
             </div>
 
             <div class="example-container1 row" *ngIf="addmoredetals">
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize"
+                    >Postal Code (Zip Code)</mat-label
+                  >
+                  <input
+                    matInput
+                    type="string"
+                    formControlName="postalCode"
+                    [(ngModel)]="postalCode"
+                  />
+                  <mat-error>Please enter the valid postal code</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3" *ngIf="showinput">
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize"
+                    >Energy Storage Capacity</mat-label
+                  >
+                  <input
+                    matInput
+                    autocomplete="off"
+                    placeholder="energyStorageCapacity"
+                    [(ngModel)]="energyStorageCapacity"
+                    type="number"
+                    formControlName="energyStorageCapacity"
+                  />
+                </mat-form-field>
+              </div>
               <div class="col-md-3 d-flex flex-column">
                 <span>Grid Inter-connection:</span>
                 <mat-radio-group
@@ -368,22 +397,6 @@
                 </mat-radio-group>
                 <!-- </mat-form-field>
                                          -->
-              </div>
-
-              <div class="col-md-3" *ngIf="showinput">
-                <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize"
-                    >Energy Storage Capacity</mat-label
-                  >
-                  <input
-                    matInput
-                    autocomplete="off"
-                    placeholder="energyStorageCapacity"
-                    [(ngModel)]="energyStorageCapacity"
-                    type="number"
-                    formControlName="energyStorageCapacity"
-                  />
-                </mat-form-field>
               </div>
             </div>
           </mat-card-content>
