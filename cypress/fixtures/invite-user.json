@@ -34,7 +34,7 @@
       "option": "[test-id='select-user-role']"
     },
     {
-      "action": "submit",
+      "action": "click",
       "selector": "[test-id='submit-user']"
     }
   ]
