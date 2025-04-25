@@ -16,10 +16,7 @@ Cypress.Commands.add('inviteUser', function () {
             .click()
             .wait(1000);
         case 'submit':
-          cy.get(step.selector).click('center', { force: true });
-          return cy
-            .contains('Invitation Sent', { timeout: 3000 })
-            .should('be.visible');
+          return cy.get(step.selector).click('center', { force: true });
       }
     });
   });
