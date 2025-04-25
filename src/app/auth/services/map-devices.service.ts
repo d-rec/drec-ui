@@ -49,15 +49,15 @@ export class MapDevicesService {
 
     // Add markers for each device
     devices.forEach((device: Device) => {
-      const lat = Number(device.latitude);
-      const lng = Number(device.longitude);
+      const latitude = Number(device.latitude);
+      const longitude = Number(device.longitude);
 
       // Skip invalid coordinates
-      if (isNaN(lat) || isNaN(lng)) {
+      if (isNaN(latitude) || isNaN(longitude)) {
         return;
       }
 
-      const marker = L.marker([lat, lng], {
+      const marker = L.marker([latitude, longitude], {
         title: device.externalId,
         icon: customIcon,
       });

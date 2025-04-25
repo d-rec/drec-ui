@@ -3,7 +3,7 @@ import * as L from 'leaflet';
 import { DeviceService } from '../../auth/services/device.service';
 import { Device } from '../../models/device.model';
 import { MapDevicesService } from '../../auth/services/map-devices.service';
-import { OrganizationType } from 'src/app/enums/organization-types.enum';
+import { OrganizationType } from '../../utils/enums/organization-types.enum';
 
 @Component({
   selector: 'app-map-devices',

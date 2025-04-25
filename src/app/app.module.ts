@@ -1,9 +1,9 @@
 import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ToastrModule } from 'ngx-toastr';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './material/material.module';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -75,9 +75,9 @@ import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlay
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
     BrowserAnimationsModule,
     MaterialModule,
+    AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
@@ -86,7 +86,7 @@ import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlay
     MarkdownModule.forRoot(),
     ToastrModule.forRoot({
       closeButton: true,
-      timeOut: 15000, // 15 seconds
+      timeOut: 15000,
       progressBar: true,
     }),
     SharedModule,
