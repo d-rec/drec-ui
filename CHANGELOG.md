@@ -13,7 +13,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## 0.1.0 (2025-04-01)
 
-### Features(0.1.0)
+### Features
 
 - add autometed test for account setting ([#239](https://github.com/d-rec/drec-ui/issues/239)) ([39a1d41](https://github.com/d-rec/drec-ui/commit/39a1d412f2cb89e1161a2606eb16874d2fb06563))
 - add second on start and end dates ([#284](https://github.com/d-rec/drec-ui/issues/284)) ([2b7d7b7](https://github.com/d-rec/drec-ui/commit/2b7d7b7a70c2ec8d9820e5eb6cfbf332cffbcb82))
