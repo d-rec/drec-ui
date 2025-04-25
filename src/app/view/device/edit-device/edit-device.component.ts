@@ -54,6 +54,7 @@ export class EditDeviceComponent implements OnInit {
   deviceDescription: any;
   energyStorage: boolean = true;
   energyStorageCapacity: any;
+  stateOrProvince: any;
   frommydevice: boolean = false;
   frombulk: boolean = false;
   filteredCountryList: Observable<any[]>;
@@ -130,6 +131,7 @@ export class EditDeviceComponent implements OnInit {
       deviceDescription: [null],
       energyStorage: [],
       energyStorageCapacity: [null],
+      stateOrProvince: [null],
       qualityLabels: [null],
       SDGBenefits: [new FormControl([])],
       version: ['1.0'],
@@ -272,6 +274,7 @@ export class EditDeviceComponent implements OnInit {
         }
 
         this.energyStorageCapacity = data.energyStorageCapacity;
+        this.stateOrProvince = data.stateOrProvince;
         this.organizationId = data.organizationId;
       });
   }
