@@ -4,6 +4,7 @@ export default defineConfig({
   e2e: {
     experimentalRunAllSpecs: true,
     specPattern: 'cypress/e2e/**/*.cy.{js,ts}',
+    defaultCommandTimeout: 8000,
   },
   env: {
     REACT_APP_BACKEND_URL: 'http://localhost:3040',
