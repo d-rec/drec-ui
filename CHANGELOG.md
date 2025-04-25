@@ -34,7 +34,7 @@ All notable changes to this project will be documented in this file. See [standa
 - Updated the typo ([a46926a](https://github.com/d-rec/drec-ui/commit/a46926a299b58e06a638423033eb5b89a00aa964))
 - Updating the d-rec logo ([1e9c71d](https://github.com/d-rec/drec-ui/commit/1e9c71d3cb22b4550f1e31059b42440763468969))
 
-### Bug Fixes(0.1.0)
+### Bug Fixes
 
 - build issue on dev ([afa9846](https://github.com/d-rec/drec-ui/commit/afa9846fc5c397f5b1ae094f9bfc6c88ca94e21a))
 - dashboard icons ([f7e6489](https://github.com/d-rec/drec-ui/commit/f7e64896139e723a99f99e697b46fb333da67e02))
