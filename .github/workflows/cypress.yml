@@ -94,7 +94,13 @@ jobs:
           done
           echo "Frontend is ready!"
       - name: Run Cypress Tests
-        run: pnpx cypress run
+      - name: Start Xvfb
+        run: |
+          export DISPLAY=:99.0
+          Xvfb :99 -screen 0 1280x1024x24 &
+      - name: Run Cypress in interactive mode (for debugging only)
+        run: pnpx cypress open
+
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
         run: docker-compose down
