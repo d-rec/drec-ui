@@ -9,7 +9,7 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .click({ force: true })
             .wait(5000);
 
-          if (step.selector === "[test-id='submit-meter-read']") {
+          if (step.selector === "[test-id='submit-meter-reads']") {
             cy.contains('Successfully!', { timeout: 5000 }).should(
               'be.visible',
             );
