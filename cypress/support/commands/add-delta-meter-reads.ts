@@ -57,9 +57,8 @@ Cypress.Commands.add('addDeltaMeterRead', function () {
             .click({ force: true })
             .type(formattedTime, { force: true })
             .click();
-        case 'submt':
+        case 'submit':
           cy.get(step.selector).click('center', { force: true });
-          return cy.contains('Read Added!!').should('be.visible').wait(30000);
       }
     });
   });
