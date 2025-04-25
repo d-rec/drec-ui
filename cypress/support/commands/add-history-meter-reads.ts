@@ -1,5 +1,4 @@
 import 'cypress-file-upload';
-
 Cypress.Commands.add('addHistoryMeterRead', function () {
   cy.fixture('add-history-meter-read.json').then((data) => {
     data.forEach((step) => {
