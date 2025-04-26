@@ -7,7 +7,7 @@ import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
-import { ConfirmEmailComponent } from './view/confirmemail/confirmemail.component';
+import { EmailConfirmedComponent } from './view/email-confirmed/email-confirmed.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
 import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
@@ -18,6 +18,7 @@ import { UserAcceptInvitationComponent } from './view/user-accept-invitation/use
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthVerifiedGuard } from './guards/auth-verified.guard';
+import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
   {
@@ -42,6 +43,10 @@ const routes: Routes = [
         path: 'user/acceptInvitaion',
         component: UserAcceptInvitationComponent,
       },
+      {
+        path: 'email-confirmed',
+        component: EmailConfirmedComponent,
+      },
     ],
   },
   {
@@ -50,8 +55,8 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       {
-        path: 'confirm-email',
-        component: ConfirmEmailComponent,
+        path: 'resend-confirmation-email',
+        component: ResendConfirmEmailComponent,
       },
     ],
   },

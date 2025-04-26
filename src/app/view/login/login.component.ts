@@ -35,25 +35,10 @@ export class LoginComponent implements OnInit {
     private userService: UserService,
     private inviteservice: InvitationService,
     private activatedRoute: ActivatedRoute,
-  ) {
-    this.checkForEmailConfirmationToken();
-  }
+  ) {}
 
   ngOnInit() {
     this.selectedOption = 'Form1';
-  }
-
-  /**
-   * Check if there's an email confirmation token in the URL
-   */
-  private checkForEmailConfirmationToken(): void {
-    this.activatedRoute.queryParams.subscribe((params) => {
-      if (params['token'] != undefined) {
-        this.accesstoken = params['token'];
-        this.fromregister = false;
-        this.getConfirmemail(this.accesstoken);
-      }
-    });
   }
 
   /**
@@ -153,48 +138,6 @@ export class LoginComponent implements OnInit {
           'Error fetching invitation!',
           err.error.message,
         ),
-    });
-  }
-
-  /**
-   * Handle email confirmation
-   */
-  getConfirmemail(accesstoken: any) {
-    this.userService.UserConfirmEmail(accesstoken).subscribe({
-      next: (data) => {
-        this.message = data.message;
-        this.success = data.success;
-
-        if (data.success && data.accessToken) {
-          storeUserSession(data.accessToken);
-          const jwtObj = decodeJwtToken(data.accessToken);
-
-          this.toastrService.success(
-            'Email verified successfully. You are now logged in!',
-          );
-
-          this.userService.userProfile().subscribe({
-            next: (userData) => {
-              storeUserSession(data.accessToken, userData);
-              this.navigateBasedOnUserType(userData, jwtObj);
-            },
-            error: (err) =>
-              this.toastrService.error(
-                'Error fetching profile!',
-                err.error.message,
-              ),
-          });
-        } else {
-          this.toastrService.warning(
-            this.message || 'Email confirmation process failed',
-          );
-        }
-      },
-      error: (err) => {
-        this.success = false;
-        this.message = err.error?.message || 'Unknown error occurred';
-        this.toastrService.error(this.message || 'Email confirmation failed');
-      },
     });
   }
 }

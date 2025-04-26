@@ -1,10 +1,10 @@
+import { MaterialModule } from './material/material.module';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MaterialModule } from './material/material.module';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -24,7 +24,7 @@ import { AddReservationComponent } from './view/add-reservation/add-reservation.
 import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-developer/certified-devices-developer.component';
 //import { TimezonePipe } from './utils/timezone.pipe';
 import { PipesModule } from './pipes.module';
-import { ConfirmEmailComponent } from './view/confirmemail/confirmemail.component';
+import { EmailConfirmedComponent } from './view/email-confirmed/email-confirmed.component';
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
 import { ResetPasswordComponent } from './view/reset-password/reset-password.component';
 import { AllUsersComponent } from './view/all-users/all-users.component';
@@ -40,7 +40,7 @@ import { SharedModule } from './shared.module';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlayout/with-login-unverified-layout.component';
-
+import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -60,7 +60,7 @@ import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlay
     AddReservationComponent,
 
     CertifiedDevicesDeveloperComponent,
-    ConfirmEmailComponent,
+    EmailConfirmedComponent,
     ForgetPasswordComponent,
     ResetPasswordComponent,
     AllUsersComponent,
@@ -71,6 +71,7 @@ import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlay
     // UserInvitationComponent,
     ApiuserClientReponseComponent,
     TermsAndConditionsComponent,
+    ResendConfirmEmailComponent,
   ],
   imports: [
     BrowserModule,

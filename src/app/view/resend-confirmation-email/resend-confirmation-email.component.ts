@@ -4,10 +4,10 @@ import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-confirmemail',
-  templateUrl: './confirmemail.component.html',
-  styleUrls: ['./confirmemail.component.scss'],
+  templateUrl: './resend-confirmation-email.component.html',
+  styleUrls: ['./resend-confirmation-email.component.scss'],
 })
-export class ConfirmEmailComponent implements OnInit {
+export class ResendConfirmEmailComponent implements OnInit {
   accesstoken: any;
   fromregister: boolean = true;
   message: string;

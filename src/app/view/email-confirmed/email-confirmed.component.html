@@ -1,0 +1,21 @@
+<div class="bg-solar"></div>
+<div
+  class="login-wrapper d-flex align-self-center align-items-center flex-column h-100vh justify-content-center drec-login"
+>
+  <mat-card class="box w-45">
+    <mat-card-header>
+      <!-- logo -->
+      <div class="py-4">
+        <img src="assets/images/d-rec-beta-logo.svg" alt="" />
+      </div>
+      <h2 class="pb-0 mb-0 fw-bold">Email-Verified</h2>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="success" class="text-center">
+        <p class="w-75 mx-auto">Your email has been verified successfully</p>
+      </div>
+    </mat-card-content>
+    <div class="p-3"></div>
+  </mat-card>
+</div>
