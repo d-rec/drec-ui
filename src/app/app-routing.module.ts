@@ -7,7 +7,7 @@ import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
-import { EmailConfirmedComponent } from './view/email-confirmed/email-confirmed.component';
+import { ConfirmEmailComponent } from './view/confirm-email/confirm-email.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
 import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
@@ -44,8 +44,8 @@ const routes: Routes = [
         component: UserAcceptInvitationComponent,
       },
       {
-        path: 'email-confirmed',
-        component: EmailConfirmedComponent,
+        path: 'confirm-email',
+        component: ConfirmEmailComponent,
       },
     ],
   },

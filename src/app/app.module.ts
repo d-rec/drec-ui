@@ -24,7 +24,7 @@ import { AddReservationComponent } from './view/add-reservation/add-reservation.
 import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-developer/certified-devices-developer.component';
 //import { TimezonePipe } from './utils/timezone.pipe';
 import { PipesModule } from './pipes.module';
-import { EmailConfirmedComponent } from './view/email-confirmed/email-confirmed.component';
+import { ConfirmEmailComponent } from './view/confirm-email/confirm-email.component';
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
 import { ResetPasswordComponent } from './view/reset-password/reset-password.component';
 import { AllUsersComponent } from './view/all-users/all-users.component';
@@ -60,7 +60,7 @@ import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/re
     AddReservationComponent,
 
     CertifiedDevicesDeveloperComponent,
-    EmailConfirmedComponent,
+    ConfirmEmailComponent,
     ForgetPasswordComponent,
     ResetPasswordComponent,
     AllUsersComponent,

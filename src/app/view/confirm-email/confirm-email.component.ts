@@ -4,11 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from 'src/app/auth/services/user.service';
 
 @Component({
-  selector: 'app-confirmemail',
-  templateUrl: './email-confirmed.component.html',
-  styleUrls: ['./email-confirmed.component.scss'],
+  selector: 'app-confirm-email',
+  templateUrl: './confirm-email.component.html',
+  styleUrls: ['./confirm-email.component.scss'],
 })
-export class EmailConfirmedComponent implements OnInit {
+export class ConfirmEmailComponent implements OnInit {
   accessToken: any;
   message: string;
   success: boolean = true;
