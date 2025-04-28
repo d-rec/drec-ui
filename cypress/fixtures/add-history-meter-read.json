@@ -31,20 +31,20 @@
   {
     "action": "type",
     "selector": "[test-id='read-value']",
-    "value": "100"
+    "value": "1"
   },
   {
     "action": "type",
     "selector": "[test-id='choose-start-date']",
-    "value": "12/10/2024, 12:43:54 PM"
+    "value": "03/02/2025, 2:57:01 PM"
   },
   {
     "action": "type",
     "selector": "[test-id='choose-end-date']",
-    "value": "1/6/2025, 12:44:55 PM"
+    "value": "04/01/2025, 2:57:02 PM"
   },
   {
     "action": "click",
-    "selector": "[test-id='submit-read']"
+    "selector": "[test-id='submit-meter-read']"
   }
 ]
