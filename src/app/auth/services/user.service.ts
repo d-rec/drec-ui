@@ -17,7 +17,7 @@ export class UserService {
     data['api_user_id'] = api_user_id;
     return this.httpClient.post<any>(this.url + 'user/register', data);
   }
-  public UserConfirmEmail(token: any): Observable<any> {
+  public confirmEmail(token: any): Observable<any> {
     return this.httpClient.put<any>(
       this.url + 'user/confirm-email/' + token,
       {},
