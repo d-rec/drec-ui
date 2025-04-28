@@ -71,6 +71,16 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
+      "index": 8
+    },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "INVITATION_MANAGEMENT_CRUDL"
+    },
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
       "index": 10
     },
     {
