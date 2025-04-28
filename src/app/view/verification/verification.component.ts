@@ -101,7 +101,7 @@ export class VerificationComponent implements AfterViewInit, OnInit {
     });
   }
   resendOtp(): void {
-    if (this.loginUser.phone_number_verified_at !== null) {
+    if (this.loginUser.phone_number_verified_at) {
       this.toastrService.success('You are already verified.');
     } else {
       this.otpService.sendOtp(this.loginUser.phoneNumber).subscribe(
