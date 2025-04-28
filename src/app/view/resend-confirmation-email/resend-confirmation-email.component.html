@@ -1,0 +1,34 @@
+<div class="bg-solar"></div>
+<app-header></app-header>
+<div
+  class="login-wrapper d-flex align-self-center align-items-center flex-column h-100vh justify-content-center drec-login"
+>
+  <mat-card class="box w-45">
+    <mat-card-header>
+      <!-- logo -->
+      <div class="py-4">
+        <img src="assets/images/d-rec-beta-logo.svg" alt="" />
+      </div>
+      <h2 class="pb-0 mb-0 fw-bold">Email-Verification</h2>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="fromregister && success" class="text-center">
+        <p class="w-75 mx-auto">
+          Thank you for registration, Please verify your email address or resend
+          the verification email
+        </p>
+
+        <button
+          (click)="resendConfirmationEmail()"
+          class="btn-primary btn btn-block w-25"
+        >
+          Resend email
+        </button>
+      </div>
+      <p *ngIf="!success">Your {{ message }} ,your token has expired</p>
+    </mat-card-content>
+    <div class="p-3"></div>
+  </mat-card>
+  <app-footer></app-footer>
+</div>
