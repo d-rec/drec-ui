@@ -1,7 +1,12 @@
 import 'cypress-file-upload';
 Cypress.Commands.add('addDevice', function () {
   cy.fixture('add-device.json').then((data) => {
-    data.forEach((step) => {
+    const new_data = data.map((d) =>
+      d.selector === "[test-id='external-id']"
+        ? { ...d, value: Math.floor(Math.random() * (100 - 10 + 1) + 10) }
+        : { ...d },
+    );
+    new_data.forEach((step) => {
       switch (step.action) {
         case 'click':
           return cy.get(step.selector).click().wait(1000);
@@ -14,19 +19,32 @@ Cypress.Commands.add('addDevice', function () {
             .get(step.selector)
             .should('be.visible')
             .clear()
-            .type(step.value + '{enter}');
+            .type(step.value + '{enter}')
+            .wait(1000);
 
         case 'select':
-          return cy
-            .get(step.selector)
-            .click()
-            .get(step.option)
-            .should('have.length.greaterThan', 0)
-            .eq(0)
-            .click();
+          if (step.option === "[test-id='country-options']") {
+            return cy
+              .get(step.selector)
+              .click()
+              .get(step.option)
+              .contains('Rwanda')
+              .click()
+              .wait(1000);
+          } else {
+            return cy
+              .get(step.selector)
+              .click()
+              .get(step.option)
+              .should('have.length.greaterThan', 0)
+              .eq(0)
+              .click()
+              .wait(1000);
+          }
 
         case 'submit':
-          return cy.get(step.selector).click('center', { force: true });
+          cy.get(step.selector).click('center', { force: true });
+          return cy.contains('Added Successfully !!').should('be.visible');
       }
     });
   });

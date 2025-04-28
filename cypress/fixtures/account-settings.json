@@ -41,7 +41,7 @@
     "value": "1234@Drec"
   },
   {
-    "action": "click",
+    "action": "reset",
     "selector": "[test-id='reset-password-form']"
   }
 ]

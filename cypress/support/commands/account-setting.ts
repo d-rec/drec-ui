@@ -13,6 +13,9 @@ Cypress.Commands.add('accountSettings', function () {
             .should('be.visible')
             .clear({ force: true })
             .type(step.value, { force: true });
+        case 'reset':
+          cy.get(step.selector).click('center', { force: true });
+          return cy.contains('Successful').should('be.visible');
       }
     });
   });

@@ -13,7 +13,7 @@
   {
     "action": "type",
     "selector": "[test-id='email']",
-    "value": "developer@energy.org"
+    "value": "dev19@energy.org"
   },
   {
     "action": "type",
@@ -32,7 +32,7 @@
   {
     "action": "type",
     "selector": "[test-id='organization-name']",
-    "value": "developers"
+    "value": "developer19"
   },
   {
     "action": "type",
@@ -83,7 +83,7 @@
     "selector": "[test-id='next-to-password']"
   },
   {
-    "action": "click",
+    "action": "submit",
     "selector": "[test-id='submit-registration']"
   }
 ]
