@@ -101,14 +101,18 @@ export class VerificationComponent implements AfterViewInit, OnInit {
     });
   }
   resendOtp(): void {
-    this.otpService.sendOtp(this.loginUser.phoneNumber).subscribe(
-      (response) => {
-        this.toastrService.success(response.message);
-      },
-      (error) => {
-        this.toastrService.error(error.error.message);
-        console.error('Error sending OTP:', error);
-      },
-    );
+    if (this.loginUser.phone_number_verified_at !== null) {
+      this.toastrService.success('You are already verified.');
+    } else {
+      this.otpService.sendOtp(this.loginUser.phoneNumber).subscribe(
+        (response) => {
+          this.toastrService.success(response.message);
+        },
+        (error) => {
+          this.toastrService.error(error.error.message);
+          console.error('Error sending OTP:', error);
+        },
+      );
+    }
   }
 }
