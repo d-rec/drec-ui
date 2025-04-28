@@ -1,0 +1,41 @@
+[
+    {
+      "action": "click",
+      "selector": "[test-id='organization']"
+    },
+
+    {
+      "action": "click",
+      "selector": "[test-id='invitation']"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='enter-firstname']",
+      "value": "Bella"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='enter-lastname']",
+      "value": "Ange"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='enter-email']",
+      "value": "bellaange@gmail.com"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='enter-phone-number']",
+      "value": "+250784045433"
+    },
+    {
+      "action": "select",
+      "selector": "[test-id='user-role']",
+      "option": "[test-id='select-user-role']"
+    },
+    {
+      "action": "submit",
+      "selector": "[test-id='submit-user']"
+    }
+  ]
+  

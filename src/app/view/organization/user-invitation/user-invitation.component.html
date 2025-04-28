@@ -40,7 +40,7 @@
                                     </div> -->
                   <div class="example-container1 row">
                     <div class="col-md-3">
-                      <mat-form-field appearance="outline">
+                      <mat-form-field appearance="outline" test-id="enter-firstname">
                         <mat-label class="text-capitalize"
                           >First Name</mat-label
                         >
@@ -53,7 +53,7 @@
                       </mat-form-field>
                     </div>
                     <div class="col-md-3">
-                      <mat-form-field appearance="outline">
+                      <mat-form-field appearance="outline" test-id="enter-lastname">
                         <mat-label class="text-capitalize">Last Name</mat-label>
                         <input
                           autofocus
@@ -65,7 +65,7 @@
                     </div>
 
                     <div class="col-md-3">
-                      <mat-form-field appearance="outline">
+                      <mat-form-field appearance="outline" test-id="enter-email">
                         <mat-label class="text-capitalize">Email</mat-label>
                         <input
                           autofocus
@@ -76,7 +76,7 @@
                       </mat-form-field>
                     </div>
                     <div class="col-md-3">
-                      <mat-form-field appearance="outline">
+                      <mat-form-field appearance="outline" test-id="enter-phone-number">
                         <mat-label class="mat-labels-cont"
                           >Phone Number</mat-label
                         >
@@ -121,10 +121,11 @@
                         <mat-label class="mat-labels-cont text-capitalize"
                           >Role</mat-label
                         >
-                        <mat-select formControlName="role" class="value-fs">
+                        <mat-select formControlName="role" class="value-fs" test-id="user-role">
                           <mat-option
                             *ngFor="let org of orgtypebuyer"
                             [value]="org.value"
+                            test-id="select-user-role"
                           >
                             {{ org.viewValue }}
                           </mat-option>
@@ -155,6 +156,7 @@
                         type="submit"
                         class="btn-primary btn text-capitalize px-4"
                         [disabled]="inviteForm.invalid"
+                        test-id="submit-user"
                       >
                         Submit</button
                       >&nbsp;&nbsp;
