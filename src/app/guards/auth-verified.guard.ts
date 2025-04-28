@@ -1,5 +1,8 @@
-import { CanActivateFn } from '@angular/router';
+import { CanActivateFn, Router } from '@angular/router';
 import { AuthGuard } from './auth.guard';
+import { inject } from '@angular/core';
+import { UserService } from '../auth/services/user.service';
+import { map } from 'rxjs/operators';
 
 export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
   // First check if user is logged in
@@ -10,13 +13,16 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
     return loggedInResult;
   }
 
-  // const router = inject(Router);
+  const router = inject(Router);
+  const userService = inject(UserService);
 
-  // Additional access checks can go here
+  return userService.userProfile().pipe(
+    map((user) => {
+      if (!user.emailVerifiedAt) {
+        return router.createUrlTree(['/resend-confirmation-email']);
+      }
 
-  // if (user.emailVerifiedAt === null) {
-  //   router.navigate(['/confirm-email']);
-  // }
-
-  return true;
+      return true;
+    }),
+  );
 };

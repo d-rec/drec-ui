@@ -2,8 +2,10 @@ import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { UserService, InvitationService } from '../../auth/services';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { decodeJwtToken, storeUserSession } from '../../utils/token-utils';
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -14,90 +16,52 @@ export class LoginComponent implements OnInit {
     username: new FormControl(''),
     password: new FormControl(''),
   });
+
   selectedOption: string;
   clientid: string;
   client_secret: string;
   hide = true;
-  // loginForm: FormGroup;
+  accesstoken: any;
+  fromregister: boolean = true;
+  message: string;
+  success: boolean = true;
+
+  @Output() submitEM = new EventEmitter();
+
   constructor(
     private authService: AuthbaseService,
     private router: Router,
     private toastrService: ToastrService,
     private userService: UserService,
     private inviteservice: InvitationService,
+    private activatedRoute: ActivatedRoute,
   ) {}
+
   ngOnInit() {
-    // Set the default option here (e.g., "option1")
     this.selectedOption = 'Form1';
   }
-  padBase64(token: any) {
-    const base64 = token.replace('-', '+').replace('_', '/');
-    return base64;
-  }
-  b64DecodeUnicode(token: any) {
-    const base64Payload = window.atob(token);
-    return base64Payload;
-  }
-  onSubmit() {
-    this.authService.login('auth/login', this.loginForm.value).subscribe(
-      (data) => {
-        if (data['accessToken'] != null) {
-          sessionStorage.setItem('access-token', data['accessToken']);
-          const jwtObj = JSON.parse(
-            this.b64DecodeUnicode(
-              this.padBase64(data['accessToken'].split('.')[1]),
-            ),
-          );
 
-          //sessionStorage.setItem('loginuser', jwtObj);
-          sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
-          //var obj = JSON.parse(sessionStorage.loginuser);
+  /**
+   * Handle login form submission
+   */
+  onSubmit() {
+    this.authService.login('auth/login', this.loginForm.value).subscribe({
+      next: (data) => {
+        if (data['accessToken'] != null) {
+          storeUserSession(data['accessToken']);
+          const jwtObj = decodeJwtToken(data['accessToken']);
+
           this.userService.userProfile().subscribe({
-            next: (data1) => {
-              sessionStorage.setItem('status', data1.status);
-              sessionStorage.setItem('apiuserId', data1.api_user_id);
-              if (data1.status != 'Pending' && data1.organization != null) {
-                if (data1.organization.organizationType === 'Buyer') {
-                  this.router.navigate(['/myreservation']);
-                } else if (jwtObj.role === 'Admin') {
-                  this.router.navigate(['/admin/All_devices']);
-                } else {
-                  this.router.navigate(['/device/AllList']);
-                }
-                this.toastrService.success(
-                  'Login user ' + jwtObj.email + '!',
-                  'Login Success',
-                );
+            next: (userData) => {
+              storeUserSession(data['accessToken'], userData);
+
+              if (
+                userData.status != 'Pending' &&
+                userData.organization != null
+              ) {
+                this.navigateBasedOnUserType(userData, jwtObj);
               } else {
-                this.inviteservice.getinvitationByemail().subscribe({
-                  next: (data) => {
-                    const invitationId = data.id;
-                    const loginuser = JSON.parse(
-                      sessionStorage.getItem('loginuser') as any,
-                    );
-                    // Update the role property of the loginuser object with the new value
-                    loginuser.role = data.role;
-                    // Save the updated loginuser object back to sessionStorage
-                    sessionStorage.setItem(
-                      'loginuser',
-                      JSON.stringify(loginuser),
-                    );
-                    this.inviteservice
-                      .acceptinvitaion(invitationId, {
-                        email: jwtObj.email,
-                        status: 'Accepted',
-                      })
-                      .subscribe({
-                        next: () => {
-                          this.toastrService.success(
-                            'Accept Sucessful!',
-                            'Invitation ',
-                          );
-                          this.onSubmit();
-                        },
-                      });
-                  },
-                });
+                this.handlePendingUser(jwtObj);
               }
             },
             error: (err) => {
@@ -112,13 +76,68 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['/login']);
         }
       },
-      (error) => {
-        //Error callback
+      error: (error) => {
         console.error('error caught in component', error);
         this.toastrService.error('Check Your Credential!', 'Login Fail!!');
       },
+    });
+  }
+
+  /**
+   * Navigate user to appropriate page based on their type
+   */
+  private navigateBasedOnUserType(userData: any, jwtObj: any): void {
+    if (userData.organization.organizationType === 'Buyer') {
+      this.router.navigate(['/myreservation']);
+    } else if (jwtObj.role === 'Admin') {
+      this.router.navigate(['/admin/All_devices']);
+    } else {
+      this.router.navigate(['/device/AllList']);
+    }
+
+    this.toastrService.success(
+      'Login user ' + jwtObj.email + '!',
+      'Login Success',
     );
   }
 
-  @Output() submitEM = new EventEmitter();
+  /**
+   * Handle pending user by checking for invitations
+   */
+  private handlePendingUser(jwtObj: any): void {
+    this.inviteservice.getinvitationByemail().subscribe({
+      next: (invitationData) => {
+        const invitationId = invitationData.id;
+        const loginuser = JSON.parse(
+          sessionStorage.getItem('loginuser') as any,
+        );
+
+        loginuser.role = invitationData.role;
+
+        sessionStorage.setItem('loginuser', JSON.stringify(loginuser));
+
+        this.inviteservice
+          .acceptinvitaion(invitationId, {
+            email: jwtObj.email,
+            status: 'Accepted',
+          })
+          .subscribe({
+            next: () => {
+              this.toastrService.success('Accept Sucessful!', 'Invitation ');
+              this.onSubmit();
+            },
+            error: (err) =>
+              this.toastrService.error(
+                'Error accepting invitation!',
+                err.error.message,
+              ),
+          });
+      },
+      error: (err) =>
+        this.toastrService.error(
+          'Error fetching invitation!',
+          err.error.message,
+        ),
+    });
+  }
 }
