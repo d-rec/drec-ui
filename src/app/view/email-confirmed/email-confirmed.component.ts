@@ -32,7 +32,6 @@ export class EmailConfirmedComponent implements OnInit {
   emailConfirmed(accessToken: any) {
     this.userService.confirmEmail(accessToken).subscribe({
       next: (data: any) => {
-        console.log(data);
         this.message = data.message;
 
         this.toastrService.success(' Successful !!', this.message);
