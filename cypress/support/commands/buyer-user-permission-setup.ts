@@ -23,11 +23,8 @@ Cypress.Commands.add('buyerUserPermissionsSetup', function () {
             });
           });
         case 'submit':
-          return cy
-            .get(step.selector)
-            .scrollIntoView()
-            .should('be.visible')
-            .click();
+          cy.get(step.selector).scrollIntoView().should('be.visible').click();
+          return cy.contains('SuccessFul').should('be.visible');
       }
     });
   });
