@@ -181,7 +181,7 @@ export class AddDevicesComponent {
       deviceDescription: [null],
       energyStorage: [true],
       energyStorageCapacity: [null],
-      stateOrProvince: [null, this.stateOrProvinceValidator()],
+      stateOrProvince: [null],
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
@@ -263,7 +263,7 @@ export class AddDevicesComponent {
       deviceDescription: [null],
       energyStorage: true,
       energyStorageCapacity: [null],
-      stateOrProvince: [null, this.stateOrProvinceValidator()],
+      stateOrProvince: [null],
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
@@ -371,13 +371,5 @@ export class AddDevicesComponent {
         },
       });
     });
-  }
-  stateOrProvinceValidator() {
-    return (control: FormControl) => {
-      if (!control.value) {
-        return null;
-      }
-      return null;
-    };
   }
 }
