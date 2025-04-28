@@ -16,7 +16,7 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
   // Additional access checks can go here
   userService.userProfile().subscribe({
     next: (data) => {
-      if (data.terms_accept_at === null) {
+      if (!data.terms_accept_at) {
         window.location.href = '/accept-terms-and-conditions';
       }
     },
