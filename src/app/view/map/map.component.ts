@@ -6,11 +6,11 @@ import { MapDevicesService } from '../../auth/services/map-devices.service';
 import { OrganizationType } from '../../utils/enums/organization-types.enum';
 
 @Component({
-  selector: 'app-map-devices',
-  templateUrl: './map-devices.component.html',
-  styleUrls: ['./map-devices.component.scss'],
+  selector: 'app-map',
+  templateUrl: './map.component.html',
+  styleUrls: ['./map.component.scss'],
 })
-export class MapDevicesComponent implements OnInit {
+export class MapComponent implements OnInit {
   // Map options
   options: L.MapOptions = {
     layers: [],

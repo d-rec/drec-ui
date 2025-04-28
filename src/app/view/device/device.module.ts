@@ -8,7 +8,7 @@ import { AddDevicesComponent } from './add-devices/add-devices.component';
 import { AddBulkDeviceComponent } from './add-bulk-device/add-bulk-device.component';
 import { EditDeviceComponent } from './edit-device/edit-device.component';
 import { DeviceDetailsComponent } from './device-details/device-details.component';
-import { MapDevicesModule } from '../map/map-devices.module';
+import { MapModule } from '../map/map.module';
 @NgModule({
   declarations: [
     AlldevicesComponent,
@@ -23,7 +23,7 @@ import { MapDevicesModule } from '../map/map-devices.module';
     MaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    MapDevicesModule,
+    MapModule,
   ],
 })
 export class DeviceModule {}

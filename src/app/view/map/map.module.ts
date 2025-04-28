@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { MapDevicesComponent } from './map-devices.component';
+import { MapComponent } from './map.component';
 import { NgModule } from '@angular/core';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { MapDevicesService } from '../../auth/services/map-devices.service';
 
 @NgModule({
-  declarations: [MapDevicesComponent],
+  declarations: [MapComponent],
   imports: [CommonModule, LeafletModule],
-  exports: [MapDevicesComponent],
+  exports: [MapComponent],
   providers: [MapDevicesService],
 })
-export class MapDevicesModule {}
+export class MapModule {}
