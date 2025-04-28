@@ -17,7 +17,6 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
   userService.userProfile().subscribe({
     next: (data) => {
       if (data.terms_accept_at === null) {
-        sessionStorage.setItem('redirectUrl', state.url);
         window.location.href = '/accept-terms-and-conditions';
       }
     },

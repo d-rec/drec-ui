@@ -32,11 +32,6 @@ export class AcceptTermsAndConditionsComponent {
   termsAndConditions() {
     this.userService.acceptTermsAndConditions().subscribe({
       next: () => {
-        const redirectUrl = sessionStorage.getItem('redirectUrl');
-        if (redirectUrl) {
-          this.router.navigateByUrl(redirectUrl);
-          sessionStorage.removeItem('redirectUrl');
-        }
         this.toastrService.success(
           'Successful !!',
           'Terms and Conditions Accepted',
