@@ -50,15 +50,4 @@ export class UserService {
   public getuserById(id: number): Observable<any> {
     return this.httpClient.get<any>(this.url + 'user/' + id);
   }
-  public verifyOtp(phoneNumber: string, otp: string): Observable<any> {
-    return this.httpClient.post<any>(this.url + 'user/verify-otp', {
-      phoneNumber,
-      otp,
-    });
-  }
-  public sendOtp(phoneNumber: string): Observable<any> {
-    return this.httpClient.post<any>(this.url + 'user/send-otp', {
-      phoneNumber,
-    });
-  }
 }

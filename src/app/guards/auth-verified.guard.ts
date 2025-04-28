@@ -16,10 +16,8 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
   userService.userProfile().subscribe({
     next: (data) => {
-      if (data.is_phone_verified === false) {
+      if (!data.phone_number_verified_at) {
         router.navigate(['/verify-otp']);
-        sessionStorage.setItem('redirectUrl', state.url);
-        sessionStorage.setItem('phoneNumber', data.phoneNumber);
       }
     },
   });

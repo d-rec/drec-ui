@@ -189,21 +189,13 @@ export class RegisterComponent implements OnInit {
     return jwtObj;
   }
 
-  private handleUserLogin(loginCredentials: any, isApiUser = false): void {
+  private handleUserLogin(loginCredentials: any): void {
     this.authService.login('auth/login', loginCredentials).subscribe({
       next: (data) => {
         const jwtObj = this.handleJwtAuthentication(data['accessToken']);
         if (!jwtObj) return;
-
-        if (isApiUser) {
-          this.handleApiUserLogin();
-          return;
-        }
-
-        const route =
-          jwtObj.role === 'Buyer' ? '/myreservation' : '/device/AllList';
         this.router.navigate(['/verify-otp']);
-        sessionStorage.setItem('redirectUrl', route);
+
         this.toastrService.success(
           `login user ${jwtObj.email}!`,
           'login Success',
@@ -245,7 +237,7 @@ export class RegisterComponent implements OnInit {
       .subscribe({
         next: (keydata) => {
           this.downloadAccessKey(keydata);
-          setTimeout(() => this.handleUserLogin(loginCredentials, true), 1000);
+          setTimeout(() => this.handleUserLogin(loginCredentials), 1000);
         },
       });
   }
@@ -281,7 +273,6 @@ export class RegisterComponent implements OnInit {
           this.handleApiUserRegistration(data, loginCredentials);
           return;
         }
-        sessionStorage.setItem('phoneNumber', formValues.phoneNumber);
         this.handleUserLogin(loginCredentials);
       },
       error: (err) => {

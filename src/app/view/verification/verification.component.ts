@@ -4,28 +4,42 @@ import {
   QueryList,
   ElementRef,
   AfterViewInit,
+  OnInit,
 } from '@angular/core';
 import { UserService } from '../../auth/services/user.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { OtpService } from '../../auth/services/otp.service';
 
 @Component({
   selector: 'app-verification',
   templateUrl: './verification.component.html',
   styleUrls: ['./verification.component.scss'],
 })
-export class VerificationComponent implements AfterViewInit {
+export class VerificationComponent implements AfterViewInit, OnInit {
   otp: string[] = Array(6).fill('');
-  phoneNumber: string = sessionStorage.getItem('phoneNumber') || '';
+  loginUser: any;
+  phoneNumber: string = '';
 
   @ViewChildren('otpInput') otpInputs!: QueryList<ElementRef>;
 
   constructor(
+    private otpService: OtpService,
     private userService: UserService,
     private router: Router,
     private toastrService: ToastrService,
   ) {}
-
+  ngOnInit(): void {
+    this.userService.userProfile().subscribe({
+      next: (data) => {
+        this.loginUser = data;
+        this.phoneNumber = this.loginUser.phoneNumber;
+      },
+      error: (err) => {
+        console.error('Error fetching user profile:', err);
+      },
+    });
+  }
   ngAfterViewInit(): void {
     this.otpInputs.first?.nativeElement.focus();
   }
@@ -62,15 +76,14 @@ export class VerificationComponent implements AfterViewInit {
       return;
     }
 
-    this.userService.verifyOtp(this.phoneNumber, code).subscribe(
+    this.otpService.verifyOtp(this.phoneNumber, code).subscribe(
       (response) => {
         this.toastrService.success(response.message);
-        const redirectUrl = sessionStorage.getItem('redirectUrl');
-        const phoneNumber = sessionStorage.getItem('phoneNumber');
-        if (redirectUrl) {
-          this.router.navigateByUrl(redirectUrl);
-          sessionStorage.removeItem('redirectUrl');
-          if (phoneNumber) return sessionStorage.removeItem('phoneNumber');
+        this.clearOtp();
+        if (this.loginUser.role === 'Buyer') {
+          this.router.navigate(['/myreservation']);
+        } else {
+          this.router.navigate(['/device/AllList']);
         }
       },
       (error) => {
@@ -88,7 +101,7 @@ export class VerificationComponent implements AfterViewInit {
     });
   }
   resendOtp(): void {
-    this.userService.sendOtp(this.phoneNumber).subscribe(
+    this.otpService.sendOtp(this.loginUser.phoneNumber).subscribe(
       (response) => {
         this.toastrService.success(response.message);
       },
