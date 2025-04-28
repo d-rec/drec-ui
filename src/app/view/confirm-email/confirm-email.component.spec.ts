@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ConfirmemailComponent } from './confirmemail.component';
+import { ConfirmEmailComponent } from './confirm-email.component';
 
-describe('ConfirmemailComponent', () => {
-  let component: ConfirmemailComponent;
-  let fixture: ComponentFixture<ConfirmemailComponent>;
+describe('ConfirmEmailComponent', () => {
+  let component: ConfirmEmailComponent;
+  let fixture: ComponentFixture<ConfirmEmailComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ConfirmemailComponent],
+      declarations: [ConfirmEmailComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ConfirmemailComponent);
+    fixture = TestBed.createComponent(ConfirmEmailComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
