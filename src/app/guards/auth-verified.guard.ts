@@ -18,7 +18,7 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
 
   return userService.userProfile().pipe(
     map((user) => {
-      if (user.emailVerifiedAt === null) {
+      if (!user.emailVerifiedAt) {
         return router.createUrlTree(['/resend-confirmation-email']);
       }
 
