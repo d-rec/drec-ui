@@ -7,7 +7,7 @@
           I agree to the Terms and Conditions
         </mat-checkbox>
         <button mat-raised-button class="btn-primary btn ms-2 btn-block" [disabled]="termsForm.invalid|| isSubmitting"
-          (click)="onSubmit()" type="submit">Accept</button>
+          (click)="onSubmit()" type="submit" test-id="accept-terms-and-conditions">Accept</button>
       </form>
       <button mat-raised-button class="btn-primary btn ms-2 btn-block" (click)="logout()">Decline</button>
     </div>

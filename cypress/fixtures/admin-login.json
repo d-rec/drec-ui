@@ -16,5 +16,8 @@
   {
     "action": "click",
     "selector": "[test-id='login-submit']"
+  },
+  {
+    "action": "checkTerms"
   }
 ]
