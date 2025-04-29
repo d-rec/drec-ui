@@ -36,6 +36,7 @@ export class AcceptTermsAndConditionsComponent {
           'Successful !!',
           'Terms and Conditions Accepted',
         );
+        this.router.navigate(['/']);  
       },
       error: (err) => {
         this.toastrService.error('Error', err.error);

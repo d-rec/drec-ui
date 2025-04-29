@@ -17,11 +17,14 @@ export class UserService {
     data['api_user_id'] = api_user_id;
     return this.httpClient.post<any>(this.url + 'user/register', data);
   }
-  public UserConfirmEmail(token: any): Observable<any> {
+  public confirmEmail(token: any): Observable<any> {
     return this.httpClient.put<any>(
       this.url + 'user/confirm-email/' + token,
       {},
     );
+  }
+  public resendConfirmationEmail(): Observable<any> {
+    return this.httpClient.put<any>(this.url + 'user/resend-confirm-email', {});
   }
   public UserForgetPassword(data: any): Observable<any> {
     return this.httpClient.post<any>(this.url + 'user/forget-password', data);
@@ -52,7 +55,7 @@ export class UserService {
   }
   public acceptTermsAndConditions(): Observable<any> {
     return this.httpClient.patch<any>(
-      this.url + 'user/accept-terms-and-conditons',
+      this.url + 'user/accept-terms-and-conditions',
       {},
     );
   }

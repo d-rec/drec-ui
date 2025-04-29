@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { WithLoginLayoutComponent } from './nav/withloginlayout/with-login-layout.component';
-import { WithoutLoginLayoutComponent } from './nav/withoutloginlayout/without-login-layout.component';
-import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlayout/with-login-unverified-layout.component';
+import { AuthLayoutComponent } from './layout/auth/auth-layout.component';
+import { GuestLayoutComponent } from './layout/guest/guest-layout.component';
+import { DefaultLayoutComponent } from './layout/default/default-layout.component';
 import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
-import { ConfirmemailComponent } from './view/confirmemail/confirmemail.component';
+import { ConfirmEmailComponent } from './view/confirm-email/confirm-email.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
 import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
@@ -19,6 +19,7 @@ import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-a
 import { AuthGuard } from './guards/auth.guard';
 import { AuthVerifiedGuard } from './guards/auth-verified.guard';
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
+import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
 
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
@@ -28,28 +29,35 @@ const routes: Routes = [
     data: { title: 'First Component' },
     pathMatch: 'full',
   },
-
   {
     path: '',
-    component: WithoutLoginLayoutComponent,
-    data: { title: 'First Component' },
+    component: GuestLayoutComponent,
     children: [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      { path: 'confirm-email', component: ConfirmemailComponent },
       { path: 'forgot-password', component: ForgetPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
-      { path: 'terms-and-conditions', component: TermsAndConditionsComponent },
       {
         path: 'user/acceptInvitaion',
         component: UserAcceptInvitationComponent,
+      },
+      {
+        path: 'confirm-email',
+        component: ConfirmEmailComponent,
       },
     ],
   },
   {
     path: '',
-    component: WithLoginUnverifiedLayoutComponent,
+    component: DefaultLayoutComponent,
+    children: [
+      { path: 'terms-and-conditions', component: TermsAndConditionsComponent },
+    ],
+  },
+  {
+    path: '',
+    component: DefaultLayoutComponent,
     canActivate: [AuthGuard],
     children: [
       // Other routes available only to logged-in but unverified users
@@ -57,11 +65,15 @@ const routes: Routes = [
         path: 'accept-terms-and-conditions',
         component: AcceptTermsAndConditionsComponent,
       },
+      {
+        path: 'resend-confirmation-email',
+        component: ResendConfirmEmailComponent,
+      },
     ],
   },
   {
     path: '',
-    component: WithLoginLayoutComponent,
+    component: AuthLayoutComponent,
     canActivate: [AuthVerifiedGuard],
     children: [
       { path: '', redirectTo: 'device', pathMatch: 'full' },
