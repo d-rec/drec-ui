@@ -2,9 +2,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthGuard } from './auth.guard';
 import { UserService } from '../auth/services/user.service';
 import { inject } from '@angular/core';
-import { map, switchMap } from 'rxjs/operators';
-import { of } from 'rxjs';
-import { DocumentsUploadService } from '../auth/services/documents-upload.service';
+import { map } from 'rxjs/operators';
 
 export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
   // First check if user is logged in
@@ -17,22 +15,17 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
 
   const router = inject(Router);
   const userService = inject(UserService);
-  const documentService = inject(DocumentsUploadService);
 
   return userService.userProfile().pipe(
-    switchMap((user: any) => {
-      if (user.organization.verifiedAt === null) {
-        return documentService.getDocumentUploads().pipe(
-          map((uploadedDocuments: any) => {
-            if (uploadedDocuments.length === 4) {
-              return router.createUrlTree(['/wait-verification']);
-            } else {
-              return router.createUrlTree(['/documents-upload']);
-            }
-          }),
-        );
+    map((user) => {
+      if (!user.emailVerifiedAt) {
+        return router.createUrlTree(['/resend-confirmation-email']);
       }
-      return of(true);
+      if (user.organization.verifiedAt === null) {
+        return router.createUrlTree(['/documents-upload']);
+      }
+
+      return true;
     }),
   );
 };

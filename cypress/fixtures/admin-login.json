@@ -10,7 +10,7 @@
     "index": 1
   },
   {
-    "action": "click",
+    "action": "click", 
     "selector": "[test-id='hide-password']"
   },
   {
