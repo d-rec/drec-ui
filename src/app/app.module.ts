@@ -40,7 +40,6 @@ import { SharedModule } from './shared.module';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
-import { WaitVerificationComponent } from './view/wait-verification/wait-verification.component';
 import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlayout/with-login-unverified-layout.component';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
 @NgModule({
@@ -74,7 +73,6 @@ import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/re
     ApiuserClientReponseComponent,
     TermsAndConditionsComponent,
     DocumentsUploadComponent,
-    WaitVerificationComponent,
     ResendConfirmEmailComponent,
   ],
   imports: [

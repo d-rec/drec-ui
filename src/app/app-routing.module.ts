@@ -17,7 +17,6 @@ import { UserProfileComponent } from './view/user-profile/user-profile.component
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
-import { WaitVerificationComponent } from './view/wait-verification/wait-verification.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthVerifiedGuard } from './guards/auth-verified.guard';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
@@ -57,7 +56,6 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: 'documents-upload', component: DocumentsUploadComponent },
-      { path: 'wait-verification', component: WaitVerificationComponent },
       {
         path: 'resend-confirmation-email',
         component: ResendConfirmEmailComponent,
