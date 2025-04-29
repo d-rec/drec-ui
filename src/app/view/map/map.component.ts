@@ -35,16 +35,16 @@ export class MapComponent implements OnInit {
     this.map = map;
     this.markerGroup.addTo(this.map);
     this.isMapInitialized = true;
-    this.updateMap();
+    this.update();
   }
 
   ngOnChanges(): void {
     if (this.isMapInitialized) {
-      this.updateMap();
+      this.update();
     }
   }
 
-  updateMap(): void {
+  update(): void {
     this.mapService.addMarkers(this.map, this.markers, this.markerGroup);
   }
 }

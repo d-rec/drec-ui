@@ -494,7 +494,7 @@ export class AlldevicesComponent {
 
       // If the map is already initialized, update it directly
       if (this.mapComponent.isMapInitialized) {
-        this.mapComponent.updateMap();
+        this.mapComponent.update();
       }
     }
   }

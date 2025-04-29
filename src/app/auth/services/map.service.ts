@@ -55,10 +55,10 @@ export class MapService {
       markerGroup.addLayer(marker);
     });
 
-    this.fitMapToBounds(map, markers);
+    this.fitToBounds(map, markers);
   }
 
-  fitMapToBounds(map: L.Map, markers: MapMarker[]): void {
+  fitToBounds(map: L.Map, markers: MapMarker[]): void {
     const validCoordinates = markers
       .filter((m) => !isNaN(m.latitude) && !isNaN(m.longitude))
       .map((m) => [m.latitude, m.longitude] as L.LatLngTuple);
