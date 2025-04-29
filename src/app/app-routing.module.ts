@@ -20,28 +20,25 @@ import { AuthGuard } from './guards/auth.guard';
 import { AuthVerifiedGuard } from './guards/auth-verified.guard';
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
+import { DashboardComponent } from './view/dashboard/dashboard.component';
+import { GuestGuard } from './guards/guest.guard';
 
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
   {
     path: '',
     redirectTo: 'login',
-    data: { title: 'First Component' },
     pathMatch: 'full',
   },
   {
     path: '',
     component: GuestLayoutComponent,
+    canActivate: [GuestGuard],
     children: [
-      { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
       { path: 'forgot-password', component: ForgetPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
-      {
-        path: 'user/acceptInvitaion',
-        component: UserAcceptInvitationComponent,
-      },
       {
         path: 'confirm-email',
         component: ConfirmEmailComponent,
@@ -53,6 +50,16 @@ const routes: Routes = [
     component: DefaultLayoutComponent,
     children: [
       { path: 'terms-and-conditions', component: TermsAndConditionsComponent },
+    ],
+  },
+  {
+    path: '',
+    component: GuestLayoutComponent,
+    children: [
+      {
+        path: 'user/acceptInvitaion',
+        component: UserAcceptInvitationComponent,
+      },
     ],
   },
   {
@@ -76,8 +83,7 @@ const routes: Routes = [
     component: AuthLayoutComponent,
     canActivate: [AuthVerifiedGuard],
     children: [
-      { path: '', redirectTo: 'device', pathMatch: 'full' },
-
+      { path: 'dashboard', component: DashboardComponent },
       { path: 'All_certificate', component: CertificateDetailsComponent },
       { path: 'certificate', component: CertificateComponent },
       { path: 'myreservation', component: MyreservationComponent },

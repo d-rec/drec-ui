@@ -42,6 +42,7 @@ import { MarkdownModule } from 'ngx-markdown';
 import { DefaultLayoutComponent } from './layout/default/default-layout.component';
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
+import { DashboardComponent } from './view/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -75,6 +76,7 @@ import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/re
     TermsAndConditionsComponent,
     AcceptTermsAndConditionsComponent,
     ResendConfirmEmailComponent,
+    DashboardComponent,
   ],
   imports: [
     BrowserModule,

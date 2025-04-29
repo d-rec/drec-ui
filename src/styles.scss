@@ -465,6 +465,10 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
   min-width: 105px;
 }
 
+.h-100vh {
+  height: 100vh;
+}
+
 
 .guest-layout {
   $primary: #f2be1a;
@@ -573,10 +577,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
     padding: 0.8375em 0;
   }
 
-  .h-100vh {
-    height: 100vh;
-  }
-
+  
   .mat-mdc-card {
     border-radius: 10px !important;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
