@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { WithLoginLayoutComponent } from './nav/withloginlayout/with-login-layout.component';
-import { WithoutLoginLayoutComponent } from './nav/withoutloginlayout/without-login-layout.component';
-import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlayout/with-login-unverified-layout.component';
+import { AuthLayoutComponent } from './layout/auth/auth-layout.component';
+import { GuestLayoutComponent } from './layout/guest/guest-layout.component';
+import { DefaultLayoutComponent } from './layout/default/default-layout.component';
 import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
@@ -29,18 +29,15 @@ const routes: Routes = [
     data: { title: 'First Component' },
     pathMatch: 'full',
   },
-
   {
     path: '',
-    component: WithoutLoginLayoutComponent,
-    data: { title: 'First Component' },
+    component: GuestLayoutComponent,
     children: [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
       { path: 'forgot-password', component: ForgetPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
-      { path: 'terms-and-conditions', component: TermsAndConditionsComponent },
       {
         path: 'user/acceptInvitaion',
         component: UserAcceptInvitationComponent,
@@ -53,7 +50,14 @@ const routes: Routes = [
   },
   {
     path: '',
-    component: WithLoginUnverifiedLayoutComponent,
+    component: DefaultLayoutComponent,
+    children: [
+      { path: 'terms-and-conditions', component: TermsAndConditionsComponent },
+    ],
+  },
+  {
+    path: '',
+    component: DefaultLayoutComponent,
     canActivate: [AuthGuard],
     children: [
       // Other routes available only to logged-in but unverified users
@@ -69,7 +73,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    component: WithLoginLayoutComponent,
+    component: AuthLayoutComponent,
     canActivate: [AuthVerifiedGuard],
     children: [
       { path: '', redirectTo: 'device', pathMatch: 'full' },

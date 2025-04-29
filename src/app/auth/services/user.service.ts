@@ -55,7 +55,7 @@ export class UserService {
   }
   public acceptTermsAndConditions(): Observable<any> {
     return this.httpClient.patch<any>(
-      this.url + 'user/accept-terms-and-conditons',
+      this.url + 'user/accept-terms-and-conditions',
       {},
     );
   }
