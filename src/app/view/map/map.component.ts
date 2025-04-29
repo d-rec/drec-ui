@@ -1,12 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
 import * as L from 'leaflet';
-import { MapService } from '../../auth/services/map.service';
 
 export interface MapMarker {
   latitude: number;
   longitude: number;
   title?: string;
 }
+
 @Component({
   selector: 'app-map',
   templateUrl: './map.component.html',
@@ -25,8 +25,8 @@ export class MapComponent implements OnInit {
   markerGroup = L.featureGroup();
   isMapInitialized = false;
 
-  constructor(private mapService: MapService) {
-    this.options.layers = [this.mapService.createTileLayer()];
+  constructor() {
+    this.options.layers = [this.createTileLayer()];
   }
 
   ngOnInit(): void {}
@@ -45,6 +45,71 @@ export class MapComponent implements OnInit {
   }
 
   update(): void {
-    this.mapService.addMarkers(this.map, this.markers, this.markerGroup);
+    this.addMarkers();
+  }
+
+  private createCustomIcon(): L.Icon {
+    return L.icon({
+      iconUrl: 'assets/images/map-location.svg',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    });
+  }
+
+  private createTileLayer(): L.TileLayer {
+    return L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+      {
+        minZoom: 3,
+        maxZoom: 17,
+        attribution:
+          '&copy; <a href="https://carto.com/">carto.com</a> contributors',
+      },
+    );
+  }
+
+  private addMarkers(): void {
+    this.markerGroup.clearLayers();
+
+    if (
+      !this.markers ||
+      !Array.isArray(this.markers) ||
+      this.markers.length === 0
+    ) {
+      return;
+    }
+
+    const customIcon = this.createCustomIcon();
+
+    this.markers.forEach((markerData: MapMarker) => {
+      const { latitude, longitude, title } = markerData;
+
+      if (isNaN(latitude) || isNaN(longitude)) {
+        return;
+      }
+
+      const marker = L.marker([latitude, longitude], {
+        title,
+        icon: customIcon,
+      });
+
+      this.markerGroup.addLayer(marker);
+    });
+
+    this.fitToBounds();
+  }
+
+  private fitToBounds(): void {
+    const validCoordinates = this.markers
+      .filter((m) => !isNaN(m.latitude) && !isNaN(m.longitude))
+      .map((m) => [m.latitude, m.longitude] as L.LatLngTuple);
+
+    if (validCoordinates.length > 0) {
+      const bounds = L.latLngBounds(validCoordinates);
+      this.map.fitBounds(bounds, { padding: [50, 50] });
+    } else {
+      this.map.setView([20, 0], 2); // default world view
+    }
   }
 }
