@@ -15,7 +15,7 @@
   {
     "action": "type",
     "selector": "[test-id='email']",
-    "value": "buyer19@energy.org",
+    "value": "buyertest@energy.org",
     "log": "Email entered successfully"
   },
   {

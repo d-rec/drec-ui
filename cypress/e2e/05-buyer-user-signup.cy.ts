@@ -3,6 +3,7 @@ describe('Sign Up Test', () => {
     cy.wait(5000);
   });
   it('should sign up a new buyer user', () => {
-    cy.buyerUserSignup();
+    cy.buyerUserSignup().wait(1000);
+    cy.buyerUserLogin();
   });
 });
