@@ -8,7 +8,13 @@
           <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">All Devices</h2>
         </mat-card-title>
       </div>
-      <div>
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-primary" (click)="toggleMap()">
+          {{ hideMap ? 'Show Map' : 'Hide Map' }}
+        </button>
+        <button class="btn btn-primary" (click)="toggleFilterDevices()">
+          {{ hideFilterDevices ? 'Show Device Filter' : 'Hide Device Filter' }}
+        </button>
         <button
           class="btn btn-dark justify-content-end px-4 d-flex align-items-center"
           routerLink="/device/add"
@@ -20,15 +26,6 @@
       </div>
     </mat-card-header>
     <hr class="mt-0 pt-0" />
-
-    <div class="d-flex justify-content-end gap-2 mb-4 mx-4">
-      <button class="btn btn-primary" (click)="toggleMap()">
-        {{ hideMap ? 'Show Map' : 'Hide Map' }}
-      </button>
-      <button class="btn btn-primary" (click)="toggleFilterDevices()">
-        {{ hideFilterDevices ? 'Show Device Filter' : 'Hide Device Filter' }}
-      </button>
-    </div>
 
     <mat-card-content
       class="mat-body-cont text-center"
