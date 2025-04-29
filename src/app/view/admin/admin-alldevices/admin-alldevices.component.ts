@@ -82,7 +82,7 @@ export class AdminAlldevicesComponent {
   showapiuser_devices: boolean = false;
   apiuserId: string;
   hideMap: boolean = false;
-  hideFilterDevices: boolean = false;
+  hideFilterDevices: boolean = true;
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,

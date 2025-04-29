@@ -85,7 +85,7 @@ export class AlldevicesComponent {
   orgId: number;
   filteredOrgList: Observable<any[]>;
   hideMap: boolean = false;
-  hideFilterDevices: boolean = false;
+  hideFilterDevices: boolean = true;
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,
