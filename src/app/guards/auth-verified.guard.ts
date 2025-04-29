@@ -18,7 +18,7 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
   // Additional access checks can go here
   return userService.userProfile().pipe(
     map((user) => {
-      if (!user.terms_accept_at) {
+      if (!user.termsAcceptedAt) {
         return router.createUrlTree(['/accept-terms-and-conditions']);
       }
 
