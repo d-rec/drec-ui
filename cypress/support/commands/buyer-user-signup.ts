@@ -31,7 +31,6 @@ Cypress.Commands.add('buyerUserSignup', function () {
         (e) => e.to[0].address === 'buyertest32@energy.org',
       );
       expect(email).to.exist;
-
       const linkRegex = /https?:\/\/[^\s"]+/;
       const emailBody = email.text || email.html;
       expect(emailBody).to.exist;
