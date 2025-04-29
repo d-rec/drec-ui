@@ -19,6 +19,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { DeviceDetailsComponent } from '../device-details/device-details.component';
 import { ToastrService } from 'ngx-toastr';
 import { fulecodeType, devicecodeType, CountryInfo } from '../../../models';
+import { MapComponent } from '../../map/map.component';
 
 @Component({
   selector: 'app-alldevices',
@@ -42,6 +43,7 @@ export class AlldevicesComponent {
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild('mapComponent') mapComponent: MapComponent;
   dataSource: MatTableDataSource<any>;
   data: any;
   loginuser: any;
@@ -375,6 +377,11 @@ export class AlldevicesComponent {
       this.totalPages = this.data.totalPages;
       // this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
+
+      // Use setTimeout to ensure the map component is fully initialized
+      setTimeout(() => {
+        this.updateMapMarkers(this.data.devices);
+      }, 300);
     }
   }
   UpdateDevice(externalId: any) {
@@ -447,10 +454,49 @@ export class AlldevicesComponent {
 
   toggleMap() {
     this.hideMap = !this.hideMap;
+
+    // If we're showing the map and we have data, reapply the markers
+    if (!this.hideMap && this.data && this.data.devices) {
+      // Use setTimeout to ensure the map component is fully initialized after toggling
+      setTimeout(() => {
+        this.updateMapMarkers(this.data.devices);
+      }, 300);
+    }
   }
 
   toggleFilterDevices() {
     this.hideFilterDevices = !this.hideFilterDevices;
+  }
+
+  updateMapMarkers(devices: any[]) {
+    if (this.mapComponent && devices) {
+      const validDevices = devices.filter(
+        (device) =>
+          device.latitude &&
+          device.longitude &&
+          !isNaN(parseFloat(device.latitude)) &&
+          !isNaN(parseFloat(device.longitude)),
+      );
+
+      if (validDevices.length === 0) {
+        return;
+      }
+
+      const markers = validDevices.map((device) => ({
+        latitude: parseFloat(device.latitude),
+        longitude: parseFloat(device.longitude),
+        title: device.externalId || '',
+        device,
+      }));
+
+      // Set the markers on the map component
+      this.mapComponent.markers = [...markers];
+
+      // If the map is already initialized, update it directly
+      if (this.mapComponent.isMapInitialized) {
+        this.mapComponent.updateMap();
+      }
+    }
   }
 }
 
