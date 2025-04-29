@@ -10,6 +10,7 @@ import {
   phoneNumberValidator,
   getPhoneNumberErrorMessage,
 } from '../../shared/validators/phone-validators';
+import { decodeJwtToken, storeUserSession } from '../../utils/token-utils';
 
 @Component({
   selector: 'app-register',
@@ -69,7 +70,7 @@ export class RegisterComponent implements OnInit {
         ]),
         confirmPassword: new FormControl('', [
           Validators.required,
-          this.checkconfirmPassword,
+          this.checkConfirmPassword,
         ]),
         termsAndConditions: new FormControl(false, [Validators.requiredTrue]),
       },
@@ -131,7 +132,7 @@ export class RegisterComponent implements OnInit {
         ? '(Password must contain minimum 6 characters (upper and/or lower case) and at least one number)'
         : '';
   }
-  checkconfirmPassword(control: any) {
+  checkConfirmPassword(control: any) {
     const enteredPassword = control.value;
     const passwordCheck = /((?=.*[0-9])(?=.*[A-Za-z]).{6,})/;
     //this.registerForm.value.password = this.registerForm.value.password?:'';
@@ -153,11 +154,6 @@ export class RegisterComponent implements OnInit {
           : '';
   }
 
-  // checksecretKey(control: any) {
-  //   let enteredsecretKey = control.value
-  //   let secretKeyCheck = /^(?=.*\d)(?=.*[A-Z])[A-Z0-9]{6}$/;
-  //   return (!secretKeyCheck.test(enteredsecretKey) && enteredsecretKey) ? { 'keyrequirements': true } : null;
-  // }
   getErrorsecretKey() {
     return this.registerForm.get('secretKey')?.hasError('required')
       ? 'Secret key should be of 6 characters length and consist of minimum one upper case and minimum one digit, and combination should include only A-Z upper case and 0-9 numbers. please enter valid secret key'
@@ -180,13 +176,8 @@ export class RegisterComponent implements OnInit {
       return null;
     }
 
-    const tokenParts = accessToken.split('.');
-    const encodedPayload = tokenParts[1];
-    const paddedPayload = this.padBase64(encodedPayload);
-    const jwtObj = JSON.parse(this.b64DecodeUnicode(paddedPayload));
-
-    sessionStorage.setItem('access-token', accessToken);
-    sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
+    const jwtObj = decodeJwtToken(accessToken);
+    storeUserSession(accessToken);
 
     return jwtObj;
   }
@@ -293,15 +284,5 @@ export class RegisterComponent implements OnInit {
         );
       },
     });
-  }
-
-  padBase64(token: any) {
-    const base64 = token.replace('-', '+').replace('_', '/');
-    return base64;
-  }
-
-  b64DecodeUnicode(token: any) {
-    const base64Payload = window.atob(token);
-    return base64Payload;
   }
 }

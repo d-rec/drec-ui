@@ -369,7 +369,6 @@
                 <!-- </mat-form-field>
                                          -->
               </div>
-
               <div class="col-md-3" *ngIf="showinput">
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize"
@@ -387,11 +386,25 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">State/Provincce</mat-label>
+                  <mat-label class="text-capitalize"
+                    >Postcodeode (Zip Code)</mat-label
+                  >
                   <input
                     matInput
-                    formControlName="stateOrProvince"
-                    [(ngModel)]="stateOrProvince"
+                    type="string"
+                    formControlName="postcode"
+                    [(ngModel)]="postcode"
+                  />
+                  <mat-error>Please enter the valid postcodeode</mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">State/Province</mat-label>
+                  <input
+                    matInput
+                    formControlName="stateProvince"
+                    [(ngModel)]="stateProvince"
                   />
                 </mat-form-field>
               </div>

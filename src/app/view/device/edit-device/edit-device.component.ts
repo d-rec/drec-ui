@@ -12,6 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
+import { postcodeValidator } from '../../../utils/validate-postcode';
 
 @Component({
   selector: 'app-edit-device',
@@ -54,7 +55,8 @@ export class EditDeviceComponent implements OnInit {
   deviceDescription: any;
   energyStorage: boolean = true;
   energyStorageCapacity: any;
-  stateOrProvince: any;
+  stateProvince: any;
+  postcode: any;
   frommydevice: boolean = false;
   frombulk: boolean = false;
   filteredCountryList: Observable<any[]>;
@@ -131,11 +133,12 @@ export class EditDeviceComponent implements OnInit {
       deviceDescription: [null],
       energyStorage: [],
       energyStorageCapacity: [null],
-      stateOrProvince: [null],
+      stateProvince: [null],
       qualityLabels: [null],
       SDGBenefits: [new FormControl([])],
       version: ['1.0'],
       organizationId: [null],
+      postcode: [null, [postcodeValidator()]],
     });
     this.showinput = true;
     this.addmoredetals = false;
@@ -253,6 +256,7 @@ export class EditDeviceComponent implements OnInit {
         this.fuelCode = data.fuelCode;
         this.deviceTypeCode = data.deviceTypeCode;
         this.capacity = data.capacity;
+        this.postcode = data.postcode;
         data.SDGBenefits.forEach((sdgbname: string, index: number) => {
           const foundEle = this.sdgblist.find(
             (ele: any) =>
@@ -274,7 +278,7 @@ export class EditDeviceComponent implements OnInit {
         }
 
         this.energyStorageCapacity = data.energyStorageCapacity;
-        this.stateOrProvince = data.stateOrProvince;
+        this.stateProvince = data.stateProvince;
         this.organizationId = data.organizationId;
       });
   }

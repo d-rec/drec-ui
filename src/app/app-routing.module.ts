@@ -7,7 +7,7 @@ import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
-import { ConfirmemailComponent } from './view/confirmemail/confirmemail.component';
+import { ConfirmEmailComponent } from './view/confirm-email/confirm-email.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
 import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
@@ -18,6 +18,7 @@ import { UserAcceptInvitationComponent } from './view/user-accept-invitation/use
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthVerifiedGuard } from './guards/auth-verified.guard';
+import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
   {
@@ -35,13 +36,16 @@ const routes: Routes = [
       { path: '', redirectTo: 'login', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
-      { path: 'confirm-email', component: ConfirmemailComponent },
       { path: 'forgot-password', component: ForgetPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
       { path: 'terms-and-conditions', component: TermsAndConditionsComponent },
       {
         path: 'user/acceptInvitaion',
         component: UserAcceptInvitationComponent,
+      },
+      {
+        path: 'confirm-email',
+        component: ConfirmEmailComponent,
       },
     ],
   },
@@ -50,7 +54,10 @@ const routes: Routes = [
     component: WithLoginUnverifiedLayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      // Other routes available only to logged-in but unverified users
+      {
+        path: 'resend-confirmation-email',
+        component: ResendConfirmEmailComponent,
+      },
     ],
   },
   {

@@ -1,0 +1,72 @@
+// Colors
+$primary: #f2be1a;
+$secondary: #010101;
+$white: #fff;
+$danger: #f44336;
+
+.mat-card {
+  width: 500px;
+  min-width: 500px;
+}
+
+.mat-card {
+  max-width: 400px;
+  margin: 2em auto;
+  text-align: center;
+}
+
+.error {
+  padding: 16px;
+  width: 500px;
+  color: white;
+  background-color: red;
+}
+
+// Body Background
+::ng-deep body {
+  height: 100vh;
+  background: rgb(254, 240, 73);
+  background: -moz-linear-gradient(
+    144deg,
+    rgba(254, 240, 73, 1) 0%,
+    rgba(242, 196, 26, 1) 48%
+  );
+  background: -webkit-linear-gradient(
+    144deg,
+    rgba(254, 240, 73, 1) 0%,
+    rgba(242, 196, 26, 1) 48%
+  );
+  background: linear-gradient(
+    144deg,
+    rgba(254, 240, 73, 1) 0%,
+    rgba(242, 196, 26, 1) 48%
+  );
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#fef049", endColorstr="#f2c41a", GradientType=1);
+  overflow: hidden;
+}
+
+.h-100vh {
+  height: 100vh;
+}
+
+.bg-solar {
+  background-image: url('../../../assets/images/solar-image.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  opacity: 0.2;
+  height: 100vh;
+}
+
+.text-warning {
+  color: $primary;
+}
+.font-siz-cont {
+  font-size: 12px !important;
+}
+.success-icon {
+  color: #218c5a !important;
+}
