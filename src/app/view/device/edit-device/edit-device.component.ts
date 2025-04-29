@@ -12,7 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
-import { postalCodeValidator } from '../../../utils/validate-postal-codes';
+import { postcodeValidator } from '../../../utils/validate-postcode';
 
 @Component({
   selector: 'app-edit-device',
@@ -55,7 +55,7 @@ export class EditDeviceComponent implements OnInit {
   deviceDescription: any;
   energyStorage: boolean = true;
   energyStorageCapacity: any;
-  postalCode: any;
+  postcode: any;
   frommydevice: boolean = false;
   frombulk: boolean = false;
   filteredCountryList: Observable<any[]>;
@@ -136,7 +136,7 @@ export class EditDeviceComponent implements OnInit {
       SDGBenefits: [new FormControl([])],
       version: ['1.0'],
       organizationId: [null],
-      postalCode: [null, [postalCodeValidator()]],
+      postcode: [null, [postcodeValidator()]],
     });
     this.showinput = true;
     this.addmoredetals = false;
@@ -254,7 +254,7 @@ export class EditDeviceComponent implements OnInit {
         this.fuelCode = data.fuelCode;
         this.deviceTypeCode = data.deviceTypeCode;
         this.capacity = data.capacity;
-        this.postalCode = data.postalCode;
+        this.postcode = data.postcode;
         data.SDGBenefits.forEach((sdgbname: string, index: number) => {
           const foundEle = this.sdgblist.find(
             (ele: any) =>
