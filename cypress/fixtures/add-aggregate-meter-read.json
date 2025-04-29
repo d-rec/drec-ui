@@ -31,15 +31,15 @@
     {
       "action": "type",
       "selector": "[test-id='read-value']",
-      "value": "100"
+      "value": "1"
     },
     {
       "action": "date-picker",
       "selector": "[test-id='choose-end-date']"
     },
     {
-      "action": "click",
-      "selector": "[test-id='submit-read']"
+      "action": "submit",
+      "selector": "[test-id='submit-meter-read']"    
     }
   ]
   
