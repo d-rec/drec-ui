@@ -54,7 +54,6 @@ export class DeviceDetailsComponent {
   getdeviceinfo() {
     this.deviceService.GetDevicesInfo(this.id).subscribe({
       next: (data: Device) => {
-        console.log('dataaaaaaaaaaaaaaaaaaaaaaaaaaa', data);
         if (data) {
           this.loading = false;
           this.device_details = data;
