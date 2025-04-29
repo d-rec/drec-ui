@@ -21,9 +21,9 @@
         </div>
         <div class="d-flex align-items-center gap-3">
           <span
-            *ngIf="doc.isRecommended"
+            *ngIf="doc.required"
             class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
-            >Recommended</span
+            >Required</span
           >
           <div class="upload-buttons d-flex gap-2 align-items-center">
             <input
@@ -49,12 +49,8 @@
       <div class="d-flex justify-content-end mt-4">
         <button
           class="btn btn-primary"
-          (click)="submitAllDocuments()"
-          [disabled]="
-            !hasDocumentsToUpload() ||
-            getSelectedDocumentsCount() < 4 ||
-            isUploading
-          "
+          (click)="submit()"
+          [disabled]="numberOfUploadedDocuments < 4 || isUploading"
         >
           <span *ngIf="!isUploading">Submit All Documents</span>
           <span *ngIf="isUploading" class="d-flex align-items-center gap-2">

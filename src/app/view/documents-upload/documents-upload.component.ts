@@ -6,7 +6,7 @@ import { forkJoin } from 'rxjs';
 
 export interface DocumentUpload {
   title: string;
-  isRecommended: boolean;
+  required: boolean;
   file?: File;
   isUploaded?: boolean;
   targetType: DocumentUploadTargetType;
@@ -39,10 +39,11 @@ export class DocumentsUploadComponent {
   @Input() helperText: string =
     'If you require any help with the document uploads, please create a draft, and contact our support team.';
   isUploading: boolean = false;
+  numberOfUploadedDocuments: number = 0;
   @Input() documents: DocumentUpload[] = [
     {
       title: 'Legal Entity Incorporation certificate/document',
-      isRecommended: true,
+      required: true,
       file: undefined,
       isUploaded: false,
       targetType: DocumentUploadTargetType.ORGANIZATION,
@@ -51,7 +52,7 @@ export class DocumentsUploadComponent {
     },
     {
       title: "The legal representative's passport",
-      isRecommended: true,
+      required: true,
       file: undefined,
       isUploaded: false,
       targetType: DocumentUploadTargetType.ORGANIZATION,
@@ -61,7 +62,7 @@ export class DocumentsUploadComponent {
     {
       title:
         'Address proof (latest utility bill: mobile phone, electricity bill, bank statement, etc.)',
-      isRecommended: true,
+      required: true,
       file: undefined,
       isUploaded: false,
       targetType: DocumentUploadTargetType.ORGANIZATION,
@@ -70,7 +71,7 @@ export class DocumentsUploadComponent {
     },
     {
       title: "Owner's Declaration Document",
-      isRecommended: true,
+      required: true,
       file: undefined,
       isUploaded: false,
       targetType: DocumentUploadTargetType.ORGANIZATION,
@@ -90,6 +91,7 @@ export class DocumentsUploadComponent {
     if (file) {
       document.file = file;
       document.isUploaded = false;
+      this.numberOfUploadedDocuments++;
     }
   }
 
@@ -116,20 +118,12 @@ export class DocumentsUploadComponent {
     return `${start}...${end}${extension}`;
   }
 
-  hasDocumentsToUpload(): boolean {
-    return this.documents.some((doc) => doc.file && !doc.isUploaded);
-  }
-
-  getSelectedDocumentsCount(): number {
-    return this.documents.filter((doc) => doc.file && !doc.isUploaded).length;
-  }
-
-  submitAllDocuments(): void {
-    const selectedDocuments = this.documents.filter(
+  submit(): void {
+    const uploadedDocuments = this.documents.filter(
       (doc) => doc.file && !doc.isUploaded,
     );
 
-    if (selectedDocuments.length < 4) {
+    if (uploadedDocuments.length < 4) {
       this.toastrService.warning(
         'Please select all 4 required documents before submitting',
       );
@@ -137,7 +131,7 @@ export class DocumentsUploadComponent {
     }
 
     this.isUploading = true;
-    const uploadObservables = selectedDocuments.map((doc) =>
+    const uploadObservables = uploadedDocuments.map((doc) =>
       this.documentService.uploadDocument(
         doc.targetType,
         doc.documentType,
@@ -150,11 +144,11 @@ export class DocumentsUploadComponent {
         this.documents.forEach((doc) => {
           if (doc.file) {
             doc.isUploaded = true;
-            doc.file = undefined;
           }
         });
         this.toastrService.success('All documents uploaded successfully');
-        this.router.navigate(['/wait-verification']);
+        this.isUploading = false;
+        this.router.navigate(['/dashboard']);
       },
       error: (err) => {
         if (err.error.errorType === 'DOCUMENT_ALREADY_UPLOADED') {
@@ -164,6 +158,7 @@ export class DocumentsUploadComponent {
             'Error uploading documents',
             err.error.message,
           );
+          this.isUploading = false;
         }
       },
       complete: () => {

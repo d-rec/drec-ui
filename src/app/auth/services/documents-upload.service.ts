@@ -24,9 +24,4 @@ export class DocumentsUploadService {
     formData.append('document', file);
     return this.httpClient.post(searchUrl, formData, { params });
   }
-
-  getDocumentUploads(): Observable<any> {
-    const searchUrl = `${this.url}document-uploads`;
-    return this.httpClient.get(searchUrl);
-  }
 }
