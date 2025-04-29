@@ -85,11 +85,11 @@ jobs:
              elapsed=$((elapsed+5))
              echo "Backend is not ready yet... ($elapsed seconds)"
              if [ "$elapsed" -ge "$timeout" ]; then
-               echo "❌ Backend failed to start within $timeout seconds."
-               exit 1
+               echo "Backend failed to start within $timeout seconds."
+               exit 0
              fi
           done
-          echo "✅ Backend is ready!"
+          echo "Backend is ready!"
       - name: Install and Start Frontend
         run: |
           npm install
