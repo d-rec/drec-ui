@@ -29,7 +29,7 @@ Cypress.Commands.add('developerUserSignup', function () {
     cy.wait(3000);
     cy.request('http://localhost:1080/email').then((res) => {
       const email = res.body.find(
-        (e) => e.to[0].address === 'developer@energy.org',
+        (e) => e.to[0].address === 'developer1@energy.org',
       );
       expect(email).to.exist;
 
