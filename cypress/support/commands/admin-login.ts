@@ -16,7 +16,6 @@ Cypress.Commands.add('adminLogin', function () {
           break;
         case 'click':
           cy.get(step.selector).click();
-
           if (step.selector === '[test-id="login-submit"]') {
             cy.contains('Login Success').should('be.visible');
             cy.contains(`Login user ${ADMIN_EMAIL}`).should('be.visible');
