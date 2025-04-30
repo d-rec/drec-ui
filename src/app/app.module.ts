@@ -16,8 +16,8 @@ import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
-import { WithLoginLayoutComponent } from './nav/withloginlayout/with-login-layout.component';
-import { WithoutLoginLayoutComponent } from './nav/withoutloginlayout/without-login-layout.component';
+import { AuthLayoutComponent } from './layout/auth/auth-layout.component';
+import { GuestLayoutComponent } from './layout/guest/guest-layout.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
@@ -39,8 +39,11 @@ import * as Sentry from '@sentry/angular';
 import { SharedModule } from './shared.module';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
-import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlayout/with-login-unverified-layout.component';
+import { DefaultLayoutComponent } from './layout/default/default-layout.component';
+import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
+import { DashboardComponent } from './view/dashboard/dashboard.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -52,9 +55,9 @@ import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/re
     CertificateComponent,
     MyreservationComponent,
     CertificateDetailsComponent,
-    WithLoginLayoutComponent,
-    WithLoginUnverifiedLayoutComponent,
-    WithoutLoginLayoutComponent,
+    AuthLayoutComponent,
+    DefaultLayoutComponent,
+    GuestLayoutComponent,
     RedemptionReportComponent,
     // AddreadComponent,
     AddReservationComponent,
@@ -71,7 +74,9 @@ import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/re
     // UserInvitationComponent,
     ApiuserClientReponseComponent,
     TermsAndConditionsComponent,
+    AcceptTermsAndConditionsComponent,
     ResendConfirmEmailComponent,
+    DashboardComponent,
   ],
   imports: [
     BrowserModule,
