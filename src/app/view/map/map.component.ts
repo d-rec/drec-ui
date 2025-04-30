@@ -106,8 +106,16 @@ export class MapComponent implements OnInit {
       .map((m) => [m.latitude, m.longitude] as L.LatLngTuple);
 
     if (validCoordinates.length > 0) {
-      const bounds = L.latLngBounds(validCoordinates);
-      this.map.fitBounds(bounds, { padding: [50, 50] });
+      if (validCoordinates.length === 1) {
+        const position = L.latLng(
+          validCoordinates[0][0],
+          validCoordinates[0][1],
+        );
+        this.map.setView(position, 10); // Set a more appropriate zoom level for a single marker
+      } else {
+        const bounds = L.latLngBounds(validCoordinates);
+        this.map.fitBounds(bounds, { padding: [50, 50] });
+      }
     } else {
       this.map.setView([20, 0], 2); // default world view
     }

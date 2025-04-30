@@ -43,7 +43,7 @@ export class AlldevicesComponent {
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  @ViewChild('mapComponent') mapComponent: MapComponent;
+  @ViewChild(MapComponent) mapComponent: MapComponent;
   dataSource: MatTableDataSource<any>;
   data: any;
   loginuser: any;
