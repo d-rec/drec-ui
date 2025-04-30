@@ -30,6 +30,7 @@ import { postcodeValidator } from '../../../utils/validate-postcode';
   styleUrls: ['./add-devices.component.scss'],
 })
 export class AddDevicesComponent {
+  showTermsPopup = false;
   loginuser: any;
   myform: FormGroup;
   countrylist: CountryInfo[] = [];
@@ -325,6 +326,16 @@ export class AddDevicesComponent {
   }
 
   onSubmit() {
+    if (this.myform.valid) {
+      this.showTermsPopup = true;
+    }
+  }
+  
+onCancel() {
+  this.showTermsPopup = false;
+}
+  
+  submitForm() {
     const deviceArray = this.myform.value.devices;
     deviceArray.forEach((element: any) => {
       if (this.orgname != null) {
