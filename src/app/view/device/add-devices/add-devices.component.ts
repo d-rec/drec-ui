@@ -22,6 +22,7 @@ import {
   devicecodeType,
   CountryInfo,
 } from '../../../models';
+import { postcodeValidator } from '../../../utils/validate-postcode';
 
 @Component({
   selector: 'app-add-devices',
@@ -184,6 +185,7 @@ export class AddDevicesComponent {
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
+      postcode: [null, [postcodeValidator()]],
     });
     this.deviceForms.push(device);
 
@@ -265,6 +267,7 @@ export class AddDevicesComponent {
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
+      postcode: [null, [postcodeValidator()]],
     });
     this.deviceForms.push(device);
     this.showaddmore[this.deviceForms.length - 1] = true;
