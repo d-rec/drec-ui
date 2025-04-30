@@ -43,6 +43,7 @@ Cypress.Commands.add('adminLogin', function () {
     //       cy.log('Accept terms and conditions button not found.');
     //     }
     //   });
+
     // cy.get('body').then(($body) => {
     //   if ($body.find('[test-id="terms-and-conditions"]').length > 0) {
     //     cy.get('[test-id="terms-and-conditions"]').click({ force: true });
