@@ -176,12 +176,6 @@ export class RegisterComponent implements OnInit {
       return null;
     }
 
-    // const tokenParts = accessToken.split('.');
-    // const encodedPayload = tokenParts[1];
-    // const paddedPayload = this.padBase64(encodedPayload);
-    // const jwtObj = JSON.parse(this.b64DecodeUnicode(paddedPayload));
-    // sessionStorage.setItem('access-token', accessToken);
-    // sessionStorage.setItem('loginuser', JSON.stringify(jwtObj));
     const jwtObj = decodeJwtToken(accessToken);
     storeUserSession(accessToken);
 
