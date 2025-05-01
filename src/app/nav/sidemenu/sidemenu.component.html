@@ -21,15 +21,14 @@
         mat-button
         class="menu-button"
         routerLinkActive="active"
-        routerLink="/admin/dashboard"
-        *ngIf="loginuser.role === 'Admin'"
+        routerLink="/dashboard"
       >
         <mat-icon>dashboard</mat-icon>
         <span>Dashboard</span>
       </button>
       <!--1st  -->
       <mat-expansion-panel [class.mat-elevation-z0]="true">
-        <mat-expansion-panel-header class="mdc-button">
+        <mat-expansion-panel-header class="mdc-button" test-id="organization">
           <mat-icon>corporate_fare</mat-icon>
           Organization
         </mat-expansion-panel-header>
@@ -90,6 +89,7 @@
               loginuser?.role === 'Buyer' ||
               loginuser?.role === 'SubBuyer'
             "
+            test-id="invitation"
           >
             <span> Invitation</span>
           </a>

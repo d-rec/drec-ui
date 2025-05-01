@@ -1,0 +1,26 @@
+<div
+  class="resend-email d-flex align-self-center align-items-center flex-column h-100vh fixed-top justify-content-center"
+>
+  <div class="w-45">
+    <mat-card-header class="text-center d-flex justify-content-center flex-column mb-4">
+      <h2 class="pb-0 mb-0 fw-bold">Email-Verification</h2>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="fromregister && success" class="text-center">
+        <p class="w-75 mx-auto">
+          Thank you for registration, Please verify your email address or resend
+          the verification email
+        </p>
+
+        <button
+          (click)="resendConfirmationEmail()"
+          class="btn-primary btn btn-block w-25"
+        >
+          Resend email
+        </button>
+      </div>
+      <p *ngIf="!success">Your {{ message }} ,your token has expired</p>
+    </mat-card-content>
+  </div>
+</div>

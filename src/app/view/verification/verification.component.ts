@@ -80,11 +80,7 @@ export class VerificationComponent implements AfterViewInit, OnInit {
       (response) => {
         this.toastrService.success(response.message);
         this.clearOtp();
-        if (this.loginUser.role === 'Buyer') {
-          this.router.navigate(['/myreservation']);
-        } else {
-          this.router.navigate(['/device/AllList']);
-        }
+        this.router.navigate(['/dashboard']);
       },
       (error) => {
         this.toastrService.error('Error!', error.error.message);
@@ -101,8 +97,8 @@ export class VerificationComponent implements AfterViewInit, OnInit {
     });
   }
   resendOtp(): void {
-    if (this.loginUser.phone_number_verified_at) {
-      this.toastrService.success('You are already verified.');
+    if (this.loginUser.phoneNumberVerifiedAt) {
+      this.toastrService.error('You are already verified.');
     } else {
       this.otpService.sendOtp(this.loginUser.phoneNumber).subscribe(
         (response) => {

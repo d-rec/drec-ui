@@ -1,10 +1,10 @@
+import { MaterialModule } from './material/material.module';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MaterialModule } from './material/material.module';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -16,15 +16,15 @@ import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
 import { MyreservationComponent } from './view/myreservation/myreservation.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
-import { WithLoginLayoutComponent } from './nav/withloginlayout/with-login-layout.component';
-import { WithoutLoginLayoutComponent } from './nav/withoutloginlayout/without-login-layout.component';
+import { AuthLayoutComponent } from './layout/auth/auth-layout.component';
+import { GuestLayoutComponent } from './layout/guest/guest-layout.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 
 import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
 import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-developer/certified-devices-developer.component';
 //import { TimezonePipe } from './utils/timezone.pipe';
 import { PipesModule } from './pipes.module';
-import { ConfirmemailComponent } from './view/confirmemail/confirmemail.component';
+import { ConfirmEmailComponent } from './view/confirm-email/confirm-email.component';
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
 import { ResetPasswordComponent } from './view/reset-password/reset-password.component';
 import { AllUsersComponent } from './view/all-users/all-users.component';
@@ -40,7 +40,10 @@ import { SharedModule } from './shared.module';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { VerificationComponent } from './view/verification/verification.component';
-import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlayout/with-login-unverified-layout.component';
+import { DefaultLayoutComponent } from './layout/default/default-layout.component';
+import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
+import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
+import { DashboardComponent } from './view/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
@@ -53,15 +56,15 @@ import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlay
     CertificateComponent,
     MyreservationComponent,
     CertificateDetailsComponent,
-    WithLoginLayoutComponent,
-    WithLoginUnverifiedLayoutComponent,
-    WithoutLoginLayoutComponent,
+    AuthLayoutComponent,
+    DefaultLayoutComponent,
+    GuestLayoutComponent,
     RedemptionReportComponent,
     // AddreadComponent,
     AddReservationComponent,
 
     CertifiedDevicesDeveloperComponent,
-    ConfirmemailComponent,
+    ConfirmEmailComponent,
     ForgetPasswordComponent,
     ResetPasswordComponent,
     AllUsersComponent,
@@ -73,6 +76,9 @@ import { WithLoginUnverifiedLayoutComponent } from './nav/withloginunverifiedlay
     ApiuserClientReponseComponent,
     TermsAndConditionsComponent,
     VerificationComponent,
+    AcceptTermsAndConditionsComponent,
+    ResendConfirmEmailComponent,
+    DashboardComponent,
   ],
   imports: [
     BrowserModule,

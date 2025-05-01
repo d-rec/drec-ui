@@ -42,7 +42,7 @@ Cypress.Commands.add('addAggregateMeterRead', function () {
 
         case 'date-picker':
           const currentTime = new Date();
-          currentTime.setHours(currentTime.getHours() + 2);
+          currentTime.setMinutes(currentTime.getMinutes() + -1);
 
           const formattedTime = currentTime.toLocaleString('en-US', {
             year: 'numeric',
@@ -59,6 +59,8 @@ Cypress.Commands.add('addAggregateMeterRead', function () {
             .click({ force: true })
             .type(formattedTime, { force: true })
             .click();
+        case 'submit':
+          cy.get(step.selector).click('center', { force: true });
       }
     });
   });

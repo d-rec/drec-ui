@@ -16,7 +16,7 @@
     "selector": "[test-id='file-name']"
   },
   {
-    "action": "click",
+    "action": "upload-bulk",
     "selector": "[test-id='upload']"
   }
 ]
