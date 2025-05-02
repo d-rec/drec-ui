@@ -228,7 +228,10 @@
         <hr />
       </div>
       <div *ngIf="!hideMap">
-        <app-map #mapComponent></app-map>
+        <app-map
+          #mapComponent
+          (markerClicked)="onMarkerClick($event)"
+        ></app-map>
       </div>
       <mat-form-field>
         <mat-icon matPrefix>search</mat-icon>

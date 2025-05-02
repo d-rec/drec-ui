@@ -1,5 +1,5 @@
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Component, Inject, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { MatSort } from '@angular/material/sort';
@@ -94,6 +94,7 @@ export class AlldevicesComponent {
     private dialog: MatDialog,
     private orgService: OrganizationService,
     private toastrService: ToastrService,
+    private changeDetectorRefr: ChangeDetectorRef,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
@@ -485,7 +486,7 @@ export class AlldevicesComponent {
       const markers = validDevices.map((device) => ({
         latitude: parseFloat(device.latitude),
         longitude: parseFloat(device.longitude),
-        title: device.externalId || '',
+        externalId: device.externalId || '',
         device,
       }));
 
@@ -497,6 +498,14 @@ export class AlldevicesComponent {
         this.mapComponent.update();
       }
     }
+  }
+
+  onMarkerClick(event: { externalId: string }) {
+    this.dataSource.filter = event.externalId.trim().toLowerCase();
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+    this.changeDetectorRefr.detectChanges();
   }
 }
 
