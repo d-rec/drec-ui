@@ -191,26 +191,17 @@ export class AddDevicesComponent {
       postcode: [null, [postcodeValidator()]],
     });
 
-    device.get('latitude')?.valueChanges.subscribe((lat) => {
-      const lng = device.get('longitude')?.value;
-      if (this.isValidCoordinate(lat) && this.isValidCoordinate(lng)) {
-        this.updateMapMarkers(lat, lng);
-      }
+    device.get('latitude')?.valueChanges.subscribe((latitude) => {
+      const longitude = device.get('longitude')?.value;
+      this.updateMapMarkers(latitude, longitude);
     });
-    device.get('longitude')?.valueChanges.subscribe((lng) => {
-      const lat = device.get('latitude')?.value;
-      if (this.isValidCoordinate(lat) && this.isValidCoordinate(lng)) {
-        this.updateMapMarkers(lat, lng);
-      }
+    device.get('longitude')?.valueChanges.subscribe((longitude) => {
+      const latitude = device.get('latitude')?.value;
+      this.updateMapMarkers(latitude, longitude);
     });
     this.deviceForms.push(device);
 
     // Other form initialization code
-  }
-
-  isValidCoordinate(value: any): boolean {
-    const num = parseFloat(value);
-    return !isNaN(num) && isFinite(num);
   }
 
   private setupCountryAutocomplete(index: number) {
@@ -407,7 +398,6 @@ export class AddDevicesComponent {
       const markers = device.map((device) => ({
         latitude: parseFloat(device.latitude),
         longitude: parseFloat(device.longitude),
-        device,
       }));
 
       // Set the markers on the map component
