@@ -31,7 +31,7 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrls: ['./add-devices.component.scss'],
 })
 export class AddDevicesComponent {
-  @ViewChild('mypopupDialog') popupDialog = {} as TemplateRef<any>;
+  @ViewChild('popupDialog') popupDialog = {} as TemplateRef<any>;
   dialogRef: any;
   loginuser: any;
   myform: FormGroup;
@@ -331,7 +331,7 @@ export class AddDevicesComponent {
 
   onSubmit() {
     if (this.myform.valid) {
-      this.openpopupDialog();
+      this.openPopupDialog();
     }
   }
 
@@ -384,7 +384,7 @@ export class AddDevicesComponent {
       });
     });
   }
-  openpopupDialog() {
+  openPopupDialog() {
     this.dialogRef = this.dialog.open(this.popupDialog, {
       height: '400px',
       width: '700px',
