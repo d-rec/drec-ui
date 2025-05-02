@@ -16,5 +16,13 @@
   {
     "action": "click",
     "selector": "[test-id='login-submit']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='terms-and-condition']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='accept-terms-and-conditions']"
   }
 ]
