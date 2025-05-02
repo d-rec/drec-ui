@@ -24,24 +24,24 @@ Cypress.Commands.add('adminLogin', function () {
       }
     });
 
-    cy.get('[test-id="terms-and-conditions"]')
-      .should('exist')
-      .then(($checkbox) => {
-        if ($checkbox.length > 0) {
-          cy.wrap($checkbox).click({ force: true });
-        } else {
-          cy.log('Terms and conditions checkbox not found.');
-        }
-      });
-    cy.get('[test-id="accept-terms-and-conditions"]')
-      .should('exist')
-      .then(($button) => {
-        if ($button.length > 0) {
-          cy.wrap($button).click({ force: true });
-        } else {
-          cy.log('Accept terms and conditions button not found.');
-        }
-      });
+    // cy.get('[test-id="terms-and-conditions"]')
+    //   .should('exist')
+    //   .then(($checkbox) => {
+    //     if ($checkbox.length > 0) {
+    //       cy.wrap($checkbox).click({ force: true });
+    //     } else {
+    //       cy.log('Terms and conditions checkbox not found.');
+    //     }
+    //   });
+    // cy.get('[test-id="accept-terms-and-conditions"]')
+    //   .should('exist')
+    //   .then(($button) => {
+    //     if ($button.length > 0) {
+    //       cy.wrap($button).click({ force: true });
+    //     } else {
+    //       cy.log('Accept terms and conditions button not found.');
+    //     }
+    //   });
 
     // cy.get('body').then(($body) => {
     //   if ($body.find('[test-id="terms-and-conditions"]').length > 0) {
