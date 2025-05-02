@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -23,6 +23,7 @@ import {
   CountryInfo,
 } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
+import { MapComponent } from '../../map/map.component';
 
 @Component({
   selector: 'app-add-devices',
@@ -78,6 +79,7 @@ export class AddDevicesComponent {
     'Rooftop Solar',
     'Ground Mount Solar',
   ];
+  @ViewChild(MapComponent) mapComponent: MapComponent;
   constructor(
     private fb: FormBuilder,
     private authService: AuthbaseService,
@@ -188,9 +190,27 @@ export class AddDevicesComponent {
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
     });
+
+    device.get('latitude')?.valueChanges.subscribe((lat) => {
+      const lng = device.get('longitude')?.value;
+      if (this.isValidCoordinate(lat) && this.isValidCoordinate(lng)) {
+        this.updateMapMarkers(lat, lng);
+      }
+    });
+    device.get('longitude')?.valueChanges.subscribe((lng) => {
+      const lat = device.get('latitude')?.value;
+      if (this.isValidCoordinate(lat) && this.isValidCoordinate(lng)) {
+        this.updateMapMarkers(lat, lng);
+      }
+    });
     this.deviceForms.push(device);
 
     // Other form initialization code
+  }
+
+  isValidCoordinate(value: any): boolean {
+    const num = parseFloat(value);
+    return !isNaN(num) && isFinite(num);
   }
 
   private setupCountryAutocomplete(index: number) {
@@ -374,5 +394,29 @@ export class AddDevicesComponent {
         },
       });
     });
+  }
+
+  updateMapMarkers(latitude: any, longitude: any) {
+    if (this.mapComponent && latitude && longitude) {
+      const device = [
+        {
+          latitude: latitude,
+          longitude: longitude,
+        },
+      ];
+      const markers = device.map((device) => ({
+        latitude: parseFloat(device.latitude),
+        longitude: parseFloat(device.longitude),
+        device,
+      }));
+
+      // Set the markers on the map component
+      this.mapComponent.markers = [...markers];
+
+      // If the map is already initialized, update it directly
+      if (this.mapComponent.isMapInitialized) {
+        this.mapComponent.update();
+      }
+    }
   }
 }

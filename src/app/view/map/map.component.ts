@@ -111,7 +111,7 @@ export class MapComponent implements OnInit {
           validCoordinates[0][0],
           validCoordinates[0][1],
         );
-        this.map.setView(position, 10); // Set a more appropriate zoom level for a single marker
+        this.map.setView(position, 2); // Set a more appropriate zoom level for a single marker
       } else {
         const bounds = L.latLngBounds(validCoordinates);
         this.map.fitBounds(bounds, { padding: [50, 50] });
