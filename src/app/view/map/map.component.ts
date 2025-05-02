@@ -96,10 +96,10 @@ export class MapComponent implements OnInit {
       });
 
       marker.on('click', () => {
-        const info = {
+        const deviceData = {
           externalId,
         };
-        this.markerClicked.emit(info);
+        this.markerClicked.emit(deviceData);
       });
 
       this.markerGroup.addLayer(marker);
