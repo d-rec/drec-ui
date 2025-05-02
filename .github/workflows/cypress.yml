@@ -22,6 +22,8 @@ jobs:
       INFLUXDB_TOKEN: admin:admin
       INFLUXDB_BUCKET: energy/autogen
       ISSUER_PRIVATE_KEY: ${{ secrets.ISSUER_PRIVATE_KEY }}
+      CERTIFICATE_REGISTRY_ADDRESS: "0x8D4172D0a05860813155bebEF5b263BA9383BC4B"
+      ISSUER_CONTRACT_ADDRESS: "0x3E6694fce3C675F82A28AaF9918aDA2787989c5f"
       DREC_BLOCKCHAIN_ADDRESS: "0xDeC1488838C65E355A9336eE8DdFc32665dB9222"
       CERTIFICATE_QUEUE_DELAY: 60000
       BACKEND_PORT: 3040
@@ -78,15 +80,15 @@ jobs:
         run: |
           rush start:dev &  # Start backend in the background
            echo "Waiting for backend to be ready..."
-          timeout=60  # Wait up to 60 seconds
+          timeout=120  # Wait up to 120 seconds
           elapsed=0
           while ! curl -s http://localhost:3040 >/dev/null; do
-            sleep 5
-             elapsed=$((elapsed+5))
+            sleep 10
+             elapsed=$((elapsed+10))
              echo "Backend is not ready yet... ($elapsed seconds)"
              if [ "$elapsed" -ge "$timeout" ]; then
                echo "Backend failed to start within $timeout seconds."
-               exit 0
+               exit 1
              fi
           done
           echo "Backend is ready!"
