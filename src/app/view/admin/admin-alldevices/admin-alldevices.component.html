@@ -8,7 +8,13 @@
           <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">All Devices</h2>
         </mat-card-title>
       </div>
-      <div>
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-primary" (click)="toggleMap()">
+          {{ hideMap ? 'Show Map' : 'Hide Map' }}
+        </button>
+        <button class="btn btn-primary" (click)="toggleFilterDevices()">
+          {{ hideFilterDevices ? 'Show Device Filter' : 'Hide Device Filter' }}
+        </button>
         <button
           class="btn btn-dark justify-content-end px-4 d-flex align-items-center"
           routerLink="/device/add"
@@ -25,71 +31,74 @@
       class="mat-body-cont text-center"
       *ngIf="!showapiuser_devices"
     >
-      <h3
-        style="text-align: center; color: #f2be1a; font-size: 16px"
-        class="text-capitalize"
-      >
-        Use Filters For Device Search
-      </h3>
-      <form [formGroup]="FilterForm">
-        <div class="example-container1 row">
-          <div class="col-md-3">
-            <mat-form-field appearance="outline">
-              <mat-label class="text-capitalize">Select Organization</mat-label>
-              <input
-                type="text"
-                aria-label="text"
-                matInput
-                formControlName="organizationname"
-                [matAutocomplete]="auto1"
-                (ngModelChange)="checkFormValidity()"
-              />
-              <mat-autocomplete
-                #auto1="matAutocomplete"
-                (optionSelected)="selectorg($event)"
-              >
-                <mat-option [value]="">---</mat-option>
-                <mat-option
-                  *ngFor="let code of filteredOptions1 | async"
-                  [value]="code.name"
+      <div *ngIf="!hideFilterDevices">
+        <h3
+          style="text-align: center; color: #f2be1a; font-size: 16px"
+          class="text-capitalize"
+        >
+          Use Filters For Device Search
+        </h3>
+        <form [formGroup]="FilterForm">
+          <div class="example-container1 row">
+            <div class="col-md-3">
+              <mat-form-field appearance="outline">
+                <mat-label class="text-capitalize"
+                  >Select Organization</mat-label
                 >
-                  {{ code.name }}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-            <mat-error *ngIf="showorgerror" style="margin-top: -15px">
-              Invalid Organization Selected
-            </mat-error>
-          </div>
-          <div class="col-md-3">
-            <mat-form-field appearance="outline">
-              <mat-label class="text-capitalize">Select Country </mat-label>
-              <input
-                type="text"
-                aria-label="text"
-                matInput
-                formControlName="countryname"
-                [matAutocomplete]="auto"
-                (ngModelChange)="checkFormValidity()"
-              />
-              <mat-autocomplete
-                #auto="matAutocomplete"
-                (optionSelected)="selectCountry($event)"
-              >
-                <mat-option [value]="">---</mat-option>
-                <mat-option
-                  *ngFor="let code of filteredOptions | async"
-                  [value]="code.country"
+                <input
+                  type="text"
+                  aria-label="text"
+                  matInput
+                  formControlName="organizationname"
+                  [matAutocomplete]="auto1"
+                  (ngModelChange)="checkFormValidity()"
+                />
+                <mat-autocomplete
+                  #auto1="matAutocomplete"
+                  (optionSelected)="selectorg($event)"
                 >
-                  {{ code.country }}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-            <mat-error *ngIf="showerror" style="margin-top: -15px">
-              Invalid Country Selected
-            </mat-error>
-          </div>
-          <!-- <div class="col-md-3">
+                  <mat-option [value]="">---</mat-option>
+                  <mat-option
+                    *ngFor="let code of filteredOptions1 | async"
+                    [value]="code.name"
+                  >
+                    {{ code.name }}
+                  </mat-option>
+                </mat-autocomplete>
+              </mat-form-field>
+              <mat-error *ngIf="showorgerror" style="margin-top: -15px">
+                Invalid Organization Selected
+              </mat-error>
+            </div>
+            <div class="col-md-3">
+              <mat-form-field appearance="outline">
+                <mat-label class="text-capitalize">Select Country </mat-label>
+                <input
+                  type="text"
+                  aria-label="text"
+                  matInput
+                  formControlName="countryname"
+                  [matAutocomplete]="auto"
+                  (ngModelChange)="checkFormValidity()"
+                />
+                <mat-autocomplete
+                  #auto="matAutocomplete"
+                  (optionSelected)="selectCountry($event)"
+                >
+                  <mat-option [value]="">---</mat-option>
+                  <mat-option
+                    *ngFor="let code of filteredOptions | async"
+                    [value]="code.country"
+                  >
+                    {{ code.country }}
+                  </mat-option>
+                </mat-autocomplete>
+              </mat-form-field>
+              <mat-error *ngIf="showerror" style="margin-top: -15px">
+                Invalid Country Selected
+              </mat-error>
+            </div>
+            <!-- <div class="col-md-3">
               <mat-form-field>
                 <mat-label class="text-capitalize">Fuel Code</mat-label>
   
@@ -101,122 +110,126 @@
                 </mat-select>
               </mat-form-field>
             </div> -->
-          <div class="col-md-3">
-            <mat-form-field appearance="outline">
-              <mat-label class="text-capitalize">Device Type Code</mat-label>
+            <div class="col-md-3">
+              <mat-form-field appearance="outline">
+                <mat-label class="text-capitalize">Device Type Code</mat-label>
 
-              <mat-select
-                formControlName="deviceTypeCode"
-                (ngModelChange)="checkFormValidity()"
-                multiple
-              >
-                <mat-option [value]="">---</mat-option>
-                <mat-option
-                  *ngFor="let code of devicetypelist"
-                  [value]="code.code"
-                >
-                  {{ code.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          <div class="col-md-3">
-            <mat-form-field appearance="outline">
-              <mat-label class="text-capitalize">Off Taker</mat-label>
-
-              <mat-select
-                formControlName="offTaker"
-                (ngModelChange)="checkFormValidity()"
-                multiple
-              >
-                <mat-option [value]="">---</mat-option>
-                <mat-option *ngFor="let code of offtaker" [value]="code">
-                  {{ code }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          <div class="col-md-3">
-            <h6>&nbsp;</h6>
-            <mat-form-field appearance="outline">
-              <mat-label>Capacity(kW)</mat-label>
-              <input
-                matInput
-                type="number"
-                [min]="1"
-                (ngModelChange)="checkFormValidity()"
-                formControlName="capacity"
-                #input
-              />
-            </mat-form-field>
-          </div>
-          <div class="col-md-3">
-            <h6>&nbsp;</h6>
-            <mat-form-field appearance="outline">
-              <mat-label class="text-capitalize">SDG Benefits</mat-label>
-
-              <mat-select
-                formControlName="SDGBenefits"
-                (ngModelChange)="checkFormValidity()"
-                multiple
-              >
-                <mat-option [value]="">---</mat-option>
-                <mat-option
-                  *ngFor="let sdgb of sdgblist"
-                  [value]="sdgb.value"
-                  >{{ sdgb.value }}</mat-option
-                >
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          <div class="col-md-4 h6-margin-remove">
-            <h6>Commissioning Date:</h6>
-            <mat-form-field appearance="outline">
-              <mat-label>Enter a date range</mat-label>
-              <mat-date-range-input [rangePicker]="$any(picker)">
-                <input
-                  matStartDate
-                  formControlName="start_date"
+                <mat-select
+                  formControlName="deviceTypeCode"
                   (ngModelChange)="checkFormValidity()"
-                />
-                <input
-                  matEndDate
-                  formControlName="end_date"
+                  multiple
+                >
+                  <mat-option [value]="">---</mat-option>
+                  <mat-option
+                    *ngFor="let code of devicetypelist"
+                    [value]="code.code"
+                  >
+                    {{ code.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="col-md-3">
+              <mat-form-field appearance="outline">
+                <mat-label class="text-capitalize">Off Taker</mat-label>
+
+                <mat-select
+                  formControlName="offTaker"
                   (ngModelChange)="checkFormValidity()"
+                  multiple
+                >
+                  <mat-option [value]="">---</mat-option>
+                  <mat-option *ngFor="let code of offtaker" [value]="code">
+                    {{ code }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="col-md-3">
+              <h6>&nbsp;</h6>
+              <mat-form-field appearance="outline">
+                <mat-label>Capacity(kW)</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  [min]="1"
+                  (ngModelChange)="checkFormValidity()"
+                  formControlName="capacity"
+                  #input
                 />
-              </mat-date-range-input>
-              <mat-datepicker-toggle
-                matSuffix
-                [for]="$any(picker)"
-              ></mat-datepicker-toggle>
-              <mat-date-range-picker #picker></mat-date-range-picker>
-            </mat-form-field>
-          </div>
-          <div class="col-md-12 mb-3 d-flex justify-content-end">
-            <div class="">
-              <button
-                class="btn-primary me-2 btn text-capitalize px-4"
-                (click)="DisplayListFilter()"
-                [disabled]="!isAnyFieldFilled"
-              >
-                Filter
-              </button>
+              </mat-form-field>
             </div>
-            <div class="">
-              <button
-                class="btn-dark btn text-capitalize px-4"
-                [disabled]="!isAnyFieldFilled"
-                (click)="reset()"
-              >
-                Reset
-              </button>
+            <div class="col-md-3">
+              <h6>&nbsp;</h6>
+              <mat-form-field appearance="outline">
+                <mat-label class="text-capitalize">SDG Benefits</mat-label>
+
+                <mat-select
+                  formControlName="SDGBenefits"
+                  (ngModelChange)="checkFormValidity()"
+                  multiple
+                >
+                  <mat-option [value]="">---</mat-option>
+                  <mat-option
+                    *ngFor="let sdgb of sdgblist"
+                    [value]="sdgb.value"
+                    >{{ sdgb.value }}</mat-option
+                  >
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="col-md-4 h6-margin-remove">
+              <h6>Commissioning Date:</h6>
+              <mat-form-field appearance="outline">
+                <mat-label>Enter a date range</mat-label>
+                <mat-date-range-input [rangePicker]="$any(picker)">
+                  <input
+                    matStartDate
+                    formControlName="start_date"
+                    (ngModelChange)="checkFormValidity()"
+                  />
+                  <input
+                    matEndDate
+                    formControlName="end_date"
+                    (ngModelChange)="checkFormValidity()"
+                  />
+                </mat-date-range-input>
+                <mat-datepicker-toggle
+                  matSuffix
+                  [for]="$any(picker)"
+                ></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12 mb-3 d-flex justify-content-end">
+              <div class="">
+                <button
+                  class="btn-primary me-2 btn text-capitalize px-4"
+                  (click)="DisplayListFilter()"
+                  [disabled]="!isAnyFieldFilled"
+                >
+                  Filter
+                </button>
+              </div>
+              <div class="">
+                <button
+                  class="btn-dark btn text-capitalize px-4"
+                  [disabled]="!isAnyFieldFilled"
+                  (click)="reset()"
+                >
+                  Reset
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </form>
-      <hr />
+        </form>
+        <hr />
+      </div>
+      <div *ngIf="!hideMap">
+        <app-map #mapComponent></app-map>
+      </div>
       <mat-form-field>
         <mat-icon matPrefix>search</mat-icon>
         <mat-label>Search</mat-label>
