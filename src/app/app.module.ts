@@ -1,10 +1,10 @@
 import { MaterialModule } from './material/material.module';
 import { ErrorHandler, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ToastrModule } from 'ngx-toastr';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -40,6 +40,7 @@ import { SharedModule } from './shared.module';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { VerificationComponent } from './view/verification/verification.component';
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { DefaultLayoutComponent } from './layout/default/default-layout.component';
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
@@ -62,7 +63,6 @@ import { DashboardComponent } from './view/dashboard/dashboard.component';
     RedemptionReportComponent,
     // AddreadComponent,
     AddReservationComponent,
-
     CertifiedDevicesDeveloperComponent,
     ConfirmEmailComponent,
     ForgetPasswordComponent,
@@ -82,9 +82,9 @@ import { DashboardComponent } from './view/dashboard/dashboard.component';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
     BrowserAnimationsModule,
     MaterialModule,
+    AppRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
@@ -93,10 +93,11 @@ import { DashboardComponent } from './view/dashboard/dashboard.component';
     MarkdownModule.forRoot(),
     ToastrModule.forRoot({
       closeButton: true,
-      timeOut: 15000, // 15 seconds
+      timeOut: 15000,
       progressBar: true,
     }),
     SharedModule,
+    LeafletModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

@@ -9,6 +9,7 @@ import { AddUsersComponent } from './add-users/add-users.component';
 import { InvitationformComponent } from './invitationform/invitationform.component';
 import { ApiuserComponent } from './apiuser/apiuser.component';
 import { SharedModule } from '../../shared.module';
+import { MapModule } from '../map/map.module';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -24,6 +25,7 @@ import { SharedModule } from '../../shared.module';
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
+    MapModule,
   ],
 })
 export class AdminModule {}
