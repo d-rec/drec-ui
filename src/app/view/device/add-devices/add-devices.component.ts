@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -23,6 +23,7 @@ import {
   CountryInfo,
 } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-add-devices',
@@ -30,7 +31,8 @@ import { postcodeValidator } from '../../../utils/validate-postcode';
   styleUrls: ['./add-devices.component.scss'],
 })
 export class AddDevicesComponent {
-  showTermsPopup = false;
+  @ViewChild('mypopupDialog') popupDialog = {} as TemplateRef<any>;
+  dialogRef: any;
   loginuser: any;
   myform: FormGroup;
   countrylist: CountryInfo[] = [];
@@ -79,6 +81,7 @@ export class AddDevicesComponent {
     'Rooftop Solar',
     'Ground Mount Solar',
   ];
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthbaseService,
@@ -87,6 +90,7 @@ export class AddDevicesComponent {
     private toastrService: ToastrService,
     private adminService: AdminService,
     private orgService: OrganizationService,
+    public dialog: MatDialog,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -327,14 +331,10 @@ export class AddDevicesComponent {
 
   onSubmit() {
     if (this.myform.valid) {
-      this.showTermsPopup = true;
+      this.openpopupDialog();
     }
   }
-  
-onCancel() {
-  this.showTermsPopup = false;
-}
-  
+
   submitForm() {
     const deviceArray = this.myform.value.devices;
     deviceArray.forEach((element: any) => {
@@ -382,6 +382,17 @@ onCancel() {
           }
         },
       });
+    });
+  }
+  openpopupDialog() {
+    this.dialogRef = this.dialog.open(this.popupDialog, {
+      height: '400px',
+      width: '700px',
+    });
+    this.dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        this.submitForm();
+      }
     });
   }
 }

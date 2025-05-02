@@ -1,6 +1,6 @@
 <div class="body-bg container">
   <mat-card >
-    <mat-card-header class="  d-flex justify-content-between mat-crd-hide align-items-center overlay" *ngIf="showTermsPopup">
+    <mat-card-header class="  d-flex justify-content-between mat-crd-hide align-items-center overlay">
       <div>
         <h2 class="pb-0 mb-0 fw-bold text-capitalize">Device Registration</h2>
       </div>
@@ -282,27 +282,29 @@
       </mat-card-footer>
     </form>
   </mat-card>
-
-
-  <div class="terms-popup position-absolute " *ngIf="showTermsPopup">
-    <div class="popup-content">
-      <p>
-        On behalf of Registrant Participant Org 18763, I agree to be subject to the I-REC Code and warrant that the
-        information contained in this application is truthful and exhaustive.
-        Any planned changes concerning the information given in this form will be announced in advance to the I-REC
-        Device Verifier and the Issuer.
-        Any unplanned changes will be reported to the I-REC Device Verifier and the Issuer at the first possible
-        occasion.
-        The owner of the Production Device and the Registrant as his agent accept the possibility of unannounced control
-        and auditing visits to their own premises and/or the premises of the Production Device, as prescribed in the
-        Evident I-REC(E) Code.
-        A signed SF-02 Production Facility Registration form must be attached to this registration.
-      </p>
-      <div class="buttons">
-        <button mat-button class="btn-primary btn text-capitalize" (click)="submitForm()">I agree</button>
-        <button mat-button class="btn-primary btn text-capitalize" (click)="showTermsPopup = false">Cancel</button>
-      </div>
-    </div>
-  </div>
-
 </div>
+<ng-template
+  let-data
+  #mypopupDialog
+  class="Position-relative ng-template-add-reservation device-popup"
+>
+  <!-- <h2 mat-dialog-title class="mat-dialog-title">Reservation</h2> -->
+  <div mat-dialog-content>
+    <p>
+      On behalf of Registrant Participant Org 18763, I agree to be subject to the I-REC Code and warrant that the
+      information contained in this application is truthful and exhaustive.
+      Any planned changes concerning the information given in this form will be announced in advance to the I-REC
+      Device Verifier and the Issuer.
+      Any unplanned changes will be reported to the I-REC Device Verifier and the Issuer at the first possible
+      occasion.
+      The owner of the Production Device and the Registrant as his agent accept the possibility of unannounced control
+      and auditing visits to their own premises and/or the premises of the Production Device, as prescribed in the
+      Evident I-REC(E) Code.
+      A signed SF-02 Production Facility Registration form must be attached to this registration.
+    </p>
+  </div>
+  <div mat-dialog-actions class="buttons">
+      <button mat-button class="btn-primary btn text-capitalize" (click)="dialogRef.close(true)">I agree</button>
+      <button mat-button class="btn-primary btn text-capitalize" (click)="dialogRef.close(false)">Cancel</button>
+  </div>
+</ng-template>
