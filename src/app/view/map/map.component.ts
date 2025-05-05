@@ -1,10 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import * as L from 'leaflet';
 
 export interface MapMarker {
   latitude: number;
   longitude: number;
-  title?: string;
+  externalId?: string;
 }
 
 @Component({
@@ -15,6 +15,7 @@ export interface MapMarker {
 export class MapComponent implements OnInit {
   @Input() markers: MapMarker[] = [];
   @Input() zoom: number = 2;
+  @Output() markerClicked = new EventEmitter();
 
   options: L.MapOptions = {
     layers: [],
@@ -84,15 +85,22 @@ export class MapComponent implements OnInit {
     const customIcon = this.createCustomIcon();
 
     this.markers.forEach((markerData: MapMarker) => {
-      const { latitude, longitude, title } = markerData;
+      const { latitude, longitude, externalId } = markerData;
 
       if (isNaN(latitude) || isNaN(longitude)) {
         return;
       }
 
       const marker = L.marker([latitude, longitude], {
-        title,
+        title: externalId,
         icon: customIcon,
+      });
+
+      marker.on('click', () => {
+        const deviceData = {
+          externalId,
+        };
+        this.markerClicked.emit(deviceData);
       });
 
       this.markerGroup.addLayer(marker);
