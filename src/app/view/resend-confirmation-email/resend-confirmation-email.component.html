@@ -1,14 +1,8 @@
-<div class="bg-solar"></div>
-<app-header></app-header>
 <div
-  class="login-wrapper d-flex align-self-center align-items-center flex-column h-100vh justify-content-center drec-login"
+  class="resend-email d-flex align-self-center align-items-center flex-column h-100vh fixed-top justify-content-center"
 >
-  <mat-card class="box w-45">
-    <mat-card-header>
-      <!-- logo -->
-      <div class="py-4">
-        <img src="assets/images/d-rec-beta-logo.svg" alt="" />
-      </div>
+  <div class="w-45">
+    <mat-card-header class="text-center d-flex justify-content-center flex-column mb-4">
       <h2 class="pb-0 mb-0 fw-bold">Email-Verification</h2>
     </mat-card-header>
 
@@ -28,7 +22,5 @@
       </div>
       <p *ngIf="!success">Your {{ message }} ,your token has expired</p>
     </mat-card-content>
-    <div class="p-3"></div>
-  </mat-card>
-  <app-footer></app-footer>
+  </div>
 </div>

@@ -87,13 +87,7 @@ export class LoginComponent implements OnInit {
    * Navigate user to appropriate page based on their type
    */
   private navigateBasedOnUserType(userData: any, jwtObj: any): void {
-    if (userData.organization.organizationType === 'Buyer') {
-      this.router.navigate(['/myreservation']);
-    } else if (jwtObj.role === 'Admin') {
-      this.router.navigate(['/admin/All_devices']);
-    } else {
-      this.router.navigate(['/device/AllList']);
-    }
+    this.router.navigate(['/dashboard']);
 
     this.toastrService.success(
       'Login user ' + jwtObj.email + '!',

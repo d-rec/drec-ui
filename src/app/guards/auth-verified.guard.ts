@@ -5,6 +5,8 @@ import { UserService } from '../auth/services/user.service';
 import { map } from 'rxjs/operators';
 
 export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
+  const userService = inject(UserService);
+  const router = inject(Router);
   // First check if user is logged in
   const loggedInResult = AuthGuard(route, state);
 
@@ -13,11 +15,13 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
     return loggedInResult;
   }
 
-  const router = inject(Router);
-  const userService = inject(UserService);
-
+  // Additional access checks can go here
   return userService.userProfile().pipe(
     map((user) => {
+      if (!user.termsAcceptedAt) {
+        return router.createUrlTree(['/accept-terms-and-conditions']);
+      }
+
       if (!user.emailVerifiedAt) {
         return router.createUrlTree(['/resend-confirmation-email']);
       }

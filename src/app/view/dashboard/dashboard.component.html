@@ -1,0 +1,41 @@
+<div class="body-bg">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <h2 class="pb-0 mb-0 fw-bold text-capitalize">Dashboard</h2>
+      </mat-card-title>
+    </mat-card-header>
+    <hr />
+    <mat-card-content>
+      <div class="content">
+        <div class="column col-4">
+          <div class="row">
+            <p>
+              <b>Organization Name</b>:&nbsp;
+              <!--{{item.generationStartTime+'000'| date:'EEE d MMMM y hh:ss'}} - in UTC:-->
+              {{ organization.name }}
+            </p>
+          </div>
+        </div>
+        <div class="column col-4">
+          <div class="row">
+            <p>
+              <b>Organization Type</b
+              >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+              {{ organization.organizationType }}
+            </p>
+          </div>
+        </div>
+        <div class="column col-4">
+          <div class="row">
+            <p>
+              <b> Status</b
+              >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
+              {{ organization.status }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
