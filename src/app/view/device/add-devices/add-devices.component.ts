@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -23,6 +23,7 @@ import {
   CountryInfo,
 } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
+import { MapComponent } from '../../map/map.component';
 
 @Component({
   selector: 'app-add-devices',
@@ -78,6 +79,9 @@ export class AddDevicesComponent {
     'Rooftop Solar',
     'Ground Mount Solar',
   ];
+  @ViewChild(MapComponent) mapComponent: MapComponent;
+  @Output() zoom = new EventEmitter<number>();
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthbaseService,
@@ -187,6 +191,15 @@ export class AddDevicesComponent {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
+    });
+
+    device.get('latitude')?.valueChanges.subscribe((latitude) => {
+      const longitude = device.get('longitude')?.value;
+      this.updateMapMarkers(latitude, longitude);
+    });
+    device.get('longitude')?.valueChanges.subscribe((longitude) => {
+      const latitude = device.get('latitude')?.value;
+      this.updateMapMarkers(latitude, longitude);
     });
     this.deviceForms.push(device);
 
@@ -374,5 +387,28 @@ export class AddDevicesComponent {
         },
       });
     });
+  }
+
+  updateMapMarkers(latitude: any, longitude: any) {
+    if (this.mapComponent && latitude && longitude) {
+      const device = [
+        {
+          latitude: latitude,
+          longitude: longitude,
+        },
+      ];
+      const markers = device.map((device) => ({
+        latitude: parseFloat(device.latitude),
+        longitude: parseFloat(device.longitude),
+      }));
+
+      // Set the markers on the map component
+      this.mapComponent.markers = [...markers];
+
+      // If the map is already initialized, update it directly
+      if (this.mapComponent.isMapInitialized) {
+        this.mapComponent.update();
+      }
+    }
   }
 }
