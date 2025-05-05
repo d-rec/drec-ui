@@ -2,7 +2,7 @@
   {
     "action": "type",
     "selector": "[test-id='login-username']",
-    "value": "developer2@energy.org"
+    "value": "developer4@energy.org"
   },
   {
     "action": "type",
@@ -16,5 +16,13 @@
   {
     "action": "click",
     "selector": "[test-id='login-submit']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='terms-and-condition']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='accept-terms-and-conditions']"
   }
 ]
