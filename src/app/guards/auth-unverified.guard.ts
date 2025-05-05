@@ -4,7 +4,13 @@ import { inject } from '@angular/core';
 import { UserService } from '../auth/services/user.service';
 import { map } from 'rxjs/operators';
 
-export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
+const isVerified = (user: any) => {
+  return (
+    user.termsAcceptedAt && user.emailVerifiedAt && user.phoneNumberVerifiedAt
+  );
+};
+
+export const AuthUnverifiedGuard: CanActivateFn = (route, state) => {
   const userService = inject(UserService);
   const router = inject(Router);
   // First check if user is logged in
@@ -18,16 +24,10 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
   // Additional access checks can go here
   return userService.userProfile().pipe(
     map((user) => {
-      if (!user.termsAcceptedAt) {
-        return router.createUrlTree(['/accept-terms-and-conditions']);
+      if (isVerified(user)) {
+        return router.createUrlTree(['/dashboard']);
       }
 
-      if (!user.emailVerifiedAt) {
-        return router.createUrlTree(['/resend-confirmation-email']);
-      }
-      if (!user.phoneNumberVerifiedAt) {
-        return router.createUrlTree(['/verify-otp']);
-      }
       return true;
     }),
   );
