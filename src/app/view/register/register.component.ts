@@ -182,13 +182,16 @@ export class RegisterComponent implements OnInit {
     return jwtObj;
   }
 
-  private handleUserLogin(loginCredentials: any): void {
+  private handleUserLogin(loginCredentials: any, isApiUser = false): void {
     this.authService.login('auth/login', loginCredentials).subscribe({
       next: (data) => {
         const jwtObj = this.handleJwtAuthentication(data['accessToken']);
         if (!jwtObj) return;
-        this.router.navigate(['/verify-otp']);
-
+        this.router.navigate(['/dashboard']);
+        if (isApiUser) {
+          this.handleApiUserLogin();
+          return;
+        }
         this.toastrService.success(
           `login user ${jwtObj.email}!`,
           'login Success',
@@ -267,6 +270,7 @@ export class RegisterComponent implements OnInit {
           return;
         }
         this.handleUserLogin(loginCredentials);
+        this.registerForm.reset();
       },
       error: (err) => {
         console.error('Registration error:', err);
