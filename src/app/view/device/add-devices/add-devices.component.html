@@ -1,5 +1,5 @@
 <div class="body-bg">
-  <mat-card >
+  <mat-card>
     <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center overlay">
       <div>
         <h2 class="pb-0 mb-0 fw-bold text-capitalize">Device Registration</h2>
@@ -15,15 +15,15 @@
     <hr class="mb-0 pb-0" />
     <form [formGroup]="myform" (ngSubmit)="onSubmit()">
       <mat-card-content>
-        <div class="col-md-3" *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'">
+        <div class="col-md-3" *ngIf="user.role === 'Admin' || user.role === 'ApiUser'">
           <mat-form-field appearance="outline">
             <mat-label class="text-capitalize" test-id="organization">Organization</mat-label>
 
-            <input matInput [(ngModel)]="orgname" [ngModelOptions]="{ standalone: true }" [matAutocomplete]="orgAuto"
+            <input matInput [(ngModel)]="organizationName" [ngModelOptions]="{ standalone: true }" [matAutocomplete]="orgAuto"
               (input)="filterOrgList()" />
 
             <mat-autocomplete #orgAuto="matAutocomplete" (optionSelected)="selectOrg($event)">
-              <mat-option *ngFor="let code of filteredOrgList" [value]="code.name">
+              <mat-option *ngFor="let code of filteredOrganizationList" [value]="code.name">
                 {{ code.name }}
               </mat-option>
             </mat-autocomplete>
@@ -283,27 +283,26 @@
     </form>
   </mat-card>
 </div>
-<ng-template
-  let-data
-  #popupDialog
-  class="Position-relative ng-template-add-reservation device-popup"
->
+<ng-template let-data #popupDialog class="Position-relative ng-template-add-reservation">
+  <h2 mat-dialog-title class="mat-dialog-title">Legal Confirmation</h2>
   <div mat-dialog-content>
     <p>
-      On behalf of Registrant Participant Org 18763, I agree to be subject to the I-REC Code and warrant that the
-      information contained in this application is truthful and exhaustive.
+      On behalf of DRE Project Developer <strong>{{organizationName}}</strong>, I agree to be subject to the I-REC Code and warrant that the
+      information contained in this application is truthful and exhaustive.</p>
+    <p>
       Any planned changes concerning the information given in this form will be announced in advance to the I-REC
-      Device Verifier and the Issuer.
+      Device Verifier and the Issuer.</p>
+    <p>
       Any unplanned changes will be reported to the I-REC Device Verifier and the Issuer at the first possible
-      occasion.
+      occasion.</p>
+    <p>
       The owner of the Production Device and the Registrant as his agent accept the possibility of unannounced control
       and auditing visits to their own premises and/or the premises of the Production Device, as prescribed in the
-      Evident I-REC(E) Code.
-      A signed SF-02 Production Facility Registration form must be attached to this registration.
-    </p>
+      Evident I-REC(E) Code.</p>
+    <p>A signed SF-02 Production Facility Registration form must be attached to this registration.</p>
   </div>
-  <div mat-dialog-actions class="buttons">
-      <button mat-button class="btn-primary text-capitalize" (click)="dialogRef.close(true)">I agree</button>
-      <button mat-button class="btn-default text-capitalize" (click)="dialogRef.close(false)">Cancel</button>
+  <div mat-dialog-actions class="d-flex justify-content-center pb-4">
+    <button mat-button class="btn-primary text-capitalize" (click)="dialogRef.close(true)">I agree</button>
+    <button mat-button class="btn-default text-capitalize" (click)="dialogRef.close(false)">Cancel</button>
   </div>
 </ng-template>

@@ -24,6 +24,7 @@ import {
 } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MatDialog } from '@angular/material/dialog';
+import { OrganizationType } from 'src/app/utils/drec.enum';
 
 @Component({
   selector: 'app-add-devices',
@@ -33,7 +34,7 @@ import { MatDialog } from '@angular/material/dialog';
 export class AddDevicesComponent {
   @ViewChild('popupDialog') popupDialog = {} as TemplateRef<any>;
   dialogRef: any;
-  loginuser: any;
+  user: any;
   myform: FormGroup;
   countrylist: CountryInfo[] = [];
   fuellist: fulecodeType[] = [];
@@ -51,7 +52,8 @@ export class AddDevicesComponent {
   public showSeconds = false;
   public touchUi = false;
   public enableMeridian = false;
-  orglist: OrganizationInformation[] = [];
+  organizationList: OrganizationInformation[] = [];
+  currentOrganization: OrganizationInformation | undefined;
 
   public stepHour = 1;
   public stepMinute = 1;
@@ -59,9 +61,9 @@ export class AddDevicesComponent {
   numberregex: RegExp = /^-?[0-9]+(\.[0-9]*)?$/;
   filteredCountryList: Observable<any[]>[] = [];
   subscription: Subscription;
-  filteredOrgList: OrganizationInformation[] = [];
-  orgname: string;
-  orgId: number;
+  filteredOrganizationList: OrganizationInformation[] = [];
+  organizationName: string;
+  organizationId: number;
   offtaker = [
     'School',
     'Education',
@@ -92,7 +94,8 @@ export class AddDevicesComponent {
     private orgService: OrganizationService,
     public dialog: MatDialog,
   ) {
-    this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
+    this.user = JSON.parse(sessionStorage.getItem('loginuser')!);
+    console.log(this.user);
   }
 
   ngOnInit() {
@@ -113,25 +116,39 @@ export class AddDevicesComponent {
       this.subscription.unsubscribe();
     }
   }
+  private fetchOrganizationList() {
+    this.orgService.getOrganizationInformation().subscribe((data) => {
+      this.currentOrganization = data;
+      if (
+        ![OrganizationType.ApiUser, OrganizationType.Admin].includes(
+          this.user.role,
+        )
+      ) {
+        this.organizationName = this.currentOrganization?.name;
+        this.organizationId = this.currentOrganization?.id;
+      }
+    });
+  }
 
   private loadData() {
-    if (this.loginuser.role === 'Admin') {
+    this.fetchOrganizationList();
+    if (this.user.role === OrganizationType.Admin) {
       this.adminService.GetAllOrganization().subscribe((data) => {
-        this.orglist = data.organizations.filter(
+        this.organizationList = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
-        this.filteredOrgList = this.orglist;
+        this.filteredOrganizationList = this.organizationList;
         // Once data is loaded, call any other functions that depend on it
 
         this.date = new Date();
       });
-    } else if (this.loginuser.role === 'ApiUser') {
+    } else if (this.user.role === OrganizationType.ApiUser) {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
-        this.orglist = data.organizations.filter(
+        this.organizationList = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
         // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
-        this.filteredOrgList = this.orglist;
+        this.filteredOrganizationList = this.organizationList;
       });
     }
 
@@ -142,16 +159,18 @@ export class AddDevicesComponent {
     // Load other data as needed
   }
   filterOrgList() {
-    this.filteredOrgList = this.orglist.filter((org: any) => {
-      return org.name.toLowerCase().includes(this.orgname.toLowerCase());
+    this.filteredOrganizationList = this.organizationList.filter((org: any) => {
+      return org.name
+        .toLowerCase()
+        .includes(this.organizationName.toLowerCase());
     });
   }
   selectOrg(event: any) {
-    const selectedCountry = this.orglist.find(
+    const selectedOrganization = this.organizationList.find(
       (option) => option.name === event.option.value,
     );
-    if (selectedCountry) {
-      this.orgId = selectedCountry.id;
+    if (selectedOrganization) {
+      this.organizationId = selectedOrganization.id;
     }
   }
   private initializeForm() {
@@ -338,8 +357,8 @@ export class AddDevicesComponent {
   submitForm() {
     const deviceArray = this.myform.value.devices;
     deviceArray.forEach((element: any) => {
-      if (this.orgname != null) {
-        element['organizationId'] = this.orgId;
+      if (this.organizationName != null) {
+        element['organizationId'] = this.organizationId;
       }
       const selectedCountry = this.countrylist.find(
         (option: CountryInfo) => option.country === element.countryCodename,
@@ -357,9 +376,9 @@ export class AddDevicesComponent {
           // Check if formDataArray is empty
           if (deviceArray.length === 0) {
             // Navigate to the list UI page
-            if (this.loginuser.role === 'Admin') {
+            if (this.user.role === OrganizationType.Admin) {
               this.router.navigate(['/admin/All_devices']);
-            } else if (this.loginuser.role === 'ApiUser') {
+            } else if (this.user.role === OrganizationType.ApiUser) {
               this.router.navigate(['/apiuser/All_devices']);
             } else {
               this.router.navigate(['/device/AllList']);
@@ -386,7 +405,6 @@ export class AddDevicesComponent {
   }
   openPopupDialog() {
     this.dialogRef = this.dialog.open(this.popupDialog, {
-      height: '400px',
       width: '700px',
     });
     this.dialogRef.afterClosed().subscribe((result: boolean) => {
