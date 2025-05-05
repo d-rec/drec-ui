@@ -1,5 +1,5 @@
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Component, Inject, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 
 import { MatSort } from '@angular/material/sort';
@@ -19,6 +19,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { DeviceDetailsComponent } from '../device-details/device-details.component';
 import { ToastrService } from 'ngx-toastr';
 import { fulecodeType, devicecodeType, CountryInfo } from '../../../models';
+import { MapComponent } from '../../map/map.component';
 
 @Component({
   selector: 'app-alldevices',
@@ -42,6 +43,7 @@ export class AlldevicesComponent {
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild(MapComponent) mapComponent: MapComponent;
   dataSource: MatTableDataSource<any>;
   data: any;
   loginuser: any;
@@ -82,6 +84,9 @@ export class AlldevicesComponent {
   orgname: string;
   orgId: number;
   filteredOrgList: Observable<any[]>;
+  hideMap: boolean = false;
+  hideFilterDevices: boolean = true;
+  showResetMapFilter = false;
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -90,6 +95,7 @@ export class AlldevicesComponent {
     private dialog: MatDialog,
     private orgService: OrganizationService,
     private toastrService: ToastrService,
+    private changeDetectorRef: ChangeDetectorRef,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
@@ -373,6 +379,11 @@ export class AlldevicesComponent {
       this.totalPages = this.data.totalPages;
       // this.dataSource.paginator = this.paginator;
       this.dataSource.sort = this.sort;
+
+      // Use setTimeout to ensure the map component is fully initialized
+      setTimeout(() => {
+        this.updateMapMarkers(this.data.devices);
+      }, 300);
     }
   }
   UpdateDevice(externalId: any) {
@@ -441,6 +452,71 @@ export class AlldevicesComponent {
         this.toastrService.error(response.message, 'Failure');
       }
     });
+  }
+
+  toggleMap() {
+    this.hideMap = !this.hideMap;
+
+    // If we're showing the map and we have data, reapply the markers
+    if (!this.hideMap && this.data && this.data.devices) {
+      // Use setTimeout to ensure the map component is fully initialized after toggling
+      setTimeout(() => {
+        this.updateMapMarkers(this.data.devices);
+      }, 300);
+    }
+  }
+
+  toggleFilterDevices() {
+    this.hideFilterDevices = !this.hideFilterDevices;
+  }
+
+  updateMapMarkers(devices: any[]) {
+    if (this.mapComponent && devices) {
+      const validDevices = devices.filter(
+        (device) =>
+          device.latitude &&
+          device.longitude &&
+          !isNaN(parseFloat(device.latitude)) &&
+          !isNaN(parseFloat(device.longitude)),
+      );
+
+      if (validDevices.length === 0) {
+        return;
+      }
+
+      const markers = validDevices.map((device) => ({
+        latitude: parseFloat(device.latitude),
+        longitude: parseFloat(device.longitude),
+        externalId: device.externalId || '',
+        device,
+      }));
+
+      // Set the markers on the map component
+      this.mapComponent.markers = [...markers];
+
+      // If the map is already initialized, update it directly
+      if (this.mapComponent.isMapInitialized) {
+        this.mapComponent.update();
+      }
+    }
+  }
+
+  onMarkerClick(event: { externalId: string }) {
+    this.showResetMapFilter = true;
+    this.dataSource.filter = event.externalId.trim().toLowerCase();
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+    this.changeDetectorRef.detectChanges();
+  }
+
+  resetMapFilter() {
+    this.dataSource.filter = '';
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+    this.showResetMapFilter = false;
+    this.changeDetectorRef.detectChanges();
   }
 }
 
