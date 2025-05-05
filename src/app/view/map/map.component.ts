@@ -4,7 +4,7 @@ import * as L from 'leaflet';
 export interface MapMarker {
   latitude: number;
   longitude: number;
-  externalId: string;
+  externalId?: string;
 }
 
 @Component({
