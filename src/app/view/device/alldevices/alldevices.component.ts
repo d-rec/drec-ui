@@ -86,6 +86,7 @@ export class AlldevicesComponent {
   filteredOrgList: Observable<any[]>;
   hideMap: boolean = false;
   hideFilterDevices: boolean = true;
+  resetMapFilter = false;
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -94,7 +95,7 @@ export class AlldevicesComponent {
     private dialog: MatDialog,
     private orgService: OrganizationService,
     private toastrService: ToastrService,
-    private changeDetectorRefr: ChangeDetectorRef,
+    private changeDetectorRef: ChangeDetectorRef,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
@@ -501,11 +502,21 @@ export class AlldevicesComponent {
   }
 
   onMarkerClick(event: { externalId: string }) {
+    this.resetMapFilter = true;
     this.dataSource.filter = event.externalId.trim().toLowerCase();
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
-    this.changeDetectorRefr.detectChanges();
+    this.changeDetectorRef.detectChanges();
+  }
+
+  resetMapDeviceFilter() {
+    this.dataSource.filter = '';
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+    this.resetMapFilter = false;
+    this.changeDetectorRef.detectChanges();
   }
 }
 
