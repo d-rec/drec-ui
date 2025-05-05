@@ -95,7 +95,6 @@ export class AddDevicesComponent {
     public dialog: MatDialog,
   ) {
     this.user = JSON.parse(sessionStorage.getItem('loginuser')!);
-    console.log(this.user);
   }
 
   ngOnInit() {
