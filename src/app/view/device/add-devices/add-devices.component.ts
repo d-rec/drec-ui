@@ -1,4 +1,10 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  TemplateRef,
+  ViewChild,
+  EventEmitter,
+  Output,
+} from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -25,6 +31,7 @@ import {
 import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganizationType } from 'src/app/utils/drec.enum';
+import { MapComponent } from '../../map/map.component';
 
 @Component({
   selector: 'app-add-devices',
@@ -83,6 +90,8 @@ export class AddDevicesComponent {
     'Rooftop Solar',
     'Ground Mount Solar',
   ];
+  @ViewChild(MapComponent) mapComponent: MapComponent;
+  @Output() zoom = new EventEmitter<number>();
 
   constructor(
     private fb: FormBuilder,
@@ -205,10 +214,20 @@ export class AddDevicesComponent {
       deviceDescription: [null],
       energyStorage: [true],
       energyStorageCapacity: [null],
+      stateProvince: [null],
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
+    });
+
+    device.get('latitude')?.valueChanges.subscribe((latitude) => {
+      const longitude = device.get('longitude')?.value;
+      this.updateMapMarkers(latitude, longitude);
+    });
+    device.get('longitude')?.valueChanges.subscribe((longitude) => {
+      const latitude = device.get('latitude')?.value;
+      this.updateMapMarkers(latitude, longitude);
     });
     this.deviceForms.push(device);
 
@@ -287,6 +306,7 @@ export class AddDevicesComponent {
       deviceDescription: [null],
       energyStorage: true,
       energyStorageCapacity: [null],
+      stateOrProvince: [null],
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
@@ -411,5 +431,27 @@ export class AddDevicesComponent {
         this.submitForm();
       }
     });
+  }
+  updateMapMarkers(latitude: any, longitude: any) {
+    if (this.mapComponent && latitude && longitude) {
+      const device = [
+        {
+          latitude: latitude,
+          longitude: longitude,
+        },
+      ];
+      const markers = device.map((device) => ({
+        latitude: parseFloat(device.latitude),
+        longitude: parseFloat(device.longitude),
+      }));
+
+      // Set the markers on the map component
+      this.mapComponent.markers = [...markers];
+
+      // If the map is already initialized, update it directly
+      if (this.mapComponent.isMapInitialized) {
+        this.mapComponent.update();
+      }
+    }
   }
 }
