@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -80,6 +80,8 @@ export class AddDevicesComponent {
     'Ground Mount Solar',
   ];
   @ViewChild(MapComponent) mapComponent: MapComponent;
+  @Output() zoom = new EventEmitter<number>();
+  
   constructor(
     private fb: FormBuilder,
     private authService: AuthbaseService,
