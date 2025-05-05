@@ -66,6 +66,10 @@ export class VerificationComponent implements AfterViewInit, OnInit {
       input.value = '';
       this.otp[index] = '';
     }
+
+    if (this.otp.every((digit) => digit !== '')) {
+      this.onSubmit();
+    }
   }
 
   onSubmit(): void {
