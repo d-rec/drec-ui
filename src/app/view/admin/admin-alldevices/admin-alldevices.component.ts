@@ -83,7 +83,7 @@ export class AdminAlldevicesComponent {
   apiuserId: string;
   hideMap: boolean = false;
   hideFilterDevices: boolean = true;
-  resetMapFilter: boolean = false;
+  showResetMapFilter: boolean = false;
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -476,7 +476,7 @@ export class AdminAlldevicesComponent {
   }
 
   onMarkerClick(event: { externalId: string }) {
-    this.resetMapFilter = true;
+    this.showResetMapFilter = true;
     this.dataSource.filter = event.externalId.trim().toLowerCase();
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
@@ -484,12 +484,12 @@ export class AdminAlldevicesComponent {
     this.changeDetectorRef.detectChanges();
   }
 
-  resetMapDeviceFilter() {
+  resetMapFilter() {
     this.dataSource.filter = '';
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
-    this.resetMapFilter = false;
+    this.showResetMapFilter = false;
     this.changeDetectorRef.detectChanges();
   }
 }
