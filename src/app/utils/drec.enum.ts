@@ -10,6 +10,14 @@ export enum UserEnumStatus {
   // 'Suspended',
   //'Deleted',
 }
+
+export enum OrganizationType {
+  Buyer = 'Buyer',
+  Developer = 'Developer',
+  ApiUser = 'ApiUser',
+  Admin = 'Admin',
+}
+
 export enum Role {
   User = 'User',
   DeviceOwner = 'DeviceOwner',
