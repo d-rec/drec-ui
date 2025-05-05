@@ -1,5 +1,5 @@
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -83,6 +83,7 @@ export class AdminAlldevicesComponent {
   apiuserId: string;
   hideMap: boolean = false;
   hideFilterDevices: boolean = true;
+  showResetMapFilter: boolean = false;
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -91,6 +92,7 @@ export class AdminAlldevicesComponent {
     private router: Router,
     private dialog: MatDialog,
     private toastrService: ToastrService,
+    private changeDetectorRef: ChangeDetectorRef,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.apiuserId = sessionStorage.getItem('apiuserId')!;
@@ -459,7 +461,7 @@ export class AdminAlldevicesComponent {
       const markers = validDevices.map((device) => ({
         latitude: parseFloat(device.latitude),
         longitude: parseFloat(device.longitude),
-        title: device.externalId || '',
+        externalId: device.externalId || '',
         device,
       }));
 
@@ -471,5 +473,23 @@ export class AdminAlldevicesComponent {
         this.mapComponent.update();
       }
     }
+  }
+
+  onMarkerClick(event: { externalId: string }) {
+    this.showResetMapFilter = true;
+    this.dataSource.filter = event.externalId.trim().toLowerCase();
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+    this.changeDetectorRef.detectChanges();
+  }
+
+  resetMapFilter() {
+    this.dataSource.filter = '';
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+    this.showResetMapFilter = false;
+    this.changeDetectorRef.detectChanges();
   }
 }
