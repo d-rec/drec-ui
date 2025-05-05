@@ -76,7 +76,7 @@ export class VerificationComponent implements AfterViewInit, OnInit {
       return;
     }
 
-    this.otpService.verifyOtp(this.phoneNumber, code).subscribe(
+    this.otpService.verify(code).subscribe(
       (response) => {
         this.toastrService.success(response.message);
         this.clearOtp();
@@ -99,16 +99,20 @@ export class VerificationComponent implements AfterViewInit, OnInit {
   resendOtp(): void {
     if (this.loginUser.phoneNumberVerifiedAt) {
       this.toastrService.error('You are already verified.');
-    } else {
-      this.otpService.sendOtp(this.loginUser.phoneNumber).subscribe(
-        (response) => {
-          this.toastrService.success(response.message);
-        },
-        (error) => {
-          this.toastrService.error(error.error.message);
-          console.error('Error sending OTP:', error);
-        },
-      );
+      return;
     }
+    this.otpService.send().subscribe(
+      (response) => {
+        this.toastrService.success(response.message);
+      },
+      (error) => {
+        this.toastrService.error(error.error.message);
+        console.error('Error sending OTP:', error);
+      },
+    );
+  }
+
+  get phoneNumberHint(): string {
+    return this.phoneNumber?.slice(-2) || '';
   }
 }

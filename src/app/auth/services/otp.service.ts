@@ -8,15 +8,12 @@ import { Observable } from 'rxjs';
 export class OtpService {
   url: string = environment.API_URL;
   constructor(private httpClient: HttpClient) {}
-  public verifyOtp(phoneNumber: string, otp: string): Observable<any> {
-    return this.httpClient.post<any>(this.url + 'otp/verify-otp', {
-      phoneNumber,
-      otp,
+  public verify(code: string): Observable<any> {
+    return this.httpClient.post<any>(this.url + 'otp/verify', {
+      code,
     });
   }
-  public sendOtp(phoneNumber: string): Observable<any> {
-    return this.httpClient.post<any>(this.url + 'otp/send-otp', {
-      phoneNumber,
-    });
+  public send(): Observable<any> {
+    return this.httpClient.post<any>(this.url + 'otp/send', {});
   }
 }
