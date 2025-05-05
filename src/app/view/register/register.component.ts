@@ -187,11 +187,14 @@ export class RegisterComponent implements OnInit {
       next: (data) => {
         const jwtObj = this.handleJwtAuthentication(data['accessToken']);
         if (!jwtObj) return;
-        this.router.navigate(['/dashboard']);
+
         if (isApiUser) {
           this.handleApiUserLogin();
           return;
         }
+
+        this.router.navigate(['/dashboard']);
+
         this.toastrService.success(
           `login user ${jwtObj.email}!`,
           'login Success',
