@@ -81,7 +81,7 @@ export class AddDevicesComponent {
   ];
   @ViewChild(MapComponent) mapComponent: MapComponent;
   @Output() zoom = new EventEmitter<number>();
-  
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthbaseService,
