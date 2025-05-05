@@ -236,7 +236,7 @@ export class RegisterComponent implements OnInit {
       .subscribe({
         next: (keydata) => {
           this.downloadAccessKey(keydata);
-          setTimeout(() => this.handleUserLogin(loginCredentials), 1000);
+          setTimeout(() => this.handleUserLogin(loginCredentials, true), 1000);
         },
       });
   }
