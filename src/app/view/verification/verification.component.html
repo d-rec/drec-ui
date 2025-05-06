@@ -1,0 +1,30 @@
+<div class="otp-page-wrapper">
+  <form (ngSubmit)="onSubmit()" #otpForm="ngForm" class="otp-container">
+    <h2 class="otp-title">Two-factor authentication</h2>
+
+    <div class="otp-inputs">
+      <input
+        *ngFor="let digit of otp; let i = index;trackBy: trackByIndex"
+        type="text"
+        maxlength="1"
+        pattern="[0-9]*"
+        inputmode="numeric"
+        class="otp-box"
+        name="otp{{ i }}"
+        [(ngModel)]="otp[i]"
+        required
+        (input)="handleInput($event, i)"
+        (keydown.enter)="onSubmit()"
+        #otpInput
+      />
+    </div>
+
+    <p class="otp-instruction">
+      Enter the verification code sent as a message to<br />
+      •••• ••• •{{ phoneNumberHint }}.
+    </p>
+
+    <a href="javascript:void(0)" (click)="resendOtp()">Resend OTP</a>
+
+  </form>
+</div>
