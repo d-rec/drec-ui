@@ -1,10 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import * as L from 'leaflet';
 
 export interface MapMarker {
   latitude: number;
   longitude: number;
-  title?: string;
+  externalId?: string;
 }
 
 @Component({
@@ -14,6 +14,8 @@ export interface MapMarker {
 })
 export class MapComponent implements OnInit {
   @Input() markers: MapMarker[] = [];
+  @Input() zoom: number = 2;
+  @Output() markerClicked = new EventEmitter();
 
   options: L.MapOptions = {
     layers: [],
@@ -83,15 +85,22 @@ export class MapComponent implements OnInit {
     const customIcon = this.createCustomIcon();
 
     this.markers.forEach((markerData: MapMarker) => {
-      const { latitude, longitude, title } = markerData;
+      const { latitude, longitude, externalId } = markerData;
 
       if (isNaN(latitude) || isNaN(longitude)) {
         return;
       }
 
       const marker = L.marker([latitude, longitude], {
-        title,
+        title: externalId,
         icon: customIcon,
+      });
+
+      marker.on('click', () => {
+        const deviceData = {
+          externalId,
+        };
+        this.markerClicked.emit(deviceData);
       });
 
       this.markerGroup.addLayer(marker);
@@ -111,13 +120,13 @@ export class MapComponent implements OnInit {
           validCoordinates[0][0],
           validCoordinates[0][1],
         );
-        this.map.setView(position, 10); // Set a more appropriate zoom level for a single marker
+        this.map.setView(position, this.zoom); // Set a more appropriate zoom level for a single marker
       } else {
         const bounds = L.latLngBounds(validCoordinates);
         this.map.fitBounds(bounds, { padding: [50, 50] });
       }
     } else {
-      this.map.setView([20, 0], 2); // default world view
+      this.map.setView([20, 0], this.zoom); // default world view
     }
   }
 }

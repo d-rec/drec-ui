@@ -193,9 +193,8 @@ export class RegisterComponent implements OnInit {
           return;
         }
 
-        const route =
-          jwtObj.role === 'Buyer' ? '/myreservation' : '/device/AllList';
-        this.router.navigate([route]);
+        this.router.navigate(['/dashboard']);
+
         this.toastrService.success(
           `login user ${jwtObj.email}!`,
           'login Success',
