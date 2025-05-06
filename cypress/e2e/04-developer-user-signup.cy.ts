@@ -4,6 +4,7 @@ describe('Sign up Test', () => {
   });
 
   it('should sign up a new developer user', () => {
-    cy.developerUserSignup();
+    cy.developerUserSignup().wait(1000);
+    cy.verifyPhoneNumber().wait(1000);
   });
 });
