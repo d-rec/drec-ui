@@ -23,5 +23,10 @@ declare namespace Cypress {
     certifiedMeterRead(): Chainable<void>;
     inviteUser(): Chainable<void>;
     verifyPhoneNumber(): Chainable<void>;
+    mailiskSearchInbox(params: {
+      to: string;
+      [key: string]: any;
+    }): Chainable<any>;
+    mailiskGetEmail(id: string): Chainable<any>;
   }
 }

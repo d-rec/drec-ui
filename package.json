@@ -72,6 +72,7 @@
     "@typescript-eslint/eslint-plugin": "^7.9.0",
     "cypress": "^14.0.1",
     "cypress-file-upload": "^5.0.8",
+    "cypress-mailisk": "^2.0.1",
     "eslint": "8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "jasmine-core": "~4.5.0",
