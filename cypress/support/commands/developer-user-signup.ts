@@ -60,7 +60,6 @@ Cypress.Commands.add('developerUserSignup', function () {
       }
     });
 
-    // Wait for email and extract verification code
     waitForMailiskEmail(testEmail, 'Verify your email').then((email: any) => {
       cy.mailiskGetEmail(email.id).then((fullEmail: any) => {
         const codeMatch = fullEmail.text?.match(/code is (\w+)/);
