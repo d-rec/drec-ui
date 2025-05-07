@@ -40,6 +40,7 @@ import { SharedModule } from './shared.module';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
+import { VerificationComponent } from './view/verification/verification.component';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { DefaultLayoutComponent } from './layout/default/default-layout.component';
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
@@ -76,6 +77,7 @@ import { DashboardComponent } from './view/dashboard/dashboard.component';
     ApiuserClientReponseComponent,
     TermsAndConditionsComponent,
     DocumentsUploadComponent,
+    VerificationComponent,
     AcceptTermsAndConditionsComponent,
     ResendConfirmEmailComponent,
     DashboardComponent,

@@ -18,11 +18,13 @@ import { UserAcceptInvitationComponent } from './view/user-accept-invitation/use
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
 import { AuthGuard } from './guards/auth.guard';
+import { VerificationComponent } from './view/verification/verification.component';
 import { AuthVerifiedGuard } from './guards/auth-verified.guard';
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
 import { DashboardComponent } from './view/dashboard/dashboard.component';
 import { GuestGuard } from './guards/guest.guard';
+import { AuthUnverifiedGuard } from './guards/auth-unverified.guard';
 
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
@@ -66,10 +68,14 @@ const routes: Routes = [
   {
     path: '',
     component: DefaultLayoutComponent,
-    canActivate: [AuthGuard],
+    canActivate: [AuthUnverifiedGuard],
     children: [
       // Other routes available only to logged-in but unverified users
+<<<<<<< HEAD
       { path: 'documents-upload', component: DocumentsUploadComponent },
+=======
+      { path: 'verify-otp', component: VerificationComponent },
+>>>>>>> develop
       {
         path: 'accept-terms-and-conditions',
         component: AcceptTermsAndConditionsComponent,

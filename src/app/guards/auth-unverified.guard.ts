@@ -1,10 +1,16 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthGuard } from './auth.guard';
-import { UserService } from '../auth/services/user.service';
 import { inject } from '@angular/core';
+import { UserService } from '../auth/services/user.service';
 import { map } from 'rxjs/operators';
 
-export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
+const isVerified = (user: any) => {
+  return (
+    user.termsAcceptedAt && user.emailVerifiedAt && user.phoneNumberVerifiedAt
+  );
+};
+
+export const AuthUnverifiedGuard: CanActivateFn = (route, state) => {
   const userService = inject(UserService);
   const router = inject(Router);
   // First check if user is logged in
@@ -18,20 +24,8 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
   // Additional access checks can go here
   return userService.userProfile().pipe(
     map((user) => {
-      if (!user.termsAcceptedAt) {
-        return router.createUrlTree(['/accept-terms-and-conditions']);
-      }
-
-      if (!user.emailVerifiedAt) {
-        return router.createUrlTree(['/resend-confirmation-email']);
-      }
-
-      if (user.organization.verifiedAt === null) {
-        return router.createUrlTree(['/documents-upload']);
-      }
-
-      if (!user.phoneNumberVerifiedAt) {
-        return router.createUrlTree(['/verify-otp']);
+      if (isVerified(user)) {
+        return router.createUrlTree(['/dashboard']);
       }
 
       return true;
