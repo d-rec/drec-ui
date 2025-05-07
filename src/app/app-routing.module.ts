@@ -17,7 +17,6 @@ import { UserProfileComponent } from './view/user-profile/user-profile.component
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
-import { AuthGuard } from './guards/auth.guard';
 import { VerificationComponent } from './view/verification/verification.component';
 import { AuthVerifiedGuard } from './guards/auth-verified.guard';
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
