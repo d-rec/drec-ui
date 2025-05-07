@@ -71,11 +71,8 @@ const routes: Routes = [
     canActivate: [AuthUnverifiedGuard],
     children: [
       // Other routes available only to logged-in but unverified users
-<<<<<<< HEAD
       { path: 'documents-upload', component: DocumentsUploadComponent },
-=======
       { path: 'verify-otp', component: VerificationComponent },
->>>>>>> develop
       {
         path: 'accept-terms-and-conditions',
         component: AcceptTermsAndConditionsComponent,
