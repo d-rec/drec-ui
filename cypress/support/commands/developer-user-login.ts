@@ -12,7 +12,6 @@ Cypress.Commands.add('developerUserLogin', function () {
           return cy.get(step.selector).click().wait(1000);
       }
     });
-
     // cy.get('[test-id="terms-and-conditions"]')
     //   .should('exist')
     //   .then(($checkbox) => {
