@@ -43,8 +43,6 @@ Cypress.Commands.add('developerUserSignup', function () {
   cy.fixture('developer-user-signup.json').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     cy.get('[test-id="register"]').click();
-
-    // Fill form using fixture
     data.forEach((step) => {
       const value = step.value === '{{email}}' ? testEmail : step.value;
       switch (step.action) {
