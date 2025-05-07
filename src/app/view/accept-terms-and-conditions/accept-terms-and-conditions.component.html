@@ -3,11 +3,11 @@
   <div class="row justify-content-center">
     <div class="col-md-10">
       <form [formGroup]="termsForm" (ngSubmit)="onSubmit()">
-        <mat-checkbox formControlName="termsAndConditions" color="primary" test-id="terms-and-conditions">
+        <mat-checkbox formControlName="termsAndConditions" color="primary" test-id="terms-and-condition">
           I agree to the Terms and Conditions
         </mat-checkbox>
         <div class="pt-4">
-          <button mat-raised-button class="btn-primary btn ms-2 btn-block" [disabled]="termsForm.invalid|| isSubmitting"
+          <button mat-raised-button class="btn-primary btn ms-2 btn-block" [disabled]="termsForm.invalid|| isSubmitting" test-id="accept-terms-and-conditions"
             (click)="onSubmit()" type="submit">Accept</button>
           <button type="button" class="btn-primary btn ms-2 btn-block" (click)="logout()">Decline</button>
         </div>
