@@ -13,12 +13,12 @@
   {
     "action": "type",
     "selector": "[test-id='email']",
-    "value": "dev19@energy.org"
+    "value": "developer2@energy.org"
   },
   {
     "action": "type",
     "selector": "[test-id='phone-number']",
-    "value": "+91 22 1235 5678"
+    "value": "+91 22 1205 5608"
   },
   {
     "action": "click",
@@ -32,7 +32,7 @@
   {
     "action": "type",
     "selector": "[test-id='organization-name']",
-    "value": "developer19"
+    "value": "developer1"
   },
   {
     "action": "type",
@@ -83,7 +83,7 @@
     "selector": "[test-id='next-to-password']"
   },
   {
-    "action": "submit",
+    "action": "click",
     "selector": "[test-id='submit-registration']"
   }
 ]
