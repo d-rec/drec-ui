@@ -26,14 +26,14 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
         return router.createUrlTree(['/resend-confirmation-email']);
       }
 
-      if (user.organization.verifiedAt === null) {
-        return router.createUrlTree(['/documents-upload']);
-      }
-
+      
       if (!user.phoneNumberVerifiedAt) {
         return router.createUrlTree(['/verify-otp']);
       }
-
+      
+      if (!user.organization.verifiedAt) {
+        return router.createUrlTree(['/documents-upload']);
+      }
       return true;
     }),
   );
