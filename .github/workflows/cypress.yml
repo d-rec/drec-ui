@@ -14,8 +14,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      MODE: dev
-      MNEMONIC: ${{secrets.WALLET_MNEMONIC }}
+      MNEMONIC: ${{ secrets.WALLET_MNEMONIC }}
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
       INFLUXDB_URL: http://localhost:8086
@@ -36,62 +35,82 @@ jobs:
       ADMIN_EMAIL: drec@energy.org
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
     steps:
+      - name: Set MODE based on branch
+        id: set-env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
+            echo "MODE=stage" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
+            echo "MODE=prod" >> $GITHUB_ENV
+          else
+            echo "MODE=dev" >> $GITHUB_ENV
+          fi
+
       - name: Checkout Repository
         uses: actions/checkout@v2
+
       - name: Install pnpm and Rush globally
         run: |
           npm install -g pnpm @microsoft/rush
-      - name: Install System Dependencies
-        run: >
-          sudo apt-get update
 
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
           sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat-openbsd curl
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: lts/iron
           cache: npm
-      - name: Clone Backend Repository
-        run: >
-          git clone  https://github.com/d-rec/drec-origin.git projects/drec-origin
 
+      - name: Clone Backend Repository
+        run: |
+          git clone https://github.com/d-rec/drec-origin.git projects/drec-origin
           chmod -R 777 projects/drec-origin
+
       - name: Start Docker Services
         working-directory: projects/drec-origin
         run: |
           docker-compose up -d || true
           docker-compose logs --tail=100
+
       - name: Install Backend Dependencies using Rush
         working-directory: projects/drec-origin
         run: rush install
+
       - name: Debug - Verify Utility Files
         working-directory: projects/drec-origin/apps/drec-api
         run: |
           ls -R src/utils
+
       - name: Build Backend
         working-directory: projects/drec-origin
         run: rush build
+
       - name: Debug - Verify Build Output
         working-directory: projects/drec-origin/apps/drec-api
         run: |
           ls -R dist
+
       - name: Start Backend and Wait for Readiness
         working-directory: projects/drec-origin
         run: |
           rush start:dev &  # Start backend in the background
-           echo "Waiting for backend to be ready..."
-          timeout=120  # Wait up to 120 seconds
+          echo "Waiting for backend to be ready..."
+          timeout=120
           elapsed=0
           while ! curl -s http://localhost:3040 >/dev/null; do
             sleep 10
-             elapsed=$((elapsed+10))
-             echo "Backend is not ready yet... ($elapsed seconds)"
-             if [ "$elapsed" -ge "$timeout" ]; then
-               echo "Backend failed to start within $timeout seconds."
-               exit 1
-             fi
+            elapsed=$((elapsed+10))
+            echo "Backend is not ready yet... ($elapsed seconds)"
+            if [ "$elapsed" -ge "$timeout" ]; then
+              echo "Backend failed to start within $timeout seconds."
+              exit 1
+            fi
           done
           echo "Backend is ready!"
+
       - name: Install and Start Frontend
         run: |
           npm install
@@ -102,8 +121,10 @@ jobs:
             echo "Frontend is not ready yet..."
           done
           echo "Frontend is ready!"
+
       - name: Run Cypress Tests
         run: pnpx cypress run
+
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
         run: docker-compose down
