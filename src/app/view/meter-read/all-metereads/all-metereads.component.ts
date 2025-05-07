@@ -74,9 +74,7 @@ export class AllMetereadsComponent implements OnInit {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
-          (org: OrganizationInformation) =>
-            org.organizationType == 'Developer' &&
-            org.api_user_id == this.apiuserId,
+          (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
         this.filteredOrgList = this.orglist;
       });
