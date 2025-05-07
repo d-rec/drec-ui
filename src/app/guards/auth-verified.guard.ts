@@ -29,11 +29,11 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
       if (!user.phoneNumberVerifiedAt) {
         return router.createUrlTree(['/verify-otp']);
       }
-      
+
       if (!user.organization.verifiedAt) {
         return router.createUrlTree(['/documents-upload']);
       }
-      
+
       return true;
     }),
   );
