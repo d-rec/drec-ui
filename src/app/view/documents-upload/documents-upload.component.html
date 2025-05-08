@@ -1,0 +1,65 @@
+  <div class="container-fluid bg-light flex-grow-1 p-4">
+    <div class="bg-info-subtle mb-4 p-4 rounded">
+      <h3 class="d-flex align-items-center gap-2 fw-bold mb-3">
+        <mat-icon>info</mat-icon>
+        {{ title }}
+      </h3>
+      <p class="text-secondary mb-2 small">{{ description }}</p>
+      <p class="text-secondary mb-2 small">{{ helperText }}</p>
+    </div>
+
+    <div class="list-group">
+      <div
+        *ngFor="let doc of documents; let i = index"
+        class="list-group-item d-flex justify-content-between align-items-center p-3 mb-2 border rounded bg-white hover-shadow"
+      >
+        <div class="d-flex align-items-center gap-2 text-dark">
+          <mat-icon class="text-secondary small">arrow_forward</mat-icon>
+          {{ doc.title }}
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span
+            *ngIf="doc.required"
+            class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
+            >Required</span
+          >
+          <div class="upload-buttons d-flex gap-2 align-items-center">
+            <input
+              type="file"
+              [id]="'fileInput' + i"
+              class="d-none"
+              (change)="onFileSelected($event, doc)"
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+            />
+            <button
+              class="btn btn-outline-primary btn-sm"
+              (click)="openFileExplorer(i)"
+              [disabled]="doc.isUploaded"
+            >
+              {{
+                doc.file ? shortenFileName(doc.file.name) : 'Select document'
+              }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end mt-4">
+        <button
+          class="btn btn-primary"
+          (click)="submit()"
+          [disabled]="numberOfUploadedDocuments < 4 || isUploading"
+        >
+          <span *ngIf="!isUploading">Submit All Documents</span>
+          <span *ngIf="isUploading" class="d-flex align-items-center gap-2">
+            <span
+              class="spinner-border spinner-border-sm"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            Uploading Documents...
+          </span>
+        </button>
+      </div>
+  </div>
+</div>
