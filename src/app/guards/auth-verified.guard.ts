@@ -1,7 +1,7 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthGuard } from './auth.guard';
-import { inject } from '@angular/core';
 import { UserService } from '../auth/services/user.service';
+import { inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 
 export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
@@ -25,9 +25,15 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
       if (!user.emailVerifiedAt) {
         return router.createUrlTree(['/resend-confirmation-email']);
       }
+
       if (!user.phoneNumberVerifiedAt) {
         return router.createUrlTree(['/verify-otp']);
       }
+
+      if (!user.organization.verifiedAt) {
+        return router.createUrlTree(['/documents-upload']);
+      }
+
       return true;
     }),
   );
