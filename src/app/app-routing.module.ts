@@ -16,6 +16,7 @@ import { ResetPasswordComponent } from './view/reset-password/reset-password.com
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
+import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
 import { VerificationComponent } from './view/verification/verification.component';
 import { AuthVerifiedGuard } from './guards/auth-verified.guard';
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
@@ -69,6 +70,7 @@ const routes: Routes = [
     canActivate: [AuthUnverifiedGuard],
     children: [
       // Other routes available only to logged-in but unverified users
+      { path: 'documents-upload', component: DocumentsUploadComponent },
       { path: 'verify-otp', component: VerificationComponent },
       {
         path: 'accept-terms-and-conditions',
