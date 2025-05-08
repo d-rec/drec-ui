@@ -1,6 +1,6 @@
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthGuard } from './auth.guard';
-import { UserService } from '../auth/services/user.service';
+import { AuthGuard } from '../auth.guard';
+import { UserService } from '../../auth/services/user.service';
 import { inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 

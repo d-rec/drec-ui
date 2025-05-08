@@ -1,16 +1,13 @@
 import { CanActivateFn, Router } from '@angular/router';
-import { AuthGuard } from './auth.guard';
-import { UserService } from '../auth/services/user.service';
+import { AuthGuard } from '../auth.guard';
+import { UserService } from '../../auth/services/user.service';
 import { inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 
-export const TermsVerificationGuard: CanActivateFn = (route, state) => {
+export const OrganizationDocumentsGuard: CanActivateFn = (route, state) => {
   const userService = inject(UserService);
   const router = inject(Router);
 
-  console.log('EmailVerificationGuard activated');
-
-  // First check if user is logged in
   const loggedInResult = AuthGuard(route, state);
   if (loggedInResult !== true) {
     return loggedInResult;
@@ -18,7 +15,7 @@ export const TermsVerificationGuard: CanActivateFn = (route, state) => {
 
   return userService.userProfile().pipe(
     map((user) => {
-      if (user.termsAcceptedAt) {
+      if (user.organization?.verifiedAt) {
         return router.parseUrl('/dashboard');
       }
 
