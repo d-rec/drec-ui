@@ -6,7 +6,10 @@ import { map } from 'rxjs/operators';
 
 const isVerified = (user: any) => {
   return (
-    user.termsAcceptedAt && user.emailVerifiedAt && user.phoneNumberVerifiedAt
+    user.termsAcceptedAt &&
+    user.emailVerifiedAt &&
+    user.phoneNumberVerifiedAt &&
+    user.organization.verifiedAt
   );
 };
 

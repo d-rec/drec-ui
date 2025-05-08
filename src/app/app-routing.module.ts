@@ -16,6 +16,7 @@ import { ResetPasswordComponent } from './view/reset-password/reset-password.com
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
+import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
 import { VerificationComponent } from './view/verification/verification.component';
 import { AuthVerifiedGuard } from './guards/auth-verified.guard';
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
@@ -26,6 +27,7 @@ import { AuthUnverifiedGuard } from './guards/auth-unverified.guard';
 import { EmailVerificationGuard } from './guards/verification/email-verified.guard';
 import { TermsVerificationGuard } from './guards/verification/terms-verified.guard';
 import { PhoneVerificationGuard } from './guards/verification/phone-verification.guard';
+import { OrganizationDocumentsGuard } from './guards/verification/organization-documents-verified.guard';
 
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
@@ -87,11 +89,11 @@ const routes: Routes = [
         component: VerificationComponent,
         canActivate: [PhoneVerificationGuard],
       },
-      // {
-      //   path: 'documents-upload',
-      //   component: DocumentsUploadComponent,
-      //   canActivate: [OrganizationDocumentsGuard],
-      // },
+      {
+        path: 'documents-upload',
+        component: DocumentsUploadComponent,
+        canActivate: [OrganizationDocumentsGuard],
+      },
     ],
   },
   {
