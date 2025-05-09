@@ -272,87 +272,89 @@
                 </div>
 
                <div class="example-container1 row" *ngIf="addmoredetals[i]">
-          
+          <h3 class="d-flex mb-3 justify-content-center mat-crd-hide align-items-center fw-bold" > Device documents</h3>
                   <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Production Facility Registration</label>
-                    <div class="file-input-container">
-                      <input type="file" #pfFileInput (change)="onFileChange($event, i, 'productionFacilityRegistration')" style="display: none" />
-                      <button type="button" (click)="pfFileInput.click()">
-                        <mat-icon>attach_file</mat-icon> Choose File
+                    <label class="">Production Facility Registration</label>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <input type="file" #pfFileInput (change)="onFileChange($event, i, 'productionFacilityRegistration')" style="display: none;" required/>
+                      <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
+                        <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" *ngIf="deviceForms.at(i).get('productionFacilityRegistration')?.value">
-                        {{ deviceForms.at(i).get('productionFacilityRegistration')?.value.name }}
+                      <span class="file-name">
+                        {{ deviceForms.at(i).get('productionFacilityRegistration')?.value ? 
+                          shortenFileName(deviceForms.at(i).get('productionFacilityRegistration')?.value.name) : 
+                          'No file chosen' }}
                       </span>
-                      <span class="file-name" *ngIf="!deviceForms.at(i).get('productionFacilityRegistration')?.value">
-                        No file chosen
-                      </span>
+                      <span
+                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
+                      >Required</span>
                     </div>
                   </div>
                 
                  
                   <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Ownership Proof</label>
-                    <div class="file-input-container">
+                    <label class="">Ownership Proof</label>
+                    <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #ownershipFileInput (change)="onFileChange($event, i, 'ownershipProof')" style="display: none" />
-                      <button type="button" (click)="ownershipFileInput.click()">
-                        <mat-icon>attach_file</mat-icon> Choose File
+                      <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary">
+                        <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" *ngIf="deviceForms.at(i).get('ownershipProof')?.value">
-                        {{ deviceForms.at(i).get('ownershipProof')?.value.name }}
+                      <span class="file-name" >
+                        {{ deviceForms.at(i).get('ownershipProof')?.value ? shortenFileName(deviceForms.at(i).get('ownershipProof')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span class="file-name" *ngIf="!deviceForms.at(i).get('ownershipProof')?.value">
-                        No file chosen
-                      </span>
+                      <span
+                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
+                      >Required</span>
                     </div>
                   </div>
                 
               
                   <div class="col-md-4 mb-3">
                     <label class="fw-bold">Metering Evidence</label>
-                    <div class="file-input-container">
+                    <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #meteringFileInput (change)="onFileChange($event, i, 'meteringEvidence')" style="display: none" />
-                      <button type="button" (click)="meteringFileInput.click()">
-                        <mat-icon>attach_file</mat-icon> Choose File
+                      <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary">
+                        <mat-icon>attach_file</mat-icon> 
                       </button>
-                      <span class="file-name" *ngIf="deviceForms.at(i).get('meteringEvidence')?.value">
-                        {{ deviceForms.at(i).get('meteringEvidence')?.value.name }}
+                      <span class="file-name" >
+                        {{ deviceForms.at(i).get('meteringEvidence')?.value ? shortenFileName(deviceForms.at(i).get('meteringEvidence')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span class="file-name" *ngIf="!deviceForms.at(i).get('meteringEvidence')?.value">
-                        No file chosen
-                      </span>
+                      <span
+                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
+                      >Required</span>
                     </div>
                   </div>
                 
                   <div class="col-md-4 mb-3">
                     <label class="fw-bold">Single Line Diagram</label>
-                    <div class="file-input-container">
+                    <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #diagramFileInput (change)="onFileChange($event, i, 'singleLineDiagram')" style="display: none" />
-                      <button type="button" (click)="diagramFileInput.click()">
-                        <mat-icon>attach_file</mat-icon> Choose File
+                      <button type="button" (click)="diagramFileInput.click()" class="btn btn-primary">
+                        <mat-icon>attach_file</mat-icon> 
                       </button>
-                      <span class="file-name" *ngIf="deviceForms.at(i).get('singleLineDiagram')?.value">
-                        {{ deviceForms.at(i).get('singleLineDiagram')?.value.name }}
+                      <span class="file-name" >
+                        {{ deviceForms.at(i).get('singleLineDiagram')?.value ? shortenFileName(deviceForms.at(i).get('singleLineDiagram')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span class="file-name" *ngIf="!deviceForms.at(i).get('singleLineDiagram')?.value">
-                        No file chosen
-                      </span>
+                      <span
+                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
+                      >Required</span>
                     </div>
                   </div>
                 
                  
                   <div class="col-md-4 mb-3">
                     <label class="fw-bold">Project Photos</label>
-                    <div class="file-input-container">
+                    <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #photosFileInput (change)="onFileChange($event, i, 'projectPhotos')" style="display: none" />
-                      <button type="button" (click)="photosFileInput.click()">
-                        <mat-icon>attach_file</mat-icon> Choose File
+                      <button type="button" (click)="photosFileInput.click()"class="btn btn-primary">
+                        <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" *ngIf="deviceForms.at(i).get('projectPhotos')?.value">
-                        {{ deviceForms.at(i).get('projectPhotos')?.value.name }}
+                      <span class="file-name" >
+                        {{ deviceForms.at(i).get('projectPhotos')?.value ? shortenFileName(deviceForms.at(i).get('projectPhotos')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span class="file-name" *ngIf="!deviceForms.at(i).get('projectPhotos')?.value">
-                        No file chosen
-                      </span>
+                      <span
+                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
+                      >Required</span>
                     </div>
                   </div>
                 </div> 
