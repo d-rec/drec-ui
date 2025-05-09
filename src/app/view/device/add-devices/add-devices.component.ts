@@ -34,11 +34,11 @@ import { OrganizationType } from 'src/app/utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
 
 type DeviceFiles = {
-  productionFacilityRegistration?: File[]; // Optional array of files
-  ownershipProof?: File[]; // Optional array of files
-  meteringEvidence?: File[]; // Optional array of files
-  singleLineDiagram?: File[]; // Optional array of files
-  projectPhotos?: File[]; // Optional array of files
+  productionFacilityRegistration: File[];
+  ownershipProof: File[];
+  meteringEvidence: File[];
+  singleLineDiagram: File[];
+  projectPhotos: File[];
 };
 
 // Define the FileType as a union of the keys of DeviceFiles
@@ -101,7 +101,7 @@ export class AddDevicesComponent {
     'Ground Mount Solar',
   ];
   files: {
-    [index: number]: DeviceFiles; // This will hold the files for each device
+    [index: number]: DeviceFiles;
   } = {};
   @ViewChild(MapComponent) mapComponent: MapComponent;
   @Output() zoom = new EventEmitter<number>();
@@ -127,7 +127,6 @@ export class AddDevicesComponent {
     this.showaddmore[0] = true;
     this.showerror[0] = false;
     this.shownomore[0] = false;
-    // this.adddevice();
 
     setTimeout(() => {
       this.setupCountryAutocomplete(0);
@@ -397,7 +396,13 @@ export class AddDevicesComponent {
     const files: FileList = input.files;
 
     if (!this.files[deviceIndex]) {
-      this.files[deviceIndex] = {};
+      this.files[deviceIndex] = {
+        productionFacilityRegistration: [],
+        ownershipProof: [],
+        meteringEvidence: [],
+        singleLineDiagram: [],
+        projectPhotos: [],
+      };
     }
 
     this.files[deviceIndex][fileType] = Array.from(files);
@@ -421,14 +426,14 @@ export class AddDevicesComponent {
     deviceArray.forEach((element: any, index: number) => {
       const formData = new FormData();
 
+      if (this.organizationName != null) {
+        element['organizationId'] = this.organizationId;
+      }
       const selectedCountry = this.countrylist.find(
         (option: CountryInfo) => option.country === element.countryCodename,
       );
       element['countryCode'] = selectedCountry?.alpha3;
       formData.append('deviceToRegister', JSON.stringify(element));
-      if (this.organizationName != null) {
-        element['organizationId'] = this.organizationId;
-      }
       if (element.countryCode) {
         formData.append('countryCode', element.countryCode);
       } else {
@@ -496,9 +501,6 @@ export class AddDevicesComponent {
             }
 
             formData.append(fileType, file, file.name);
-          }
-          if (!allFilesValid) {
-            return;
           }
         }
       });
