@@ -33,6 +33,16 @@ import { MatDialog } from '@angular/material/dialog';
 import { OrganizationType } from 'src/app/utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
 
+type DeviceFiles = {
+  productionFacilityRegistration?: File[]; // Optional array of files
+  ownershipProof?: File[]; // Optional array of files
+  meteringEvidence?: File[]; // Optional array of files
+  singleLineDiagram?: File[]; // Optional array of files
+  projectPhotos?: File[]; // Optional array of files
+};
+
+// Define the FileType as a union of the keys of DeviceFiles
+type FileType = keyof DeviceFiles
 @Component({
   selector: 'app-add-devices',
   templateUrl: './add-devices.component.html',
@@ -90,6 +100,9 @@ export class AddDevicesComponent {
     'Rooftop Solar',
     'Ground Mount Solar',
   ];
+  files: {
+    [index: number]: DeviceFiles; // This will hold the files for each device
+  } = {};
   @ViewChild(MapComponent) mapComponent: MapComponent;
   @Output() zoom = new EventEmitter<number>();
 
@@ -114,6 +127,7 @@ export class AddDevicesComponent {
     this.showaddmore[0] = true;
     this.showerror[0] = false;
     this.shownomore[0] = false;
+    // this.adddevice();
 
     setTimeout(() => {
       this.setupCountryAutocomplete(0);
@@ -219,6 +233,11 @@ export class AddDevicesComponent {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
+      productionFacilityRegistration: [null],
+      ownershipProof: [null],
+      meteringEvidence: [null],
+      singleLineDiagram: [null],
+      projectPhotos: [null],
     });
 
     device.get('latitude')?.valueChanges.subscribe((latitude) => {
@@ -311,6 +330,11 @@ export class AddDevicesComponent {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
+      productionFacilityRegistration: [null],
+      ownershipProof: [null],
+      meteringEvidence: [null],
+      singleLineDiagram: [null],
+      projectPhotos: [null],
     });
     this.deviceForms.push(device);
     this.showaddmore[this.deviceForms.length - 1] = true;
@@ -362,66 +386,180 @@ export class AddDevicesComponent {
   deleteDevice(i: number) {
     this.deviceForms.removeAt(i);
   }
-
   getCountryCodeControl(index: number): FormControl {
     return this.deviceForms.at(index).get('countryCodename') as FormControl;
+  }
+
+  onFileChange(event: Event, deviceIndex: number, fileType: FileType) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+  
+    const files: FileList = input.files;
+  
+    // Initialize files object for this device if it doesn't exist
+    if (!this.files[deviceIndex]) {
+      this.files[deviceIndex] = {};
+    }
+  
+    // Store the files - convert FileList to array for better handling
+    this.files[deviceIndex][fileType] = Array.from(files);
+  
+    // Update the form control with the selected file reference (for UI display)
+    const fileControl = this.deviceForms.at(deviceIndex).get(fileType);
+    if (fileControl) {
+      fileControl.setValue(input.files[0]); // Store the first file for display
+      fileControl.markAsDirty(); // Mark as dirty to trigger validation
+    }
+  
+    console.log(`Files for device ${deviceIndex} and type ${fileType}:`, this.files[deviceIndex][fileType]);
   }
 
   onSubmit() {
     if (this.myform.valid) {
       this.openPopupDialog();
     }
+    console.log(this.myform.value);
   }
 
   submitForm() {
+    console.log(this.myform.value);
     const deviceArray = this.myform.value.devices;
-    deviceArray.forEach((element: any) => {
-      if (this.organizationName != null) {
-        element['organizationId'] = this.organizationId;
-      }
-      const selectedCountry = this.countrylist.find(
-        (option: CountryInfo) => option.country === element.countryCodename,
-      );
-      element['countryCode'] = selectedCountry?.alpha3;
-      this.deviceService.Postdevices(element).subscribe({
-        next: () => {
-          this.toastrService.success(
-            'Added Successfully !!',
-            'Device! ' + element.externalId,
-          );
 
-          const index = deviceArray.indexOf(element);
-          deviceArray.splice(index, 1);
-          // Check if formDataArray is empty
-          if (deviceArray.length === 0) {
-            // Navigate to the list UI page
-            if (this.user.role === OrganizationType.Admin) {
-              this.router.navigate(['/admin/All_devices']);
-            } else if (this.user.role === OrganizationType.ApiUser) {
-              this.router.navigate(['/apiuser/All_devices']);
+    deviceArray.forEach((element: any, index: number) => {
+        // Create a FormData object for this device
+        const formData = new FormData();
+
+        // Find the country code based on the country codename
+        const selectedCountry = this.countrylist.find(
+            (option: CountryInfo) => option.country === element.countryCodename,
+        );
+
+        // Append the country code to the element
+        element['countryCode'] = selectedCountry?.alpha3;
+
+        // Log the country code for debugging
+        console.log("Country code:", element.countryCode);
+
+        // Append the modified device object to FormData
+        formData.append('deviceToRegister', JSON.stringify(element));
+
+        // Append organization ID if it exists
+        if (this.organizationName != null) {
+            element['organizationId'] = this.organizationId;
+        }
+
+        // Append the country code to FormData
+        if (element.countryCode) {
+            formData.append('countryCode', element.countryCode);
+        } else {
+            console.error('Country code is missing for device:', element);
+        }
+
+        const fileFields: FileType[] = [
+            'productionFacilityRegistration',
+            'ownershipProof',
+            'meteringEvidence',
+            'singleLineDiagram',
+            'projectPhotos'
+        ];
+
+        // Define allowed extensions and max size
+        const allowedExtensions = [
+            'avif', 'bmp', 'gif', 'ico', 'jpeg', 'jpg', 'png', 'svg', 
+            'tif', 'tiff', 'webp', 'pdf', 'doc', 'xls', 'docx', 
+            'xlsx', 'pptx', 'gsheet', 'gdoc', 'txt', 'csv'
+        ];
+        const maxSizeInMB = 20;
+
+        let allFilesValid = true; // Flag to track file validity
+
+        fileFields.forEach((fileType: FileType) => {
+            const files = this.files[index]?.[fileType]; // Use index defined in the outer loop
+            if (files && files.length > 0) {
+                // Validate each file
+                for (const file of files) {
+                    const extension = file.name.split('.').pop()?.toLowerCase();
+                    const sizeInMB = file.size / (1024 * 1024);
+
+                    // Check file extension
+                    if (!extension || !allowedExtensions.includes(extension)) {
+                        this.toastrService.error(
+                            `${file.name} has unsupported file type: .${extension}`,
+                            'Invalid File Type'
+                        );
+                        allFilesValid = false; // Mark as invalid
+                        break; // Exit the loop for this file type
+                    }
+
+                    // Check file size
+                    if (sizeInMB > maxSizeInMB) {
+                        this.toastrService.error(
+                            `${file.name} exceeds max file size of ${maxSizeInMB}MB`,
+                            'File Size Exceeded'
+                        );
+                        allFilesValid = false; // Mark as invalid
+                        break; // Exit the loop for this file type
+                    }
+
+                    // If valid, append the file to FormData
+                    formData.append(fileType, file, file.name);
+                }
+                if (!allFilesValid) {
+                    return; // Skip appending files if any are invalid
+                }
+                console.log(`Appending ${files.length} files for ${fileType} of device ${index}`);
             } else {
-              this.router.navigate(['/device/AllList']);
+                console.log(`No files found for ${fileType} of device ${index}`);
             }
-          }
-        },
-        error: (err) => {
-          //Error callback
-          console.error('error caught in component', err.error.message);
-          if (err.error.statusCode === 403) {
-            this.toastrService.error(
-              "You don't have the permissions to add a device.",
-              'Access Denied',
-            );
-          } else {
-            this.toastrService.error(
-              'some error occurred due to ' + err.error.message,
-              'Device!' + element.externalId,
-            );
-          }
-        },
-      });
+        });
+
+        // If any files are invalid, do not send the request
+        if (!allFilesValid) {
+            console.error('One or more files are invalid. Request will not be sent.');
+            return; // Exit the submitForm method
+        }
+
+        // Now use the FormData to send to the backend
+        this.deviceService.Postdevices(formData).subscribe({
+            next: () => {
+                this.toastrService.success(
+                    'Added Successfully !!',
+                    'Device! ' + element.externalId
+                );
+
+                const idx = deviceArray.indexOf(element);
+                deviceArray.splice(idx, 1);
+
+                // Check if deviceArray is empty
+                if (deviceArray.length === 0) {
+                    // Navigate to the list UI page
+                    if (this.user.role === OrganizationType.Admin) {
+                        this.router.navigate(['/admin/All_devices']);
+                    } else if (this.user.role === OrganizationType.ApiUser) {
+                        this.router.navigate(['/apiuser/All_devices']);
+                    } else {
+                        this.router.navigate(['/device/AllList']);
+                    }
+                }
+            },
+            error: (err) => {
+                // Error callback
+                console.error('error caught in component', err.error.message);
+                if (err.error.statusCode === 403) {
+                    this.toastrService.error(
+                        "You don't have the permissions to add a device.",
+                        'Access Denied'
+                    );
+                } else {
+                    this.toastrService.error(
+                        'Some error occurred due to ' + err.error.message,
+                        'Device!' + element.externalId
+                    );
+                }
+            },
+        });
     });
-  }
+}
   openPopupDialog() {
     this.dialogRef = this.dialog.open(this.popupDialog, {
       width: '700px',

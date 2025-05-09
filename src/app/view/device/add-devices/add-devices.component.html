@@ -19,8 +19,8 @@
           <mat-form-field appearance="outline">
             <mat-label class="text-capitalize" test-id="organization">Organization</mat-label>
 
-            <input matInput [(ngModel)]="organizationName" [ngModelOptions]="{ standalone: true }" [matAutocomplete]="orgAuto"
-              (input)="filterOrgList()" />
+            <input matInput [(ngModel)]="organizationName" [ngModelOptions]="{ standalone: true }"
+              [matAutocomplete]="orgAuto" (input)="filterOrgList()" />
 
             <mat-autocomplete #orgAuto="matAutocomplete" (optionSelected)="selectOrg($event)">
               <mat-option *ngFor="let code of filteredOrganizationList" [value]="code.name">
@@ -265,17 +265,98 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize"
-                        >State/Province</mat-label
-                      >
-                      <input
-                        matInput
-                        formControlName="stateProvince"
-                        autocomplete="off"
-                      />
+                      <mat-label class="text-capitalize">State/Province</mat-label>
+                      <input matInput formControlName="stateProvince" autocomplete="off" />
                     </mat-form-field>
                   </div>
                 </div>
+
+               <div class="example-container1 row" *ngIf="addmoredetals[i]">
+          
+                  <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Production Facility Registration</label>
+                    <div class="file-input-container">
+                      <input type="file" #pfFileInput (change)="onFileChange($event, i, 'productionFacilityRegistration')" style="display: none" />
+                      <button type="button" (click)="pfFileInput.click()">
+                        <mat-icon>attach_file</mat-icon> Choose File
+                      </button>
+                      <span class="file-name" *ngIf="deviceForms.at(i).get('productionFacilityRegistration')?.value">
+                        {{ deviceForms.at(i).get('productionFacilityRegistration')?.value.name }}
+                      </span>
+                      <span class="file-name" *ngIf="!deviceForms.at(i).get('productionFacilityRegistration')?.value">
+                        No file chosen
+                      </span>
+                    </div>
+                  </div>
+                
+                 
+                  <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Ownership Proof</label>
+                    <div class="file-input-container">
+                      <input type="file" #ownershipFileInput (change)="onFileChange($event, i, 'ownershipProof')" style="display: none" />
+                      <button type="button" (click)="ownershipFileInput.click()">
+                        <mat-icon>attach_file</mat-icon> Choose File
+                      </button>
+                      <span class="file-name" *ngIf="deviceForms.at(i).get('ownershipProof')?.value">
+                        {{ deviceForms.at(i).get('ownershipProof')?.value.name }}
+                      </span>
+                      <span class="file-name" *ngIf="!deviceForms.at(i).get('ownershipProof')?.value">
+                        No file chosen
+                      </span>
+                    </div>
+                  </div>
+                
+              
+                  <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Metering Evidence</label>
+                    <div class="file-input-container">
+                      <input type="file" #meteringFileInput (change)="onFileChange($event, i, 'meteringEvidence')" style="display: none" />
+                      <button type="button" (click)="meteringFileInput.click()">
+                        <mat-icon>attach_file</mat-icon> Choose File
+                      </button>
+                      <span class="file-name" *ngIf="deviceForms.at(i).get('meteringEvidence')?.value">
+                        {{ deviceForms.at(i).get('meteringEvidence')?.value.name }}
+                      </span>
+                      <span class="file-name" *ngIf="!deviceForms.at(i).get('meteringEvidence')?.value">
+                        No file chosen
+                      </span>
+                    </div>
+                  </div>
+                
+                  <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Single Line Diagram</label>
+                    <div class="file-input-container">
+                      <input type="file" #diagramFileInput (change)="onFileChange($event, i, 'singleLineDiagram')" style="display: none" />
+                      <button type="button" (click)="diagramFileInput.click()">
+                        <mat-icon>attach_file</mat-icon> Choose File
+                      </button>
+                      <span class="file-name" *ngIf="deviceForms.at(i).get('singleLineDiagram')?.value">
+                        {{ deviceForms.at(i).get('singleLineDiagram')?.value.name }}
+                      </span>
+                      <span class="file-name" *ngIf="!deviceForms.at(i).get('singleLineDiagram')?.value">
+                        No file chosen
+                      </span>
+                    </div>
+                  </div>
+                
+                 
+                  <div class="col-md-4 mb-3">
+                    <label class="fw-bold">Project Photos</label>
+                    <div class="file-input-container">
+                      <input type="file" #photosFileInput (change)="onFileChange($event, i, 'projectPhotos')" style="display: none" />
+                      <button type="button" (click)="photosFileInput.click()">
+                        <mat-icon>attach_file</mat-icon> Choose File
+                      </button>
+                      <span class="file-name" *ngIf="deviceForms.at(i).get('projectPhotos')?.value">
+                        {{ deviceForms.at(i).get('projectPhotos')?.value.name }}
+                      </span>
+                      <span class="file-name" *ngIf="!deviceForms.at(i).get('projectPhotos')?.value">
+                        No file chosen
+                      </span>
+                    </div>
+                  </div>
+                </div> 
+                
               </mat-card-content>
               <!-- <mat-card-footer></mat-card-footer> -->
             </mat-card>
@@ -305,7 +386,8 @@
       Info: Please read the following legal confirmation carefully.
     </div>
     <p>
-      On behalf of DRE Project Developer <strong>{{organizationName}}</strong>, I agree to be subject to the I-REC Code and warrant that the
+      On behalf of DRE Project Developer <strong>{{organizationName}}</strong>, I agree to be subject to the I-REC Code
+      and warrant that the
       information contained in this application is truthful and exhaustive.</p>
     <p>
       Any planned changes concerning the information given in this form will be announced in advance to the I-REC
