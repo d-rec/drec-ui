@@ -24,6 +24,10 @@ import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/re
 import { DashboardComponent } from './view/dashboard/dashboard.component';
 import { GuestGuard } from './guards/guest.guard';
 import { AuthUnverifiedGuard } from './guards/auth-unverified.guard';
+import { EmailVerificationGuard } from './guards/verification/email-verified.guard';
+import { TermsVerificationGuard } from './guards/verification/terms-verified.guard';
+import { PhoneVerificationGuard } from './guards/verification/phone-verification.guard';
+import { OrganizationDocumentsGuard } from './guards/verification/organization-documents-verified.guard';
 
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
@@ -70,15 +74,25 @@ const routes: Routes = [
     canActivate: [AuthUnverifiedGuard],
     children: [
       // Other routes available only to logged-in but unverified users
-      { path: 'documents-upload', component: DocumentsUploadComponent },
-      { path: 'verify-otp', component: VerificationComponent },
       {
         path: 'accept-terms-and-conditions',
         component: AcceptTermsAndConditionsComponent,
+        canActivate: [TermsVerificationGuard],
       },
       {
         path: 'resend-confirmation-email',
         component: ResendConfirmEmailComponent,
+        canActivate: [EmailVerificationGuard],
+      },
+      {
+        path: 'verify-otp',
+        component: VerificationComponent,
+        canActivate: [PhoneVerificationGuard],
+      },
+      {
+        path: 'documents-upload',
+        component: DocumentsUploadComponent,
+        canActivate: [OrganizationDocumentsGuard],
       },
     ],
   },
