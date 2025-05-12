@@ -28,5 +28,6 @@ declare namespace Cypress {
       [key: string]: any;
     }): Chainable<any>;
     mailiskGetEmail(id: string): Chainable<any>;
+    setupEmailVerificationMock(): Chainable<void>;
   }
 }
