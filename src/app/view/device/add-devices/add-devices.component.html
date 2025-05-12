@@ -371,7 +371,7 @@
       <mat-card-footer>
         <div class="example-container mt-3">
           <div class="col-12 d-flex justify-content-end">
-            <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="myform.invalid"
+            <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="myform.invalid || !allDocumentsUploaded"
               test-id="submit-device">
               Submit
             </button>

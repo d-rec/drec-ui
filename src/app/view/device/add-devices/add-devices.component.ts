@@ -103,6 +103,7 @@ export class AddDevicesComponent {
   files: {
     [index: number]: DeviceFiles;
   } = {};
+  allDocumentsUploaded: boolean = false;
   @ViewChild(MapComponent) mapComponent: MapComponent;
   @Output() zoom = new EventEmitter<number>();
 
@@ -389,6 +390,16 @@ export class AddDevicesComponent {
     return this.deviceForms.at(index).get('countryCodename') as FormControl;
   }
 
+  checkDocumentsUploaded() {
+    this.allDocumentsUploaded = Object.values(this.files).every(
+      (deviceFiles) =>
+        deviceFiles.productionFacilityRegistration &&
+        deviceFiles.ownershipProof &&
+        deviceFiles.meteringEvidence &&
+        deviceFiles.singleLineDiagram &&
+        deviceFiles.projectPhotos,
+    );
+  }
   onFileChange(event: Event, deviceIndex: number, fileType: FileType) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -403,6 +414,7 @@ export class AddDevicesComponent {
         singleLineDiagram: [],
         projectPhotos: [],
       };
+      this.checkDocumentsUploaded();
     }
 
     this.files[deviceIndex][fileType] = Array.from(files);
