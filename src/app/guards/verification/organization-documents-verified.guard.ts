@@ -4,7 +4,7 @@ import { UserService } from '../../auth/services/user.service';
 import { inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 
-export const OrganizationDocumentsGuard: CanActivateFn = (route, state) => {
+export const OrganizationDocumentsGuard: CanActivateFn = (_route, _state) => {
   const userService = inject(UserService);
   const router = inject(Router);
 

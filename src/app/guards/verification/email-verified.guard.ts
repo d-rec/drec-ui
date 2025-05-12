@@ -4,7 +4,7 @@ import { UserService } from '../../auth/services/user.service';
 import { inject } from '@angular/core';
 import { map } from 'rxjs/operators';
 
-export const EmailVerificationGuard: CanActivateFn = (route, state) => {
+export const EmailVerificationGuard: CanActivateFn = (_route, _state) => {
   const userService = inject(UserService);
   const router = inject(Router);
 
