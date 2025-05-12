@@ -8,11 +8,6 @@ export const PhoneVerificationGuard: CanActivateFn = (route, state) => {
   const userService = inject(UserService);
   const router = inject(Router);
 
-  const loggedInResult = AuthGuard(route, state);
-  if (loggedInResult !== true) {
-    return loggedInResult;
-  }
-
   return userService.userProfile().pipe(
     map((user) => {
       if (user.phoneNumberVerifiedAt) {
