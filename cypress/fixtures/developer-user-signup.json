@@ -7,17 +7,18 @@
 
   {
     "action": "type",
-    "selector": "[test-id='last-name']", 
+    "selector": "[test-id='last-name']",
     "value": "developer test"
   },
   {
     "action": "type",
-    "selector": "[test-id='email']"
+    "selector": "[test-id='email']",
+    "value": "developer2@energy.org"
   },
   {
     "action": "type",
     "selector": "[test-id='phone-number']",
-    "value": "+91 22 4310 5078"
+    "value": "+91 22 1205 5608"
   },
   {
     "action": "click",
@@ -31,7 +32,7 @@
   {
     "action": "type",
     "selector": "[test-id='organization-name']",
-    "value": "developer16"
+    "value": "developer1"
   },
   {
     "action": "type",
