@@ -512,15 +512,15 @@ export class AddDevicesComponent {
         return;
       }
 
-      this.deviceService.Postdevices(formData).subscribe({
+      this.deviceService.postdevices(formData).subscribe({
         next: () => {
           this.toastrService.success(
             'Added Successfully !!',
             'Device! ' + element.externalId,
           );
 
-          const idx = deviceArray.indexOf(element);
-          deviceArray.splice(idx, 1);
+          const index = deviceArray.indexOf(element);
+          deviceArray.splice(index, 1);
 
           // Check if deviceArray is empty
           if (deviceArray.length === 0) {
