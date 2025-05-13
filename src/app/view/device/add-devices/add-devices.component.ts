@@ -588,6 +588,7 @@ export class AddDevicesComponent {
               'Access Denied',
             );
           } else {
+            this.isSubmitting = false;
             this.toastrService.error(
               'Some error occurred due to ' + err.error.message,
               'Device!' + element.externalId,
