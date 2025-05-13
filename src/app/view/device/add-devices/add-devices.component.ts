@@ -104,6 +104,16 @@ export class AddDevicesComponent {
     [index: number]: DeviceFiles;
   } = {};
   allDocumentsUploaded: boolean = false;
+  formValid: boolean = false;
+  isSubmitting: boolean = false;
+  submitButtonText: string = 'Submit';
+  requiredFileTypes: FileType[] = [
+    'productionFacilityRegistration',
+    'ownershipProof',
+    'meteringEvidence',
+    'singleLineDiagram',
+    'projectPhotos',
+  ];
   @ViewChild(MapComponent) mapComponent: MapComponent;
   @Output() zoom = new EventEmitter<number>();
 
@@ -233,11 +243,11 @@ export class AddDevicesComponent {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
-      productionFacilityRegistration: [null],
-      ownershipProof: [null],
-      meteringEvidence: [null],
-      singleLineDiagram: [null],
-      projectPhotos: [null],
+      productionFacilityRegistration: [null, [Validators.required]],
+      ownershipProof: [null, [Validators.required]],
+      meteringEvidence: [null, [Validators.required]],
+      singleLineDiagram: [null, [Validators.required]],
+      projectPhotos: [null, [Validators.required]],
     });
 
     device.get('latitude')?.valueChanges.subscribe((latitude) => {
@@ -330,11 +340,11 @@ export class AddDevicesComponent {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
-      productionFacilityRegistration: [null],
-      ownershipProof: [null],
-      meteringEvidence: [null],
-      singleLineDiagram: [null],
-      projectPhotos: [null],
+      productionFacilityRegistration: [null, [Validators.required]],
+      ownershipProof: [null, [Validators.required]],
+      meteringEvidence: [null, [Validators.required]],
+      singleLineDiagram: [null, [Validators.required]],
+      projectPhotos: [null, [Validators.required]],
     });
     this.deviceForms.push(device);
     this.showaddmore[this.deviceForms.length - 1] = true;
@@ -389,16 +399,39 @@ export class AddDevicesComponent {
   getCountryCodeControl(index: number): FormControl {
     return this.deviceForms.at(index).get('countryCodename') as FormControl;
   }
-
   checkDocumentsUploaded() {
-    this.allDocumentsUploaded = Object.values(this.files).every(
-      (deviceFiles) =>
-        deviceFiles.productionFacilityRegistration &&
-        deviceFiles.ownershipProof &&
-        deviceFiles.meteringEvidence &&
-        deviceFiles.singleLineDiagram &&
-        deviceFiles.projectPhotos,
+    if (Object.keys(this.files).length === 0) {
+      this.allDocumentsUploaded = false;
+      return;
+    }
+    this.allDocumentsUploaded = this.deviceForms.controls.every(
+      (_, deviceIndex) => {
+        if (!this.files[deviceIndex]) return false;
+
+        return this.requiredFileTypes.every(
+          (fileType) =>
+            this.files[deviceIndex][fileType] &&
+            this.files[deviceIndex][fileType].length > 0,
+        );
+      },
     );
+
+    this.checkFormValidity();
+  }
+  checkFormValidity() {
+    const formValid = this.myform.valid;
+
+    const docsValid = this.deviceForms.controls.every((_, deviceIndex) => {
+      if (!this.files[deviceIndex]) return false;
+
+      return this.requiredFileTypes.every(
+        (fileType) =>
+          this.files[deviceIndex][fileType] &&
+          this.files[deviceIndex][fileType].length > 0,
+      );
+    });
+
+    this.formValid = formValid && docsValid;
   }
   onFileChange(event: Event, deviceIndex: number, fileType: FileType) {
     const input = event.target as HTMLInputElement;
@@ -414,7 +447,6 @@ export class AddDevicesComponent {
         singleLineDiagram: [],
         projectPhotos: [],
       };
-      this.checkDocumentsUploaded();
     }
 
     this.files[deviceIndex][fileType] = Array.from(files);
@@ -424,17 +456,18 @@ export class AddDevicesComponent {
       fileControl.setValue(input.files[0]);
       fileControl.markAsDirty();
     }
+    this.checkDocumentsUploaded();
   }
 
   onSubmit() {
     if (this.myform.valid) {
       this.openPopupDialog();
+      this.isSubmitting = true;
     }
   }
 
   submitForm() {
     const deviceArray = this.myform.value.devices;
-
     deviceArray.forEach((element: any, index: number) => {
       const formData = new FormData();
 
@@ -589,8 +622,14 @@ export class AddDevicesComponent {
     this.dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.submitForm();
+      } else {
+        this.isSubmitting = false;
       }
     });
+  }
+  onAgreeClick() {
+    this.submitButtonText = 'Submitting...';
+    this.dialogRef.close(true);
   }
   updateMapMarkers(latitude: any, longitude: any) {
     if (this.mapComponent && latitude && longitude) {

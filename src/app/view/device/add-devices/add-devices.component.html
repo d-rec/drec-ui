@@ -274,7 +274,7 @@
                <div class="example-container1 row">
           <h3 class="d-flex mb-3 justify-content-center mat-crd-hide align-items-center fw-bold" > Device documents</h3>
                   <div class="col-md-4 mb-3">
-                    <label class="">Production Facility Registration</label>
+                    <label >Production Facility Registration</label>
                     <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #pfFileInput (change)="onFileChange($event, i, 'productionFacilityRegistration')" style="display: none;" required/>
                       <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
@@ -293,7 +293,7 @@
                 
                  
                   <div class="col-md-4 mb-3">
-                    <label class="">Ownership Proof</label>
+                    <label >Ownership Proof</label>
                     <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #ownershipFileInput (change)="onFileChange($event, i, 'ownershipProof')" style="display: none" />
                       <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary">
@@ -310,7 +310,7 @@
                 
               
                   <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Metering Evidence</label>
+                    <label >Metering Evidence</label>
                     <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #meteringFileInput (change)="onFileChange($event, i, 'meteringEvidence')" style="display: none" />
                       <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary">
@@ -326,7 +326,7 @@
                   </div>
                 
                   <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Single Line Diagram</label>
+                    <label>Single Line Diagram</label>
                     <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #diagramFileInput (change)="onFileChange($event, i, 'singleLineDiagram')" style="display: none" />
                       <button type="button" (click)="diagramFileInput.click()" class="btn btn-primary">
@@ -343,7 +343,7 @@
                 
                  
                   <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Project Photos</label>
+                    <label>Project Photos</label>
                     <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #photosFileInput (change)="onFileChange($event, i, 'projectPhotos')" style="display: none" />
                       <button type="button" (click)="photosFileInput.click()"class="btn btn-primary">
@@ -371,9 +371,9 @@
       <mat-card-footer>
         <div class="example-container mt-3">
           <div class="col-12 d-flex justify-content-end">
-            <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="myform.invalid || !allDocumentsUploaded"
-              test-id="submit-device">
-              Submit
+            <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="!formValid || isSubmitting"   (click)="onSubmit()"
+            test-id="submit-device">
+            {{ submitButtonText }}
             </button>
           </div>
         </div>
@@ -404,7 +404,7 @@
     <p>A signed SF-02 Production Facility Registration form must be attached to this registration.</p>
   </div>
   <div mat-dialog-actions class="d-flex justify-content-center pb-4">
-    <button mat-button class="btn-primary text-capitalize" (click)="dialogRef.close(true)">I agree</button>
+    <button mat-button class="btn-primary text-capitalize" (click)="onAgreeClick()">I agree</button>
     <button mat-button class="btn-default text-capitalize" (click)="dialogRef.close(false)">Cancel</button>
   </div>
 </ng-template>
