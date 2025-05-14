@@ -47,18 +47,18 @@ describe('Developer User Signup', () => {
         }
 
         cy.log(
-          `📨 Received email with subject: ${email.subject || '[No subject]'}`,
+          `Received email with subject: ${email.subject || '[No subject]'}`,
         );
 
         const verificationLink = email.html?.links?.[0]?.href;
 
         if (verificationLink) {
-          cy.log(`🔗 Verification link found: ${verificationLink}`);
+          cy.log(` Verification link found: ${verificationLink}`);
 
           cy.visit(verificationLink);
         }
 
-        return cy.wrap(email); // We can now return the full email object
+        return cy.wrap(email);
       });
     });
   });

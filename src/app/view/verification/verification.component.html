@@ -9,13 +9,14 @@
         maxlength="1"
         pattern="[0-9]*"
         inputmode="numeric"
-        class="otp-box"
+        class="otp-box" 
         name="otp{{ i }}"
         [(ngModel)]="otp[i]"
         required
         (input)="handleInput($event, i)"
         (keydown.enter)="onSubmit()"
         #otpInput
+        test-id="otp-inputs"
       />
     </div>
 
@@ -24,7 +25,7 @@
       •••• ••• •{{ phoneNumberHint }}.
     </p>
 
-    <a href="javascript:void(0)" (click)="resendOtp()">Resend OTP</a>
+    <a href="javascript:void(0)" (click)="resendOtp()" test-id="resend-otp">Resend OTP</a>
 
   </form>
 </div>

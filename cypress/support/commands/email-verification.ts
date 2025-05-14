@@ -19,8 +19,10 @@ declare global {
   }
 }
 
+const randomNum = Math.floor(Math.random() * 20);
+
 Cypress.Commands.add('createTestInbox', () => {
-  const shortEmailAddress = `test6@${MAILOSAUR_SERVER_ID}.mailosaur.net`;
+  const shortEmailAddress = `test${randomNum}@${MAILOSAUR_SERVER_ID}.mailosaur.net`;
   return cy.wrap({
     id: MAILOSAUR_SERVER_ID,
     fullEmailAddress: shortEmailAddress,
@@ -60,13 +62,7 @@ Cypress.Commands.add(
               matchingEmailSummary?.id
             ) {
               cy.log(`✅ Found email summary for: ${emailAddress}`);
-              cy.log(
-                `response body=======${JSON.stringify(
-                  matchingEmailSummary,
-                )}=========`,
-              );
 
-              // ✅ Now fetch the full email content using the ID
               const messageId = matchingEmailSummary.id;
               const getEmailUrl = `https://mailosaur.com/api/messages/${messageId}`;
 
@@ -82,12 +78,7 @@ Cypress.Commands.add(
                 })
                 .then((fullEmailResponse) => {
                   const fullEmail = fullEmailResponse.body;
-                  cy.log(
-                    `✅ Retrieved full email content: ${JSON.stringify(
-                      fullEmail,
-                    )}`,
-                  );
-                  return cy.wrap(fullEmail); // ✅ Return the full email object
+                  return cy.wrap(fullEmail);
                 });
             } else {
               if (retriesLeft > 1) {
