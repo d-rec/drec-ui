@@ -1,4 +1,4 @@
-describe('Developer User Signup', () => {
+describe('Buyer User Signup', () => {
   it('signs up and verifies email using Mailosaur', () => {
     cy.createTestInbox().then(({ id, fullEmailAddress, shortEmailAddress }) => {
       cy.fixture('buyer-user-signup.json').then((data) => {

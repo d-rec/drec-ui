@@ -1,7 +1,7 @@
 import Mailosaur from 'mailosaur';
 
-const MAILOSAUR_API_KEY = '01FD0WG620yCxzdEtTRSTxXuX18DUUij';
-const MAILOSAUR_SERVER_ID = 'ceuazndf';
+const MAILOSAUR_API_KEY = Cypress.env('MAILOSAUR_API_KEY');
+const MAILOSAUR_SERVER_ID = Cypress.env('MAILOSAUR_SERVER_ID');
 
 declare global {
   namespace Cypress {
