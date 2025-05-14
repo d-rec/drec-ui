@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/d-rec/drec-ui/compare/v0.3.0...v0.3.1) (2025-05-14)
+
+### Bug Fixes
+
+- set terms and conditions to false when inviting new users ([413b3e9](https://github.com/d-rec/drec-ui/commit/413b3e935fdfcf1361ca27a399b021c14940c174))
+
 ## [0.3.0](https://github.com/d-rec/drec-ui/compare/v0.2.0...v0.3.0) (2025-05-14)
 
 ### Features
