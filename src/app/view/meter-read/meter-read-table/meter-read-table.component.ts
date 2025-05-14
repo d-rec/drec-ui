@@ -11,9 +11,7 @@ import {
 import { ToastrService } from 'ngx-toastr';
 import { DatePipe } from '@angular/common';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
-declare const pdfMake: any;
-import 'pdfmake/build/pdfmake';
-import 'pdfmake/build/vfs_fonts';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-meter-read-table',
@@ -49,7 +47,7 @@ export class MeterReadTableComponent implements OnInit {
   @Input()
   showtable: boolean;
   showname: boolean = false;
-
+  private pdfMakeLoaded = false;
   constructor(
     private service: MeterReadService,
     private formBuilder: FormBuilder,
@@ -168,10 +166,10 @@ export class MeterReadTableComponent implements OnInit {
     // Create file and trigger download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const fileName = `meter_reads_${this.getFormattedDate()}.csv`;
-    this.triggerDownload(blob, fileName);
+    saveAs(blob, fileName);
   }
 
-  exportToPDF() {
+  async exportToPDF() {
     if (
       !this.dataSource ||
       !this.dataSource.data ||
@@ -181,71 +179,78 @@ export class MeterReadTableComponent implements OnInit {
       return;
     }
 
-    //  Data for PDF
-    const tableData = this.dataSource.data.map((item) => {
-      const startDate = this.formatDateForExport(item.startdate);
-      const endDate = this.formatDateForExport(item.enddate);
-      return [startDate, endDate, item.value.toString(), item.readtype];
-    });
+    try {
+      if (!this.pdfMakeLoaded) {
+        const pdfMakeModule = await import('pdfmake/build/pdfmake');
+        const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
+        (pdfMakeModule.default as any).vfs = pdfFontsModule.default.vfs;
+        this.pdfMakeLoaded = true;
+        this.loading = false;
+      }
+      // Data for PDF
+      const tableData = this.dataSource.data.map((item) => {
+        const startDate = this.formatDateForExport(item.startdate);
+        const endDate = this.formatDateForExport(item.enddate);
+        return [startDate, endDate, item.value.toString(), item.readtype];
+      });
 
-    // Insert header row
-    tableData.unshift([
-      'Start Datetime',
-      'End Datetime',
-      'Value(Wh)',
-      'Read Type',
-    ]);
+      // Insert header row
+      tableData.unshift([
+        'Start Datetime',
+        'End Datetime',
+        'Value(Wh)',
+        'Read Type',
+      ]);
 
-    // Device name for the header
-    const headerName = 'Meter Readings';
+      const headerName = 'Meter Readings';
 
-    // Define document structure
-    const documentDefinition: TDocumentDefinitions = {
-      content: [
-        { text: headerName, style: 'header' },
-        {
-          text: `Export Date: ${this.datePipe.transform(new Date(), 'MMMM d, yyyy')}`,
-          style: 'subheader',
-        },
-        {
-          style: 'tableExample',
-          table: {
-            headerRows: 1,
-            widths: ['*', '*', 'auto', 'auto'],
-            body: tableData,
+      const pdfMake = (await import('pdfmake/build/pdfmake')).default;
+
+      // document structure
+      const documentDefinition: TDocumentDefinitions = {
+        content: [
+          { text: headerName, style: 'header' },
+          {
+            text: `Export Date: ${this.datePipe.transform(new Date(), 'MMMM d, yyyy')}`,
+            style: 'subheader',
           },
-          layout: {
-            fillColor: (rowIndex: number) => {
-              return rowIndex === 0 ? '#f2f2f2' : null;
+          {
+            style: 'tableExample',
+            table: {
+              headerRows: 1,
+              widths: ['*', '*', 'auto', 'auto'],
+              body: tableData,
+            },
+            layout: {
+              fillColor: (rowIndex: number) => {
+                return rowIndex === 0 ? '#f2f2f2' : null;
+              },
             },
           },
+        ],
+        styles: {
+          header: {
+            fontSize: 18,
+            bold: true,
+            margin: [0, 0, 0, 10],
+            color: '#f2be1a',
+          },
+          subheader: {
+            fontSize: 14,
+            bold: true,
+            margin: [0, 10, 0, 5],
+          },
+          tableExample: {
+            margin: [0, 5, 0, 15],
+          },
         },
-      ],
-      styles: {
-        header: {
-          fontSize: 18,
-          bold: true,
-          margin: [0, 0, 0, 10],
-          color: '#f2be1a',
+        defaultStyle: {
+          fontSize: 10,
         },
-        subheader: {
-          fontSize: 14,
-          bold: true,
-          margin: [0, 10, 0, 5],
-        },
-        tableExample: {
-          margin: [0, 5, 0, 15],
-        },
-      },
-      defaultStyle: {
-        fontSize: 10,
-      },
-    };
-
-    // Generate and download PDF
-    try {
-      const pdfDocGenerator = pdfMake.createPdf(documentDefinition);
-      pdfDocGenerator.download(`meter_reads_${this.getFormattedDate()}.pdf`);
+      };
+      pdfMake
+        .createPdf(documentDefinition)
+        .download(`meter_reads_${this.getFormattedDate()}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
       this.toastrService.error('Failed to generate PDF');
@@ -266,19 +271,5 @@ export class MeterReadTableComponent implements OnInit {
     } catch (error) {
       return dateString;
     }
-  }
-
-  //download the file
-  private triggerDownload(blob: Blob, fileName: string): void {
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    link.click();
-
-    setTimeout(() => {
-      window.URL.revokeObjectURL(url);
-      link.remove();
-    }, 100);
   }
 }
