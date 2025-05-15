@@ -20,3 +20,4 @@ import '../support/commands/meter-read-bulk-upload';
 import '../support/commands/certified-meter-read';
 import '../support/commands/invite-user';
 import '../support/commands/email-verification';
+import '../support/commands/verify-phone-number';

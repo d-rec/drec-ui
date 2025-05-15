@@ -22,7 +22,7 @@ declare global {
 const randomNum = Math.floor(Math.random() * 20);
 
 Cypress.Commands.add('createTestInbox', () => {
-  const shortEmailAddress = `test${randomNum}@${MAILOSAUR_SERVER_ID}.mailosaur.net`;
+  const shortEmailAddress = `test7@${MAILOSAUR_SERVER_ID}.mailosaur.net`;
   return cy.wrap({
     id: MAILOSAUR_SERVER_ID,
     fullEmailAddress: shortEmailAddress,

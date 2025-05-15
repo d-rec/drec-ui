@@ -18,7 +18,7 @@
   {
     "action": "type",
     "selector": "[test-id='phone-number']",
-    "value": "+91 22 5555 5608"
+    "value": "+91 22 5565 5608"
   },
   {
     "action": "click",
@@ -32,7 +32,7 @@
   {
     "action": "type",
     "selector": "[test-id='organization-name']",
-    "value": "developer008"
+    "value": "developer018"
   },
   {
     "action": "type",

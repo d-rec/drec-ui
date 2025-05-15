@@ -4,7 +4,6 @@ describe('Add device Test', () => {
   });
   it('should add new device', () => {
     cy.developerUserLogin().wait(6000);
-    // cy.verifyPhoneNumber();
     cy.addDevice();
   });
 });

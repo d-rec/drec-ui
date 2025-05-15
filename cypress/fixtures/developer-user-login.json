@@ -1,12 +1,13 @@
 [
   {
     "action": "type",
-    "selector": "[test-id='login-username']"
+    "selector": "[test-id='login-username']",
+    "value": "byishimocedric4@gmail.com"
   },
   {
     "action": "type",
     "selector": "[test-id='login-password']",
-    "value": "1234Test@tst"
+    "value": "King@123"
   },
   {
     "action": "click",
@@ -15,5 +16,19 @@
   {
     "action": "click",
     "selector": "[test-id='login-submit']"
+  },
+  {
+    "action": "verify-phone"
+  },
+  {
+    "action": "browse-documents",
+    "selector": "[test-id='browse-documents']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='submit-all-documents']"
+  },
+  {
+    "action": "mockPhoneVerified"
   }
 ]

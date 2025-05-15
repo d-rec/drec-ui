@@ -29,7 +29,7 @@ declare global {
       meterReadBulkUpload(filename: string): Chainable<void>;
       certifiedMeterRead(): Chainable<void>;
       inviteUser(): Chainable<void>;
-      verifyPhoneNumber(): Chainable<void>;
+      mockPhoneVerified(): Chainable<void>;
 
       // ✅ Correctly typed Mailosaur helpers
       createTestInbox(): Cypress.Chainable<CustomInbox>;
