@@ -1,9 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { DocumentsUploadService } from '../../auth/services/documents-upload.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
-
+import { OrganizationService } from '../../auth/services/organization.service';
 export interface DocumentUpload {
   title: string;
   required: boolean;
@@ -81,7 +80,7 @@ export class DocumentsUploadComponent {
   ];
 
   constructor(
-    private documentService: DocumentsUploadService,
+    private organizationService: OrganizationService,
     private toastrService: ToastrService,
     private router: Router,
   ) {}
@@ -132,7 +131,7 @@ export class DocumentsUploadComponent {
 
     this.isUploading = true;
     const uploadObservables = uploadedDocuments.map((doc) =>
-      this.documentService.uploadDocument(
+      this.organizationService.uploadDocument(
         doc.targetType,
         doc.documentType,
         doc.file!,
