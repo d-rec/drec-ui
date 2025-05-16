@@ -77,18 +77,12 @@ export class OrganizationService {
     );
   }
 
-  public uploadDocument(
+  uploadVerificationDocuments(
+    formData: FormData,
     targetType: string,
-    documentType: string,
-    file: File,
   ): Observable<any> {
-    const params: any = {
-      targetType,
-      documentType,
-    };
-    const searchUrl = `${environment.API_URL}Organization/upload/verification-documents`;
-    const formData = new FormData();
-    formData.append('document', file);
-    return this.httpClient.post(searchUrl, formData, { params });
+    const url = `${environment.API_URL}Organization/upload/verification-documents`;
+    const params = { targetType };
+    return this.httpClient.post(url, formData, { params });
   }
 }
