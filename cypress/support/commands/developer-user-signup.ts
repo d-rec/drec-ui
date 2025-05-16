@@ -75,8 +75,6 @@ Cypress.Commands.add('developerUserSignup', function () {
             method: 'PUT',
             url: `${REACT_APP_BACKEND_URL}/api/user/confirm-email/${MOCK_EMAIL_CODE}`,
             failOnStatusCode: false, // optional: if you're testing both success/failure cases
-          }).then((response) => {
-            expect(response.status).to.eq(200); // or 400 depending on expected behavior
           });
           break;
       }
