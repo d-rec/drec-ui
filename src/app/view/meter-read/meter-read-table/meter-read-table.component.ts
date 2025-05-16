@@ -11,8 +11,8 @@ import {
 import { ToastrService } from 'ngx-toastr';
 import { DatePipe } from '@angular/common';
 import { saveAs } from 'file-saver';
-import { generateCSVContent } from 'src/app/utils/csv-export-helper';
-import { generatePDFBlob } from 'src/app/utils/pdf-expoer-helper';
+import { generateCSVContent } from '../../../utils/csv-export-helper';
+import { generatePDFBlob } from '../../../utils/pdf-export-helper';
 
 @Component({
   selector: 'app-meter-read-table',
@@ -203,7 +203,6 @@ export class MeterReadTableComponent implements OnInit {
       });
 
       const headerName = 'Meter Readings';
-
       const pdfBlob = await generatePDFBlob(headerName, headers, data);
 
       saveAs(pdfBlob, `meter_reads_${this.getFormattedDate()}.pdf`);
