@@ -70,7 +70,7 @@ Cypress.Commands.add('developerUserSignup', function () {
           const MOCK_EMAIL_CODE = '123456';
 
           cy.get('[test-id="resend-confirmation-email"]').click();
-          cy.wait(1000);
+          cy.wait(5000);
           cy.request({
             method: 'PUT',
             url: `${REACT_APP_BACKEND_URL}/api/user/confirm-email/${MOCK_EMAIL_CODE}`,
