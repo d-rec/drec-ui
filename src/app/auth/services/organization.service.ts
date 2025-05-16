@@ -86,7 +86,7 @@ export class OrganizationService {
       targetType,
       documentType,
     };
-    const searchUrl = `${environment.API_URL}Organization/verify-organization`;
+    const searchUrl = `${environment.API_URL}Organization/upload/verification-documents`;
     const formData = new FormData();
     formData.append('document', file);
     return this.httpClient.post(searchUrl, formData, { params });

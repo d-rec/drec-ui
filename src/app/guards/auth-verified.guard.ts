@@ -31,7 +31,9 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
       }
 
       if (!user.organization.verifiedAt) {
-        return router.createUrlTree(['/documents-upload']);
+        return router.createUrlTree([
+          '/Organization/upload/verification-documents',
+        ]);
       }
 
       return true;
