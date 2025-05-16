@@ -2,12 +2,12 @@
   {
     "action": "type",
     "selector": "[test-id='login-username']",
-    "value": "byishimocedric1@gmail.com"
+    "value": "developer2@energy.org"
   },
   {
     "action": "type",
     "selector": "[test-id='login-password']",
-    "value": "King@123"
+    "value": "1234Test@tst"
   },
   {
     "action": "click",
@@ -16,16 +16,5 @@
   {
     "action": "click",
     "selector": "[test-id='login-submit']"
-  },
-  {
-    "action": "verify-phone"
-  },
-  {
-    "action": "browse-documents",
-    "selector": "[test-id='browse-documents']"
-  },
-  {
-    "action": "click",
-    "selector": "[test-id='submit-all-documents']"
   }
 ]
