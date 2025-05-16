@@ -1,3 +1,4 @@
+
 import { Component } from '@angular/core';
 import {
   FormGroup,
@@ -44,7 +45,7 @@ export class AddUsersComponent {
     private _formBuilder: FormBuilder,
     private toastrService: ToastrService,
     private userService: UserService,
-    private router: Router,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -75,8 +76,8 @@ export class AddUsersComponent {
     return this.registerForm.get('email')?.hasError('required')
       ? 'This field is required'
       : this.registerForm.get('email')?.hasError('pattern')
-        ? 'Not a valid emailaddress'
-        : '';
+      ? 'Not a valid emailaddress'
+      : '';
   }
 
   phoneNumberErrors() {
