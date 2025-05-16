@@ -10,8 +10,9 @@ import {
 } from '@angular/material/bottom-sheet';
 import { ToastrService } from 'ngx-toastr';
 import { DatePipe } from '@angular/common';
-import { TDocumentDefinitions } from 'pdfmake/interfaces';
 import { saveAs } from 'file-saver';
+import { generateCSVContent } from 'src/app/utils/csv-export-helper';
+import { generatePDFBlob } from 'src/app/utils/pdf-expoer-helper';
 
 @Component({
   selector: 'app-meter-read-table',
@@ -28,7 +29,7 @@ export class MeterReadTableComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   readdata: any;
-
+  developerExternalId: string;
   devicedata: any;
   p: number = 1;
   total: number = 0;
@@ -47,12 +48,11 @@ export class MeterReadTableComponent implements OnInit {
   @Input()
   showtable: boolean;
   showname: boolean = false;
-  private pdfMakeLoaded = false;
   constructor(
     private service: MeterReadService,
     private formBuilder: FormBuilder,
     private toastrService: ToastrService,
-    private deviceservice: DeviceService,
+    private deviceService: DeviceService,
     private bottomSheetRef: MatBottomSheetRef<MeterReadTableComponent>,
     private datePipe: DatePipe,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
@@ -77,7 +77,6 @@ export class MeterReadTableComponent implements OnInit {
 
   start(FilterForm: any, exterenalId: any, filter: boolean) {
     this.exterenalId = exterenalId;
-
     this.FilterForm = FilterForm;
     this.filter = filter;
     if (filter) {
@@ -87,7 +86,11 @@ export class MeterReadTableComponent implements OnInit {
 
   getPagedData() {
     this.FilterForm.controls['pagenumber'].setValue(this.p);
-
+    this.deviceService.GetDevicesInfo(this.exterenalId).subscribe({
+      next: (data: any) => {
+        this.developerExternalId = data.developerExternalId;
+      },
+    });
     this.service.GetRead(this.exterenalId, this.FilterForm.value).subscribe(
       (response: any) => {
         this.filter = true;
@@ -134,7 +137,6 @@ export class MeterReadTableComponent implements OnInit {
   getFormattedDate(): string {
     return this.datePipe.transform(new Date(), 'yyyy-MM-dd') || '';
   }
-
   exportToCSV() {
     if (
       !this.dataSource ||
@@ -147,24 +149,24 @@ export class MeterReadTableComponent implements OnInit {
 
     // Create header row
     const headers = [
+      'Device External ID',
       'Start Datetime',
       'End Datetime',
       'Value(Wh)',
       'Read Type',
     ];
 
-    // Convert data to CSV format
-    const rows = this.dataSource.data.map((item) => {
+    const blob = generateCSVContent(headers, this.dataSource.data, (item) => {
       const startDate = this.formatDateForExport(item.startdate);
       const endDate = this.formatDateForExport(item.enddate);
-      return `"${startDate}","${endDate}","${item.value}","${item.readtype}"`;
+      return `"${this.developerExternalId}","${startDate}","${endDate}","${item.value}","${item.readtype}"`;
     });
 
-    // Combine headers and rows
-    const csvContent = [headers.join(','), ...rows].join('\n');
+    if (!blob) {
+      this.toastrService.warning('No data available to export');
+      return;
+    }
 
-    // Create file and trigger download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const fileName = `meter_reads_${this.getFormattedDate()}.csv`;
     saveAs(blob, fileName);
   }
@@ -180,77 +182,31 @@ export class MeterReadTableComponent implements OnInit {
     }
 
     try {
-      if (!this.pdfMakeLoaded) {
-        const pdfMakeModule = await import('pdfmake/build/pdfmake');
-        const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
-        (pdfMakeModule.default as any).vfs = pdfFontsModule.default.vfs;
-        this.pdfMakeLoaded = true;
-        this.loading = false;
-      }
-      // Data for PDF
-      const tableData = this.dataSource.data.map((item) => {
-        const startDate = this.formatDateForExport(item.startdate);
-        const endDate = this.formatDateForExport(item.enddate);
-        return [startDate, endDate, item.value.toString(), item.readtype];
-      });
-
-      // Insert header row
-      tableData.unshift([
+      const headers = [
+        'Device External ID',
         'Start Datetime',
         'End Datetime',
         'Value(Wh)',
         'Read Type',
-      ]);
+      ];
+
+      const data = this.dataSource.data.map((item) => {
+        const startDate = this.formatDateForExport(item.startdate);
+        const endDate = this.formatDateForExport(item.enddate);
+        return [
+          this.developerExternalId,
+          startDate,
+          endDate,
+          item.value.toString(),
+          item.readtype,
+        ];
+      });
 
       const headerName = 'Meter Readings';
 
-      const pdfMake = (await import('pdfmake/build/pdfmake')).default;
+      const pdfBlob = await generatePDFBlob(headerName, headers, data);
 
-      // document structure
-      const documentDefinition: TDocumentDefinitions = {
-        content: [
-          { text: headerName, style: 'header' },
-          {
-            text: `Export Date: ${this.datePipe.transform(new Date(), 'MMMM d, yyyy')}`,
-            style: 'subheader',
-          },
-          {
-            style: 'tableExample',
-            table: {
-              headerRows: 1,
-              widths: ['*', '*', 'auto', 'auto'],
-              body: tableData,
-            },
-            layout: {
-              fillColor: (rowIndex: number) => {
-                return rowIndex === 0 ? '#f2f2f2' : null;
-              },
-            },
-          },
-        ],
-        styles: {
-          header: {
-            fontSize: 18,
-            bold: true,
-            margin: [0, 0, 0, 10],
-            color: '#f2be1a',
-          },
-          subheader: {
-            fontSize: 14,
-            bold: true,
-            margin: [0, 10, 0, 5],
-          },
-          tableExample: {
-            margin: [0, 5, 0, 15],
-          },
-        },
-        defaultStyle: {
-          fontSize: 10,
-        },
-      };
-      pdfMake
-        .createPdf(documentDefinition)
-        .download(`meter_reads_${this.getFormattedDate()}.pdf`);
+      saveAs(pdfBlob, `meter_reads_${this.getFormattedDate()}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
       this.toastrService.error('Failed to generate PDF');
