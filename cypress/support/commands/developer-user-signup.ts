@@ -25,6 +25,7 @@ Cypress.Commands.add('developerUserSignup', function () {
             })
             .wait(2000);
         case 'browse-documents':
+          cy.wait(5000);
           cy.get(step.selector).each(($input) => {
             cy.wrap($input).attachFile('files/meter_reads_2025-05-14.pdf', {
               force: true,
