@@ -7,8 +7,8 @@ export default defineConfig({
   },
   env: {
     REACT_APP_BACKEND_URL: 'http://localhost:3040',
-    ADMIN_EMAIL: 'byishimocedrick@gmail.com',
-    ADMIN_PASSWORD: 'King@123',
+    ADMIN_EMAIL: 'stageadmin@drecs.org',
+    ADMIN_PASSWORD: 'pass@123',
     UI_BASE_URL: 'http://localhost:4200',
   },
 });
