@@ -25,7 +25,6 @@ Cypress.Commands.add('developerUserSignup', function () {
             })
             .wait(2000);
         case 'browse-documents':
-          cy.wait(5000);
           cy.get(step.selector).each(($input) => {
             cy.wrap($input).attachFile('files/meter_reads_2025-05-14.pdf', {
               force: true,
@@ -34,7 +33,7 @@ Cypress.Commands.add('developerUserSignup', function () {
           break;
 
         case 'verify-phone':
-          cy.visit(`${UI_BASE_URL}/verify-otp`);
+          cy.visit(`${UI_BASE_URL}/verify-otp`).wait(5000);
           const MOCK_OTP_CODE = '123456';
 
           cy.intercept('POST', `${UI_BASE_URL}/api/otp/send`, {
@@ -49,11 +48,6 @@ Cypress.Commands.add('developerUserSignup', function () {
               req.reply({
                 statusCode: 200,
                 body: { message: 'Phone number verified successfully.' },
-              });
-            } else {
-              req.reply({
-                statusCode: 400,
-                body: { message: 'Invalid OTP' },
               });
             }
           }).as('verifyOtp');
@@ -71,11 +65,13 @@ Cypress.Commands.add('developerUserSignup', function () {
           const MOCK_EMAIL_CODE = '123456';
 
           cy.get('[test-id="resend-confirmation-email"]').click();
-          cy.wait(5000);
+          cy.wait(1000);
           cy.request({
             method: 'PUT',
             url: `${REACT_APP_BACKEND_URL}/api/user/confirm-email/${MOCK_EMAIL_CODE}`,
             failOnStatusCode: false, // optional: if you're testing both success/failure cases
+          }).then((response) => {
+            expect(response.status).to.eq(200); // or 400 depending on expected behavior
           });
           break;
       }

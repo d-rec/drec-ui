@@ -2,12 +2,12 @@
   {
     "action": "type",
     "selector": "[test-id='login-username']",
-    "value": "buyer@gmail.com"
+    "value": "buyertest@energy.org"
   },
   {
     "action": "type",
     "selector": "[test-id='login-password']",
-    "value": "King@123"
+    "value": "1234Test@tst"
   },
   {
     "action": "click",

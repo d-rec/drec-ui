@@ -26,14 +26,14 @@ Cypress.Commands.add('buyerUserSignup', function () {
             .wait(2000);
         case 'browse-documents':
           cy.get(step.selector).each(($input) => {
-            cy.wrap($input).attachFile('files/meter_reads_2025-05-14.pdf', {
+            cy.wrap($input).attachFile('files/image.jpg', {
               force: true,
             });
           });
           break;
 
         case 'verify-phone':
-          cy.visit(`${UI_BASE_URL}/verify-otp`);
+          cy.visit(`${UI_BASE_URL}/verify-otp`).wait(5000);
           const MOCK_OTP_CODE = '123456';
 
           cy.intercept('POST', `${UI_BASE_URL}/api/otp/send`, {
@@ -49,15 +49,8 @@ Cypress.Commands.add('buyerUserSignup', function () {
                 statusCode: 200,
                 body: { message: 'Phone number verified successfully.' },
               });
-            } else {
-              req.reply({
-                statusCode: 400,
-                body: { message: 'Invalid OTP' },
-              });
             }
           }).as('verifyOtp');
-
-          cy.wait(1000);
           cy.get('[test-id="resend-otp"]').click();
 
           for (let i = 0; i < MOCK_OTP_CODE.length; i++) {
@@ -71,7 +64,7 @@ Cypress.Commands.add('buyerUserSignup', function () {
           const MOCK_EMAIL_CODE = '123456';
 
           cy.get('[test-id="resend-confirmation-email"]').click();
-          cy.wait(3000);
+          cy.wait(1000);
           cy.request({
             method: 'PUT',
             url: `${REACT_APP_BACKEND_URL}/api/user/confirm-email/${MOCK_EMAIL_CODE}`,
