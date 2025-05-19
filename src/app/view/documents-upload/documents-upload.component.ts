@@ -1,9 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { DocumentsUploadService } from '../../auth/services/documents-upload.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
-
+import { OrganizationService } from '../../auth/services/organization.service';
 export interface DocumentUpload {
   title: string;
   required: boolean;
@@ -21,10 +19,10 @@ export enum DocumentUploadTargetType {
 }
 
 export enum DocumentUploadDocumentType {
-  INCORPORATION_CERTIFICATE = 'incorporation certificate',
-  LEGAL_REPRESENTATIVE_PASSPORT = 'legal representative passport',
-  ADDRESS_PROOF = 'address proof',
-  OWNERS_DECLARATION = 'owners declaration',
+  INCORPORATION_CERTIFICATE = 'incorporationCertificate',
+  LEGAL_REPRESENTATIVE_PASSPORT = 'legalRepresentativePassport',
+  ADDRESS_PROOF = 'addressProof',
+  OWNERS_DECLARATION = 'ownersDeclaration',
 }
 
 @Component({
@@ -81,7 +79,7 @@ export class DocumentsUploadComponent {
   ];
 
   constructor(
-    private documentService: DocumentsUploadService,
+    private organizationService: OrganizationService,
     private toastrService: ToastrService,
     private router: Router,
   ) {}
@@ -131,39 +129,50 @@ export class DocumentsUploadComponent {
     }
 
     this.isUploading = true;
-    const uploadObservables = uploadedDocuments.map((doc) =>
-      this.documentService.uploadDocument(
-        doc.targetType,
-        doc.documentType,
-        doc.file!,
-      ),
-    );
+    const formData = new FormData();
 
-    forkJoin(uploadObservables).subscribe({
-      next: () => {
-        this.documents.forEach((doc) => {
-          if (doc.file) {
-            doc.isUploaded = true;
-          }
-        });
-        this.toastrService.success('All documents uploaded successfully');
-        this.isUploading = false;
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err) => {
-        if (err.error.errorType === 'DOCUMENT_ALREADY_UPLOADED') {
-          this.toastrService.warning('Some documents were already uploaded');
-        } else {
-          this.toastrService.error(
-            'Error uploading documents',
-            err.error.message,
-          );
-          this.isUploading = false;
-        }
-      },
-      complete: () => {
-        this.isUploading = false;
-      },
+    let targetType: DocumentUploadTargetType | null = null;
+
+    uploadedDocuments.forEach((doc) => {
+      if (doc.file && doc.documentType) {
+        formData.append(doc.documentType, doc.file);
+        targetType = doc.targetType;
+      }
     });
+
+    if (!targetType) {
+      this.toastrService.error('Missing target type.');
+      this.isUploading = false;
+      return;
+    }
+
+    this.organizationService
+      .uploadVerificationDocuments(formData, targetType)
+      .subscribe({
+        next: () => {
+          this.documents.forEach((doc) => {
+            if (doc.file) {
+              doc.isUploaded = true;
+            }
+          });
+          this.toastrService.success('All documents uploaded successfully');
+          this.isUploading = false;
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          if (err.error.errorType === 'DOCUMENT_ALREADY_UPLOADED') {
+            this.toastrService.warning('Some documents were already uploaded');
+          } else {
+            this.toastrService.error(
+              'Error uploading documents',
+              err.error.message,
+            );
+            this.isUploading = false;
+          }
+        },
+        complete: () => {
+          this.isUploading = false;
+        },
+      });
   }
 }

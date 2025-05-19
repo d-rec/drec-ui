@@ -9,11 +9,16 @@ import {
   MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
 import { ToastrService } from 'ngx-toastr';
+import { DatePipe } from '@angular/common';
+import { saveAs } from 'file-saver';
+import { generateCSVContent } from '../../../utils/csv-export-helper';
+import { generatePDFBlob } from '../../../utils/pdf-export-helper';
 
 @Component({
   selector: 'app-meter-read-table',
   templateUrl: './meter-read-table.component.html',
   styleUrls: ['./meter-read-table.component.scss'],
+  providers: [DatePipe],
 })
 export class MeterReadTableComponent implements OnInit {
   @ViewChild(MatPaginator)
@@ -24,7 +29,7 @@ export class MeterReadTableComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   readdata: any;
-
+  developerExternalId: string;
   devicedata: any;
   p: number = 1;
   total: number = 0;
@@ -43,15 +48,16 @@ export class MeterReadTableComponent implements OnInit {
   @Input()
   showtable: boolean;
   showname: boolean = false;
-
   constructor(
     private service: MeterReadService,
     private formBuilder: FormBuilder,
     private toastrService: ToastrService,
-    private deviceservice: DeviceService,
+    private deviceService: DeviceService,
     private bottomSheetRef: MatBottomSheetRef<MeterReadTableComponent>,
+    private datePipe: DatePipe,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
   ) {}
+
   ngOnInit() {
     if (this.data != null) {
       this.showname = true;
@@ -71,7 +77,6 @@ export class MeterReadTableComponent implements OnInit {
 
   start(FilterForm: any, exterenalId: any, filter: boolean) {
     this.exterenalId = exterenalId;
-
     this.FilterForm = FilterForm;
     this.filter = filter;
     if (filter) {
@@ -81,7 +86,11 @@ export class MeterReadTableComponent implements OnInit {
 
   getPagedData() {
     this.FilterForm.controls['pagenumber'].setValue(this.p);
-
+    this.deviceService.GetDevicesInfo(this.exterenalId).subscribe({
+      next: (data: any) => {
+        this.developerExternalId = data.developerExternalId;
+      },
+    });
     this.service.GetRead(this.exterenalId, this.FilterForm.value).subscribe(
       (response: any) => {
         this.filter = true;
@@ -119,8 +128,103 @@ export class MeterReadTableComponent implements OnInit {
 
     this.getPagedData();
   }
+
   openLink(event: MouseEvent): void {
     this.bottomSheetRef.dismiss();
     event.preventDefault();
+  }
+
+  getFormattedDate(): string {
+    return this.datePipe.transform(new Date(), 'yyyy-MM-dd') || '';
+  }
+  exportToCSV() {
+    if (
+      !this.dataSource ||
+      !this.dataSource.data ||
+      this.dataSource.data.length === 0
+    ) {
+      this.toastrService.warning('No data available to export');
+      return;
+    }
+
+    // Create header row
+    const headers = [
+      'Device External ID',
+      'Start Datetime',
+      'End Datetime',
+      'Value(Wh)',
+      'Read Type',
+    ];
+
+    const blob = generateCSVContent(headers, this.dataSource.data, (item) => {
+      const startDate = this.formatDateForExport(item.startdate);
+      const endDate = this.formatDateForExport(item.enddate);
+      return `"${this.developerExternalId}","${startDate}","${endDate}","${item.value}","${item.readtype}"`;
+    });
+
+    if (!blob) {
+      this.toastrService.warning('No data available to export');
+      return;
+    }
+
+    const fileName = `meter_reads_${this.getFormattedDate()}.csv`;
+    saveAs(blob, fileName);
+  }
+
+  async exportToPDF() {
+    if (
+      !this.dataSource ||
+      !this.dataSource.data ||
+      this.dataSource.data.length === 0
+    ) {
+      this.toastrService.warning('No data available to export');
+      return;
+    }
+
+    try {
+      const headers = [
+        'Device External ID',
+        'Start Datetime',
+        'End Datetime',
+        'Value(Wh)',
+        'Read Type',
+      ];
+
+      const data = this.dataSource.data.map((item) => {
+        const startDate = this.formatDateForExport(item.startdate);
+        const endDate = this.formatDateForExport(item.enddate);
+        return [
+          this.developerExternalId,
+          startDate,
+          endDate,
+          item.value.toString(),
+          item.readtype,
+        ];
+      });
+
+      const headerName = 'Meter Readings';
+      const pdfBlob = await generatePDFBlob(headerName, headers, data);
+
+      saveAs(pdfBlob, `meter_reads_${this.getFormattedDate()}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      this.toastrService.error('Failed to generate PDF');
+    }
+  }
+
+  private formatDateForExport(dateString: string): string {
+    try {
+      if (!dateString) return '';
+
+      return (
+        this.datePipe.transform(
+          dateString,
+          'MMM d, y, h:mm:ss a',
+          this.device_timezone,
+        ) || dateString
+      );
+    } catch (error) {
+      return dateString;
+    }
   }
 }
