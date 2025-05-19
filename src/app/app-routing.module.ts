@@ -90,7 +90,7 @@ const routes: Routes = [
         canActivate: [PhoneVerificationGuard],
       },
       {
-        path: 'Organization/upload/verification-documents',
+        path: 'organization/upload/verification-documents',
         component: DocumentsUploadComponent,
         canActivate: [OrganizationDocumentsGuard],
       },
