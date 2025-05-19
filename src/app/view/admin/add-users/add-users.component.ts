@@ -69,6 +69,7 @@ export class AddUsersComponent {
       ]),
       password: new FormControl(null),
       confirmPassword: new FormControl(null),
+      termsAndConditions: new FormControl(false),
     });
   }
   emaiErrors() {

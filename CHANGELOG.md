@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/d-rec/drec-ui/compare/v0.3.0...v0.3.1) (2025-05-14)
+
+### Bug Fixes
+
+- set terms and conditions to false when inviting new users ([413b3e9](https://github.com/d-rec/drec-ui/commit/413b3e935fdfcf1361ca27a399b021c14940c174))
+
+## [0.3.0](https://github.com/d-rec/drec-ui/compare/v0.2.0...v0.3.0) (2025-05-14)
+
+### Features
+
+- Add a checkbox to agree to terms and conditions during user registration ([#289](https://github.com/d-rec/drec-ui/issues/289)) ([a60ce98](https://github.com/d-rec/drec-ui/commit/a60ce9889ec541f20cf05dffdca28459d18e16a5))
+- add automated test for certified meter read ([#290](https://github.com/d-rec/drec-ui/issues/290)) ([8ddc9d3](https://github.com/d-rec/drec-ui/commit/8ddc9d3206a29ccd4cb100f91456986ccc907cdc))
+- add phone number ([#288](https://github.com/d-rec/drec-ui/issues/288)) ([0be5ec9](https://github.com/d-rec/drec-ui/commit/0be5ec9fc16324a88afdbbe5eff1c0e15afbefbb))
+- rename The ApiUser to Market Intermediary ([#294](https://github.com/d-rec/drec-ui/issues/294)) ([bc31360](https://github.com/d-rec/drec-ui/commit/bc313604bfd0b91bddba40258b513cfcb3535182))
+
+### Bug Fixes
+
+- add header and footer on terms and condition page ([#300](https://github.com/d-rec/drec-ui/issues/300)) ([5614134](https://github.com/d-rec/drec-ui/commit/56141348cdaa13fdb1f4ed850dc14bd6ed6ec7cf))
+- automated test cases ([#306](https://github.com/d-rec/drec-ui/issues/306)) ([a2ac197](https://github.com/d-rec/drec-ui/commit/a2ac19771b91545b25b93a33dda91bcc900e425b))
+- market intermediary stylings ([#299](https://github.com/d-rec/drec-ui/issues/299)) ([dd99629](https://github.com/d-rec/drec-ui/commit/dd99629e479f49d1995c9d26be4087dd3efc8dab))
+- Naming Frontend ([#258](https://github.com/d-rec/drec-ui/issues/258)) ([8771a42](https://github.com/d-rec/drec-ui/commit/8771a42887b40bf8bd34bc310f69b6eec72bbd8c))
+
 ## [0.2.0](https://github.com/d-rec/drec-ui/compare/v0.1.0...v0.2.0) (2025-04-22)
 
 ### Features
