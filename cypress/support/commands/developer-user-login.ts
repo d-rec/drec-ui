@@ -1,6 +1,5 @@
 import 'cypress-file-upload';
 const UI_BASE_URL = Cypress.env('UI_BASE_URL');
-const REACT_APP_BACKEND_URL = Cypress.env('REACT_APP_BACKEND_URL');
 
 Cypress.Commands.add('developerUserLogin', function () {
   cy.fixture('developer-user-login.json').then((data) => {

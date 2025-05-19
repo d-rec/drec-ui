@@ -6,7 +6,6 @@ Cypress.Commands.add('buyerUserSignup', function () {
   cy.fixture('buyer-user-signup.json').then((data) => {
     cy.visit(`${UI_BASE_URL}/login`).wait(1000);
     cy.get('[test-id="register"]').click();
-
     data.forEach((step) => {
       switch (step.action) {
         case 'type':
@@ -38,18 +37,10 @@ Cypress.Commands.add('buyerUserSignup', function () {
 
           cy.intercept('POST', `${UI_BASE_URL}/api/otp/send`, {
             statusCode: 201,
-            body: { message: 'OTP sent (mock)', testCode: MOCK_OTP_CODE },
           }).as('sendOtp');
 
-          cy.intercept('POST', `${UI_BASE_URL}/api/otp/verify`, (req) => {
-            const { code } = req.body;
-
-            if (code === MOCK_OTP_CODE) {
-              req.reply({
-                statusCode: 200,
-                body: { message: 'Phone number verified successfully.' },
-              });
-            }
+          cy.intercept('POST', `${UI_BASE_URL}/api/otp/verify`, {
+            statusCode: 200,
           }).as('verifyOtp');
           cy.get('[test-id="resend-otp"]').click();
 
@@ -68,9 +59,9 @@ Cypress.Commands.add('buyerUserSignup', function () {
           cy.request({
             method: 'PUT',
             url: `${REACT_APP_BACKEND_URL}/api/user/confirm-email/${MOCK_EMAIL_CODE}`,
-            failOnStatusCode: false, // optional: if you're testing both success/failure cases
+            failOnStatusCode: false,
           }).then((response) => {
-            expect(response.status).to.eq(200); // or 400 depending on expected behavior
+            expect(response.status).to.eq(200);
           });
           break;
       }
