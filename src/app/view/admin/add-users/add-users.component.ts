@@ -75,8 +75,8 @@ export class AddUsersComponent {
     return this.registerForm.get('email')?.hasError('required')
       ? 'This field is required'
       : this.registerForm.get('email')?.hasError('pattern')
-          ? 'Not a valid emailaddress'
-          : '';
+        ? 'Not a valid emailaddress'
+        : '';
   }
 
   phoneNumberErrors() {
