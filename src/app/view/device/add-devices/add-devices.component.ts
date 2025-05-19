@@ -32,6 +32,7 @@ import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganizationType } from 'src/app/utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
+import { validateAndAppendFiles } from '../../../utils/file-upload.helper';
 
 type DeviceFiles = {
   productionFacilityRegistration: File[];
@@ -523,29 +524,19 @@ export class AddDevicesComponent {
       fileFields.forEach((fileType: FileType) => {
         const files = this.files[index]?.[fileType];
         if (files && files.length > 0) {
-          for (const file of files) {
-            const extension = file.name.split('.').pop()?.toLowerCase();
-            const sizeInMB = file.size / (1024 * 1024);
+          const { allFilesValid: valid, needsUpdate } = validateAndAppendFiles(
+            formData,
+            files,
+            fileType,
+            allowedExtensions,
+            maxSizeInMB,
+            this.toastrService,
+          );
+          allFilesValid = allFilesValid && valid;
 
-            if (!extension || !allowedExtensions.includes(extension)) {
-              this.toastrService.error(
-                `${file.name} has unsupported file type: .${extension}`,
-                'Invalid File Type',
-              );
-              allFilesValid = false;
-              break;
-            }
-
-            if (sizeInMB > maxSizeInMB) {
-              this.toastrService.error(
-                `${file.name} exceeds max file size of ${maxSizeInMB}MB`,
-                'File Size Exceeded',
-              );
-              allFilesValid = false;
-              break;
-            }
-
-            formData.append(fileType, file, file.name);
+          if (needsUpdate) {
+            this.submitButtonText = 'Submit';
+            this.isSubmitting = false;
           }
         }
       });
@@ -554,6 +545,8 @@ export class AddDevicesComponent {
         console.error(
           'One or more files are invalid. Request will not be sent.',
         );
+        this.submitButtonText = 'Submit';
+        this.isSubmitting = false;
         return;
       }
 
