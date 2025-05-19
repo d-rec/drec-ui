@@ -76,4 +76,13 @@ export class OrganizationService {
       environment.API_URL + 'Organization/user/' + userId,
     );
   }
+
+  uploadVerificationDocuments(
+    formData: FormData,
+    targetType: string,
+  ): Observable<any> {
+    const url = `${environment.API_URL}Organization/upload/verification-documents`;
+    const params = { targetType };
+    return this.httpClient.post(url, formData, { params });
+  }
 }
