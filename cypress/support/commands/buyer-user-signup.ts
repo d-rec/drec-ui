@@ -25,7 +25,7 @@ Cypress.Commands.add('buyerUserSignup', function () {
             .wait(2000);
         case 'browse-documents':
           cy.get(step.selector).each(($input) => {
-            cy.wrap($input).attachFile('files/image.jpg', {
+            cy.wrap($input).attachFile('files/meter_reads_2025-05-14.pdf', {
               force: true,
             });
           });
