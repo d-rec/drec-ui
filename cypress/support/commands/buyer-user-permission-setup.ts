@@ -5,25 +5,26 @@ Cypress.Commands.add('buyerUserPermissionsSetup', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          return cy
-            .get(step.selector, { timeout: 20000 })
-            .wait(10000)
-            .should('be.visible')
-            .click();
+          return cy.get(step.selector).should('be.visible').click().wait(1000);
         case 'select':
           return cy
             .get(step.selector)
             .click()
             .get(step.option)
             .should('have.length.greaterThan', 0)
-            .eq(3)
-            .click();
+            .eq(1)
+            .click()
+            .wait(1000);
         case 'check':
           return cy.get(step.selector).eq(step.index).click();
         case 'check-multiple':
           return cy.contains('table tr', step.contains).within(() => {
             cy.get(step.selector).each(($el) => {
-              cy.wrap($el).click();
+              if (!$el.hasClass('mdc-checkbox--disabled')) {
+                cy.wrap($el).click();
+              } else {
+                cy.log(`Skipping disabled checkbox: ${$el.attr('id')}`);
+              }
             });
           });
         case 'submit':

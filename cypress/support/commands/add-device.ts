@@ -9,7 +9,10 @@ Cypress.Commands.add('addDevice', function () {
     new_data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          return cy.get(step.selector).click().wait(1000);
+          return cy
+            .get(step.selector)
+            .click('center', { force: true })
+            .wait(1000);
 
         case 'type':
           return cy.get(step.selector).should('be.visible').type(step.value);
@@ -42,7 +45,7 @@ Cypress.Commands.add('addDevice', function () {
               .wait(1000);
           }
 
-        case 'submit':
+        case 'agree':
           cy.get(step.selector).click('center', { force: true });
           return cy.contains('Added Successfully !!').should('be.visible');
       }
