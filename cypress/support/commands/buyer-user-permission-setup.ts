@@ -11,8 +11,7 @@ Cypress.Commands.add('buyerUserPermissionsSetup', function () {
             .get(step.selector)
             .click()
             .get(step.option)
-            .should('have.length.greaterThan', 0)
-            .eq(1)
+            .contains('Buyer')
             .click()
             .wait(1000);
         case 'check':
