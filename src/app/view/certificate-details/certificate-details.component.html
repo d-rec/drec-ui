@@ -248,7 +248,29 @@
                   </mat-select>
                 </mat-form-field>
               </div>
-
+              <div class="col-md-4 h6-margin-remove">
+                <h6>Reservation Name:</h6>
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">
+                    enter Reservation Name</mat-label
+                  >
+                  <mat-select
+                    formControlName="reservationNames"
+                    (ngModelChange)="checkFormValidity()"
+                    multiple
+                  >
+                    <mat-option [value]="" test-id="dropdown-no-selection"
+                      >---</mat-option
+                    >
+                    <mat-option
+                      *ngFor="let reservationName of reservationNames"
+                      [value]="reservationName"
+                    >
+                      {{ reservationName }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
               <!-- 				
 							<div class="col-md-4  h6-margin-remove">
 								<h6>Select Read Volume(Wh): </h6>
@@ -294,7 +316,14 @@
       >
         <b>All certificate of those reservations </b>
       </h2>
-
+      <div class="m-2 text-end">
+        <button mat-raised-button class="btn-primary me-3" (click)="exportToPDF()">
+          <mat-icon>picture_as_pdf</mat-icon> Export to PDF
+        </button>
+        <button mat-raised-button class="btn-primary" (click)="exportToCSV()">
+          <mat-icon>table_chart</mat-icon> Export to CSV
+        </button>
+      </div>
       <ng-container>
         <div class="col-md-3 d-flex flex-column" *ngIf="oldcertificatelog">
           <span>Have you old certificate? </span>
