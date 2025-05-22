@@ -9,7 +9,6 @@ import { AdminService, UserService } from '../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { UserStatus } from '../../utils/drec.enum';
-import { storeUserSession } from '../../utils/token-utils';
 @Component({
   selector: 'app-user-profile',
   templateUrl: './user-profile.component.html',
@@ -140,11 +139,12 @@ export class UserProfileComponent {
     return validation;
   }
   onUpdate() {
-    this.userService.updatProfile(this.updateForm.value).subscribe({
+    const updateData = { ...this.updateForm.value };
+    delete updateData.email;
+    this.userService.updateProfile(updateData).subscribe({
       next: (data) => {
-        storeUserSession(data['accessToken'], data.updatedUser);
         this.toastrService.success(
-          data.updatedUser.firstName + ' User Updated',
+          data.firstName + ' User Updated',
           'Successful',
         );
       },
