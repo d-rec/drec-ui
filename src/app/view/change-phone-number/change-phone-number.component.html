@@ -1,1 +1,35 @@
-<p>change-phone-number works!</p>
+<div class="d-flex flex-column justify-content-center align-items-center">
+  <h1 class="text-center">Change Phone Number</h1>
+  <p class="text-center">
+    Please enter your new phone number. We will send you a verification code to
+    this number.
+  </p>
+  <form [formGroup]="changePhoneNumberForm">
+    <mat-form-field class="mt-0">
+      <mat-label class="mat-labels-cont">Phone Number</mat-label>
+      <input
+        type="text"
+        matInput
+        phoneFormat
+        formControlName="phoneNumber"
+        placeholder="+91 22 1234 5678"
+        test-id="phone-number"
+        (input)="markAsTouched('phoneNumber')"
+      />
+      <mat-error class="pb-3" *ngIf="showPhoneNumberError()">
+        {{ phoneNumberErrors() }}
+      </mat-error>
+    </mat-form-field>
+    <div class="d-flex justify-content-center">
+      <button
+        mat-raised-button
+        color="primary"
+        class="mt-3"
+        (click)="onSubmit()"
+        [disabled]="!changePhoneNumberForm.valid"
+      >
+        Change Phone Number
+      </button>
+    </div>
+  </form>
+</div>
