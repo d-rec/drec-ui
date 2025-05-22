@@ -8,12 +8,13 @@ import {
   ReservationService,
   OrganizationService,
   CertificateService,
+  DeviceService,
 } from '../../auth/services';
 import { Router } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import { fulecodeType, devicecodeType, CountryInfo } from '../../models';
+import { fulecodeType, devicecodeType, CountryInfo, Device } from '../../models';
 
 @Component({
   selector: 'app-myreservation',
@@ -92,6 +93,7 @@ export class MyreservationComponent implements OnInit {
   orglist: any;
   filteredOrgList: Observable<any[]>;
   showorgerror: boolean = false;
+  developerExternalIds: { id: string; name: string; }[];
   constructor(
     private authService: AuthbaseService,
     private reservationService: ReservationService,
@@ -100,6 +102,7 @@ export class MyreservationComponent implements OnInit {
     private formBuilder: FormBuilder,
     private toastrService: ToastrService,
     private certificateService: CertificateService,
+    private deviceService:DeviceService
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -115,7 +118,7 @@ export class MyreservationComponent implements OnInit {
       reservationStartDate: [null],
       reservationEndDate: [null],
       reservationActive: [null],
-
+      deviceExternalId:[]
       // pagenumber: [this.p]
     });
     this.displayCountriesList();
@@ -260,6 +263,9 @@ export class MyreservationComponent implements OnInit {
           ) {
             this.FilterForm.controls['offTaker'].setValue(null);
           }
+          if(formValues.deviceExternalId != null && formValues.deviceExternalId[0] === undefined) {
+            this.FilterForm.controls['deviceExternalId'].setValue(null);
+          }
           if (
             formValues.SDGBenefits != null &&
             formValues.SDGBenefits[0] === undefined
@@ -322,11 +328,9 @@ export class MyreservationComponent implements OnInit {
     this.DisplayList(this.p);
   }
   DisplayList(page: number) {
-    //  this.FilterForm.controls['pagenumber'].setValue(page);
     if (this.loginuser.role === 'ApiUser') {
       if (this.FilterForm.value.reservationActive === 'All') {
         this.FilterForm.removeControl('reservationActive');
-        //this.FilterForm.controls['reservationActive'].setValue(null);
       }
       if (
         !(
@@ -373,11 +377,23 @@ export class MyreservationComponent implements OnInit {
           .getReservationData(this.FilterForm.value, page)
           .subscribe((data) => {
             this.showdevicesinfo = false;
-
+            this.developerExternalIds = [];
             this.data = data.groupedData;
             this.data.forEach((ele: any) => {
               if (ele.deviceIds != null) {
-                ele['numberOfdevices'] = ele.deviceIds.length;
+                ele.deviceIds.forEach((deviceId: string) => {
+                  this.deviceService.GetDevicesInfo(Number(deviceId)).subscribe({
+                    next: (data: Device) => {
+                      if (data.developerExternalId) {
+                        this.developerExternalIds.push({
+                          "id":deviceId,
+                         "name": data.developerExternalId,
+
+                        });
+                      }
+                    },
+                  });
+                });
               } else {
                 ele['numberOfdevices'] = 0;
               }

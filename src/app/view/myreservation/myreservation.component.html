@@ -183,7 +183,29 @@
                   <mat-date-range-picker #picker></mat-date-range-picker>
                 </mat-form-field>
               </div>
-
+              <div class="col-md-4 h6-margin-remove">
+                <h6>Device External Id:</h6>
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">
+                    enter device Id</mat-label
+                  >
+                  <mat-select
+                    formControlName="deviceExternalId"
+                    (ngModelChange)="checkFormValidity()"
+                    multiple
+                  >
+                    <mat-option [value]="" test-id="dropdown-no-selection"
+                      >---</mat-option
+                    >
+                    <mat-option
+                      *ngFor="let developerExternalId of developerExternalIds"
+                      [value]="developerExternalId.id"
+                    >
+                      {{ developerExternalId.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
               <div class="col-md-12 mb-3 d-flex justify-content-end">
                 <div class="">
                   <button
