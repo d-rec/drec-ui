@@ -98,7 +98,7 @@ export class MyreservationComponent implements OnInit {
   orglist: any;
   filteredOrgList: Observable<any[]>;
   showorgerror: boolean = false;
-  developerExternalIds: { id: string; name: string }[];
+  developerExternalIds: { id: string; name: string }[] = [];
   constructor(
     private authService: AuthbaseService,
     private reservationService: ReservationService,
@@ -385,7 +385,6 @@ export class MyreservationComponent implements OnInit {
           .getReservationData(this.FilterForm.value, page)
           .subscribe((data) => {
             this.showdevicesinfo = false;
-            this.developerExternalIds = [];
             this.data = data.groupedData;
             this.data.forEach((ele: any) => {
               if (ele.deviceIds != null) {
@@ -395,10 +394,15 @@ export class MyreservationComponent implements OnInit {
                     .subscribe({
                       next: (data: Device) => {
                         if (data.developerExternalId) {
-                          this.developerExternalIds.push({
-                            id: deviceId,
-                            name: data.developerExternalId,
-                          });
+                          const exists = this.developerExternalIds.some(
+                            (item) => item.name === data.developerExternalId,
+                          );
+                          if (!exists) {
+                            this.developerExternalIds.push({
+                              id: deviceId,
+                              name: data.developerExternalId,
+                            });
+                          }
                         }
                       },
                     });

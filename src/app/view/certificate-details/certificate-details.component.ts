@@ -114,7 +114,7 @@ export class CertificateDetailsComponent {
   oldlog: boolean = false;
   oldcertificatelog: boolean;
   deviceIds: string[] = [];
-  reservationNames: { id: string; name: string }[];
+  reservationNames: { id: string; name: string }[] = [];
   constructor(
     private blockchainDRECService: BlockchainDrecService,
     private authService: AuthbaseService,
@@ -459,8 +459,6 @@ export class CertificateDetailsComponent {
           this.oldcertificatelog = data.oldcertificatelog;
           if (data.certificatelog.length > 0) {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);
-            this.deviceIds = [];
-            this.reservationNames = [];
             this.data.forEach((log: any) => {
               log.perDeviceCertificateLog.forEach((deviceLog: any) => {
                 if (!this.deviceIds.includes(deviceLog.externalId)) {
