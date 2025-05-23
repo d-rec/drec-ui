@@ -11,7 +11,6 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-change-phone-number',
   templateUrl: './change-phone-number.component.html',
-  styleUrls: ['./change-phone-number.component.scss'],
 })
 export class ChangePhoneNumberComponent {
   changePhoneNumberForm: FormGroup;
@@ -56,9 +55,9 @@ export class ChangePhoneNumberComponent {
     if (this.changePhoneNumberForm.valid) {
       const phoneNumber = this.changePhoneNumberForm.get('phoneNumber')?.value;
       this.userService.updatePhoneNumber(phoneNumber).subscribe({
-        next: (response) => {
+        next: () => {
           this.toastrService.success('Phone number updated successfully');
-          console.log('Phone number updated successfully:', response);
+          this.toastrService.success('Otp sent to your phone number');
           this.router.navigate(['/verify-otp']);
         },
         error: (error) => {
