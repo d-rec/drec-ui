@@ -52,20 +52,18 @@ export class ChangePhoneNumberComponent {
   }
 
   onSubmit() {
-    if (this.changePhoneNumberForm.valid) {
-      const phoneNumber = this.changePhoneNumberForm.get('phoneNumber')?.value;
-      this.userService.updatePhoneNumber(phoneNumber).subscribe({
-        next: () => {
-          this.toastrService.success('Phone number updated successfully');
-          this.toastrService.success('Otp sent to your phone number');
-          this.router.navigate(['/verify-otp']);
-        },
-        error: (error) => {
-          this.toastrService.error(error.error.message);
-        },
-      });
-    } else {
-      this.changePhoneNumberForm.markAllAsTouched();
-    }
+    const phoneNumber = this.changePhoneNumberForm
+      .get('phoneNumber')
+      ?.value.replace(/\s+/g, '');
+    this.userService.updatePhoneNumber(phoneNumber).subscribe({
+      next: () => {
+        this.toastrService.success('Phone number updated successfully');
+        this.toastrService.success('Otp sent to your phone number');
+        this.router.navigate(['/verify-otp']);
+      },
+      error: (error) => {
+        this.toastrService.error(error.error.message);
+      },
+    });
   }
 }
