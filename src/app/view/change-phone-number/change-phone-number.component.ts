@@ -6,6 +6,7 @@ import {
   phoneNumberValidator,
 } from '../../../app/shared/validators/phone-validators';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-change-phone-number',
@@ -17,6 +18,7 @@ export class ChangePhoneNumberComponent {
   constructor(
     private userService: UserService,
     private toastrService: ToastrService,
+    private router: Router,
   ) {
     this.createForm();
   }
@@ -53,16 +55,16 @@ export class ChangePhoneNumberComponent {
   onSubmit() {
     if (this.changePhoneNumberForm.valid) {
       const phoneNumber = this.changePhoneNumberForm.get('phoneNumber')?.value;
-      this.userService.updatProfile(phoneNumber).subscribe({
+      this.userService.updatePhoneNumber(phoneNumber).subscribe({
         next: (response) => {
-          this.toastrService.success();
+          this.toastrService.success('Phone number updated successfully');
           console.log('Phone number updated successfully:', response);
         },
         error: (error) => {
-          console.error('Error updating phone number:', error);
+          this.toastrService.error(error.error.message);
+          this.router.navigate(['/verify-otp']);
         },
       });
-      // Handle the form submission logic here
     } else {
       this.changePhoneNumberForm.markAllAsTouched();
     }

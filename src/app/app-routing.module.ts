@@ -95,6 +95,11 @@ const routes: Routes = [
         component: DocumentsUploadComponent,
         canActivate: [OrganizationDocumentsGuard],
       },
+      {
+        path: 'change-phone-number',
+        component: ChangePhoneNumberComponent,
+        canActivate: [PhoneVerificationGuard],
+      },
     ],
   },
   {
@@ -143,10 +148,6 @@ const routes: Routes = [
       {
         path: 'user/profile',
         component: UserProfileComponent,
-      },
-      {
-        path: 'change-phone-number',
-        component: ChangePhoneNumberComponent,
       },
       {
         path: 'apiuser',
