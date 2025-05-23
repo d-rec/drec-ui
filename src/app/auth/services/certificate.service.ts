@@ -78,6 +78,17 @@ export class CertificateService {
       }
       if (
         !(
+          searchData.reservationName === undefined ||
+          searchData.reservationName === '' ||
+          searchData.reservationName === null
+        )
+      ) {
+        if (Array.isArray(searchData.reservationName)) {
+        searchUrl += `&reservationId=${searchData.reservationName}`;
+        }
+      }
+      if (
+        !(
           searchData.SDGBenefits === undefined ||
           searchData.SDGBenefits === '' ||
           searchData.SDGBenefits === null

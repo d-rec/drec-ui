@@ -114,7 +114,7 @@ export class CertificateDetailsComponent {
   oldlog: boolean = false;
   oldcertificatelog: boolean;
   deviceIds: string[] = [];
-  reservationNames: string[] = [];
+  reservationNames: { id: string; name: string; }[];
   constructor(
     private blockchainDRECService: BlockchainDrecService,
     private authService: AuthbaseService,
@@ -144,7 +144,7 @@ export class CertificateDetailsComponent {
       start_date: [null],
       end_date: [null],
       deviceIds: [],
-      reservationNames: [],
+      reservationName: [],
       fromAmountread: [null],
       toAmountread: [null],
       // pagenumber: [this.p]
@@ -366,10 +366,10 @@ export class CertificateDetailsComponent {
             this.FilterForm.controls['deviceIds'].setValue(null);
           }
           if (
-            Array.isArray(formValues.reservationNames) &&
-            formValues.reservationNames[0] === undefined
+            Array.isArray(formValues.reservationName) &&
+            formValues.reservationName[0] === undefined
           ) {
-            this.FilterForm.controls['reservationNames'].setValue(null);
+            this.FilterForm.controls['reservationName'].setValue(null);
           }
           // Other code...
         }
@@ -450,6 +450,7 @@ export class CertificateDetailsComponent {
   }
   // CertificateClaimed:boolean=false;
   DisplayList(page: number) {
+    console.log("formvalues",this.FilterForm.value)
     this.certificateService
       .GetDevoloperCertificateMethod(this.FilterForm.value, page, this.oldlog)
       .subscribe({
@@ -460,6 +461,7 @@ export class CertificateDetailsComponent {
           if (data.certificatelog.length > 0) {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);
             this.deviceIds = [];
+            this.reservationNames=[]
             this.data.forEach((log: any) => {
               log.perDeviceCertificateLog.forEach((deviceLog: any) => {
                 if (!this.deviceIds.includes(deviceLog.externalId)) {
@@ -472,9 +474,10 @@ export class CertificateDetailsComponent {
             .subscribe((data) => {
               console.log("dataaaaaaaaa1111111",data)
               data.groupedData.forEach((item: any) => {
-                if (!this.reservationNames.includes(item.name)) {
-                  this.reservationNames.push(item.name);
-                }
+                // if (!this.reservationNames.includes(item.name)) {
+                // console.log("item",item)
+                  this.reservationNames.push({id:item.devicegroup_uid,name:item.name});
+                // }
               });
               console.log("dataaaaaaaaa",this.reservationNames)
 

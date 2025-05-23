@@ -255,7 +255,7 @@
                     enter Reservation Name</mat-label
                   >
                   <mat-select
-                    formControlName="reservationNames"
+                    formControlName="reservationName"
                     (ngModelChange)="checkFormValidity()"
                     multiple
                   >
@@ -264,9 +264,9 @@
                     >
                     <mat-option
                       *ngFor="let reservationName of reservationNames"
-                      [value]="reservationName"
+                      [value]="reservationName.id"
                     >
-                      {{ reservationName }}
+                      {{ reservationName.name }}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
