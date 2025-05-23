@@ -14,7 +14,12 @@ import { Router } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import { fulecodeType, devicecodeType, CountryInfo, Device } from '../../models';
+import {
+  fulecodeType,
+  devicecodeType,
+  CountryInfo,
+  Device,
+} from '../../models';
 
 @Component({
   selector: 'app-myreservation',
@@ -93,7 +98,7 @@ export class MyreservationComponent implements OnInit {
   orglist: any;
   filteredOrgList: Observable<any[]>;
   showorgerror: boolean = false;
-  developerExternalIds: { id: string; name: string; }[];
+  developerExternalIds: { id: string; name: string }[];
   constructor(
     private authService: AuthbaseService,
     private reservationService: ReservationService,
@@ -102,7 +107,7 @@ export class MyreservationComponent implements OnInit {
     private formBuilder: FormBuilder,
     private toastrService: ToastrService,
     private certificateService: CertificateService,
-    private deviceService:DeviceService
+    private deviceService: DeviceService,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -118,7 +123,7 @@ export class MyreservationComponent implements OnInit {
       reservationStartDate: [null],
       reservationEndDate: [null],
       reservationActive: [null],
-      deviceExternalId:[]
+      deviceExternalId: [],
       // pagenumber: [this.p]
     });
     this.displayCountriesList();
@@ -263,7 +268,10 @@ export class MyreservationComponent implements OnInit {
           ) {
             this.FilterForm.controls['offTaker'].setValue(null);
           }
-          if(formValues.deviceExternalId != null && formValues.deviceExternalId[0] === undefined) {
+          if (
+            formValues.deviceExternalId != null &&
+            formValues.deviceExternalId[0] === undefined
+          ) {
             this.FilterForm.controls['deviceExternalId'].setValue(null);
           }
           if (
@@ -382,17 +390,18 @@ export class MyreservationComponent implements OnInit {
             this.data.forEach((ele: any) => {
               if (ele.deviceIds != null) {
                 ele.deviceIds.forEach((deviceId: string) => {
-                  this.deviceService.GetDevicesInfo(Number(deviceId)).subscribe({
-                    next: (data: Device) => {
-                      if (data.developerExternalId) {
-                        this.developerExternalIds.push({
-                          "id":deviceId,
-                         "name": data.developerExternalId,
-
-                        });
-                      }
-                    },
-                  });
+                  this.deviceService
+                    .GetDevicesInfo(Number(deviceId))
+                    .subscribe({
+                      next: (data: Device) => {
+                        if (data.developerExternalId) {
+                          this.developerExternalIds.push({
+                            id: deviceId,
+                            name: data.developerExternalId,
+                          });
+                        }
+                      },
+                    });
                 });
               } else {
                 ele['numberOfdevices'] = 0;

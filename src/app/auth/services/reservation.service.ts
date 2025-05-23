@@ -32,11 +32,13 @@ export class ReservationService {
     ) {
       searchUrl += `&name=${searchData.name}`;
     }
-    if (!(
-      typeof searchData.deviceExternalId === 'undefined' ||
-      searchData.deviceExternalId === '' ||
-      searchData.deviceExternalId === null
-    )) {
+    if (
+      !(
+        typeof searchData.deviceExternalId === 'undefined' ||
+        searchData.deviceExternalId === '' ||
+        searchData.deviceExternalId === null
+      )
+    ) {
       if (Array.isArray(searchData.deviceExternalId)) {
         searchData.deviceExternalId.forEach((id: any) => {
           searchUrl += `&deviceIds=${id}`;

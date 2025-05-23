@@ -84,7 +84,7 @@ export class CertificateService {
         )
       ) {
         if (Array.isArray(searchData.reservationName)) {
-        searchUrl += `&reservationId=${searchData.reservationName}`;
+          searchUrl += `&reservationId=${searchData.reservationName}`;
         }
       }
       if (

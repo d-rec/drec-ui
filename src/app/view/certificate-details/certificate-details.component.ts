@@ -114,7 +114,7 @@ export class CertificateDetailsComponent {
   oldlog: boolean = false;
   oldcertificatelog: boolean;
   deviceIds: string[] = [];
-  reservationNames: { id: string; name: string; }[];
+  reservationNames: { id: string; name: string }[];
   constructor(
     private blockchainDRECService: BlockchainDrecService,
     private authService: AuthbaseService,
@@ -450,7 +450,6 @@ export class CertificateDetailsComponent {
   }
   // CertificateClaimed:boolean=false;
   DisplayList(page: number) {
-    console.log("formvalues",this.FilterForm.value)
     this.certificateService
       .GetDevoloperCertificateMethod(this.FilterForm.value, page, this.oldlog)
       .subscribe({
@@ -461,7 +460,7 @@ export class CertificateDetailsComponent {
           if (data.certificatelog.length > 0) {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);
             this.deviceIds = [];
-            this.reservationNames=[]
+            this.reservationNames = [];
             this.data.forEach((log: any) => {
               log.perDeviceCertificateLog.forEach((deviceLog: any) => {
                 if (!this.deviceIds.includes(deviceLog.externalId)) {
@@ -469,19 +468,17 @@ export class CertificateDetailsComponent {
                 }
               });
             });
-            this.reservationService
-            .getReservationData(this.FilterForm.value, page)
-            .subscribe((data) => {
-              console.log("dataaaaaaaaa1111111",data)
-              data.groupedData.forEach((item: any) => {
-                // if (!this.reservationNames.includes(item.name)) {
-                // console.log("item",item)
-                  this.reservationNames.push({id:item.devicegroup_uid,name:item.name});
-                // }
-              });
-              console.log("dataaaaaaaaa",this.reservationNames)
 
-            });
+            this.reservationService
+              .getReservationData(this.FilterForm.value, page)
+              .subscribe((data) => {
+                data.groupedData.forEach((item: any) => {
+                  this.reservationNames.push({
+                    id: item.devicegroup_uid,
+                    name: item.name,
+                  });
+                });
+              });
             this.data.forEach((ele: any) => {
               //converting blockchain address to lower case
               if (ele.claims != null && ele.claims.length > 0) {
@@ -556,16 +553,21 @@ export class CertificateDetailsComponent {
       'Generation End Date',
       'Owned Volume',
     ];
-    
+
     const data = this.data.map((item: any) => [
-      this.formatCertificateDate(item.generationStartTime, item.perDeviceCertificateLog[0].timezone),
-      this.formatCertificateDate(item.generationEndTime, item.perDeviceCertificateLog[0].timezone),
+      this.formatCertificateDate(
+        item.generationStartTime,
+        item.perDeviceCertificateLog[0].timezone,
+      ),
+      this.formatCertificateDate(
+        item.generationEndTime,
+        item.perDeviceCertificateLog[0].timezone,
+      ),
       item.owners[Object.keys(item.owners)[0]] || 'N/A',
     ]);
-    if(this.data.length === 0) {
+    if (this.data.length === 0) {
       this.toastrService.warning('No data available to export');
       return;
-
     }
 
     const pdfBlob = await generatePDFBlob('Certificate Data', headers, data);
@@ -580,12 +582,18 @@ export class CertificateDetailsComponent {
       'Owned Volume',
     ];
 
-    const csvBlob = generateCSVContent(headers, this.data, item => {
-      const startDate = this.formatCertificateDate(item.generationStartTime, item.perDeviceCertificateLog[0].timezone);
-      const endDate = this.formatCertificateDate(item.generationEndTime, item.perDeviceCertificateLog[0].timezone);
-      const owners =item.owners[Object.keys(item.owners)[0]] || 'N/A';
+    const csvBlob = generateCSVContent(headers, this.data, (item) => {
+      const startDate = this.formatCertificateDate(
+        item.generationStartTime,
+        item.perDeviceCertificateLog[0].timezone,
+      );
+      const endDate = this.formatCertificateDate(
+        item.generationEndTime,
+        item.perDeviceCertificateLog[0].timezone,
+      );
+      const owners = item.owners[Object.keys(item.owners)[0]] || 'N/A';
       return `"${startDate}","${endDate}","${owners}"`;
-    })
+    });
 
     if (!csvBlob) {
       this.toastrService.warning('No data available to export');
