@@ -32,7 +32,7 @@
   {
     "action": "type",
     "selector": "[test-id='organization-name']",
-    "value": "developer1"
+    "value": "developer2"
   },
   {
     "action": "type",
