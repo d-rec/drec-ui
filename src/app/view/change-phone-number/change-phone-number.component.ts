@@ -59,10 +59,10 @@ export class ChangePhoneNumberComponent {
         next: (response) => {
           this.toastrService.success('Phone number updated successfully');
           console.log('Phone number updated successfully:', response);
+          this.router.navigate(['/verify-otp']);
         },
         error: (error) => {
           this.toastrService.error(error.error.message);
-          this.router.navigate(['/verify-otp']);
         },
       });
     } else {
