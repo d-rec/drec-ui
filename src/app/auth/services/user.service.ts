@@ -38,7 +38,7 @@ export class UserService {
   public userProfile(): Observable<any> {
     return this.httpClient.get<any>(this.url + 'user/me');
   }
-  public updatProfile(data: any): Observable<any> {
+  public updateProfile(data: any): Observable<any> {
     return this.httpClient.put<any>(this.url + 'user/profile', data);
   }
   public updatPassword(data: any): Observable<any> {
