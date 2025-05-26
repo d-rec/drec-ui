@@ -33,6 +33,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { OrganizationType } from 'src/app/utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
 import { validateAndAppendFiles } from '../../../utils/file-upload.helper';
+import { DOCUMENTS_EXTENSIONS } from 'src/app/constants/documents-extensions';
+import { shortenFileName } from 'src/app/utils/file-name-helpers';
 
 type DeviceFiles = {
   productionFacilityRegistration: File[];
@@ -494,37 +496,15 @@ export class AddDevicesComponent {
         'projectPhotos',
       ];
 
-      const allowedExtensions = [
-        'avif',
-        'bmp',
-        'gif',
-        'ico',
-        'jpeg',
-        'jpg',
-        'png',
-        'svg',
-        'tif',
-        'tiff',
-        'webp',
-        'pdf',
-        'doc',
-        'xls',
-        'docx',
-        'xlsx',
-        'pptx',
-        'gsheet',
-        'gdoc',
-        'txt',
-        'csv',
-      ];
+      const allowedExtensions = [...DOCUMENTS_EXTENSIONS];
       const maxSizeInMB = 20;
 
-      let allFilesValid = true;
+      let allErrors: Record<string, string[]> = {};
 
       fileFields.forEach((fileType: FileType) => {
         const files = this.files[index]?.[fileType];
-        if (files && files.length > 0) {
-          const { allFilesValid: valid, needsUpdate } = validateAndAppendFiles(
+        if (files?.length) {
+          const { errors } = validateAndAppendFiles(
             formData,
             files,
             fileType,
@@ -532,25 +512,24 @@ export class AddDevicesComponent {
             maxSizeInMB,
             this.toastrService,
           );
-          allFilesValid = allFilesValid && valid;
 
-          if (needsUpdate) {
-            this.submitButtonText = 'Submit';
-            this.isSubmitting = false;
+          if (Object.keys(errors).length > 0) {
+            allErrors = { ...allErrors, ...errors };
           }
         }
       });
 
-      if (!allFilesValid) {
+      if (Object.keys(allErrors).length > 0) {
         console.error(
           'One or more files are invalid. Request will not be sent.',
+          allErrors,
         );
         this.submitButtonText = 'Submit';
         this.isSubmitting = false;
         return;
       }
 
-      this.deviceService.postdevices(formData).subscribe({
+      this.deviceService.create(formData).subscribe({
         next: () => {
           this.toastrService.success(
             'Added Successfully !!',
@@ -593,22 +572,7 @@ export class AddDevicesComponent {
     });
   }
   shortenFileName(fileName: string, maxLength: number = 20): string {
-    if (!fileName || fileName.length <= maxLength) {
-      return fileName;
-    }
-
-    const extension = fileName.includes('.')
-      ? fileName.slice(fileName.lastIndexOf('.'))
-      : '';
-    const nameWithoutExtension = fileName.slice(0, fileName.lastIndexOf('.'));
-
-    const halfLength = Math.floor((maxLength - 3 - extension.length) / 2);
-    const start = nameWithoutExtension.slice(0, halfLength);
-    const end = nameWithoutExtension.slice(
-      nameWithoutExtension.length - halfLength,
-    );
-
-    return `${start}...${end}${extension}`;
+    return shortenFileName(fileName, maxLength);
   }
   openPopupDialog() {
     this.dialogRef = this.dialog.open(this.popupDialog, {
