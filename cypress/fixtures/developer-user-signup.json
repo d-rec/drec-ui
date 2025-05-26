@@ -32,7 +32,7 @@
   {
     "action": "type",
     "selector": "[test-id='organization-name']",
-    "value": "developer1"
+    "value": "developer2"
   },
   {
     "action": "type",
@@ -85,5 +85,19 @@
   {
     "action": "click",
     "selector": "[test-id='submit-registration']"
+  },
+  {
+    "action": "verify-email"
+  },
+  {
+    "action": "verify-phone"
+  },
+  {
+    "action": "browse-documents",
+    "selector": "[test-id='browse-documents']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='submit-all-documents']"
   }
 ]

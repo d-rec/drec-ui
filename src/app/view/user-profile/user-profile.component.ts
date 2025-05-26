@@ -139,7 +139,9 @@ export class UserProfileComponent {
     return validation;
   }
   onUpdate() {
-    this.userService.updatProfile(this.updateForm.value).subscribe({
+    const updateData = { ...this.updateForm.value };
+    delete updateData.email;
+    this.userService.updateProfile(updateData).subscribe({
       next: (data) => {
         this.toastrService.success(
           data.firstName + ' User Updated',

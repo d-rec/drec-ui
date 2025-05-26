@@ -2,7 +2,9 @@
   class="resend-email d-flex align-self-center align-items-center flex-column h-100vh fixed-top justify-content-center"
 >
   <div class="w-45">
-    <mat-card-header class="text-center d-flex justify-content-center flex-column mb-4">
+    <mat-card-header
+      class="text-center d-flex justify-content-center flex-column mb-4"
+    >
       <h2 class="pb-0 mb-0 fw-bold">Email-Verification</h2>
     </mat-card-header>
 
@@ -16,6 +18,7 @@
         <button
           (click)="resendConfirmationEmail()"
           class="btn-primary btn btn-block w-25"
+          test-id="resend-confirmation-email"
         >
           Resend email
         </button>
