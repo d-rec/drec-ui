@@ -33,8 +33,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { OrganizationType } from 'src/app/utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
 import { validateAndAppendFiles } from '../../../utils/file-upload.helper';
-import { DOCUMENTS_EXTENSIONS } from 'src/app/constants/documents-extensions';
-import { shortenFileName } from 'src/app/utils/file-name-helpers';
+import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
+import { shortenFileName } from '../../../utils/file-name-helpers';
 
 type DeviceFiles = {
   productionFacilityRegistration: File[];
