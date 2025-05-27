@@ -64,6 +64,10 @@
     "option": "[test-id='SDGBenefits-option']"
   },
   {
+    "action": "upload",
+    "selector": "[test-id='attach-file']"
+  },
+  {
     "action": "click",
     "selector": "[test-id='submit-device']"
   },
