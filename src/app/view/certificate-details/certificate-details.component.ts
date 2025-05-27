@@ -23,7 +23,7 @@ import {
 } from '../../auth/services';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { Observable, Subscription, debounceTime } from 'rxjs';
+import { Observable, Subscription, debounceTime, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { DeviceDetailsComponent } from '../device/device-details/device-details.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -85,6 +85,7 @@ export class CertificateDetailsComponent {
   totalPages: number;
   p: number = 1;
   FilterForm: FormGroup;
+  reservationList: Observable<any[]>;
   offtaker = [
     'School',
     'Education',
@@ -145,6 +146,7 @@ export class CertificateDetailsComponent {
       end_date: [null],
       deviceIds: [],
       reservationName: [],
+      reservationId: [],
       fromAmountread: [null],
       toAmountread: [null],
       // pagenumber: [this.p]
@@ -190,13 +192,36 @@ export class CertificateDetailsComponent {
     }, 1500);
     this.getBlockchainProperties();
     this.selectAccountAddressFromMetamask();
+    this.loadReservations();
   }
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
   }
+  loadReservations(): void {
+    this.reservationService
+      .getReservationData(this.FilterForm.value, this.p)
+      .subscribe((data) => {
+        this.reservationNames = data.groupedData.map((item: any) => ({
+          id: item.devicegroup_uid,
+          name: item.name,
+        }));
+        this.reservationList = of(this.reservationNames);
+      });
+  }
+  selectReservation(event: any): void {
+    const selectedReservationName = this.reservationNames.find(
+      (reservation) => reservation.id === event.option.value,
+    )?.name;
 
+    this.FilterForm.patchValue({ reservationId: event.option.value });
+    if (
+      this.FilterForm.get('reservationName')?.value !== selectedReservationName
+    ) {
+      this.FilterForm.patchValue({ reservationName: selectedReservationName });
+    }
+  }
   showorglist(event: any) {
     this.orgService.GetApiUserAllOrganization().subscribe((data) => {
       if (event === 'Developer') {
@@ -365,10 +390,7 @@ export class CertificateDetailsComponent {
           ) {
             this.FilterForm.controls['deviceIds'].setValue(null);
           }
-          if (
-            Array.isArray(formValues.reservationName) &&
-            formValues.reservationName[0] === undefined
-          ) {
+          if (formValues.reservationName[0] === undefined) {
             this.FilterForm.controls['reservationName'].setValue(null);
           }
           // Other code...
@@ -466,15 +488,22 @@ export class CertificateDetailsComponent {
                 }
               });
             });
-
             this.reservationService
               .getReservationData(this.FilterForm.value, page)
               .subscribe((data) => {
                 data.groupedData.forEach((item: any) => {
-                  this.reservationNames.push({
-                    id: item.devicegroup_uid,
-                    name: item.name,
-                  });
+                  const exists = this.reservationNames.some(
+                    (reservation) =>
+                      reservation.id === item.devicegroup_uid &&
+                      reservation.name === item.name,
+                  );
+
+                  if (!exists) {
+                    this.reservationNames.push({
+                      id: item.devicegroup_uid,
+                      name: item.name,
+                    });
+                  }
                 });
               });
             this.data.forEach((ele: any) => {

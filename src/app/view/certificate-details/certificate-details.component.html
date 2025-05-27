@@ -248,29 +248,33 @@
                   </mat-select>
                 </mat-form-field>
               </div>
-              <div class="col-md-4 h6-margin-remove">
-                <h6>Reservation Name:</h6>
-                <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">
-                    enter Reservation Name</mat-label
-                  >
-                  <mat-select
-                    formControlName="reservationName"
-                    (ngModelChange)="checkFormValidity()"
-                    multiple
-                  >
-                    <mat-option [value]="" test-id="dropdown-no-selection"
-                      >---</mat-option
+   
+                <!-- ... existing code ... -->
+                <div class="col-md-4 h6-margin-remove">
+                  <h6>Reservation Name:</h6>
+                  <mat-form-field appearance="outline">
+                    <mat-label class="text-capitalize">Enter Reservation Name</mat-label>
+                    <input
+                      type="text"
+                      matInput
+                      formControlName="reservationName"
+                      (ngModelChange)="checkFormValidity()"
+                      [matAutocomplete]="autoReservation"
+                    />
+                    <mat-autocomplete
+                      #autoReservation="matAutocomplete"
+                      (optionSelected)="selectReservation($event)"
                     >
-                    <mat-option
-                      *ngFor="let reservationName of reservationNames"
-                      [value]="reservationName.id"
-                    >
-                      {{ reservationName.name }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
+                      <mat-option [value]="">---</mat-option>
+                      <mat-option
+                        *ngFor="let reservation of reservationList | async"
+                        [value]="reservation.id"
+                      >
+                        {{ reservation.name }}
+                      </mat-option>
+                    </mat-autocomplete>
+                  </mat-form-field>
+                </div>
               <!-- 				
 							<div class="col-md-4  h6-margin-remove">
 								<h6>Select Read Volume(Wh): </h6>

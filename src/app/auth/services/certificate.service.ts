@@ -78,14 +78,12 @@ export class CertificateService {
       }
       if (
         !(
-          searchData.reservationName === undefined ||
-          searchData.reservationName === '' ||
-          searchData.reservationName === null
+          searchData.reservationId === undefined ||
+          searchData.reservationId === '' ||
+          searchData.reservationId === null
         )
       ) {
-        if (Array.isArray(searchData.reservationName)) {
-          searchUrl += `&reservationId=${searchData.reservationName}`;
-        }
+        searchUrl += `&reservationId=${searchData.reservationId}`;
       }
       if (
         !(
