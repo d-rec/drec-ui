@@ -59,4 +59,10 @@ export class UserService {
       {},
     );
   }
+
+  public updatePhoneNumber(phoneNumber: string): Observable<any> {
+    return this.httpClient.patch<any>(this.url + 'user/update-phone-number', {
+      phoneNumber,
+    });
+  }
 }

@@ -29,6 +29,7 @@ import { TermsVerificationGuard } from './guards/verification/terms-verified.gua
 import { PhoneVerificationGuard } from './guards/verification/phone-verification.guard';
 import { OrganizationDocumentsGuard } from './guards/verification/organization-documents-verified.guard';
 import { DownloadApiKeyComponent } from './view/download-api-key/download-api-key.component';
+import { ChangePhoneNumberComponent } from './view/change-phone-number/change-phone-number.component';
 
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
@@ -94,6 +95,11 @@ const routes: Routes = [
         path: 'organization/upload/verification-documents',
         component: DocumentsUploadComponent,
         canActivate: [OrganizationDocumentsGuard],
+      },
+      {
+        path: 'change-phone-number',
+        component: ChangePhoneNumberComponent,
+        canActivate: [PhoneVerificationGuard],
       },
       {
         path: 'download-api-key',
