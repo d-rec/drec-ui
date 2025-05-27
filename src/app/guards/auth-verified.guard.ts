@@ -36,6 +36,10 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
         ]);
       }
 
+      if (!user.organization.emailConfirmed) {
+        return router.createUrlTree(['/download-api-key']);
+      }
+
       return true;
     }),
   );

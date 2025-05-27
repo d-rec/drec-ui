@@ -28,6 +28,7 @@ import { EmailVerificationGuard } from './guards/verification/email-verified.gua
 import { TermsVerificationGuard } from './guards/verification/terms-verified.guard';
 import { PhoneVerificationGuard } from './guards/verification/phone-verification.guard';
 import { OrganizationDocumentsGuard } from './guards/verification/organization-documents-verified.guard';
+import { DownloadApiKeyComponent } from './view/download-api-key/download-api-key.component';
 
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
@@ -93,6 +94,10 @@ const routes: Routes = [
         path: 'organization/upload/verification-documents',
         component: DocumentsUploadComponent,
         canActivate: [OrganizationDocumentsGuard],
+      },
+      {
+        path: 'download-api-key',
+        component: DownloadApiKeyComponent,
       },
     ],
   },
