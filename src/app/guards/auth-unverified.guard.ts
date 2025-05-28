@@ -9,8 +9,7 @@ const isVerified = (user: any) => {
     user.termsAcceptedAt &&
     user.emailVerifiedAt &&
     user.phoneNumberVerifiedAt &&
-    user.organization.verifiedAt &&
-    user.emailConfirmed
+    user.organization.verifiedAt
   );
 };
 

@@ -3,7 +3,6 @@ import { AuthGuard } from './auth.guard';
 import { UserService } from '../auth/services/user.service';
 import { inject } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { OrganizationType } from '../utils/enums/organization-types.enum';
 
 export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
   const userService = inject(UserService);
@@ -35,12 +34,6 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
         return router.createUrlTree([
           '/organization/upload/verification-documents',
         ]);
-      }
-
-      if (user.organization.organizationType === OrganizationType.ApiUser) {
-        if (!user.emailConfirmed) {
-          return router.createUrlTree(['/download-api-key']);
-        }
       }
 
       return true;
