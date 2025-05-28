@@ -271,12 +271,13 @@
                   </div>
                 </div>
 
-               <div class="row">
-          <h3 class="d-flex mb-3 justify-content-center mat-crd-hide align-items-center fw-bold" > Device documents</h3>
+                <div class="row">
+                  <h3 class="d-flex mb-3 justify-content-center mat-crd-hide align-items-center fw-bold">Device documents</h3>
+                  
                   <div class="col-md-4 mb-3">
-                    <label >Production Facility Registration</label>
+                    <label>Production Facility Registration</label>
                     <div class="d-flex justify-content-between align-items-center">
-                      <input type="file" #pfFileInput (change)="onFileChange($event, i, 'productionFacilityRegistration')" style="display: none;" required/>
+                      <input type="file" #pfFileInput (change)="onFileChange($event, i, DocumentType.PRODUCTION_FACILITY_REGISTRATION)" style="display: none;" required/>
                       <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
@@ -285,79 +286,66 @@
                           shortenFileName(deviceForms.at(i).get('productionFacilityRegistration')?.value.name) : 
                           'No file chosen' }}
                       </span>
-                      <span
-                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
-                      >Required</span>
+                      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
                     </div>
                   </div>
                 
-                 
                   <div class="col-md-4 mb-3">
-                    <label >Ownership Proof</label>
+                    <label>Ownership Proof</label>
                     <div class="d-flex justify-content-between align-items-center">
-                      <input type="file" #ownershipFileInput (change)="onFileChange($event, i, 'ownershipProof')" style="display: none" />
+                      <input type="file" #ownershipFileInput (change)="onFileChange($event, i, DocumentType.OWNERSHIP_PROOF)" style="display: none" />
                       <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" >
+                      <span class="file-name">
                         {{ deviceForms.at(i).get('ownershipProof')?.value ? shortenFileName(deviceForms.at(i).get('ownershipProof')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span
-                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
-                      >Required</span>
+                      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
                     </div>
                   </div>
                 
-              
                   <div class="col-md-4 mb-3">
-                    <label >Metering Evidence</label>
+                    <label>Metering Evidence</label>
                     <div class="d-flex justify-content-between align-items-center">
-                      <input type="file" #meteringFileInput (change)="onFileChange($event, i, 'meteringEvidence')" style="display: none" />
+                      <input type="file" #meteringFileInput (change)="onFileChange($event, i, DocumentType.METERING_EVIDENCE)" style="display: none" />
                       <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon> 
                       </button>
-                      <span class="file-name" >
+                      <span class="file-name">
                         {{ deviceForms.at(i).get('meteringEvidence')?.value ? shortenFileName(deviceForms.at(i).get('meteringEvidence')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span
-                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
-                      >Required</span>
+                      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
                     </div>
                   </div>
                 
                   <div class="col-md-4 mb-3">
                     <label>Single Line Diagram</label>
                     <div class="d-flex justify-content-between align-items-center">
-                      <input type="file" #diagramFileInput (change)="onFileChange($event, i, 'singleLineDiagram')" style="display: none" />
+                      <input type="file" #diagramFileInput (change)="onFileChange($event, i, DocumentType.SINGLE_LINE_DIAGRAM)" style="display: none" />
                       <button type="button" (click)="diagramFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon> 
                       </button>
-                      <span class="file-name" >
+                      <span class="file-name">
                         {{ deviceForms.at(i).get('singleLineDiagram')?.value ? shortenFileName(deviceForms.at(i).get('singleLineDiagram')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span
-                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
-                      >Required</span>
+                      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
                     </div>
                   </div>
                 
-                 
                   <div class="col-md-4 mb-3">
                     <label>Project Photos</label>
                     <div class="d-flex justify-content-between align-items-center">
-                      <input type="file" #photosFileInput (change)="onFileChange($event, i, 'projectPhotos')" style="display: none" />
-                      <button type="button" (click)="photosFileInput.click()"class="btn btn-primary">
+                      <input type="file" #photosFileInput (change)="onFileChange($event, i, DocumentType.PROJECT_PHOTOS)" style="display: none" />
+                      <button type="button" (click)="photosFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" >
+                      <span class="file-name">
                         {{ deviceForms.at(i).get('projectPhotos')?.value ? shortenFileName(deviceForms.at(i).get('projectPhotos')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span
-                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2"
-                      >Required</span>
+                      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
                     </div>
                   </div>
-                </div> 
+                </div>
                 
               </mat-card-content>
               <!-- <mat-card-footer></mat-card-footer> -->

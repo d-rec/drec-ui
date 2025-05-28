@@ -48,3 +48,15 @@ export enum OrganizationStatus {
   Denied = 'Denied',
   Active = 'Active',
 }
+
+export enum DocumentType {
+  PRODUCTION_FACILITY_REGISTRATION = 'productionFacilityRegistration',
+  OWNERSHIP_PROOF = 'ownershipProof',
+  METERING_EVIDENCE = 'meteringEvidence',
+  SINGLE_LINE_DIAGRAM = 'singleLineDiagram',
+  PROJECT_PHOTOS = 'projectPhotos',
+  INCORPORATION_CERTIFICATE = 'incorporationCertificate',
+  LEGAL_REPRESENTATIVE_PASSPORT = 'legalRepresentativePassport',
+  ADDRESS_PROOF = 'addressProof',
+  OWNERS_DECLARATION = 'ownersDeclaration',
+}

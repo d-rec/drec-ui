@@ -32,19 +32,20 @@ import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganizationType } from 'src/app/utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
-import { validateAndAppendFiles } from '../../../utils/file-upload.helper';
+import {
+  validateAndAppendFiles,
+  shortenFileName,
+} from '../../../utils/file-upload.helper';
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
-import { shortenFileName } from '../../../utils/file-name-helpers';
+import { DocumentType } from '../../../utils/drec.enum';
 
-type DeviceFiles = {
-  productionFacilityRegistration: File[];
-  ownershipProof: File[];
-  meteringEvidence: File[];
-  singleLineDiagram: File[];
-  projectPhotos: File[];
+export type DeviceFiles = {
+  [DocumentType.PRODUCTION_FACILITY_REGISTRATION]: File[];
+  [DocumentType.OWNERSHIP_PROOF]: File[];
+  [DocumentType.METERING_EVIDENCE]: File[];
+  [DocumentType.SINGLE_LINE_DIAGRAM]: File[];
+  [DocumentType.PROJECT_PHOTOS]: File[];
 };
-
-// Define the FileType as a union of the keys of DeviceFiles
 type FileType = keyof DeviceFiles;
 @Component({
   selector: 'app-add-devices',
@@ -53,6 +54,7 @@ type FileType = keyof DeviceFiles;
 })
 export class AddDevicesComponent {
   @ViewChild('popupDialog') popupDialog = {} as TemplateRef<any>;
+  DocumentType = DocumentType;
   dialogRef: any;
   user: any;
   myform: FormGroup;
@@ -111,11 +113,11 @@ export class AddDevicesComponent {
   isSubmitting: boolean = false;
   submitButtonText: string = 'Submit';
   requiredFileTypes: FileType[] = [
-    'productionFacilityRegistration',
-    'ownershipProof',
-    'meteringEvidence',
-    'singleLineDiagram',
-    'projectPhotos',
+    DocumentType.PRODUCTION_FACILITY_REGISTRATION,
+    DocumentType.OWNERSHIP_PROOF,
+    DocumentType.METERING_EVIDENCE,
+    DocumentType.SINGLE_LINE_DIAGRAM,
+    DocumentType.PROJECT_PHOTOS,
   ];
   @ViewChild(MapComponent) mapComponent: MapComponent;
   @Output() zoom = new EventEmitter<number>();
@@ -405,36 +407,21 @@ export class AddDevicesComponent {
   checkDocumentsUploaded() {
     if (Object.keys(this.files).length === 0) {
       this.allDocumentsUploaded = false;
+      this.formValid = false;
       return;
     }
-    this.allDocumentsUploaded = this.deviceForms.controls.every(
+
+    const allDocsUploaded = this.deviceForms.controls.every(
       (_, deviceIndex) => {
         if (!this.files[deviceIndex]) return false;
-
         return this.requiredFileTypes.every(
-          (fileType) =>
-            this.files[deviceIndex][fileType] &&
-            this.files[deviceIndex][fileType].length > 0,
+          (fileType) => this.files[deviceIndex][fileType]?.length > 0,
         );
       },
     );
 
-    this.checkFormValidity();
-  }
-  checkFormValidity() {
-    const formValid = this.myform.valid;
-
-    const docsValid = this.deviceForms.controls.every((_, deviceIndex) => {
-      if (!this.files[deviceIndex]) return false;
-
-      return this.requiredFileTypes.every(
-        (fileType) =>
-          this.files[deviceIndex][fileType] &&
-          this.files[deviceIndex][fileType].length > 0,
-      );
-    });
-
-    this.formValid = formValid && docsValid;
+    this.allDocumentsUploaded = allDocsUploaded;
+    this.formValid = this.myform.valid && allDocsUploaded;
   }
   onFileChange(event: Event, deviceIndex: number, fileType: FileType) {
     const input = event.target as HTMLInputElement;
@@ -443,13 +430,13 @@ export class AddDevicesComponent {
     const files: FileList = input.files;
 
     if (!this.files[deviceIndex]) {
-      this.files[deviceIndex] = {
-        productionFacilityRegistration: [],
-        ownershipProof: [],
-        meteringEvidence: [],
-        singleLineDiagram: [],
-        projectPhotos: [],
-      };
+      this.files[deviceIndex] = this.requiredFileTypes.reduce(
+        (acc, docType) => {
+          acc[docType] = [];
+          return acc;
+        },
+        {} as DeviceFiles,
+      );
     }
 
     this.files[deviceIndex][fileType] = Array.from(files);
@@ -489,11 +476,11 @@ export class AddDevicesComponent {
       }
 
       const fileFields: FileType[] = [
-        'productionFacilityRegistration',
-        'ownershipProof',
-        'meteringEvidence',
-        'singleLineDiagram',
-        'projectPhotos',
+        DocumentType.PRODUCTION_FACILITY_REGISTRATION,
+        DocumentType.OWNERSHIP_PROOF,
+        DocumentType.METERING_EVIDENCE,
+        DocumentType.SINGLE_LINE_DIAGRAM,
+        DocumentType.PROJECT_PHOTOS,
       ];
 
       const allowedExtensions = [...DOCUMENTS_EXTENSIONS];
