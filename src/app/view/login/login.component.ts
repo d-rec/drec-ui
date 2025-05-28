@@ -5,7 +5,6 @@ import { UserService, InvitationService } from '../../auth/services';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { decodeJwtToken, storeUserSession } from '../../utils/token-utils';
-import { OrganizationType } from 'src/app/utils/drec.enum';
 
 @Component({
   selector: 'app-login',
@@ -88,12 +87,7 @@ export class LoginComponent implements OnInit {
    * Navigate user to appropriate page based on their type
    */
   private navigateBasedOnUserType(userData: any, jwtObj: any): void {
-    if (userData.organization.organizationType === OrganizationType.ApiUser) {
-      this.router.navigate(['/apiuser/permission/request/form']);
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
-
+    this.router.navigate(['/dashboard']);
     this.toastrService.success(
       'Login user ' + jwtObj.email + '!',
       'Login Success',
