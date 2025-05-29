@@ -11,7 +11,7 @@ Cypress.Commands.add('addDevice', function () {
         case 'click':
           return cy
             .get(step.selector)
-            .click('center', { force: true })
+            .click({ multiple: true, force: true })
             .wait(1000);
 
         case 'type':
@@ -44,6 +44,16 @@ Cypress.Commands.add('addDevice', function () {
               .click()
               .wait(1000);
           }
+
+        case 'upload':
+          return cy
+            .get(step.selector)
+            .should('exist')
+            .each(($input) => {
+              cy.wrap($input).attachFile('files/meter_reads_2025-05-14.pdf', {
+                force: true,
+              });
+            });
 
         case 'agree':
           cy.get(step.selector).click('center', { force: true });
