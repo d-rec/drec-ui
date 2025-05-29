@@ -40,8 +40,8 @@ import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
 import { DocumentType } from '../../../utils/drec.enum';
 
 export type DeviceFiles = {
-  [DocumentType.PRODUCTION_FACILITY_REGISTRATION]: File[];
-  [DocumentType.OWNERSHIP_PROOF]: File[];
+  [DocumentType.FORM_SF_02]: File[];
+  [DocumentType.SF_02C]: File[];
   [DocumentType.METERING_EVIDENCE]: File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: File[];
   [DocumentType.PROJECT_PHOTOS]: File[];
@@ -113,8 +113,8 @@ export class AddDevicesComponent {
   isSubmitting: boolean = false;
   submitButtonText: string = 'Submit';
   requiredFileTypes: FileType[] = [
-    DocumentType.PRODUCTION_FACILITY_REGISTRATION,
-    DocumentType.OWNERSHIP_PROOF,
+    DocumentType.FORM_SF_02,
+    DocumentType.SF_02C,
     DocumentType.METERING_EVIDENCE,
     DocumentType.SINGLE_LINE_DIAGRAM,
     DocumentType.PROJECT_PHOTOS,
@@ -248,11 +248,11 @@ export class AddDevicesComponent {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
-      productionFacilityRegistration: [null, [Validators.required]],
-      ownershipProof: [null, [Validators.required]],
-      meteringEvidence: [null, [Validators.required]],
-      singleLineDiagram: [null, [Validators.required]],
-      projectPhotos: [null, [Validators.required]],
+      FORM_SF_02: [null, [Validators.required]],
+      SF_02C: [null, [Validators.required]],
+      METERING_EVIDENCE: [null, [Validators.required]],
+      SINGLE_LINE_DIAGRAM: [null, [Validators.required]],
+      PROJECT_PHOTOS: [null, [Validators.required]],
     });
 
     device.get('latitude')?.valueChanges.subscribe((latitude) => {
@@ -345,11 +345,6 @@ export class AddDevicesComponent {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
-      productionFacilityRegistration: [null, [Validators.required]],
-      ownershipProof: [null, [Validators.required]],
-      meteringEvidence: [null, [Validators.required]],
-      singleLineDiagram: [null, [Validators.required]],
-      projectPhotos: [null, [Validators.required]],
     });
     this.deviceForms.push(device);
     this.showaddmore[this.deviceForms.length - 1] = true;
@@ -476,8 +471,8 @@ export class AddDevicesComponent {
       }
 
       const fileFields: FileType[] = [
-        DocumentType.PRODUCTION_FACILITY_REGISTRATION,
-        DocumentType.OWNERSHIP_PROOF,
+        DocumentType.FORM_SF_02,
+        DocumentType.SF_02C,
         DocumentType.METERING_EVIDENCE,
         DocumentType.SINGLE_LINE_DIAGRAM,
         DocumentType.PROJECT_PHOTOS,

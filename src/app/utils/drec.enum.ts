@@ -50,13 +50,13 @@ export enum OrganizationStatus {
 }
 
 export enum DocumentType {
-  PRODUCTION_FACILITY_REGISTRATION = 'productionFacilityRegistration',
-  OWNERSHIP_PROOF = 'ownershipProof',
-  METERING_EVIDENCE = 'meteringEvidence',
-  SINGLE_LINE_DIAGRAM = 'singleLineDiagram',
-  PROJECT_PHOTOS = 'projectPhotos',
-  INCORPORATION_CERTIFICATE = 'incorporationCertificate',
-  LEGAL_REPRESENTATIVE_PASSPORT = 'legalRepresentativePassport',
-  ADDRESS_PROOF = 'addressProof',
-  OWNERS_DECLARATION = 'ownersDeclaration',
+  INCORPORATION_CERTIFICATE = 'INCORPORATION_CERTIFICATE',
+  LEGAL_REPRESENTATIVE_PASSPORT = 'LEGAL_REPRESENTATIVE_PASSPORT',
+  ADDRESS_PROOF = 'ADDRESS_PROOF',
+  OWNERS_DECLARATION = 'OWNERS_DECLARATION ',
+  FORM_SF_02 = 'FORM_SF_02', //Form SF-02 - Production Facility Registration
+  SF_02C = 'SF_02C', //SF-02C Owner's Declaration or Proof of Ownership
+  METERING_EVIDENCE = 'METERING_EVIDENCE', //Metering Evidence
+  SINGLE_LINE_DIAGRAM = 'SINGLE_LINE_DIAGRAM', //Single Line Diagram
+  PROJECT_PHOTOS = 'PROJECT_PHOTOS', //Project Photos
 }
