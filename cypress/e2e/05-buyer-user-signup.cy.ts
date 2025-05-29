@@ -1,6 +1,7 @@
 describe('Sign Up Test', () => {
   beforeEach(() => {
     cy.wait(5000);
+    cy.task('resetDbAndSeedUsers');
   });
   it('should sign up a new buyer user', () => {
     cy.buyerUserSignup().wait(1000);

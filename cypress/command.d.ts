@@ -22,6 +22,5 @@ declare namespace Cypress {
     meterReadBulkUpload(filename: string): Chainable<void>;
     certifiedMeterRead(): Chainable<void>;
     inviteUser(): Chainable<void>;
-    loginViaAPI(username: string, password: string): Chainable<void>;
   }
 }

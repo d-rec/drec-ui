@@ -19,4 +19,3 @@ import '../support/commands/device-bulk-upload';
 import '../support/commands/meter-read-bulk-upload';
 import '../support/commands/certified-meter-read';
 import '../support/commands/invite-user';
-import '../support/commands/login-via-api';

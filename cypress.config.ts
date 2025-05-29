@@ -1,5 +1,7 @@
 // cypress.config.ts
 import { defineConfig } from 'cypress';
+import { execSync } from 'child_process'; // Import execSync
+
 export default defineConfig({
   e2e: {
     experimentalRunAllSpecs: true,
@@ -7,12 +9,29 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       on('before:spec', (spec) => {
         console.log(`Running before spec: ${spec.fileName}`);
-        // Example: Run a shell script to reset your database
-        // Make sure your backend has a script for this (e.g., `npm run db:reset`)
-        execSync('npm run db:reset');
-        console.log('Database reset for new spec.');
+        try {
+          execSync('npm run db:reset');
+          console.log('Database reset for new spec.');
+        } catch (error) {
+          console.error('Failed to reset database before spec:', error);
+        }
       });
-      // ... other tasks
+
+      on('task', {
+        async resetDbAndSeedUsers() {
+          console.log('Executing resetDbAndSeedUsers task...');
+          try {
+            execSync('npm run db:reset-and-seed');
+            console.log('Database reset and seeded via task.');
+            return null;
+          } catch (error) {
+            console.error('Failed to reset and seed database via task:', error);
+            throw new Error('Database reset and seed task failed.');
+          }
+        },
+      });
+
+      return config;
     },
   },
   env: {
@@ -22,6 +41,3 @@ export default defineConfig({
     UI_BASE_URL: 'http://localhost:4200',
   },
 });
-function execSync(arg0: string) {
-  throw new Error('Function not implemented.');
-}
