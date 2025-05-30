@@ -13,12 +13,12 @@
   {
     "action": "type",
     "selector": "[test-id='email']",
-    "value": "developer3@energy.org"
+    "value": "developer7@energy.org"
   },
   {
     "action": "type",
     "selector": "[test-id='phone-number']",
-    "value": "+91 22 1305 5608"
+    "value": "+91 22 1305 5708"
   },
   {
     "action": "click",
@@ -32,7 +32,7 @@
   {
     "action": "type",
     "selector": "[test-id='organization-name']",
-    "value": "developer3"
+    "value": "developer7"
   },
   {
     "action": "type",
