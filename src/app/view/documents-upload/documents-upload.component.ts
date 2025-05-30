@@ -3,13 +3,15 @@ import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { OrganizationService } from '../../auth/services/organization.service';
 import { AuthbaseService } from '../../auth/authbase.service';
+import { DocumentType } from '.././../utils/drec.enum';
+
 export interface DocumentUpload {
   title: string;
   required: boolean;
   file?: File;
   isUploaded?: boolean;
   targetType: DocumentUploadTargetType;
-  documentType: DocumentUploadDocumentType;
+  documentType: DocumentType;
   targetId: number;
 }
 
@@ -17,13 +19,6 @@ export enum DocumentUploadTargetType {
   ORGANIZATION = 'organization',
   DEVICE = 'device',
   USER = 'user',
-}
-
-export enum DocumentUploadDocumentType {
-  INCORPORATION_CERTIFICATE = 'incorporationCertificate',
-  LEGAL_REPRESENTATIVE_PASSPORT = 'legalRepresentativePassport',
-  ADDRESS_PROOF = 'addressProof',
-  OWNERS_DECLARATION = 'ownersDeclaration',
 }
 
 @Component({
@@ -46,7 +41,7 @@ export class DocumentsUploadComponent {
       file: undefined,
       isUploaded: false,
       targetType: DocumentUploadTargetType.ORGANIZATION,
-      documentType: DocumentUploadDocumentType.INCORPORATION_CERTIFICATE,
+      documentType: DocumentType.INCORPORATION_CERTIFICATE,
       targetId: 1,
     },
     {
@@ -55,7 +50,7 @@ export class DocumentsUploadComponent {
       file: undefined,
       isUploaded: false,
       targetType: DocumentUploadTargetType.ORGANIZATION,
-      documentType: DocumentUploadDocumentType.LEGAL_REPRESENTATIVE_PASSPORT,
+      documentType: DocumentType.LEGAL_REPRESENTATIVE_PASSPORT,
       targetId: 1,
     },
     {
@@ -65,7 +60,7 @@ export class DocumentsUploadComponent {
       file: undefined,
       isUploaded: false,
       targetType: DocumentUploadTargetType.ORGANIZATION,
-      documentType: DocumentUploadDocumentType.ADDRESS_PROOF,
+      documentType: DocumentType.ADDRESS_PROOF,
       targetId: 1,
     },
     {
@@ -74,7 +69,7 @@ export class DocumentsUploadComponent {
       file: undefined,
       isUploaded: false,
       targetType: DocumentUploadTargetType.ORGANIZATION,
-      documentType: DocumentUploadDocumentType.OWNERS_DECLARATION,
+      documentType: DocumentType.OWNERS_DECLARATION,
       targetId: 1,
     },
   ];
