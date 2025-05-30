@@ -32,7 +32,21 @@ import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganizationType } from 'src/app/utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
+import {
+  validateAndAppendFiles,
+  shortenFileName,
+} from '../../../utils/file-upload.helper';
+import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
+import { DocumentType } from '../../../utils/drec.enum';
 
+export type DeviceFiles = {
+  [DocumentType.FORM_SF_02]: File[];
+  [DocumentType.SF_02C]: File[];
+  [DocumentType.METERING_EVIDENCE]: File[];
+  [DocumentType.SINGLE_LINE_DIAGRAM]: File[];
+  [DocumentType.PROJECT_PHOTOS]: File[];
+};
+type FileType = keyof DeviceFiles;
 @Component({
   selector: 'app-add-devices',
   templateUrl: './add-devices.component.html',
@@ -40,6 +54,7 @@ import { MapComponent } from '../../map/map.component';
 })
 export class AddDevicesComponent {
   @ViewChild('popupDialog') popupDialog = {} as TemplateRef<any>;
+  DocumentType = DocumentType;
   dialogRef: any;
   user: any;
   myform: FormGroup;
@@ -89,6 +104,20 @@ export class AddDevicesComponent {
     'Mini Grid',
     'Rooftop Solar',
     'Ground Mount Solar',
+  ];
+  files: {
+    [index: number]: DeviceFiles;
+  } = {};
+  allDocumentsUploaded: boolean = false;
+  formValid: boolean = false;
+  isSubmitting: boolean = false;
+  submitButtonText: string = 'Submit';
+  requiredFileTypes: FileType[] = [
+    DocumentType.FORM_SF_02,
+    DocumentType.SF_02C,
+    DocumentType.METERING_EVIDENCE,
+    DocumentType.SINGLE_LINE_DIAGRAM,
+    DocumentType.PROJECT_PHOTOS,
   ];
   @ViewChild(MapComponent) mapComponent: MapComponent;
   @Output() zoom = new EventEmitter<number>();
@@ -219,6 +248,11 @@ export class AddDevicesComponent {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
+      FORM_SF_02: [null, [Validators.required]],
+      SF_02C: [null, [Validators.required]],
+      METERING_EVIDENCE: [null, [Validators.required]],
+      SINGLE_LINE_DIAGRAM: [null, [Validators.required]],
+      PROJECT_PHOTOS: [null, [Validators.required]],
     });
 
     device.get('latitude')?.valueChanges.subscribe((latitude) => {
@@ -362,20 +396,66 @@ export class AddDevicesComponent {
   deleteDevice(i: number) {
     this.deviceForms.removeAt(i);
   }
-
   getCountryCodeControl(index: number): FormControl {
     return this.deviceForms.at(index).get('countryCodename') as FormControl;
+  }
+  checkDocumentsUploaded() {
+    if (Object.keys(this.files).length === 0) {
+      this.allDocumentsUploaded = false;
+      this.formValid = false;
+      return;
+    }
+
+    const allDocsUploaded = this.deviceForms.controls.every(
+      (_, deviceIndex) => {
+        if (!this.files[deviceIndex]) return false;
+        return this.requiredFileTypes.every(
+          (fileType) => this.files[deviceIndex][fileType]?.length > 0,
+        );
+      },
+    );
+
+    this.allDocumentsUploaded = allDocsUploaded;
+    this.formValid = this.myform.valid && allDocsUploaded;
+  }
+  onFileChange(event: Event, deviceIndex: number, fileType: FileType) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const files: FileList = input.files;
+
+    if (!this.files[deviceIndex]) {
+      this.files[deviceIndex] = this.requiredFileTypes.reduce(
+        (acc, docType) => {
+          acc[docType] = [];
+          return acc;
+        },
+        {} as DeviceFiles,
+      );
+    }
+
+    this.files[deviceIndex][fileType] = Array.from(files);
+
+    const fileControl = this.deviceForms.at(deviceIndex).get(fileType);
+    if (fileControl) {
+      fileControl.setValue(input.files[0]);
+      fileControl.markAsDirty();
+    }
+    this.checkDocumentsUploaded();
   }
 
   onSubmit() {
     if (this.myform.valid) {
       this.openPopupDialog();
+      this.isSubmitting = true;
     }
   }
 
   submitForm() {
     const deviceArray = this.myform.value.devices;
-    deviceArray.forEach((element: any) => {
+    deviceArray.forEach((element: any, index: number) => {
+      const formData = new FormData();
+
       if (this.organizationName != null) {
         element['organizationId'] = this.organizationId;
       }
@@ -383,7 +463,55 @@ export class AddDevicesComponent {
         (option: CountryInfo) => option.country === element.countryCodename,
       );
       element['countryCode'] = selectedCountry?.alpha3;
-      this.deviceService.Postdevices(element).subscribe({
+      formData.append('deviceToRegister', JSON.stringify(element));
+      if (element.countryCode) {
+        formData.append('countryCode', element.countryCode);
+      } else {
+        console.error('Country code is missing for device:', element);
+      }
+
+      const fileFields: FileType[] = [
+        DocumentType.FORM_SF_02,
+        DocumentType.SF_02C,
+        DocumentType.METERING_EVIDENCE,
+        DocumentType.SINGLE_LINE_DIAGRAM,
+        DocumentType.PROJECT_PHOTOS,
+      ];
+
+      const allowedExtensions = [...DOCUMENTS_EXTENSIONS];
+      const maxSizeInMB = 20;
+
+      let allErrors: Record<string, string[]> = {};
+
+      fileFields.forEach((fileType: FileType) => {
+        const files = this.files[index]?.[fileType];
+        if (files?.length) {
+          const { errors } = validateAndAppendFiles(
+            formData,
+            files,
+            fileType,
+            allowedExtensions,
+            maxSizeInMB,
+            this.toastrService,
+          );
+
+          if (Object.keys(errors).length > 0) {
+            allErrors = { ...allErrors, ...errors };
+          }
+        }
+      });
+
+      if (Object.keys(allErrors).length > 0) {
+        console.error(
+          'One or more files are invalid. Request will not be sent.',
+          allErrors,
+        );
+        this.submitButtonText = 'Submit';
+        this.isSubmitting = false;
+        return;
+      }
+
+      this.deviceService.create(formData).subscribe({
         next: () => {
           this.toastrService.success(
             'Added Successfully !!',
@@ -392,7 +520,8 @@ export class AddDevicesComponent {
 
           const index = deviceArray.indexOf(element);
           deviceArray.splice(index, 1);
-          // Check if formDataArray is empty
+
+          // Check if deviceArray is empty
           if (deviceArray.length === 0) {
             // Navigate to the list UI page
             if (this.user.role === OrganizationType.Admin) {
@@ -405,7 +534,7 @@ export class AddDevicesComponent {
           }
         },
         error: (err) => {
-          //Error callback
+          // Error callback
           console.error('error caught in component', err.error.message);
           if (err.error.statusCode === 403) {
             this.toastrService.error(
@@ -413,14 +542,19 @@ export class AddDevicesComponent {
               'Access Denied',
             );
           } else {
+            this.submitButtonText = 'Submit';
+            this.isSubmitting = false;
             this.toastrService.error(
-              'some error occurred due to ' + err.error.message,
+              'Some error occurred due to ' + err.error.message,
               'Device!' + element.externalId,
             );
           }
         },
       });
     });
+  }
+  shortenFileName(fileName: string, maxLength: number = 20): string {
+    return shortenFileName(fileName, maxLength);
   }
   openPopupDialog() {
     this.dialogRef = this.dialog.open(this.popupDialog, {
@@ -429,8 +563,14 @@ export class AddDevicesComponent {
     this.dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) {
         this.submitForm();
+      } else {
+        this.isSubmitting = false;
       }
     });
+  }
+  onAgreeClick() {
+    this.submitButtonText = 'Submitting...';
+    this.dialogRef.close(true);
   }
   updateMapMarkers(latitude: any, longitude: any) {
     if (this.mapComponent && latitude && longitude) {
