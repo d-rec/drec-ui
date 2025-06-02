@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { getapiuser_header } from '../../utils/apiuser_clientinfo';
-import { isEmpty } from '../../utils/validate-search-data';
+import { isEmpty } from '../../utils/validations';
 @Injectable({
   providedIn: 'root',
 })
