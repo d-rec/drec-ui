@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { getapiuser_header } from '../../utils/apiuser_clientinfo';
+import { isEmpty } from '../../utils/validate-search-data';
 @Injectable({
   providedIn: 'root',
 })
@@ -25,114 +26,44 @@ export class CertificateService {
       '&oldcertificatelog=' +
       oldlog;
     if (searchData != undefined) {
-      if (
-        !(
-          searchData.organizationId === undefined ||
-          searchData.organizationId === '' ||
-          searchData.organizationId === null ||
-          searchData.organizationId === undefined
-        )
-      ) {
+      if (isEmpty(searchData.organizationId)) {
         searchUrl += `&organizationId=${searchData.organizationId}`;
       }
       if (searchData.deviceIds) {
         searchUrl += `&deviceId=${searchData.deviceIds}`;
       }
-      if (
-        !(
-          searchData.countryCode === undefined ||
-          searchData.countryCode === '' ||
-          searchData.countryCode === null
-        )
-      ) {
+      if (isEmpty(searchData.countryCode)) {
         searchUrl += `&country=${searchData.countryCode}`;
       }
-
-      if (
-        !(
-          searchData.fuelCode === undefined ||
-          searchData.fuelCode === '' ||
-          searchData.fuelCode === null
-        )
-      ) {
+      if (isEmpty(searchData.fuelCode)) {
         searchUrl += `&fuelCode=${searchData.fuelCode}`;
       }
-
-      if (
-        !(
-          searchData.capacity === undefined ||
-          searchData.capacity === '' ||
-          searchData.capacity === null
-        )
-      ) {
+      if (isEmpty(searchData.capacity)) {
         searchUrl += `&capacity=${searchData.capacity}`;
       }
-      if (
-        !(
-          searchData.offTaker === undefined ||
-          searchData.offTaker === '' ||
-          searchData.offTaker === null
-        )
-      ) {
+      if (isEmpty(searchData.offTaker)) {
         searchUrl += `&offTaker=${searchData.offTaker}`;
       }
-      if (
-        !(
-          searchData.reservationId === undefined ||
-          searchData.reservationId === '' ||
-          searchData.reservationId === null
-        )
-      ) {
+      if (isEmpty(searchData.reservationId)) {
         searchUrl += `&reservationId=${searchData.reservationId}`;
       }
-      if (
-        !(
-          searchData.SDGBenefits === undefined ||
-          searchData.SDGBenefits === '' ||
-          searchData.SDGBenefits === null
-        )
-      ) {
+      if (isEmpty(searchData.SDGBenefits)) {
         searchUrl += `&SDGBenefits=${searchData.SDGBenefits}`;
       }
-      if (
-        !(
-          typeof searchData.start_date === 'undefined' ||
-          searchData.start_date === '' ||
-          searchData.start_date === null
-        )
-      ) {
+      if (isEmpty(searchData.start_date)) {
         searchUrl += `&start_date=${new Date(searchData.start_date).toISOString()}`;
       }
-
-      if (
-        !(
-          typeof searchData.end_date === 'undefined' ||
-          searchData.end_date === '' ||
-          searchData.end_date === null
-        )
-      ) {
+      if (isEmpty(searchData.end_date)) {
         searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
       }
-      if (
-        !(
-          typeof searchData.fromAmountread === 'undefined' ||
-          searchData.fromAmountread === '' ||
-          searchData.fromAmountread === null
-        )
-      ) {
+      if (isEmpty(searchData.fromAmountread)) {
         searchUrl += `&fromAmountread=${searchData.fromAmountread}`;
       }
-
-      if (
-        !(
-          typeof searchData.toAmountread === 'undefined' ||
-          searchData.toAmountread === '' ||
-          searchData.toAmountread === null
-        )
-      ) {
+      if (isEmpty(searchData.toAmountread)) {
         searchUrl += `&toAmountread=${searchData.toAmountread}`;
       }
     }
+
     const headers = new HttpHeaders(this.headersData);
 
     return this.httpClient.get(searchUrl, { headers });
