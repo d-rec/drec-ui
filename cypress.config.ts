@@ -5,6 +5,7 @@ export default defineConfig({
     experimentalRunAllSpecs: true,
     specPattern: 'cypress/e2e/**/*.cy.{js,ts}',
   },
+
   env: {
     REACT_APP_BACKEND_URL: 'http://localhost:3040',
     ADMIN_EMAIL: 'drec@energy.org',
