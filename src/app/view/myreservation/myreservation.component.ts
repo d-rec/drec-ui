@@ -8,18 +8,12 @@ import {
   ReservationService,
   OrganizationService,
   CertificateService,
-  DeviceService,
 } from '../../auth/services';
 import { Router } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import {
-  fulecodeType,
-  devicecodeType,
-  CountryInfo,
-  Device,
-} from '../../models';
+import { fulecodeType, devicecodeType, CountryInfo } from '../../models';
 
 @Component({
   selector: 'app-myreservation',
@@ -107,7 +101,6 @@ export class MyreservationComponent implements OnInit {
     private formBuilder: FormBuilder,
     private toastrService: ToastrService,
     private certificateService: CertificateService,
-    private deviceService: DeviceService,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -389,23 +382,15 @@ export class MyreservationComponent implements OnInit {
             this.data.forEach((ele: any) => {
               if (ele.deviceIds != null) {
                 ele.deviceIds.forEach((deviceId: string) => {
-                  this.deviceService
-                    .GetDevicesInfo(Number(deviceId))
-                    .subscribe({
-                      next: (data: Device) => {
-                        if (data.developerExternalId) {
-                          const exists = this.developerExternalIds.some(
-                            (item) => item.name === data.developerExternalId,
-                          );
-                          if (!exists) {
-                            this.developerExternalIds.push({
-                              id: deviceId,
-                              name: data.developerExternalId,
-                            });
-                          }
-                        }
-                      },
+                  const exists = this.developerExternalIds.some(
+                    (item) => item.name === ele.developerExternalId,
+                  );
+                  if (!exists) {
+                    this.developerExternalIds.push({
+                      id: deviceId,
+                      name: ele.developerExternalId,
                     });
+                  }
                 });
               } else {
                 ele['numberOfdevices'] = 0;
