@@ -54,7 +54,7 @@ Cypress.Commands.add('buyerUserSignup', function () {
         case 'verify-email':
           const MOCK_EMAIL_CODE = '123456';
 
-          cy.get('[test-id="resend-confirmation-email"]').click();
+          cy.wait(5000).get('[test-id="resend-confirmation-email"]').click();
           cy.wait(1000);
           cy.request({
             method: 'PUT',
