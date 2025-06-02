@@ -13,7 +13,6 @@ Cypress.Commands.add('addDevice', function () {
             .get(step.selector)
             .click({ multiple: true, force: true })
             .wait(1000);
-
         case 'type':
           return cy.get(step.selector).should('be.visible').type(step.value);
 
