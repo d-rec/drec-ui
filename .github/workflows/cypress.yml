@@ -40,14 +40,13 @@ jobs:
         id: set-env
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
-             echo "MODE=stage" >> $GITHUB_ENV
-           elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
-             echo "MODE=prod" >> $GITHUB_ENV
-           elif [[ "${{ github.ref }}" == "refs/heads/test" ]]; then # If you have a 'test' branch
-             echo "MODE=test" >> $GITHUB_ENV
-           else
-             echo "MODE=dev" >> $GITHUB_ENV # This would be your "testing" mode for develop and feature branches
-           fi
+            echo "MODE=stage" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
+            echo "MODE=prod" >> $GITHUB_ENV
+          else
+            # For 'develop' branch pushes, and all pull requests (regardless of target branch)
+            echo "MODE=test" >> $GITHUB_ENV
+          fi
 
       - name: Checkout Repository
         uses: actions/checkout@v2
