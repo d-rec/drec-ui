@@ -6,6 +6,7 @@ export default defineConfig({
     specPattern: 'cypress/e2e/**/*.cy.{js,ts}',
   },
   env: {
+    MODE: 'test',
     REACT_APP_BACKEND_URL: 'http://localhost:3040',
     ADMIN_EMAIL: 'drec@energy.org',
     ADMIN_PASSWORD: '1234Rc',
