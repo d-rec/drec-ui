@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { OrganizationService } from '../../auth/services/organization.service';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { DocumentType } from '.././../utils/drec.enum';
+import { UserService } from '../../auth/services';
+import { map } from 'rxjs';
 
 export interface DocumentUpload {
   title: string;
@@ -80,8 +82,9 @@ export class DocumentsUploadComponent {
     private toastrService: ToastrService,
     private router: Router,
     private authService: AuthbaseService,
+    private userService: UserService,
   ) {
-    this.userApiId = sessionStorage.getItem('apiuserId') || '';
+    this.getUserApiId();
   }
 
   onFileSelected(event: any, document: DocumentUpload): void {
@@ -126,6 +129,17 @@ export class DocumentsUploadComponent {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
+  }
+
+  getUserApiId(): void {
+    this.userService
+      .userProfile()
+      .pipe(
+        map((user: any) => {
+          this.userApiId = user.api_user_id;
+        }),
+      )
+      .subscribe();
   }
 
   submit(): void {
