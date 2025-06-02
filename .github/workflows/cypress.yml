@@ -14,6 +14,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
+      MODE: test
       MNEMONIC: ${{ secrets.WALLET_MNEMONIC }}
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
@@ -39,13 +40,11 @@ jobs:
         id: set-env
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
-           echo "MODE=stage" >> $GITHUB_ENV
+            echo "MODE=stage" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
-           echo "MODE=prod" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-           echo "MODE=test" >> $GITHUB_ENV   # Run tests in test mode on develop
+            echo "MODE=prod" >> $GITHUB_ENV
           else
-           echo "MODE=dev" >> $GITHUB_ENV
+            echo "MODE=dev" >> $GITHUB_ENV
           fi
 
       - name: Checkout Repository
