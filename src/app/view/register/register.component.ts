@@ -227,31 +227,7 @@ export class RegisterComponent implements OnInit {
     this.response = data;
     this.showPopup = true;
     this.toastrService.success('User Register Successful');
-
-    this.authService
-      .ApiUserExportAccesskey(
-        'user/export-accesskey/',
-        this.response.api_user_id,
-      )
-      .subscribe({
-        next: (keydata) => {
-          this.downloadAccessKey(keydata);
-          setTimeout(() => this.handleUserLogin(loginCredentials, true), 1000);
-        },
-      });
-  }
-
-  private downloadAccessKey(keydata: any): void {
-    const blob = new Blob([keydata], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${this.response.api_user_id}.pem`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-    this.showPopup = false;
+    this.handleUserLogin(loginCredentials, true);
   }
 
   onSubmit(): void {

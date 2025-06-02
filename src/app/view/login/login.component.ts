@@ -88,7 +88,6 @@ export class LoginComponent implements OnInit {
    */
   private navigateBasedOnUserType(userData: any, jwtObj: any): void {
     this.router.navigate(['/dashboard']);
-
     this.toastrService.success(
       'Login user ' + jwtObj.email + '!',
       'Login Success',
