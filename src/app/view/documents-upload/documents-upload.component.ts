@@ -2,7 +2,11 @@ import { Component, Input } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { OrganizationService } from '../../auth/services/organization.service';
+import { AuthbaseService } from '../../auth/authbase.service';
 import { DocumentType } from '.././../utils/drec.enum';
+import { UserService } from '../../auth/services';
+import { map } from 'rxjs';
+
 export interface DocumentUpload {
   title: string;
   required: boolean;
@@ -71,12 +75,17 @@ export class DocumentsUploadComponent {
       targetId: 1,
     },
   ];
+  userApiId: string = '';
 
   constructor(
     private organizationService: OrganizationService,
     private toastrService: ToastrService,
     private router: Router,
-  ) {}
+    private authService: AuthbaseService,
+    private userService: UserService,
+  ) {
+    this.getUserApiId();
+  }
 
   onFileSelected(event: any, document: DocumentUpload): void {
     const file = event.target.files[0];
@@ -108,6 +117,29 @@ export class DocumentsUploadComponent {
     );
 
     return `${start}...${end}${extension}`;
+  }
+
+  private downloadAccessKey(keydata: any): void {
+    const blob = new Blob([keydata], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.userApiId}.pem`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
+  getUserApiId(): void {
+    this.userService
+      .userProfile()
+      .pipe(
+        map((user: any) => {
+          this.userApiId = user.api_user_id;
+        }),
+      )
+      .subscribe();
   }
 
   submit(): void {
@@ -151,7 +183,15 @@ export class DocumentsUploadComponent {
           });
           this.toastrService.success('All documents uploaded successfully');
           this.isUploading = false;
-          this.router.navigate(['/dashboard']);
+          this.authService
+            .ApiUserExportAccesskey('user/export-accesskey/', this.userApiId)
+            .subscribe({
+              next: (keydata: any) => {
+                this.downloadAccessKey(keydata);
+              },
+            });
+          this.toastrService.success('Access key downloaded successfully');
+          this.router.navigate(['/apiuser/permission/request/form']);
         },
         error: (err) => {
           if (err.error.errorType === 'DOCUMENT_ALREADY_UPLOADED') {
