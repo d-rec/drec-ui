@@ -14,13 +14,13 @@
   {
     "action": "type",
     "selector": "[test-id='email']",
-    "value": "buyertest6@energy.org",
+    "value": "buyertest17@energy.org",
     "log": "Email entered successfully"
   },
   {
     "action": "type",
     "selector": "[test-id='phone-number']",
-    "value": "+91 22 1330 5278"
+    "value": "+91 22 1430 5278"
   },
   {
     "action": "click",
@@ -36,7 +36,7 @@
   {
     "action": "type",
     "selector": "[test-id='organization-name']",
-    "value": "test01 buyers",
+    "value": "test14 buyers",
     "log": "Organization name Entered successfully"
   },
   {
