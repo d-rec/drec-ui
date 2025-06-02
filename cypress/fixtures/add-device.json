@@ -31,7 +31,7 @@
   {
     "action": "type",
     "selector": "[test-id='capacity']",
-    "value": "100"
+    "value": "1"
   },
   {
     "action": "type",
@@ -41,12 +41,12 @@
   {
     "action": "type",
     "selector": "[test-id='latitude']",
-    "value": "21.00876"
+    "value": "21.01876"
   },
   {
     "action": "type",
     "selector": "[test-id='longitude']",
-    "value": "31.00876"
+    "value": "31.00976"
   },
   {
     "action": "select",
