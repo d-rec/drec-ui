@@ -5,7 +5,6 @@
     "value": "just buyer test",
     "log": "First name entered successfully"
   },
-
   {
     "action": "type",
     "selector": "[test-id='last-name']",
