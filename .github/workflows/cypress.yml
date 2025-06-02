@@ -1,3 +1,4 @@
+mode: test
 name: Cypress E2E Workflow
 on:
   push:
