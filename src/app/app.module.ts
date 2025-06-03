@@ -46,6 +46,7 @@ import { DefaultLayoutComponent } from './layout/default/default-layout.componen
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
 import { DashboardComponent } from './view/dashboard/dashboard.component';
+import { SettingsComponent } from './evident-view/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -81,6 +82,7 @@ import { DashboardComponent } from './view/dashboard/dashboard.component';
     AcceptTermsAndConditionsComponent,
     ResendConfirmEmailComponent,
     DashboardComponent,
+    SettingsComponent,
   ],
   imports: [
     BrowserModule,
