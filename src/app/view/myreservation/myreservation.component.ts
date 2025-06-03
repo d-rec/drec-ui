@@ -383,12 +383,14 @@ export class MyreservationComponent implements OnInit {
               if (ele.deviceIds != null) {
                 ele.deviceIds.forEach((deviceId: string) => {
                   const exists = this.developerExternalIds.some(
-                    (item) => item.name === ele.developerExternalId,
+                    (item) => item.id === deviceId,
                   );
                   if (!exists) {
                     this.developerExternalIds.push({
                       id: deviceId,
-                      name: ele.developerExternalId,
+                      name: ele.devices
+                        .map((d: any) => d.externalId)
+                        .join(', '),
                     });
                   }
                 });
