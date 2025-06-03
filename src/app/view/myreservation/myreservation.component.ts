@@ -382,15 +382,10 @@ export class MyreservationComponent implements OnInit {
             this.data.forEach((ele: any) => {
               if (ele.deviceIds != null) {
                 ele.deviceIds.forEach((deviceId: string) => {
-                  const exists = this.developerExternalIds.some(
-                    (item) => item.name === ele.developerExternalId,
-                  );
-                  if (!exists) {
-                    this.developerExternalIds.push({
-                      id: deviceId,
-                      name: ele.developerExternalId,
-                    });
-                  }
+                  this.developerExternalIds.push({
+                    id: deviceId,
+                    name: ele.devices.map((d: any) => d.externalId).join(', '),
+                  });
                 });
               } else {
                 ele['numberOfdevices'] = 0;
