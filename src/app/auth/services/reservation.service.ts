@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
+import { isEmpty } from '../../utils/validations';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -23,92 +25,36 @@ export class ReservationService {
   }
   getReservationData(searchData: any, pagenumber: number): Observable<any> {
     let searchUrl = `${this.url}buyer-reservation/my?pagenumber=` + pagenumber;
-    if (
-      !(
-        typeof searchData.name === 'undefined' ||
-        searchData.name === '' ||
-        searchData.name === null
-      )
-    ) {
+    if (!isEmpty(searchData.name)) {
       searchUrl += `&name=${searchData.name}`;
     }
-    if (
-      !(
-        typeof searchData.deviceExternalId === 'undefined' ||
-        searchData.deviceExternalId === '' ||
-        searchData.deviceExternalId === null
-      )
-    ) {
-      if (Array.isArray(searchData.deviceExternalId)) {
-        searchData.deviceExternalId.forEach((id: any) => {
-          searchUrl += `&deviceIds=${id}`;
-        });
-      }
+    if (!isEmpty(searchData.deviceIds) && Array.isArray(searchData.deviceIds)) {
+      searchData.deviceIds.forEach((id: any) => {
+        searchUrl += `&deviceIds=${id}`;
+      });
     }
-    if (
-      !(
-        typeof searchData.countryCode === 'undefined' ||
-        searchData.countryCode === '' ||
-        searchData.countryCode === null
-      )
-    ) {
+    if (!isEmpty(searchData.countryCode)) {
       searchUrl += `&country=${searchData.countryCode}`;
     }
 
-    if (
-      !(
-        typeof searchData.fuelCode === 'undefined' ||
-        searchData.fuelCode === '' ||
-        searchData.fuelCode === null
-      )
-    ) {
+    if (!isEmpty(searchData.fuelCode)) {
       searchUrl += `&fuelCode=${searchData.fuelCode}`;
     }
-    if (
-      !(
-        typeof searchData.offTaker === 'undefined' ||
-        searchData.offTaker === '' ||
-        searchData.offTaker === null
-      )
-    ) {
+    if (!isEmpty(searchData.offTaker)) {
       searchUrl += `&offTaker=${searchData.offTaker}`;
     }
-    if (
-      !(
-        typeof searchData.SDGBenefits === 'undefined' ||
-        searchData.SDGBenefits === '' ||
-        searchData.SDGBenefits === null
-      )
-    ) {
+    if (!isEmpty(searchData.SDGBenefits)) {
       searchUrl += `&sdgbenefit=${searchData.SDGBenefits}`;
     }
 
-    if (
-      !(
-        typeof searchData.reservationStartDate === 'undefined' ||
-        searchData.reservationStartDate === '' ||
-        searchData.reservationStartDate === null
-      )
-    ) {
+    if (!isEmpty(searchData.reservationStartDate)) {
       searchUrl += `&start_date=${new Date(searchData.reservationStartDate).toISOString()}`;
     }
 
-    if (
-      !(
-        typeof searchData.reservationEndDate === 'undefined' ||
-        searchData.reservationEndDate === '' ||
-        searchData.reservationEndDate === null
-      )
-    ) {
+    if (!isEmpty(searchData.reservationEndDate)) {
       searchUrl += `&end_date=${new Date(searchData.reservationEndDate).toISOString()}`;
     }
-    if (
-      !(
-        typeof searchData.reservationActive === 'undefined' ||
-        searchData.reservationActive === '' ||
-        searchData.reservationActive === null
-      )
-    ) {
+    if (!isEmpty(searchData.reservationActive)) {
       searchUrl += `&reservationActive=${searchData.reservationActive}`;
     }
 
@@ -138,88 +84,34 @@ export class ReservationService {
   ): Observable<any> {
     let searchUrl = `${this.url}buyer-reservation?pagenumber=` + pagenumber;
 
-    if (
-      !(
-        typeof searchData.organizationId === 'undefined' ||
-        searchData.organizationId === '' ||
-        searchData.organizationId === null
-      )
-    ) {
+    if (!isEmpty(searchData.organizationId)) {
       searchUrl += `&organizationId=${searchData.organizationId}`;
     }
-    if (
-      !(
-        typeof searchData.name === 'undefined' ||
-        searchData.name === '' ||
-        searchData.name === null
-      )
-    ) {
+    if (!isEmpty(searchData.name)) {
       searchUrl += `&name=${searchData.name}`;
     }
-    if (
-      !(
-        typeof searchData.countryCode === 'undefined' ||
-        searchData.countryCode === '' ||
-        searchData.countryCode === null
-      )
-    ) {
+    if (!isEmpty(searchData.countryCode)) {
       searchUrl += `&country=${searchData.countryCode}`;
     }
 
-    if (
-      !(
-        typeof searchData.fuelCode === 'undefined' ||
-        searchData.fuelCode === '' ||
-        searchData.fuelCode === null
-      )
-    ) {
+    if (!isEmpty(searchData.fuelCode)) {
       searchUrl += `&fuelCode=${searchData.fuelCode}`;
     }
-    if (
-      !(
-        typeof searchData.offTaker === 'undefined' ||
-        searchData.offTaker === '' ||
-        searchData.offTaker === null
-      )
-    ) {
+    if (!isEmpty(searchData.offTaker)) {
       searchUrl += `&offTaker=${searchData.offTaker}`;
     }
-    if (
-      !(
-        typeof searchData.SDGBenefits === 'undefined' ||
-        searchData.SDGBenefits === '' ||
-        searchData.SDGBenefits === null
-      )
-    ) {
+    if (!isEmpty(searchData.SDGBenefits)) {
       searchUrl += `&sdgbenefit=${searchData.SDGBenefits}`;
     }
 
-    if (
-      !(
-        typeof searchData.reservationStartDate === 'undefined' ||
-        searchData.reservationStartDate === '' ||
-        searchData.reservationStartDate === null
-      )
-    ) {
+    if (!isEmpty(searchData.reservationStartDate)) {
       searchUrl += `&start_date=${new Date(searchData.reservationStartDate).toISOString()}`;
     }
 
-    if (
-      !(
-        typeof searchData.reservationEndDate === 'undefined' ||
-        searchData.reservationEndDate === '' ||
-        searchData.reservationEndDate === null
-      )
-    ) {
+    if (!isEmpty(searchData.reservationEndDate)) {
       searchUrl += `&end_date=${new Date(searchData.reservationEndDate).toISOString()}`;
     }
-    if (
-      !(
-        typeof searchData.reservationActive === 'undefined' ||
-        searchData.reservationActive === '' ||
-        searchData.reservationActive === null
-      )
-    ) {
+    if (!isEmpty(searchData.reservationActive)) {
       searchUrl += `&reservationActive=${searchData.reservationActive}`;
     }
 

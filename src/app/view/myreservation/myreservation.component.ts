@@ -92,7 +92,7 @@ export class MyreservationComponent implements OnInit {
   orglist: any;
   filteredOrgList: Observable<any[]>;
   showorgerror: boolean = false;
-  developerExternalIds: { id: string; name: string }[] = [];
+  devices: { id: string; externalId: string; projectName: string; }[] = [];
   constructor(
     private authService: AuthbaseService,
     private reservationService: ReservationService,
@@ -116,7 +116,7 @@ export class MyreservationComponent implements OnInit {
       reservationStartDate: [null],
       reservationEndDate: [null],
       reservationActive: [null],
-      deviceExternalId: [],
+      deviceIds: [],
       // pagenumber: [this.p]
     });
     this.displayCountriesList();
@@ -262,10 +262,10 @@ export class MyreservationComponent implements OnInit {
             this.FilterForm.controls['offTaker'].setValue(null);
           }
           if (
-            formValues.deviceExternalId != null &&
-            formValues.deviceExternalId[0] === undefined
+            formValues.deviceIds != null &&
+            formValues.deviceIds[0] === undefined
           ) {
-            this.FilterForm.controls['deviceExternalId'].setValue(null);
+            this.FilterForm.controls['deviceIds'].setValue(null);
           }
           if (
             formValues.SDGBenefits != null &&
@@ -345,14 +345,6 @@ export class MyreservationComponent implements OnInit {
             this.showdevicesinfo = false;
 
             this.data = data.groupedData;
-
-            this.data.forEach((ele: any) => {
-              if (ele.deviceIds != null) {
-                ele['numberOfdevices'] = ele.deviceIds.length;
-              } else {
-                ele['numberOfdevices'] = 0;
-              }
-            });
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
 
@@ -379,25 +371,13 @@ export class MyreservationComponent implements OnInit {
           .subscribe((data) => {
             this.showdevicesinfo = false;
             this.data = data.groupedData;
-            this.data.forEach((ele: any) => {
-              if (ele.deviceIds != null) {
-                ele.deviceIds.forEach((deviceId: string) => {
-                  const exists = this.developerExternalIds.some(
-                    (item) => item.id === deviceId,
-                  );
-                  if (!exists) {
-                    this.developerExternalIds.push({
-                      id: deviceId,
-                      name: ele.devices
-                        .map((d: any) => d.externalId)
-                        .join(', '),
-                    });
-                  }
-                });
-              } else {
-                ele['numberOfdevices'] = 0;
-              }
-            });
+
+            const devices = this.data.map((reservation: { devices: any; })=> reservation.devices).flat()
+            const uniqueDevices = new Map<string, any>();
+            devices.forEach((device: any) => uniqueDevices.set(device.externalId, device));
+            this.devices = Array.from(uniqueDevices.values());
+            console.log(this.devices);
+           
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
 
