@@ -26,40 +26,40 @@ export class CertificateService {
       '&oldcertificatelog=' +
       oldlog;
     if (searchData != undefined) {
-      if (isEmpty(searchData.organizationId)) {
+      if (!isEmpty(searchData.organizationId)) {
         searchUrl += `&organizationId=${searchData.organizationId}`;
       }
-      if (searchData.deviceIds) {
+      if (!isEmpty(searchData.deviceIds)) {
         searchUrl += `&deviceId=${searchData.deviceIds}`;
       }
-      if (isEmpty(searchData.countryCode)) {
+      if (!isEmpty(searchData.countryCode)) {
         searchUrl += `&country=${searchData.countryCode}`;
       }
-      if (isEmpty(searchData.fuelCode)) {
+      if (!isEmpty(searchData.fuelCode)) {
         searchUrl += `&fuelCode=${searchData.fuelCode}`;
       }
-      if (isEmpty(searchData.capacity)) {
+      if (!isEmpty(searchData.capacity)) {
         searchUrl += `&capacity=${searchData.capacity}`;
       }
-      if (isEmpty(searchData.offTaker)) {
+      if (!isEmpty(searchData.offTaker)) {
         searchUrl += `&offTaker=${searchData.offTaker}`;
       }
-      if (isEmpty(searchData.reservationId)) {
+      if (!isEmpty(searchData.reservationId)) {
         searchUrl += `&reservationId=${searchData.reservationId}`;
       }
-      if (isEmpty(searchData.SDGBenefits)) {
+      if (!isEmpty(searchData.SDGBenefits)) {
         searchUrl += `&SDGBenefits=${searchData.SDGBenefits}`;
       }
-      if (isEmpty(searchData.start_date)) {
+      if (!isEmpty(searchData.start_date)) {
         searchUrl += `&start_date=${new Date(searchData.start_date).toISOString()}`;
       }
-      if (isEmpty(searchData.end_date)) {
+      if (!isEmpty(searchData.end_date)) {
         searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
       }
-      if (isEmpty(searchData.fromAmountread)) {
+      if (!isEmpty(searchData.fromAmountread)) {
         searchUrl += `&fromAmountread=${searchData.fromAmountread}`;
       }
-      if (isEmpty(searchData.toAmountread)) {
+      if (!isEmpty(searchData.toAmountread)) {
         searchUrl += `&toAmountread=${searchData.toAmountread}`;
       }
     }
