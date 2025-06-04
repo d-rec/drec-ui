@@ -92,6 +92,7 @@ export class MyreservationComponent implements OnInit {
   orglist: any;
   filteredOrgList: Observable<any[]>;
   showorgerror: boolean = false;
+  devices: { id: string; externalId: string; projectName: string }[] = [];
   constructor(
     private authService: AuthbaseService,
     private reservationService: ReservationService,
@@ -115,7 +116,7 @@ export class MyreservationComponent implements OnInit {
       reservationStartDate: [null],
       reservationEndDate: [null],
       reservationActive: [null],
-
+      deviceIds: [],
       // pagenumber: [this.p]
     });
     this.displayCountriesList();
@@ -261,6 +262,12 @@ export class MyreservationComponent implements OnInit {
             this.FilterForm.controls['offTaker'].setValue(null);
           }
           if (
+            formValues.deviceIds != null &&
+            formValues.deviceIds[0] === undefined
+          ) {
+            this.FilterForm.controls['deviceIds'].setValue(null);
+          }
+          if (
             formValues.SDGBenefits != null &&
             formValues.SDGBenefits[0] === undefined
           ) {
@@ -322,11 +329,9 @@ export class MyreservationComponent implements OnInit {
     this.DisplayList(this.p);
   }
   DisplayList(page: number) {
-    //  this.FilterForm.controls['pagenumber'].setValue(page);
     if (this.loginuser.role === 'ApiUser') {
       if (this.FilterForm.value.reservationActive === 'All') {
         this.FilterForm.removeControl('reservationActive');
-        //this.FilterForm.controls['reservationActive'].setValue(null);
       }
       if (
         !(
@@ -340,14 +345,6 @@ export class MyreservationComponent implements OnInit {
             this.showdevicesinfo = false;
 
             this.data = data.groupedData;
-
-            this.data.forEach((ele: any) => {
-              if (ele.deviceIds != null) {
-                ele['numberOfdevices'] = ele.deviceIds.length;
-              } else {
-                ele['numberOfdevices'] = 0;
-              }
-            });
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
 
@@ -373,15 +370,17 @@ export class MyreservationComponent implements OnInit {
           .getReservationData(this.FilterForm.value, page)
           .subscribe((data) => {
             this.showdevicesinfo = false;
-
             this.data = data.groupedData;
-            this.data.forEach((ele: any) => {
-              if (ele.deviceIds != null) {
-                ele['numberOfdevices'] = ele.deviceIds.length;
-              } else {
-                ele['numberOfdevices'] = 0;
-              }
-            });
+
+            const devices = this.data
+              .map((reservation: { devices: any }) => reservation.devices)
+              .flat();
+            const uniqueDevices = new Map<string, any>();
+            devices.forEach((device: any) =>
+              uniqueDevices.set(device.externalId, device),
+            );
+            this.devices = Array.from(uniqueDevices.values());
+
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
 
