@@ -112,7 +112,7 @@ const routes: Routes = [
       { path: 'All_certificate', component: CertificateDetailsComponent },
       { path: 'certificate', component: CertificateComponent },
       { path: 'myreservation', component: MyreservationComponent },
-      { path: 'evident/settings', component: SettingsComponent },
+      { path: 'settings/evident', component: SettingsComponent },
 
       {
         path: 'reads',
