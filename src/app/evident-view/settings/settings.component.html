@@ -1,44 +1,40 @@
 <div class="body-bg">
-    <mat-card>
-        <mat-card-header>
-            <mat-card-title>
-                <h2 class="pb-0 mb-3 fw-bold text-capitalize">
-                    Evident Integration
-                </h2>
-            </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <form action="">
-                <div class="row mb-3 g-3">
-                    <div class="col-md-6 d-flex flex-column">
-                      <label class="form-label text-capitalize">Evident API Key</label>
-                      <input type="text"  placeholder="Enter API key" />
-                    </div>
-                    <div class="col-md-6 d-flex flex-column">
-                      <label class="form-label text-capitalize">Default Trading Account</label>
-                      <input type="text"  placeholder="Enter Trading Account ID" />
-                    </div>
-                  </div>
-
-                  <div class="row mb-3 g-3">
-                    <div class="col-md-6 d-flex flex-column">
-                      <label class="form-label text-capitalize">Default Beneficiary Account</label>
-                      <input type="text"  placeholder="Enter Beneficiary Account ID "/>
-                    </div>
-                  </div>
-
-                <mat-card-footer>
-                    <div class="col-12 d-flex justify-content-end gap-2">
-                      <button type="button" class="btn-content-back btn text-capitalize px-2">
-                        Cancel
-                      </button>
-                      <button type="submit" class="btn-primary btn text-capitalize px-2">
-                        Save settings
-                      </button>
-                    </div>
-                  </mat-card-footer>
-
-            </form>
-        </mat-card-content>
-    </mat-card>
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <h2 class="pb-0 mb-3 fw-bold text-capitalize">
+          Evident Integration
+        </h2>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form (ngSubmit)="onSubmit()" #settingsForm="ngForm">
+        <div class="row mb-3 g-3">
+          <div class="col-md-6 d-flex flex-column">
+            <label class="form-label text-capitalize">Evident API Key</label>
+            <input type="text" name="apiKey" #apiKeyInput placeholder="Enter API key" required />
+          </div>
+          <div class="col-md-6 d-flex flex-column">
+            <label class="form-label text-capitalize">Default Trading Account</label>
+            <input type="text" name="defaultTradingAccount" #tradingAccountInput placeholder="Enter Trading Account ID" required />
+          </div>
+        </div>
+      
+        <div class="row mb-3 g-3">
+          <div class="col-md-6 d-flex flex-column">
+            <label class="form-label text-capitalize">Default Beneficiary Account</label>
+            <input type="text" name="defaultBeneficiaryAccount" #beneficiaryAccountInput placeholder="Enter Beneficiary Account ID" required />
+          </div>
+        </div>
+      
+        <mat-card-footer>
+          <div class="col-12 d-flex justify-content-end gap-2">
+            <button type="button" class="btn-content-back btn text-capitalize px-2">Cancel</button>
+            <button type="submit" class="btn-primary btn text-capitalize px-2">Save settings</button>
+          </div>
+        </mat-card-footer>
+      </form>
+      
+    </mat-card-content>
+  </mat-card>
 </div>
