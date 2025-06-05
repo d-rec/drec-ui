@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { EvidentService } from '../../auth/services/evident.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-settings',
@@ -12,6 +13,7 @@ export class SettingsComponent implements OnInit {
 
   constructor(
     private evidentService: EvidentService,
+    private toastrService: ToastrService,
     private fb: FormBuilder,
   ) {
     this.settingsForm = this.fb.group({
@@ -54,6 +56,7 @@ export class SettingsComponent implements OnInit {
     if (this.settingsForm.valid) {
       this.evidentService.saveSettings(this.settingsForm.value).subscribe({
         next: () => {
+          this.toastrService.success('Settings saved successfully');
           this.settingsForm.reset();
         },
         error: (err) => {
