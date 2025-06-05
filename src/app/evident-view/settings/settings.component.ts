@@ -62,4 +62,7 @@ export class SettingsComponent implements OnInit {
       });
     }
   }
+  onCancel(): void {
+    this.getInitialSettings();
+  }
 }

@@ -34,7 +34,7 @@
       
         <mat-card-footer>
           <div class="col-12 d-flex justify-content-end gap-2">
-            <button type="button" class="btn-content-back btn text-capitalize px-2">Cancel</button>
+            <button type="button" class="btn-content-back btn text-capitalize px-2" (click)="onCancel()">Cancel</button>
             <button type="submit" class="btn-primary btn text-capitalize px-2" [disabled]="settingsForm.invalid">Save settings</button>
           </div>
         </mat-card-footer>
