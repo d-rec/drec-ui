@@ -1,4 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { EvidentService } from '../../auth/services/evident.service';
 
 @Component({
@@ -7,21 +8,44 @@ import { EvidentService } from '../../auth/services/evident.service';
   styleUrls: ['./settings.component.scss'],
 })
 export class SettingsComponent implements OnInit {
-  @ViewChild('apiKeyInput') apiKeyInput!: ElementRef;
-  @ViewChild('tradingAccountInput') tradingAccountInput!: ElementRef;
-  @ViewChild('beneficiaryAccountInput') beneficiaryAccountInput!: ElementRef;
+  settingsForm: FormGroup;
 
-  constructor(private evidentService: EvidentService) {}
+  constructor(
+    private evidentService: EvidentService,
+    private fb: FormBuilder,
+  ) {
+    this.settingsForm = this.fb.group({
+      apiKey: ['', Validators.required],
+      defaultTradingAccount: ['', Validators.required],
+      defaultBeneficiaryAccount: ['', Validators.required],
+    });
+  }
 
   ngOnInit(): void {
+    this.getInitialSettings();
+  }
+
+  get apiKey() {
+    return this.settingsForm.get('apiKey')!;
+  }
+
+  get defaultTradingAccount() {
+    return this.settingsForm.get('defaultTradingAccount')!;
+  }
+
+  get defaultBeneficiaryAccount() {
+    return this.settingsForm.get('defaultBeneficiaryAccount')!;
+  }
+
+  getInitialSettings(): void {
     this.evidentService.getSettings().subscribe({
       next: (data) => {
         if (data) {
-          this.apiKeyInput.nativeElement.value = data.apiKey || '';
-          this.tradingAccountInput.nativeElement.value =
-            data.defaultTradingAccount || '';
-          this.beneficiaryAccountInput.nativeElement.value =
-            data.defaultBeneficiaryAccount || '';
+          this.settingsForm.patchValue({
+            apiKey: data.apiKey || '',
+            defaultTradingAccount: data.defaultTradingAccount || '',
+            defaultBeneficiaryAccount: data.defaultBeneficiaryAccount || '',
+          });
         }
       },
       error: (err) => {
@@ -31,22 +55,15 @@ export class SettingsComponent implements OnInit {
   }
 
   onSubmit(): void {
-    const settings = {
-      apiKey: this.apiKeyInput.nativeElement.value,
-      defaultTradingAccount: this.tradingAccountInput.nativeElement.value,
-      defaultBeneficiaryAccount:
-        this.beneficiaryAccountInput.nativeElement.value,
-    };
-
-    this.evidentService.saveSettings(settings).subscribe({
-      next: () => {
-        this.apiKeyInput.nativeElement.value = '';
-        this.tradingAccountInput.nativeElement.value = '';
-        this.beneficiaryAccountInput.nativeElement.value = '';
-      },
-      error: (err) => {
-        console.error('Error submitting settings:', err);
-      },
-    });
+    if (this.settingsForm.valid) {
+      this.evidentService.saveSettings(this.settingsForm.value).subscribe({
+        next: () => {
+          this.settingsForm.reset();
+        },
+        error: (err) => {
+          console.error('Error submitting settings:', err);
+        },
+      });
+    }
   }
 }

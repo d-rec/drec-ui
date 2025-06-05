@@ -8,33 +8,41 @@
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <form (ngSubmit)="onSubmit()" #settingsForm="ngForm">
+      <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()">
         <div class="row mb-3 g-3">
           <div class="col-md-6 d-flex flex-column">
             <label class="form-label text-capitalize">Evident API Key</label>
-            <input type="text" name="apiKey" #apiKeyInput placeholder="Enter API key" required />
+            <input type="text" formControlName="apiKey" placeholder="Enter API key" />
+            <div *ngIf="apiKey.invalid && (apiKey.dirty || apiKey.touched)" class="text-danger">
+              <mat-error *ngIf="apiKey.errors?.['required']">API Key is required</mat-error>
+            </div>
           </div>
           <div class="col-md-6 d-flex flex-column">
             <label class="form-label text-capitalize">Default Trading Account</label>
-            <input type="text" name="defaultTradingAccount" #tradingAccountInput placeholder="Enter Trading Account ID" required />
+            <input type="text" formControlName="defaultTradingAccount" placeholder="Enter Trading Account ID" />
+            <div *ngIf="defaultTradingAccount.invalid && (defaultTradingAccount.dirty || defaultTradingAccount.touched)" class="text-danger">
+              <mat-error *ngIf="defaultTradingAccount.errors?.['required']">Trading Account is required</mat-error>
+            </div>
           </div>
         </div>
       
         <div class="row mb-3 g-3">
           <div class="col-md-6 d-flex flex-column">
             <label class="form-label text-capitalize">Default Beneficiary Account</label>
-            <input type="text" name="defaultBeneficiaryAccount" #beneficiaryAccountInput placeholder="Enter Beneficiary Account ID" required />
+            <input type="text" formControlName="defaultBeneficiaryAccount" placeholder="Enter Beneficiary Account ID" />
+            <div *ngIf="defaultBeneficiaryAccount.invalid && (defaultBeneficiaryAccount.dirty || defaultBeneficiaryAccount.touched)" class="text-danger">
+              <mat-error *ngIf="defaultBeneficiaryAccount.errors?.['required']">Beneficiary Account is required</mat-error>
+            </div>
           </div>
         </div>
       
         <mat-card-footer>
           <div class="col-12 d-flex justify-content-end gap-2">
             <button type="button" class="btn-content-back btn text-capitalize px-2">Cancel</button>
-            <button type="submit" class="btn-primary btn text-capitalize px-2">Save settings</button>
+            <button type="submit" class="btn-primary btn text-capitalize px-2" [disabled]="settingsForm.invalid">Save settings</button>
           </div>
         </mat-card-footer>
       </form>
-      
     </mat-card-content>
   </mat-card>
 </div>
