@@ -25,16 +25,12 @@ export class SettingsComponent implements OnInit {
     this.getInitialSettings();
   }
 
-  get apiKey() {
-    return this.settingsForm.get('apiKey')!;
-  }
-
-  get defaultTradingAccount() {
-    return this.settingsForm.get('defaultTradingAccount')!;
-  }
-
-  get defaultBeneficiaryAccount() {
-    return this.settingsForm.get('defaultBeneficiaryAccount')!;
+  checkValidation(input: string) {
+    const validation =
+      this.settingsForm.get(input)?.invalid &&
+      (this.settingsForm.get(input)?.dirty ||
+        this.settingsForm.get(input)?.touched);
+    return validation;
   }
 
   getInitialSettings(): void {

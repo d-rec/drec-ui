@@ -13,16 +13,14 @@
           <div class="col-md-6 d-flex flex-column">
             <label class="form-label text-capitalize">Evident API Key</label>
             <input type="text" formControlName="apiKey" placeholder="Enter API key" />
-            <div *ngIf="apiKey.invalid && (apiKey.dirty || apiKey.touched)" class="text-danger">
-              <mat-error *ngIf="apiKey.errors?.['required']">API Key is required</mat-error>
-            </div>
+              <mat-error *ngIf="checkValidation('apiKey')">API Key is required</mat-error>
+ 
           </div>
           <div class="col-md-6 d-flex flex-column">
             <label class="form-label text-capitalize">Default Trading Account</label>
             <input type="text" formControlName="defaultTradingAccount" placeholder="Enter Trading Account ID" />
-            <div *ngIf="defaultTradingAccount.invalid && (defaultTradingAccount.dirty || defaultTradingAccount.touched)" class="text-danger">
-              <mat-error *ngIf="defaultTradingAccount.errors?.['required']">Trading Account is required</mat-error>
-            </div>
+              <mat-error *ngIf="checkValidation('defaultTradingAccount')">Trading Account is required</mat-error>
+  
           </div>
         </div>
       
@@ -30,9 +28,7 @@
           <div class="col-md-6 d-flex flex-column">
             <label class="form-label text-capitalize">Default Beneficiary Account</label>
             <input type="text" formControlName="defaultBeneficiaryAccount" placeholder="Enter Beneficiary Account ID" />
-            <div *ngIf="defaultBeneficiaryAccount.invalid && (defaultBeneficiaryAccount.dirty || defaultBeneficiaryAccount.touched)" class="text-danger">
-              <mat-error *ngIf="defaultBeneficiaryAccount.errors?.['required']">Beneficiary Account is required</mat-error>
-            </div>
+              <mat-error *ngIf="checkValidation('defaultBeneficiaryAccount')">Beneficiary Account is required</mat-error>
           </div>
         </div>
       
