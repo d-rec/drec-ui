@@ -29,7 +29,6 @@ export class MeterReadTableComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   readdata: any;
-  developerExternalId: string;
   devicedata: any;
   p: number = 1;
   total: number = 0;
@@ -86,27 +85,20 @@ export class MeterReadTableComponent implements OnInit {
 
   getPagedData() {
     this.FilterForm.controls['pagenumber'].setValue(this.p);
-    this.deviceService.GetDevicesInfo(this.exterenalId).subscribe({
-      next: (data: any) => {
-        this.developerExternalId = data.developerExternalId;
-      },
-    });
     this.service.GetRead(this.exterenalId, this.FilterForm.value).subscribe(
       (response: any) => {
         this.filter = true;
         this.readdata = response;
-        this.readdata.historyread.forEach((element: any) => {
-          element['readtype'] = 'History';
-          element['color'] = '#008000';
+        this.readdata.reads.forEach((element: any) => {
+          if (element.type == 'History') {
+            element['readtype'] = 'History';
+            element['color'] = '#008000';
+          } else {
+            element['readtype'] = 'Ongoing';
+            element['color'] = '#f2be1a';
+          }
         });
-        this.readdata.ongoing.forEach((element: any) => {
-          element['readtype'] = 'Ongoing';
-          element['color'] = '#f2be1a';
-        });
-        this.dataSource = new MatTableDataSource([
-          ...this.readdata.historyread,
-          ...this.readdata.ongoing,
-        ]);
+        this.dataSource = new MatTableDataSource([...this.readdata.reads]);
         this.totalRows = this.readdata.numberOfReads;
 
         this.currentPage = this.readdata.currentPageNumber;
@@ -155,11 +147,10 @@ export class MeterReadTableComponent implements OnInit {
       'Value(Wh)',
       'Read Type',
     ];
-
     const blob = generateCSVContent(headers, this.dataSource.data, (item) => {
       const startDate = this.formatDateForExport(item.startdate);
       const endDate = this.formatDateForExport(item.enddate);
-      return `"${this.developerExternalId}","${startDate}","${endDate}","${item.value}","${item.readtype}"`;
+      return `"${this.exterenalId}","${startDate}","${endDate}","${item.value}","${item.readtype}"`;
     });
 
     if (!blob) {
@@ -194,7 +185,7 @@ export class MeterReadTableComponent implements OnInit {
         const startDate = this.formatDateForExport(item.startdate);
         const endDate = this.formatDateForExport(item.enddate);
         return [
-          this.developerExternalId,
+          this.exterenalId,
           startDate,
           endDate,
           item.value.toString(),
