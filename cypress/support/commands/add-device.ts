@@ -24,7 +24,6 @@ Cypress.Commands.add('addDevice', function () {
             .clear()
             .type(step.value + '{enter}')
             .wait(1000);
-
         case 'select':
           if (step.option === "[test-id='country-options']") {
             return cy
