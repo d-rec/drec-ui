@@ -47,7 +47,7 @@ export class SettingsComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.toastrService.error('Failed to load settings');
+        this.toastrService.error('Failed to load settings' + err);
         console.error('Failed to load settings', err);
       },
     });
@@ -61,7 +61,7 @@ export class SettingsComponent implements OnInit {
           this.settingsForm.reset();
         },
         error: (err) => {
-          this.toastrService.error('Failed to save settings');
+          this.toastrService.error('Failed to save settings' + err);
           console.error('Error submitting settings:', err);
         },
       });
