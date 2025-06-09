@@ -1,11 +1,6 @@
 <h1 mat-dialog-title>{{data.title}}</h1>
 <div mat-dialog-content>{{data.message}}</div>
-<div style="float: right; margin: 20px">
-  <input
-    style="margin: 0px 10px"
-    type="button"
-    value="Confirm"
-    [mat-dialog-close]="true"
-  />
-  <input type="button" value="Cancel" [mat-dialog-close]="false" />
+<div mat-dialog-actions class="d-flex justify-content-center pb-4">
+  <button mat-button class="btn-primary text-capitalize" [mat-dialog-close]="true">Confirm</button>
+  <button mat-button class="btn-default text-capitalize" [mat-dialog-close]="false">Cancel</button>
 </div>
