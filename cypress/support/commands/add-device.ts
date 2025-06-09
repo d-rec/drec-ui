@@ -44,7 +44,6 @@ Cypress.Commands.add('addDevice', function () {
               .click()
               .wait(1000);
           }
-
         case 'upload':
           return cy
             .get(step.selector)
