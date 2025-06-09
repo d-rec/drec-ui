@@ -272,15 +272,15 @@
               {{ row.createdAt | date: ' dd MMM y hh:mm' }}
             </td>
           </ng-container>
-          <!-- <ng-container matColumnDef="projectName" class="text-left">
+          <ng-container matColumnDef="projectName" class="text-left">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Project Name </th>
             <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
-          </ng-container> -->
+          </ng-container>
           <ng-container matColumnDef="externalId" class="text-left">
-            <th mat-header-cell *matHeaderCellDef>ExternalId</th>
+            <th mat-header-cell *matHeaderCellDef>External Id</th>
             <td mat-cell *matCellDef="let element">{{ element.externalId }}</td>
             <ng-container matColumnDef="internalexternalId" class="text-left">
-              <th mat-header-cell *matHeaderCellDef>Internal SiteId</th>
+              <th mat-header-cell *matHeaderCellDef>Internal Site Id</th>
               <td mat-cell *matCellDef="let element">
                 {{ element.internalexternalId }}
               </td>
@@ -334,7 +334,7 @@
                   (click)="UpdateDevice(row.externalId)"
                   *ngIf="loginuser.role != 'Admin'"
                 >
-                  <mat-icon class="primary">edit</mat-icon></a
+                  <mat-icon class="primary">edit</mat-icon> Edit</a
                 >
                 <!-- <a  [routerLink]="['../edit']" [queryParams]="{id:row.externalId}"><mat-icon>add</mat-icon></a> -->
                 <a
@@ -342,7 +342,7 @@
                   class="edit-icon action-icons"
                   (click)="alertDialog(row.id)"
                 >
-                  <mat-icon class="primary">visibility</mat-icon>
+                  <mat-icon class="primary">visibility</mat-icon> View
                 </a>
                 <a
                   mat-menu-item
@@ -350,6 +350,7 @@
                   (click)="openDialog(row)"
                 >
                   <mat-icon class="primary">delete</mat-icon>
+                  Delete
                 </a>
 
                 <!-- Add more action buttons as needed -->

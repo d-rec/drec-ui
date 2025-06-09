@@ -31,7 +31,7 @@ export class AlldevicesComponent {
   dataFromDialog: any;
   displayedColumns = [
     'onboarding_date',
-    // 'projectName',
+    'projectName',
     'externalId',
     'internalexternalId',
     'countryCode',
@@ -423,7 +423,7 @@ export class AlldevicesComponent {
         deviceid: deviceId,
       },
       width: '900px',
-      height: '400px',
+      height: '70vh',
     });
   }
 

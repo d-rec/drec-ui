@@ -50,6 +50,9 @@
               <hr />
               <mat-card-content>
                 <div class="row">
+                  <div class="row">
+                    <h3>General</h3>
+                  </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize" test-id="project-name">project Name</mat-label>
@@ -70,7 +73,80 @@
                                           </mat-error> -->
                     </mat-form-field>
                   </div>
+                </div>
+                <div class="row">
+                  <div class="row">
+                    <h3>Technical Details</h3>
+                  </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize" test-id="fuel-code">Fuel Code</mat-label>
 
+                      <mat-select formControlName="fuelCode">
+                        <mat-option *ngFor="let code of fuellist" [value]="code.code" test-id="fuel-option">
+                          {{ code.name }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize" test-id="device-type">Device Type Code</mat-label>
+
+                      <mat-select formControlName="deviceTypeCode">
+                        <mat-option *ngFor="let code of devicetypelist" [value]="code.code" test-id="type-code-option">
+                          {{ code.name }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label test-id="capacity">Capacity(kW)</mat-label>
+                      <input matInput type="number" formControlName="capacity" [min]="1" autocomplete="off" />
+                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                      <!-- <mat-hint>Hint</mat-hint> -->
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize">Commissioning Date</mat-label>
+                      <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
+                        formControlName="commissioningDate" [max]="maxDate" test-id="commissioning-date" />
+                      <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
+                      <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
+                        [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
+                        [disableMinute]="false" [hideTime]="false">
+                      </ngx-mat-datetime-picker>
+                    </mat-form-field>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="row">
+                    <h3>Location</h3>
+                  </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize" test-id="address">Address</mat-label>
+                      <input autocomplete="off" matInput formControlName="address" />
+                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
+                      <!-- <mat-hint>Hint</mat-hint> -->
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize">State/Province</mat-label>
+                      <input matInput formControlName="stateProvince" autocomplete="off" />
+                    </mat-form-field>
+                  </div>
+
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize">Postcode (Zip Code)</mat-label>
+                      <input matInput type="string" formControlName="postcode" test-id="postcode" />
+                      <mat-error>Please enter the valid postcode</mat-error>
+                    </mat-form-field>
+                  </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize" test-id="select-country">Select country
@@ -87,39 +163,7 @@
                       Invalid Country Selected
                     </mat-error>
                   </div>
-
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">Commissioning Date</mat-label>
-                      <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
-                        formControlName="commissioningDate" [max]="maxDate" test-id="commissioning-date" />
-                      <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-                      <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
-                        [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
-                        [disableMinute]="false" [hideTime]="false">
-                      </ngx-mat-datetime-picker>
-                    </mat-form-field>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label test-id="capacity">Capacity(kW)</mat-label>
-                      <input matInput type="number" formControlName="capacity" [min]="1" autocomplete="off" />
-                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                      <!-- <mat-hint>Hint</mat-hint> -->
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="address">Address</mat-label>
-                      <input autocomplete="off" matInput formControlName="address" />
-                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                      <!-- <mat-hint>Hint</mat-hint> -->
-                    </mat-form-field>
-                  </div>
-
-                  <div class="col-md-3">
+                  <div class="col-md-6">
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize" test-id="latitude">Latitude</mat-label>
                       <input matInput formControlName="latitude" />
@@ -128,39 +172,22 @@
                     </mat-form-field>
                   </div>
 
-                  <div class="col-md-3">
+                  <div class="col-md-6">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="longitude">longitude</mat-label>
+                      <mat-label class="text-capitalize" test-id="longitude">Longitude</mat-label>
                       <input matInput formControlName="longitude" />
                       <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
                   </div>
+                  <div class="row pb-4">
+                    <app-map [zoom]="6"></app-map>
+                  </div>
                 </div>
 
                 <div class="row">
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="fuel-code">Fuel Code</mat-label>
-
-                      <mat-select formControlName="fuelCode">
-                        <mat-option *ngFor="let code of fuellist" [value]="code.code" test-id="fuel-option">
-                          {{ code.name }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="device-type">Device Type Code</mat-label>
-
-                      <mat-select formControlName="deviceTypeCode">
-                        <mat-option *ngFor="let code of devicetypelist" [value]="code.code" test-id="type-code-option">
-                          {{ code.name }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
+                  <div class="row">
+                    <h3>Other Details</h3>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -256,112 +283,108 @@
                         test-id="energy-storage" />
                     </mat-form-field>
                   </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">Postcode (Zip Code)</mat-label>
-                      <input matInput type="string" formControlName="postcode" test-id="postcode" />
-                      <mat-error>Please enter the valid postcode</mat-error>
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">State/Province</mat-label>
-                      <input matInput formControlName="stateProvince" autocomplete="off" />
-                    </mat-form-field>
-                  </div>
                 </div>
 
                 <div class="row">
-                  <h3 class="d-flex mb-3 justify-content-center mat-crd-hide align-items-center fw-bold">Device documents</h3>
-                  
+                  <div class="row">
+                    <h3>Supporting Documents</h3>
+                  </div>
+
                   <div class="col-md-4 mb-3">
                     <label>Form SF-02 - Production Facility Registration</label>
                     <div class="d-flex justify-content-between align-items-center">
-                      <input type="file" #pfFileInput (change)="onFileChange($event, i, DocumentType.FORM_SF_02)" style="display: none;" required/>
+                      <input type="file" #pfFileInput (change)="onFileChange($event, i, DocumentType.FORM_SF_02)"
+                        style="display: none;" required />
                       <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
                       <span class="file-name">
-                        {{ deviceForms.at(i).get('FORM_SF_02')?.value ? 
-                          shortenFileName(deviceForms.at(i).get('FORM_SF_02')?.value.name) : 
-                          'No file chosen' }}
+                        {{ deviceForms.at(i).get('FORM_SF_02')?.value ?
+                        shortenFileName(deviceForms.at(i).get('FORM_SF_02')?.value.name) :
+                        'No file chosen' }}
                       </span>
                       <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
                     </div>
                   </div>
-                
+
                   <div class="col-md-4 mb-3">
                     <label>SF-02C Owner's Declaration or Proof of Ownership</label>
                     <div class="d-flex justify-content-between align-items-center">
-                      <input type="file" #ownershipFileInput (change)="onFileChange($event, i, DocumentType.SF_02C)" style="display: none" />
+                      <input type="file" #ownershipFileInput (change)="onFileChange($event, i, DocumentType.SF_02C)"
+                        style="display: none" />
                       <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
                       <span class="file-name">
-                        {{ deviceForms.at(i).get('SF_02C')?.value ? shortenFileName(deviceForms.at(i).get('SF_02C')?.value.name) : 'No file chosen' }}
+                        {{ deviceForms.at(i).get('SF_02C')?.value ?
+                        shortenFileName(deviceForms.at(i).get('SF_02C')?.value.name) : 'No file chosen' }}
                       </span>
                       <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
                     </div>
                   </div>
-                
+
                   <div class="col-md-4 mb-3">
                     <label>Metering Evidence</label>
                     <div class="d-flex justify-content-between align-items-center">
-                      <input type="file" #meteringFileInput (change)="onFileChange($event, i, DocumentType.METERING_EVIDENCE)" style="display: none" />
+                      <input type="file" #meteringFileInput
+                        (change)="onFileChange($event, i, DocumentType.METERING_EVIDENCE)" style="display: none" />
                       <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary">
-                        <mat-icon>attach_file</mat-icon> 
+                        <mat-icon>attach_file</mat-icon>
                       </button>
                       <span class="file-name">
-                        {{ deviceForms.at(i).get('METERING_EVIDENCE')?.value ? shortenFileName(deviceForms.at(i).get('METERING_EVIDENCE')?.value.name) : 'No file chosen' }}
+                        {{ deviceForms.at(i).get('METERING_EVIDENCE')?.value ?
+                        shortenFileName(deviceForms.at(i).get('METERING_EVIDENCE')?.value.name) : 'No file chosen' }}
                       </span>
                       <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
                     </div>
                   </div>
-                
+
                   <div class="col-md-4 mb-3">
                     <label>Single Line Diagram</label>
                     <div class="d-flex justify-content-between align-items-center">
-                      <input type="file" #diagramFileInput (change)="onFileChange($event, i, DocumentType.SINGLE_LINE_DIAGRAM)" style="display: none" />
+                      <input type="file" #diagramFileInput
+                        (change)="onFileChange($event, i, DocumentType.SINGLE_LINE_DIAGRAM)" style="display: none" />
                       <button type="button" (click)="diagramFileInput.click()" class="btn btn-primary">
-                        <mat-icon>attach_file</mat-icon> 
+                        <mat-icon>attach_file</mat-icon>
                       </button>
                       <span class="file-name">
-                        {{ deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value ? shortenFileName(deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value.name) : 'No file chosen' }}
+                        {{ deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value ?
+                        shortenFileName(deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value.name) : 'No file chosen'
+                        }}
                       </span>
                       <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
                     </div>
                   </div>
-                
+
                   <div class="col-md-4 mb-3">
                     <label>Project Photos</label>
                     <div class="d-flex justify-content-between align-items-center">
-                      <input type="file" #photosFileInput (change)="onFileChange($event, i, DocumentType.PROJECT_PHOTOS)" style="display: none" />
+                      <input type="file" #photosFileInput
+                        (change)="onFileChange($event, i, DocumentType.PROJECT_PHOTOS)" style="display: none" />
                       <button type="button" (click)="photosFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
                       <span class="file-name">
-                        {{ deviceForms.at(i).get('PROJECT_PHOTOS')?.value ? shortenFileName(deviceForms.at(i).get('PROJECT_PHOTOS')?.value.name) : 'No file chosen' }}
+                        {{ deviceForms.at(i).get('PROJECT_PHOTOS')?.value ?
+                        shortenFileName(deviceForms.at(i).get('PROJECT_PHOTOS')?.value.name) : 'No file chosen' }}
                       </span>
                       <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
                     </div>
                   </div>
                 </div>
-                
+
               </mat-card-content>
               <!-- <mat-card-footer></mat-card-footer> -->
             </mat-card>
           </div>
         </div>
-        <div class="pt-4">
-          <app-map [zoom]="6"></app-map>
-        </div>
       </mat-card-content>
       <mat-card-footer>
         <div class="example-container mt-3">
           <div class="col-12 d-flex justify-content-end">
-            <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="!formValid || isSubmitting"   (click)="onSubmit()"
-            test-id="submit-device">
-            {{ submitButtonText }}
+            <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="!formValid || isSubmitting"
+              (click)="onSubmit()" test-id="submit-device">
+              {{ submitButtonText }}
             </button>
           </div>
         </div>
