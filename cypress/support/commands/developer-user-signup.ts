@@ -65,6 +65,9 @@ Cypress.Commands.add('developerUserSignup', function () {
             expect(response.status).to.eq(200);
           });
           break;
+        case 'submit':
+          cy.get(step.selector).click().wait(20000);
+          return cy.contains('successfully');
       }
     });
   });
