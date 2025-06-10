@@ -67,7 +67,7 @@ Cypress.Commands.add('developerUserSignup', function () {
           break;
         case 'submit':
           cy.get(step.selector).click().wait(20000);
-          return cy.contains('All documents uploaded');
+          return cy.contains('All documents uploaded').should('be.visible');
       }
     });
   });
