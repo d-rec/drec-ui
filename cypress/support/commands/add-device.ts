@@ -3,7 +3,7 @@ Cypress.Commands.add('addDevice', function () {
   cy.fixture('add-device.json').then((data) => {
     const new_data = data.map((d) =>
       d.selector === "[test-id='external-id']"
-        ? { ...d, value: Math.floor(Math.random() * (100 - 10 + 1) + 10) }
+        ? { ...d, value: Math.floor(Math.random() * 100) }
         : { ...d },
     );
     new_data.forEach((step) => {
@@ -11,9 +11,8 @@ Cypress.Commands.add('addDevice', function () {
         case 'click':
           return cy
             .get(step.selector)
-            .click('center', { force: true })
+            .click({ multiple: true, force: true })
             .wait(1000);
-
         case 'type':
           return cy.get(step.selector).should('be.visible').type(step.value);
 
@@ -44,6 +43,16 @@ Cypress.Commands.add('addDevice', function () {
               .click()
               .wait(1000);
           }
+
+        case 'upload':
+          return cy
+            .get(step.selector)
+            .should('exist')
+            .each(($input) => {
+              cy.wrap($input).attachFile('files/meter_reads_2025-05-14.pdf', {
+                force: true,
+              });
+            });
 
         case 'agree':
           cy.get(step.selector).click('center', { force: true });

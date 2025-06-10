@@ -14,6 +14,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
+      MODE: test
       MNEMONIC: ${{ secrets.WALLET_MNEMONIC }}
       WEB3: https://volta-rpc.energyweb.org
       UI_BASE_URL: http://localhost:4200
@@ -43,7 +44,8 @@ jobs:
           elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
             echo "MODE=prod" >> $GITHUB_ENV
           else
-            echo "MODE=dev" >> $GITHUB_ENV
+            # For 'develop' branch pushes, and all pull requests (regardless of target branch)
+            echo "MODE=test" >> $GITHUB_ENV
           fi
 
       - name: Checkout Repository
@@ -121,16 +123,6 @@ jobs:
             echo "Frontend is not ready yet..."
           done
           echo "Frontend is ready!"
-      - name: Start MailDev
-        run: |
-          docker run -d -p 1080:1080 -p 1025:1025 --name maildev maildev/maildev
-      - name: Wait for Maildev to be ready
-        run: |
-          until curl -v http://localhost:1080 2>&1 | tee /tmp/maildev-check.log; do
-            echo "Waiting for Maildev to be ready..."
-            sleep 5
-          done
-          echo "Maildev is ready!"
       - name: Run Cypress Tests
         run: pnpx cypress run
 
