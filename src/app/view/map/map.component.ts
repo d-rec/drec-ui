@@ -21,6 +21,7 @@ export class MapComponent implements OnInit {
     layers: [],
     zoom: 3,
     center: L.latLng(20, 0),
+    scrollWheelZoom: false,
   };
 
   map!: L.Map;

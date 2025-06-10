@@ -1,13 +1,7 @@
 <div class="form-container">
-  <div
-    class="close-icon-container d-flex justify-content-between align-items-center border-bottom mb-2 pb-2"
-  >
+  <div class="close-icon-container d-flex justify-content-between align-items-center border-bottom mb-2 pb-2">
     <h2 class="text-capitalize device-details-heading">Device Details</h2>
-    <mat-icon
-      aria-hidden="false"
-      (click)="dialogRef.close(false)"
-      class="close-icon"
-    >
+    <mat-icon aria-hidden="false" (click)="dialogRef.close(false)" class="close-icon">
       close
     </mat-icon>
   </div>
@@ -19,192 +13,150 @@
     <div *ngIf="loading; else content">
       <div class="spinner__loading">
         <div>
-          <mat-progress-spinner
-            diameter="60"
-            [value]="value"
-            mode="determinate"
-          >
+          <mat-progress-spinner diameter="60" [value]="value" mode="determinate">
           </mat-progress-spinner>
         </div>
       </div>
     </div>
     <ng-template #content>
-      <div class="content">
-        <div class="column col-4">
+      <div class="content row">
+        <div class="row mb-4">
+          <div class="row">
+            <h2>General</h2>
+          </div>
           <div class="row">
             <p>
-              <b> Device Name</b>:&nbsp; <br />
+              <b> Project Name</b>:
+              {{ device_details.projectName }}
+            </p>
+          </div>
+          <div class="row">
+            <p>
+              <b> External ID</b>:
               {{ device_details.developerExternalId }}
             </p>
           </div>
         </div>
-        <div class="column col-4">
+        <div class="row mb-4">
+          <div class="row">
+            <h2>Technical Details</h2>
+          </div>
+          <div class="row">
+            <p><b>Fuel Code</b>: {{ device_details.fuelname }}</p>
+          </div>
           <div class="row">
             <p>
-              <b> Project Name</b>:&nbsp;<br />
-              {{ device_details.projectName }}
+              <b>Device Type Code</b>: {{
+              device_details.devicetypename
+              }}
+            </p>
+          </div>
+          <div class="row">
+            <p><b>Capacity </b>: {{ device_details.capacity }}</p>
+          </div>
+          <div class="row">
+            <p>
+              <b> Commissioning Date</b>: {{
+              device_details.commissioningDate | date: 'dd MMM y hh:mm'
+              }}
+            </p>
+          </div>
+          <div class="row">
+            <p>
+              <b>OnBoarding Date</b>: {{
+              device_details.createdAt | date: 'dd MMM y hh:mm'
+              }}
             </p>
           </div>
         </div>
-        <div class="column col-4">
+        <div class="row mb-4">
           <div class="row">
-            <p><b>Capacity </b>:&nbsp;<br />{{ device_details.capacity }}</p>
+            <h2>Location</h2>
           </div>
-        </div>
-      </div>
-      <div class="content">
-        <div class="column col-4">
+          <div class="row">
+            <p><b>Address</b>: {{ device_details.address }}</p>
+          </div>
           <div class="row">
             <p>
-              <b> Country</b>:&nbsp;<br />
+              <b> State/Province/County</b>: {{
+              device_details.stateProvince
+              }}
+            </p>
+          </div>
+          <div class="row">
+            <p>
+              <b>Postcodeode (Zip Code)</b>: {{
+              device_details.postcode
+              }}
+            </p>
+          </div>
+          <div class="row">
+            <p>
+              <b> Country</b>:
               {{ device_details.countryname }}
             </p>
           </div>
+          <div class="row">
+            <p><b>Timezone</b>: {{ device_details.timezone }}</p>
+          </div>
+          <div class="row">
+            <p><b>Latitude</b>: {{ device_details.latitude }}</p>
+          </div>
+          <div class="row">
+            <p><b>Longitude</b>: {{ device_details.longitude }}</p>
+          </div>
         </div>
-        <div class="column col-4">
+        <div class="row mb-4">
+          <div class="row">
+            <h2>Other Details</h2>
+          </div>
+          <div class="row">
+            <p><b> Off Takers</b>: {{ device_details.offTaker }}</p>
+          </div>
           <div class="row">
             <p>
-              <b> Commissioning Date</b>:&nbsp;<br />{{
-                device_details.commissioningDate | date: 'dd MMM y hh:mm'
-              }}
+              <b>SDGBenefits</b>: {{ device_details.SDGBenefits }}
             </p>
           </div>
-        </div>
-        <div class="column col-4">
-          <div class="row">
-            <p>
-              <b>OnBoarding Date</b>:&nbsp;<br />{{
-                device_details.createdAt | date: 'dd MMM y hh:mm'
-              }}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="content">
-        <div class="column col-4">
-          <div class="row">
-            <p><b> Off Takers</b>:&nbsp;<br />{{ device_details.offTaker }}</p>
-          </div>
-        </div>
-        <div class="column col-4">
-          <div class="row">
-            <p><b>Fuel Code</b>:&nbsp;<br />{{ device_details.fuelname }}</p>
-          </div>
-        </div>
-        <div class="column col-4">
-          <div class="row">
-            <p>
-              <b>Device Type Code</b>:&nbsp;<br />{{
-                device_details.devicetypename
-              }}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="content">
-        <div class="column col-4">
-          <div class="row">
-            <p>
-              <b>SDGBenefits</b>:&nbsp;<br />{{ device_details.SDGBenefits }}
-            </p>
-          </div>
-        </div>
 
-        <div class="column col-4">
           <div class="row">
             <p>
-              <b> Energy Storage</b>:&nbsp;<br />{{
-                device_details.energyStorage
+              <b> Energy Storage</b>: {{
+              device_details.energyStorage
               }}
             </p>
           </div>
-        </div>
-        <div class="column col-4">
           <div class="row">
             <p>
-              <b>Energy StorageCapacity</b>:&nbsp; <br />{{
-                device_details.energyStorageCapacity
+              <b>Energy StorageCapacity</b>: {{
+              device_details.energyStorageCapacity
               }}
             </p>
           </div>
-        </div>
-      </div>
-      <div class="content">
-        <div class="column col-4">
           <div class="row">
-            <p><b>Address</b>:&nbsp;<br />{{ device_details.address }}</p>
+            <p><b>Version</b>: {{ device_details.version }}</p>
           </div>
-        </div>
-        <div class="column col-4">
-          <div class="row">
-            <p><b>Latitude</b>:&nbsp;<br />{{ device_details.latitude }}</p>
-          </div>
-        </div>
-        <div class="column col-4">
-          <div class="row">
-            <p><b>Longitude</b>:&nbsp;<br />{{ device_details.longitude }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="content">
-        <div class="column col-4">
-          <div class="row">
-            <p><b>Timezone</b>:&nbsp;<br />{{ device_details.timezone }}</p>
-          </div>
-        </div>
-        <div class="column col-4">
-          <div class="row">
-            <p><b>Version</b>:&nbsp;<br />{{ device_details.version }}</p>
-          </div>
-        </div>
-        <div class="column col-4">
           <div class="row">
             <p>
-              <b>Yield Value</b>:&nbsp;<br />{{ device_details.yieldValue }}
+              <b>Yield Value</b>: {{ device_details.yieldValue }}
             </p>
           </div>
-        </div>
-      </div>
-      <div class="content">
-        <div class="col-4">
           <div class="row">
             <p>
-              <b> meterReadtype</b>:&nbsp;<br />{{
-                device_details.meterReadtype
+              <b> meterReadtype</b>: {{
+              device_details.meterReadtype
               }}
             </p>
           </div>
-        </div>
-        <div class="column col-4">
           <div class="row">
             <p>
-              <b> Device Description</b>:&nbsp;<br />{{
-                device_details.deviceDescription
-              }}
-            </p>
-          </div>
-        </div>
-        <div class="column col-4">
-          <div class="row">
-            <p>
-              <b>Postcodeode (Zip Code)</b>:&nbsp;<br />{{
-                device_details.postcode
+              <b> Device Description</b>: {{
+              device_details.deviceDescription
               }}
             </p>
           </div>
         </div>
       </div>
-      <div class="content">
-      <div class="column col-4">
-        <div class="row">
-          <p>
-            <b> State/Province</b>:&nbsp;<br />{{
-              device_details.stateProvince
-            }}
-          </p>
-        </div>
-      </div>
-    </div>
     </ng-template>
   </mat-dialog-content>
   <!-- <mat-dialog-actions>

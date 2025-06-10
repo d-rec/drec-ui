@@ -183,7 +183,29 @@
                   <mat-date-range-picker #picker></mat-date-range-picker>
                 </mat-form-field>
               </div>
-
+              <div class="col-md-4 h6-margin-remove">
+                <h6>Device External Id:</h6>
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">
+                    enter device Id</mat-label
+                  >
+                  <mat-select
+                    formControlName="deviceIds"
+                    (ngModelChange)="checkFormValidity()"
+                    multiple
+                  >
+                    <mat-option [value]="" test-id="dropdown-no-selection"
+                      >---</mat-option
+                    >
+                    <mat-option
+                      *ngFor="let developerExternalId of devices"
+                      [value]="developerExternalId.id"
+                    >
+                      {{ developerExternalId.externalId }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
               <div class="col-md-12 mb-3 d-flex justify-content-end">
                 <div class="">
                   <button
@@ -396,7 +418,7 @@
               Number Of Devices
             </th>
             <td mat-cell *matCellDef="let row" class="table-data-myreservation">
-              {{ row.numberOfdevices }}
+              {{ row.devices?.length || 0 }}
             </td>
           </ng-container>
 
@@ -545,7 +567,7 @@
                 <p>
                   <b> Number of Devices</b
                   >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                  {{ group_info.numberOfdevices }}
+                  {{ group_info.devices?.length || 0 }}
                 </p>
               </div>
             </div>

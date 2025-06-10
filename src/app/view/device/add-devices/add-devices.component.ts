@@ -576,16 +576,12 @@ export class AddDevicesComponent {
   }
   updateMapMarkers(latitude: any, longitude: any) {
     if (this.mapComponent && latitude && longitude) {
-      const device = [
+      const markers = [
         {
-          latitude: latitude,
-          longitude: longitude,
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude),
         },
       ];
-      const markers = device.map((device) => ({
-        latitude: parseFloat(device.latitude),
-        longitude: parseFloat(device.longitude),
-      }));
 
       // Set the markers on the map component
       this.mapComponent.markers = [...markers];
