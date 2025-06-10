@@ -28,7 +28,7 @@ Cypress.Commands.add('addDevice', function () {
           if (step.option === "[test-id='country-options']") {
             return cy
               .get(step.selector)
-              .click()
+              .click({ force: true })
               .get(step.option)
               .contains('Rwanda')
               .click()

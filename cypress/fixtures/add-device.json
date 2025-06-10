@@ -20,8 +20,18 @@
   },
   {
     "action": "select",
-    "selector": "[test-id='select-country']",
-    "option": "[test-id='country-options']"
+    "selector": "[test-id='fuel-code']",
+    "option": "[test-id='fuel-option']"
+  },
+  {
+    "action": "select",
+    "selector": "[test-id='device-type']",
+    "option": "[test-id='type-code-option']"
+  },
+  {
+    "action": "type",
+    "selector": "[test-id='capacity']",
+    "value": "1"
   },
   {
     "action": "write",
@@ -30,13 +40,13 @@
   },
   {
     "action": "type",
-    "selector": "[test-id='capacity']",
-    "value": "1"
-  },
-  {
-    "action": "type",
     "selector": "[test-id='address']",
     "value": "just testing"
+  },
+  {
+    "action": "select",
+    "selector": "[test-id='select-country']",
+    "option": "[test-id='country-options']"
   },
   {
     "action": "type",
@@ -47,16 +57,6 @@
     "action": "type",
     "selector": "[test-id='longitude']",
     "value": "31.00976"
-  },
-  {
-    "action": "select",
-    "selector": "[test-id='fuel-code']",
-    "option": "[test-id='fuel-option']"
-  },
-  {
-    "action": "select",
-    "selector": "[test-id='device-type']",
-    "option": "[test-id='type-code-option']"
   },
   {
     "action": "select",
