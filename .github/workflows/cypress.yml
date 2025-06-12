@@ -124,7 +124,7 @@ jobs:
           done
           echo "Frontend is ready!"
       - name: Run Cypress Tests
-        run: pnpx cypress run
+        run: pnpx cypress run --browser chrome
 
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
