@@ -97,7 +97,7 @@
     "selector": "[test-id='browse-documents']"
   },
   {
-    "action": "click",
+    "action": "submit",
     "selector": "[test-id='submit-all-documents']"
   }
 ]
