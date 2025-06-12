@@ -30,7 +30,6 @@ Cypress.Commands.add('buyerUserSignup', function () {
             });
           });
           break;
-
         case 'verify-phone':
           cy.visit(`${UI_BASE_URL}/verify-otp`).wait(5000);
           const MOCK_OTP_CODE = '123456';
