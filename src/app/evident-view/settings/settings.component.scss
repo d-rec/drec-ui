@@ -1,0 +1,9 @@
+input {
+    border: rgb(182, 178, 178) 1px solid;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+input ::placeholder {
+    color: rgb(194, 189, 189)
+}

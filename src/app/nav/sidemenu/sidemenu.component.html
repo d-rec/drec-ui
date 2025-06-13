@@ -424,7 +424,25 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
+      <mat-expansion-panel [class.mat-elevation-z0]="true">
+        <mat-expansion-panel-header
+          class="mdc-button"
+        >
+          <mat-icon>tune</mat-icon>
+          Evident configuration 
+        </mat-expansion-panel-header>
 
+        <mat-nav-list class="p-0">
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="settings/evident"
+          >
+            <span>Evident settings</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
       <!-- <button class="menu-button" mat-button (click)="logout()"><mat-icon>power_settings_new</mat-icon>Logout</button> -->
     </mat-nav-list>
   </mat-sidenav>
