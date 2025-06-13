@@ -29,118 +29,106 @@
       </div>
     </div>
     <ng-template #content>
-      <div class="content row">
-        <div class="row mb-4">
-          <div class="row">
-            <h2>General</h2>
-          </div>
+      <div class="content">
+        <div class="column col-4">
           <div class="row">
             <p>
-              <b> Project Name</b>:
-              {{ device_details.projectName }}
-            </p>
-          </div>
-          <div class="row">
-            <p>
-              <b> External ID</b>:
+              <b> Device Name</b>:&nbsp; <br />
               {{ device_details.developerExternalId }}
             </p>
           </div>
         </div>
-        <div class="row mb-4">
-          <div class="row">
-            <h2>Technical Details</h2>
-          </div>
-          <div class="row">
-            <p><b>Fuel Code</b>: {{ device_details.fuelname }}</p>
-          </div>
-          <div class="row">
-            <p><b>Device Type Code</b>: {{ device_details.devicetypename }}</p>
-          </div>
-          <div class="row">
-            <p><b>Capacity </b>: {{ device_details.capacity }}</p>
-          </div>
+        <div class="column col-4">
           <div class="row">
             <p>
-              <b> Commissioning Date</b>:
-              {{ device_details.commissioningDate | date: 'dd MMM y hh:mm' }}
-            </p>
-          </div>
-          <div class="row">
-            <p>
-              <b>OnBoarding Date</b>:
-              {{ device_details.createdAt | date: 'dd MMM y hh:mm' }}
+              <b> Project Name</b>:&nbsp;<br />
+              {{ device_details.projectName }}
             </p>
           </div>
         </div>
-        <div class="row mb-4">
+        <div class="column col-4">
           <div class="row">
-            <h2>Location</h2>
+            <p><b>Capacity </b>:&nbsp;<br />{{ device_details.capacity }}</p>
           </div>
-          <div class="row">
-            <p><b>Address</b>: {{ device_details.address }}</p>
-          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="column col-4">
           <div class="row">
             <p>
-              <b> State/Province/County</b>: {{ device_details.stateProvince }}
-            </p>
-          </div>
-          <div class="row">
-            <p><b>Postcodeode (Zip Code)</b>: {{ device_details.postcode }}</p>
-          </div>
-          <div class="row">
-            <p>
-              <b> Country</b>:
+              <b> Country</b>:&nbsp;<br />
               {{ device_details.countryname }}
             </p>
           </div>
-          <div class="row">
-            <p><b>Timezone</b>: {{ device_details.timezone }}</p>
-          </div>
-          <div class="row">
-            <p><b>Latitude</b>: {{ device_details.latitude }}</p>
-          </div>
-          <div class="row">
-            <p><b>Longitude</b>: {{ device_details.longitude }}</p>
-          </div>
         </div>
-        <div class="row mb-4">
-          <div class="row">
-            <h2>Other Details</h2>
-          </div>
-          <div class="row">
-            <p><b> Off Takers</b>: {{ device_details.offTaker }}</p>
-          </div>
-          <div class="row">
-            <p><b>SDGBenefits</b>: {{ device_details.SDGBenefits }}</p>
-          </div>
-
-          <div class="row">
-            <p><b> Energy Storage</b>: {{ device_details.energyStorage }}</p>
-          </div>
+        <div class="column col-4">
           <div class="row">
             <p>
-              <b>Energy StorageCapacity</b>:
-              {{ device_details.energyStorageCapacity }}
+              <b> Commissioning Date</b>:&nbsp;<br />{{
+                device_details.commissioningDate | date: 'dd MMM y hh:mm'
+              }}
             </p>
           </div>
-          <div class="row">
-            <p><b>Version</b>: {{ device_details.version }}</p>
-          </div>
-          <div class="row">
-            <p><b>Yield Value</b>: {{ device_details.yieldValue }}</p>
-          </div>
-          <div class="row">
-            <p><b> meterReadtype</b>: {{ device_details.meterReadtype }}</p>
-          </div>
+        </div>
+        <div class="column col-4">
           <div class="row">
             <p>
-              <b> Device Description</b>: {{ device_details.deviceDescription }}
+              <b>OnBoarding Date</b>:&nbsp;<br />{{
+                device_details.createdAt | date: 'dd MMM y hh:mm'
+              }}
             </p>
           </div>
         </div>
       </div>
-      <<<<<<< HEAD
+      <div class="content">
+        <div class="column col-4">
+          <div class="row">
+            <p><b> Off Takers</b>:&nbsp;<br />{{ device_details.offTaker }}</p>
+          </div>
+        </div>
+        <div class="column col-4">
+          <div class="row">
+            <p><b>Fuel Code</b>:&nbsp;<br />{{ device_details.fuelname }}</p>
+          </div>
+        </div>
+        <div class="column col-4">
+          <div class="row">
+            <p>
+              <b>Device Type Code</b>:&nbsp;<br />{{
+                device_details.devicetypename
+              }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="column col-4">
+          <div class="row">
+            <p>
+              <b>SDGBenefits</b>:&nbsp;<br />{{ device_details.SDGBenefits }}
+            </p>
+          </div>
+        </div>
+
+        <div class="column col-4">
+          <div class="row">
+            <p>
+              <b> Energy Storage</b>:&nbsp;<br />{{
+                device_details.energyStorage
+              }}
+            </p>
+          </div>
+        </div>
+        <div class="column col-4">
+          <div class="row">
+            <p>
+              <b>Energy StorageCapacity</b>:&nbsp; <br />{{
+                device_details.energyStorageCapacity
+              }}
+            </p>
+          </div>
+        </div>
+      </div>
       <div class="content">
         <div class="column col-4">
           <div class="row">
@@ -219,7 +207,9 @@
         <div class="column col-4">
           <div class="row">
             <p>
-              <b> Evident ID</b>:&nbsp;<br />{{ device_details.stateProvince }}
+              <b> Evident ID</b>:&nbsp;<br />{{
+                device_details.evidentDeviceId
+              }}
             </p>
           </div>
         </div>
@@ -227,7 +217,7 @@
           <div class="row">
             <p>
               <b> Evident Registration Status</b>:&nbsp;<br />{{
-                device_details.stateProvince
+                device_details.evidentStatus
               }}
             </p>
           </div>
