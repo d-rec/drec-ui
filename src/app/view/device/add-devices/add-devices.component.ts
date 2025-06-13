@@ -545,8 +545,10 @@ export class AddDevicesComponent {
             this.submitButtonText = 'Submit';
             this.isSubmitting = false;
             this.toastrService.error(
-              'Some error occurred due to ' + err.error.message,
-              'Device!' + element.externalId,
+              err.error?.message ||
+                err.message ||
+                'Failed to register device ' + element.externalId,
+              'Please try again. ',
             );
           }
         },
