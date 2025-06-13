@@ -47,6 +47,7 @@ import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-condi
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
 import { DashboardComponent } from './view/dashboard/dashboard.component';
 import { ChangePhoneNumberComponent } from './view/change-phone-number/change-phone-number.component';
+import { SettingsComponent } from './evident-view/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -83,6 +84,7 @@ import { ChangePhoneNumberComponent } from './view/change-phone-number/change-ph
     ResendConfirmEmailComponent,
     DashboardComponent,
     ChangePhoneNumberComponent,
+    SettingsComponent,
   ],
   imports: [
     BrowserModule,
