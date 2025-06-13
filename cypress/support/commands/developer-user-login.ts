@@ -10,7 +10,7 @@ Cypress.Commands.add('developerUserLogin', function () {
           return cy.get(step.selector).type(step.value);
 
         case 'click':
-          return cy.get(step.selector).click({ multiple: true }).wait(30000);
+          return cy.get(step.selector).click({ multiple: true }).wait(3000);
       }
     });
   });
