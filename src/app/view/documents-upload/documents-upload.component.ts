@@ -3,7 +3,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { OrganizationService } from '../../auth/services/organization.service';
 import { AuthbaseService } from '../../auth/authbase.service';
-import { DocumentType } from '.././../utils/drec.enum';
+import { DocumentType, OrganizationType } from '.././../utils/drec.enum';
 import { UserService } from '../../auth/services';
 import { map } from 'rxjs';
 
@@ -36,6 +36,7 @@ export class DocumentsUploadComponent {
     'If you require any help with the document uploads, please create a draft, and contact our support team.';
   isUploading: boolean = false;
   numberOfUploadedDocuments: number = 0;
+  userTye = '';
   @Input() documents: DocumentUpload[] = [
     {
       title: 'Legal Entity Incorporation certificate/document',
@@ -137,6 +138,7 @@ export class DocumentsUploadComponent {
       .pipe(
         map((user: any) => {
           this.userApiId = user.api_user_id;
+          this.userTye = user.role;
         }),
       )
       .subscribe();
@@ -183,15 +185,19 @@ export class DocumentsUploadComponent {
           });
           this.toastrService.success('All documents uploaded successfully');
           this.isUploading = false;
-          this.authService
-            .ApiUserExportAccesskey('user/export-accesskey/', this.userApiId)
-            .subscribe({
-              next: (keydata: any) => {
-                this.downloadAccessKey(keydata);
-              },
-            });
-          this.toastrService.success('Access key downloaded successfully');
-          this.router.navigate(['/apiuser/permission/request/form']);
+          if (this.userTye === OrganizationType.ApiUser) {
+            this.authService
+              .ApiUserExportAccesskey('user/export-accesskey/', this.userApiId)
+              .subscribe({
+                next: (keydata: any) => {
+                  this.downloadAccessKey(keydata);
+                },
+              });
+            this.toastrService.success('Access key downloaded successfully');
+            this.router.navigate(['/apiuser/permission/request/form']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
         },
         error: (err) => {
           if (err.error.errorType === 'DOCUMENT_ALREADY_UPLOADED') {

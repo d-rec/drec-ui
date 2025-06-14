@@ -61,7 +61,7 @@ Cypress.Commands.add('developerUserSignup', function () {
 
         case 'browse-documents':
           return cy.get(step.selector).each(($input) => {
-            cy.wrap($input).attachFile('files/screenshot.png', {
+            cy.wrap($input).attachFile('files/dummy.pdf', {
               force: true,
             });
             cy.log('file uploaded successfully');
