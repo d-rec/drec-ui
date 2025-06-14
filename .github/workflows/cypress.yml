@@ -43,8 +43,10 @@ jobs:
             echo "MODE=stage" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
             echo "MODE=prod" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "MODE=dev" >> $GITHUB_ENV
           else
-            # For 'develop' branch pushes, and all pull requests (regardless of target branch)
+            # For pull requests or other branches
             echo "MODE=test" >> $GITHUB_ENV
           fi
 
