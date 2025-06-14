@@ -44,10 +44,10 @@ jobs:
           elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
             echo "MODE=prod" >> $GITHUB_ENV
           elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "MODE=dev" >> $GITHUB_ENV
+            echo "MODE=test" >> $GITHUB_ENV
           else
             # For pull requests or other branches
-            echo "MODE=test" >> $GITHUB_ENV
+            echo "MODE=dev" >> $GITHUB_ENV
           fi
 
       - name: Checkout Repository
