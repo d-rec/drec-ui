@@ -96,6 +96,27 @@ jobs:
         working-directory: projects/drec-origin/apps/drec-api
         run: |
           ls -R dist
+      - name: Start Localstack
+        working-directory: projects/drec-origin
+        run: |
+          docker pull localstack/localstack
+          docker run -d -p 4566:4566 -p 4571:4571 --name localstack localstack/localstack
+          echo "Waiting for Localstack to be ready..."
+          until curl -s http://localhost:4566/health | grep '"s3": "running"'; do
+            sleep 5
+            echo "Waiting for S3 service in Localstack to be ready..."
+          done
+          echo "Localstack is ready!"
+
+      - name: Configure AWS CLI for Localstack
+        working-directory: projects/drec-origin
+        run: |
+          sudo apt-get update && sudo apt-get install -y awscli
+          aws configure set aws_access_key_id test
+          aws configure set aws_secret_access_key test
+          aws configure set default.region us-east-1
+          aws --endpoint-url=http://localhost:4566 s3 mb s3://mock-bucket
+          echo "Mock S3 bucket created successfully!"
 
       - name: Start Backend and Wait for Readiness
         working-directory: projects/drec-origin

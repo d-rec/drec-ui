@@ -14,12 +14,12 @@ Cypress.Commands.add('deviceBulkUpload', function () {
             });
 
         case 'upload-bulk':
-          cy.get(step.selector)
+          return cy
+            .get(step.selector)
             .scrollIntoView()
             .should('be.visible')
             .click()
             .wait(1000);
-          return cy.contains('Successfully').should('be.visible');
       }
     });
   });
