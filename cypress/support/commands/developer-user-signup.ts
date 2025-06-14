@@ -61,12 +61,9 @@ Cypress.Commands.add('developerUserSignup', function () {
 
         case 'browse-documents':
           return cy.get(step.selector).each(($input) => {
-            cy.wrap($input).attachFile(
-              'files/d-rec-device-bulk-upload-template.csv',
-              {
-                force: true,
-              },
-            );
+            cy.wrap($input).attachFile('files/meter_reads_2025-05-14.pdf', {
+              force: true,
+            });
           });
         case 'submit':
           return cy.get(step.selector).should('be.visible').click();
