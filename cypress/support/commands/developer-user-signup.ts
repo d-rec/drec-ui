@@ -61,7 +61,7 @@ Cypress.Commands.add('developerUserSignup', function () {
 
         case 'browse-documents':
           return cy.get(step.selector).each(($input) => {
-            cy.wrap($input).attachFile('files/meter_reads_2025-05-14.pdf', {
+            cy.wrap($input).attachFile('files/screenshot.png', {
               force: true,
             });
           });
