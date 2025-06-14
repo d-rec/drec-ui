@@ -127,7 +127,9 @@ jobs:
       - name: Configure AWS CLI for Localstack
         working-directory: projects/drec-origin
         run: |
-          sudo apt-get update && sudo apt-get install -y awscli
+          sudo apt-get update && sudo apt-get install -y python3-pip
+          pip3 install awscli --upgrade --user
+          export PATH=$PATH:~/.local/bin
           aws configure set aws_access_key_id test
           aws configure set aws_secret_access_key test
           aws configure set default.region us-east-1
