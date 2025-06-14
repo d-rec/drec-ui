@@ -3,7 +3,7 @@ Cypress.Commands.add('addDevice', function () {
   cy.fixture('add-device.json').then((data) => {
     const new_data = data.map((d) =>
       d.selector === "[test-id='external-id']"
-        ? { ...d, value: Math.floor(Math.random() * 100) }
+        ? { ...d, value: Math.floor(Math.random() * 200) }
         : { ...d },
     );
     new_data.forEach((step) => {
