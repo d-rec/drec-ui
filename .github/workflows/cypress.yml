@@ -128,6 +128,13 @@ jobs:
       - name: Run Cypress Tests
         run: pnpx cypress run
 
+      - name: Upload Cypress Screenshots
+        if: failure()
+        uses: actions/upload-artifact@v2
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+
       - name: Tear Down Docker Environment
         working-directory: projects/drec-origin
         run: docker-compose down
