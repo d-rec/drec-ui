@@ -64,6 +64,7 @@ Cypress.Commands.add('developerUserSignup', function () {
             cy.wrap($input).attachFile('files/screenshot.png', {
               force: true,
             });
+            cy.log('file uploaded successfully');
           });
         case 'submit':
           return cy.get(step.selector).should('be.visible').click();
