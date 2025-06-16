@@ -56,7 +56,6 @@ Cypress.Commands.add('addDevice', function () {
 
         case 'agree':
           return cy.get(step.selector).click('center', { force: true });
-        // return cy.contains('Added Successfully !!').should('be.visible');
       }
     });
   });
