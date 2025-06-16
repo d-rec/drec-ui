@@ -328,15 +328,13 @@ jobs:
           name: cypress-screenshots
           path: cypress/screenshots
 
-      # --- Debugging Step for Directory Existence ---
-      - name: Debug - Check projects/drec-origin directory before teardown
+      # --- New Debugging Step for Parent Directory ---
+      - name: Debug - Check parent directory before backend teardown
         run: |
-          echo "Current working directory:"
-          pwd
-          echo "Checking existence and permissions of projects/drec-origin:"
-          ls -ld projects/drec-origin
-          echo "Listing contents of projects/drec-origin (may fail if dir is missing/empty):"
-          ls -al projects/drec-origin || true # Use || true to prevent this debug step from failing the workflow
+          echo "Listing contents of 'projects/' directory:"
+          ls -F projects/
+          echo "Checking existence and permissions of 'projects/drec-origin':"
+          ls -ld projects/drec-origin || true # Use || true to prevent this debug step from failing the workflow
 
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
