@@ -208,8 +208,9 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          # Added 'awscli' for interacting with LocalStack S3
-          sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat-openbsd curl awscli
+          # Install python3-pip first, then awscli via pip
+          sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat-openbsd curl python3-pip
+          pip3 install awscli
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -328,10 +329,22 @@ jobs:
           name: cypress-screenshots
           path: cypress/screenshots
 
-      # --- New Debugging Step for Parent Directory ---
       - name: Debug - Check parent directory before backend teardown
         run: |
           echo "Listing contents of 'projects/' directory:"
           ls -F projects/
           echo "Checking existence and permissions of 'projects/drec-origin':"
           ls -ld projects/drec-origin || true # Use || true to prevent this debug step from failing the workflow
+
+      - name: Tear Down Docker Compose Environment
+        working-directory: projects/drec-origin
+        run: docker-compose down
+        if: always() # Ensure this step always runs, even if previous steps fail
+
+      - name: Clean up LocalStack Container
+        run: |
+          echo "Stopping LocalStack container..."
+          docker stop localstack || true
+          echo "Removing LocalStack container..."
+          docker rm localstack || true
+        if: always() # Ensure this step always runs for clean environment
