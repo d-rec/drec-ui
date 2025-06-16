@@ -258,7 +258,8 @@ jobs:
         working-directory: projects/drec-origin
         run: |
           echo "Starting docker-compose services..."
-          docker-compose up -d || true # Continue if services are already running
+          # Removed '|| true' to ensure proper error propagation if docker-compose fails
+          docker-compose up -d
           docker-compose logs --tail=100 # Show recent logs for debugging
 
       - name: Install Backend Dependencies using Rush
@@ -326,6 +327,16 @@ jobs:
         with:
           name: cypress-screenshots
           path: cypress/screenshots
+
+      # --- Debugging Step for Directory Existence ---
+      - name: Debug - Check projects/drec-origin directory before teardown
+        run: |
+          echo "Current working directory:"
+          pwd
+          echo "Checking existence and permissions of projects/drec-origin:"
+          ls -ld projects/drec-origin
+          echo "Listing contents of projects/drec-origin (may fail if dir is missing/empty):"
+          ls -al projects/drec-origin || true # Use || true to prevent this debug step from failing the workflow
 
       - name: Tear Down Docker Compose Environment
         working-directory: projects/drec-origin
