@@ -49,7 +49,7 @@ Cypress.Commands.add('addDevice', function () {
             .get(step.selector)
             .should('exist')
             .each(($input) => {
-              cy.wrap($input).attachFile('files/meter_reads_2025-05-14.pdf', {
+              cy.wrap($input).attachFile('files/device-document-upload.pdf', {
                 force: true,
               });
             });
