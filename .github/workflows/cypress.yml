@@ -82,7 +82,6 @@ jobs:
 
       # --- NEW STEP: Patch FileService for LocalStack Testing ---
       - name: Patch Backend FileService for LocalStack
-        # working-directory: projects/drec-origin/apps/drec-api/src/file
         working-directory: projects/drec-origin/apps/drec-api/src/pods/file
 
         run: |
