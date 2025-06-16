@@ -35,7 +35,7 @@ jobs:
       REACT_APP_BACKEND_URL: http://localhost:3040
       ADMIN_EMAIL: drec@energy.org
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      # --- AWS/LocalStack Environment Variables (kept for general workflow context) ---
+      # --- AWS/LocalStack Environment Variables ---
       AWS_REGION: us-east-1
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
@@ -80,6 +80,30 @@ jobs:
           git clone https://github.com/d-rec/drec-origin.git projects/drec-origin
           chmod -R 777 projects/drec-origin
 
+      # --- NEW STEP: Patch FileService for LocalStack Testing ---
+      - name: Patch Backend FileService for LocalStack
+        working-directory: projects/drec-origin/apps/drec-api/src/file
+        run: |
+          FILE_PATH="file.service.ts"
+          echo "Patching ${FILE_PATH} for LocalStack compatibility..."
+
+          # Replace 'bucketname' with 'S3_BUCKET' for all occurrences
+          sed -i 's/process.env.bucketname/process.env.S3_BUCKET/g' "$FILE_PATH"
+
+          # Replace specific access key and secret key environment variable names
+          sed -i 's/accessKeyId: process.env.accessKeyId/accessKeyId: process.env.AWS_ACCESS_KEY_ID/g' "$FILE_PATH"
+          sed -i 's/secretAccessKey: process.env.secretAccessKey/secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY/g' "$FILE_PATH"
+
+          # Add region, endpoint, and s3ForcePathStyle to the S3 constructor
+          # The 'a' command appends lines after the matched pattern.
+          # Indentation is crucial: assuming 6 spaces before 'secretAccessKey:'
+          sed -i '/secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,/a \ \ \ \ \ \ region: process.env.AWS_REGION,\n\ \ \ \ \ \ endpoint: process.env.AWS_ENDPOINT,\n\ \ \ \ \ \ s3ForcePathStyle: true,' "$FILE_PATH"
+
+          echo "FileService patching complete. Verifying changes:"
+          # Print relevant lines to logs to confirm changes
+          cat "$FILE_PATH" | grep -E 'AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_REGION|AWS_ENDPOINT|S3_BUCKET|s3ForcePathStyle' || true
+          echo "End of FileService patch verification."
+
       # --- LocalStack Setup Steps ---
       - name: Start LocalStack Container
         run: |
@@ -104,14 +128,12 @@ jobs:
             fi
           done
           echo "LocalStack is ready!"
-          # Add a small delay after LocalStack reports ready, before creating the bucket
           echo "Pausing for 10 seconds to ensure LocalStack services are fully initialized..."
           sleep 10
 
       - name: Create S3 Mock Bucket
         run: |
           echo "Creating S3 mock-bucket in LocalStack..."
-          # Explicitly set AWS environment variables for this command
           export AWS_ACCESS_KEY_ID="test"
           export AWS_SECRET_ACCESS_KEY="test"
           export AWS_REGION="us-east-1"
