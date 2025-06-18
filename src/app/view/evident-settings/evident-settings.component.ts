@@ -19,7 +19,10 @@ export class EvidentSettingsComponent implements OnInit {
   ) {
     this.settingsForm = this.fb.group({
       apiKey: ['', Validators.required],
-      email: ['', [Validators.required, Validators.pattern(EMAIL_REGEX)]],
+      evidentEmail: [
+        '',
+        [Validators.required, Validators.pattern(EMAIL_REGEX)],
+      ],
       defaultTradingAccount: ['', Validators.required],
       defaultBeneficiaryAccount: ['', Validators.required],
     });
@@ -38,9 +41,9 @@ export class EvidentSettingsComponent implements OnInit {
   }
 
   emaiErrors() {
-    return this.settingsForm.get('email')?.hasError('required')
+    return this.settingsForm.get('evidentEmail')?.hasError('required')
       ? 'Evident is required'
-      : this.settingsForm.get('email')?.hasError('pattern')
+      : this.settingsForm.get('evidentEmail')?.hasError('pattern')
         ? 'Not a valid email address'
         : '';
   }
@@ -51,7 +54,7 @@ export class EvidentSettingsComponent implements OnInit {
         if (data) {
           this.settingsForm.patchValue({
             apiKey: data.apiKey || '',
-            email: data.email || '',
+            evidentEmail: data.evidentEmail || '',
             defaultTradingAccount: data.defaultTradingAccount || '',
             defaultBeneficiaryAccount: data.defaultBeneficiaryAccount || '',
           });
