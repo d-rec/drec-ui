@@ -25,12 +25,11 @@ Cypress.Commands.add('buyerUserSignup', function () {
             .wait(2000);
         case 'browse-documents':
           cy.get(step.selector).each(($input) => {
-            cy.wrap($input).attachFile('files/meter_reads_2025-05-14.pdf', {
+            cy.wrap($input).attachFile('files/dummy.pdf', {
               force: true,
             });
           });
           break;
-
         case 'verify-phone':
           cy.visit(`${UI_BASE_URL}/verify-otp`).wait(5000);
           const MOCK_OTP_CODE = '123456';
@@ -54,7 +53,7 @@ Cypress.Commands.add('buyerUserSignup', function () {
         case 'verify-email':
           const MOCK_EMAIL_CODE = '123456';
 
-          cy.get('[test-id="resend-confirmation-email"]').click();
+          cy.wait(4000).get('[test-id="resend-confirmation-email"]').click();
           cy.wait(1000);
           cy.request({
             method: 'PUT',

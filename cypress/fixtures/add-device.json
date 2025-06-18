@@ -20,36 +20,6 @@
   },
   {
     "action": "select",
-    "selector": "[test-id='select-country']",
-    "option": "[test-id='country-options']"
-  },
-  {
-    "action": "write",
-    "selector": "[test-id='commissioning-date']",
-    "value": "01/03/2025, 08:53:02 AM"
-  },
-  {
-    "action": "type",
-    "selector": "[test-id='capacity']",
-    "value": "100"
-  },
-  {
-    "action": "type",
-    "selector": "[test-id='address']",
-    "value": "just testing"
-  },
-  {
-    "action": "type",
-    "selector": "[test-id='latitude']",
-    "value": "21.00876"
-  },
-  {
-    "action": "type",
-    "selector": "[test-id='longitude']",
-    "value": "31.00876"
-  },
-  {
-    "action": "select",
     "selector": "[test-id='fuel-code']",
     "option": "[test-id='fuel-option']"
   },
@@ -59,9 +29,43 @@
     "option": "[test-id='type-code-option']"
   },
   {
+    "action": "type",
+    "selector": "[test-id='capacity']",
+    "value": "1"
+  },
+  {
+    "action": "write",
+    "selector": "[test-id='commissioning-date']",
+    "value": "01/03/2025, 08:53:02 AM"
+  },
+  {
+    "action": "type",
+    "selector": "[test-id='address']",
+    "value": "just testing"
+  },
+  {
+    "action": "select",
+    "selector": "[test-id='select-country']",
+    "option": "[test-id='country-options']"
+  },
+  {
+    "action": "type",
+    "selector": "[test-id='latitude']",
+    "value": "21.0176"
+  },
+  {
+    "action": "type",
+    "selector": "[test-id='longitude']",
+    "value": "31.00976"
+  },
+  {
     "action": "select",
     "selector": "[test-id='SDGBenefits']",
     "option": "[test-id='SDGBenefits-option']"
+  },
+  {
+    "action": "upload",
+    "selector": "[test-id='attach-file']"
   },
   {
     "action": "click",
