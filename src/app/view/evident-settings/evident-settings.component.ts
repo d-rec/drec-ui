@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { EvidentService } from '../../auth/services/evident.service';
 import { ToastrService } from 'ngx-toastr';
+import { EMAIL_REGEX } from '../../../app/constants';
 
 @Component({
   selector: 'app-settings',
-  templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.scss'],
+  templateUrl: './evident-settings.component.html',
+  styleUrls: ['./evident-settings.component.scss'],
 })
-export class SettingsComponent implements OnInit {
+export class EvidentSettingsComponent implements OnInit {
   settingsForm: FormGroup;
 
   constructor(
@@ -18,6 +19,7 @@ export class SettingsComponent implements OnInit {
   ) {
     this.settingsForm = this.fb.group({
       apiKey: ['', Validators.required],
+      email: ['', [Validators.required, Validators.pattern(EMAIL_REGEX)]],
       defaultTradingAccount: ['', Validators.required],
       defaultBeneficiaryAccount: ['', Validators.required],
     });
@@ -35,12 +37,21 @@ export class SettingsComponent implements OnInit {
     return validation;
   }
 
+  emaiErrors() {
+    return this.settingsForm.get('email')?.hasError('required')
+      ? 'Evident is required'
+      : this.settingsForm.get('email')?.hasError('pattern')
+        ? 'Not a valid email address'
+        : '';
+  }
+
   getInitialSettings(): void {
     this.evidentService.getSettings().subscribe({
       next: (data) => {
         if (data) {
           this.settingsForm.patchValue({
             apiKey: data.apiKey || '',
+            email: data.email || '',
             defaultTradingAccount: data.defaultTradingAccount || '',
             defaultBeneficiaryAccount: data.defaultBeneficiaryAccount || '',
           });
