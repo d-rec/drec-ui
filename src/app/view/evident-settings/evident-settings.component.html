@@ -23,10 +23,10 @@
             <label class="form-label text-capitalize">Evident Email</label>
             <input
               type="email"
-              formControlName="evidentEmail"
+              formControlName="email"
               placeholder="Evident Email"
             />
-            <mat-error class="pb-3" *ngIf="checkValidation('evidentEmail')">
+            <mat-error class="pb-3" *ngIf="checkValidation('email')">
               {{ emaiErrors() }}
             </mat-error>
           </div>

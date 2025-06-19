@@ -19,10 +19,7 @@ export class EvidentSettingsComponent implements OnInit {
   ) {
     this.settingsForm = this.fb.group({
       apiKey: ['', Validators.required],
-      evidentEmail: [
-        '',
-        [Validators.required, Validators.pattern(EMAIL_REGEX)],
-      ],
+      email: ['', [Validators.required, Validators.pattern(EMAIL_REGEX)]],
       defaultTradingAccount: ['', Validators.required],
       defaultBeneficiaryAccount: ['', Validators.required],
     });
@@ -54,7 +51,7 @@ export class EvidentSettingsComponent implements OnInit {
         if (data) {
           this.settingsForm.patchValue({
             apiKey: data.apiKey || '',
-            evidentEmail: data.evidentEmail || '',
+            email: data.email || '',
             defaultTradingAccount: data.defaultTradingAccount || '',
             defaultBeneficiaryAccount: data.defaultBeneficiaryAccount || '',
           });
