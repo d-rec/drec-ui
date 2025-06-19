@@ -11,6 +11,7 @@ Cypress.Commands.add('addReservation', function () {
             .get(step.selector)
             .should('be.visible')
             .type(step.value, { force: true });
+
         case 'select':
           if (step.option === '[country-test-id]') {
             return cy
@@ -29,8 +30,10 @@ Cypress.Commands.add('addReservation', function () {
               .eq(0)
               .click('center', { force: true });
           }
+
         case 'check':
           return cy.get(step.selector).wait(3000).eq(step.index).click();
+
         case 'continue':
           cy.get(step.selector).click('center', { force: true });
           return cy.contains('Reservation Added').should('be.visible');
