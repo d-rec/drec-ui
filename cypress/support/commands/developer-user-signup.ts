@@ -23,13 +23,6 @@ Cypress.Commands.add('developerUserSignup', function () {
               cy.get('mat-option').contains(step.value).click();
             })
             .wait(2000);
-        case 'browse-documents':
-          cy.get(step.selector).each(($input) => {
-            cy.wrap($input).attachFile('files/meter_reads_2025-05-14.pdf', {
-              force: true,
-            });
-          });
-          break;
 
         case 'verify-phone':
           cy.visit(`${UI_BASE_URL}/verify-otp`).wait(5000);
@@ -49,22 +42,35 @@ Cypress.Commands.add('developerUserSignup', function () {
             cy.get('[test-id="otp-inputs"]').eq(i).type(MOCK_OTP_CODE[i]);
           }
 
-          cy.get('.otp-container').submit();
-          break;
+          return cy.get('.otp-container').submit();
 
         case 'verify-email':
           const MOCK_EMAIL_CODE = '123456';
 
           cy.get('[test-id="resend-confirmation-email"]').click();
           cy.wait(1000);
-          cy.request({
-            method: 'PUT',
-            url: `${REACT_APP_BACKEND_URL}/api/user/confirm-email/${MOCK_EMAIL_CODE}`,
-            failOnStatusCode: false,
-          }).then((response) => {
-            expect(response.status).to.eq(200);
+          return cy
+            .request({
+              method: 'PUT',
+              url: `${REACT_APP_BACKEND_URL}/api/user/confirm-email/${MOCK_EMAIL_CODE}`,
+              failOnStatusCode: false,
+            })
+            .then((response) => {
+              expect(response.status).to.eq(200);
+            });
+
+        case 'browse-documents':
+          return cy.get(step.selector).each(($input) => {
+            cy.wrap($input).attachFile('files/dummy.pdf', {
+              force: true,
+            });
+            cy.log('file uploaded successfully');
           });
-          break;
+        case 'submit':
+          cy.get(step.selector).should('be.visible').click();
+          cy.screenshot('submit-clicked');
+          cy.contains('All documents uploaded').should('be.visible');
+          cy.screenshot('all-documents-submitted-successfully');
       }
     });
   });
