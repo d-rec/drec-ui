@@ -4,6 +4,12 @@ import { EvidentService } from '../../auth/services/evident.service';
 import { ToastrService } from 'ngx-toastr';
 import { EMAIL_REGEX } from '../../../app/constants';
 
+export enum IssuanceRequestFrequency {
+  Monthly = 'Monthly',
+  Quarterly = 'Quarterly',
+  SemiAnnually = 'Semi-Annually',
+}
+
 @Component({
   selector: 'app-settings',
   templateUrl: './evident-settings.component.html',
@@ -11,7 +17,7 @@ import { EMAIL_REGEX } from '../../../app/constants';
 })
 export class EvidentSettingsComponent implements OnInit {
   settingsForm: FormGroup;
-
+  issuanceFrequencies = Object.values(IssuanceRequestFrequency);
   constructor(
     private evidentService: EvidentService,
     private toastrService: ToastrService,
@@ -22,6 +28,7 @@ export class EvidentSettingsComponent implements OnInit {
       email: ['', [Validators.required, Validators.pattern(EMAIL_REGEX)]],
       defaultTradingAccount: ['', Validators.required],
       defaultBeneficiaryAccount: ['', Validators.required],
+      frequency: ['', Validators.required],
     });
   }
 
