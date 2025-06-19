@@ -5,7 +5,11 @@ Cypress.Commands.add('certificate', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          return cy.get(step.selector).click({ multiple: true }).wait(1000);
+          return cy
+            .get(step.selector)
+            .wait(3000)
+            .click({ multiple: true })
+            .wait(1000);
         case 'type':
           return cy
             .get(step.selector)
