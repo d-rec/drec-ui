@@ -264,27 +264,23 @@
       <div class="content mat-elevation-z8 text-center" *ngIf="showlist">
         <table mat-table [dataSource]="dataSource" class="" matSort>
           <!-- Position Column -->
-          <ng-container matColumnDef="onboarding_date">
-            <th mat-header-cell *matHeaderCellDef class="text-left">
-              OnBoarding Date
-            </th>
-            <td mat-cell *matCellDef="let row; let i = index">
-              {{ row.createdAt | date: ' dd MMM y hh:mm' }}
-            </td>
-          </ng-container>
           <ng-container matColumnDef="projectName" class="text-left">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Project Name </th>
-            <td mat-cell *matCellDef="let element"> {{element.projectName}} </td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              Project Name
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.projectName }}
+            </td>
           </ng-container>
           <ng-container matColumnDef="externalId" class="text-left">
             <th mat-header-cell *matHeaderCellDef>External Id</th>
             <td mat-cell *matCellDef="let element">{{ element.externalId }}</td>
-            <ng-container matColumnDef="internalexternalId" class="text-left">
-              <th mat-header-cell *matHeaderCellDef>Internal Site Id</th>
-              <td mat-cell *matCellDef="let element">
-                {{ element.internalexternalId }}
-              </td>
-            </ng-container>
+          </ng-container>
+          <ng-container matColumnDef="capacity">
+            <th mat-header-cell *matHeaderCellDef class="text-left">
+              Capacity(kW)
+            </th>
+            <td mat-cell *matCellDef="let element">{{ element.capacity }}</td>
           </ng-container>
           <ng-container matColumnDef="countryCode">
             <th mat-header-cell *matHeaderCellDef class="text-left">Country</th>
@@ -292,12 +288,31 @@
               {{ element.countryname }}
             </td>
           </ng-container>
-
-          <!-- <ng-container matColumnDef="fuelCode">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left"> Fuel Code </th>
-            <td mat-cell *matCellDef="let element"> {{element.fuelname}} </td>
-          </ng-container> -->
-          <!-- Status Column -->
+          <ng-container matColumnDef="evidentId">
+            <th mat-header-cell *matHeaderCellDef class="text-left">
+              Evident Id
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.evidentDeviceId }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="evidentStatus">
+            <th mat-header-cell *matHeaderCellDef class="text-left">
+              Evident Status
+            </th>
+            <td
+              mat-cell
+              *matCellDef="let element"
+              [ngClass]="{
+                'text-primary': element.evidentStatus === 'Draft',
+                'text-warning': element.evidentStatus === 'Waiting for Review',
+                'text-success': element.evidentStatus === 'Approved',
+                'text-danger': element.evidentStatus === 'Rejected'
+              }"
+            >
+              {{ element.evidentStatus }}
+            </td>
+          </ng-container>
           <ng-container matColumnDef="commissioningDate">
             <th mat-header-cell *matHeaderCellDef class="text-left">
               Commissioning Date
@@ -306,15 +321,13 @@
               {{ element.commissioningDate | date: 'dd MMM y' }}
             </td>
           </ng-container>
-          <ng-container matColumnDef="capacity">
+          <ng-container matColumnDef="onboarding_date">
             <th mat-header-cell *matHeaderCellDef class="text-left">
-              Capacity(kW)
+              OnBoarding Date
             </th>
-            <td mat-cell *matCellDef="let element">{{ element.capacity }}</td>
-          </ng-container>
-          <ng-container matColumnDef="SDGBenefits">
-            <th mat-header-cell *matHeaderCellDef>SDGBenefits</th>
-            <td mat-cell *matCellDef="let row">{{ row.SDGBenefits }}</td>
+            <td mat-cell *matCellDef="let row; let i = index">
+              {{ row.createdAt | date: ' dd MMM y hh:mm' }}
+            </td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
