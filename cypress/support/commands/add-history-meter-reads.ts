@@ -9,7 +9,6 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .should('be.visible')
             .click({ force: true })
             .wait(5000);
-
         case 'selected':
           return cy
             .get(step.selector)
