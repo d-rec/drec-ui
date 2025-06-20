@@ -30,15 +30,14 @@ export class AlldevicesComponent {
   title = 'matDialog';
   dataFromDialog: any;
   displayedColumns = [
-    'onboarding_date',
     'projectName',
     'externalId',
-    'internalexternalId',
-    'countryCode',
-    // 'fuelCode',
-    'commissioningDate',
     'capacity',
-    // 'SDGBenefits',
+    'countryCode',
+    'evidentId',
+    'evidentStatus',
+    'commissioningDate',
+    'onboarding_date',
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
