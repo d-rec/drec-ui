@@ -44,7 +44,7 @@ export class EvidentSettingsComponent implements OnInit {
     return validation;
   }
 
-  emaiErrors() {
+  emailErrors() {
     return this.settingsForm.get('evidentEmail')?.hasError('required')
       ? 'Evident is required'
       : this.settingsForm.get('evidentEmail')?.hasError('pattern')
@@ -61,6 +61,7 @@ export class EvidentSettingsComponent implements OnInit {
             email: data.email || '',
             defaultTradingAccount: data.defaultTradingAccount || '',
             defaultBeneficiaryAccount: data.defaultBeneficiaryAccount || '',
+            frequency: data.frequency || '',
           });
         }
       },
