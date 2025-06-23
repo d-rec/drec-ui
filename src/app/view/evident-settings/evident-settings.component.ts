@@ -37,7 +37,7 @@ export class EvidentSettingsComponent implements OnInit {
     return validation;
   }
 
-  emaiErrors() {
+  emailErrors() {
     return this.settingsForm.get('evidentEmail')?.hasError('required')
       ? 'Evident is required'
       : this.settingsForm.get('evidentEmail')?.hasError('pattern')
