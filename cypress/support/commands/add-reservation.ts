@@ -30,7 +30,7 @@ Cypress.Commands.add('addReservation', function () {
               .click('center', { force: true });
           }
         case 'check':
-          return cy.get(step.selector).eq(step.index).click();
+          return cy.get(step.selector).wait(3000).eq(step.index).click();
         case 'continue':
           cy.get(step.selector).click('center', { force: true });
           return cy.contains('Reservation Added').should('be.visible');
