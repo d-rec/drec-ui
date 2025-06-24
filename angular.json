@@ -80,6 +80,21 @@
               ],
               "outputHashing": "all"
             },
+            "demo": {
+              "buildOptimizer": true,
+              "optimization": true,
+              "vendorChunk": true,
+              "extractLicenses": true,
+              "sourceMap": false,
+              "namedChunks": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.demo.ts"
+                }
+              ],
+              "outputHashing": "all"
+            },
             "stage": {
               "buildOptimizer": true,
               "optimization": true,
