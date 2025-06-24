@@ -305,12 +305,16 @@
               *matCellDef="let element"
               [ngClass]="{
                 'text-primary': element.evidentStatus === 'Draft',
-                'text-warning': element.evidentStatus === 'Waiting for Review',
+                'text-warning': element.evidentStatus === 'Submitted',
                 'text-success': element.evidentStatus === 'Approved',
                 'text-danger': element.evidentStatus === 'Rejected'
               }"
             >
-              {{ element.evidentStatus }}
+              {{
+                element.evidentStatus === 'Submitted'
+                  ? 'Waiting For Review'
+                  : element.evidentStatus
+              }}
             </td>
           </ng-container>
           <ng-container matColumnDef="commissioningDate">
