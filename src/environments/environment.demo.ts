@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  demo: true,
+  staging: true,
   API_URL: 'https://demo-api.drecs.org/api/',
   Explorer_URL: 'https://volta-explorer.energyweb.org',
   SENTRY_DNS:
