@@ -29,7 +29,7 @@ import { TermsVerificationGuard } from './guards/verification/terms-verified.gua
 import { PhoneVerificationGuard } from './guards/verification/phone-verification.guard';
 import { OrganizationDocumentsGuard } from './guards/verification/organization-documents-verified.guard';
 import { ChangePhoneNumberComponent } from './view/change-phone-number/change-phone-number.component';
-import { SettingsComponent } from './evident-view/settings/settings.component';
+import { EvidentSettingsComponent } from './view/evident-settings/evident-settings.component';
 
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
@@ -112,7 +112,7 @@ const routes: Routes = [
       { path: 'All_certificate', component: CertificateDetailsComponent },
       { path: 'certificate', component: CertificateComponent },
       { path: 'myreservation', component: MyreservationComponent },
-      { path: 'settings/evident', component: SettingsComponent },
+      { path: 'settings/evident', component: EvidentSettingsComponent },
 
       {
         path: 'reads',
