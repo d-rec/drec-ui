@@ -18,11 +18,7 @@
   {
     "action": "type",
     "selector": "[test-id='phone-number']",
-<<<<<<< ft/create-shared-cypress-user
-    "value": "+91 22 9205 5608"
-=======
     "value": "+91 22 1305 5608"
->>>>>>> develop
   },
   {
     "action": "click",
