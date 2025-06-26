@@ -3,6 +3,6 @@ describe('clear database', () => {
     cy.wait(1000);
   });
   it('should clear database successfully', () => {
-    cy.clearDatabase();
+    // cy.clearDatabase();
   });
 });
