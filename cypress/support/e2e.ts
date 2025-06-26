@@ -1,3 +1,4 @@
+import 'cypress-file-upload';
 import '../support/commands/admin-login';
 import '../support/commands/account-setting';
 import '../support/commands/add-aggregate-meter-reads';

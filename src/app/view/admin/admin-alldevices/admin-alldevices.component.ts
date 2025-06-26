@@ -408,7 +408,7 @@ export class AdminAlldevicesComponent {
         deviceid: deviceId,
       },
       width: '900px',
-      height: '400px',
+      height: '70vh',
     });
   }
 
