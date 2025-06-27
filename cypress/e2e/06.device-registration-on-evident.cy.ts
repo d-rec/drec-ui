@@ -4,6 +4,6 @@ describe('Add device registration on evident Test', () => {
   });
   it('should test device registration on evident', () => {
     cy.developerUserLogin().wait(6000);
-    cy.deviceRegistrationOnEvident();
+    cy.evidentConfiguration();
   });
 });

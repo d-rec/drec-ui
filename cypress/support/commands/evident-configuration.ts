@@ -2,8 +2,8 @@ import 'cypress-file-upload';
 const EVIDENT_API_KEY = Cypress.env('EVIDENT_API_KEY');
 const EVIDENT_EMAIL = Cypress.env('EVIDENT_EMAIL');
 
-Cypress.Commands.add('deviceRegistrationOnEvident', function () {
-  return cy.fixture('device-registration-on-evident.json').then((data) => {
+Cypress.Commands.add('evidentConfiguration', function () {
+  return cy.fixture('evident-confuguration.json').then((data) => {
     data.forEach((step) => {
       switch (step.action) {
         case 'type':
