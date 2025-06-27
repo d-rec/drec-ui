@@ -13,6 +13,5 @@ export default defineConfig({
     EVIDENT_API_KEY:
       '01JY1V3ZQBBCF0Y7E095ZSKRG3.iPIXopj9fiipHXoN97u3Icp9fv9AqybIAHmoKG8rIZfpCahm8',
     EVIDENT_EMAIL: 'irecregistrantuser9dec8@mail.com',
-    EVIDENT_API_URL: 'https://api.sandbox.evident.dev',
   },
 });
