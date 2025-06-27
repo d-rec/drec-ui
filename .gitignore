@@ -44,3 +44,5 @@ Thumbs.db
 # Sentry Config File
 .sentryclirc
 .env
+
+cypress.config.ts
