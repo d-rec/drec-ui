@@ -2,7 +2,7 @@
   <mat-card>
     <mat-card-header>
       <mat-card-title>
-        <h2 class="pb-0 mb-3 fw-bold text-capitalize">Evident Integration</h2>
+        <h2 class="pb-0 mb-3 fw-bold text-capitalize" test-id="evident-integration">Evident Integration</h2>
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
@@ -14,6 +14,7 @@
               type="text"
               formControlName="apiKey"
               placeholder="Enter API key"
+              test-id="evident-api-key"
             />
             <mat-error *ngIf="checkValidation('apiKey')"
               >API Key is required</mat-error
@@ -25,6 +26,7 @@
               type="email"
               formControlName="email"
               placeholder="Evident Email"
+              test-id="evident-email"
             />
             <mat-error class="pb-3" *ngIf="checkValidation('email')">
               {{ emailErrors() }}
@@ -41,6 +43,7 @@
               type="text"
               formControlName="defaultBeneficiaryAccount"
               placeholder="Enter Beneficiary Account ID"
+              test-id="default-beneficiary-account"
             />
             <mat-error *ngIf="checkValidation('defaultBeneficiaryAccount')"
               >Beneficiary Account is required</mat-error
@@ -54,6 +57,7 @@
               type="text"
               formControlName="defaultTradingAccount"
               placeholder="Enter Trading Account ID"
+              test-id="default-trading-account"
             />
             <mat-error *ngIf="checkValidation('defaultTradingAccount')"
               >Trading Account is required</mat-error
@@ -74,6 +78,7 @@
               type="submit"
               class="btn-primary btn text-capitalize px-2"
               [disabled]="settingsForm.invalid"
+              test-id="save-evident-settings"
             >
               Save settings
             </button>
