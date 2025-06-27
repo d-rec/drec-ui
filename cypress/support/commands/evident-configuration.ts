@@ -3,7 +3,7 @@ const EVIDENT_API_KEY = Cypress.env('EVIDENT_API_KEY');
 const EVIDENT_EMAIL = Cypress.env('EVIDENT_EMAIL');
 
 Cypress.Commands.add('evidentConfiguration', function () {
-  return cy.fixture('evident-confuguration.json').then((data) => {
+  return cy.fixture('evident-configuration.json').then((data) => {
     data.forEach((step) => {
       switch (step.action) {
         case 'type':
