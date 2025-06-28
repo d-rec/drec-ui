@@ -21,7 +21,7 @@ export class EvidentSettingsComponent implements OnInit {
       apiKey: ['', Validators.required],
       email: ['', [Validators.required, Validators.pattern(EMAIL_REGEX)]],
       defaultTradingAccount: ['', Validators.required],
-      defaultBeneficiaryAccount: ['', Validators.required],
+      defaultBeneficiaryAccount: '',
     });
   }
 
@@ -38,9 +38,9 @@ export class EvidentSettingsComponent implements OnInit {
   }
 
   emailErrors() {
-    return this.settingsForm.get('evidentEmail')?.hasError('required')
+    return this.settingsForm.get('email')?.hasError('required')
       ? 'Evident is required'
-      : this.settingsForm.get('evidentEmail')?.hasError('pattern')
+      : this.settingsForm.get('email')?.hasError('pattern')
         ? 'Not a valid email address'
         : '';
   }
