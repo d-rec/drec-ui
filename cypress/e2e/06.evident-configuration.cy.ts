@@ -1,8 +1,8 @@
-describe('Add device registration on evident Test', () => {
+describe('Add evident configuration', () => {
   beforeEach(() => {
     cy.wait(10000);
   });
-  it('should test device registration on evident', () => {
+  it('should test evident configuration', () => {
     cy.developerUserLogin().wait(6000);
     cy.evidentConfiguration();
   });
