@@ -66,7 +66,7 @@ export class EvidentSettingsComponent implements OnInit {
         }
       },
       error: (err) => {
-        this.toastrService.error('Failed to load settings' + err);
+        this.toastrService.error('Could not find settings, please set them up');
         console.error('Failed to load settings', err);
       },
     });
