@@ -11,7 +11,7 @@ export default defineConfig({
     ADMIN_PASSWORD: '1234Rc',
     UI_BASE_URL: 'http://localhost:4200',
     EVIDENT_TESTING_API_KEY:
-      '01JY1V2ZQBBCF0Y1E015ZSKRG5.iPIXopj1fiipHXoN11u3Icp1fv1AqybIAHmoKG1rIZfpCahm1',
-    EVIDENT_TESTING_EMAIL: 'irectestingabcuser9dec8@mail.com',
+      '01BB1B2ZCCCCC0C1E015ZSEEE5.iFFXooo1foopXXox11u1Xzz1kk1AkkbZZZlaQZ1pQHfpQzpl1',
+    EVIDENT_TESTING_EMAIL: 'irectestingabcuser1def1@mail.com',
   },
 });
