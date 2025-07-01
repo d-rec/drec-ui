@@ -28,7 +28,7 @@ export class EvidentSettingsComponent implements OnInit {
       email: ['', [Validators.required, Validators.pattern(EMAIL_REGEX)]],
       defaultTradingAccount: ['', Validators.required],
       defaultBeneficiaryAccount: '',
-      frequency: ['', Validators.required],
+      frequency: [this.issuanceFrequencies[0], Validators.required],
     });
   }
 
@@ -61,7 +61,7 @@ export class EvidentSettingsComponent implements OnInit {
             email: data.email || '',
             defaultTradingAccount: data.defaultTradingAccount || '',
             defaultBeneficiaryAccount: data.defaultBeneficiaryAccount || '',
-            frequency: data.frequency || '',
+            frequency: data.frequency || this.issuanceFrequencies[0],
           });
         }
       },
