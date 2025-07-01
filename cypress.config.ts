@@ -10,8 +10,8 @@ export default defineConfig({
     ADMIN_EMAIL: 'drec@energy.org',
     ADMIN_PASSWORD: '1234Rc',
     UI_BASE_URL: 'http://localhost:4200',
-    EVIDENT_API_KEY:
-      '01JY1V3ZQBBCF0Y7E095ZSKRG3.iPIXopj9fiipHXoN97u3Icp9fv9AqybIAHmoKG8rIZfpCahm8',
-    EVIDENT_EMAIL: 'irecregistrantuser9dec8@mail.com',
+    EVIDENT_TESTING_API_KEY:
+      '01JY1V2ZQBBCF0Y1E015ZSKRG5.iPIXopj1fiipHXoN11u3Icp1fv1AqybIAHmoKG1rIZfpCahm1',
+    EVIDENT_TESTING_EMAIL: 'irectestingabcuser9dec8@mail.com',
   },
 });
