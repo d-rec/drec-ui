@@ -1,0 +1,34 @@
+[
+    {
+        "action": "click",
+        "selector": "[test-id='evident-configuration']"
+    },
+    {
+        "action": "click",
+        "selector": "[test-id='evident-settings']"
+    },
+    {
+        "action": "type",
+        "selector": "[test-id='evident-api-key']",
+        "index": 0
+    },
+    {
+        "action": "type",
+        "selector": "[test-id='evident-email']",
+        "index": 1
+    },
+    {
+        "action": "type",
+        "selector": "[test-id='default-beneficiary-account']",
+        "value": "testing"
+    },
+    {
+        "action": "type",
+        "selector": "[test-id='default-trading-account']",
+        "value": "testing"
+    },
+    {
+        "action": "click",
+        "selector": "[test-id='save-evident-settings']"
+    }
+]
