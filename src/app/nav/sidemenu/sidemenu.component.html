@@ -426,7 +426,7 @@
       </mat-expansion-panel>
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header
-          class="mdc-button"
+          class="mdc-button" test-id="evident-configuration"
         >
           <mat-icon>tune</mat-icon>
           Evident configuration 
@@ -438,6 +438,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="settings/evident"
+            test-id="evident-settings"
           >
             <span>Evident settings</span>
           </a>

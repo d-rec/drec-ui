@@ -13,7 +13,7 @@
     "selector": "[test-id='project-name']",
     "value": "testing"
   },
-  {
+  { 
     "action": "type",
     "selector": "[test-id='external-id']",
     "value": "26"
