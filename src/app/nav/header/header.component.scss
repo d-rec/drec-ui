@@ -8,8 +8,8 @@ $example-header-rgba: rgba(0, 0, 0, 0.1);
 
 .example-header {
   position: fixed;
-  background: $white;
-  color: $white;
+  background: var(--card-background);
+  color: var(--text-color);
   top: 0;
   left: 0;
   right: 0;
@@ -31,6 +31,6 @@ $example-header-rgba: rgba(0, 0, 0, 0.1);
 
 .custom-header {
   .mat-mdc-button:not(:disabled) {
-    color: $secondary;
+    color: var(--text-color);
   }
 }

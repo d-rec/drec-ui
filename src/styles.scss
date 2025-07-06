@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 @import '~@angular/material/prebuilt-themes/indigo-pink.css';
 @import '~leaflet/dist/leaflet.css';
+@import './app/shared/styles/theme-variables.scss';
 
 html,
 body,
@@ -26,7 +27,7 @@ p {
 }
 
 // Variables
-// Colors
+// Colors (keeping for backward compatibility)
 $primary: #f2be1a;
 $secondary: #010101;
 $tritary: #3f3f3f;
@@ -44,10 +45,13 @@ html,
 body {
   height: 100%;
   font-family: 'Poppins', sans-serif !important;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 .body-bg {
   padding: 30px 20px 30px 20px;
-  background: #f2f2f2;
+  background: var(--background-color);
   table {
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   }
@@ -56,6 +60,8 @@ body {
     box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1) !important;
     border: none !important;
     position: relative;
+    background-color: var(--card-background) !important;
+    color: var(--text-color) !important;
   }
   .mat-form-filte {
     padding: 0px 10px;

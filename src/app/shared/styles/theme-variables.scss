@@ -1,0 +1,47 @@
+/* Light Theme Variables */
+:root {
+  --primary-color: #f2be1a;
+  --secondary-color: #010101;
+  --tertiary-color: #3f3f3f;
+  --text-color: #3f3f3f;
+  --light-gray: #e6e6e6;
+  --white: #fff;
+  --danger-color: #f44336;
+  --background-color: #f2f2f2;
+  --card-background: #ffffff;
+  --hover-color: rgba(242, 190, 26, 0.1);
+  --border-color: rgba(0, 0, 0, 0.12);
+  --input-background: #f7f7f7;
+}
+
+/* Dark Theme Variables */
+.dark-theme {
+  --primary-color: #f2be1a;
+  --secondary-color: #ffffff;
+  --tertiary-color: #cccccc;
+  --text-color: #ffffff;
+  --light-gray: #333333;
+  --white: #1a1a1a;
+  --danger-color: #ff6b6b;
+  --background-color: #121212;
+  --card-background: #1e1e1e;
+  --hover-color: rgba(242, 190, 26, 0.2);
+  --border-color: rgba(255, 255, 255, 0.12);
+  --input-background: #2a2a2a;
+}
+
+/* Light Theme Class (explicit) */
+.light-theme {
+  --primary-color: #f2be1a;
+  --secondary-color: #010101;
+  --tertiary-color: #3f3f3f;
+  --text-color: #3f3f3f;
+  --light-gray: #e6e6e6;
+  --white: #fff;
+  --danger-color: #f44336;
+  --background-color: #f2f2f2;
+  --card-background: #ffffff;
+  --hover-color: rgba(242, 190, 26, 0.1);
+  --border-color: rgba(0, 0, 0, 0.12);
+  --input-background: #f7f7f7;
+}
