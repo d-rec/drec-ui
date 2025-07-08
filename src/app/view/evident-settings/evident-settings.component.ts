@@ -4,6 +4,12 @@ import { EvidentService } from '../../auth/services/evident.service';
 import { ToastrService } from 'ngx-toastr';
 import { EMAIL_REGEX } from '../../../app/constants';
 
+export enum IssuanceRequestFrequency {
+  Monthly = 'Monthly',
+  Quarterly = 'Quarterly',
+  SemiAnnually = 'Semi-Annually',
+}
+
 @Component({
   selector: 'app-settings',
   templateUrl: './evident-settings.component.html',
@@ -11,7 +17,7 @@ import { EMAIL_REGEX } from '../../../app/constants';
 })
 export class EvidentSettingsComponent implements OnInit {
   settingsForm: FormGroup;
-
+  issuanceFrequencies = Object.values(IssuanceRequestFrequency);
   constructor(
     private evidentService: EvidentService,
     private toastrService: ToastrService,
@@ -22,6 +28,7 @@ export class EvidentSettingsComponent implements OnInit {
       email: ['', [Validators.required, Validators.pattern(EMAIL_REGEX)]],
       defaultTradingAccount: ['', Validators.required],
       defaultBeneficiaryAccount: '',
+      frequency: [this.issuanceFrequencies[0], Validators.required],
     });
   }
 
@@ -54,11 +61,14 @@ export class EvidentSettingsComponent implements OnInit {
             email: data.email || '',
             defaultTradingAccount: data.defaultTradingAccount || '',
             defaultBeneficiaryAccount: data.defaultBeneficiaryAccount || '',
+            frequency: data.frequency || this.issuanceFrequencies[0],
           });
         }
       },
       error: (err) => {
-        this.toastrService.error('Failed to load settings' + err);
+        this.toastrService.warning(
+          'Could not find evident settings, please set them up',
+        );
         console.error('Failed to load settings', err);
       },
     });
