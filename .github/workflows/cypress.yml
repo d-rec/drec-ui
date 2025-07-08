@@ -5,11 +5,14 @@ on:
       - develop
       - stage
       - prod
+      - demo
   pull_request:
     branches:
       - develop
       - stage
       - prod
+      - demo
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -35,28 +38,13 @@ jobs:
       REACT_APP_BACKEND_URL: http://localhost:3040
       ADMIN_EMAIL: drec@energy.org
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-      # --- AWS/LocalStack Environment Variables ---
       AWS_REGION: us-east-1
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_ENDPOINT: http://localhost:4566
       S3_BUCKET: mock-bucket
-      # ------------------------------------------
-    steps:
-      - name: Set MODE based on branch
-        id: set-env
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
-            echo "MODE=stage" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
-            echo "MODE=prod" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "MODE=dev" >> $GITHUB_ENV
-          else
-            # For pull requests or other branches
-            echo "MODE=test" >> $GITHUB_ENV
-          fi
 
+    steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
@@ -68,7 +56,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y influxdb-client docker-compose postgresql-client netcat-openbsd curl python3-pip
-          pip3 install awscli # Install awscli via pip3
+          pip3 install awscli
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -80,72 +69,42 @@ jobs:
           git clone https://github.com/d-rec/drec-origin.git projects/drec-origin
           chmod -R 777 projects/drec-origin
 
-      # --- NEW STEP: Patch FileService for LocalStack Testing ---
       - name: Patch Backend FileService for LocalStack
         working-directory: projects/drec-origin/apps/drec-api/src/pods/file
-
         run: |
           FILE_PATH="file.service.ts"
           echo "Patching ${FILE_PATH} for LocalStack compatibility..."
-
-          # Replace 'bucketname' with 'S3_BUCKET' for all occurrences
           sed -i 's/process.env.bucketname/process.env.S3_BUCKET/g' "$FILE_PATH"
-
-          # Replace specific access key and secret key environment variable names
           sed -i 's/accessKeyId: process.env.accessKeyId/accessKeyId: process.env.AWS_ACCESS_KEY_ID/g' "$FILE_PATH"
           sed -i 's/secretAccessKey: process.env.secretAccessKey/secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY/g' "$FILE_PATH"
-
-          # Add region, endpoint, and s3ForcePathStyle to the S3 constructor
-          # The 'a' command appends lines after the matched pattern.
-          # Indentation is crucial: assuming 6 spaces before 'secretAccessKey:'
           sed -i '/secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,/a \ \ \ \ \ \ region: process.env.AWS_REGION,\n\ \ \ \ \ \ endpoint: process.env.AWS_ENDPOINT,\n\ \ \ \ \ \ s3ForcePathStyle: true,' "$FILE_PATH"
-
-          echo "FileService patching complete. Verifying changes:"
-          # Print relevant lines to logs to confirm changes
           cat "$FILE_PATH" | grep -E 'AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_REGION|AWS_ENDPOINT|S3_BUCKET|s3ForcePathStyle' || true
-          echo "End of FileService patch verification."
 
-      # --- LocalStack Setup Steps ---
       - name: Start LocalStack Container
         run: |
-          echo "Pulling latest LocalStack image..."
           docker pull localstack/localstack:latest
-          echo "Stopping and removing any existing LocalStack container..."
           docker stop localstack || true
           docker rm localstack || true
-          echo "Starting LocalStack container..."
           docker run -d -p 4566:4566 -p 4571:4571 --name localstack localstack/localstack:latest
-          echo "Waiting for LocalStack to be ready (max 60 seconds)..."
           timeout=60
           elapsed=0
           while ! curl -s http://localhost:4566/health >/dev/null; do
             sleep 5
             elapsed=$((elapsed+5))
-            echo "LocalStack is not ready yet... ($elapsed seconds)"
             if [ "$elapsed" -ge "$timeout" ]; then
-              echo "LocalStack failed to start within $timeout seconds. See logs below:"
               docker logs localstack
               exit 1
             fi
           done
-          echo "LocalStack is ready!"
-          echo "Pausing for 10 seconds to ensure LocalStack services are fully initialized..."
           sleep 10
 
       - name: Create S3 Mock Bucket
         run: |
-          echo "Creating S3 mock-bucket in LocalStack..."
-          export AWS_ACCESS_KEY_ID="test"
-          export AWS_SECRET_ACCESS_KEY="test"
-          export AWS_REGION="us-east-1"
-          export AWS_ENDPOINT="http://localhost:4566"
-          aws --endpoint-url=${AWS_ENDPOINT} s3 mb s3://mock-bucket --debug
-          echo "S3 mock-bucket created."
-      # ----------------------------------
+          aws --endpoint-url=http://localhost:4566 s3 mb s3://mock-bucket --debug
+
       - name: Start Docker Services (e.g., PostgreSQL, InfluxDB)
         working-directory: projects/drec-origin
         run: |
-          echo "Starting docker-compose services..."
           docker-compose up -d
           docker-compose logs --tail=100
 
@@ -153,58 +112,38 @@ jobs:
         working-directory: projects/drec-origin
         run: rush install
 
-      - name: Debug - Verify Utility Files
-        working-directory: projects/drec-origin/apps/drec-api
-        run: |
-          ls -R src/utils
-
       - name: Build Backend
         working-directory: projects/drec-origin
         run: rush build
 
-      - name: Debug - Verify Build Output
-        working-directory: projects/drec-origin/apps/drec-api
-        run: |
-          ls -R dist
-
       - name: Start Backend and Wait for Readiness
         working-directory: projects/drec-origin
         run: |
-          echo "Starting backend in background..."
           rush start:dev &
-          echo "Waiting for backend to be ready (max 120 seconds)..."
           timeout=120
           elapsed=0
           while ! curl -s http://localhost:3040 >/dev/null; do
             sleep 10
             elapsed=$((elapsed+10))
-            echo "Backend is not ready yet... ($elapsed seconds)"
             if [ "$elapsed" -ge "$timeout" ]; then
-              echo "Backend failed to start within $timeout seconds."
               exit 1
             fi
           done
-          echo "Backend is ready!"
 
       - name: Install and Start Frontend
         run: |
-          echo "Installing frontend dependencies..."
           npm install
-          echo "Starting frontend in background..."
           nohup npm run start &
-          echo "Waiting for Frontend to be ready (max 60 seconds)..."
           timeout=60
           elapsed=0
           until curl -s http://localhost:4200; do
             sleep 5
             elapsed=$((elapsed+5))
-            echo "Frontend is not ready yet... ($elapsed seconds)"
             if [ "$elapsed" -ge "$timeout" ]; then
-              echo "Frontend failed to start within $timeout seconds."
               exit 1
             fi
           done
-          echo "Frontend is ready!"
+
       - name: Run Cypress Tests
         run: pnpx cypress run
 
@@ -215,22 +154,13 @@ jobs:
           name: cypress-screenshots
           path: cypress/screenshots
 
-      - name: Debug - Check parent directory before backend teardown
-        run: |
-          echo "Listing contents of 'projects/' directory:"
-          ls -F projects/
-          echo "Checking existence and permissions of 'projects/drec-origin':"
-          ls -ld projects/drec-origin || true
-
       - name: Tear Down Docker Compose Environment
+        if: always()
         working-directory: projects/drec-origin
         run: docker-compose down
-        if: always()
 
       - name: Clean up LocalStack Container
-        run: |
-          echo "Stopping LocalStack container..."
-          docker stop localstack || true
-          echo "Removing LocalStack container..."
-          docker rm localstack || true
         if: always()
+        run: |
+          docker stop localstack || true
+          docker rm localstack || true
