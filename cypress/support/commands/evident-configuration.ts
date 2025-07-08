@@ -1,3 +1,4 @@
+import 'cypress-file-upload';
 const EVIDENT_API_KEY = Cypress.env('EVIDENT_TESTING_API_KEY');
 const EVIDENT_EMAIL = Cypress.env('EVIDENT_TESTING_EMAIL');
 

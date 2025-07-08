@@ -1,4 +1,3 @@
-import 'cypress-file-upload';
 describe('Add evident configuration', () => {
   beforeEach(() => {
     cy.wait(10000);
