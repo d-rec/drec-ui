@@ -5,11 +5,13 @@ on:
       - develop
       - stage
       - prod
+      - demo
   pull_request:
     branches:
       - develop
       - stage
       - prod
+      - demo
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -43,20 +45,6 @@ jobs:
       S3_BUCKET: mock-bucket
       # ------------------------------------------
     steps:
-      - name: Set MODE based on branch
-        id: set-env
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
-            echo "MODE=stage" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
-            echo "MODE=prod" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "MODE=dev" >> $GITHUB_ENV
-          else
-            # For pull requests or other branches
-            echo "MODE=test" >> $GITHUB_ENV
-          fi
-
       - name: Checkout Repository
         uses: actions/checkout@v2
 
