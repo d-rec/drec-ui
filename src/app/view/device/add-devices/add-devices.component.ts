@@ -149,7 +149,7 @@ export class AddDevicesComponent {
       this.setupCountryAutocomplete(0);
     }, 1500);
 
-    this.deviceForms.controls.forEach((group, index) => {
+    this.deviceForms.controls.forEach((group) => {
       this.setupDataSourceWatcher(group as FormGroup);
     });
   }
@@ -381,7 +381,7 @@ export class AddDevicesComponent {
         serialNumberCtrl?.setValidators([Validators.required]);
       } else {
         serialNumberCtrl?.disable();
-        serialNumberCtrl?.clearValidators(); 
+        serialNumberCtrl?.clearValidators();
         serialNumberCtrl?.reset();
       }
       serialNumberCtrl?.updateValueAndValidity();
@@ -397,16 +397,16 @@ export class AddDevicesComponent {
   }
 
   getSerialNumberLabel(index: number): string {
-  const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
-  if (dataSource === 'Inverter') {
-    return 'Inverter Serial Number';
-  } else if (dataSource === 'Data Logger') {
-    return 'Data Logger Serial Number';
-  } else if (dataSource === 'Other') {
-    return 'Other Id';
+    const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
+    if (dataSource === 'Inverter') {
+      return 'Inverter Serial Number';
+    } else if (dataSource === 'Data Logger') {
+      return 'Data Logger Serial Number';
+    } else if (dataSource === 'Other') {
+      return 'Other Id';
+    }
+    return 'Serial Number';
   }
-  return 'Serial Number';
-}
 
   private _filter(value: string, i: number): CountryInfo[] {
     const filterValue = value?.toLowerCase() || '';
