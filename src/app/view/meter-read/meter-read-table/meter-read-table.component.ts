@@ -84,9 +84,10 @@ export class MeterReadTableComponent implements OnInit {
 
     this.service.GetRead(this.exterenalId, this.FilterForm.value).subscribe(
       (response: any) => {
+        const reads = [...response.historyread, ...response.ongoing];
         this.filter = true;
-        this.readdata = response;
-        this.readdata.reads.forEach((element: any) => {
+        this.readdata = reads;
+        this.readdata.forEach((element: any) => {
           if (element.type == 'History') {
             element['readtype'] = 'History';
             element['color'] = '#008000';
@@ -95,7 +96,7 @@ export class MeterReadTableComponent implements OnInit {
             element['color'] = '#f2be1a';
           }
         });
-        this.dataSource = new MatTableDataSource([...this.readdata.reads]);
+        this.dataSource = new MatTableDataSource([...this.readdata]);
         this.totalRows = this.readdata.numberOfReads;
 
         this.currentPage = this.readdata.currentPageNumber;
