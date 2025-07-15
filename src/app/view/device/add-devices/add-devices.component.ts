@@ -223,14 +223,10 @@ export class AddDevicesComponent {
     this.myform.valueChanges.subscribe();
 
     const device = this.fb.group({
-      externalId: [
-        null,
-        [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)],
-      ],
       projectName: [null],
-      dataSource: [null, [Validators.required]], // Added dataSource field
-      serialNumber: [{ value: '', disabled: true }], // Added serialNumber field (disabled by default)
-      otherDataSource: [''], // Added otherDataSource field
+      dataSource: [null, [Validators.required]],
+      serialNumber: [{ value: '', disabled: true }],
+      otherDataSource: [''],
       address: [null, [Validators.required]],
       latitude: [
         null,
@@ -382,10 +378,10 @@ export class AddDevicesComponent {
     dataSourceCtrl?.valueChanges.subscribe((value) => {
       if (value) {
         serialNumberCtrl?.enable();
-        serialNumberCtrl?.setValidators([Validators.required]); // Add required validator when enabled
+        serialNumberCtrl?.setValidators([Validators.required]);
       } else {
         serialNumberCtrl?.disable();
-        serialNumberCtrl?.clearValidators(); // Clear validators when disabled
+        serialNumberCtrl?.clearValidators(); 
         serialNumberCtrl?.reset();
       }
       serialNumberCtrl?.updateValueAndValidity();
@@ -573,9 +569,10 @@ export class AddDevicesComponent {
 
       this.deviceService.create(formData).subscribe({
         next: () => {
+          console.log('Device added successfully:', element);
           this.toastrService.success(
             'Added Successfully !!',
-            'Device! ' + element.externalId,
+            'Device! ' + element.serialNumber,
           );
 
           const index = deviceArray.indexOf(element);
@@ -604,7 +601,7 @@ export class AddDevicesComponent {
             this.toastrService.error(
               err.error?.message ||
                 err.message ||
-                'Failed to register device ' + element.externalId,
+                'Failed to register device ' + element.serialNumber,
               'Please try again. ',
             );
           }
