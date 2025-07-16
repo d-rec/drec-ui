@@ -71,7 +71,6 @@
                       </mat-select>
                     </mat-form-field>
                   </div>
-                  <!-- Other Data Source Field (only if "Other" selected) -->
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('dataSource')?.value === 'Other'">
                     <mat-form-field appearance="outline" class="w-100">
                       <mat-label>Other Data Source</mat-label>
@@ -79,7 +78,6 @@
                     </mat-form-field>
                     
                   </div>
-                  <!-- Serial Number Field with Dynamic Label -->
                   <div class="col-md-3">
                     <mat-form-field appearance="outline" class="w-100">
                       <mat-label>{{ getSerialNumberLabel(i) }}</mat-label>

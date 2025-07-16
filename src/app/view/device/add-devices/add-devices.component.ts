@@ -271,8 +271,6 @@ export class AddDevicesComponent {
     });
 
     this.deviceForms.push(device);
-
-    // Setup data source watcher for the initial device
     this.setupDataSourceWatcher(device);
   }
 
@@ -371,28 +369,28 @@ export class AddDevicesComponent {
   }
 
   private setupDataSourceWatcher(deviceGroup: FormGroup) {
-    const dataSourceCtrl = deviceGroup.get('dataSource');
-    const serialNumberCtrl = deviceGroup.get('serialNumber');
-    const otherDataSourceCtrl = deviceGroup.get('otherDataSource');
+    const dataSource = deviceGroup.get('dataSource');
+    const serialNumber = deviceGroup.get('serialNumber');
+    const otherdataSource = deviceGroup.get('otherDataSource');
 
-    dataSourceCtrl?.valueChanges.subscribe((value) => {
+    dataSource?.valueChanges.subscribe((value) => {
       if (value) {
-        serialNumberCtrl?.enable();
-        serialNumberCtrl?.setValidators([Validators.required]);
+        serialNumber?.enable();
+        serialNumber?.setValidators([Validators.required]);
       } else {
-        serialNumberCtrl?.disable();
-        serialNumberCtrl?.clearValidators();
-        serialNumberCtrl?.reset();
+        serialNumber?.disable();
+        serialNumber?.clearValidators();
+        serialNumber?.reset();
       }
-      serialNumberCtrl?.updateValueAndValidity();
+      serialNumber?.updateValueAndValidity();
 
       if (value === 'Other') {
-        otherDataSourceCtrl?.setValidators([Validators.required]);
+        otherdataSource?.setValidators([Validators.required]);
       } else {
-        otherDataSourceCtrl?.clearValidators();
-        otherDataSourceCtrl?.reset();
+        otherdataSource?.clearValidators();
+        otherdataSource?.reset();
       }
-      otherDataSourceCtrl?.updateValueAndValidity();
+      otherdataSource?.updateValueAndValidity();
     });
   }
 
