@@ -147,6 +147,9 @@ export class AddDevicesComponent {
     setTimeout(() => {
       this.setupCountryAutocomplete(0);
     }, 1500);
+        this.deviceForms.controls.forEach((group) => {
+      this.setupdataSourceBrandNameWatcher(group as FormGroup);
+    });
   }
   ngOnDestroy() {
     if (this.subscription) {
@@ -216,12 +219,10 @@ export class AddDevicesComponent {
     });
     this.myform.valueChanges.subscribe();
     const device = this.fb.group({
-      externalId: [
-        null,
-        [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)],
-      ],
       projectName: [null],
       address: [null, [Validators.required]],
+      dataSource: [null, [Validators.required]],
+      dataSourceBrandName: [{value: '', disabled: true}],
       latitude: [
         null,
         [Validators.required, Validators.pattern(this.numberregex)],
@@ -320,10 +321,8 @@ export class AddDevicesComponent {
   }
   adddevice() {
     const device = this.fb.group({
-      externalId: [
-        null,
-        [Validators.required, Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)],
-      ],
+      dataSource: [null, [Validators.required]],
+      dataSourceBrandName: [{ value: '', disabled: true }],
       projectName: [null],
       address: [null],
       latitude: [null, Validators.pattern(this.numberregex)],
@@ -357,7 +356,33 @@ export class AddDevicesComponent {
       map((value) => this._filter(value || '', index)),
     );
   }
+ private setupdataSourceBrandNameWatcher(deviceGroup: FormGroup) {
+    const dataSource = deviceGroup.get('dataSource');
+    const dataSourceBrandName = deviceGroup.get('dataSourceBrandName');
 
+    dataSource?.valueChanges.subscribe((value) => {
+      if (value) {
+        dataSourceBrandName?.enable();
+        dataSourceBrandName?.setValidators([Validators.required]);
+      } else {
+        dataSourceBrandName?.disable();
+        dataSourceBrandName?.clearValidators();
+        dataSourceBrandName?.reset();
+      }
+      dataSourceBrandName?.updateValueAndValidity();
+    });
+  }
+
+  dataSourceBrandNameLabel(index: number): string {
+    const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
+    if (dataSource === 'Inverter') {
+      return 'Inverter Brand Name';
+    } else if (dataSource === 'Data Logger') {
+      return 'Data Logger Brand Name';
+    } 
+      return 'Datasource Brand Name';
+  
+  }
   private _filter(value: string, i: number): CountryInfo[] {
     const filterValue = value?.toLowerCase() || '';
 

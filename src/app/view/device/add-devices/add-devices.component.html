@@ -62,15 +62,19 @@
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="external-id">External ID</mat-label>
-                      <input matInput formControlName="externalId" />
-                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                      <!-- <mat-hint>contain only (a-zA-Z),(0 to 9),(-),(_) & spaces</mat-hint> -->
-                      <!-- <mat-error class="pb-3" *ngIf="checkValidation('email')">
-                                              {{ emaiErrors() }}
-          
-                                          </mat-error> -->
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Data Source </mat-label>
+                      <mat-select formControlName="dataSource">
+                        <mat-option value="Inverter">Inverter</mat-option>
+                        <mat-option value="Data Logger">Data Logger</mat-option>
+                        <mat-option value="Other">Other</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>{{ dataSourceBrandNameLabel(i) }}</mat-label>
+                      <input matInput formControlName="dataSourceBrandName" />
                     </mat-form-field>
                   </div>
                 </div>
