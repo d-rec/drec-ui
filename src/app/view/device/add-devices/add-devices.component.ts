@@ -512,6 +512,10 @@ export class AddDevicesComponent {
     deviceArray.forEach((element: any, index: number) => {
       const formData = new FormData();
 
+      if (element.dataSource === 'Other') {
+        element.dataSource = element.otherDataSource;
+      }
+
       if (this.organizationName != null) {
         element['organizationId'] = this.organizationId;
       }
@@ -569,7 +573,6 @@ export class AddDevicesComponent {
 
       this.deviceService.create(formData).subscribe({
         next: () => {
-          console.log('Device added successfully:', element);
           this.toastrService.success(
             'Added Successfully !!',
             'Device! ' + element.serialNumber,
