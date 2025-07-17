@@ -30,14 +30,17 @@ import {
 } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganizationType } from 'src/app/utils/drec.enum';
+import {
+  DocumentType,
+  DataSourceTypes,
+  OrganizationType,
+} from '../../../utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
 import {
   validateAndAppendFiles,
   shortenFileName,
 } from '../../../utils/file-upload.helper';
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
-import { DocumentType } from '../../../utils/drec.enum';
 
 export type DeviceFiles = {
   [DocumentType.FORM_SF_02]: File[];
@@ -371,7 +374,7 @@ export class AddDevicesComponent {
   private setupDataSourceWatcher(deviceGroup: FormGroup) {
     const dataSource = deviceGroup.get('dataSource');
     const serialNumber = deviceGroup.get('serialNumber');
-    const otherdataSource = deviceGroup.get('otherDataSource');
+    const otherDataSource = deviceGroup.get('otherDataSource');
 
     dataSource?.valueChanges.subscribe((value) => {
       if (value) {
@@ -385,25 +388,27 @@ export class AddDevicesComponent {
       serialNumber?.updateValueAndValidity();
 
       if (value === 'Other') {
-        otherdataSource?.setValidators([Validators.required]);
+        otherDataSource?.setValidators([Validators.required]);
       } else {
-        otherdataSource?.clearValidators();
-        otherdataSource?.reset();
+        otherDataSource?.clearValidators();
+        otherDataSource?.reset();
       }
-      otherdataSource?.updateValueAndValidity();
+      otherDataSource?.updateValueAndValidity();
     });
   }
 
   getSerialNumberLabel(index: number): string {
     const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
-    if (dataSource === 'Inverter') {
-      return 'Inverter Serial Number';
-    } else if (dataSource === 'Data Logger') {
-      return 'Data Logger Serial Number';
-    } else if (dataSource === 'Other') {
-      return 'Other Id';
+    switch (dataSource) {
+      case DataSourceTypes.Inverter:
+        return 'Inverter Serial Number';
+      case DataSourceTypes.DataLogger:
+        return 'Data Logger Serial Number';
+      case DataSourceTypes.Other:
+        return 'Other Id';
+      default:
+        return 'Serial Number';
     }
-    return 'Serial Number';
   }
 
   private _filter(value: string, i: number): CountryInfo[] {
@@ -509,11 +514,6 @@ export class AddDevicesComponent {
     const deviceArray = this.myform.value.devices;
     deviceArray.forEach((element: any, index: number) => {
       const formData = new FormData();
-
-      if (element.dataSource === 'Other') {
-        element.dataSource = element.otherDataSource;
-      }
-
       if (this.organizationName != null) {
         element['organizationId'] = this.organizationId;
       }
