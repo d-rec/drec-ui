@@ -30,14 +30,17 @@ import {
 } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganizationType } from 'src/app/utils/drec.enum';
+import {
+  DocumentType,
+  DataSourceTypes,
+  OrganizationType,
+} from '../../../utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
 import {
   validateAndAppendFiles,
   shortenFileName,
 } from '../../../utils/file-upload.helper';
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
-import { DocumentType } from '../../../utils/drec.enum';
 
 export type DeviceFiles = {
   [DocumentType.FORM_SF_02]: File[];
@@ -147,7 +150,7 @@ export class AddDevicesComponent {
     setTimeout(() => {
       this.setupCountryAutocomplete(0);
     }, 1500);
-        this.deviceForms.controls.forEach((group) => {
+    this.deviceForms.controls.forEach((group) => {
       this.setupdataSourceBrandNameWatcher(group as FormGroup);
     });
   }
@@ -222,7 +225,7 @@ export class AddDevicesComponent {
       projectName: [null],
       address: [null, [Validators.required]],
       dataSource: [null, [Validators.required]],
-      dataSourceBrandName: [{value: '', disabled: true}],
+      dataSourceBrandName: [{ value: '', disabled: true }],
       latitude: [
         null,
         [Validators.required, Validators.pattern(this.numberregex)],
@@ -356,7 +359,7 @@ export class AddDevicesComponent {
       map((value) => this._filter(value || '', index)),
     );
   }
- private setupdataSourceBrandNameWatcher(deviceGroup: FormGroup) {
+  private setupdataSourceBrandNameWatcher(deviceGroup: FormGroup) {
     const dataSource = deviceGroup.get('dataSource');
     const dataSourceBrandName = deviceGroup.get('dataSourceBrandName');
 
@@ -375,13 +378,16 @@ export class AddDevicesComponent {
 
   dataSourceBrandNameLabel(index: number): string {
     const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
-    if (dataSource === 'Inverter') {
-      return 'Inverter Brand Name';
-    } else if (dataSource === 'Data Logger') {
-      return 'Data Logger Brand Name';
-    } 
-      return 'Datasource Brand Name';
-  
+    switch (dataSource) {
+      case DataSourceTypes.Inverter:
+        return 'Inverter Brand Name';
+      case DataSourceTypes.DataLogger:
+        return 'Data Logger Brand Name';
+      case DataSourceTypes.Other:
+        return 'Data source Brand Name';
+      default:
+        return 'Data Source Brand Name';
+    }
   }
   private _filter(value: string, i: number): CountryInfo[] {
     const filterValue = value?.toLowerCase() || '';
