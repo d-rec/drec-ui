@@ -60,3 +60,9 @@ export enum DocumentType {
   SINGLE_LINE_DIAGRAM = 'SINGLE_LINE_DIAGRAM', //Single Line Diagram
   PROJECT_PHOTOS = 'PROJECT_PHOTOS', //Project Photos
 }
+
+export enum DataSourceTypes {
+  Inverter = 'Inverter',
+  DataLogger = 'DataLogger',
+  Other = 'Other',
+}
