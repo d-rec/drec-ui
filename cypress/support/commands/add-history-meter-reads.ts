@@ -5,7 +5,17 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
       switch (step.action) {
         case 'click':
           return cy.get(step.selector).click({ force: true }).wait(1000);
-
+        // case 'selected':
+        //   return cy
+        //     .get(step.selector)
+        //     .click({ force: true })
+        //     .wait(1000)
+        //     .get(step.option)
+        //     .should('have.length.greaterThan', 0)
+        //     .first()
+        //     .should('be.visible')
+        //     .click({ force: true })
+        //     .wait(1000);
         case 'selected':
           return cy
             .get(step.selector)
@@ -17,7 +27,6 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .should('be.visible')
             .click({ force: true })
             .wait(1000);
-
         case 'select-timezone':
           return cy
             .get(step.selector)
