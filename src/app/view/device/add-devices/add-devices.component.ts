@@ -387,7 +387,7 @@ export class AddDevicesComponent {
       }
       serialNumber?.updateValueAndValidity();
 
-      if (value === 'Other') {
+      if (value === DataSourceTypes.Other) {
         otherDataSource?.setValidators([Validators.required]);
       } else {
         otherDataSource?.clearValidators();
