@@ -4,11 +4,7 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          return cy
-            .get(step.selector)
-            .should('be.visible')
-            .click({ force: true })
-            .wait(5000);
+          return cy.get(step.selector).click({ force: true }).wait(1000);
 
         case 'selected':
           return cy
@@ -19,7 +15,7 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
             .first()
             .should('be.visible')
             .click({ force: true })
-            .wait(500);
+            .wait(1000);
 
         case 'select-timezone':
           return cy
