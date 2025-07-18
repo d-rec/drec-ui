@@ -1,4 +1,3 @@
-import 'cypress-file-upload';
 Cypress.Commands.add('addHistoryMeterRead', function () {
   cy.fixture('add-history-meter-read.json').then((data) => {
     data.forEach((step) => {
@@ -9,7 +8,7 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
           return cy
             .get(step.selector)
             .click({ force: true })
-            .wait(3000)
+            .wait(2000)
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .first()
