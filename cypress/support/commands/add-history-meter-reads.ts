@@ -10,6 +10,7 @@ Cypress.Commands.add('addHistoryMeterRead', function () {
           return cy
             .get(step.selector)
             .click({ force: true })
+            .wait(1000)
             .get(step.option)
             .should('have.length.greaterThan', 0)
             .first()
