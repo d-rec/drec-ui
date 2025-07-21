@@ -62,15 +62,26 @@
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="external-id">External ID</mat-label>
-                      <input matInput formControlName="externalId" />
-                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                      <!-- <mat-hint>contain only (a-zA-Z),(0 to 9),(-),(_) & spaces</mat-hint> -->
-                      <!-- <mat-error class="pb-3" *ngIf="checkValidation('email')">
-                                              {{ emaiErrors() }}
-          
-                                          </mat-error> -->
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Data Source</mat-label>
+                      <mat-select formControlName="dataSource">
+                        <mat-option value="Inverter">Inverter</mat-option>
+                        <mat-option value="Data Logger">Data Logger</mat-option>
+                        <mat-option value="Other">Other</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-3" *ngIf="deviceForms.at(i).get('dataSource')?.value === 'Other'">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Other Data Source</mat-label>
+                      <input matInput placeholder="Specify Other Data Source" formControlName="otherDataSource" />
+                    </mat-form-field>
+                    
+                  </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>{{ getSerialNumberLabel(i) }}</mat-label>
+                      <input matInput formControlName="serialNumber" />
                     </mat-form-field>
                   </div>
                 </div>
@@ -294,7 +305,7 @@
                     <label>Form SF-02 - Production Facility Registration</label>
                     <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #pfFileInput (change)="onFileChange($event, i, DocumentType.FORM_SF_02)"
-                        style="display: none;" required test-id="attach-file"/>
+                        style="display: none;" required test-id="attach-file" />
                       <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
@@ -311,7 +322,7 @@
                     <label>SF-02C Owner's Declaration or Proof of Ownership</label>
                     <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #ownershipFileInput (change)="onFileChange($event, i, DocumentType.SF_02C)"
-                        style="display: none" test-id="attach-file"/>
+                        style="display: none" test-id="attach-file" />
                       <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
@@ -327,7 +338,8 @@
                     <label>Metering Evidence</label>
                     <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #meteringFileInput
-                        (change)="onFileChange($event, i, DocumentType.METERING_EVIDENCE)" style="display: none" test-id="attach-file"/>
+                        (change)="onFileChange($event, i, DocumentType.METERING_EVIDENCE)" style="display: none"
+                        test-id="attach-file" />
                       <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
@@ -343,7 +355,8 @@
                     <label>Single Line Diagram</label>
                     <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #diagramFileInput
-                        (change)="onFileChange($event, i, DocumentType.SINGLE_LINE_DIAGRAM)" style="display: none" test-id="attach-file"/>
+                        (change)="onFileChange($event, i, DocumentType.SINGLE_LINE_DIAGRAM)" style="display: none"
+                        test-id="attach-file" />
                       <button type="button" (click)="diagramFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
@@ -360,7 +373,8 @@
                     <label>Project Photos</label>
                     <div class="d-flex justify-content-between align-items-center">
                       <input type="file" #photosFileInput
-                        (change)="onFileChange($event, i, DocumentType.PROJECT_PHOTOS)" style="display: none" test-id="attach-file"/>
+                        (change)="onFileChange($event, i, DocumentType.PROJECT_PHOTOS)" style="display: none"
+                        test-id="attach-file" />
                       <button type="button" (click)="photosFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
