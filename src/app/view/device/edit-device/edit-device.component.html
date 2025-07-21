@@ -40,7 +40,7 @@
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize">Current External ID</mat-label>
-                  <input matInput [value]="externalId" readonly />
+                  <input matInput [value]="serialNumber" readonly />
 
                   <mat-icon class="edit-icon" matSuffix (click)="editExternalid()" *ngIf="!showcancelicon"
                     style="cursor: pointer" matTooltip="Yes" matTooltipPosition="above">edit</mat-icon>
@@ -53,12 +53,12 @@
               <div class="col-md-3" *ngIf="shownewExternalidInput">
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize">
-                    New External ID</mat-label>
-                  <input matInput placeholder="name" formControlName="externalId" />
+                    New Serial Number</mat-label>
+                  <input matInput placeholder="name" formControlName="serialNumber" />
                   <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                   <!-- <mat-hint>Hint</mat-hint> -->
-                  <mat-error class="pb-3" *ngIf="checkValidation('externalId')">
-                    {{ externalIdErrors() }}
+                  <mat-error class="pb-3" *ngIf="checkValidation('serialNumber')">
+                    {{ serialNumberErrors() }}
                   </mat-error>
                 </mat-form-field>
               </div>

@@ -36,7 +36,7 @@ export class EditDeviceComponent implements OnInit {
   id: number;
   externalid: any;
   showinput: boolean = true;
-  externalId: any;
+  serialNumber: any;
   status: any;
   projectName: any;
   address: any;
@@ -111,8 +111,8 @@ export class EditDeviceComponent implements OnInit {
 
     this.date = new Date();
     this.updateDeviceForm = this.fb.group({
-      externalId: [null, [Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
-      //newexternalId: [null, Validators.required],
+      serialNumber: [null, [Validators.pattern(/^[a-zA-Z0-9_-]+$/)]],
+      //newserialNumber: [null, Validators.required],
       projectName: [null],
       address: [null, [Validators.required]],
       latitude: [
@@ -198,11 +198,11 @@ export class EditDeviceComponent implements OnInit {
         this.updateDeviceForm.get(input)?.touched);
     return validation;
   }
-  externalIdErrors() {
-    return this.updateDeviceForm.get('externalId')?.hasError('required')
+  serialNumberErrors() {
+    return this.updateDeviceForm.get('serialNumber')?.hasError('required')
       ? 'This field is required'
-      : this.updateDeviceForm.get('externalId')?.hasError('pattern')
-        ? 'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between'
+      : this.updateDeviceForm.get('serialNumber')?.hasError('pattern')
+        ? 'serial number can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between'
         : '';
   }
   DisplayList() {
@@ -233,7 +233,7 @@ export class EditDeviceComponent implements OnInit {
   }
   hideeditExternalid() {
     this.shownewExternalidInput = false;
-    this.updateDeviceForm.value.externalId = this.externalId;
+    this.updateDeviceForm.value.serialNumber = this.serialNumber;
     this.showcancelicon = false;
   }
   addmore() {
@@ -258,7 +258,7 @@ export class EditDeviceComponent implements OnInit {
       .getDeviceInfoBYexternalId(this.externalid)
       .subscribe((data) => {
         this.id = data.id;
-        this.externalId = data.externalId;
+        this.serialNumber = data.serialNumber;
         this.status = data.status;
         this.projectName = data.projectName;
         this.address = data.address;
@@ -297,8 +297,8 @@ export class EditDeviceComponent implements OnInit {
       });
   }
   onSubmit() {
-    if (this.updateDeviceForm.value.externalId === null) {
-      this.updateDeviceForm.removeControl('externalId');
+    if (this.updateDeviceForm.value.serialNumber === null) {
+      this.updateDeviceForm.removeControl('serialNumber');
     }
     const selectedCountry: CountryInfo | undefined = this.countrylist.find(
       (option) => option.country === this.updateDeviceForm.value.countryCode,
@@ -313,7 +313,7 @@ export class EditDeviceComponent implements OnInit {
         next: (data: any) => {
           this.toastrService.success(
             'Updated Successfully !!',
-            'Device! ' + data.externalId,
+            'Device! ' + data.serialNumber,
           );
           if (this.loginuser.role === 'Admin') {
             this.router.navigate(['/admin/All_devices']);
