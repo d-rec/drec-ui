@@ -214,7 +214,7 @@ export class AllMetereadsComponent implements OnInit {
     if (
       !(
         this.devicelist.filter((option: any) =>
-          option.developerExternalId.toLowerCase().includes(filterValue),
+          option.serialNumber.toLowerCase().includes(filterValue),
         ).length > 0
       ) &&
       filterValue != ''
@@ -226,7 +226,7 @@ export class AllMetereadsComponent implements OnInit {
       this.showerrorexternalid = false;
     }
     return this.devicelist.filter((option: any) =>
-      option.developerExternalId.toLowerCase().includes(filterValue),
+      option.serialNumber.toLowerCase().includes(filterValue),
     );
   }
   search(): void {
@@ -258,9 +258,9 @@ export class AllMetereadsComponent implements OnInit {
       this.showerrorexternalid = true;
     }
   }
-  displayFn(result: any): string {
-    return result;
-  }
+displayFn(result: any): string {
+  return result.serialNumber;
+}
   lastreadvalue: number;
   lastreaddate: any;
 
