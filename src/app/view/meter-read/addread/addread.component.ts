@@ -51,7 +51,7 @@ export class AddreadComponent implements OnInit {
   commissioningDate: any;
   selectedResult: any;
   filteredOptions: Observable<any[]>;
-  filteredexternalIdOptions: Observable<any[]>;
+  filteredSerialNumberOptions: Observable<any[]>;
   orglist: OrganizationInformation[] = [];
   loginuser: any;
   filteredOrgList: OrganizationInformation[] = [];
@@ -101,7 +101,7 @@ export class AddreadComponent implements OnInit {
     }
     this.readForm = this.fb.group({
       timezone: new FormControl(),
-      externalId: [null, Validators.required],
+      serialNumber: [null, Validators.required],
       type: [null, Validators.required],
       unit: [null, Validators.required],
       reads: this.fb.array([]),
@@ -140,9 +140,9 @@ export class AddreadComponent implements OnInit {
 
     setTimeout(() => {
       if (this.loginuser.role != 'Admin') {
-        this.readForm.controls['externalId'];
-        this.filteredexternalIdOptions = this.readForm.controls[
-          'externalId'
+        this.readForm.controls['serialNumber'];
+        this.filteredSerialNumberOptions = this.readForm.controls[
+          'serialNumber'
         ].valueChanges.pipe(
           startWith(''),
           map((value) => this._externalIdfilter(value ?? '')),
@@ -179,9 +179,9 @@ export class AddreadComponent implements OnInit {
     this.deviceservice.GetMyDevices(deviceurl).subscribe({
       next: (data) => {
         this.devicelist = data.devices;
-        if (this.readForm.controls['externalId']) {
-          this.filteredexternalIdOptions = this.readForm.controls[
-            'externalId'
+        if (this.readForm.controls['serialNumber']) {
+          this.filteredSerialNumberOptions = this.readForm.controls[
+            'serialNumber'
           ].valueChanges.pipe(
             startWith(''),
             map((value) => this._externalIdfilterbyAdmin(value ?? '')),
@@ -198,9 +198,9 @@ export class AddreadComponent implements OnInit {
       this.deviceservice.GetMyDevices(deviceurl, FilterForm).subscribe({
         next: (data) => {
           this.devicelist = data;
-          this.readForm.controls['externalId'];
-          this.filteredexternalIdOptions = this.readForm.controls[
-            'externalId'
+          this.readForm.controls['serialNumber'];
+          this.filteredSerialNumberOptions = this.readForm.controls[
+            'serialNumber'
           ].valueChanges.pipe(
             startWith(''),
             map((value) => this._externalIdfilter(value ?? '')),
@@ -229,7 +229,7 @@ export class AddreadComponent implements OnInit {
     }
 
     const filteredResults = this.devicelist.filter((option: any) =>
-      option?.externalId?.toLowerCase().includes(filterValue),
+      option?.serialNumber?.toLowerCase().includes(filterValue),
     );
 
     this.showerrorexternalid =
@@ -260,7 +260,7 @@ export class AddreadComponent implements OnInit {
   }
 
   search() {
-    // const input = this.readForm.controls['externalId'].value;
+    // const input = this.readForm.controls['serialNumber'].value;
     //if (input && input != '') {
     if (this.loginuser.role === 'Admin') {
       const deviceurl = 'device?';
@@ -292,7 +292,7 @@ export class AddreadComponent implements OnInit {
     //   this.autocompleteResults = [];
     //  this.showerrorexternalid=true;
     //   this.timezonedata = [];
-    //   this.readForm.controls['externalId'].setValue(null);
+    //   this.readForm.controls['serialNumber'].setValue(null);
     //   this.readForm.controls['timezone'].setValue(null);
     //   this.filteredOptions = this.readForm.controls['timezone'].valueChanges.pipe(
     //     startWith(''),
@@ -325,14 +325,14 @@ export class AddreadComponent implements OnInit {
     this.readForm.controls['type'].setValue(null);
     let deivceid;
     if (this.loginuser.role === 'Admin') {
-      this.readForm.controls['externalId'].setValue(result.developerExternalId);
+      this.readForm.controls['serialNumber'].setValue(result.serialNumber);
       deivceid = result.id;
     } else if (this.loginuser.role === 'ApiUser') {
-      this.readForm.controls['externalId'].setValue(result.externalId);
+      this.readForm.controls['serialNumber'].setValue(result.serialNumber);
       deivceid = result.id;
     } else {
-      this.readForm.controls['externalId'].setValue(result.externalId);
-      deivceid = result.externalId;
+      this.readForm.controls['serialNumber'].setValue(result.serialNumber);
+      deivceid = result.serialNumber;
     }
     this.readService.Getlastread(deivceid).subscribe({
       next: (data) => {
@@ -442,8 +442,8 @@ export class AddreadComponent implements OnInit {
   }
   onSubmit(): void {
     if (this.readForm.valid) {
-      const externalId = this.readForm.value.externalId;
-
+      const serialNumber = this.readForm.value.serialNumber;
+console.log("serialNumber 1", serialNumber);
       const myobj: any = {};
       if (this.loginuser.role === 'ApiUser') {
         myobj['organizationId'] = this.orgId;
@@ -503,7 +503,7 @@ export class AddreadComponent implements OnInit {
       }
       if (this.loginuser.role === 'Admin') {
         this.readService
-          .PostReadByAdmin(externalId, myobj, this.orgId)
+          .PostReadByAdmin(serialNumber, myobj, this.orgId)
           .subscribe({
             next: () => {
               this.readForm.reset();
@@ -527,7 +527,8 @@ export class AddreadComponent implements OnInit {
             },
           });
       } else {
-        this.readService.PostRead(externalId, myobj).subscribe({
+        console.log("serialNumber", serialNumber);
+        this.readService.PostRead(serialNumber, myobj).subscribe({
           next: () => {
             this.readForm.reset();
             this.selectedResult = null;

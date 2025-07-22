@@ -40,7 +40,7 @@ export class AddBulkDeviceComponent implements OnInit {
   ];
   displayedColumns1 = [
     'serialno',
-    'externalId',
+    'serialNumber',
     'errorsList',
     'Status',
     'Action',
@@ -174,6 +174,13 @@ export class AddBulkDeviceComponent implements OnInit {
       });
   }
 
+  getSerialNumber(element: any): string {
+  if (!element.errorsList) return '';
+  const serialError = element.errorsList.find(
+    (err: any) => err.property === 'serialNumber'
+  );
+  return serialError ? serialError.value : '';
+}
   getBulkUploadLogs(bulkUploadId: number, organizationId: number) {
     this.bulkUploadService
       .getBulkUploadLogs(bulkUploadId, organizationId)
@@ -185,6 +192,7 @@ export class AddBulkDeviceComponent implements OnInit {
               this.showBulkUploadLogs = true;
               this.data = errorDetails;
               this.dataSource1 = new MatTableDataSource(this.data);
+              console.log(this.dataSource1);
               this.dataSource1.paginator = this.paginator;
             }
           } catch (error) {

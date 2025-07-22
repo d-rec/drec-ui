@@ -294,12 +294,12 @@ export class EditDeviceComponent implements OnInit {
         this.energyStorageCapacity = data.energyStorageCapacity;
         this.stateProvince = data.stateProvince;
         this.organizationId = data.organizationId;
+        this.updateDeviceForm.patchValue({
+        serialNumber: data.serialNumber
+      });
       });
   }
   onSubmit() {
-    if (this.updateDeviceForm.value.serialNumber === null) {
-      this.updateDeviceForm.removeControl('serialNumber');
-    }
     const selectedCountry: CountryInfo | undefined = this.countrylist.find(
       (option) => option.country === this.updateDeviceForm.value.countryCode,
     );
