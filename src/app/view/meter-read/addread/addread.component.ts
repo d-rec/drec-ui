@@ -443,7 +443,6 @@ export class AddreadComponent implements OnInit {
   onSubmit(): void {
     if (this.readForm.valid) {
       const serialNumber = this.readForm.value.serialNumber;
-console.log("serialNumber 1", serialNumber);
       const myobj: any = {};
       if (this.loginuser.role === 'ApiUser') {
         myobj['organizationId'] = this.orgId;
@@ -527,7 +526,6 @@ console.log("serialNumber 1", serialNumber);
             },
           });
       } else {
-        console.log("serialNumber", serialNumber);
         this.readService.PostRead(serialNumber, myobj).subscribe({
           next: () => {
             this.readForm.reset();

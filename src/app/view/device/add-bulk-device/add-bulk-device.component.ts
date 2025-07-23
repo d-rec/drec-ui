@@ -192,7 +192,6 @@ export class AddBulkDeviceComponent implements OnInit {
               this.showBulkUploadLogs = true;
               this.data = errorDetails;
               this.dataSource1 = new MatTableDataSource(this.data);
-              console.log(this.dataSource1);
               this.dataSource1.paginator = this.paginator;
             }
           } catch (error) {
