@@ -21,7 +21,7 @@
     {
       "action": "type",
       "selector": "[test-id='phone-number']",
-      "value": "+250 78 2434 567"
+      "value": "+250 782 434 567"
     },
     {
       "action": "click",
