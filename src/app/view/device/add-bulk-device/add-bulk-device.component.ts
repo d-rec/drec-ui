@@ -173,14 +173,6 @@ export class AddBulkDeviceComponent implements OnInit {
         this.dataSource.sort = this.sort;
       });
   }
-
-  getSerialNumber(element: any): string {
-  if (!element.errorsList) return '';
-  const serialError = element.errorsList.find(
-    (err: any) => err.property === 'serialNumber'
-  );
-  return serialError ? serialError.value : '';
-}
   getBulkUploadLogs(bulkUploadId: number, organizationId: number) {
     this.bulkUploadService
       .getBulkUploadLogs(bulkUploadId, organizationId)

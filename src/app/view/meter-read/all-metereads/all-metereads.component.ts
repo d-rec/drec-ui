@@ -205,7 +205,7 @@ export class AllMetereadsComponent implements OnInit {
       this.showerrorexternalid = false;
     }
     return this.devicelist.filter((option: Device) =>
-      option.serialNumber.toLowerCase().includes(filterValue),
+      option.serialNumber? option.serialNumber.toLowerCase().includes(filterValue) :'',
     );
   }
 
