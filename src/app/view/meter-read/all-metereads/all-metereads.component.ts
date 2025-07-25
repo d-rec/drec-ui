@@ -205,7 +205,9 @@ export class AllMetereadsComponent implements OnInit {
       this.showerrorexternalid = false;
     }
     return this.devicelist.filter((option: Device) =>
-      option.serialNumber? option.serialNumber.toLowerCase().includes(filterValue) :'',
+      option.serialNumber
+        ? option.serialNumber.toLowerCase().includes(filterValue)
+        : '',
     );
   }
 
@@ -258,18 +260,16 @@ export class AllMetereadsComponent implements OnInit {
       this.showerrorexternalid = true;
     }
   }
-displayFn(result: any): string {
-  return result.serialNumber;
-}
+  displayFn(result: any): string {
+    return result.serialNumber;
+  }
   lastreadvalue: number;
   lastreaddate: any;
 
   onSelect(result: any): void {
     this.selectedResult = result;
     if (this.loginuser.role === 'Admin') {
-      this.FilterForm.controls['serialNumber'].setValue(
-        result.serialNumber,
-      );
+      this.FilterForm.controls['serialNumber'].setValue(result.serialNumber);
       this.serialNumber = result.id;
     }
     //else if (this.loginuser.role === 'ApiUser') {
@@ -297,7 +297,11 @@ displayFn(result: any): string {
     this.serialNumber = null;
     this.orgname = null;
     this.orgId = null;
-    this.counterComponent.start(this.FilterForm, this.serialNumber, this.filter);
+    this.counterComponent.start(
+      this.FilterForm,
+      this.serialNumber,
+      this.filter,
+    );
     this.autocompleteResults = [];
   }
   DisplayList() {
@@ -325,7 +329,11 @@ displayFn(result: any): string {
     if (this.loginuser.role === 'ApiUser') {
       this.FilterForm.controls['organizationId'].setValue(this.orgId);
     }
-    this.counterComponent.start(this.FilterForm, this.serialNumber, this.filter);
+    this.counterComponent.start(
+      this.FilterForm,
+      this.serialNumber,
+      this.filter,
+    );
   }
 
   pageChangeEvent(event: PageEvent) {

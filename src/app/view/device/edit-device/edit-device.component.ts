@@ -295,8 +295,8 @@ export class EditDeviceComponent implements OnInit {
         this.stateProvince = data.stateProvince;
         this.organizationId = data.organizationId;
         this.updateDeviceForm.patchValue({
-        serialNumber: data.serialNumber
-      });
+          serialNumber: data.serialNumber,
+        });
       });
   }
   onSubmit() {

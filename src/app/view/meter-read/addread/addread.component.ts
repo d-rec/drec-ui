@@ -243,16 +243,15 @@ export class AddreadComponent implements OnInit {
       value = '';
     }
 
-    const filterValue = value.toLowerCase();
+    const filterValue = value;
 
     if (!Array.isArray(this.devicelist)) {
       return [];
     }
 
     const filteredResults = this.devicelist.filter((option: any) =>
-      option?.developerExternalId?.toLowerCase().includes(filterValue),
+      option?.serialNumber?.includes(filterValue),
     );
-
     this.showerrorexternalid =
       filteredResults.length === 0 && filterValue !== '';
 
