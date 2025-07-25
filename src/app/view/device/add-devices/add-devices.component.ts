@@ -58,6 +58,7 @@ type FileType = keyof DeviceFiles;
 })
 export class AddDevicesComponent {
   @ViewChild('popupDialog') popupDialog = {} as TemplateRef<any>;
+  DataSourceTypes = DataSourceTypes;
   DocumentType = DocumentType;
   dialogRef: any;
   user: any;

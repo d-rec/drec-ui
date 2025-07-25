@@ -65,9 +65,9 @@
                     <mat-form-field appearance="outline" class="w-100">
                       <mat-label>Data Source</mat-label>
                       <mat-select formControlName="dataSource">
-                        <mat-option value="Inverter">Inverter</mat-option>
-                        <mat-option value="Data Logger">Data Logger</mat-option>
-                        <mat-option value="Other">Other</mat-option>
+                        <mat-option [value]="DataSourceTypes.Inverter">Inverter</mat-option>
+                        <mat-option [value]="DataSourceTypes.DataLogger">Data Logger</mat-option>
+                        <mat-option [value]="DataSourceTypes.Other">Other</mat-option>
                       </mat-select>
                     </mat-form-field>
                   </div>
