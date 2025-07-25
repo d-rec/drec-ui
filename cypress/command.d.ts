@@ -23,5 +23,6 @@ declare namespace Cypress {
     certifiedMeterRead(): Chainable<void>;
     inviteUser(): Chainable<void>;
     evidentConfiguration(): Chainable<void>;
+    apiUserSignup(): Chainable<void>;
   }
 }
