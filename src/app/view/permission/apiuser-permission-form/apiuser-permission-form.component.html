@@ -6,7 +6,7 @@
       <div>
         <h2 class="pb-0 mb-0 fw-bold text-capitalize">
           Module permission Request Form
-        </h2>
+        </h2> 
       </div>
     </mat-card-header>
     <hr />
@@ -48,7 +48,9 @@
                   </mat-header-cell>
                 </th>
                 <td>
-                  <mat-cell *cdkCellDef="let row">
+                  <mat-cell *cdkCellDef="let row"                       
+                  test-id="select-module"
+                  >
                     <mat-checkbox
                       color="primary"
                       (click)="$event.stopPropagation()"
@@ -76,6 +78,7 @@
                   >
                     <mat-checkbox
                       color="primary"
+                      test-id="select-permission"
                       [checked]="row.selectedPermissions.includes(permission)"
                       [disabled]="!selection.isSelected(row)"
                       (change)="togglePermission(row, permission)"
