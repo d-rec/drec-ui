@@ -22,7 +22,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 11
+      "index": 2
     },
     {
       "action": "check-multiple",
