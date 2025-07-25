@@ -2,7 +2,7 @@
   {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 1
+      "index": 0
     },
     {
       "action": "check-multiple",
@@ -12,7 +12,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 2
+      "index": 1
     },
     {
       "action": "check-multiple",
@@ -22,7 +22,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 3
+      "index": 11
     },
     {
       "action": "check-multiple",
@@ -32,7 +32,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 4
+      "index": 3
     },
     {
       "action": "check-multiple",
@@ -42,7 +42,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 5
+      "index": 4
     },
   
     {
@@ -54,7 +54,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 6
+      "index": 5
     },
     {
       "action": "check-multiple",
@@ -64,7 +64,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 7
+      "index": 6
     },
     {
       "action": "check-multiple",
@@ -74,7 +74,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 8
+      "index": 7
     },
     {
       "action": "check-multiple",
@@ -84,7 +84,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 9
+      "index": 8
     },
     {
       "action": "check-multiple",
@@ -94,7 +94,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 10
+      "index": 9
       },
     {
       "action": "check-multiple",
@@ -104,7 +104,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 11
+      "index": 10
     },
     {
       "action": "check-multiple",
@@ -114,7 +114,7 @@
     {
       "action": "check",
       "selector": "[test-id='select-module']",
-      "index": 12
+      "index": 11
     },
     {
       "action": "check-multiple",
