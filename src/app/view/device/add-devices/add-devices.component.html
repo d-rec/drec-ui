@@ -71,7 +71,7 @@
                       </mat-select>
                     </mat-form-field>
                   </div>
-                  <div class="col-md-3" *ngIf="deviceForms.at(i).get('dataSource')?.value === 'Other'">
+                  <div class="col-md-3" *ngIf="deviceForms.at(i).get('dataSource')?.value === DataSourceTypes.Other">
                     <mat-form-field appearance="outline" class="w-100">
                       <mat-label>Other Data Source</mat-label>
                       <input matInput placeholder="Specify Other Data Source" formControlName="otherDataSource" />
@@ -79,9 +79,12 @@
                     
                   </div>
                   <div class="col-md-3">
-                    <mat-form-field appearance="outline" class="w-100">
+                    <mat-form-field appearance="outline" class="w-100" >
                       <mat-label>{{ getSerialNumberLabel(i) }}</mat-label>
                       <input matInput formControlName="serialNumber" />
+                        <mat-error >
+    Serial number must contain only letters, numbers, underscores, or hyphens.
+  </mat-error>
                     </mat-form-field>
                   </div>
                 </div>
