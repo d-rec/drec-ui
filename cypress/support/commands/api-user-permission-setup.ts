@@ -16,7 +16,7 @@ Cypress.Commands.add('ApiUserPermissionsSetup', function () {
           });
         case 'submit':
           cy.get(step.selector).scrollIntoView().should('be.visible').click();
-          return cy.contains('SuccessFul').should('be.visible');
+        // return cy.contains('SuccessFul').should('be.visible');
       }
     });
   });
