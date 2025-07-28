@@ -50,6 +50,7 @@ export type DeviceFiles = {
   [DocumentType.PROJECT_PHOTOS]: File[];
 };
 type FileType = keyof DeviceFiles;
+
 @Component({
   selector: 'app-add-devices',
   templateUrl: './add-devices.component.html',
@@ -57,6 +58,7 @@ type FileType = keyof DeviceFiles;
 })
 export class AddDevicesComponent {
   @ViewChild('popupDialog') popupDialog = {} as TemplateRef<any>;
+  DataSourceTypes = DataSourceTypes;
   DocumentType = DocumentType;
   dialogRef: any;
   user: any;
@@ -84,6 +86,7 @@ export class AddDevicesComponent {
   public stepMinute = 1;
   public stepSecond = 1;
   numberregex: RegExp = /^-?[0-9]+(\.[0-9]*)?$/;
+  serialNumberRegex: RegExp = /^[a-zA-Z0-9_-]+$/;
   filteredCountryList: Observable<any[]>[] = [];
   subscription: Subscription;
   filteredOrganizationList: OrganizationInformation[] = [];
@@ -151,14 +154,17 @@ export class AddDevicesComponent {
       this.setupCountryAutocomplete(0);
     }, 1500);
     this.deviceForms.controls.forEach((group) => {
-      this.setupdataSourceBrandNameWatcher(group as FormGroup);
+      this.setupdataSourceBrandWatcher(group as FormGroup);
+      this.setupDataSourceWatcher(group as FormGroup);
     });
   }
+
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
   }
+
   private fetchOrganizationList() {
     this.orgService.getOrganizationInformation().subscribe((data) => {
       this.currentOrganization = data;
@@ -181,8 +187,6 @@ export class AddDevicesComponent {
           (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
         this.filteredOrganizationList = this.organizationList;
-        // Once data is loaded, call any other functions that depend on it
-
         this.date = new Date();
       });
     } else if (this.user.role === OrganizationType.ApiUser) {
@@ -190,7 +194,6 @@ export class AddDevicesComponent {
         this.organizationList = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
-        // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
         this.filteredOrganizationList = this.organizationList;
       });
     }
@@ -199,8 +202,8 @@ export class AddDevicesComponent {
     this.DisplaySDGBList();
     this.DisplayfuelList();
     this.DisplaytypeList();
-    // Load other data as needed
   }
+
   filterOrgList() {
     this.filteredOrganizationList = this.organizationList.filter((org: any) => {
       return org.name
@@ -208,6 +211,7 @@ export class AddDevicesComponent {
         .includes(this.organizationName.toLowerCase());
     });
   }
+
   selectOrg(event: any) {
     const selectedOrganization = this.organizationList.find(
       (option) => option.name === event.option.value,
@@ -216,16 +220,23 @@ export class AddDevicesComponent {
       this.organizationId = selectedOrganization.id;
     }
   }
+
   private initializeForm() {
     this.myform = this.fb.group({
       devices: this.fb.array([]),
     });
     this.myform.valueChanges.subscribe();
+
     const device = this.fb.group({
       projectName: [null],
-      address: [null, [Validators.required]],
       dataSource: [null, [Validators.required]],
-      dataSourceBrandName: [{ value: '', disabled: true }],
+      serialNumber: [
+        { value: null, disabled: true },
+        Validators.pattern(this.serialNumberRegex),
+      ],
+      otherDataSource: [''],
+      address: [null, [Validators.required]],
+      dataSourceBrand: [{ value: '', disabled: true }],
       latitude: [
         null,
         [Validators.required, Validators.pattern(this.numberregex)],
@@ -267,9 +278,9 @@ export class AddDevicesComponent {
       const latitude = device.get('latitude')?.value;
       this.updateMapMarkers(latitude, longitude);
     });
-    this.deviceForms.push(device);
 
-    // Other form initialization code
+    this.deviceForms.push(device);
+    this.setupDataSourceWatcher(device);
   }
 
   private setupCountryAutocomplete(index: number) {
@@ -287,22 +298,22 @@ export class AddDevicesComponent {
 
   DisplayList() {
     this.authService.GetMethod('countrycode/list').subscribe((data: any) => {
-      // display list in the console
       this.countrylist = data;
     });
   }
+
   DisplaySDGBList() {
     this.authService.GetMethod('sdgbenefit/code').subscribe((data) => {
-      // display list in the console
-
       this.sdgblist = data;
     });
   }
+
   DisplayfuelList() {
     this.authService.GetMethod('device/fuel-type').subscribe((data: any) => {
       this.fuellist = data;
     });
   }
+
   DisplaytypeList() {
     this.authService.GetMethod('device/device-type').subscribe((data: any) => {
       this.devicetypelist = data;
@@ -313,7 +324,7 @@ export class AddDevicesComponent {
     const toppings: any = this.myform.get('devices') as FormArray;
     const sdgb = toppings[i].SDGBenefits.value as string[];
     this.removeFirst(sdgb, topping);
-    toppings[i].SDGBenefits.setValue(sdgb); // To trigger change detection
+    toppings[i].SDGBenefits.setValue(sdgb);
   }
 
   private removeFirst<T>(array: T[], toRemove: T): void {
@@ -322,10 +333,13 @@ export class AddDevicesComponent {
       array.splice(index, 1);
     }
   }
+
   adddevice() {
     const device = this.fb.group({
       dataSource: [null, [Validators.required]],
-      dataSourceBrandName: [{ value: '', disabled: true }],
+      dataSourceBrand: [{ value: '', disabled: true }],
+      serialNumber: [null, Validators.pattern(this.serialNumberRegex)],
+      otherDataSource: [''],
       projectName: [null],
       address: [null],
       latitude: [null, Validators.pattern(this.numberregex)],
@@ -348,9 +362,11 @@ export class AddDevicesComponent {
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
     });
+
     this.deviceForms.push(device);
     this.showaddmore[this.deviceForms.length - 1] = true;
     this.showinput[this.deviceForms.length - 1] = true;
+
     const index = this.deviceForms.length - 1;
     this.filteredCountryList[index] = this.getCountryCodeControl(
       index,
@@ -358,25 +374,67 @@ export class AddDevicesComponent {
       startWith(''),
       map((value) => this._filter(value || '', index)),
     );
+
+    this.setupDataSourceWatcher(device);
   }
-  private setupdataSourceBrandNameWatcher(deviceGroup: FormGroup) {
+
+  private setupDataSourceWatcher(deviceGroup: FormGroup) {
     const dataSource = deviceGroup.get('dataSource');
-    const dataSourceBrandName = deviceGroup.get('dataSourceBrandName');
+    const serialNumber = deviceGroup.get('serialNumber');
+    const otherDataSource = deviceGroup.get('otherDataSource');
 
     dataSource?.valueChanges.subscribe((value) => {
       if (value) {
-        dataSourceBrandName?.enable();
-        dataSourceBrandName?.setValidators([Validators.required]);
+        serialNumber?.enable();
+        serialNumber?.setValidators([Validators.required]);
       } else {
-        dataSourceBrandName?.disable();
-        dataSourceBrandName?.clearValidators();
-        dataSourceBrandName?.reset();
+        serialNumber?.disable();
+        serialNumber?.clearValidators();
+        serialNumber?.reset();
       }
-      dataSourceBrandName?.updateValueAndValidity();
+      serialNumber?.updateValueAndValidity();
+
+      if (value === DataSourceTypes.Other) {
+        otherDataSource?.setValidators([Validators.required]);
+      } else {
+        otherDataSource?.clearValidators();
+        otherDataSource?.reset();
+      }
+      otherDataSource?.updateValueAndValidity();
     });
   }
 
-  dataSourceBrandNameLabel(index: number): string {
+  getSerialNumberLabel(index: number): string {
+    const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
+    switch (dataSource) {
+      case DataSourceTypes.Inverter:
+        return 'Inverter Serial Number';
+      case DataSourceTypes.DataLogger:
+        return 'Data Logger Serial Number';
+      case DataSourceTypes.Other:
+        return 'Other Id';
+      default:
+        return 'Serial Number';
+    }
+  }
+  private setupdataSourceBrandWatcher(deviceGroup: FormGroup) {
+    const dataSource = deviceGroup.get('dataSource');
+    const dataSourceBrand = deviceGroup.get('dataSourceBrand');
+
+    dataSource?.valueChanges.subscribe((value) => {
+      if (value) {
+        dataSourceBrand?.enable();
+        dataSourceBrand?.setValidators([Validators.required]);
+      } else {
+        dataSourceBrand?.disable();
+        dataSourceBrand?.clearValidators();
+        dataSourceBrand?.reset();
+      }
+      dataSourceBrand?.updateValueAndValidity();
+    });
+  }
+
+  dataSourceBrandLabel(index: number): string {
     const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
     switch (dataSource) {
       case DataSourceTypes.Inverter:
@@ -411,11 +469,13 @@ export class AddDevicesComponent {
     this.shownomore[i] = true;
     this.showaddmore[i] = false;
   }
+
   nomore(i: number) {
     this.addmoredetals[i] = false;
     this.showaddmore[i] = true;
     this.shownomore[i] = false;
   }
+
   showinput: any[] = [];
   showenergycapacity_input(i: number, event: any) {
     if (event) {
@@ -424,12 +484,15 @@ export class AddDevicesComponent {
       this.showinput[i] = false;
     }
   }
+
   deleteDevice(i: number) {
     this.deviceForms.removeAt(i);
   }
+
   getCountryCodeControl(index: number): FormControl {
     return this.deviceForms.at(index).get('countryCodename') as FormControl;
   }
+
   checkDocumentsUploaded() {
     if (Object.keys(this.files).length === 0) {
       this.allDocumentsUploaded = false;
@@ -449,6 +512,7 @@ export class AddDevicesComponent {
     this.allDocumentsUploaded = allDocsUploaded;
     this.formValid = this.myform.valid && allDocsUploaded;
   }
+
   onFileChange(event: Event, deviceIndex: number, fileType: FileType) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -486,7 +550,6 @@ export class AddDevicesComponent {
     const deviceArray = this.myform.value.devices;
     deviceArray.forEach((element: any, index: number) => {
       const formData = new FormData();
-
       if (this.organizationName != null) {
         element['organizationId'] = this.organizationId;
       }
@@ -546,15 +609,13 @@ export class AddDevicesComponent {
         next: () => {
           this.toastrService.success(
             'Added Successfully !!',
-            'Device! ' + element.externalId,
+            'Device! ' + element.serialNumber,
           );
 
           const index = deviceArray.indexOf(element);
           deviceArray.splice(index, 1);
 
-          // Check if deviceArray is empty
           if (deviceArray.length === 0) {
-            // Navigate to the list UI page
             if (this.user.role === OrganizationType.Admin) {
               this.router.navigate(['/admin/All_devices']);
             } else if (this.user.role === OrganizationType.ApiUser) {
@@ -565,7 +626,6 @@ export class AddDevicesComponent {
           }
         },
         error: (err) => {
-          // Error callback
           console.error('error caught in component', err.error.message);
           if (err.error.statusCode === 403) {
             this.toastrService.error(
@@ -578,7 +638,7 @@ export class AddDevicesComponent {
             this.toastrService.error(
               err.error?.message ||
                 err.message ||
-                'Failed to register device ' + element.externalId,
+                'Failed to register device ' + element.serialNumber,
               'Please try again. ',
             );
           }
@@ -586,9 +646,11 @@ export class AddDevicesComponent {
       });
     });
   }
+
   shortenFileName(fileName: string, maxLength: number = 20): string {
     return shortenFileName(fileName, maxLength);
   }
+
   openPopupDialog() {
     this.dialogRef = this.dialog.open(this.popupDialog, {
       width: '700px',
@@ -601,10 +663,12 @@ export class AddDevicesComponent {
       }
     });
   }
+
   onAgreeClick() {
     this.submitButtonText = 'Submitting...';
     this.dialogRef.close(true);
   }
+
   updateMapMarkers(latitude: any, longitude: any) {
     if (this.mapComponent && latitude && longitude) {
       const markers = [
@@ -614,10 +678,8 @@ export class AddDevicesComponent {
         },
       ];
 
-      // Set the markers on the map component
       this.mapComponent.markers = [...markers];
 
-      // If the map is already initialized, update it directly
       if (this.mapComponent.isMapInitialized) {
         this.mapComponent.update();
       }
