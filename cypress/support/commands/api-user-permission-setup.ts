@@ -8,7 +8,7 @@ Cypress.Commands.add('ApiUserPermissionsSetup', function () {
           return cy.contains('table tr', step.contains).within(() => {
             cy.get(step.selector).each(($el) => {
               if (!$el.hasClass('mdc-checkbox--disabled')) {
-                cy.wrap($el).click();
+                cy.wrap($el).click({ force: true });
               } else {
                 cy.log(`Skipping disabled checkbox: ${$el.attr('id')}`);
               }
