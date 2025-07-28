@@ -62,10 +62,10 @@
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
-                    <mat-form-field appearance="outline" class="w-100">
+                    <mat-form-field appearance="outline" class="w-100" test-id="data-source">
                       <mat-label>Data Source</mat-label>
                       <mat-select formControlName="dataSource">
-                        <mat-option [value]="DataSourceTypes.Inverter">Inverter</mat-option>
+                        <mat-option [value]="DataSourceTypes.Inverter" test-id="data-source-options">Inverter</mat-option>
                         <mat-option [value]="DataSourceTypes.DataLogger">Data Logger</mat-option>
                         <mat-option [value]="DataSourceTypes.Other">Other</mat-option>
                       </mat-select>
@@ -79,7 +79,7 @@
                     
                   </div>
                   <div class="col-md-3">
-                    <mat-form-field appearance="outline" class="w-100" >
+                    <mat-form-field appearance="outline" class="w-100" test-id="serial-number">
                       <mat-label>{{ getSerialNumberLabel(i) }}</mat-label>
                       <input matInput formControlName="serialNumber" />
                         <mat-error >

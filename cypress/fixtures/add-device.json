@@ -13,10 +13,15 @@
     "selector": "[test-id='project-name']",
     "value": "testing"
   },
-  { 
+  {
+    "action": "select",
+    "selector": "[test-id='data-source']",
+    "option": "[test-id='data-source-options']"
+  },
+  {
     "action": "type",
-    "selector": "[test-id='external-id']",
-    "value": "26"
+    "selector": "[test-id='serial-number']",
+    "value": "ABC123"
   },
   {
     "action": "select",
