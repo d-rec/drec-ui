@@ -380,8 +380,6 @@ export class MyreservationComponent implements OnInit {
               uniqueDevices.set(device.serialNumber, device),
             );
             this.devices = Array.from(uniqueDevices.values());
-            console.log(devices);
-
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
 
