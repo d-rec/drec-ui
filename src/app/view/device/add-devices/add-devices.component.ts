@@ -153,8 +153,8 @@ export class AddDevicesComponent {
     setTimeout(() => {
       this.setupCountryAutocomplete(0);
     }, 1500);
-
     this.deviceForms.controls.forEach((group) => {
+      this.setupdataSourceBrandWatcher(group as FormGroup);
       this.setupDataSourceWatcher(group as FormGroup);
     });
   }
@@ -236,6 +236,7 @@ export class AddDevicesComponent {
       ],
       otherDataSource: [''],
       address: [null, [Validators.required]],
+      dataSourceBrand: [{ value: '', disabled: true }],
       latitude: [
         null,
         [Validators.required, Validators.pattern(this.numberregex)],
@@ -336,6 +337,7 @@ export class AddDevicesComponent {
   adddevice() {
     const device = this.fb.group({
       dataSource: [null, [Validators.required]],
+      dataSourceBrand: [{ value: '', disabled: true }],
       serialNumber: [null, Validators.pattern(this.serialNumberRegex)],
       otherDataSource: [''],
       projectName: [null],
@@ -415,7 +417,36 @@ export class AddDevicesComponent {
         return 'Serial Number';
     }
   }
+  private setupdataSourceBrandWatcher(deviceGroup: FormGroup) {
+    const dataSource = deviceGroup.get('dataSource');
+    const dataSourceBrand = deviceGroup.get('dataSourceBrand');
 
+    dataSource?.valueChanges.subscribe((value) => {
+      if (value) {
+        dataSourceBrand?.enable();
+        dataSourceBrand?.setValidators([Validators.required]);
+      } else {
+        dataSourceBrand?.disable();
+        dataSourceBrand?.clearValidators();
+        dataSourceBrand?.reset();
+      }
+      dataSourceBrand?.updateValueAndValidity();
+    });
+  }
+
+  dataSourceBrandLabel(index: number): string {
+    const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
+    switch (dataSource) {
+      case DataSourceTypes.Inverter:
+        return 'Inverter Brand Name';
+      case DataSourceTypes.DataLogger:
+        return 'Data Logger Brand Name';
+      case DataSourceTypes.Other:
+        return 'Data source Brand Name';
+      default:
+        return 'Data Source Brand Name';
+    }
+  }
   private _filter(value: string, i: number): CountryInfo[] {
     const filterValue = value?.toLowerCase() || '';
 
