@@ -24,6 +24,11 @@
     "value": "ABC123"
   },
   {
+    "action": "type",
+    "selector": "[test-id='data-source-brand-name']",
+    "value": "testing"
+  },
+  {
     "action": "select",
     "selector": "[test-id='fuel-code']",
     "option": "[test-id='fuel-option']"
