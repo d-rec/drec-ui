@@ -92,7 +92,7 @@ export class MyreservationComponent implements OnInit {
   orglist: any;
   filteredOrgList: Observable<any[]>;
   showorgerror: boolean = false;
-  devices: { id: string; externalId: string; projectName: string }[] = [];
+  devices: { id: string; serialNumber: string; projectName: string }[] = [];
   constructor(
     private authService: AuthbaseService,
     private reservationService: ReservationService,
@@ -377,9 +377,10 @@ export class MyreservationComponent implements OnInit {
               .flat();
             const uniqueDevices = new Map<string, any>();
             devices.forEach((device: any) =>
-              uniqueDevices.set(device.externalId, device),
+              uniqueDevices.set(device.serialNumber, device),
             );
             this.devices = Array.from(uniqueDevices.values());
+            console.log(devices);
 
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
