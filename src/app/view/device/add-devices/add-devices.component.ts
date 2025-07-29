@@ -58,6 +58,7 @@ type FileType = keyof DeviceFiles;
 })
 export class AddDevicesComponent {
   @ViewChild('popupDialog') popupDialog = {} as TemplateRef<any>;
+  DataSourceTypes = DataSourceTypes;
   DocumentType = DocumentType;
   dialogRef: any;
   user: any;
@@ -85,6 +86,7 @@ export class AddDevicesComponent {
   public stepMinute = 1;
   public stepSecond = 1;
   numberregex: RegExp = /^-?[0-9]+(\.[0-9]*)?$/;
+  serialNumberRegex: RegExp = /^[a-zA-Z0-9_-]+$/;
   filteredCountryList: Observable<any[]>[] = [];
   subscription: Subscription;
   filteredOrganizationList: OrganizationInformation[] = [];
@@ -228,7 +230,10 @@ export class AddDevicesComponent {
     const device = this.fb.group({
       projectName: [null],
       dataSource: [null, [Validators.required]],
-      serialNumber: [{ value: '', disabled: true }],
+      serialNumber: [
+        { value: null, disabled: true },
+        Validators.pattern(this.serialNumberRegex),
+      ],
       otherDataSource: [''],
       address: [null, [Validators.required]],
       latitude: [
@@ -331,7 +336,7 @@ export class AddDevicesComponent {
   adddevice() {
     const device = this.fb.group({
       dataSource: [null, [Validators.required]],
-      serialNumber: [{ value: '', disabled: true }],
+      serialNumber: [null, Validators.pattern(this.serialNumberRegex)],
       otherDataSource: [''],
       projectName: [null],
       address: [null],
