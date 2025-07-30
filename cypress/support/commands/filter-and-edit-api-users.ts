@@ -20,6 +20,11 @@ Cypress.Commands.add('filterAndEditApiUsers', function () {
             .click('center', { force: true });
         case 'filter':
           return cy.get(step.selector).click().wait(1000);
+        case 'write':
+          return cy
+            .get(step.selector)
+            .clear()
+            .type(step.value, { force: true });
       }
     });
   });
