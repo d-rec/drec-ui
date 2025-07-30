@@ -152,7 +152,6 @@ export class AddReservationComponent {
         );
         // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
         this.filteredOrgList = this.orglist;
-        console.log('organization list in add', this.filteredOrgList);
       });
     }
     this.authService.GetMethod('device/fuel-type').subscribe((data1: any) => {
@@ -189,7 +188,6 @@ export class AddReservationComponent {
     this.filteredOrgList = this.orglist.filter((org: any) => {
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
     });
-    console.log(this.filteredOrgList);
   }
   selectOrg(event: any) {
     const selectedCountry = this.orglist.find(
@@ -449,7 +447,6 @@ export class AddReservationComponent {
           },
         });
     } else {
-      console.log('form', this.reservationForm.value);
       this.reservationService
         .AddReservation(this.reservationForm.value)
         .subscribe({
