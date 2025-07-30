@@ -112,7 +112,6 @@ export class EditDeviceComponent implements OnInit {
     this.date = new Date();
     this.updateDeviceForm = this.fb.group({
       serialNumber: [null, [Validators.pattern(/^[a-zA-Z0-9_-]+$/)]],
-      //newserialNumber: [null, Validators.required],
       projectName: [null],
       address: [null, [Validators.required]],
       latitude: [

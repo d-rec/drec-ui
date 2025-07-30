@@ -193,7 +193,9 @@ export class AllMetereadsComponent implements OnInit {
     if (
       !(
         this.devicelist.filter((option: Device) =>
-          option.serialNumber.toLowerCase().includes(filterValue),
+          option.serialNumber
+            ? option.serialNumber.toLowerCase().includes(filterValue)
+            : '',
         ).length > 0
       ) &&
       filterValue != ''
