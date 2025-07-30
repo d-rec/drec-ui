@@ -22,3 +22,4 @@ import '../support/commands/certified-meter-read';
 import '../support/commands/invite-user';
 import '../support/commands/evident-configuration';
 import '../support/commands/api-user-signup';
+import '../support/commands/filter-and-edit-api-users';

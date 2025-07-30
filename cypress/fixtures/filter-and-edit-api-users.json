@@ -1,0 +1,24 @@
+[
+    {
+      "action": "click",
+      "selector": "[test-id='organization']"
+    },
+    {
+      "action": "click",
+      "selector": "[test-id='all-market-intermediaries']"
+    },
+    {
+      "action": "select",
+      "selector": "[test-id='select-api-user']",
+      "option": "[test-id='api-user-options']"
+    },
+    {
+        "action": "filter",
+        "selector": "[test-id='filter-api-user']"
+    },
+    {
+        "action": "click",
+        "selector": "[test-id='edit-api-user']"
+    }
+  ]
+  
