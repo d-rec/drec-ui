@@ -133,7 +133,7 @@ export class MyreservationComponent implements OnInit {
       );
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
-          (org) => org.organizationType != 'Developer',
+          (org) => org.organizationType === 'Developer',
         );
         if (this.orglist.length > 0) {
           this.applyorgFilter();
@@ -329,7 +329,10 @@ export class MyreservationComponent implements OnInit {
     this.DisplayList(this.p);
   }
   DisplayList(page: number) {
-    if (this.loginuser.role === 'ApiUser') {
+    if (
+      this.loginuser.role === 'ApiUser' ||
+      this.loginuser.role === 'OrganizationAdmin'
+    ) {
       if (this.FilterForm.value.reservationActive === 'All') {
         this.FilterForm.removeControl('reservationActive');
       }
@@ -373,7 +376,7 @@ export class MyreservationComponent implements OnInit {
             this.data = data.groupedData;
 
             const devices = this.data
-              .map((reservation: { devices: any }) => reservation.devices)
+              .map((deviceGroup: { devices: any }) => deviceGroup.devices)
               .flat();
             const uniqueDevices = new Map<string, any>();
             devices.forEach((device: any) =>

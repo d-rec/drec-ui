@@ -251,13 +251,13 @@
    
                 <!-- ... existing code ... -->
                 <div class="col-md-4 h6-margin-remove">
-                  <h6>Reservation Name:</h6>
+                  <h6>Device Group Name:</h6>
                   <mat-form-field appearance="outline">
-                    <mat-label class="text-capitalize">Enter Reservation Name</mat-label>
+                    <mat-label class="text-capitalize">Enter Device Group Name</mat-label>
                     <input
                       type="text"
                       matInput
-                      formControlName="reservationName"
+                      formControlName="deviceGroupName"
                       (ngModelChange)="checkFormValidity()"
                       [matAutocomplete]="autoReservation"
                     />
@@ -267,10 +267,10 @@
                     >
                       <mat-option [value]="">---</mat-option>
                       <mat-option
-                        *ngFor="let reservation of reservationList | async"
-                        [value]="reservation.id"
+                        *ngFor="let deviceGroup of deviceGroupList | async"
+                        [value]="deviceGroup.id"
                       >
-                        {{ reservation.name }}
+                        {{ deviceGroup.name }}
                       </mat-option>
                     </mat-autocomplete>
                   </mat-form-field>

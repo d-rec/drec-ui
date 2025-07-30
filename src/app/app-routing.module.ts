@@ -139,7 +139,7 @@ const routes: Routes = [
         component: RedemptionReportComponent,
       },
       {
-        path: 'add/reservation',
+        path: 'add/device-group',
         component: AddReservationComponent,
       },
       {
