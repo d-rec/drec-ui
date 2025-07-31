@@ -267,7 +267,6 @@ export class CertificateDetailsComponent {
       if (selectedorg) {
         this.FilterForm.controls['organizationId'].setValue(selectedorg.id);
       }
-      console.log('selectedorg', this.FilterForm.value);
     });
   }
   onEndChangeEvent(event: any) {
