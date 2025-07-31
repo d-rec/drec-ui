@@ -38,9 +38,9 @@ export class MeterReadTableComponent implements OnInit {
   endminDate = new Date();
   showfilterform: boolean = true;
   totalRows = 0;
-  pageSize = 5;
+  pageSize = 15;
   currentPage = 0;
-  pageSizeOptions: number[] = [5];
+  pageSizeOptions: number[] = [this.pageSize];
   loading: boolean = true;
   loginuser: any;
   device_timezone: any;
