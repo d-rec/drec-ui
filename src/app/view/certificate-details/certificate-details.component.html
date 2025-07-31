@@ -20,21 +20,6 @@
               class="example-container1 row"
               *ngIf="FilterForm.get('organizationname')"
             >
-              <div class="col-md-3 d-flex flex-column">
-                <span>Select type for get D-REC Tokens </span>
-
-                <mat-radio-group>
-                  <mat-radio-button
-                    value="Developer"
-                    (click)="showorglist('Developer')"
-                    >Developer</mat-radio-button
-                  >
-                  <mat-radio-button value="Buyer" (click)="showorglist('Buyer')"
-                    >Buyer</mat-radio-button
-                  >
-                  <!-- Add more radio buttons as needed -->
-                </mat-radio-group>
-              </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize"
