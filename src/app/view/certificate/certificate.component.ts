@@ -633,6 +633,6 @@ export class CertificateComponent implements OnDestroy {
   };
 
   goback() {
-    this.router.navigate(['/myreservation']);
+    this.router.navigate(['/my-device-groups']);
   }
 }

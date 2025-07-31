@@ -438,7 +438,7 @@ export class AddReservationComponent {
             //  this.getDeviceListData();
             this.toastrService.success('Successfully!!', 'Device Group Added');
             this.dialogRef.close();
-            this.router.navigate(['/myreservation']);
+            this.router.navigate(['/my-device-groups']);
           },
           error: (err) => {
             //Error callback
@@ -457,7 +457,7 @@ export class AddReservationComponent {
             //  this.getDeviceListData();
             this.toastrService.success('Successfully!!', 'Device Group Added');
             this.dialogRef.close();
-            this.router.navigate(['/myreservation']);
+            this.router.navigate(['/my-device-groups']);
           },
           error: (err) => {
             //Error callback

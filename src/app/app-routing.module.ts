@@ -111,7 +111,7 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'All_certificate', component: CertificateDetailsComponent },
       { path: 'certificate', component: CertificateComponent },
-      { path: 'myreservation', component: MyreservationComponent },
+      { path: 'my-device-groups', component: MyreservationComponent },
       { path: 'settings/evident', component: EvidentSettingsComponent },
 
       {
