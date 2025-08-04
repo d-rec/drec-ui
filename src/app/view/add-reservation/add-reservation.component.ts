@@ -151,7 +151,6 @@ export class AddReservationComponent {
           (org: OrganizationInformation) =>
             org.organizationType === 'Developer',
         );
-        // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
         this.filteredOrgList = this.orglist;
       });
     }
@@ -191,18 +190,20 @@ export class AddReservationComponent {
     });
   }
   selectOrg(event: any) {
-   this.selectedOrganization = this.orglist.find(
+    this.selectedOrganization = this.orglist.find(
       (option) => option.name === event.option.value,
     );
-    if (this.selectedOrganization !== null || this.selectedOrganization !== undefined) {
+    if (this.selectedOrganization) {
       this.orgId = this.selectedOrganization.id;
-      this.deviceservice.GetMyDevices(
-        'device?',
-        { organizationId: this.selectedOrganization.id },
-        1,
-      ).subscribe((data) => {
-        this.updateDeviceTable(data.devices, data.totalCount, data.totalPages);
-          });
+      this.deviceservice
+        .getfilterData({}, this.selectedOrganization.id, 1)
+        .subscribe((data) => {
+          this.updateDeviceTable(
+            data.devices,
+            data.totalCount,
+            data.totalPages,
+          );
+        });
     }
   }
   applycountryFilter() {
@@ -360,47 +361,47 @@ export class AddReservationComponent {
   }
   displayList(page: number) {
     this.deviceservice
-      .getfilterData(this.FilterForm.value, page)
+      .getfilterData(this.FilterForm.value, this.orgId, page)
       .subscribe((data) => {
         this.loading = false;
         this.updateDeviceTable(data.devices, data.totalCount, data.totalPages);
       });
   }
-  updateDeviceTable(devices: any[], totalCount?: number, totalPages?: number) {
-  if (this.selection.selected.length > 0) {
-    this.selection.selected.forEach((ele) => {
-      const selectedIndex = devices.findIndex(
-        (row: any) => row.id === ele.id,
-      );
-      if (selectedIndex !== -1) {
-        devices.splice(selectedIndex, 1);
-        devices.push(ele);
-      } else {
-        devices.push(ele);
-      }
+  updateDeviceTable(devices: any[], totalCount: number, totalPages: number) {
+    if (this.selection.selected.length > 0) {
+      this.selection.selected.forEach((ele) => {
+        const selectedIndex = devices.findIndex(
+          (row: any) => row.id === ele.id,
+        );
+        if (selectedIndex !== -1) {
+          devices.splice(selectedIndex, 1);
+          devices.push(ele);
+        } else {
+          devices.push(ele);
+        }
+      });
+    }
+
+    devices.forEach((ele: any) => {
+      ele['fuelname'] = this.fuellist.find(
+        (fuelType) => fuelType.code === ele.fuelCode,
+      )?.name;
+
+      ele['devicetypename'] = this.devicetypelist.find(
+        (devicetype) => devicetype.code == ele.deviceTypeCode,
+      )?.name;
+
+      ele['countryname'] = this.countrylist.find(
+        (countrycode) => countrycode.alpha3 == ele.countryCode,
+      )?.country;
     });
+
+    this.data = devices;
+    this.dataSource = new MatTableDataSource(this.data);
+    if (totalCount !== undefined) this.totalRows = totalCount;
+    if (totalPages !== undefined) this.totalPages = totalPages;
+    this.dataSource.sort = this.sort;
   }
-
-  devices.forEach((ele: any) => {
-    ele['fuelname'] = this.fuellist.find(
-      (fuelType) => fuelType.code === ele.fuelCode,
-    )?.name;
-
-    ele['devicetypename'] = this.devicetypelist.find(
-      (devicetype) => devicetype.code == ele.deviceTypeCode,
-    )?.name;
-
-    ele['countryname'] = this.countrylist.find(
-      (countrycode) => countrycode.alpha3 == ele.countryCode,
-    )?.country;
-  });
-
-  this.data = devices;
-  this.dataSource = new MatTableDataSource(this.data);
-  if (totalCount !== undefined) this.totalRows = totalCount;
-  if (totalPages !== undefined) this.totalPages = totalPages;
-  this.dataSource.sort = this.sort;
-}
   onSubmit(): void {
     if (this.selection.selected.length > 0) {
       const deviceId: any = [];
