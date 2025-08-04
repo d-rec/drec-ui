@@ -184,10 +184,10 @@
                 </mat-form-field>
               </div>
               <div class="col-md-4 h6-margin-remove">
-                <h6>Device External Id:</h6>
+                <h6>Device Serial Number:</h6>
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize">
-                    enter device Id</mat-label
+                    enter serial number</mat-label
                   >
                   <mat-select
                     formControlName="deviceIds"
@@ -198,10 +198,10 @@
                       >---</mat-option
                     >
                     <mat-option
-                      *ngFor="let developerExternalId of devices"
-                      [value]="developerExternalId.id"
+                      *ngFor="let device of devices"
+                      [value]="device.id"
                     >
-                      {{ developerExternalId.externalId }}
+                      {{ device.serialNumber }} 
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
