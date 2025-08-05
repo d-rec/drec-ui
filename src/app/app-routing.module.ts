@@ -109,7 +109,7 @@ const routes: Routes = [
     canActivate: [AuthVerifiedGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'All_drec_tokens', component: CertificateDetailsComponent },
+      { path: 'tokens', component: CertificateDetailsComponent },
       { path: 'certificate', component: CertificateComponent },
       { path: 'myreservation', component: MyreservationComponent },
       { path: 'settings/evident', component: EvidentSettingsComponent },
