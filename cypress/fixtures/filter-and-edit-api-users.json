@@ -1,0 +1,43 @@
+[
+    {
+      "action": "click",
+      "selector": "[test-id='organization']"
+    },
+    {
+      "action": "click",
+      "selector": "[test-id='all-market-intermediaries']"
+    },
+    {
+      "action": "select",
+      "selector": "[test-id='select-api-user']",
+      "option": "[test-id='api-user-options']"
+    },
+    {
+        "action": "filter",
+        "selector": "[test-id='filter-api-user']"
+    },
+    {
+        "action": "click",
+        "selector": "[test-id='edit-api-user']"
+    },
+    {
+      "action": "write",
+      "selector": "[test-id='edit-firstname']",
+      "value": "test firstname"
+    },
+    {
+      "action": "write",
+      "selector": "[test-id='edit-lastname']",
+      "value": "test lastname"
+    },
+    {
+      "action": "write",
+      "selector": "[test-id='edit-email']",
+      "value": "testing@drec.energy"
+    },
+    {
+      "action": "click",
+      "selector": "[test-id='update-user-button']"
+    }
+  ]
+  

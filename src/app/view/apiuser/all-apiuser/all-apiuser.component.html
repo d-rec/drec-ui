@@ -18,7 +18,7 @@
             style="text-align: center; color: #f2be1a; font-size: 20px"
             class="text-capitalize"
           >
-            <b>Legal Entity Details</b>
+            <b>Legal Entity Details</b> 
           </h2>
 
           <div class="content1">
@@ -80,11 +80,12 @@
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize"
+                  test-id="select-api-user"
                     >Select Organization</mat-label
                   >
                   <input
                     type="text"
-                    aria-label="text"
+                    aria-label="text" 
                     matInput
                     formControlName="organizationName"
                     [matAutocomplete]="auto"
@@ -97,6 +98,7 @@
                     <mat-option
                       *ngFor="let code of filteredOptions | async"
                       [value]="code.name"
+                      test-id="api-user-options"
                     >
                       {{ code.name }}
                     </mat-option>
@@ -111,6 +113,7 @@
                   <button
                     class="btn-primary me-2 btn text-capitalize px-4"
                     (click)="getAllUsers(p)"
+                    test-id="filter-api-user"
                   >
                     Filter
                   </button>
@@ -195,7 +198,7 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef class="text-left">Action</th>
             <td mat-cell *matCellDef="let row; let i = index">
-              <a class="edit-icon action-icons" (click)="openUpdateDialog(row)">
+              <a class="edit-icon action-icons" (click)="openUpdateDialog(row)" test-id="edit-api-user">
                 <mat-icon
                   matTooltip="Edit"
                   [matTooltipPosition]="'above'"
