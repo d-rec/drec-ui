@@ -23,3 +23,4 @@ import '../support/commands/invite-user';
 import '../support/commands/evident-configuration';
 import '../support/commands/api-user-signup';
 import '../support/commands/add-new-organization';
+import '../support/commands/api-user-permission-setup';
