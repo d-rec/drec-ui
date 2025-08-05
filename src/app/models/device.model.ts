@@ -35,4 +35,5 @@ export interface Device {
   createdAt?: Date;
   version?: string;
   timezone?: string;
+  serialNumber: string;
 }

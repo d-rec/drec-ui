@@ -4,5 +4,6 @@ describe('Sign Up Test', () => {
   });
   it('should sign up a new Api user', () => {
     cy.apiUserSignup().wait(1000);
+    cy.ApiUserPermissionsSetup();
   });
 });

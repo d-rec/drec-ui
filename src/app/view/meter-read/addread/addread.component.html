@@ -57,23 +57,23 @@
                 appearance="outline"
                 *ngIf="loginuser.role != 'Admin'"
               >
-                <mat-label class="text-capitalize">External ID</mat-label>
+                <mat-label class="text-capitalize">Serial Number</mat-label>
                 <input
                   matInput
-                  formControlName="externalId"
+                  formControlName="serialNumber"
                   [matAutocomplete]="auto"
-                  placeholder="Search External ID"
-                  [value]="selectedResult?.externalId"
+                  placeholder="Search Serial Number"
+                  [value]="selectedResult?.serialNumber"
                 />
                 <mat-autocomplete
                   #auto="matAutocomplete"
                   (optionSelected)="onSelect($event.option.value)"
                 >
                   <mat-option
-                    *ngFor="let result of filteredexternalIdOptions | async"
+                    *ngFor="let result of filteredSerialNumberOptions | async"
                     [value]="result"
                   >
-                    {{ result.externalId }}
+                    {{ result.serialNumber }}
                   </mat-option>
                 </mat-autocomplete>
               </mat-form-field>
@@ -81,13 +81,13 @@
                 appearance="outline"
                 *ngIf="loginuser.role === 'Admin'"
               >
-                <mat-label class="text-capitalize">External ID</mat-label>
+                <mat-label class="text-capitalize">Serial Number</mat-label>
                 <input
                   matInput
-                  formControlName="externalId"
+                  formControlName="serialNumber"
                   [matAutocomplete]="auto"
-                  placeholder="Search External ID"
-                  [value]="selectedResult?.developerExternalId"
+                  placeholder="Search Serial Number"
+                  [value]="selectedResult?.serialNumber"
                 />
 
                 <mat-autocomplete
@@ -95,10 +95,10 @@
                   (optionSelected)="onSelect($event.option.value)"
                 >
                   <mat-option
-                    *ngFor="let result of filteredexternalIdOptions | async"
+                    *ngFor="let result of filteredSerialNumberOptions | async"
                     [value]="result"
                   >
-                    {{ result.developerExternalId }}
+                    {{ result.serialNumber }}
                   </mat-option>
                 </mat-autocomplete>
               </mat-form-field>
@@ -274,25 +274,25 @@
               appearance="outline"
               *ngIf="loginuser.role != 'Admin'"
             >
-              <mat-label class="text-capitalize">External ID</mat-label>
+              <mat-label class="text-capitalize">Serial Number</mat-label>
               <input
                 matInput
-                formControlName="externalId"
+                formControlName="serialNumber"
                 [matAutocomplete]="auto"
-                placeholder="Search External ID"
-                test-id="search-external-id"
-                [value]="selectedResult?.externalId"
+                placeholder="Search Serial Number"
+                test-id="search-serial-number"
+                [value]="selectedResult?.serialNumber"
               />
               <mat-autocomplete
                 #auto="matAutocomplete"
                 (optionSelected)="onSelect($event.option.value)"
               >
                 <mat-option
-                  *ngFor="let result of filteredexternalIdOptions | async"
+                  *ngFor="let result of filteredSerialNumberOptions | async"
                   [value]="result"
                   [attr.external-id-test-id]="result.externalId"
                 >
-                  {{ result.externalId }}
+                  {{ result.serialNumber }}
                 </mat-option>
               </mat-autocomplete>
             </mat-form-field>

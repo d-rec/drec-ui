@@ -1,4 +1,4 @@
-deviceExternalId,timezone,type,unit,value,startDate,endDate
+serialNumber,timezone,type,unit,value,startDate,endDate
 LGF2325P8O93,Continent/City,Delta,Wh,20,dd/mm/yyyy hh:mm:s,dd/mm/yyyy hh:mm:s
 LGF2325P8O93,Asia/Kolkata,History,kWh,20,01/19/2025 11:35:28,01/21/2025 11:35:28
 LGF2325P8O93,Asia/Kolkata,Aggregate,MWh,20,01/19/2025 11:35:28,01/21/2025 11:35:28
