@@ -348,7 +348,7 @@
                 <a
                   mat-menu-item
                   class="edit-icon action-icons"
-                  (click)="UpdateDevice(row.externalId)"
+                  (click)="UpdateDevice(row.serialNumber)"
                   *ngIf="loginuser.role != 'Admin'"
                 >
                   <mat-icon class="primary">edit</mat-icon> Edit</a

@@ -483,8 +483,8 @@ export class CertificateDetailsComponent {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);
             this.data.forEach((log: any) => {
               log.perDeviceCertificateLog.forEach((deviceLog: any) => {
-                if (!this.deviceIds.includes(deviceLog.externalId)) {
-                  this.deviceIds.push(deviceLog.externalId);
+                if (!this.deviceIds.includes(deviceLog.serialNumber)) {
+                  this.deviceIds.push(deviceLog.serialNumber);
                 }
               });
             });

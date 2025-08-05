@@ -431,7 +431,7 @@ export class AlldevicesComponent {
       data: {
         title: 'Confirm Remove Device',
         message:
-          'Are you sure, you want to remove Device: ' + device.externalId,
+          'Are you sure, you want to remove Device: ' + device.serialNumber,
       },
     });
     confirmDialog.afterClosed().subscribe((result) => {
