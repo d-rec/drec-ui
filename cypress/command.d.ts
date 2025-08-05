@@ -25,5 +25,6 @@ declare namespace Cypress {
     evidentConfiguration(): Chainable<void>;
     apiUserSignup(): Chainable<void>;
     filterAndEditApiUsers(): Chainable<void>;
+    ApiUserPermissionsSetup(): Chainable<void>;
   }
 }
