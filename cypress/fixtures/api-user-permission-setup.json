@@ -1,0 +1,130 @@
+[
+  {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 0
+    },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "USER_MANAGEMENT_CRUDL"
+    },
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 1
+    },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "ORGANIZATION_MANAGEMENT_CRUDL"
+    },
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 2
+    },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "FILE_MANAGEMENT_CRUDL"
+    },
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 3
+    },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "DEVICE_BULK_MANAGEMENT_CRUDL"
+    },
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 4
+    },
+  
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "BUYER_RESERVATION_MANAGEMENT_CRUDL"
+    },
+  
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 5
+    },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "DEVICE_BULK_MANAGEMENT_CRUDL"
+    },
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 6
+    },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "READS_MANAGEMENT_CRUDL"
+    },
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 7
+    },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "CERTIFICATE_LOG_MANAGEMENT_CRUDL"
+    },
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 8
+    },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "INVITATION_MANAGEMENT_CRUDL"
+    },
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 9
+      },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "ADMIN_APIUSER_ORGANIZATION_CRUDL"
+    },
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 10
+    },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "PASSWORD_MANAGEMENT_CRUDL"
+    },
+    {
+      "action": "check",
+      "selector": "[test-id='select-module']",
+      "index": 11
+    },
+    {
+      "action": "check-multiple",
+      "selector": "[test-id='select-permission']",
+      "contains": "PERMISSION_MANAGEMENT_CRUDL"
+    },
+    {
+      "action": "submit",
+      "selector": "[test-id='submit-permission']"
+    }
+  ]
+  
+  
