@@ -47,6 +47,7 @@
             routerLinkActive="active"
             routerLink="{{ adduserorg_url }}"
             *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
+            test-id="add-organization"
           >
             <span>Add Organizations</span>
           </a>
@@ -75,6 +76,7 @@
             routerLinkActive="active"
             routerLink="/admin/All_apiusers"
             *ngIf="loginuser.role === 'Admin'"
+            test-id="all-market-intermediaries"
           >
             <span>All Market Intermediaries</span>
           </a>
@@ -344,7 +346,8 @@
         [class.mat-elevation-z0]="true"
         *ngIf="
           loginuser.role === 'OrganizationAdmin' ||
-          loginuser.role === 'ApiUser'
+          loginuser.role === 'ApiUser' ||
+          loginuser.role === 'Buyer'
         "
       >
         <mat-expansion-panel-header
@@ -359,7 +362,7 @@
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
-            routerLink="/myreservation"
+            routerLink="/device-groups"
           >
             <span test-id="all-reservations">All Device Groups</span>
           </a>
@@ -374,44 +377,16 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
-            <mat-expansion-panel
-        [class.mat-elevation-z0]="true"
-        *ngIf="
-          loginuser.role === 'Buyer'
-        "
-      >
-        <mat-expansion-panel-header
-          class="mdc-button d-flex align-items-center"
-          test-id="reservations"
-        >
-          <mat-icon>bookmark</mat-icon>
-          <span class="p-1">My Device Groups</span>
-        </mat-expansion-panel-header>
-        <mat-nav-list class="p-0">
-          <a
-            mat-button
-            class="menu-button inside-menu-button"
-            routerLinkActive="active"
-            routerLink="/myreservation"
-          >
-            <span test-id="all-reservations">All Device Groups</span>
-          </a>
-        </mat-nav-list>
-      </mat-expansion-panel>
+
       <!--6th  -->
       <button
         mat-button
         class="menu-button"
         routerLinkActive="active"
-        routerLink="/All_certificate"
-        *ngIf="
-          loginuser.role === 'Buyer' ||
-          loginuser.role === 'SubBuyer' ||
-          loginuser.role === 'ApiUser'
-        "
+        routerLink="/tokens"
       >
         <mat-icon>card_membership</mat-icon>
-        <span test-id="all-certificates">Certificate</span>
+        <span test-id="all-certificates">D-REC Tokens</span>
       </button>
       <!--7th  -->
       <button

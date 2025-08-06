@@ -33,6 +33,7 @@ import { generateCSVContent } from 'src/app/utils/csv-export-helper';
 import { generatePDFBlob } from 'src/app/utils/pdf-export-helper';
 import { saveAs } from 'file-saver';
 import { DatePipe } from '@angular/common';
+import { OrganizationType } from '../../utils/drec.enum';
 
 @Component({
   selector: 'app-certificate-details',
@@ -189,6 +190,7 @@ export class CertificateDetailsComponent {
       }
 
       this.DisplayList(this.p);
+      this.getOrganizations();
     }, 1500);
     this.getBlockchainProperties();
     this.selectAccountAddressFromMetamask();
@@ -222,19 +224,12 @@ export class CertificateDetailsComponent {
       this.FilterForm.patchValue({ deviceGroupName: selectedReservationName });
     }
   }
-  showorglist(event: any) {
+  getOrganizations() {
     this.orgService.GetApiUserAllOrganization().subscribe((data) => {
-      if (event === 'Developer') {
-        this.orglist = data.organizations.filter(
-          (org) => org.organizationType != 'Buyer',
-        );
-        this.applyorgFilter();
-      } else {
-        this.orglist = data.organizations.filter(
-          (org) => org.organizationType != 'Developer',
-        );
-        this.applyorgFilter();
-      }
+      this.orglist = data.organizations.filter(
+        (org) => org.organizationType == OrganizationType.Developer,
+      );
+      this.applyorgFilter();
     });
   }
   applyorgFilter() {
@@ -477,7 +472,6 @@ export class CertificateDetailsComponent {
       .subscribe({
         next: (data: any) => {
           this.loading = false;
-          // display list in the console
           this.oldcertificatelog = data.oldcertificatelog;
           if (data.certificatelog.length > 0) {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);

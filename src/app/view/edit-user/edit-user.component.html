@@ -28,6 +28,7 @@
                 type="text"
                 matInput
                 formControlName="firstName"
+                test-id="edit-firstname"
               />
             </mat-form-field>
           </div>
@@ -39,6 +40,7 @@
                 type="text"
                 matInput
                 formControlName="lastName"
+                test-id="edit-lastname"
               />
             </mat-form-field>
           </div>
@@ -46,7 +48,7 @@
           <div class="col-md-3">
             <mat-form-field appearance="outline">
               <mat-label class="text-capitalize">Email</mat-label>
-              <input autofocus type="email" matInput formControlName="email" />
+              <input autofocus type="email" matInput formControlName="email" test-id="edit-email"/>
             </mat-form-field>
           </div>
           <div class="col-md-3">
@@ -60,6 +62,7 @@
                 type="submit"
                 class="btn-primary btn"
                 [disabled]="updateForm.invalid"
+                test-id="update-user-button"
               >
                 Update
               </button>
