@@ -344,7 +344,8 @@
         [class.mat-elevation-z0]="true"
         *ngIf="
           loginuser.role === 'OrganizationAdmin' ||
-          loginuser.role === 'ApiUser'
+          loginuser.role === 'ApiUser' ||
+          loginuser.role === 'Buyer'
         "
       >
         <mat-expansion-panel-header
@@ -359,7 +360,7 @@
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
-            routerLink="/my-device-groups"
+            routerLink="/device-groups"
           >
             <span test-id="all-reservations">All Device Groups</span>
           </a>
@@ -374,30 +375,7 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
-            <mat-expansion-panel
-        [class.mat-elevation-z0]="true"
-        *ngIf="
-          loginuser.role === 'Buyer'
-        "
-      >
-        <mat-expansion-panel-header
-          class="mdc-button d-flex align-items-center"
-          test-id="reservations"
-        >
-          <mat-icon>bookmark</mat-icon>
-          <span class="p-1">My Device Groups</span>
-        </mat-expansion-panel-header>
-        <mat-nav-list class="p-0">
-          <a
-            mat-button
-            class="menu-button inside-menu-button"
-            routerLinkActive="active"
-            routerLink="/my-device-groups"
-          >
-            <span test-id="all-reservations">All Device Groups</span>
-          </a>
-        </mat-nav-list>
-      </mat-expansion-panel>
+
       <!--6th  -->
       <button
         mat-button

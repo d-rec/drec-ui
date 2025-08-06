@@ -16,11 +16,11 @@ import { ToastrService } from 'ngx-toastr';
 import { fulecodeType, devicecodeType, CountryInfo } from '../../models';
 
 @Component({
-  selector: 'app-myreservation',
-  templateUrl: './myreservation.component.html',
-  styleUrls: ['./myreservation.component.scss'],
+  selector: 'app-device-groups',
+  templateUrl: './device-groups.component.html',
+  styleUrls: ['./device-groups.component.scss'],
 })
-export class MyreservationComponent implements OnInit {
+export class DeviceGroups implements OnInit {
   displayedColumns = [
     'actions',
     'createAt',

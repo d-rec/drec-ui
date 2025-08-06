@@ -30,11 +30,11 @@ import {
   CountryInfo,
 } from '../../models';
 @Component({
-  selector: 'app-add-reservation',
-  templateUrl: './add-reservation.component.html',
-  styleUrls: ['./add-reservation.component.scss'],
+  selector: 'app-add-device-group',
+  templateUrl: './add-device-group.component.html',
+  styleUrls: ['./add-device-group.component.scss'],
 })
-export class AddReservationComponent {
+export class AddDeviceGroupComponent {
   displayedColumns = [
     'select',
     'onboarding_date',
@@ -438,7 +438,7 @@ export class AddReservationComponent {
             //  this.getDeviceListData();
             this.toastrService.success('Successfully!!', 'Device Group Added');
             this.dialogRef.close();
-            this.router.navigate(['/my-device-groups']);
+            this.router.navigate(['/device-groups']);
           },
           error: (err) => {
             //Error callback
@@ -457,7 +457,7 @@ export class AddReservationComponent {
             //  this.getDeviceListData();
             this.toastrService.success('Successfully!!', 'Device Group Added');
             this.dialogRef.close();
-            this.router.navigate(['/my-device-groups']);
+            this.router.navigate(['/device-groups']);
           },
           error: (err) => {
             //Error callback
