@@ -6,7 +6,7 @@
       <div>
         <mat-card-title>
           <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2">
-            My Reservation List
+            My Device Group List
           </h2>
         </mat-card-title>
       </div>
@@ -19,7 +19,7 @@
             style="text-align: center; color: #f2be1a; font-size: 16px"
             class="text-capitalize mt-0 pt-0 mb-2 pb-0"
           >
-            <b>Select fields to filter reservation list</b>
+            <b>Select fields to filter device group list</b>
           </h2>
           <form [formGroup]="FilterForm">
             <div class="example-container1 row">
@@ -56,7 +56,7 @@
                 <input type="hidden" formControlName="countryCode" #input />
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize"
-                    >Reservation Name
+                    >Device Group Name
                   </mat-label>
 
                   <input
@@ -148,7 +148,7 @@
                 </mat-form-field>
               </div>
               <div class="col-md-3 d-flex flex-column">
-                <span>Reservation Status:</span>
+                <span>Device Group Status:</span>
                 <mat-radio-group
                   formControlName="reservationActive"
                   (ngModelChange)="checkFormValidity()"
@@ -161,7 +161,7 @@
                 </mat-radio-group>
               </div>
               <div class="col-md-4 h6-margin-remove">
-                <h6>Reservation Date:</h6>
+                <h6>Device Group Date:</h6>
                 <mat-form-field appearance="outline">
                   <mat-label>Enter a date range</mat-label>
                   <mat-date-range-input [rangePicker]="$any(picker)">
@@ -252,7 +252,7 @@
             <td
               mat-cell
               *matCellDef="let row; let i = index"
-              class="table-data-myreservation"
+              class="table-data-device-groups"
             >
               <tr class="d-flex">
                 <!-- <a class="btn-primary d-flex me-2 align-items-center btn-pad btn btn-sm"
@@ -306,7 +306,7 @@
             >
               Onboarding Date
             </th>
-            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+            <td mat-cell *matCellDef="let row" class="table-data-device-groups">
               {{ row.createdAt | date: 'full' }}
             </td>
           </ng-container>
@@ -319,7 +319,7 @@
             >
               Name
             </th>
-            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+            <td mat-cell *matCellDef="let row" class="table-data-device-groups">
               {{ row.name }}
             </td>
           </ng-container>
@@ -333,7 +333,7 @@
             >
               Aggregate Capacity
             </th>
-            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+            <td mat-cell *matCellDef="let row" class="table-data-device-groups">
               {{ row.aggregatedCapacity }}
             </td>
           </ng-container>
@@ -356,7 +356,7 @@
             >
               Issuance Frequency
             </th>
-            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+            <td mat-cell *matCellDef="let row" class="table-data-device-groups">
               {{ row.frequency }}
             </td>
           </ng-container>
@@ -371,7 +371,7 @@
             >
               Start
             </th>
-            <td mat-cell *matCellDef="let row" class="table-data-myreservation">
+            <td mat-cell *matCellDef="let row" class="table-data-device-groups">
               {{ row.reservationStartDate | date: 'dd MMM y hh:mm:ss' }}
             </td>
           </ng-container>
@@ -428,7 +428,7 @@
           <!-- Row shown when there is no matching data. -->
           <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="10" style="text-align: center">
-              No Reservation Found
+              No Device Group Found
             </td>
           </tr>
         </table>
@@ -499,7 +499,7 @@
             style="text-align: center; color: #f2be1a; font-size: 25px"
             class="text-capitalize"
           >
-            <b>Reservation details</b>
+            <b>Device Group details</b>
           </h2>
 
           <div class="content">
@@ -674,7 +674,7 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns1"></tr>
           <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="4" style="text-align: center">
-              No Reservation found
+              No Device Group found
             </td>
           </tr>
         </table>

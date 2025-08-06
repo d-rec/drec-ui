@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MyreservationComponent } from './myreservation.component';
+import { DeviceGroups } from './device-groups.component';
 
-describe('MyreservationComponent', () => {
-  let component: MyreservationComponent;
-  let fixture: ComponentFixture<MyreservationComponent>;
+describe('DeviceGroups', () => {
+  let component: DeviceGroups;
+  let fixture: ComponentFixture<DeviceGroups>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MyreservationComponent],
+      declarations: [DeviceGroups],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MyreservationComponent);
+    fixture = TestBed.createComponent(DeviceGroups);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

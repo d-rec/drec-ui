@@ -1,10 +1,10 @@
-<div class="body-bg add-reservation">
+<div class="body-bg add-device-group" >
   <mat-card>
     <mat-card-header
       class="d-flex justify-content-between mat-crd-hide align-items-center"
     >
       <div>
-        <h2 class="pb-0 mb-0 fw-bold text-capitalize">Make a Reservation</h2>
+        <h2 class="pb-0 mb-0 fw-bold text-capitalize">Make a Device Group</h2>
       </div>
     </mat-card-header>
     <hr />
@@ -578,13 +578,13 @@
 <ng-template
   let-data
   #mypopupDialog
-  class="Position-relative ng-template-add-reservation"
+  class="Position-relative ng-template-add-device-group"
 >
-  <h2 mat-dialog-title class="mat-dialog-title">Reservation</h2>
+  <h2 mat-dialog-title class="mat-dialog-title">Device Group</h2>
   <div mat-dialog-content>
     <p>
       <mat-radio-group [(ngModel)]="data.continewwithunavilableonedevice">
-        <span>Continue reservation if some devices are unavailable:</span>
+        <span>Continue device grouping if some devices are unavailable:</span>
         <br />
         <mat-radio-button [value]="true" checked>Yes</mat-radio-button>
         <mat-radio-button [value]="false">No</mat-radio-button>
@@ -593,7 +593,7 @@
     <p>
       <mat-radio-group [(ngModel)]="data.continueWithTCLessDTC">
         <span class="dialog-popup-discription"
-          >Continue reservation if target capacity is less than estimated
+          >Continue device grouping if target capacity is less than estimated
           reachable capacity of devices between selected period:</span
         >
         <br />
