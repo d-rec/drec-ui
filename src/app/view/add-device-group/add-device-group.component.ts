@@ -30,11 +30,11 @@ import {
   CountryInfo,
 } from '../../models';
 @Component({
-  selector: 'app-add-reservation',
-  templateUrl: './add-reservation.component.html',
-  styleUrls: ['./add-reservation.component.scss'],
+  selector: 'app-add-device-group',
+  templateUrl: './add-device-group.component.html',
+  styleUrls: ['./add-device-group.component.scss'],
 })
-export class AddReservationComponent {
+export class AddDeviceGroupComponent {
   displayedColumns = [
     'select',
     'onboarding_date',
@@ -148,7 +148,7 @@ export class AddReservationComponent {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) =>
-            org.organizationType !== 'Developer',
+            org.organizationType === 'Developer',
         );
         // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
         this.filteredOrgList = this.orglist;
@@ -183,6 +183,7 @@ export class AddReservationComponent {
       this.subscription.unsubscribe();
     }
   }
+
   filterOrgList() {
     this.filteredOrgList = this.orglist.filter((org: any) => {
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
@@ -435,9 +436,9 @@ export class AddReservationComponent {
             this.selection.clear();
             this.FilterForm.reset();
             //  this.getDeviceListData();
-            this.toastrService.success('Successfully!!', 'Reservation Added');
+            this.toastrService.success('Successfully!!', 'Device Group Added');
             this.dialogRef.close();
-            this.router.navigate(['/myreservation']);
+            this.router.navigate(['/device-groups']);
           },
           error: (err) => {
             //Error callback
@@ -454,9 +455,9 @@ export class AddReservationComponent {
             this.selection.clear();
             this.FilterForm.reset();
             //  this.getDeviceListData();
-            this.toastrService.success('Successfully!!', 'Reservation Added');
+            this.toastrService.success('Successfully!!', 'Device Group Added');
             this.dialogRef.close();
-            this.router.navigate(['/myreservation']);
+            this.router.navigate(['/device-groups']);
           },
           error: (err) => {
             //Error callback
