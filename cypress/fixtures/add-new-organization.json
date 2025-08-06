@@ -1,0 +1,55 @@
+[
+    {
+      "action": "click",
+      "selector": "[test-id='organization']"
+    },
+
+    {
+      "action": "click",
+      "selector": "[test-id='add-organization']"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='first-name']",
+      "value": "testing"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='last-name']",
+      "value": "testing"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='email']",
+      "value": "testing321@gmail.com"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='phone-number']",
+      "value": "+250784045413"
+    },
+    {
+      "action": "click",
+      "selector": "[test-id='next-button']"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='organization-name']",
+      "value": "testing org"
+    },
+    {
+      "action": "select",
+      "selector": "[test-id='organization-type']",
+      "option": "[test-id='select-organization-type']"
+    },
+    {
+        "action": "type",
+        "selector": "[test-id='organization-address']",
+        "value": "KK 123 st"
+    },
+    {
+      "action": "submit",
+      "selector": "[test-id='submit-organization']"
+    }
+  ]
+  

@@ -47,6 +47,7 @@
             routerLinkActive="active"
             routerLink="{{ adduserorg_url }}"
             *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
+            test-id="add-organization"
           >
             <span>Add Organizations</span>
           </a>
