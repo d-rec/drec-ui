@@ -381,15 +381,10 @@
         mat-button
         class="menu-button"
         routerLinkActive="active"
-        routerLink="/All_certificate"
-        *ngIf="
-          loginuser.role === 'Buyer' ||
-          loginuser.role === 'SubBuyer' ||
-          loginuser.role === 'ApiUser'
-        "
+        routerLink="/tokens"
       >
         <mat-icon>card_membership</mat-icon>
-        <span test-id="all-certificates">Certificate</span>
+        <span test-id="all-certificates">D-REC Tokens</span>
       </button>
       <!--7th  -->
       <button
