@@ -34,7 +34,7 @@ export class AllMetereadsComponent implements OnInit {
   devicedata: any;
   p: number = 1;
   total: number = 0;
-  externalId: any;
+  serialNumber: any;
   FilterForm: FormGroup;
   endminDate = new Date();
   showfilterform: boolean = true;
@@ -96,7 +96,7 @@ export class AllMetereadsComponent implements OnInit {
     this.DisplayList();
 
     this.FilterForm = this.formBuilder.group({
-      externalId: [null, Validators.required],
+      serialNumber: [null, Validators.required],
       start: [null, Validators.required],
       end: [null, Validators.required],
       pagenumber: [this.p],
@@ -104,9 +104,9 @@ export class AllMetereadsComponent implements OnInit {
 
     setTimeout(() => {
       if (this.loginuser.role != 'Admin') {
-        this.FilterForm.controls['externalId'];
+        this.FilterForm.controls['serialNumber'];
         this.filteredexternalIdOptions = this.FilterForm.controls[
-          'externalId'
+          'serialNumber'
         ].valueChanges.pipe(
           startWith(''),
           map((value) => this._externalIdfilter(value || '')),
@@ -130,7 +130,7 @@ export class AllMetereadsComponent implements OnInit {
       this.filteredexternalIdOptions = of([]);
       this.FilterForm.reset();
       this.filter = false;
-      this.externalId = null;
+      this.serialNumber = null;
       this.orgId = selectedCountry.id;
       if (this.loginuser.role === 'ApiUser') {
         this.FilterForm.addControl(
@@ -148,9 +148,9 @@ export class AllMetereadsComponent implements OnInit {
     this.deviceservice.GetMyDevices(deviceurl).subscribe({
       next: (data) => {
         this.devicelist = data.devices;
-        this.FilterForm.controls['externalId'];
+        this.FilterForm.controls['serialNumber'];
         this.filteredexternalIdOptions = this.FilterForm.controls[
-          'externalId'
+          'serialNumber'
         ].valueChanges.pipe(
           startWith(''),
           map((value) => this._externalIdfilterbyAdmin(value || '')),
@@ -164,9 +164,9 @@ export class AllMetereadsComponent implements OnInit {
       this.deviceservice.GetMyDevices(deviceurl).subscribe({
         next: (data) => {
           this.devicelist = data;
-          this.FilterForm.controls['externalId'];
+          this.FilterForm.controls['serialNumber'];
           this.filteredexternalIdOptions = this.FilterForm.controls[
-            'externalId'
+            'serialNumber'
           ].valueChanges.pipe(
             startWith(''),
             map((value) => this._externalIdfilter(value || '')),
@@ -188,12 +188,14 @@ export class AllMetereadsComponent implements OnInit {
     if (typeof value === 'string') {
       filterValue = value.toLowerCase();
     } else {
-      filterValue = value.externalId.toLowerCase();
+      filterValue = value.serialNumber.toLowerCase();
     }
     if (
       !(
         this.devicelist.filter((option: Device) =>
-          option.externalId.toLowerCase().includes(filterValue),
+          option.serialNumber
+            ? option.serialNumber.toLowerCase().includes(filterValue)
+            : '',
         ).length > 0
       ) &&
       filterValue != ''
@@ -205,7 +207,9 @@ export class AllMetereadsComponent implements OnInit {
       this.showerrorexternalid = false;
     }
     return this.devicelist.filter((option: Device) =>
-      option.externalId.toLowerCase().includes(filterValue),
+      option.serialNumber
+        ? option.serialNumber.toLowerCase().includes(filterValue)
+        : '',
     );
   }
 
@@ -214,7 +218,7 @@ export class AllMetereadsComponent implements OnInit {
     if (
       !(
         this.devicelist.filter((option: any) =>
-          option.developerExternalId.toLowerCase().includes(filterValue),
+          option.serialNumber.toLowerCase().includes(filterValue),
         ).length > 0
       ) &&
       filterValue != ''
@@ -226,11 +230,11 @@ export class AllMetereadsComponent implements OnInit {
       this.showerrorexternalid = false;
     }
     return this.devicelist.filter((option: any) =>
-      option.developerExternalId.toLowerCase().includes(filterValue),
+      option.serialNumber.toLowerCase().includes(filterValue),
     );
   }
   search(): void {
-    const input = this.FilterForm.controls['externalId'].value;
+    const input = this.FilterForm.controls['serialNumber'].value;
     if (input) {
       if (this.loginuser.role === 'Admin') {
         this.adminService.GetDeviceAutocomplete(input, this.orgId).subscribe(
@@ -259,7 +263,7 @@ export class AllMetereadsComponent implements OnInit {
     }
   }
   displayFn(result: any): string {
-    return result;
+    return result.serialNumber;
   }
   lastreadvalue: number;
   lastreaddate: any;
@@ -267,19 +271,17 @@ export class AllMetereadsComponent implements OnInit {
   onSelect(result: any): void {
     this.selectedResult = result;
     if (this.loginuser.role === 'Admin') {
-      this.FilterForm.controls['externalId'].setValue(
-        result.developerExternalId,
-      );
-      this.externalId = result.id;
+      this.FilterForm.controls['serialNumber'].setValue(result.serialNumber);
+      this.serialNumber = result.id;
     }
     //else if (this.loginuser.role === 'ApiUser') {
 
-    //   this.FilterForm.controls['externalId'].setValue(result.externalId);
-    //   this.externalId = result.id;
+    //   this.FilterForm.controls['serialNumber'].setValue(result.serialNumber);
+    //   this.serialNumber = result.id;
     // }
     else {
-      this.FilterForm.controls['externalId'].setValue(result.externalId);
-      this.externalId = result.externalId;
+      this.FilterForm.controls['serialNumber'].setValue(result.serialNumber);
+      this.serialNumber = result.serialNumber;
     }
     const startDate: Date = new Date(
       new Date().setMonth(new Date().getMonth() - 1),
@@ -294,10 +296,14 @@ export class AllMetereadsComponent implements OnInit {
   reset() {
     this.FilterForm.reset();
     this.filter = false;
-    this.externalId = null;
+    this.serialNumber = null;
     this.orgname = null;
     this.orgId = null;
-    this.counterComponent.start(this.FilterForm, this.externalId, this.filter);
+    this.counterComponent.start(
+      this.FilterForm,
+      this.serialNumber,
+      this.filter,
+    );
     this.autocompleteResults = [];
   }
   DisplayList() {
@@ -325,7 +331,11 @@ export class AllMetereadsComponent implements OnInit {
     if (this.loginuser.role === 'ApiUser') {
       this.FilterForm.controls['organizationId'].setValue(this.orgId);
     }
-    this.counterComponent.start(this.FilterForm, this.externalId, this.filter);
+    this.counterComponent.start(
+      this.FilterForm,
+      this.serialNumber,
+      this.filter,
+    );
   }
 
   pageChangeEvent(event: PageEvent) {

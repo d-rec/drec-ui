@@ -40,7 +40,7 @@ export class AddBulkDeviceComponent implements OnInit {
   ];
   displayedColumns1 = [
     'serialno',
-    'externalId',
+    'serialNumber',
     'errorsList',
     'Status',
     'Action',
@@ -173,7 +173,6 @@ export class AddBulkDeviceComponent implements OnInit {
         this.dataSource.sort = this.sort;
       });
   }
-
   getBulkUploadLogs(bulkUploadId: number, organizationId: number) {
     this.bulkUploadService
       .getBulkUploadLogs(bulkUploadId, organizationId)

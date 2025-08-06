@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, Input, Inject } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { MeterReadService, DeviceService } from '../../../auth/services';
+import { MeterReadService } from '../../../auth/services';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import {
   MatBottomSheetRef,
@@ -29,7 +29,6 @@ export class MeterReadTableComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   readdata: any;
-  developerExternalId: string;
   devicedata: any;
   p: number = 1;
   total: number = 0;
@@ -38,21 +37,20 @@ export class MeterReadTableComponent implements OnInit {
   endminDate = new Date();
   showfilterform: boolean = true;
   totalRows = 0;
-  pageSize = 5;
+  pageSize = 15;
   currentPage = 0;
-  pageSizeOptions: number[] = [5];
+  pageSizeOptions: number[] = [this.pageSize];
   loading: boolean = true;
   loginuser: any;
   device_timezone: any;
   filter: boolean;
-  @Input()
+  @Input() serialNumber: string;
   showtable: boolean;
   showname: boolean = false;
   constructor(
     private service: MeterReadService,
     private formBuilder: FormBuilder,
     private toastrService: ToastrService,
-    private deviceService: DeviceService,
     private bottomSheetRef: MatBottomSheetRef<MeterReadTableComponent>,
     private datePipe: DatePipe,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
@@ -86,11 +84,6 @@ export class MeterReadTableComponent implements OnInit {
 
   getPagedData() {
     this.FilterForm.controls['pagenumber'].setValue(this.p);
-    this.deviceService.GetDevicesInfo(this.exterenalId).subscribe({
-      next: (data: any) => {
-        this.developerExternalId = data.developerExternalId;
-      },
-    });
     this.service.GetRead(this.exterenalId, this.FilterForm.value).subscribe(
       (response: any) => {
         this.filter = true;
@@ -149,7 +142,7 @@ export class MeterReadTableComponent implements OnInit {
 
     // Create header row
     const headers = [
-      'Device External ID',
+      'Serial Number',
       'Start Datetime',
       'End Datetime',
       'Value(Wh)',
@@ -159,7 +152,7 @@ export class MeterReadTableComponent implements OnInit {
     const blob = generateCSVContent(headers, this.dataSource.data, (item) => {
       const startDate = this.formatDateForExport(item.startdate);
       const endDate = this.formatDateForExport(item.enddate);
-      return `"${this.developerExternalId}","${startDate}","${endDate}","${item.value}","${item.readtype}"`;
+      return `"${this.serialNumber}","${startDate}","${endDate}","${item.value}","${item.readtype}"`;
     });
 
     if (!blob) {
@@ -183,7 +176,7 @@ export class MeterReadTableComponent implements OnInit {
 
     try {
       const headers = [
-        'Device External ID',
+        'Serial Number',
         'Start Datetime',
         'End Datetime',
         'Value(Wh)',
@@ -194,7 +187,7 @@ export class MeterReadTableComponent implements OnInit {
         const startDate = this.formatDateForExport(item.startdate);
         const endDate = this.formatDateForExport(item.enddate);
         return [
-          this.developerExternalId,
+          this.serialNumber,
           startDate,
           endDate,
           item.value.toString(),
