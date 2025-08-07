@@ -33,6 +33,7 @@ import { generateCSVContent } from 'src/app/utils/csv-export-helper';
 import { generatePDFBlob } from 'src/app/utils/pdf-export-helper';
 import { saveAs } from 'file-saver';
 import { DatePipe } from '@angular/common';
+import { OrganizationType } from '../../utils/drec.enum';
 
 @Component({
   selector: 'app-certificate-details',
@@ -85,7 +86,7 @@ export class CertificateDetailsComponent {
   totalPages: number;
   p: number = 1;
   FilterForm: FormGroup;
-  reservationList: Observable<any[]>;
+  deviceGroupList: Observable<any[]>;
   offtaker = [
     'School',
     'Education',
@@ -145,7 +146,7 @@ export class CertificateDetailsComponent {
       start_date: [null],
       end_date: [null],
       deviceIds: [],
-      reservationName: [],
+      deviceGroupName: [],
       reservationId: [],
       fromAmountread: [null],
       toAmountread: [null],
@@ -189,6 +190,7 @@ export class CertificateDetailsComponent {
       }
 
       this.DisplayList(this.p);
+      this.getOrganizations();
     }, 1500);
     this.getBlockchainProperties();
     this.selectAccountAddressFromMetamask();
@@ -207,34 +209,27 @@ export class CertificateDetailsComponent {
           id: item.devicegroup_uid,
           name: item.name,
         }));
-        this.reservationList = of(this.reservationNames);
+        this.deviceGroupList = of(this.reservationNames);
       });
   }
   selectReservation(event: any): void {
     const selectedReservationName = this.reservationNames.find(
-      (reservation) => reservation.id === event.option.value,
+      (deviceGroup) => deviceGroup.id === event.option.value,
     )?.name;
 
     this.FilterForm.patchValue({ reservationId: event.option.value });
     if (
-      this.FilterForm.get('reservationName')?.value !== selectedReservationName
+      this.FilterForm.get('deviceGroupName')?.value !== selectedReservationName
     ) {
-      this.FilterForm.patchValue({ reservationName: selectedReservationName });
+      this.FilterForm.patchValue({ deviceGroupName: selectedReservationName });
     }
   }
-  showorglist(event: any) {
+  getOrganizations() {
     this.orgService.GetApiUserAllOrganization().subscribe((data) => {
-      if (event === 'Developer') {
-        this.orglist = data.organizations.filter(
-          (org) => org.organizationType != 'Buyer',
-        );
-        this.applyorgFilter();
-      } else {
-        this.orglist = data.organizations.filter(
-          (org) => org.organizationType != 'Developer',
-        );
-        this.applyorgFilter();
-      }
+      this.orglist = data.organizations.filter(
+        (org) => org.organizationType == OrganizationType.Developer,
+      );
+      this.applyorgFilter();
     });
   }
   applyorgFilter() {
@@ -390,8 +385,8 @@ export class CertificateDetailsComponent {
           ) {
             this.FilterForm.controls['deviceIds'].setValue(null);
           }
-          if (formValues.reservationName[0] === undefined) {
-            this.FilterForm.controls['reservationName'].setValue(null);
+          if (formValues.deviceGroupName[0] === undefined) {
+            this.FilterForm.controls['deviceGroupName'].setValue(null);
           }
           // Other code...
         }
@@ -477,7 +472,6 @@ export class CertificateDetailsComponent {
       .subscribe({
         next: (data: any) => {
           this.loading = false;
-          // display list in the console
           this.oldcertificatelog = data.oldcertificatelog;
           if (data.certificatelog.length > 0) {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);
@@ -493,9 +487,9 @@ export class CertificateDetailsComponent {
               .subscribe((data) => {
                 data.groupedData.forEach((item: any) => {
                   const exists = this.reservationNames.some(
-                    (reservation) =>
-                      reservation.id === item.devicegroup_uid &&
-                      reservation.name === item.name,
+                    (deviceGroup) =>
+                      deviceGroup.id === item.devicegroup_uid &&
+                      deviceGroup.name === item.name,
                   );
 
                   if (!exists) {

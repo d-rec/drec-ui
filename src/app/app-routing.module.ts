@@ -9,8 +9,8 @@ import { CertificateComponent } from './view/certificate/certificate.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 import { ConfirmEmailComponent } from './view/confirm-email/confirm-email.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
-import { MyreservationComponent } from './view/myreservation/myreservation.component';
-import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
+import { DeviceGroups } from './view/device-groups/device-groups.component';
+import { AddDeviceGroupComponent } from './view/add-device-group/add-device-group.component';
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
 import { ResetPasswordComponent } from './view/reset-password/reset-password.component';
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
@@ -109,9 +109,9 @@ const routes: Routes = [
     canActivate: [AuthVerifiedGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'All_certificate', component: CertificateDetailsComponent },
+      { path: 'tokens', component: CertificateDetailsComponent },
       { path: 'certificate', component: CertificateComponent },
-      { path: 'myreservation', component: MyreservationComponent },
+      { path: 'device-groups', component: DeviceGroups },
       { path: 'settings/evident', component: EvidentSettingsComponent },
 
       {
@@ -139,8 +139,8 @@ const routes: Routes = [
         component: RedemptionReportComponent,
       },
       {
-        path: 'add/reservation',
-        component: AddReservationComponent,
+        path: 'add/device-group',
+        component: AddDeviceGroupComponent,
       },
       {
         path: 'admin',
