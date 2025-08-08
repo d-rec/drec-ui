@@ -10,8 +10,8 @@
     },
     {
       "action": "selected",
-      "selector": "[test-id='search-external-id']",
-      "option": "[external-id-test-id]"
+      "selector": "[test-id='search-serial-number']",
+      "option": "[serial-number-test-id]"
     },
     {
       "action": "select-timezone",

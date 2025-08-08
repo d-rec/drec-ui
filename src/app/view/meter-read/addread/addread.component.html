@@ -64,6 +64,7 @@
                   [matAutocomplete]="auto"
                   placeholder="Search Serial Number"
                   [value]="selectedResult?.serialNumber"
+                  test-id="serial-number"
                 />
                 <mat-autocomplete
                   #auto="matAutocomplete"
@@ -282,6 +283,7 @@
                 placeholder="Search Serial Number"
                 test-id="search-serial-number"
                 [value]="selectedResult?.serialNumber"
+                test-id="search-serial-number"
               />
               <mat-autocomplete
                 #auto="matAutocomplete"
@@ -290,7 +292,7 @@
                 <mat-option
                   *ngFor="let result of filteredSerialNumberOptions | async"
                   [value]="result"
-                  [attr.external-id-test-id]="result.externalId"
+                  [attr.serial-number-test-id]="result.serialNumber"
                 >
                   {{ result.serialNumber }}
                 </mat-option>
