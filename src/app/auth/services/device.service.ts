@@ -128,7 +128,11 @@ export class DeviceService {
   GetUnreserveDevices(): Observable<any> {
     return this.httpClient.get(this.url + 'device/ungrouped/buyerreservation');
   }
-  getfilterData(searchData: any, pagenumber: number): Observable<any> {
+  getfilterData(
+    searchData: any,
+    orgId: number,
+    pagenumber: number,
+  ): Observable<any> {
     let searchUrl =
       `${this.url}device/ungrouped/buyerreservation?pagenumber=` + pagenumber;
 
@@ -140,6 +144,9 @@ export class DeviceService {
       )
     ) {
       searchUrl += `&country=${searchData.countryCode}`;
+    }
+    if (orgId) {
+      searchUrl += `&organizationId=${orgId}`;
     }
 
     if (
