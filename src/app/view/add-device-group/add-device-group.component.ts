@@ -97,6 +97,7 @@ export class AddDeviceGroupComponent {
     continewwithunavilableonedevice: true,
     continueWithTCLessDTC: true,
   };
+  selectedOrganization: any;
   constructor(
     private authService: AuthbaseService,
     private reservationService: ReservationService,
@@ -150,7 +151,6 @@ export class AddDeviceGroupComponent {
           (org: OrganizationInformation) =>
             org.organizationType === 'Developer',
         );
-        // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
         this.filteredOrgList = this.orglist;
       });
     }
@@ -190,11 +190,20 @@ export class AddDeviceGroupComponent {
     });
   }
   selectOrg(event: any) {
-    const selectedCountry = this.orglist.find(
+    this.selectedOrganization = this.orglist.find(
       (option) => option.name === event.option.value,
     );
-    if (selectedCountry) {
-      this.orgId = selectedCountry.id;
+    if (this.selectedOrganization) {
+      this.orgId = this.selectedOrganization.id;
+      this.deviceservice
+        .getfilterData({}, this.selectedOrganization.id, 1)
+        .subscribe((data) => {
+          this.updateDeviceTable(
+            data.devices,
+            data.totalCount,
+            data.totalPages,
+          );
+        });
     }
   }
   applycountryFilter() {
@@ -351,48 +360,47 @@ export class AddDeviceGroupComponent {
     this.displayList(this.p);
   }
   displayList(page: number) {
-    //  this.FilterForm.controls['pagenumber'].setValue(page);
     this.deviceservice
-      .getfilterData(this.FilterForm.value, page)
+      .getfilterData(this.FilterForm.value, this.orgId, page)
       .subscribe((data) => {
         this.loading = false;
-        if (this.selection.selected.length > 0) {
-          this.selection.selected.forEach((ele) => {
-            const selectedIndex = data.devices.findIndex(
-              (row: any) => row.id === ele.id,
-            );
-            if (selectedIndex !== -1) {
-              // The selected ID exists, so remove it from the data list
-              data.devices.splice(selectedIndex, 1);
-              data.devices.push(ele);
-            } else {
-              // The selected ID doesn't exist, so add it to the data list
-              data.devices.push(ele);
-            }
-          });
-        }
-
-        this.data = data.devices;
-
-        this.data.forEach((ele: any) => {
-          ele['fuelname'] = this.fuellist.find(
-            (fuelType) => fuelType.code === ele.fuelCode,
-          )?.name;
-
-          ele['devicetypename'] = this.devicetypelist.find(
-            (devicetype) => devicetype.code == ele.deviceTypeCode,
-          )?.name;
-
-          ele['countryname'] = this.countrylist.find(
-            (countrycode) => countrycode.alpha3 == ele.countryCode,
-          )?.country;
-        });
-        this.dataSource = new MatTableDataSource(this.data);
-        this.totalRows = data.totalCount;
-        this.totalPages = data.totalPages;
-
-        this.dataSource.sort = this.sort;
+        this.updateDeviceTable(data.devices, data.totalCount, data.totalPages);
       });
+  }
+  updateDeviceTable(devices: any[], totalCount: number, totalPages: number) {
+    if (this.selection.selected.length > 0) {
+      this.selection.selected.forEach((ele) => {
+        const selectedIndex = devices.findIndex(
+          (row: any) => row.id === ele.id,
+        );
+        if (selectedIndex !== -1) {
+          devices.splice(selectedIndex, 1);
+          devices.push(ele);
+        } else {
+          devices.push(ele);
+        }
+      });
+    }
+
+    devices.forEach((ele: any) => {
+      ele['fuelname'] = this.fuellist.find(
+        (fuelType) => fuelType.code === ele.fuelCode,
+      )?.name;
+
+      ele['devicetypename'] = this.devicetypelist.find(
+        (devicetype) => devicetype.code == ele.deviceTypeCode,
+      )?.name;
+
+      ele['countryname'] = this.countrylist.find(
+        (countrycode) => countrycode.alpha3 == ele.countryCode,
+      )?.country;
+    });
+
+    this.data = devices;
+    this.dataSource = new MatTableDataSource(this.data);
+    if (totalCount !== undefined) this.totalRows = totalCount;
+    if (totalPages !== undefined) this.totalPages = totalPages;
+    this.dataSource.sort = this.sort;
   }
   onSubmit(): void {
     if (this.selection.selected.length > 0) {
