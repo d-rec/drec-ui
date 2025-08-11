@@ -25,3 +25,4 @@ import '../support/commands/api-user-signup';
 import '../support/commands/add-new-organization';
 import '../support/commands/filter-and-edit-api-users';
 import '../support/commands/api-user-permission-setup';
+import '../support/commands/update-user';
