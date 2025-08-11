@@ -26,5 +26,6 @@ declare namespace Cypress {
     addNewOrganization(): Chainable<void>;
     filterAndEditApiUsers(): Chainable<void>;
     ApiUserPermissionsSetup(): Chainable<void>;
+    updateUser(): Chainable<void>;
   }
 }
