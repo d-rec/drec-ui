@@ -43,7 +43,7 @@
                         Role
                       </th>
                       <td mat-cell *matCellDef="let row; let i = index">
-                        {{ row.user_role }}
+                        {{ row.user_role ==='OrganizationAdmin'? 'Developer' : row.user_role }}
                       </td>
                     </ng-container>
 
@@ -132,7 +132,7 @@
                           [value]="role.id"
                           test-id="user-role-option"
                         >
-                          {{ role.name }}
+                          {{ role.name === 'ApiUser' ? 'Market Intermediary' : role.name === 'OrganizationAdmin' ? 'Developer' : role.name }}
                         </mat-option>
                       </mat-select>
                     </mat-form-field>
