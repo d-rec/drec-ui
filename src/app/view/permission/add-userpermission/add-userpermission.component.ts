@@ -13,12 +13,14 @@ import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { EditPermissionComponent } from '../edit-permission/edit-permission.component';
 import { ToastrService } from 'ngx-toastr';
+import { getRoleName } from '../../../utils/role-helper';
 @Component({
   selector: 'app-add-userpermission',
   templateUrl: './add-userpermission.component.html',
   styleUrls: ['./add-userpermission.component.scss'],
 })
 export class UserpermissionComponent {
+  getRoleName = getRoleName;
   countrylist: any;
   countrycodeLoded: boolean = false;
   data: any[];
