@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, ViewChild, TemplateRef } from '@angular/core';
+import { Component, ViewChild, TemplateRef, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -35,6 +35,8 @@ import {
   styleUrls: ['./add-device-group.component.scss'],
 })
 export class AddDeviceGroupComponent {
+  @Input() selectionType: 'checkbox' | 'radio' = 'checkbox';
+  @Input() filterByCapacity: boolean = true;
   displayedColumns = [
     'select',
     'onboarding_date',
@@ -183,6 +185,10 @@ export class AddDeviceGroupComponent {
       this.subscription.unsubscribe();
     }
   }
+  selectSingleDevice(row: any) {
+    this.selection.clear();
+    this.selection.select(row);
+  }
 
   filterOrgList() {
     this.filteredOrgList = this.orglist.filter((org: any) => {
@@ -198,6 +204,11 @@ export class AddDeviceGroupComponent {
       this.deviceservice
         .getfilterData({}, this.selectedOrganization.id, 1)
         .subscribe((data) => {
+          if (this.filterByCapacity) {
+            data.devices = data.devices.filter(
+              (device: any) => device.capacity < 250,
+            );
+          }
           this.updateDeviceTable(
             data.devices,
             data.totalCount,
@@ -363,6 +374,11 @@ export class AddDeviceGroupComponent {
     this.deviceservice
       .getfilterData(this.FilterForm.value, this.orgId, page)
       .subscribe((data) => {
+        if (this.filterByCapacity) {
+          data.devices = data.devices.filter(
+            (device: any) => device.capacity < 250,
+          );
+        }
         this.loading = false;
         this.updateDeviceTable(data.devices, data.totalCount, data.totalPages);
       });

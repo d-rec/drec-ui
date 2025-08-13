@@ -389,27 +389,40 @@
                 <ng-container matColumnDef="select" sticky>
                   <th>
                     <mat-header-cell *matHeaderCellDef>
-                      <mat-checkbox
-                        color="primary"
-                        (change)="$event ? masterToggle() : null"
-                        [checked]="selection.hasValue() && isAllSelected()"
-                        [indeterminate]="
-                          selection.hasValue() && !isAllSelected()
-                        "
-                      >
-                      </mat-checkbox>
+                      <ng-container *ngIf="selectionType === 'checkbox'; else radioHeader">
+                        <mat-checkbox
+                          color="primary"
+                          (change)="$event ? masterToggle() : null"
+                          [checked]="selection.hasValue() && isAllSelected()"
+                          [indeterminate]="selection.hasValue() && !isAllSelected()"
+                        >
+                        </mat-checkbox>
+                      </ng-container>
+                      <ng-template #radioHeader>
+                      </ng-template>
                     </mat-header-cell>
                   </th>
                   <td>
                     <mat-cell *cdkCellDef="let row">
-                      <mat-checkbox
-                        color="primary"
-                        (click)="$event.stopPropagation()"
-                        (change)="$event ? selection.toggle(row) : null"
-                        [checked]="selection.isSelected(row)"
-                        test-id="select-device"
-                      >
-                      </mat-checkbox>
+                      <ng-container *ngIf="selectionType === 'checkbox'; else radioCell">
+                        <mat-checkbox
+                          color="primary"
+                          (click)="$event.stopPropagation()"
+                          (change)="$event ? selection.toggle(row) : null"
+                          [checked]="selection.isSelected(row)"
+                          test-id="select-device"
+                        >
+                        </mat-checkbox>
+                      </ng-container>
+                      <ng-template #radioCell>
+                        <mat-radio-button
+                          name="singleDeviceSelection"
+                          (click)="$event.stopPropagation()"
+                          [checked]="selection.isSelected(row)"
+                          (change)="selectSingleDevice(row)"
+                          test-id="select-device"
+                        ></mat-radio-button>
+                      </ng-template>
                     </mat-cell>
                   </td>
                 </ng-container>
