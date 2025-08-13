@@ -52,7 +52,7 @@
                 <p>
                   <b>Role</b
                   >:&nbsp;<!--{{item.generationEndTime+'000'| date:'EEE d MMMM y hh:ss'}}  - in UTC:-->
-                  {{ orgdetails.organizationType === 'OrganizationAdmin' ? 'Developer' : orgdetails.organizationType }}
+                  {{ getRoleName(orgdetails.organizationType) }}
                 </p>
               </div>
             </div>
@@ -191,7 +191,7 @@
             >
               Role
             </th>
-            <td mat-cell *matCellDef="let element">{{ element.role === 'OrganizationAdmin' ? 'Developer' : element.role }}</td>
+            <td mat-cell *matCellDef="let element">{{ getRoleName(element.role) }}</td>
           </ng-container>
           <!-- Status Column -->
           <!-- <ng-container matColumnDef="commissioningDate">

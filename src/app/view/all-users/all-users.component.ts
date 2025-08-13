@@ -13,12 +13,14 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { EditUserComponent } from '../edit-user/edit-user.component';
 import { ToastrService } from 'ngx-toastr';
 import { InvitationformComponent } from '../admin/invitationform/invitationform.component';
+import { getRoleName } from '../../utils/role-helper';
 @Component({
   selector: 'app-all-users',
   templateUrl: './all-users.component.html',
   styleUrls: ['./all-users.component.scss'],
 })
 export class AllUsersComponent {
+  getRoleName = getRoleName;
   FilterForm: FormGroup;
   displayedColumns = [
     'organization',
