@@ -29,6 +29,7 @@ import {
   devicecodeType,
   CountryInfo,
 } from '../../models';
+import { SMALL_DEVICES_MAX_CAPACITY } from '../../../app/constants';
 @Component({
   selector: 'app-add-device-group',
   templateUrl: './add-device-group.component.html',
@@ -206,7 +207,7 @@ export class AddDeviceGroupComponent {
         .subscribe((data) => {
           if (this.filterByCapacity) {
             data.devices = data.devices.filter(
-              (device: any) => device.capacity < 250,
+              (device: any) => device.capacity < SMALL_DEVICES_MAX_CAPACITY,
             );
           }
           this.updateDeviceTable(
@@ -376,7 +377,7 @@ export class AddDeviceGroupComponent {
       .subscribe((data) => {
         if (this.filterByCapacity) {
           data.devices = data.devices.filter(
-            (device: any) => device.capacity < 250,
+            (device: any) => device.capacity < SMALL_DEVICES_MAX_CAPACITY,
           );
         }
         this.loading = false;
