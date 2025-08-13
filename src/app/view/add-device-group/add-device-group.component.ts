@@ -186,7 +186,7 @@ export class AddDeviceGroupComponent {
       this.subscription.unsubscribe();
     }
   }
-  selectSingleDevice(row: any) {
+  selectSingleDevice(row: Device) {
     this.selection.clear();
     this.selection.select(row);
   }
