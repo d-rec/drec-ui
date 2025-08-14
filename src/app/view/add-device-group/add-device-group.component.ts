@@ -1,5 +1,12 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, ViewChild, TemplateRef, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  TemplateRef,
+  Input,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -38,7 +45,10 @@ import { SMALL_DEVICES_MAX_CAPACITY } from '../../../app/constants';
 export class AddDeviceGroupComponent {
   @Input() selectionType: 'checkbox' | 'radio' = 'checkbox';
   @Input() filterByCapacity: boolean = true;
-  @Output() radioSelection = new EventEmitter<{ device: Device, orgId: number}>();
+  @Output() radioSelection = new EventEmitter<{
+    device: Device;
+    orgId: number;
+  }>();
   displayedColumns = [
     'select',
     'onboarding_date',
@@ -422,14 +432,12 @@ export class AddDeviceGroupComponent {
     this.dataSource.sort = this.sort;
   }
   onSubmit(): void {
-    console.log("values on submit", this.reservationForm.value);
     if (this.selection.selected.length > 0) {
       const deviceId: any = [];
       this.selection.selected.forEach((ele) => {
         deviceId.push(ele.id);
       });
       this.reservationForm.controls['deviceIds'].setValue(deviceId);
-      console.log('Selected device IDs:', this.reservationForm.controls['deviceIds'].value);
       this.openpopupDialog();
     } else {
       this.toastrService.error(
@@ -456,50 +464,98 @@ export class AddDeviceGroupComponent {
     this.reservationForm.controls[
       'continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'
     ].setValue(result.continueWithTCLessDTC);
-      if (this.selectionType === 'checkbox') {
     if (this.loginuser?.role === 'ApiUser') {
-      //console.log the values submitted in add reservation
-      console.log('Submitted values:', this.reservationForm.value);
-      this.reservationService
-        .AddReservation(this.reservationForm.value, this.orgId)
-        .subscribe({
-          next: () => {
-            this.reservationForm.reset();
-            this.selection.clear();
-            this.FilterForm.reset();
-            //  this.getDeviceListData();
-            this.toastrService.success('Successfully!!', 'Device Group Added');
-            this.dialogRef.close();
-            this.router.navigate(['/device-groups']);
-          },
-          error: (err) => {
-            //Error callback
-            console.error('error caught in component', err);
-            this.toastrService.error('error!', err.error.message);
-          },
-        });
+      if (this.selectionType === 'checkbox') {
+        this.reservationForm.value['type'] = 'multiple';
+        this.reservationService
+          .AddReservation(this.reservationForm.value, this.orgId)
+          .subscribe({
+            next: () => {
+              this.reservationForm.reset();
+              this.selection.clear();
+              this.FilterForm.reset();
+              //  this.getDeviceListData();
+              this.toastrService.success(
+                'Successfully!!',
+                'Device Group Added',
+              );
+              this.dialogRef.close();
+              this.router.navigate(['/device-groups']);
+            },
+            error: (err) => {
+              //Error callback
+              console.error('error caught in component', err);
+              this.toastrService.error('error!', err.error.message);
+            },
+          });
+      } else {
+        this.reservationForm.value['type'] = 'single';
+        this.reservationService
+          .addSingleDevicePathway(this.reservationForm.value, this.orgId)
+          .subscribe({
+            next: () => {
+              this.reservationForm.reset();
+              this.selection.clear();
+              this.FilterForm.reset();
+              this.toastrService.success(
+                'Successfully!!',
+                'Device Pathway Added',
+              );
+              this.dialogRef.close();
+              this.router.navigate(['/device-groups']);
+            },
+            error: (err) => {
+              console.error('error caught in component', err);
+              this.toastrService.error('error!', err.error.message);
+            },
+          });
+      }
     } else {
-      this.reservationService
-        .AddReservation(this.reservationForm.value)
-        .subscribe({
-          next: () => {
-            this.reservationForm.reset();
-            this.selection.clear();
-            this.FilterForm.reset();
-            //  this.getDeviceListData();
-            this.toastrService.success('Successfully!!', 'Device Group Added');
-            this.dialogRef.close();
-            this.router.navigate(['/device-groups']);
-          },
-          error: (err) => {
-            //Error callback
-            console.error('error caught in component', err);
-            this.toastrService.error('error!', err.error.message);
-          },
-        });
+      if (this.selectionType === 'checkbox') {
+        this.reservationForm.value['type'] = 'multiple';
+        this.reservationService
+          .AddReservation(this.reservationForm.value)
+          .subscribe({
+            next: () => {
+              this.reservationForm.reset();
+              this.selection.clear();
+              this.FilterForm.reset();
+              this.toastrService.success(
+                'Successfully!!',
+                'Device Group Added',
+              );
+              this.dialogRef.close();
+              this.router.navigate(['/device-groups']);
+            },
+            error: (err) => {
+              console.error('error caught in component', err);
+              this.toastrService.error('error!', err.error.message);
+            },
+          });
+      } else {
+        this.reservationForm.value['type'] = 'single';
+        this.reservationService
+          .addSingleDevicePathway(this.reservationForm.value)
+          .subscribe({
+            next: () => {
+              this.reservationForm.reset();
+              this.selection.clear();
+              this.FilterForm.reset();
+              this.toastrService.success(
+                'Successfully!!',
+                'Device Pathway Added',
+              );
+              this.dialogRef.close();
+              this.router.navigate(['/device-groups']);
+            },
+            error: (err) => {
+              console.error('error caught in component', err);
+              this.toastrService.error('error!', err.error.message);
+            },
+          });
+      }
     }
   }
-}
 
   // pageChangeEvent(event: PageEvent) {
   //   this.p = event.pageIndex + 1;
