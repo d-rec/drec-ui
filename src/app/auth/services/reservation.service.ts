@@ -23,6 +23,14 @@ export class ReservationService {
 
     return this.httpClient.post<any>(searchUrl, data);
   }
+  addSingleDevicePathway( selectedDevice:any, orgId?: number): Observable<any> {
+    let searchUrl = `${this.url}buyer-reservation/pathway`;
+    if (!(orgId === null || orgId === undefined)) {
+      searchUrl += `?orgId=${orgId}`;
+    }
+    return this.httpClient.post<any>(searchUrl, selectedDevice);
+
+  }
   getReservationData(searchData: any, pagenumber: number): Observable<any> {
     let searchUrl = `${this.url}buyer-reservation/my?pagenumber=` + pagenumber;
     if (!isEmpty(searchData.name)) {

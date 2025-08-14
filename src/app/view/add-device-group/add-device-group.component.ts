@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, ViewChild, TemplateRef, Input } from '@angular/core';
+import { Component, ViewChild, TemplateRef, Input, Output, EventEmitter } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -38,6 +38,7 @@ import { SMALL_DEVICES_MAX_CAPACITY } from '../../../app/constants';
 export class AddDeviceGroupComponent {
   @Input() selectionType: 'checkbox' | 'radio' = 'checkbox';
   @Input() filterByCapacity: boolean = true;
+  @Output() radioSelection = new EventEmitter<{ device: Device, orgId: number}>();
   displayedColumns = [
     'select',
     'onboarding_date',
@@ -189,6 +190,7 @@ export class AddDeviceGroupComponent {
   selectSingleDevice(row: Device) {
     this.selection.clear();
     this.selection.select(row);
+    this.radioSelection.emit({ device: row, orgId: this.orgId });
   }
 
   filterOrgList() {
@@ -420,12 +422,14 @@ export class AddDeviceGroupComponent {
     this.dataSource.sort = this.sort;
   }
   onSubmit(): void {
+    console.log("values on submit", this.reservationForm.value);
     if (this.selection.selected.length > 0) {
       const deviceId: any = [];
       this.selection.selected.forEach((ele) => {
         deviceId.push(ele.id);
       });
       this.reservationForm.controls['deviceIds'].setValue(deviceId);
+      console.log('Selected device IDs:', this.reservationForm.controls['deviceIds'].value);
       this.openpopupDialog();
     } else {
       this.toastrService.error(
@@ -452,7 +456,10 @@ export class AddDeviceGroupComponent {
     this.reservationForm.controls[
       'continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'
     ].setValue(result.continueWithTCLessDTC);
+      if (this.selectionType === 'checkbox') {
     if (this.loginuser?.role === 'ApiUser') {
+      //console.log the values submitted in add reservation
+      console.log('Submitted values:', this.reservationForm.value);
       this.reservationService
         .AddReservation(this.reservationForm.value, this.orgId)
         .subscribe({
@@ -492,6 +499,7 @@ export class AddDeviceGroupComponent {
         });
     }
   }
+}
 
   // pageChangeEvent(event: PageEvent) {
   //   this.p = event.pageIndex + 1;
