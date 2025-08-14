@@ -28,5 +28,6 @@ declare namespace Cypress {
     filterAndEditApiUsers(): Chainable<void>;
     ApiUserPermissionsSetup(): Chainable<void>;
     updateUser(): Chainable<void>;
+    editApiUserPermission(): Chainable<void>;
   }
 }

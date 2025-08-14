@@ -1,0 +1,16 @@
+[
+    {
+      "action": "click",
+      "selector": "[test-id='edit-icon']"
+    },
+    {
+      "action": "select",
+      "selector": "[test-id='search-permission']",
+      "option": "[permission-test-id]"
+    },
+    {
+      "action": "submit",
+      "selector": "[test-id='update-permission']"    
+    }
+  ]
+  
