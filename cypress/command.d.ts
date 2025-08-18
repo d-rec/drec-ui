@@ -14,8 +14,7 @@ declare namespace Cypress {
     developerUserLogin(): Chainable<void>;
     addAggregateMeterRead(): Chainable<void>;
     buyerUserLogin(): Chainable<void>;
-    addReservation(): Chainable<void>;
-    certificate(): Chainable<void>;
+    addDeviceGroup(): Chainable<void>;
     certificateFilter(): Chainable<void>;
     deviceBulkUpload(filename: string): Chainable<void>;
     accountSettings(): Chainable<void>;

@@ -1,6 +1,6 @@
 import 'cypress-file-upload';
-Cypress.Commands.add('addReservation', function () {
-  cy.fixture('add-reservation.json').then((data) => {
+Cypress.Commands.add('addDeviceGroup', function () {
+  cy.fixture('add-device-group.json').then((data) => {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
