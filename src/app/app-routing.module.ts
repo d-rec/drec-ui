@@ -114,7 +114,7 @@ const routes: Routes = [
       { path: 'device-groups', component: DeviceGroups },
       { path: 'settings/evident', component: EvidentSettingsComponent },
       {
-        path: 'single-device-path-way',
+        path: 'single-device-pathway',
         component: SingleDevicePathwayComponent,
       },
 
