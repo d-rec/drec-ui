@@ -55,6 +55,16 @@
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
+            routerLink="/admin/add_issuer"
+            *ngIf="loginuser.role === 'Admin'"
+            test-id="add-organization"
+          >
+            <span>Add Issuer</span>
+          </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
             routerLink="/admin/All_organization"
             *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
           >
@@ -425,10 +435,11 @@
       </mat-expansion-panel>
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header
-          class="mdc-button" test-id="evident-configuration"
+          class="mdc-button"
+          test-id="evident-configuration"
         >
           <mat-icon>tune</mat-icon>
-          Evident configuration 
+          Evident configuration
         </mat-expansion-panel-header>
 
         <mat-nav-list class="p-0">

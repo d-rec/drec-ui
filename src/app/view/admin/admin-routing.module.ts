@@ -8,6 +8,7 @@ import { AddUsersComponent } from './add-users/add-users.component';
 import { EditUserComponent } from '../edit-user/edit-user.component';
 
 import { AllApiuserComponent } from '../apiuser/all-apiuser/all-apiuser.component';
+import { AddIssuerComponent } from './add-issuer/add-issuer.component';
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent },
@@ -41,6 +42,10 @@ const routes: Routes = [
   {
     path: 'add_user',
     component: AddUsersComponent,
+  },
+  {
+    path: 'add_issuer',
+    component: AddIssuerComponent,
   },
   {
     path: 'edit_user/:id',
