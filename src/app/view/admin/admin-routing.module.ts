@@ -44,7 +44,7 @@ const routes: Routes = [
     component: AddUsersComponent,
   },
   {
-    path: 'add_issuer',
+    path: 'add-issuer',
     component: AddIssuerComponent,
   },
   {
