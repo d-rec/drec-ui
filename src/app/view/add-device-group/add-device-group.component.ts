@@ -36,7 +36,8 @@ import { GroupType, SelectionType } from 'src/app/utils/drec.enum';
   styleUrls: ['./add-device-group.component.scss'],
 })
 export class AddDeviceGroupComponent {
-  @Input() selectionType: SelectionType.Checkbox | SelectionType.Radio = SelectionType.Checkbox;
+  @Input() selectionType: SelectionType.Checkbox | SelectionType.Radio =
+    SelectionType.Checkbox;
   displayedColumns = [
     'select',
     'onboarding_date',
