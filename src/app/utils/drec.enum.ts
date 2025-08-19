@@ -66,3 +66,13 @@ export enum DataSourceTypes {
   DataLogger = 'DataLogger',
   Other = 'Other',
 }
+
+export enum GroupType {
+  Single = 'single',
+  Multiple = 'multiple',
+}
+
+export enum SelectionType {
+  Checkbox = 'checkbox',
+  Radio = 'radio',
+}

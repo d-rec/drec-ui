@@ -1,12 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import {
-  Component,
-  ViewChild,
-  TemplateRef,
-  Input,
-  Output,
-  EventEmitter,
-} from '@angular/core';
+import { Component, ViewChild, TemplateRef, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -36,19 +29,14 @@ import {
   devicecodeType,
   CountryInfo,
 } from '../../models';
-import { SMALL_DEVICES_MAX_CAPACITY } from '../../../app/constants';
+import { GroupType, SelectionType } from 'src/app/utils/drec.enum';
 @Component({
   selector: 'app-add-device-group',
   templateUrl: './add-device-group.component.html',
   styleUrls: ['./add-device-group.component.scss'],
 })
 export class AddDeviceGroupComponent {
-  @Input() selectionType: 'checkbox' | 'radio' = 'checkbox';
-  @Input() filterByCapacity: boolean = true;
-  @Output() radioSelection = new EventEmitter<{
-    device: Device;
-    orgId: number;
-  }>();
+  @Input() selectionType: SelectionType.Checkbox | SelectionType.Radio = SelectionType.Checkbox;
   displayedColumns = [
     'select',
     'onboarding_date',
@@ -200,7 +188,6 @@ export class AddDeviceGroupComponent {
   selectSingleDevice(row: Device) {
     this.selection.clear();
     this.selection.select(row);
-    this.radioSelection.emit({ device: row, orgId: this.orgId });
   }
 
   filterOrgList() {
@@ -214,21 +201,30 @@ export class AddDeviceGroupComponent {
     );
     if (this.selectedOrganization) {
       this.orgId = this.selectedOrganization.id;
-      this.deviceservice
-        .getfilterData({}, this.selectedOrganization.id, 1)
-        .subscribe((data) => {
-          if (this.filterByCapacity) {
-            data.devices = data.devices.filter(
-              (device: any) => device.capacity < SMALL_DEVICES_MAX_CAPACITY,
+      if (this.selectionType === SelectionType.Checkbox) {
+        this.deviceservice
+          .getfilterData({}, this.selectedOrganization.id, 1)
+          .subscribe((data) => {
+            this.updateDeviceTable(
+              data.devices,
+              data.totalCount,
+              data.totalPages,
             );
-          }
-          this.updateDeviceTable(
-            data.devices,
-            data.totalCount,
-            data.totalPages,
-          );
-        });
+          });
+      } else {
+        this.ungroupedDevicesForOrg(this.selectedOrganization.id);
+      }
     }
+  }
+  ungroupedDevicesForOrg(orgId?: number) {
+    this.deviceservice.getAllUngroupedDevices(orgId).subscribe((data) => {
+      data = data.flatMap((group: any) => group.devices);
+      const pageSize = 10;
+      const totalCount = data.length;
+      const totalPages = Math.ceil(totalCount / pageSize);
+      this.loading = false;
+      this.updateDeviceTable(data, totalCount, totalPages);
+    });
   }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
@@ -384,17 +380,20 @@ export class AddDeviceGroupComponent {
     this.displayList(this.p);
   }
   displayList(page: number) {
-    this.deviceservice
-      .getfilterData(this.FilterForm.value, this.orgId, page)
-      .subscribe((data) => {
-        if (this.filterByCapacity) {
-          data.devices = data.devices.filter(
-            (device: any) => device.capacity < SMALL_DEVICES_MAX_CAPACITY,
+    if (this.selectionType === SelectionType.Checkbox) {
+      this.deviceservice
+        .getfilterData(this.FilterForm.value, this.orgId, page)
+        .subscribe((data) => {
+          this.loading = false;
+          this.updateDeviceTable(
+            data.devices,
+            data.totalCount,
+            data.totalPages,
           );
-        }
-        this.loading = false;
-        this.updateDeviceTable(data.devices, data.totalCount, data.totalPages);
-      });
+        });
+    } else {
+      this.ungroupedDevicesForOrg();
+    }
   }
   updateDeviceTable(devices: any[], totalCount: number, totalPages: number) {
     if (this.selection.selected.length > 0) {
@@ -465,8 +464,8 @@ export class AddDeviceGroupComponent {
       'continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'
     ].setValue(result.continueWithTCLessDTC);
     if (this.loginuser?.role === 'ApiUser') {
-      if (this.selectionType === 'checkbox') {
-        this.reservationForm.value['type'] = 'multiple';
+      if (this.selectionType === SelectionType.Checkbox) {
+        this.reservationForm.value['type'] = GroupType.Multiple;
         this.reservationService
           .AddReservation(this.reservationForm.value, this.orgId)
           .subscribe({
@@ -489,7 +488,7 @@ export class AddDeviceGroupComponent {
             },
           });
       } else {
-        this.reservationForm.value['type'] = 'single';
+        this.reservationForm.value['type'] = GroupType.Single;
         this.reservationService
           .addSingleDevicePathway(this.reservationForm.value, this.orgId)
           .subscribe({
@@ -511,8 +510,8 @@ export class AddDeviceGroupComponent {
           });
       }
     } else {
-      if (this.selectionType === 'checkbox') {
-        this.reservationForm.value['type'] = 'multiple';
+      if (this.selectionType === SelectionType.Checkbox) {
+        this.reservationForm.value['type'] = GroupType.Multiple;
         this.reservationService
           .AddReservation(this.reservationForm.value)
           .subscribe({
@@ -533,7 +532,7 @@ export class AddDeviceGroupComponent {
             },
           });
       } else {
-        this.reservationForm.value['type'] = 'single';
+        this.reservationForm.value['type'] = GroupType.Single;
         this.reservationService
           .addSingleDevicePathway(this.reservationForm.value)
           .subscribe({
