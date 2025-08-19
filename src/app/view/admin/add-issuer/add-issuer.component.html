@@ -69,31 +69,18 @@
         <div class="d-flex align-items-center gap-4">
           <mat-form-field appearance="outline" class="w-100 mb-3">
             <mat-label>Country</mat-label>
-            <input
-              type="text"
-              matInput
-              formControlName="country"
-              placeholder="Enter country"
-              [matAutocomplete]="auto"
-              required
-            />
-            <mat-autocomplete #auto="matAutocomplete">
-              <ng-container *ngIf="filteredCountries$ | async as countries">
-                <mat-option
-                  *ngFor="let code of countries"
-                  [value]="code.country"
-                  test-id="country-options"
-                >
-                  {{ code.country }}
-                </mat-option>
-              </ng-container>
+            <input type="text"
+                   matInput
+                   formControlName="country"
+                   [matAutocomplete]="auto"
+                   placeholder="Type to search..."
+                   required>
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="getCountryDisplayName">
+              <mat-option *ngFor="let country of filteredCountries | async" [value]="country">
+                {{ country.country }}
+              </mat-option>
             </mat-autocomplete>
-            <mat-error
-              *ngIf="
-                issuerForm.get('country')?.invalid &&
-                issuerForm.get('country')?.touched
-              "
-            >
+            <mat-error *ngIf="issuerForm.get('country')?.invalid && issuerForm.get('country')?.touched">
               Country is required
             </mat-error>
           </mat-form-field>
@@ -115,10 +102,33 @@
               Address is required
             </mat-error>
           </mat-form-field>
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Assigned Region</mat-label>
+            <mat-select
+              formControlName="regions"
+              multiple
+              placeholder="Select countries for region"
+            >
+              <mat-option
+                *ngFor="let country of countryList"
+                [value]="country.country"
+              >
+                {{ country.country }}
+              </mat-option>
+            </mat-select>
+            <mat-error
+              *ngIf="
+                issuerForm.get('regions')?.invalid &&
+                issuerForm.get('regions')?.touched
+              "
+            >
+              Please select at least one country for the region
+            </mat-error>
+          </mat-form-field>
         </div>
         <button
+        class="btn-primary btn text-capitalize"
           mat-raised-button
-          color="primary"
           type="submit"
           [disabled]="issuerForm.invalid"
         >
