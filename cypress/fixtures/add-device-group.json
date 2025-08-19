@@ -48,16 +48,7 @@
     "selector": "[test-id='filter-button']"
   },
   {
-    "action": "check",
-    "selector": "[test-id='select-device']",
-    "index": 0
-  },
-  {
     "action": "click",
-    "selector": "[test-id='submit-reservation']"
-  },
-  {
-    "action": "continue",
-    "selector": "[test-id='continue-reservation']"
+    "selector": "[test-id='submit-device-group']"
   }
 ]

@@ -4,6 +4,6 @@ describe('Add reservation', () => {
   });
   it('should add reservation', () => {
     cy.buyerUserLogin().wait(20000);
-    cy.addReservation();
+    cy.addDeviceGroup();
   });
 });
