@@ -200,16 +200,30 @@ export class AddDeviceGroupComponent {
     );
     if (this.selectedOrganization) {
       this.orgId = this.selectedOrganization.id;
-      this.deviceservice
-        .getfilterData({}, this.selectedOrganization.id, 1)
-        .subscribe((data) => {
-          this.updateDeviceTable(
-            data.devices,
-            data.totalCount,
-            data.totalPages,
-          );
-        });
+      if (this.selectionType === 'checkbox') {
+        this.deviceservice
+          .getfilterData({}, this.selectedOrganization.id, 1)
+          .subscribe((data) => {
+            this.updateDeviceTable(
+              data.devices,
+              data.totalCount,
+              data.totalPages,
+            );
+          });
+      } else {
+        this.ungroupedDevicesForOrg(this.selectedOrganization.id);
+      }
     }
+  }
+  ungroupedDevicesForOrg(orgId?: number) {
+    this.deviceservice.getAllUngroupedDevices(orgId).subscribe((data) => {
+      data = data.flatMap((group: any) => group.devices);
+      const pageSize = 10;
+      const totalCount = data.length;
+      const totalPages = Math.ceil(totalCount / pageSize);
+      this.loading = false;
+      this.updateDeviceTable(data, totalCount, totalPages);
+    });
   }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
@@ -377,14 +391,7 @@ export class AddDeviceGroupComponent {
           );
         });
     } else {
-      this.deviceservice.getAllUngroupedDevices().subscribe((data) => {
-        data = data.flatMap((group: any) => group.devices);
-        const pageSize = 10;
-        const totalCount = data.length;
-        const totalPages = Math.ceil(totalCount / pageSize);
-        this.loading = false;
-        this.updateDeviceTable(data, totalCount, totalPages);
-      });
+      this.ungroupedDevicesForOrg();
     }
   }
   updateDeviceTable(devices: any[], totalCount: number, totalPages: number) {
