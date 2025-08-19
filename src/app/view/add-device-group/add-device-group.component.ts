@@ -29,7 +29,6 @@ import {
   devicecodeType,
   CountryInfo,
 } from '../../models';
-import { SMALL_DEVICES_MAX_CAPACITY } from '../../../app/constants';
 @Component({
   selector: 'app-add-device-group',
   templateUrl: './add-device-group.component.html',
@@ -37,7 +36,6 @@ import { SMALL_DEVICES_MAX_CAPACITY } from '../../../app/constants';
 })
 export class AddDeviceGroupComponent {
   @Input() selectionType: 'checkbox' | 'radio' = 'checkbox';
-  @Input() filterByCapacity: boolean = true;
   displayedColumns = [
     'select',
     'onboarding_date',
@@ -205,11 +203,6 @@ export class AddDeviceGroupComponent {
       this.deviceservice
         .getfilterData({}, this.selectedOrganization.id, 1)
         .subscribe((data) => {
-          if (this.filterByCapacity) {
-            data.devices = data.devices.filter(
-              (device: any) => device.capacity < SMALL_DEVICES_MAX_CAPACITY,
-            );
-          }
           this.updateDeviceTable(
             data.devices,
             data.totalCount,
@@ -372,17 +365,27 @@ export class AddDeviceGroupComponent {
     this.displayList(this.p);
   }
   displayList(page: number) {
-    this.deviceservice
-      .getfilterData(this.FilterForm.value, this.orgId, page)
-      .subscribe((data) => {
-        if (this.filterByCapacity) {
-          data.devices = data.devices.filter(
-            (device: any) => device.capacity < SMALL_DEVICES_MAX_CAPACITY,
+    if (this.selectionType === 'checkbox') {
+      this.deviceservice
+        .getfilterData(this.FilterForm.value, this.orgId, page)
+        .subscribe((data) => {
+          this.loading = false;
+          this.updateDeviceTable(
+            data.devices,
+            data.totalCount,
+            data.totalPages,
           );
-        }
+        });
+    } else {
+      this.deviceservice.getAllUngroupedDevices().subscribe((data) => {
+        data = data.flatMap((group: any) => group.devices);
+        const pageSize = 10;
+        const totalCount = data.length;
+        const totalPages = Math.ceil(totalCount / pageSize);
         this.loading = false;
-        this.updateDeviceTable(data.devices, data.totalCount, data.totalPages);
+        this.updateDeviceTable(data, totalCount, totalPages);
       });
+    }
   }
   updateDeviceTable(devices: any[], totalCount: number, totalPages: number) {
     if (this.selection.selected.length > 0) {

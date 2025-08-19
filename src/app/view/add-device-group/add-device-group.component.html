@@ -411,6 +411,7 @@
                           (change)="$event ? selection.toggle(row) : null"
                           [checked]="selection.isSelected(row)"
                           test-id="select-device"
+                          class="py-4"
                         >
                         </mat-checkbox>
                       </ng-container>
@@ -421,7 +422,7 @@
                           [checked]="selection.isSelected(row)"
                           (change)="selectSingleDevice(row)"
                           test-id="select-device"
-                          class="py-3"
+                          class="py-4"
                         ></mat-radio-button>
                       </ng-template>
                     </mat-cell>
