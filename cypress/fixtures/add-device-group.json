@@ -49,6 +49,14 @@
   },
   {
     "action": "click",
+    "selector": "[test-id='select-device']"
+  },
+  {
+    "action": "click",
     "selector": "[test-id='submit-device-group']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='continue-button']"
   }
 ]

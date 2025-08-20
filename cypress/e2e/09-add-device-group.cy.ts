@@ -3,7 +3,7 @@ describe('Add reservation', () => {
     cy.wait(1000);
   });
   it('should add reservation', () => {
-    cy.buyerUserLogin().wait(20000);
+    cy.developerUserLogin().wait(20000);
     cy.addDeviceGroup();
   });
 });
