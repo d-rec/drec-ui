@@ -125,9 +125,19 @@ export class DeviceService {
     return this.httpClient.patch<any>(this.url + 'device/' + id, data);
   }
 
+  getAllUngroupedDevices(orgId?: number): Observable<any> {
+    if (orgId) {
+      return this.httpClient.get(
+        this.url + 'device/ungrouped?orderBy=Capacity&orgId=' + orgId,
+      );
+    }
+    return this.httpClient.get(this.url + 'device/ungrouped?orderBy=Capacity');
+  }
+
   GetUnreserveDevices(): Observable<any> {
     return this.httpClient.get(this.url + 'device/ungrouped/buyerreservation');
   }
+
   getfilterData(
     searchData: any,
     orgId: number,
