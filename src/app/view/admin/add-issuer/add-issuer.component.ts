@@ -42,8 +42,8 @@ export class AddIssuerComponent implements OnInit {
     this.getCountryList();
     this.filteredCountries = this.issuerForm.get('country')!.valueChanges.pipe(
       startWith(''),
-      map(value => (typeof value === 'string' ? value : value?.country)),
-      map(name => (name ? this._filter(name) : this.countryList.slice()))
+      map((value) => (typeof value === 'string' ? value : value?.country)),
+      map((name) => (name ? this._filter(name) : this.countryList.slice())),
     );
   }
 
@@ -52,21 +52,24 @@ export class AddIssuerComponent implements OnInit {
       const formValue = this.issuerForm.value;
       const countryAlpha3 = this.getAlpha3Code(formValue.country);
       const regionsAlpha3 = this.getRegionsAlpha3(formValue.regions);
-  
+
       const payload = {
         ...formValue,
         country: countryAlpha3,
-        regions: regionsAlpha3
+        regions: regionsAlpha3,
       };
-  
+
       this.issuerService.createIssuer(payload).subscribe(
         () => {
           this.toastrService.success('Issuer created successfully');
           this.issuerForm.reset();
         },
         (error) => {
-          this.toastrService.error('Error creating issuer', error.error.message);
-        }
+          this.toastrService.error(
+            'Error creating issuer',
+            error.error.message,
+          );
+        },
       );
     }
   }
@@ -78,10 +81,12 @@ export class AddIssuerComponent implements OnInit {
   }
 
   onCountrySelected(event: MatAutocompleteSelectedEvent): void {
-    const selectedCountry = this.countryList.find(c => c.country === event.option.value);
+    const selectedCountry = this.countryList.find(
+      (c) => c.country === event.option.value,
+    );
     if (selectedCountry) {
       this.issuerForm.patchValue({
-        country: selectedCountry.country
+        country: selectedCountry.country,
       });
     }
   }
@@ -96,21 +101,23 @@ export class AddIssuerComponent implements OnInit {
 
   private _filter(name: string): CountryInfo[] {
     const filterValue = name.toLowerCase();
-    return this.countryList.filter(option => 
-      option.country.toLowerCase().includes(filterValue)
+    return this.countryList.filter((option) =>
+      option.country.toLowerCase().includes(filterValue),
     );
   }
 
   private getAlpha3Code(country: string | CountryInfo): string {
     if (!country) return '';
     if (typeof country === 'string') {
-      const found = this.countryList.find(option => option.country === country);
+      const found = this.countryList.find(
+        (option) => option.country === country,
+      );
       return found?.alpha3 || country;
     }
     return country.alpha3 || country.country;
   }
 
   private getRegionsAlpha3(regionNames: string[] = []): string[] {
-    return regionNames.map(regionName => this.getAlpha3Code(regionName));
+    return regionNames.map((regionName) => this.getAlpha3Code(regionName));
   }
 }
