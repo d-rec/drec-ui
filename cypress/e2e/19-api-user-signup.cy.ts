@@ -3,7 +3,8 @@ describe('Sign Up Test', () => {
     cy.wait(5000);
   });
   it('should sign up a new Api user', () => {
-    cy.apiUserSignup().wait(1000);
+    cy.apiUserSignup().wait(30000);
     cy.ApiUserPermissionsSetup();
+    cy.editApiUserPermission();
   });
 });
