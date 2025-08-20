@@ -55,16 +55,17 @@ export class AddIssuerComponent implements OnInit {
   
       const payload = {
         ...formValue,
-        country: countryAlpha3,  // This will be the alpha3 code
+        country: countryAlpha3,
         regions: regionsAlpha3
       };
   
       this.issuerService.createIssuer(payload).subscribe(
-        (response) => {
+        () => {
           this.toastrService.success('Issuer created successfully');
+          this.issuerForm.reset();
         },
         (error) => {
-          this.toastrService.error('Error creating issuer', error.message);
+          this.toastrService.error('Error creating issuer', error.error.message);
         }
       );
     }
