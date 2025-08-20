@@ -3,7 +3,7 @@
     Edit module permission
     <mat-icon
       aria-hidden="false"
-      (click)="dialogRef.close(false)"
+      (click)="dialogRef.close(false)" 
       class="close-icon"
     >
       close
@@ -55,12 +55,13 @@
               </mat-form-field> -->
 
           <mat-form-field appearance="outline">
-            <mat-label class="text-capitalize">Permission</mat-label>
+            <mat-label class="text-capitalize" test-id="search-permission">Permission</mat-label>
 
             <mat-select formControlName="permissions" multiple>
               <mat-option
                 *ngFor="let permission of Permission"
                 [value]="permission"
+                [attr.permission-test-id]="permission"
                 >{{ permission }}</mat-option
               >
             </mat-select>
@@ -73,6 +74,7 @@
         type="submit"
         class="btn-primary btn text-capitalize px-4"
         [disabled]="UserupdatePermissionForm.invalid"
+        test-id="update-permission"
       >
         update
       </button>
