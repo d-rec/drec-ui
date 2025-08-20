@@ -38,6 +38,7 @@ import { GroupType, SelectionType } from 'src/app/utils/drec.enum';
 export class AddDeviceGroupComponent {
   @Input() selectionType: SelectionType.Checkbox | SelectionType.Radio =
     SelectionType.Checkbox;
+  @Input() headerText: string = 'Make a Device Group';
   displayedColumns = [
     'select',
     'onboarding_date',
