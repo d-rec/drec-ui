@@ -1,11 +1,11 @@
 [
   {
     "action": "click",
-    "selector": "[test-id='reservations']"
+    "selector": "[test-id='device-groups']"
   },
   {
     "action": "click",
-    "selector": "[test-id='add-reservation']"
+    "selector": "[test-id='add-device-groups']"
   },
 
   {
@@ -49,6 +49,14 @@
   },
   {
     "action": "click",
+    "selector": "[test-id='select-device']"
+  },
+  {
+    "action": "click",
     "selector": "[test-id='submit-device-group']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='continue-button']"
   }
 ]
