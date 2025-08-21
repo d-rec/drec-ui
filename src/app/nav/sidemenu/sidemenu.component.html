@@ -353,7 +353,7 @@
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
-          test-id="reservations"
+          test-id="device-groups"
         >
           <mat-icon>bookmark</mat-icon>
           <span>Device Groups</span>
@@ -374,7 +374,7 @@
             test-id="add-reservation"
             *ngIf="loginuser.role !== 'Buyer'"
           >
-            <span>Add Device Group</span>
+            <span test-id="add-device-groups">Add Device Group</span>
           </a>
           <a
             mat-button
