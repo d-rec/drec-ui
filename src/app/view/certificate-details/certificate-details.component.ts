@@ -15,7 +15,7 @@ import { BlockchainDrecService } from '../../auth/services/blockchain-drec.servi
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
 import { ToastrService } from 'ngx-toastr';
 import {
-  ReservationService,
+  DeviceGroupService,
   OrganizationService,
   MeterReadService,
   DeviceService,
@@ -125,7 +125,7 @@ export class CertificateDetailsComponent {
     private toastrService: ToastrService,
     private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
-    private reservationService: ReservationService,
+    private deviceGroupService: DeviceGroupService,
     private readService: MeterReadService,
     private deviceService: DeviceService,
     private certificateService: CertificateService,
@@ -202,7 +202,7 @@ export class CertificateDetailsComponent {
     }
   }
   loadReservations(): void {
-    this.reservationService
+    this.deviceGroupService
       .getReservationData(this.FilterForm.value, this.p)
       .subscribe((data) => {
         this.reservationNames = data.groupedData.map((item: any) => ({
@@ -482,7 +482,7 @@ export class CertificateDetailsComponent {
                 }
               });
             });
-            this.reservationService
+            this.deviceGroupService
               .getReservationData(this.FilterForm.value, page)
               .subscribe((data) => {
                 data.groupedData.forEach((item: any) => {

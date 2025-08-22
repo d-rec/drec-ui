@@ -7,7 +7,7 @@ import { isEmpty } from '../../utils/validations';
 @Injectable({
   providedIn: 'root',
 })
-export class ReservationService {
+export class DeviceGroupService {
   url: string = environment.API_URL;
 
   constructor(private httpClient: HttpClient) {}
@@ -25,7 +25,7 @@ export class ReservationService {
   }
   addSingleDevicePathway(selectedDevice: any, orgId?: number): Observable<any> {
     let searchUrl = `${this.url}buyer-reservation/pathway`;
-    if (!(orgId === null || orgId === undefined)) {
+    if (orgId) {
       searchUrl += `?orgId=${orgId}`;
     }
     return this.httpClient.post<any>(searchUrl, selectedDevice);
