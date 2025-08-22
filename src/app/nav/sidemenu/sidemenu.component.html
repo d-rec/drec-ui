@@ -55,16 +55,6 @@
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
-            routerLink="/admin/add-issuer"
-            *ngIf="loginuser.role === 'Admin'"
-            test-id="add-organization"
-          >
-            <span>Add Issuer</span>
-          </a>
-          <a
-            mat-button
-            class="menu-button inside-menu-button"
-            routerLinkActive="active"
             routerLink="/admin/All_organization"
             *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
           >
@@ -430,6 +420,31 @@
             test-id="profile"
           >
             <span>Profile</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+      <mat-expansion-panel *ngIf="loginuser.role === 'Admin'" [class.mat-elevation-z0]="true">
+        <mat-expansion-panel-header
+          class="mdc-button"
+        >
+          <mat-icon>manage_accounts</mat-icon>
+          Evident Issuer
+        </mat-expansion-panel-header>
+        <mat-nav-list class="p-0">
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="/admin/add-issuer"
+          >
+            <span>Add Issuer</span>
+          </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+          >
+            <span>All Issuer</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>

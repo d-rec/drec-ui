@@ -11,6 +11,6 @@ export class IssuerService {
   constructor(private http: HttpClient) {}
 
   createIssuer(issuerData: any): Observable<any> {
-    return this.http.post(`${this.url}drec-issuer/register`, issuerData);
+    return this.http.post(`${this.url}evident/register-issuer`, issuerData);
   }
 }
