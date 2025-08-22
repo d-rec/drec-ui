@@ -49,7 +49,7 @@ export class RedemptionReportComponent implements OnInit {
 
   constructor(
     private authService: AuthbaseService,
-    private DeviceGroupService: DeviceGroupService,
+    private deviceGroupService: DeviceGroupService,
     private router: Router,
   ) {}
   ngOnInit(): void {
@@ -68,7 +68,7 @@ export class RedemptionReportComponent implements OnInit {
     });
   }
   DisplayRedemptionList() {
-    this.DeviceGroupService.GetMethod().subscribe((data) => {
+    this.deviceGroupService.GetMethod().subscribe((data) => {
       this.data = data;
       this.data.forEach((ele: any) => {
         if (ele.fuelCode != '') {

@@ -15,7 +15,7 @@ export class DeviceGroupService {
     return this.httpClient.get(this.url + 'certificate-log/redemption-report');
   }
 
-  AddReservation(data: any, orgId?: number) {
+  add(data: any, orgId?: number) {
     let searchUrl = `${this.url}buyer-reservation`;
     if (!(orgId === null || orgId === undefined)) {
       searchUrl += `?orgId=${orgId}`;

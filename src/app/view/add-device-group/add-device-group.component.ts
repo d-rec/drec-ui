@@ -467,15 +467,21 @@ export class AddDeviceGroupComponent {
     let request$;
     if (reservationType === GroupType.Multiple) {
       request$ = isApiUser
-        ? this.deviceGroupService.AddReservation(reservationFormValue, orgId)
-        : this.deviceGroupService.AddReservation(reservationFormValue);
+        ? this.deviceGroupService.add(reservationFormValue, orgId)
+        : this.deviceGroupService.add(
+            reservationFormValue,
+            isApiUser ? orgId : undefined,
+          );
     } else {
       request$ = isApiUser
         ? this.deviceGroupService.addSingleDevicePathway(
             reservationFormValue,
             orgId,
           )
-        : this.deviceGroupService.addSingleDevicePathway(reservationFormValue);
+        : this.deviceGroupService.addSingleDevicePathway(
+            reservationFormValue,
+            isApiUser ? orgId : undefined,
+          );
     }
     request$.subscribe({
       next: () => {
