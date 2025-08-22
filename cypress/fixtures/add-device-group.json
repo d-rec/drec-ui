@@ -1,11 +1,11 @@
 [
   {
     "action": "click",
-    "selector": "[test-id='reservations']"
+    "selector": "[test-id='device-groups']"
   },
   {
     "action": "click",
-    "selector": "[test-id='add-reservation']"
+    "selector": "[test-id='add-device-groups']"
   },
 
   {
@@ -48,16 +48,15 @@
     "selector": "[test-id='filter-button']"
   },
   {
-    "action": "check",
-    "selector": "[test-id='select-device']",
-    "index": 0
+    "action": "click",
+    "selector": "[test-id='select-device']"
   },
   {
     "action": "click",
-    "selector": "[test-id='submit-reservation']"
+    "selector": "[test-id='submit-device-group']"
   },
   {
-    "action": "continue",
-    "selector": "[test-id='continue-reservation']"
+    "action": "click",
+    "selector": "[test-id='continue-button']"
   }
 ]

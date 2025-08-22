@@ -229,6 +229,16 @@ export class AddDeviceGroupComponent {
       });
     }
   }
+  ungroupedDevicesForOrg(orgId?: number) {
+    this.deviceservice.getAllUngroupedDevices(orgId).subscribe((data) => {
+      data = data.flatMap((group: any) => group.devices);
+      const pageSize = 10;
+      const totalCount = data.length;
+      const totalPages = Math.ceil(totalCount / pageSize);
+      this.loading = false;
+      this.updateDeviceTable(data, totalCount, totalPages);
+    });
+  }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls[
