@@ -464,19 +464,19 @@ export class AddDeviceGroupComponent {
     orgId?: number,
   ) {
     reservationFormValue['type'] = reservationType;
-    let request$;
+    let request;
     if (reservationType === GroupType.Multiple) {
-      request$ = this.deviceGroupService.add(
+      request = this.deviceGroupService.add(
         reservationFormValue,
         isApiUser ? orgId : undefined,
       );
     } else {
-      request$ = this.deviceGroupService.addSingleDevicePathway(
+      request = this.deviceGroupService.addSingleDevicePathway(
         reservationFormValue,
         isApiUser ? orgId : undefined,
       );
     }
-    request$.subscribe({
+    request.subscribe({
       next: () => {
         this.reservationForm.reset();
         this.selection.clear();
