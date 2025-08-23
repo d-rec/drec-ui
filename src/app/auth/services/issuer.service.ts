@@ -12,11 +12,18 @@ export class IssuerService {
   constructor(private http: HttpClient) {}
 
   createIssuer(issuerData: EvidentIssuer): Observable<EvidentIssuerResponse> {
-    return this.http.post<EvidentIssuerResponse>(`${this.url}evident/register-issuer`, issuerData);
+    return this.http.post<EvidentIssuerResponse>(
+      `${this.url}evident/register-issuer`,
+      issuerData,
+    );
   }
 
-  getIssuers(page: number = 1, pageSize: number = 10): Observable<{data: EvidentIssuerResponse[], total: number}> {
-    return this.http.get<{data: EvidentIssuerResponse[], total: number}>
-      (`${this.url}evident/issuers?page=${page}&pageSize=${pageSize}`);
+  getIssuers(
+    page: number = 1,
+    pageSize: number = 10,
+  ): Observable<{ data: EvidentIssuerResponse[]; total: number }> {
+    return this.http.get<{ data: EvidentIssuerResponse[]; total: number }>(
+      `${this.url}evident/issuers?page=${page}&pageSize=${pageSize}`,
+    );
   }
 }

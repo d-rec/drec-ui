@@ -12,7 +12,14 @@ import { MatSort } from '@angular/material/sort';
 export class AllIssuersComponent implements OnInit {
   issuers: EvidentIssuer[];
   dataSource: MatTableDataSource<EvidentIssuer>;
-  displayedColumns = ['name', 'issuerId', 'email', 'country', 'address', 'regions'];
+  displayedColumns = [
+    'name',
+    'issuerId',
+    'email',
+    'country',
+    'address',
+    'regions',
+  ];
   currentPage: number = 1;
   pageSize: number = 10;
   totalItems: number = 0;
@@ -37,7 +44,7 @@ export class AllIssuersComponent implements OnInit {
   getIssuers() {
     this.issuerService.getIssuers(this.currentPage, this.pageSize).subscribe({
       next: (res) => {
-        this.issuers= res.data;
+        this.issuers = res.data;
         this.totalItems = res.total;
         this.totalPages = Math.ceil(this.totalItems / this.pageSize);
         this.dataSource = new MatTableDataSource(this.issuers);
@@ -66,10 +73,6 @@ export class AllIssuersComponent implements OnInit {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-    this.currentPage = 1; 
-  }
-
-  separateRegions(regions: string): string[] {
-    return regions.split(',').map(region => region.trim());
+    this.currentPage = 1;
   }
 }
