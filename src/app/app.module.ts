@@ -50,6 +50,9 @@ import { ChangePhoneNumberComponent } from './view/change-phone-number/change-ph
 import { EvidentSettingsComponent } from './view/evident-settings/evident-settings.component';
 import { AllIssuersComponent } from './view/all-issuers/all-issuers.component';
 import { AddIssuerComponent } from './view/add-issuer/add-issuer.component';
+import { SingleDevicePathwayComponent } from './view/single-device-pathway/single-device-pathway.component';
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -88,6 +91,7 @@ import { AddIssuerComponent } from './view/add-issuer/add-issuer.component';
     EvidentSettingsComponent,
     AllIssuersComponent,
     AddIssuerComponent
+    SingleDevicePathwayComponent,
   ],
   imports: [
     BrowserModule,

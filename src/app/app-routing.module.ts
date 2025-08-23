@@ -32,8 +32,8 @@ import { ChangePhoneNumberComponent } from './view/change-phone-number/change-ph
 import { EvidentSettingsComponent } from './view/evident-settings/evident-settings.component';
 import { AddIssuerComponent } from './view/add-issuer/add-issuer.component';
 import { AllIssuersComponent } from './view/all-issuers/all-issuers.component';
+import { SingleDevicePathwayComponent } from './view/single-device-pathway/single-device-pathway.component';
 
-('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
   {
     path: '',
@@ -122,6 +122,10 @@ const routes: Routes = [
       {
         path: 'issuer/all-issuers',
         component: AllIssuersComponent,
+      },
+      {
+        path: 'single-device-pathway',
+        component: SingleDevicePathwayComponent,
       },
 
       {

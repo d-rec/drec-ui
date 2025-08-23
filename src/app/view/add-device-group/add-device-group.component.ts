@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, ViewChild, TemplateRef } from '@angular/core';
+import { Component, ViewChild, TemplateRef, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -35,6 +35,7 @@ import {
   styleUrls: ['./add-device-group.component.scss'],
 })
 export class AddDeviceGroupComponent {
+  @Input() selectionType: 'checkbox' | 'radio' = 'checkbox';
   displayedColumns = [
     'select',
     'onboarding_date',
@@ -183,6 +184,10 @@ export class AddDeviceGroupComponent {
       this.subscription.unsubscribe();
     }
   }
+  selectSingleDevice(row: Device) {
+    this.selection.clear();
+    this.selection.select(row);
+  }
 
   filterOrgList() {
     this.filteredOrgList = this.orglist.filter((org: any) => {
@@ -195,16 +200,30 @@ export class AddDeviceGroupComponent {
     );
     if (this.selectedOrganization) {
       this.orgId = this.selectedOrganization.id;
-      this.deviceservice
-        .getfilterData({}, this.selectedOrganization.id, 1)
-        .subscribe((data) => {
-          this.updateDeviceTable(
-            data.devices,
-            data.totalCount,
-            data.totalPages,
-          );
-        });
+      if (this.selectionType === 'checkbox') {
+        this.deviceservice
+          .getfilterData({}, this.selectedOrganization.id, 1)
+          .subscribe((data) => {
+            this.updateDeviceTable(
+              data.devices,
+              data.totalCount,
+              data.totalPages,
+            );
+          });
+      } else {
+        this.ungroupedDevicesForOrg(this.selectedOrganization.id);
+      }
     }
+  }
+  ungroupedDevicesForOrg(orgId?: number) {
+    this.deviceservice.getAllUngroupedDevices(orgId).subscribe((data) => {
+      data = data.flatMap((group: any) => group.devices);
+      const pageSize = 10;
+      const totalCount = data.length;
+      const totalPages = Math.ceil(totalCount / pageSize);
+      this.loading = false;
+      this.updateDeviceTable(data, totalCount, totalPages);
+    });
   }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
@@ -360,12 +379,20 @@ export class AddDeviceGroupComponent {
     this.displayList(this.p);
   }
   displayList(page: number) {
-    this.deviceservice
-      .getfilterData(this.FilterForm.value, this.orgId, page)
-      .subscribe((data) => {
-        this.loading = false;
-        this.updateDeviceTable(data.devices, data.totalCount, data.totalPages);
-      });
+    if (this.selectionType === 'checkbox') {
+      this.deviceservice
+        .getfilterData(this.FilterForm.value, this.orgId, page)
+        .subscribe((data) => {
+          this.loading = false;
+          this.updateDeviceTable(
+            data.devices,
+            data.totalCount,
+            data.totalPages,
+          );
+        });
+    } else {
+      this.ungroupedDevicesForOrg();
+    }
   }
   updateDeviceTable(devices: any[], totalCount: number, totalPages: number) {
     if (this.selection.selected.length > 0) {
