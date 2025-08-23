@@ -90,7 +90,7 @@ import { SingleDevicePathwayComponent } from './view/single-device-pathway/singl
     ChangePhoneNumberComponent,
     EvidentSettingsComponent,
     AllIssuersComponent,
-    AddIssuerComponent
+    AddIssuerComponent,
     SingleDevicePathwayComponent,
   ],
   imports: [
