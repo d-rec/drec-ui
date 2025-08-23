@@ -30,6 +30,8 @@ import { PhoneVerificationGuard } from './guards/verification/phone-verification
 import { OrganizationDocumentsGuard } from './guards/verification/organization-documents-verified.guard';
 import { ChangePhoneNumberComponent } from './view/change-phone-number/change-phone-number.component';
 import { EvidentSettingsComponent } from './view/evident-settings/evident-settings.component';
+import { AddIssuerComponent } from './view/add-issuer/add-issuer.component';
+import { AllIssuersComponent } from './view/all-issuers/all-issuers.component';
 
 ('./view/UserAcceptInvitationComponent');
 const routes: Routes = [
@@ -113,6 +115,14 @@ const routes: Routes = [
       { path: 'certificate', component: CertificateComponent },
       { path: 'device-groups', component: DeviceGroups },
       { path: 'settings/evident', component: EvidentSettingsComponent },
+      {
+        path: 'issuer/add-issuer',
+        component: AddIssuerComponent,
+      },
+      {
+        path: 'issuer/all-issuers',
+        component: AllIssuersComponent,
+      },
 
       {
         path: 'reads',

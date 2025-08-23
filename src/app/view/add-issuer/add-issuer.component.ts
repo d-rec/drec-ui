@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { EMAIL_REGEX } from '../../../../app/constants';
-import { AuthbaseService } from '../../../auth/authbase.service';
-import { CountryInfo } from '../../../models';
-import { IssuerService } from '../../../auth/services/issuer.service';
+import { EMAIL_REGEX } from '../../constants';
+import { AuthbaseService } from '../../auth/authbase.service';
+import { CountryInfo } from '../../models';
+import { IssuerService } from '../../auth/services/issuer.service';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';

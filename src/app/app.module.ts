@@ -48,7 +48,8 @@ import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/re
 import { DashboardComponent } from './view/dashboard/dashboard.component';
 import { ChangePhoneNumberComponent } from './view/change-phone-number/change-phone-number.component';
 import { EvidentSettingsComponent } from './view/evident-settings/evident-settings.component';
-
+import { AllIssuersComponent } from './view/all-issuers/all-issuers.component';
+import { AddIssuerComponent } from './view/add-issuer/add-issuer.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -85,6 +86,8 @@ import { EvidentSettingsComponent } from './view/evident-settings/evident-settin
     DashboardComponent,
     ChangePhoneNumberComponent,
     EvidentSettingsComponent,
+    AllIssuersComponent,
+    AddIssuerComponent
   ],
   imports: [
     BrowserModule,

@@ -10,7 +10,6 @@ import { InvitationformComponent } from './invitationform/invitationform.compone
 import { ApiuserComponent } from './apiuser/apiuser.component';
 import { SharedModule } from '../../shared.module';
 import { MapModule } from '../map/map.module';
-import { AddIssuerComponent } from './add-issuer/add-issuer.component';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -18,7 +17,6 @@ import { AddIssuerComponent } from './add-issuer/add-issuer.component';
     AddUsersComponent,
     InvitationformComponent,
     ApiuserComponent,
-    AddIssuerComponent,
   ],
   imports: [
     CommonModule,
