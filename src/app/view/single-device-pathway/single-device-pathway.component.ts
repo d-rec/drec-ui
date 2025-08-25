@@ -1,8 +1,12 @@
 import { Component } from '@angular/core';
+import { SelectionType } from 'src/app/utils/drec.enum';
 
 @Component({
   selector: 'app-single-device-pathway',
   templateUrl: './single-device-pathway.component.html',
   styleUrls: ['./single-device-pathway.component.scss'],
 })
-export class SingleDevicePathwayComponent {}
+export class SingleDevicePathwayComponent {
+  SelectionType = SelectionType;
+  singleDeviceHeader = 'Make a Single Device pathway';
+}
