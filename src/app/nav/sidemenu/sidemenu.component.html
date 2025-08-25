@@ -432,12 +432,39 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
+      <mat-expansion-panel *ngIf="loginuser.role === 'Admin'" [class.mat-elevation-z0]="true">
+        <mat-expansion-panel-header
+          class="mdc-button"
+        >
+          <mat-icon>badge</mat-icon>
+          Evident Issuers
+        </mat-expansion-panel-header>
+        <mat-nav-list class="p-0">
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="/issuer/add-issuer"
+          >
+            <span>Add Issuer</span>
+          </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="/issuer/all-issuers"
+            >
+            <span>All Issuers</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header
-          class="mdc-button" test-id="evident-configuration"
+          class="mdc-button"
+          test-id="evident-configuration"
         >
           <mat-icon>tune</mat-icon>
-          Evident configuration 
+          Evident configuration
         </mat-expansion-panel-header>
 
         <mat-nav-list class="p-0">

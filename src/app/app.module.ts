@@ -48,6 +48,8 @@ import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/re
 import { DashboardComponent } from './view/dashboard/dashboard.component';
 import { ChangePhoneNumberComponent } from './view/change-phone-number/change-phone-number.component';
 import { EvidentSettingsComponent } from './view/evident-settings/evident-settings.component';
+import { AllIssuersComponent } from './view/all-issuers/all-issuers.component';
+import { AddIssuerComponent } from './view/add-issuer/add-issuer.component';
 import { SingleDevicePathwayComponent } from './view/single-device-pathway/single-device-pathway.component';
 
 @NgModule({
@@ -86,6 +88,8 @@ import { SingleDevicePathwayComponent } from './view/single-device-pathway/singl
     DashboardComponent,
     ChangePhoneNumberComponent,
     EvidentSettingsComponent,
+    AllIssuersComponent,
+    AddIssuerComponent,
     SingleDevicePathwayComponent,
   ],
   imports: [

@@ -1,0 +1,140 @@
+<div class="body-bg">
+  <mat-card>
+    <mat-card-header
+      class="d-flex justify-content-between mat-crd-hide align-items-center overlay"
+    >
+      <div>
+        <h2 class="pb-0 mb-0 fw-bold text-capitalize">Issuer Registration</h2>
+      </div>
+    </mat-card-header>
+    <hr class="mb-0 pb-5" />
+    <mat-card-content>
+      <form [formGroup]="issuerForm" (ngSubmit)="onSubmit()">
+        <div class="d-flex align-items-center gap-4">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Name</mat-label>
+            <input
+              matInput
+              formControlName="name"
+              placeholder="Enter issuer name"
+              required
+            />
+            <mat-error
+              *ngIf="
+                issuerForm.get('name')?.invalid &&
+                issuerForm.get('name')?.touched
+              "
+            >
+              Name is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Evident Issuer Id</mat-label>
+            <input
+              matInput
+              formControlName="issuerId"
+              placeholder="Enter issuer id"
+              required
+            />
+            <mat-error
+              *ngIf="
+                issuerForm.get('issuerId')?.invalid &&
+                issuerForm.get('issuerId')?.touched
+              "
+            >
+              Id is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Email</mat-label>
+            <input
+              matInput
+              formControlName="email"
+              placeholder="Enter email"
+              required
+            />
+            <mat-error
+              *ngIf="
+                issuerForm.get('email')?.invalid &&
+                issuerForm.get('email')?.touched
+              "
+            >
+              Valid email is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="d-flex align-items-center gap-4">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Country</mat-label>
+            <input type="text"
+                   matInput
+                   formControlName="country"
+                   [matAutocomplete]="auto"
+                   placeholder="Type to search..."
+                   required>
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="getCountryDisplayName">
+              <mat-option *ngFor="let country of filteredCountries | async" [value]="country">
+                {{ country.country }}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="issuerForm.get('country')?.invalid && issuerForm.get('country')?.touched">
+              Country is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Address</mat-label>
+            <input
+              matInput
+              formControlName="address"
+              placeholder="Enter address"
+              required
+            />
+            <mat-error
+              *ngIf="
+                issuerForm.get('address')?.invalid &&
+                issuerForm.get('address')?.touched
+              "
+            >
+              Address is required
+            </mat-error>
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Assigned Region</mat-label>
+            <mat-select
+              formControlName="regions"
+              multiple
+              placeholder="Select countries for region"
+            >
+              <mat-option
+                *ngFor="let country of countryList"
+                [value]="country.country"
+              >
+                {{ country.country }}
+              </mat-option>
+            </mat-select>
+            <mat-error
+              *ngIf="
+                issuerForm.get('regions')?.invalid &&
+                issuerForm.get('regions')?.touched
+              "
+            >
+              Please select at least one country for the region
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <button
+        class="btn-primary btn text-capitalize"
+          mat-raised-button
+          type="submit"
+          [disabled]="issuerForm.invalid"
+        >
+          Register Issuer
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
