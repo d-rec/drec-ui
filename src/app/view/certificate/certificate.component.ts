@@ -24,7 +24,7 @@ import { ToastrService } from 'ngx-toastr';
 import { registryABI } from './registery-abi';
 import {
   MeterReadService,
-  ReservationService,
+  DeviceGroupService,
   BlockchainDrecService,
   CertificateService,
 } from '../../auth/services';
@@ -109,7 +109,7 @@ export class CertificateComponent implements OnDestroy {
     private toastrService: ToastrService,
     private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
-    private reservationService: ReservationService,
+    private deviceGroupService: DeviceGroupService,
     private readService: MeterReadService,
     private deviceService: DeviceService,
   ) {
@@ -127,7 +127,7 @@ export class CertificateComponent implements OnDestroy {
       periodEndDate: [new Date(), Validators.required], // date picker
       purpose: [null, Validators.required], //"claim testing from new UI" // ui text field
     });
-    this.reservationService
+    this.deviceGroupService
       .GetMethodById(this.group_id)
       .subscribe((data: any) => {
         this.group_name = data.name;
@@ -163,7 +163,7 @@ export class CertificateComponent implements OnDestroy {
     clearInterval(this.intervalId);
   }
   getnextissuancinfo(historyp: number) {
-    this.reservationService
+    this.deviceGroupService
       .GetnextissuanceCycleinfo(this.group_uid, historyp)
       .subscribe((data: any) => {
         this.history_nextissuanclist =

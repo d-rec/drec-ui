@@ -9,7 +9,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import {
   DeviceService,
-  ReservationService,
+  DeviceGroupService,
   OrganizationService,
 } from '../../auth/services';
 import { MatDialog } from '@angular/material/dialog';
@@ -29,13 +29,16 @@ import {
   devicecodeType,
   CountryInfo,
 } from '../../models';
+import { GroupType, SelectionType } from 'src/app/utils/drec.enum';
 @Component({
   selector: 'app-add-device-group',
   templateUrl: './add-device-group.component.html',
   styleUrls: ['./add-device-group.component.scss'],
 })
 export class AddDeviceGroupComponent {
-  @Input() selectionType: 'checkbox' | 'radio' = 'checkbox';
+  @Input() selectionType: SelectionType.Checkbox | SelectionType.Radio =
+    SelectionType.Checkbox;
+  @Input() headerText: string = 'Make a Device Group';
   displayedColumns = [
     'select',
     'onboarding_date',
@@ -101,7 +104,7 @@ export class AddDeviceGroupComponent {
   selectedOrganization: any;
   constructor(
     private authService: AuthbaseService,
-    private reservationService: ReservationService,
+    private deviceGroupService: DeviceGroupService,
     private router: Router,
     public dialog: MatDialog,
     private bottomSheet: MatBottomSheet,
@@ -200,19 +203,30 @@ export class AddDeviceGroupComponent {
     );
     if (this.selectedOrganization) {
       this.orgId = this.selectedOrganization.id;
-      if (this.selectionType === 'checkbox') {
-        this.deviceservice
-          .getfilterData({}, this.selectedOrganization.id, 1)
-          .subscribe((data) => {
-            this.updateDeviceTable(
-              data.devices,
-              data.totalCount,
-              data.totalPages,
-            );
-          });
-      } else {
-        this.ungroupedDevicesForOrg(this.selectedOrganization.id);
-      }
+      this.fetchDevicesForOrg(this.selectedOrganization.id, 1);
+    }
+  }
+  private fetchDevicesForOrg(orgId: number, page: number = 1) {
+    if (this.selectionType === SelectionType.Checkbox) {
+      this.deviceservice
+        .getfilterData(this.FilterForm.value, orgId, page)
+        .subscribe((data) => {
+          this.loading = false;
+          this.updateDeviceTable(
+            data.devices,
+            data.totalCount,
+            data.totalPages,
+          );
+        });
+    } else {
+      this.deviceservice.getAllUngroupedDevices(orgId).subscribe((data) => {
+        const devices = data.flatMap((group: any) => group.devices);
+        const pageSize = 10;
+        const totalCount = devices.length;
+        const totalPages = Math.ceil(totalCount / pageSize);
+        this.loading = false;
+        this.updateDeviceTable(devices, totalCount, totalPages);
+      });
     }
   }
   ungroupedDevicesForOrg(orgId?: number) {
@@ -379,20 +393,7 @@ export class AddDeviceGroupComponent {
     this.displayList(this.p);
   }
   displayList(page: number) {
-    if (this.selectionType === 'checkbox') {
-      this.deviceservice
-        .getfilterData(this.FilterForm.value, this.orgId, page)
-        .subscribe((data) => {
-          this.loading = false;
-          this.updateDeviceTable(
-            data.devices,
-            data.totalCount,
-            data.totalPages,
-          );
-        });
-    } else {
-      this.ungroupedDevicesForOrg();
-    }
+    this.fetchDevicesForOrg(this.orgId, page);
   }
   updateDeviceTable(devices: any[], totalCount: number, totalPages: number) {
     if (this.selection.selected.length > 0) {
@@ -455,6 +456,46 @@ export class AddDeviceGroupComponent {
       this.onContinue(result);
     });
   }
+
+  private submitReservation(
+    reservationType: GroupType,
+    reservationFormValue: any,
+    isApiUser: boolean,
+    orgId?: number,
+  ) {
+    reservationFormValue['type'] = reservationType;
+    let request;
+    if (reservationType === GroupType.Multiple) {
+      request = this.deviceGroupService.add(
+        reservationFormValue,
+        isApiUser ? orgId : undefined,
+      );
+    } else {
+      request = this.deviceGroupService.addSingleDevicePathway(
+        reservationFormValue,
+        isApiUser ? orgId : undefined,
+      );
+    }
+    request.subscribe({
+      next: () => {
+        this.reservationForm.reset();
+        this.selection.clear();
+        this.FilterForm.reset();
+        this.toastrService.success(
+          'Successfully!!',
+          reservationType === GroupType.Multiple
+            ? 'Device Group Added'
+            : 'Device Pathway Added',
+        );
+        this.dialogRef.close();
+        this.router.navigate(['/device-groups']);
+      },
+      error: (err) => {
+        console.error('error caught in component', err);
+        this.toastrService.error('error!', err.error.message);
+      },
+    });
+  }
   onContinue(result: any) {
     this.reservationForm.controls[
       'continueWithReservationIfOneOrMoreDevicesUnavailableForReservation'
@@ -462,45 +503,18 @@ export class AddDeviceGroupComponent {
     this.reservationForm.controls[
       'continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'
     ].setValue(result.continueWithTCLessDTC);
-    if (this.loginuser?.role === 'ApiUser') {
-      this.reservationService
-        .AddReservation(this.reservationForm.value, this.orgId)
-        .subscribe({
-          next: () => {
-            this.reservationForm.reset();
-            this.selection.clear();
-            this.FilterForm.reset();
-            //  this.getDeviceListData();
-            this.toastrService.success('Successfully!!', 'Device Group Added');
-            this.dialogRef.close();
-            this.router.navigate(['/device-groups']);
-          },
-          error: (err) => {
-            //Error callback
-            console.error('error caught in component', err);
-            this.toastrService.error('error!', err.error.message);
-          },
-        });
-    } else {
-      this.reservationService
-        .AddReservation(this.reservationForm.value)
-        .subscribe({
-          next: () => {
-            this.reservationForm.reset();
-            this.selection.clear();
-            this.FilterForm.reset();
-            //  this.getDeviceListData();
-            this.toastrService.success('Successfully!!', 'Device Group Added');
-            this.dialogRef.close();
-            this.router.navigate(['/device-groups']);
-          },
-          error: (err) => {
-            //Error callback
-            console.error('error caught in component', err);
-            this.toastrService.error('error!', err.error.message);
-          },
-        });
-    }
+    const isApiUser = this.loginuser?.role === 'ApiUser';
+    const reservationType =
+      this.selectionType === SelectionType.Checkbox
+        ? GroupType.Multiple
+        : GroupType.Single;
+
+    this.submitReservation(
+      reservationType,
+      this.reservationForm.value,
+      isApiUser,
+      this.orgId,
+    );
   }
 
   // pageChangeEvent(event: PageEvent) {
