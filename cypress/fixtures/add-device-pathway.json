@@ -5,18 +5,18 @@
     },
     {
       "action": "click",
-      "selector": "[test-id='add-device-groups']"
+      "selector": "[test-id='add-device-pathway']"
     },
   
     {
       "action": "type",
       "selector": "[test-id='reservation-name']",
-      "value": "test6 reservation"
+      "value": "test device pathway"
     },
     {
       "action": "type",
       "selector": "[test-id='target-capacity']",
-      "value": 100
+      "value": 2
     },
     {
       "action": "type",

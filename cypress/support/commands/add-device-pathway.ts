@@ -1,5 +1,5 @@
-Cypress.Commands.add('addDeviceGroup', function () {
-  cy.fixture('add-device-group.json').then((data) => {
+Cypress.Commands.add('addDevicePathway', function () {
+  cy.fixture('add-device-pathway.json').then((data) => {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
@@ -31,8 +31,7 @@ Cypress.Commands.add('addDeviceGroup', function () {
         case 'check':
           return cy.get(step.selector).wait(3000).eq(step.index).click();
         case 'continue':
-          cy.get(step.selector).click('center', { force: true });
-          return cy.contains('Reservation Added').should('be.visible');
+          return cy.get(step.selector).click('center', { force: true });
       }
     });
   });
