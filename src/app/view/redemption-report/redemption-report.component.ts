@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
-import { ReservationService } from '../../auth//services/reservation.service';
+import { DeviceGroupService } from '../../auth/services/device-group.service';
 import { Router } from '@angular/router';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { fulecodeType, CountryInfo } from '../../models';
@@ -49,7 +49,7 @@ export class RedemptionReportComponent implements OnInit {
 
   constructor(
     private authService: AuthbaseService,
-    private ReservationService: ReservationService,
+    private deviceGroupService: DeviceGroupService,
     private router: Router,
   ) {}
   ngOnInit(): void {
@@ -68,7 +68,7 @@ export class RedemptionReportComponent implements OnInit {
     });
   }
   DisplayRedemptionList() {
-    this.ReservationService.GetMethod().subscribe((data) => {
+    this.deviceGroupService.GetMethod().subscribe((data) => {
       this.data = data;
       this.data.forEach((ele: any) => {
         if (ele.fuelCode != '') {

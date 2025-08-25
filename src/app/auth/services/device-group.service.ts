@@ -7,7 +7,7 @@ import { isEmpty } from '../../utils/validations';
 @Injectable({
   providedIn: 'root',
 })
-export class ReservationService {
+export class DeviceGroupService {
   url: string = environment.API_URL;
 
   constructor(private httpClient: HttpClient) {}
@@ -15,13 +15,20 @@ export class ReservationService {
     return this.httpClient.get(this.url + 'certificate-log/redemption-report');
   }
 
-  AddReservation(data: any, orgId?: number) {
+  add(data: any, orgId?: number) {
     let searchUrl = `${this.url}buyer-reservation`;
     if (!(orgId === null || orgId === undefined)) {
       searchUrl += `?orgId=${orgId}`;
     }
 
     return this.httpClient.post<any>(searchUrl, data);
+  }
+  addSingleDevicePathway(selectedDevice: any, orgId?: number): Observable<any> {
+    let searchUrl = `${this.url}buyer-reservation/pathway`;
+    if (orgId) {
+      searchUrl += `?orgId=${orgId}`;
+    }
+    return this.httpClient.post<any>(searchUrl, selectedDevice);
   }
   getReservationData(searchData: any, pagenumber: number): Observable<any> {
     let searchUrl = `${this.url}buyer-reservation/my?pagenumber=` + pagenumber;

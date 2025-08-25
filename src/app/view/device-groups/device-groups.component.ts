@@ -5,7 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
 import {
-  ReservationService,
+  DeviceGroupService,
   OrganizationService,
   CertificateService,
 } from '../../auth/services';
@@ -95,7 +95,7 @@ export class DeviceGroups implements OnInit {
   devices: { id: string; serialNumber: string; projectName: string }[] = [];
   constructor(
     private authService: AuthbaseService,
-    private reservationService: ReservationService,
+    private deviceGroupService: DeviceGroupService,
     private orgService: OrganizationService,
     private router: Router,
     private formBuilder: FormBuilder,
@@ -342,7 +342,7 @@ export class DeviceGroups implements OnInit {
           this.FilterForm.value.reservationEndDate === null
         )
       ) {
-        this.reservationService
+        this.deviceGroupService
           .getReservationDataByadmin(this.FilterForm.value, page)
           .subscribe((data) => {
             this.showdevicesinfo = false;
@@ -369,7 +369,7 @@ export class DeviceGroups implements OnInit {
           this.FilterForm.value.reservationEndDate === null
         )
       ) {
-        this.reservationService
+        this.deviceGroupService
           .getReservationData(this.FilterForm.value, page)
           .subscribe((data) => {
             this.showdevicesinfo = false;
