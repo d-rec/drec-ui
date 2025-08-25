@@ -14,7 +14,7 @@ import { environment } from '../../../environments/environment';
 import { BlockchainDrecService } from '../../auth/services/blockchain-drec.service';
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
 import { ToastrService } from 'ngx-toastr';
-import { ReservationService } from '../../auth/services/reservation.service';
+import { DeviceGroupService } from '../../auth/services/device-group.service';
 import { MeterReadService } from '../../auth/services/meter-read.service';
 export interface Student {
   firstName: string;
@@ -115,7 +115,7 @@ export class CertifiedDevicesDeveloperComponent {
     private toastrService: ToastrService,
     private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
-    private reservationService: ReservationService,
+    private deviceGroupService: DeviceGroupService,
     private readService: MeterReadService,
     private deviceService: DeviceService,
     private certificateService: CertificateService,
