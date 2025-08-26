@@ -53,7 +53,7 @@ export class CertificateDetailsComponent {
   innerDisplayedColumns = [
     'certificate_issuance_startdate',
     'certificate_issuance_enddate',
-    'externalId',
+    'serialNumber',
     'readvalue_watthour',
     'Action',
   ];
@@ -550,6 +550,7 @@ export class CertificateDetailsComponent {
             this.dataSource = new MatTableDataSource(this.data);
             this.obs = this.dataSource.connect();
           }
+          console.log("data", this.obs)
         },
         error: (err) => {
           this.loading = false;
