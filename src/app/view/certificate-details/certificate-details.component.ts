@@ -550,7 +550,6 @@ export class CertificateDetailsComponent {
             this.dataSource = new MatTableDataSource(this.data);
             this.obs = this.dataSource.connect();
           }
-          console.log("data", this.obs)
         },
         error: (err) => {
           this.loading = false;
