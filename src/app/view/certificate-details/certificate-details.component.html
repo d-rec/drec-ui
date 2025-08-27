@@ -233,33 +233,35 @@
                   </mat-select>
                 </mat-form-field>
               </div>
-   
-                <!-- ... existing code ... -->
-                <div class="col-md-4 h6-margin-remove">
-                  <h6>Device Group Name:</h6>
-                  <mat-form-field appearance="outline">
-                    <mat-label class="text-capitalize">Enter Device Group Name</mat-label>
-                    <input
-                      type="text"
-                      matInput
-                      formControlName="deviceGroupName"
-                      (ngModelChange)="checkFormValidity()"
-                      [matAutocomplete]="autoReservation"
-                    />
-                    <mat-autocomplete
-                      #autoReservation="matAutocomplete"
-                      (optionSelected)="selectReservation($event)"
+
+              <!-- ... existing code ... -->
+              <div class="col-md-4 h6-margin-remove">
+                <h6>Device Group Name:</h6>
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize"
+                    >Enter Device Group Name</mat-label
+                  >
+                  <input
+                    type="text"
+                    matInput
+                    formControlName="deviceGroupName"
+                    (ngModelChange)="checkFormValidity()"
+                    [matAutocomplete]="autoReservation"
+                  />
+                  <mat-autocomplete
+                    #autoReservation="matAutocomplete"
+                    (optionSelected)="selectReservation($event)"
+                  >
+                    <mat-option [value]="">---</mat-option>
+                    <mat-option
+                      *ngFor="let deviceGroup of deviceGroupList | async"
+                      [value]="deviceGroup.id"
                     >
-                      <mat-option [value]="">---</mat-option>
-                      <mat-option
-                        *ngFor="let deviceGroup of deviceGroupList | async"
-                        [value]="deviceGroup.id"
-                      >
-                        {{ deviceGroup.name }}
-                      </mat-option>
-                    </mat-autocomplete>
-                  </mat-form-field>
-                </div>
+                      {{ deviceGroup.name }}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+              </div>
               <!-- 				
 							<div class="col-md-4  h6-margin-remove">
 								<h6>Select Read Volume(Wh): </h6>
@@ -306,7 +308,11 @@
         <b>All D-REC Tokens of Device Groups </b>
       </h2>
       <div class="m-2 text-end">
-        <button mat-raised-button class="btn-primary me-3" (click)="exportToPDF()">
+        <button
+          mat-raised-button
+          class="btn-primary me-3"
+          (click)="exportToPDF()"
+        >
           <mat-icon>picture_as_pdf</mat-icon> Export to PDF
         </button>
         <button mat-raised-button class="btn-primary" (click)="exportToCSV()">
@@ -382,7 +388,7 @@
                       {{
                         formatCertificateDate(
                           item.generationStartTime,
-                          item.perDeviceCertificateLog?.[0]?.timezone || 'UTC'
+                          item.perDeviceCertificateLog[0].timezone
                         )
                       }}
                     </p>
@@ -396,7 +402,7 @@
                       {{
                         formatCertificateDate(
                           item.generationEndTime,
-                          item.perDeviceCertificateLog?.[0]?.timezone || 'UTC'
+                          item.perDeviceCertificateLog[0].timezone
                         )
                       }}
                     </p>
@@ -442,7 +448,7 @@
                           formatCertificateDate(
                             element.certificate_issuance_startdate,
                             element.timezone
-                          ) 
+                          )
                         }}
                       </td>
                     </ng-container>
