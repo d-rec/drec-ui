@@ -451,7 +451,7 @@ export class DeviceGroups implements OnInit {
   }
   ExpoertPerDevice_csv(row: any) {
     this.certificateService
-      .getcertifiedlogPerDevice(row.devicegroup_uid)
+      .getcertifiedlogPerDevice(row.deviceGroupUid)
       .subscribe({
         next: (data: any) => {
           const blob = new Blob([data], { type: 'text/csv' });
