@@ -53,7 +53,7 @@ export class CertificateDetailsComponent {
   innerDisplayedColumns = [
     'certificate_issuance_startdate',
     'certificate_issuance_enddate',
-    'externalId',
+    'serialNumber',
     'readvalue_watthour',
     'Action',
   ];
