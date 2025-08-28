@@ -181,7 +181,6 @@ export class DocumentsUploadComponent {
               doc.isUploaded = true;
             }
           });
-          this.toastrService.success('All documents uploaded successfully');
           this.isUploading = false;
           this.authService
             .ApiUserExportAccesskey('user/export-accesskey/', this.userApiId)
@@ -190,7 +189,6 @@ export class DocumentsUploadComponent {
                 this.downloadAccessKey(keydata);
               },
             });
-          this.toastrService.success('Access key downloaded successfully');
           this.router.navigate(['/apiuser/permission/request/form']);
         },
         error: (err) => {
