@@ -3,14 +3,16 @@ Cypress.Commands.add('addDevice', function () {
   cy.fixture('add-device.json').then((data) => {
     const new_data = data.map((d) =>
       d.selector === "[test-id='external-id']"
-        ? { ...d, value: Math.floor(Math.random() * (100 - 10 + 1) + 10) }
+        ? { ...d, value: Math.floor(Math.random() * 200) }
         : { ...d },
     );
     new_data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          return cy.get(step.selector).click().wait(1000);
-
+          return cy
+            .get(step.selector)
+            .click({ multiple: true, force: true })
+            .wait(1000);
         case 'type':
           return cy.get(step.selector).should('be.visible').type(step.value);
 
@@ -26,7 +28,7 @@ Cypress.Commands.add('addDevice', function () {
           if (step.option === "[test-id='country-options']") {
             return cy
               .get(step.selector)
-              .click()
+              .click({ force: true })
               .get(step.option)
               .contains('Rwanda')
               .click()
@@ -42,9 +44,21 @@ Cypress.Commands.add('addDevice', function () {
               .wait(1000);
           }
 
-        case 'submit':
-          cy.get(step.selector).click('center', { force: true });
-          return cy.contains('Added Successfully !!').should('be.visible');
+        case 'upload':
+          return cy
+            .get(step.selector)
+            .should('exist')
+            .each(($input) => {
+              cy.wrap($input).attachFile('files/device-document-upload.pdf', {
+                force: true,
+              });
+            });
+
+        case 'agree':
+          return cy
+            .get(step.selector)
+            .click('center', { force: true })
+            .wait(5000);
       }
     });
   });

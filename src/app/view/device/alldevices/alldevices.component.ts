@@ -30,15 +30,14 @@ export class AlldevicesComponent {
   title = 'matDialog';
   dataFromDialog: any;
   displayedColumns = [
-    'onboarding_date',
-    // 'projectName',
+    'projectName',
     'externalId',
-    'internalexternalId',
-    'countryCode',
-    // 'fuelCode',
-    'commissioningDate',
     'capacity',
-    // 'SDGBenefits',
+    'countryCode',
+    'evidentId',
+    'evidentStatus',
+    'commissioningDate',
+    'onboarding_date',
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -423,7 +422,7 @@ export class AlldevicesComponent {
         deviceid: deviceId,
       },
       width: '900px',
-      height: '400px',
+      height: '70vh',
     });
   }
 
@@ -432,7 +431,7 @@ export class AlldevicesComponent {
       data: {
         title: 'Confirm Remove Device',
         message:
-          'Are you sure, you want to remove Device: ' + device.externalId,
+          'Are you sure, you want to remove Device: ' + device.serialNumber,
       },
     });
     confirmDialog.afterClosed().subscribe((result) => {

@@ -1,10 +1,10 @@
-<div class="body-bg add-reservation">
+<div class="body-bg add-device-group" >
   <mat-card>
     <mat-card-header
       class="d-flex justify-content-between mat-crd-hide align-items-center"
     >
       <div>
-        <h2 class="pb-0 mb-0 fw-bold text-capitalize">Make a Reservation</h2>
+        <h2 class="pb-0 mb-0 fw-bold text-capitalize">{{ headerText }}</h2>
       </div>
     </mat-card-header>
     <hr />
@@ -389,27 +389,42 @@
                 <ng-container matColumnDef="select" sticky>
                   <th>
                     <mat-header-cell *matHeaderCellDef>
-                      <mat-checkbox
-                        color="primary"
-                        (change)="$event ? masterToggle() : null"
-                        [checked]="selection.hasValue() && isAllSelected()"
-                        [indeterminate]="
-                          selection.hasValue() && !isAllSelected()
-                        "
-                      >
-                      </mat-checkbox>
+                      <ng-container *ngIf="selectionType === 'checkbox'; else radioHeader">
+                        <mat-checkbox
+                          color="primary"
+                          (change)="$event ? masterToggle() : null"
+                          [checked]="selection.hasValue() && isAllSelected()"
+                          [indeterminate]="selection.hasValue() && !isAllSelected()"
+                        >
+                        </mat-checkbox>
+                      </ng-container>
+                      <ng-template #radioHeader>
+                      </ng-template>
                     </mat-header-cell>
                   </th>
                   <td>
                     <mat-cell *cdkCellDef="let row">
-                      <mat-checkbox
-                        color="primary"
-                        (click)="$event.stopPropagation()"
-                        (change)="$event ? selection.toggle(row) : null"
-                        [checked]="selection.isSelected(row)"
-                        test-id="select-device"
-                      >
-                      </mat-checkbox>
+                      <ng-container *ngIf="selectionType === 'checkbox'; else radioCell">
+                        <mat-checkbox
+                          color="primary"
+                          (click)="$event.stopPropagation()"
+                          (change)="$event ? selection.toggle(row) : null"
+                          [checked]="selection.isSelected(row)"
+                          test-id="select-device"
+                          class="py-4"
+                        >
+                        </mat-checkbox>
+                      </ng-container>
+                      <ng-template #radioCell>
+                        <mat-radio-button
+                          name="singleDeviceSelection"
+                          (click)="$event.stopPropagation()"
+                          [checked]="selection.isSelected(row)"
+                          (change)="selectSingleDevice(row)"
+                          test-id="select-device"
+                          class="py-4"
+                        ></mat-radio-button>
+                      </ng-template>
                     </mat-cell>
                   </td>
                 </ng-container>
@@ -433,10 +448,10 @@
                 </ng-container>
                 <ng-container matColumnDef="externalId">
                   <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                    ExternalId
+                    Serial Number
                   </th>
                   <td mat-cell *matCellDef="let element">
-                    {{ element.developerExternalId }}
+                    {{ element.serialNumber}}
                   </td>
                 </ng-container>
                 <ng-container
@@ -566,7 +581,7 @@
             [disabled]="reservationForm.invalid"
             class="btn-primary btn text-capitalize px-4"
             (click)="onSubmit()"
-            test-id="submit-reservation"
+            test-id="submit-device-group"
           >
             Submit
           </button>
@@ -578,13 +593,13 @@
 <ng-template
   let-data
   #mypopupDialog
-  class="Position-relative ng-template-add-reservation"
+  class="Position-relative ng-template-add-device-group"
 >
-  <h2 mat-dialog-title class="mat-dialog-title">Reservation</h2>
+  <h2 mat-dialog-title class="mat-dialog-title">Device Group</h2>
   <div mat-dialog-content>
     <p>
       <mat-radio-group [(ngModel)]="data.continewwithunavilableonedevice">
-        <span>Continue reservation if some devices are unavailable:</span>
+        <span>Continue device grouping if some devices are unavailable:</span>
         <br />
         <mat-radio-button [value]="true" checked>Yes</mat-radio-button>
         <mat-radio-button [value]="false">No</mat-radio-button>
@@ -593,7 +608,7 @@
     <p>
       <mat-radio-group [(ngModel)]="data.continueWithTCLessDTC">
         <span class="dialog-popup-discription"
-          >Continue reservation if target capacity is less than estimated
+          >Continue device grouping if target capacity is less than estimated
           reachable capacity of devices between selected period:</span
         >
         <br />
@@ -609,7 +624,7 @@
       [mat-dialog-close]="data"
       class="btn-primary btn text-capitalize"
       cdkFocusInitial
-      test-id="continue-reservation"
+      test-id="continue-button"
     >
       Continue
     </button>

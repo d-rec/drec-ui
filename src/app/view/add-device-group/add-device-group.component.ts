@@ -1,5 +1,5 @@
 import { SelectionModel } from '@angular/cdk/collections';
-import { Component, ViewChild, TemplateRef } from '@angular/core';
+import { Component, ViewChild, TemplateRef, Input } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -9,7 +9,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import {
   DeviceService,
-  ReservationService,
+  DeviceGroupService,
   OrganizationService,
 } from '../../auth/services';
 import { MatDialog } from '@angular/material/dialog';
@@ -29,12 +29,16 @@ import {
   devicecodeType,
   CountryInfo,
 } from '../../models';
+import { GroupType, SelectionType } from 'src/app/utils/drec.enum';
 @Component({
-  selector: 'app-add-reservation',
-  templateUrl: './add-reservation.component.html',
-  styleUrls: ['./add-reservation.component.scss'],
+  selector: 'app-add-device-group',
+  templateUrl: './add-device-group.component.html',
+  styleUrls: ['./add-device-group.component.scss'],
 })
-export class AddReservationComponent {
+export class AddDeviceGroupComponent {
+  @Input() selectionType: SelectionType.Checkbox | SelectionType.Radio =
+    SelectionType.Checkbox;
+  @Input() headerText: string = 'Make a Device Group';
   displayedColumns = [
     'select',
     'onboarding_date',
@@ -97,9 +101,10 @@ export class AddReservationComponent {
     continewwithunavilableonedevice: true,
     continueWithTCLessDTC: true,
   };
+  selectedOrganization: any;
   constructor(
     private authService: AuthbaseService,
-    private reservationService: ReservationService,
+    private deviceGroupService: DeviceGroupService,
     private router: Router,
     public dialog: MatDialog,
     private bottomSheet: MatBottomSheet,
@@ -148,9 +153,8 @@ export class AddReservationComponent {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) =>
-            org.organizationType !== 'Developer',
+            org.organizationType === 'Developer',
         );
-        // const buyerOrganizations = data.filter(org => org.organizationType === "Buyer");
         this.filteredOrgList = this.orglist;
       });
     }
@@ -183,18 +187,57 @@ export class AddReservationComponent {
       this.subscription.unsubscribe();
     }
   }
+  selectSingleDevice(row: Device) {
+    this.selection.clear();
+    this.selection.select(row);
+  }
+
   filterOrgList() {
     this.filteredOrgList = this.orglist.filter((org: any) => {
       return org.name.toLowerCase().includes(this.orgname.toLowerCase());
     });
   }
   selectOrg(event: any) {
-    const selectedCountry = this.orglist.find(
+    this.selectedOrganization = this.orglist.find(
       (option) => option.name === event.option.value,
     );
-    if (selectedCountry) {
-      this.orgId = selectedCountry.id;
+    if (this.selectedOrganization) {
+      this.orgId = this.selectedOrganization.id;
+      this.fetchDevicesForOrg(this.selectedOrganization.id, 1);
     }
+  }
+  private fetchDevicesForOrg(orgId: number, page: number = 1) {
+    if (this.selectionType === SelectionType.Checkbox) {
+      this.deviceservice
+        .getfilterData(this.FilterForm.value, orgId, page)
+        .subscribe((data) => {
+          this.loading = false;
+          this.updateDeviceTable(
+            data.devices,
+            data.totalCount,
+            data.totalPages,
+          );
+        });
+    } else {
+      this.deviceservice.getAllUngroupedDevices(orgId).subscribe((data) => {
+        const devices = data.flatMap((group: any) => group.devices);
+        const pageSize = 10;
+        const totalCount = devices.length;
+        const totalPages = Math.ceil(totalCount / pageSize);
+        this.loading = false;
+        this.updateDeviceTable(devices, totalCount, totalPages);
+      });
+    }
+  }
+  ungroupedDevicesForOrg(orgId?: number) {
+    this.deviceservice.getAllUngroupedDevices(orgId).subscribe((data) => {
+      data = data.flatMap((group: any) => group.devices);
+      const pageSize = 10;
+      const totalCount = data.length;
+      const totalPages = Math.ceil(totalCount / pageSize);
+      this.loading = false;
+      this.updateDeviceTable(data, totalCount, totalPages);
+    });
   }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
@@ -350,48 +393,42 @@ export class AddReservationComponent {
     this.displayList(this.p);
   }
   displayList(page: number) {
-    //  this.FilterForm.controls['pagenumber'].setValue(page);
-    this.deviceservice
-      .getfilterData(this.FilterForm.value, page)
-      .subscribe((data) => {
-        this.loading = false;
-        if (this.selection.selected.length > 0) {
-          this.selection.selected.forEach((ele) => {
-            const selectedIndex = data.devices.findIndex(
-              (row: any) => row.id === ele.id,
-            );
-            if (selectedIndex !== -1) {
-              // The selected ID exists, so remove it from the data list
-              data.devices.splice(selectedIndex, 1);
-              data.devices.push(ele);
-            } else {
-              // The selected ID doesn't exist, so add it to the data list
-              data.devices.push(ele);
-            }
-          });
+    this.fetchDevicesForOrg(this.orgId, page);
+  }
+  updateDeviceTable(devices: any[], totalCount: number, totalPages: number) {
+    if (this.selection.selected.length > 0) {
+      this.selection.selected.forEach((ele) => {
+        const selectedIndex = devices.findIndex(
+          (row: any) => row.id === ele.id,
+        );
+        if (selectedIndex !== -1) {
+          devices.splice(selectedIndex, 1);
+          devices.push(ele);
+        } else {
+          devices.push(ele);
         }
-
-        this.data = data.devices;
-
-        this.data.forEach((ele: any) => {
-          ele['fuelname'] = this.fuellist.find(
-            (fuelType) => fuelType.code === ele.fuelCode,
-          )?.name;
-
-          ele['devicetypename'] = this.devicetypelist.find(
-            (devicetype) => devicetype.code == ele.deviceTypeCode,
-          )?.name;
-
-          ele['countryname'] = this.countrylist.find(
-            (countrycode) => countrycode.alpha3 == ele.countryCode,
-          )?.country;
-        });
-        this.dataSource = new MatTableDataSource(this.data);
-        this.totalRows = data.totalCount;
-        this.totalPages = data.totalPages;
-
-        this.dataSource.sort = this.sort;
       });
+    }
+
+    devices.forEach((ele: any) => {
+      ele['fuelname'] = this.fuellist.find(
+        (fuelType) => fuelType.code === ele.fuelCode,
+      )?.name;
+
+      ele['devicetypename'] = this.devicetypelist.find(
+        (devicetype) => devicetype.code == ele.deviceTypeCode,
+      )?.name;
+
+      ele['countryname'] = this.countrylist.find(
+        (countrycode) => countrycode.alpha3 == ele.countryCode,
+      )?.country;
+    });
+
+    this.data = devices;
+    this.dataSource = new MatTableDataSource(this.data);
+    if (totalCount !== undefined) this.totalRows = totalCount;
+    if (totalPages !== undefined) this.totalPages = totalPages;
+    this.dataSource.sort = this.sort;
   }
   onSubmit(): void {
     if (this.selection.selected.length > 0) {
@@ -419,6 +456,46 @@ export class AddReservationComponent {
       this.onContinue(result);
     });
   }
+
+  private submitReservation(
+    reservationType: GroupType,
+    reservationFormValue: any,
+    isApiUser: boolean,
+    orgId?: number,
+  ) {
+    reservationFormValue['type'] = reservationType;
+    let request;
+    if (reservationType === GroupType.Multiple) {
+      request = this.deviceGroupService.add(
+        reservationFormValue,
+        isApiUser ? orgId : undefined,
+      );
+    } else {
+      request = this.deviceGroupService.addSingleDevicePathway(
+        reservationFormValue,
+        isApiUser ? orgId : undefined,
+      );
+    }
+    request.subscribe({
+      next: () => {
+        this.reservationForm.reset();
+        this.selection.clear();
+        this.FilterForm.reset();
+        this.toastrService.success(
+          'Successfully!!',
+          reservationType === GroupType.Multiple
+            ? 'Device Group Added'
+            : 'Device Pathway Added',
+        );
+        this.dialogRef.close();
+        this.router.navigate(['/device-groups']);
+      },
+      error: (err) => {
+        console.error('error caught in component', err);
+        this.toastrService.error('error!', err.error.message);
+      },
+    });
+  }
   onContinue(result: any) {
     this.reservationForm.controls[
       'continueWithReservationIfOneOrMoreDevicesUnavailableForReservation'
@@ -426,45 +503,18 @@ export class AddReservationComponent {
     this.reservationForm.controls[
       'continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'
     ].setValue(result.continueWithTCLessDTC);
-    if (this.loginuser?.role === 'ApiUser') {
-      this.reservationService
-        .AddReservation(this.reservationForm.value, this.orgId)
-        .subscribe({
-          next: () => {
-            this.reservationForm.reset();
-            this.selection.clear();
-            this.FilterForm.reset();
-            //  this.getDeviceListData();
-            this.toastrService.success('Successfully!!', 'Reservation Added');
-            this.dialogRef.close();
-            this.router.navigate(['/myreservation']);
-          },
-          error: (err) => {
-            //Error callback
-            console.error('error caught in component', err);
-            this.toastrService.error('error!', err.error.message);
-          },
-        });
-    } else {
-      this.reservationService
-        .AddReservation(this.reservationForm.value)
-        .subscribe({
-          next: () => {
-            this.reservationForm.reset();
-            this.selection.clear();
-            this.FilterForm.reset();
-            //  this.getDeviceListData();
-            this.toastrService.success('Successfully!!', 'Reservation Added');
-            this.dialogRef.close();
-            this.router.navigate(['/myreservation']);
-          },
-          error: (err) => {
-            //Error callback
-            console.error('error caught in component', err);
-            this.toastrService.error('error!', err.error.message);
-          },
-        });
-    }
+    const isApiUser = this.loginuser?.role === 'ApiUser';
+    const reservationType =
+      this.selectionType === SelectionType.Checkbox
+        ? GroupType.Multiple
+        : GroupType.Single;
+
+    this.submitReservation(
+      reservationType,
+      this.reservationForm.value,
+      isApiUser,
+      this.orgId,
+    );
   }
 
   // pageChangeEvent(event: PageEvent) {
@@ -491,7 +541,7 @@ export class AddReservationComponent {
         deviceid: deviceId,
       },
       width: '900px',
-      height: '400px',
+      height: '70vh',
     });
   }
 }

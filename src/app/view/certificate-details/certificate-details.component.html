@@ -2,7 +2,7 @@
   <mat-card class="example-card">
     <mat-card-header>
       <mat-card-title>
-        <h2 class="pb-0 mb-0 fw-bold text-capitalize">All Certificate</h2>
+        <h2 class="pb-0 mb-0 fw-bold text-capitalize">All D-REC Tokens</h2>
       </mat-card-title>
     </mat-card-header>
     <hr />
@@ -13,28 +13,13 @@
             style="text-align: center; color: #f2be1a; font-size: 16px"
             class="text-capitalize mt-0 pt-0 mb-2 pb-0"
           >
-            <b>Select fields to filter certificates</b>
+            <b>Select fields to filter D-REC Tokens</b>
           </h2>
           <form [formGroup]="FilterForm">
             <div
               class="example-container1 row"
               *ngIf="FilterForm.get('organizationname')"
             >
-              <div class="col-md-3 d-flex flex-column">
-                <span>Select type for get certificate </span>
-
-                <mat-radio-group>
-                  <mat-radio-button
-                    value="Developer"
-                    (click)="showorglist('Developer')"
-                    >Developer</mat-radio-button
-                  >
-                  <mat-radio-button value="Buyer" (click)="showorglist('Buyer')"
-                    >Buyer</mat-radio-button
-                  >
-                  <!-- Add more radio buttons as needed -->
-                </mat-radio-group>
-              </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize"
@@ -224,10 +209,10 @@
               </div>
 
               <div class="col-md-4 h6-margin-remove">
-                <h6>Device External Id:</h6>
+                <h6>Device Serial Number:</h6>
                 <mat-form-field appearance="outline" test-id="devices-selector">
                   <mat-label class="text-capitalize">
-                    enter device Id</mat-label
+                    enter serial number</mat-label
                   >
                   <mat-select
                     formControlName="deviceIds"
@@ -249,6 +234,34 @@
                 </mat-form-field>
               </div>
 
+              <!-- ... existing code ... -->
+              <div class="col-md-4 h6-margin-remove">
+                <h6>Device Group Name:</h6>
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize"
+                    >Enter Device Group Name</mat-label
+                  >
+                  <input
+                    type="text"
+                    matInput
+                    formControlName="deviceGroupName"
+                    (ngModelChange)="checkFormValidity()"
+                    [matAutocomplete]="autoReservation"
+                  />
+                  <mat-autocomplete
+                    #autoReservation="matAutocomplete"
+                    (optionSelected)="selectReservation($event)"
+                  >
+                    <mat-option [value]="">---</mat-option>
+                    <mat-option
+                      *ngFor="let deviceGroup of deviceGroupList | async"
+                      [value]="deviceGroup.id"
+                    >
+                      {{ deviceGroup.name }}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+              </div>
               <!-- 				
 							<div class="col-md-4  h6-margin-remove">
 								<h6>Select Read Volume(Wh): </h6>
@@ -292,9 +305,20 @@
         style="text-align: center; color: #f2be1a; font-size: 16px"
         class="text-capitalize mt-0 pt-0 mb-2 pb-0"
       >
-        <b>All certificate of those reservations </b>
+        <b>All D-REC Tokens of Device Groups </b>
       </h2>
-
+      <div class="m-2 text-end">
+        <button
+          mat-raised-button
+          class="btn-primary me-3"
+          (click)="exportToPDF()"
+        >
+          <mat-icon>picture_as_pdf</mat-icon> Export to PDF
+        </button>
+        <button mat-raised-button class="btn-primary" (click)="exportToCSV()">
+          <mat-icon>table_chart</mat-icon> Export to CSV
+        </button>
+      </div>
       <ng-container>
         <div class="col-md-3 d-flex flex-column" *ngIf="oldcertificatelog">
           <span>Have you old certificate? </span>
@@ -441,10 +465,10 @@
                       </td>
                     </ng-container>
 
-                    <ng-container matColumnDef="externalId">
-                      <th mat-header-cell *matHeaderCellDef>Device Id</th>
+                    <ng-container matColumnDef="serialNumber">
+                      <th mat-header-cell *matHeaderCellDef>Serial Number</th>
                       <td mat-cell *matCellDef="let element" class="table-data">
-                        {{ element.externalId }}
+                        {{ element.serialNumber }}
                       </td>
                     </ng-container>
                     <ng-container matColumnDef="readvalue_watthour">

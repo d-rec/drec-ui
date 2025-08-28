@@ -1,10 +1,10 @@
 import 'cypress-file-upload';
-Cypress.Commands.add('addReservation', function () {
-  cy.fixture('add-reservation.json').then((data) => {
+Cypress.Commands.add('addDeviceGroup', function () {
+  cy.fixture('add-device-group.json').then((data) => {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          return cy.get(step.selector).click().wait(1000);
+          return cy.get(step.selector).click({ multiple: true }).wait(1000);
 
         case 'type':
           return cy
@@ -30,7 +30,7 @@ Cypress.Commands.add('addReservation', function () {
               .click('center', { force: true });
           }
         case 'check':
-          return cy.get(step.selector).eq(step.index).click();
+          return cy.get(step.selector).wait(3000).eq(step.index).click();
         case 'continue':
           cy.get(step.selector).click('center', { force: true });
           return cy.contains('Reservation Added').should('be.visible');

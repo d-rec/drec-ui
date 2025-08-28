@@ -118,17 +118,31 @@ export class DeviceService {
   getDeviceInfoBYexternalId(externalid: string): Observable<any> {
     return this.httpClient.get(this.url + 'device/externalId/' + externalid);
   }
-  public Postdevices(data: any): Observable<any> {
+  public create(data: FormData): Observable<any> {
     return this.httpClient.post<any>(this.url + 'device', data);
   }
   public Patchdevices(id: any, data: any): Observable<any> {
     return this.httpClient.patch<any>(this.url + 'device/' + id, data);
   }
 
+  getAllUngroupedDevices(orgId?: number): Observable<any> {
+    if (orgId) {
+      return this.httpClient.get(
+        this.url + 'device/ungrouped?orderBy=Capacity&orgId=' + orgId,
+      );
+    }
+    return this.httpClient.get(this.url + 'device/ungrouped?orderBy=Capacity');
+  }
+
   GetUnreserveDevices(): Observable<any> {
     return this.httpClient.get(this.url + 'device/ungrouped/buyerreservation');
   }
-  getfilterData(searchData: any, pagenumber: number): Observable<any> {
+
+  getfilterData(
+    searchData: any,
+    orgId: number,
+    pagenumber: number,
+  ): Observable<any> {
     let searchUrl =
       `${this.url}device/ungrouped/buyerreservation?pagenumber=` + pagenumber;
 
@@ -140,6 +154,9 @@ export class DeviceService {
       )
     ) {
       searchUrl += `&country=${searchData.countryCode}`;
+    }
+    if (orgId) {
+      searchUrl += `&organizationId=${orgId}`;
     }
 
     if (

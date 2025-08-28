@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import {
   FormGroup,
   FormBuilder,
@@ -13,6 +13,7 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
+import { MapComponent } from '../../map/map.component';
 
 @Component({
   selector: 'app-edit-device',
@@ -21,7 +22,7 @@ import { postcodeValidator } from '../../../utils/validate-postcode';
 })
 export class EditDeviceComponent implements OnInit {
   loginuser: any;
-  updatedeviceform: FormGroup;
+  updateDeviceForm: FormGroup;
   countrylist: CountryInfo[] = [];
   fuellist: fulecodeType[] = [];
   devicetypelist: devicecodeType[] = [];
@@ -35,7 +36,7 @@ export class EditDeviceComponent implements OnInit {
   id: number;
   externalid: any;
   showinput: boolean = true;
-  externalId: any;
+  serialNumber: any;
   status: any;
   projectName: any;
   address: any;
@@ -80,6 +81,7 @@ export class EditDeviceComponent implements OnInit {
     'Rooftop Solar',
     'Ground Mount Solar',
   ];
+  @ViewChild(MapComponent) mapComponent: MapComponent;
 
   constructor(
     private fb: FormBuilder,
@@ -108,9 +110,8 @@ export class EditDeviceComponent implements OnInit {
     this.DisplaytypeList();
 
     this.date = new Date();
-    this.updatedeviceform = this.fb.group({
-      externalId: [null, [Validators.pattern(/^[a-zA-Z\d\-_\s]+$/)]],
-      //newexternalId: [null, Validators.required],
+    this.updateDeviceForm = this.fb.group({
+      serialNumber: [null, [Validators.pattern(/^[a-zA-Z0-9_-]+$/)]],
       projectName: [null],
       address: [null, [Validators.required]],
       latitude: [
@@ -144,10 +145,22 @@ export class EditDeviceComponent implements OnInit {
     this.addmoredetals = false;
     this.showaddmore = true;
     this.shownomore = false;
-    this.updatedeviceform.valueChanges.subscribe();
+    this.updateDeviceForm.valueChanges.subscribe();
+    this.updateDeviceForm
+      .get('latitude')
+      ?.valueChanges.subscribe((latitude) => {
+        const longitude = this.updateDeviceForm.get('longitude')?.value;
+        this.updateMapMarkers(latitude, longitude);
+      });
+    this.updateDeviceForm
+      .get('longitude')
+      ?.valueChanges.subscribe((longitude) => {
+        const latitude = this.updateDeviceForm.get('latitude')?.value;
+        this.updateMapMarkers(latitude, longitude);
+      });
     setTimeout(() => {
-      this.updatedeviceform.controls['countryCode'];
-      this.filteredCountryList = this.updatedeviceform.controls[
+      this.updateDeviceForm.controls['countryCode'];
+      this.filteredCountryList = this.updateDeviceForm.controls[
         'countryCode'
       ].valueChanges.pipe(
         startWith(''),
@@ -175,20 +188,20 @@ export class EditDeviceComponent implements OnInit {
     );
   }
   getCountryCodeControl(): FormControl {
-    return this.updatedeviceform.get('countryCode') as FormControl;
+    return this.updateDeviceForm.get('countryCode') as FormControl;
   }
   checkValidation(input: string) {
     const validation =
-      this.updatedeviceform.get(input)?.invalid &&
-      (this.updatedeviceform.get(input)?.dirty ||
-        this.updatedeviceform.get(input)?.touched);
+      this.updateDeviceForm.get(input)?.invalid &&
+      (this.updateDeviceForm.get(input)?.dirty ||
+        this.updateDeviceForm.get(input)?.touched);
     return validation;
   }
-  externalIdErrors() {
-    return this.updatedeviceform.get('externalId')?.hasError('required')
+  serialNumberErrors() {
+    return this.updateDeviceForm.get('serialNumber')?.hasError('required')
       ? 'This field is required'
-      : this.updatedeviceform.get('externalId')?.hasError('pattern')
-        ? 'external id can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between'
+      : this.updateDeviceForm.get('serialNumber')?.hasError('pattern')
+        ? 'serial number can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between'
         : '';
   }
   DisplayList() {
@@ -219,7 +232,7 @@ export class EditDeviceComponent implements OnInit {
   }
   hideeditExternalid() {
     this.shownewExternalidInput = false;
-    this.updatedeviceform.value.externalId = this.externalId;
+    this.updateDeviceForm.value.serialNumber = this.serialNumber;
     this.showcancelicon = false;
   }
   addmore() {
@@ -244,7 +257,7 @@ export class EditDeviceComponent implements OnInit {
       .getDeviceInfoBYexternalId(this.externalid)
       .subscribe((data) => {
         this.id = data.id;
-        this.externalId = data.externalId;
+        this.serialNumber = data.serialNumber;
         this.status = data.status;
         this.projectName = data.projectName;
         this.address = data.address;
@@ -280,26 +293,26 @@ export class EditDeviceComponent implements OnInit {
         this.energyStorageCapacity = data.energyStorageCapacity;
         this.stateProvince = data.stateProvince;
         this.organizationId = data.organizationId;
+        this.updateDeviceForm.patchValue({
+          serialNumber: data.serialNumber,
+        });
       });
   }
   onSubmit() {
-    if (this.updatedeviceform.value.externalId === null) {
-      this.updatedeviceform.removeControl('externalId');
-    }
     const selectedCountry: CountryInfo | undefined = this.countrylist.find(
-      (option) => option.country === this.updatedeviceform.value.countryCode,
+      (option) => option.country === this.updateDeviceForm.value.countryCode,
     );
-    this.updatedeviceform.controls['organizationId'].setValue(
+    this.updateDeviceForm.controls['organizationId'].setValue(
       this.organizationId,
     );
-    this.updatedeviceform.value['countryCode'] = selectedCountry?.alpha3;
+    this.updateDeviceForm.value['countryCode'] = selectedCountry?.alpha3;
     this.deviceService
-      .Patchdevices(this.externalid, this.updatedeviceform.value)
+      .Patchdevices(this.externalid, this.updateDeviceForm.value)
       .subscribe({
         next: (data: any) => {
           this.toastrService.success(
             'Updated Successfully !!',
-            'Device! ' + data.externalId,
+            'Device! ' + data.serialNumber,
           );
           if (this.loginuser.role === 'Admin') {
             this.router.navigate(['/admin/All_devices']);
@@ -325,6 +338,25 @@ export class EditDeviceComponent implements OnInit {
       this.router.navigate(['/device/bulk_upload']);
     } else {
       this.router.navigate(['/device/AllList']);
+    }
+  }
+
+  updateMapMarkers(latitude: any, longitude: any) {
+    if (this.mapComponent && latitude && longitude) {
+      const markers = [
+        {
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude),
+        },
+      ];
+
+      // Set the markers on the map component
+      this.mapComponent.markers = [...markers];
+
+      // If the map is already initialized, update it directly
+      if (this.mapComponent.isMapInitialized) {
+        this.mapComponent.update();
+      }
     }
   }
 }

@@ -47,6 +47,7 @@
             routerLinkActive="active"
             routerLink="{{ adduserorg_url }}"
             *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
+            test-id="add-organization"
           >
             <span>Add Organizations</span>
           </a>
@@ -65,6 +66,7 @@
             class="menu-button inside-menu-button certified-metarides"
             routerLinkActive="active"
             routerLink="{{ Alluserurl }}"
+            test-id="all-users"
           >
             <span>All Users</span>
           </a>
@@ -75,6 +77,7 @@
             routerLinkActive="active"
             routerLink="/admin/All_apiusers"
             *ngIf="loginuser.role === 'Admin'"
+            test-id="all-market-intermediaries"
           >
             <span>All Market Intermediaries</span>
           </a>
@@ -343,52 +346,57 @@
       <mat-expansion-panel
         [class.mat-elevation-z0]="true"
         *ngIf="
-          loginuser.role === 'Buyer' ||
-          loginuser.role === 'SubBuyer' ||
-          loginuser.role === 'ApiUser'
+          loginuser.role === 'OrganizationAdmin' ||
+          loginuser.role === 'ApiUser' ||
+          loginuser.role === 'Buyer'
         "
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
-          test-id="reservations"
+          test-id="device-groups"
         >
           <mat-icon>bookmark</mat-icon>
-          <span>Reservations</span>
+          <span>Device Groups</span>
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
           <a
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
-            routerLink="/myreservation"
+            routerLink="/device-groups"
           >
-            <span test-id="all-reservations">All Reservations</span>
+            <span test-id="all-reservations">All Device Groups</span>
           </a>
           <a
             mat-button
             class="menu-button inside-menu-button"
-            routerLinkActive="active"
-            routerLink="/add/reservation"
+            routerLink="/add/device-group"
             test-id="add-reservation"
+            *ngIf="loginuser.role !== 'Buyer'"
           >
-            <span>Add Reservation</span>
+            <span test-id="add-device-groups">Add Device Group</span>
+          </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLink="/single-device-pathway"
+            test-id="add-reservation"
+            *ngIf="loginuser.role !== 'Buyer'"
+          >
+            <span>Add  Device Pathway</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
+
       <!--6th  -->
       <button
         mat-button
         class="menu-button"
         routerLinkActive="active"
-        routerLink="/All_certificate"
-        *ngIf="
-          loginuser.role === 'Buyer' ||
-          loginuser.role === 'SubBuyer' ||
-          loginuser.role === 'ApiUser'
-        "
+        routerLink="/tokens"
       >
         <mat-icon>card_membership</mat-icon>
-        <span test-id="all-certificates">Certificate</span>
+        <span test-id="all-certificates">D-REC Tokens</span>
       </button>
       <!--7th  -->
       <button
@@ -424,7 +432,53 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
+      <mat-expansion-panel *ngIf="loginuser.role === 'Admin'" [class.mat-elevation-z0]="true">
+        <mat-expansion-panel-header
+          class="mdc-button"
+        >
+          <mat-icon>badge</mat-icon>
+          Evident Issuers
+        </mat-expansion-panel-header>
+        <mat-nav-list class="p-0">
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="/issuer/add-issuer"
+          >
+            <span>Add Issuer</span>
+          </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="/issuer/all-issuers"
+            >
+            <span>All Issuers</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
+      <mat-expansion-panel [class.mat-elevation-z0]="true">
+        <mat-expansion-panel-header
+          class="mdc-button"
+          test-id="evident-configuration"
+        >
+          <mat-icon>tune</mat-icon>
+          Evident configuration
+        </mat-expansion-panel-header>
 
+        <mat-nav-list class="p-0">
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="settings/evident"
+            test-id="evident-settings"
+          >
+            <span>Evident settings</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
       <!-- <button class="menu-button" mat-button (click)="logout()"><mat-icon>power_settings_new</mat-icon>Logout</button> -->
     </mat-nav-list>
   </mat-sidenav>

@@ -14,13 +14,13 @@ import { SidemenuComponent } from './nav/sidemenu/sidemenu.component';
 import { LoginComponent } from './view/login/login.component';
 import { RegisterComponent } from './view/register/register.component';
 import { CertificateComponent } from './view/certificate/certificate.component';
-import { MyreservationComponent } from './view/myreservation/myreservation.component';
+import { DeviceGroups } from './view/device-groups/device-groups.component';
 import { CertificateDetailsComponent } from './view/certificate-details/certificate-details.component';
 import { AuthLayoutComponent } from './layout/auth/auth-layout.component';
 import { GuestLayoutComponent } from './layout/guest/guest-layout.component';
 import { RedemptionReportComponent } from './view/redemption-report/redemption-report.component';
 
-import { AddReservationComponent } from './view/add-reservation/add-reservation.component';
+import { AddDeviceGroupComponent } from './view/add-device-group/add-device-group.component';
 import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-developer/certified-devices-developer.component';
 //import { TimezonePipe } from './utils/timezone.pipe';
 import { PipesModule } from './pipes.module';
@@ -46,6 +46,11 @@ import { DefaultLayoutComponent } from './layout/default/default-layout.componen
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
 import { DashboardComponent } from './view/dashboard/dashboard.component';
+import { ChangePhoneNumberComponent } from './view/change-phone-number/change-phone-number.component';
+import { EvidentSettingsComponent } from './view/evident-settings/evident-settings.component';
+import { AllIssuersComponent } from './view/all-issuers/all-issuers.component';
+import { AddIssuerComponent } from './view/add-issuer/add-issuer.component';
+import { SingleDevicePathwayComponent } from './view/single-device-pathway/single-device-pathway.component';
 
 @NgModule({
   declarations: [
@@ -56,14 +61,14 @@ import { DashboardComponent } from './view/dashboard/dashboard.component';
     LoginComponent,
     RegisterComponent,
     CertificateComponent,
-    MyreservationComponent,
+    DeviceGroups,
     CertificateDetailsComponent,
     AuthLayoutComponent,
     DefaultLayoutComponent,
     GuestLayoutComponent,
     RedemptionReportComponent,
     // AddreadComponent,
-    AddReservationComponent,
+    AddDeviceGroupComponent,
     CertifiedDevicesDeveloperComponent,
     ConfirmEmailComponent,
     ForgetPasswordComponent,
@@ -81,6 +86,11 @@ import { DashboardComponent } from './view/dashboard/dashboard.component';
     AcceptTermsAndConditionsComponent,
     ResendConfirmEmailComponent,
     DashboardComponent,
+    ChangePhoneNumberComponent,
+    EvidentSettingsComponent,
+    AllIssuersComponent,
+    AddIssuerComponent,
+    SingleDevicePathwayComponent,
   ],
   imports: [
     BrowserModule,

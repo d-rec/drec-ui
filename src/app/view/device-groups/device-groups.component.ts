@@ -5,7 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../auth/authbase.service';
 import {
-  ReservationService,
+  DeviceGroupService,
   OrganizationService,
   CertificateService,
 } from '../../auth/services';
@@ -16,11 +16,11 @@ import { ToastrService } from 'ngx-toastr';
 import { fulecodeType, devicecodeType, CountryInfo } from '../../models';
 
 @Component({
-  selector: 'app-myreservation',
-  templateUrl: './myreservation.component.html',
-  styleUrls: ['./myreservation.component.scss'],
+  selector: 'app-device-groups',
+  templateUrl: './device-groups.component.html',
+  styleUrls: ['./device-groups.component.scss'],
 })
-export class MyreservationComponent implements OnInit {
+export class DeviceGroups implements OnInit {
   displayedColumns = [
     'actions',
     'createAt',
@@ -92,9 +92,10 @@ export class MyreservationComponent implements OnInit {
   orglist: any;
   filteredOrgList: Observable<any[]>;
   showorgerror: boolean = false;
+  devices: { id: string; serialNumber: string; projectName: string }[] = [];
   constructor(
     private authService: AuthbaseService,
-    private reservationService: ReservationService,
+    private deviceGroupService: DeviceGroupService,
     private orgService: OrganizationService,
     private router: Router,
     private formBuilder: FormBuilder,
@@ -115,7 +116,7 @@ export class MyreservationComponent implements OnInit {
       reservationStartDate: [null],
       reservationEndDate: [null],
       reservationActive: [null],
-
+      deviceIds: [],
       // pagenumber: [this.p]
     });
     this.displayCountriesList();
@@ -132,7 +133,7 @@ export class MyreservationComponent implements OnInit {
       );
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
-          (org) => org.organizationType != 'Developer',
+          (org) => org.organizationType === 'Developer',
         );
         if (this.orglist.length > 0) {
           this.applyorgFilter();
@@ -261,6 +262,12 @@ export class MyreservationComponent implements OnInit {
             this.FilterForm.controls['offTaker'].setValue(null);
           }
           if (
+            formValues.deviceIds != null &&
+            formValues.deviceIds[0] === undefined
+          ) {
+            this.FilterForm.controls['deviceIds'].setValue(null);
+          }
+          if (
             formValues.SDGBenefits != null &&
             formValues.SDGBenefits[0] === undefined
           ) {
@@ -322,11 +329,12 @@ export class MyreservationComponent implements OnInit {
     this.DisplayList(this.p);
   }
   DisplayList(page: number) {
-    //  this.FilterForm.controls['pagenumber'].setValue(page);
-    if (this.loginuser.role === 'ApiUser') {
+    if (
+      this.loginuser.role === 'ApiUser' ||
+      this.loginuser.role === 'OrganizationAdmin'
+    ) {
       if (this.FilterForm.value.reservationActive === 'All') {
         this.FilterForm.removeControl('reservationActive');
-        //this.FilterForm.controls['reservationActive'].setValue(null);
       }
       if (
         !(
@@ -334,20 +342,12 @@ export class MyreservationComponent implements OnInit {
           this.FilterForm.value.reservationEndDate === null
         )
       ) {
-        this.reservationService
+        this.deviceGroupService
           .getReservationDataByadmin(this.FilterForm.value, page)
           .subscribe((data) => {
             this.showdevicesinfo = false;
 
             this.data = data.groupedData;
-
-            this.data.forEach((ele: any) => {
-              if (ele.deviceIds != null) {
-                ele['numberOfdevices'] = ele.deviceIds.length;
-              } else {
-                ele['numberOfdevices'] = 0;
-              }
-            });
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
 
@@ -369,19 +369,20 @@ export class MyreservationComponent implements OnInit {
           this.FilterForm.value.reservationEndDate === null
         )
       ) {
-        this.reservationService
+        this.deviceGroupService
           .getReservationData(this.FilterForm.value, page)
           .subscribe((data) => {
             this.showdevicesinfo = false;
-
             this.data = data.groupedData;
-            this.data.forEach((ele: any) => {
-              if (ele.deviceIds != null) {
-                ele['numberOfdevices'] = ele.deviceIds.length;
-              } else {
-                ele['numberOfdevices'] = 0;
-              }
-            });
+
+            const devices = this.data
+              .map((deviceGroup: { devices: any }) => deviceGroup.devices)
+              .flat();
+            const uniqueDevices = new Map<string, any>();
+            devices.forEach((device: any) =>
+              uniqueDevices.set(device.serialNumber, device),
+            );
+            this.devices = Array.from(uniqueDevices.values());
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
 

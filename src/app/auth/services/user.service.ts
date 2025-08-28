@@ -38,7 +38,7 @@ export class UserService {
   public userProfile(): Observable<any> {
     return this.httpClient.get<any>(this.url + 'user/me');
   }
-  public updatProfile(data: any): Observable<any> {
+  public updateProfile(data: any): Observable<any> {
     return this.httpClient.put<any>(this.url + 'user/profile', data);
   }
   public updatPassword(data: any): Observable<any> {
@@ -58,5 +58,11 @@ export class UserService {
       this.url + 'user/accept-terms-and-conditions',
       {},
     );
+  }
+
+  public updatePhoneNumber(phoneNumber: string): Observable<any> {
+    return this.httpClient.patch<any>(this.url + 'user/update-phone-number', {
+      phoneNumber,
+    });
   }
 }

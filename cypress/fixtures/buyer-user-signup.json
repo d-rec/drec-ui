@@ -95,12 +95,24 @@
   },
   {
     "action": "click",
-    "selector": "[test-id='next-to-password']",
-    "log": "Button clicked successfully"
+    "selector": "[test-id='next-to-password']"
   },
   {
     "action": "click",
-    "selector": "[test-id='submit-registration']",
-    "log": "Button clicked successfully"
+    "selector": "[test-id='submit-registration']"
+  },
+  {
+    "action": "verify-email"
+  },
+  {
+    "action": "verify-phone"
+  },
+  {
+    "action": "browse-documents",
+    "selector": "[test-id='browse-documents']"
+  },
+  {
+    "action": "click",
+    "selector": "[test-id='submit-all-documents']"
   }
 ]

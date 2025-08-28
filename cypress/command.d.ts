@@ -14,13 +14,19 @@ declare namespace Cypress {
     developerUserLogin(): Chainable<void>;
     addAggregateMeterRead(): Chainable<void>;
     buyerUserLogin(): Chainable<void>;
-    addReservation(): Chainable<void>;
-    certificate(): Chainable<void>;
+    addDeviceGroup(): Chainable<void>;
     certificateFilter(): Chainable<void>;
     deviceBulkUpload(filename: string): Chainable<void>;
     accountSettings(): Chainable<void>;
     meterReadBulkUpload(filename: string): Chainable<void>;
     certifiedMeterRead(): Chainable<void>;
     inviteUser(): Chainable<void>;
+    evidentConfiguration(): Chainable<void>;
+    apiUserSignup(): Chainable<void>;
+    addNewOrganization(): Chainable<void>;
+    filterAndEditApiUsers(): Chainable<void>;
+    ApiUserPermissionsSetup(): Chainable<void>;
+    updateUser(): Chainable<void>;
+    editApiUserPermission(): Chainable<void>;
   }
 }

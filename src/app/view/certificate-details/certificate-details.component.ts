@@ -15,7 +15,7 @@ import { BlockchainDrecService } from '../../auth/services/blockchain-drec.servi
 import { BlockchainProperties } from '../../models/blockchain-properties.model';
 import { ToastrService } from 'ngx-toastr';
 import {
-  ReservationService,
+  DeviceGroupService,
   OrganizationService,
   MeterReadService,
   DeviceService,
@@ -23,17 +23,23 @@ import {
 } from '../../auth/services';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { Observable, Subscription, debounceTime } from 'rxjs';
+import { Observable, Subscription, debounceTime, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { DeviceDetailsComponent } from '../device/device-details/device-details.component';
 import { MatDialog } from '@angular/material/dialog';
 import { DATE_FORMATS } from '../../constants/date-formats';
 import { formatDateWithTimezone } from '../../utils/date-formatter';
+import { generateCSVContent } from 'src/app/utils/csv-export-helper';
+import { generatePDFBlob } from 'src/app/utils/pdf-export-helper';
+import { saveAs } from 'file-saver';
+import { DatePipe } from '@angular/common';
+import { OrganizationType } from '../../utils/drec.enum';
 
 @Component({
   selector: 'app-certificate-details',
   templateUrl: './certificate-details.component.html',
   styleUrls: ['./certificate-details.component.scss'],
+  providers: [DatePipe],
 })
 export class CertificateDetailsComponent {
   @Input() dataFromComponentA: any;
@@ -47,7 +53,7 @@ export class CertificateDetailsComponent {
   innerDisplayedColumns = [
     'certificate_issuance_startdate',
     'certificate_issuance_enddate',
-    'externalId',
+    'serialNumber',
     'readvalue_watthour',
     'Action',
   ];
@@ -80,6 +86,7 @@ export class CertificateDetailsComponent {
   totalPages: number;
   p: number = 1;
   FilterForm: FormGroup;
+  deviceGroupList: Observable<any[]>;
   offtaker = [
     'School',
     'Education',
@@ -109,6 +116,7 @@ export class CertificateDetailsComponent {
   oldlog: boolean = false;
   oldcertificatelog: boolean;
   deviceIds: string[] = [];
+  reservationNames: { id: string; name: string }[] = [];
   constructor(
     private blockchainDRECService: BlockchainDrecService,
     private authService: AuthbaseService,
@@ -117,13 +125,14 @@ export class CertificateDetailsComponent {
     private toastrService: ToastrService,
     private bottomSheet: MatBottomSheet,
     private fb: FormBuilder,
-    private reservationService: ReservationService,
+    private deviceGroupService: DeviceGroupService,
     private readService: MeterReadService,
     private deviceService: DeviceService,
     private certificateService: CertificateService,
     private formBuilder: FormBuilder,
     private dialog: MatDialog,
     private orgService: OrganizationService,
+    private datePipe: DatePipe,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
@@ -137,6 +146,8 @@ export class CertificateDetailsComponent {
       start_date: [null],
       end_date: [null],
       deviceIds: [],
+      deviceGroupName: [],
+      reservationId: [],
       fromAmountread: [null],
       toAmountread: [null],
       // pagenumber: [this.p]
@@ -179,29 +190,46 @@ export class CertificateDetailsComponent {
       }
 
       this.DisplayList(this.p);
+      this.getOrganizations();
     }, 1500);
     this.getBlockchainProperties();
     this.selectAccountAddressFromMetamask();
+    this.loadReservations();
   }
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
   }
+  loadReservations(): void {
+    this.deviceGroupService
+      .getReservationData(this.FilterForm.value, this.p)
+      .subscribe((data) => {
+        this.reservationNames = data.groupedData.map((item: any) => ({
+          id: item.devicegroup_uid,
+          name: item.name,
+        }));
+        this.deviceGroupList = of(this.reservationNames);
+      });
+  }
+  selectReservation(event: any): void {
+    const selectedReservationName = this.reservationNames.find(
+      (deviceGroup) => deviceGroup.id === event.option.value,
+    )?.name;
 
-  showorglist(event: any) {
+    this.FilterForm.patchValue({ reservationId: event.option.value });
+    if (
+      this.FilterForm.get('deviceGroupName')?.value !== selectedReservationName
+    ) {
+      this.FilterForm.patchValue({ deviceGroupName: selectedReservationName });
+    }
+  }
+  getOrganizations() {
     this.orgService.GetApiUserAllOrganization().subscribe((data) => {
-      if (event === 'Developer') {
-        this.orglist = data.organizations.filter(
-          (org) => org.organizationType != 'Buyer',
-        );
-        this.applyorgFilter();
-      } else {
-        this.orglist = data.organizations.filter(
-          (org) => org.organizationType != 'Developer',
-        );
-        this.applyorgFilter();
-      }
+      this.orglist = data.organizations.filter(
+        (org) => org.organizationType == OrganizationType.Developer,
+      );
+      this.applyorgFilter();
     });
   }
   applyorgFilter() {
@@ -357,6 +385,9 @@ export class CertificateDetailsComponent {
           ) {
             this.FilterForm.controls['deviceIds'].setValue(null);
           }
+          if (formValues.deviceGroupName[0] === undefined) {
+            this.FilterForm.controls['deviceGroupName'].setValue(null);
+          }
           // Other code...
         }
       });
@@ -441,18 +472,34 @@ export class CertificateDetailsComponent {
       .subscribe({
         next: (data: any) => {
           this.loading = false;
-          // display list in the console
           this.oldcertificatelog = data.oldcertificatelog;
           if (data.certificatelog.length > 0) {
             this.data = data.certificatelog.filter((ele: any) => ele !== null);
-            this.deviceIds = [];
             this.data.forEach((log: any) => {
               log.perDeviceCertificateLog.forEach((deviceLog: any) => {
-                if (!this.deviceIds.includes(deviceLog.externalId)) {
-                  this.deviceIds.push(deviceLog.externalId);
+                if (!this.deviceIds.includes(deviceLog.serialNumber)) {
+                  this.deviceIds.push(deviceLog.serialNumber);
                 }
               });
             });
+            this.deviceGroupService
+              .getReservationData(this.FilterForm.value, page)
+              .subscribe((data) => {
+                data.groupedData.forEach((item: any) => {
+                  const exists = this.reservationNames.some(
+                    (deviceGroup) =>
+                      deviceGroup.id === item.devicegroup_uid &&
+                      deviceGroup.name === item.name,
+                  );
+
+                  if (!exists) {
+                    this.reservationNames.push({
+                      id: item.devicegroup_uid,
+                      name: item.name,
+                    });
+                  }
+                });
+              });
             this.data.forEach((ele: any) => {
               //converting blockchain address to lower case
               if (ele.claims != null && ele.claims.length > 0) {
@@ -518,7 +565,64 @@ export class CertificateDetailsComponent {
         },
       });
   }
+  getFormattedDate(): string {
+    return this.datePipe.transform(new Date(), 'yyyy-MM-dd') || '';
+  }
+  async exportToPDF() {
+    const headers = [
+      'Generation Start Date',
+      'Generation End Date',
+      'Owned Volume',
+    ];
 
+    const data = this.data.map((item: any) => [
+      this.formatCertificateDate(
+        item.generationStartTime,
+        item.perDeviceCertificateLog[0].timezone,
+      ),
+      this.formatCertificateDate(
+        item.generationEndTime,
+        item.perDeviceCertificateLog[0].timezone,
+      ),
+      item.owners[Object.keys(item.owners)[0]] || 'N/A',
+    ]);
+    if (this.data.length === 0) {
+      this.toastrService.warning('No data available to export');
+      return;
+    }
+
+    const pdfBlob = await generatePDFBlob('Certificate Data', headers, data);
+
+    saveAs(pdfBlob, `certificates_${this.getFormattedDate()}.pdf`);
+  }
+
+  exportToCSV() {
+    const headers = [
+      'Generation Start Date',
+      'Generation End Date',
+      'Owned Volume',
+    ];
+
+    const csvBlob = generateCSVContent(headers, this.data, (item) => {
+      const startDate = this.formatCertificateDate(
+        item.generationStartTime,
+        item.perDeviceCertificateLog[0].timezone,
+      );
+      const endDate = this.formatCertificateDate(
+        item.generationEndTime,
+        item.perDeviceCertificateLog[0].timezone,
+      );
+      const owners = item.owners[Object.keys(item.owners)[0]] || 'N/A';
+      return `"${startDate}","${endDate}","${owners}"`;
+    });
+
+    if (!csvBlob) {
+      this.toastrService.warning('No data available to export');
+      return;
+    }
+    const fileName = `certificates_${this.getFormattedDate()}.csv`;
+    saveAs(csvBlob, fileName);
+  }
   getWindowEthereumObject() {
     return window.ethereum;
   }
@@ -630,7 +734,7 @@ export class CertificateDetailsComponent {
         deviceid: deviceId,
       },
       width: '900px',
-      height: '400px',
+      height: '70vh',
     });
   }
 }

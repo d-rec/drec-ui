@@ -1,11 +1,10 @@
-import 'cypress-file-upload';
-
-Cypress.Commands.add('certificate', function () {
-  cy.fixture('certificate.json').then((data) => {
+Cypress.Commands.add('updateUser', function () {
+  cy.fixture('update-user.json').then((data) => {
     data.forEach((step) => {
       switch (step.action) {
         case 'click':
-          return cy.get(step.selector).click().wait(1000);
+          return cy.get(step.selector).first().click().wait(1000);
+
         case 'type':
           return cy
             .get(step.selector)

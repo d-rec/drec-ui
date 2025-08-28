@@ -27,6 +27,7 @@
                       type="text"
                       matInput
                       formControlName="firstName"
+                      test-id="first-name"
                     />
                     <mat-hint class="password-desc text-wrap"
                       >Legal representative's first name.</mat-hint
@@ -47,6 +48,7 @@
                       type="text"
                       matInput
                       formControlName="lastName"
+                      test-id="last-name"
                     />
                     <mat-hint class="password-desc text-wrap"
                       >Legal representative's last name.</mat-hint
@@ -64,6 +66,7 @@
                       type="email"
                       matInput
                       formControlName="email"
+                      test-id="email"
                     />
                     <mat-error class="pb-3" *ngIf="checkValidation('email')">
                       {{ emaiErrors() }}
@@ -81,6 +84,7 @@
                       placeholder="+91 22 1234 5678"
                       test-id="phone-number"
                       (input)="markAsTouched('phoneNumber')"
+                      test-id="phone-number"
                     />
                     <mat-error class="pb-3" *ngIf="showPhoneNumberError()">
                       {{ phoneNumberErrors() }}
@@ -93,6 +97,7 @@
                   mat-button
                   matStepperNext
                   class="btn-primary btn btn-block"
+                  test-id="next-button"
                 >
                   Next
                 </button>
@@ -117,6 +122,7 @@
                       type="text"
                       matInput
                       formControlName="orgName"
+                      test-id="organization-name"
                     />
                     <mat-error class="pb-1" *ngIf="checkValidation('orgName')">
                       {{ fieldRequired }}
@@ -131,10 +137,12 @@
                     <mat-select
                       formControlName="organizationType"
                       class="value-fs"
+                      test-id="organization-type"
                     >
                       <mat-option
                         *ngFor="let org of orgtype"
                         [value]="org.value"
+                        test-id="select-organization-type"
                       >
                         {{ org.viewValue }}
                       </mat-option>
@@ -157,6 +165,7 @@
                       type="text"
                       matInput
                       formControlName="orgAddress"
+                      test-id="organization-address"
                     />
                     <mat-error
                       class="pb-3"
@@ -181,6 +190,7 @@
                   class="btn-primary btn ms-2 btn-block"
                   [disabled]="registerForm.invalid"
                   (click)="onSubmit()"
+                  test-id="submit-organization"
                 >
                   Submit
                 </button>
