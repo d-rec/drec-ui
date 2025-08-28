@@ -201,7 +201,7 @@
                       *ngFor="let device of devices"
                       [value]="device.id"
                     >
-                      {{ device.serialNumber }} 
+                      {{ device.serialNumber }}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -285,7 +285,7 @@
                   [matTooltipPosition]="'above'"
                   class="action-icons edit-icon"
                   aria-label="Button that displays a tooltip when focused or hovered over"
-                  (click)="ExpoertPerDevice_csv(row)"
+                  (click)="ExportPerDeviceCSV(row)"
                   ><mat-icon class="mt-2 cursor-pointer"
                     >import_export</mat-icon
                   >
