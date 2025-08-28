@@ -125,13 +125,45 @@ export class DeviceService {
     return this.httpClient.patch<any>(this.url + 'device/' + id, data);
   }
 
-  getAllUngroupedDevices(orgId?: number): Observable<any> {
-    if (orgId) {
-      return this.httpClient.get(
-        this.url + 'device/ungrouped?orderBy=Capacity&orgId=' + orgId,
-      );
+  getAllUngroupedDevices(
+    searchData?: any,
+    orgId?: number,
+    pageNumber?: number,
+  ): Observable<any> {
+    let searchUrl = `${this.url}device/ungrouped?orderBy=Capacity`;
+    if (pageNumber) {
+      searchUrl += `&pagenumber=${pageNumber}`;
     }
-    return this.httpClient.get(this.url + 'device/ungrouped?orderBy=Capacity');
+    if (searchData) {
+      if (searchData.countryCode) {
+        searchUrl += `&country=${searchData.countryCode}`;
+      }
+      if (searchData.fuelCode) {
+        searchUrl += `&fuelCode=${searchData.fuelCode}`;
+      }
+      if (searchData.deviceTypeCode) {
+        searchUrl += `&deviceTypeCode=${searchData.deviceTypeCode}`;
+      }
+      if (searchData.capacity) {
+        searchUrl += `&capacity=${searchData.capacity}`;
+      }
+      if (searchData.offTaker) {
+        searchUrl += `&offTaker=${searchData.offTaker}`;
+      }
+      if (searchData.SDGBenefits) {
+        searchUrl += `&SDGBenefits=${searchData.SDGBenefits}`;
+      }
+      if (searchData.start_date) {
+        searchUrl += `&start_date=${new Date(searchData.start_date).toISOString()}`;
+      }
+      if (searchData.end_date) {
+        searchUrl += `&end_date=${new Date(searchData.end_date).toISOString()}`;
+      }
+    }
+    if (orgId) {
+      searchUrl += `&orgId=${orgId}`;
+    }
+    return this.httpClient.get(searchUrl);
   }
 
   GetUnreserveDevices(): Observable<any> {
