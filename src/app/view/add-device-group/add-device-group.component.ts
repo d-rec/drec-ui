@@ -206,7 +206,7 @@ export class AddDeviceGroupComponent {
       this.fetchDevicesForOrg(this.selectedOrganization.id, 1);
     }
   }
-  private fetchDevicesForOrg(orgId: number, page: number = 1) {
+  private fetchDevicesForOrg(orgId: number, page: number) {
     if (this.selectionType === SelectionType.Checkbox) {
       this.deviceservice
         .getfilterData(this.FilterForm.value, orgId, page)
@@ -219,25 +219,14 @@ export class AddDeviceGroupComponent {
           );
         });
     } else {
-      this.deviceservice.getAllUngroupedDevices(orgId).subscribe((data) => {
-        const devices = data.flatMap((group: any) => group.devices);
-        const pageSize = 10;
-        const totalCount = devices.length;
-        const totalPages = Math.ceil(totalCount / pageSize);
-        this.loading = false;
-        this.updateDeviceTable(devices, totalCount, totalPages);
-      });
+      this.deviceservice
+        .getAllUngroupedDevices(this.FilterForm.value, orgId, page)
+        .subscribe((data) => {
+          this.loading = false;
+          const devices = data.groups.flatMap((group: any) => group.devices);
+          this.updateDeviceTable(devices, data.totalCount, data.totalPages);
+        });
     }
-  }
-  ungroupedDevicesForOrg(orgId?: number) {
-    this.deviceservice.getAllUngroupedDevices(orgId).subscribe((data) => {
-      data = data.flatMap((group: any) => group.devices);
-      const pageSize = 10;
-      const totalCount = data.length;
-      const totalPages = Math.ceil(totalCount / pageSize);
-      this.loading = false;
-      this.updateDeviceTable(data, totalCount, totalPages);
-    });
   }
   applycountryFilter() {
     this.FilterForm.controls['countryname'];
