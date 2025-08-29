@@ -407,7 +407,7 @@ export class DeviceGroups implements OnInit {
     this.router.navigate(['/certificate'], {
       queryParams: {
         id: reservation_row.id,
-        group_uid: reservation_row.devicegroup_uid,
+        group_uid: reservation_row.deviceGroupUid,
       },
     });
   }
@@ -455,9 +455,9 @@ export class DeviceGroups implements OnInit {
       this.DisplayList(this.p);
     }
   }
-  ExpoertPerDevice_csv(row: any) {
+  ExportPerDeviceCSV(row: any) {
     this.certificateService
-      .getcertifiedlogPerDevice(row.devicegroup_uid)
+      .getcertifiedlogPerDevice(row.deviceGroupUid)
       .subscribe({
         next: (data: any) => {
           const blob = new Blob([data], { type: 'text/csv' });

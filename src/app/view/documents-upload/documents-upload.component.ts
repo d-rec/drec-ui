@@ -3,7 +3,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { OrganizationService } from '../../auth/services/organization.service';
 import { AuthbaseService } from '../../auth/authbase.service';
-import { DocumentType } from '.././../utils/drec.enum';
+import { DocumentType, OrganizationType } from '.././../utils/drec.enum';
 import { UserService } from '../../auth/services';
 import { map } from 'rxjs';
 
@@ -183,15 +183,21 @@ export class DocumentsUploadComponent {
           });
           this.toastrService.success('All documents uploaded successfully');
           this.isUploading = false;
-          this.authService
-            .ApiUserExportAccesskey('user/export-accesskey/', this.userApiId)
-            .subscribe({
-              next: (keydata: any) => {
-                this.downloadAccessKey(keydata);
-              },
-            });
-          this.toastrService.success('Access key downloaded successfully');
-          this.router.navigate(['/apiuser/permission/request/form']);
+          const user = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
+          if (user.role === OrganizationType.ApiUser) {
+            this.authService
+              .ApiUserExportAccesskey('user/export-accesskey/', this.userApiId)
+              .subscribe({
+                next: (keydata: any) => {
+                  this.downloadAccessKey(keydata);
+                },
+              });
+
+            this.toastrService.success('Access key downloaded successfully');
+            this.router.navigate(['/apiuser/permission/request/form']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
         },
         error: (err) => {
           if (err.error.errorType === 'DOCUMENT_ALREADY_UPLOADED') {

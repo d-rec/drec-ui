@@ -26,3 +26,4 @@ import '../support/commands/api-user-permission-setup';
 import '../support/commands/add-device-group';
 import '../support/commands/update-user';
 import '../support/commands/edit-api-user-permission';
+import '../support/commands/add-device-pathway';

@@ -1,0 +1,63 @@
+[
+    {
+      "action": "click",
+      "selector": "[test-id='device-groups']"
+    },
+    {
+      "action": "click",
+      "selector": "[test-id='add-device-pathway']"
+    },
+  
+    {
+      "action": "type",
+      "selector": "[test-id='reservation-name']",
+      "value": "test device pathway"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='target-capacity']",
+      "value": 2
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='reservation-start-date']",
+      "value": "11/30/2024, 12:48:18 PM"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='reservation-end-date']",
+      "value": "5/31/2025, 12:48:42 PM"
+    },
+    {
+      "action": "type",
+      "selector": "[test-id='reservation-expiry-date']",
+      "value": "5/31/2025, 12:50:30 PM"
+    },
+    {
+      "action": "select",
+      "selector": "mat-select[formControlName='frequency']",
+      "option": "[frequency-test-id]"
+    },
+    {
+      "action": "select",
+      "selector": "input[formControlName='countryname']",
+      "option": "[country-test-id]"
+    },
+    {
+      "action": "click",
+      "selector": "[test-id='filter-button']"
+    },
+    {
+      "action": "click",
+      "selector": "[test-id='select-device']"
+    },
+    {
+      "action": "click",
+      "selector": "[test-id='submit-device-group']"
+    },
+    {
+      "action": "click",
+      "selector": "[test-id='continue-button']"
+    }
+  ]
+  
