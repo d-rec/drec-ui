@@ -98,7 +98,7 @@ export class DeviceGroupService {
       searchUrl += `&name=${searchData.name}`;
     }
     if (!isEmpty(searchData.deviceIds) && Array.isArray(searchData.deviceIds)) {
-      searchData.deviceIds.forEach((id: any) => {
+      searchData.deviceIds.forEach((id: string) => {
         searchUrl += `&deviceIds=${id}`;
       });
     }
