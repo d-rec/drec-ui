@@ -346,8 +346,14 @@ export class DeviceGroups implements OnInit {
           .getReservationDataByadmin(this.FilterForm.value, page)
           .subscribe((data) => {
             this.showdevicesinfo = false;
-
             this.data = data.groupedData;
+            this.devices = this.data.flatMap((group: { devices: any[] }) =>
+              group.devices.map((device) => ({
+                id: device.id.toString(),
+                serialNumber: device.serialNumber,
+                projectName: device.projectName,
+              })),
+            );
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
 
