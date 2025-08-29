@@ -401,7 +401,7 @@ export class DeviceGroups implements OnInit {
     this.router.navigate(['/certificate'], {
       queryParams: {
         id: reservation_row.id,
-        group_uid: reservation_row.devicegroup_uid,
+        group_uid: reservation_row.deviceGroupUid,
       },
     });
   }
