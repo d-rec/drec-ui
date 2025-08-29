@@ -449,9 +449,9 @@ export class DeviceGroups implements OnInit {
       this.DisplayList(this.p);
     }
   }
-  ExpoertPerDevice_csv(row: any) {
+  ExportPerDeviceCSV(row: any) {
     this.certificateService
-      .getcertifiedlogPerDevice(row.devicegroup_uid)
+      .getcertifiedlogPerDevice(row.deviceGroupUid)
       .subscribe({
         next: (data: any) => {
           const blob = new Blob([data], { type: 'text/csv' });
