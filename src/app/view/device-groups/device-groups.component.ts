@@ -13,7 +13,12 @@ import { Router } from '@angular/router';
 import { Observable, Subscription, debounceTime } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { ToastrService } from 'ngx-toastr';
-import { fulecodeType, devicecodeType, CountryInfo } from '../../models';
+import {
+  fulecodeType,
+  devicecodeType,
+  CountryInfo,
+  Device,
+} from '../../models';
 
 @Component({
   selector: 'app-device-groups',
@@ -346,8 +351,14 @@ export class DeviceGroups implements OnInit {
           .getReservationDataByadmin(this.FilterForm.value, page)
           .subscribe((data) => {
             this.showdevicesinfo = false;
-
             this.data = data.groupedData;
+            this.devices = this.data.flatMap((group: { devices: Device[] }) =>
+              group.devices.map((device) => ({
+                id: device.id.toString(),
+                serialNumber: device.serialNumber,
+                projectName: device.projectName,
+              })),
+            );
             this.isLoadingResults = false;
             this.dataSource = new MatTableDataSource(this.data);
 

@@ -97,6 +97,11 @@ export class DeviceGroupService {
     if (!isEmpty(searchData.name)) {
       searchUrl += `&name=${searchData.name}`;
     }
+    if (!isEmpty(searchData.deviceIds) && Array.isArray(searchData.deviceIds)) {
+      searchData.deviceIds.forEach((id: string) => {
+        searchUrl += `&deviceIds=${id}`;
+      });
+    }
     if (!isEmpty(searchData.countryCode)) {
       searchUrl += `&country=${searchData.countryCode}`;
     }
