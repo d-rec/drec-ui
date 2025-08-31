@@ -126,14 +126,11 @@ export class DeviceService {
     data: any,
     serialNumberChanged: boolean,
   ): Observable<any> {
-    return this.httpClient.patch<any>(
-      this.url +
-        'device/' +
-        id +
-        '?serialNumberChanged=' +
-        (serialNumberChanged ? 'true' : 'false'),
-      data,
-    );
+    const params = new URLSearchParams({
+      serialNumberChanged: serialNumberChanged ? 'true' : 'false',
+    });
+    const url = `${this.url}device/${id}?${params.toString()}`;
+    return this.httpClient.patch<any>(url, data);
   }
 
   getAllUngroupedDevices(
