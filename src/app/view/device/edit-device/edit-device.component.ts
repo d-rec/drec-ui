@@ -62,6 +62,7 @@ export class EditDeviceComponent implements OnInit {
   frombulk: boolean = false;
   filteredCountryList: Observable<any[]>;
   organizationId: any;
+  serialNumberChanged: boolean = false;
   offtaker = [
     'School',
     'Education',
@@ -229,11 +230,13 @@ export class EditDeviceComponent implements OnInit {
   editExternalid() {
     this.shownewExternalidInput = true;
     this.showcancelicon = true;
+    this.serialNumberChanged = true;
   }
   hideeditExternalid() {
     this.shownewExternalidInput = false;
     this.updateDeviceForm.value.serialNumber = this.serialNumber;
     this.showcancelicon = false;
+    this.serialNumberChanged = false;
   }
   addmore() {
     this.addmoredetals = true;
@@ -307,7 +310,11 @@ export class EditDeviceComponent implements OnInit {
     );
     this.updateDeviceForm.value['countryCode'] = selectedCountry?.alpha3;
     this.deviceService
-      .Patchdevices(this.externalid, this.updateDeviceForm.value)
+      .Patchdevices(
+        this.externalid,
+        this.updateDeviceForm.value,
+        this.serialNumberChanged,
+      )
       .subscribe({
         next: (data: any) => {
           this.toastrService.success(

@@ -121,8 +121,19 @@ export class DeviceService {
   public create(data: FormData): Observable<any> {
     return this.httpClient.post<any>(this.url + 'device', data);
   }
-  public Patchdevices(id: any, data: any): Observable<any> {
-    return this.httpClient.patch<any>(this.url + 'device/' + id, data);
+  public Patchdevices(
+    id: any,
+    data: any,
+    serialNumberChanged: boolean,
+  ): Observable<any> {
+    return this.httpClient.patch<any>(
+      this.url +
+        'device/' +
+        id +
+        '?serialNumberChanged=' +
+        (serialNumberChanged ? 'true' : 'false'),
+      data,
+    );
   }
 
   getAllUngroupedDevices(
