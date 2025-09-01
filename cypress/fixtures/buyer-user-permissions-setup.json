@@ -24,7 +24,7 @@
   {
     "action": "check-multiple",
     "selector": "[test-id='select-permission']",
-    "contains": "BUYER_RESERVATION_MANAGEMENT_CRUDL"
+    "contains": "DEVICE_GROUPING_MANAGEMENT_CRUDL"
   },
   {
     "action": "check",

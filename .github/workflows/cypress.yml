@@ -42,7 +42,7 @@ jobs:
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_ENDPOINT: http://localhost:4566
-      S3_BUCKET: mock-bucket
+      AWS_S3_BUCKET: mock-bucket
       # ------------------------------------------
     steps:
       - name: Checkout Repository
@@ -76,8 +76,8 @@ jobs:
           FILE_PATH="file.service.ts"
           echo "Patching ${FILE_PATH} for LocalStack compatibility..."
 
-          # Replace 'bucketname' with 'S3_BUCKET' for all occurrences
-          sed -i 's/process.env.bucketname/process.env.S3_BUCKET/g' "$FILE_PATH"
+          # Replace 'bucketname' with 'AWS_S3_BUCKET' for all occurrences
+          sed -i 's/process.env.bucketname/process.env.AWS_S3_BUCKET/g' "$FILE_PATH"
 
           # Replace specific access key and secret key environment variable names
           sed -i 's/accessKeyId: process.env.accessKeyId/accessKeyId: process.env.AWS_ACCESS_KEY_ID/g' "$FILE_PATH"
@@ -90,7 +90,7 @@ jobs:
 
           echo "FileService patching complete. Verifying changes:"
           # Print relevant lines to logs to confirm changes
-          cat "$FILE_PATH" | grep -E 'AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_REGION|AWS_ENDPOINT|S3_BUCKET|s3ForcePathStyle' || true
+          cat "$FILE_PATH" | grep -E 'AWS_ACCESS_KEY_ID|AWS_SECRET_ACCESS_KEY|AWS_REGION|AWS_ENDPOINT|AWS_S3_BUCKET|s3ForcePathStyle' || true
           echo "End of FileService patch verification."
 
       # --- LocalStack Setup Steps ---
