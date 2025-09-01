@@ -8,5 +8,5 @@ import { SelectionType } from 'src/app/utils/drec.enum';
 })
 export class SingleDevicePathwayComponent {
   SelectionType = SelectionType;
-  singleDeviceHeader = 'Make a Single Device pathway';
+  singleDeviceHeader = 'Add Single Device Pathway';
 }

@@ -121,8 +121,16 @@ export class DeviceService {
   public create(data: FormData): Observable<any> {
     return this.httpClient.post<any>(this.url + 'device', data);
   }
-  public Patchdevices(id: any, data: any): Observable<any> {
-    return this.httpClient.patch<any>(this.url + 'device/' + id, data);
+  public update(
+    id: any,
+    data: any,
+    serialNumberChanged: boolean,
+  ): Observable<any> {
+    const params = new URLSearchParams({
+      serialNumberChanged: serialNumberChanged ? 'true' : 'false',
+    });
+    const url = `${this.url}device/${id}?${params.toString()}`;
+    return this.httpClient.patch<any>(url, data);
   }
 
   getAllUngroupedDevices(

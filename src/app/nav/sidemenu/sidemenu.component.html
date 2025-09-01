@@ -383,7 +383,7 @@
             test-id="add-reservation"
             *ngIf="loginuser.role !== 'Buyer'"
           >
-            <span test-id="add-device-pathway">Add  Device Pathway</span>
+            <span test-id="add-device-pathway">Add Single Device Pathway</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
@@ -432,10 +432,11 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <mat-expansion-panel *ngIf="loginuser.role === 'Admin'" [class.mat-elevation-z0]="true">
-        <mat-expansion-panel-header
-          class="mdc-button"
-        >
+      <mat-expansion-panel
+        *ngIf="loginuser.role === 'Admin'"
+        [class.mat-elevation-z0]="true"
+      >
+        <mat-expansion-panel-header class="mdc-button">
           <mat-icon>badge</mat-icon>
           Evident Issuers
         </mat-expansion-panel-header>
@@ -453,7 +454,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/issuer/all-issuers"
-            >
+          >
             <span>All Issuers</span>
           </a>
         </mat-nav-list>
