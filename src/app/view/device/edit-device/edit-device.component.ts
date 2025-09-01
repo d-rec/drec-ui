@@ -310,7 +310,7 @@ export class EditDeviceComponent implements OnInit {
     );
     this.updateDeviceForm.value['countryCode'] = selectedCountry?.alpha3;
     this.deviceService
-      .Patchdevices(
+      .update(
         this.externalid,
         this.updateDeviceForm.value,
         this.serialNumberChanged,
