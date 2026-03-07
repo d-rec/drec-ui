@@ -1,27 +1,113 @@
-# My Angular Material
+# D-REC UI
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.0.3.
+The frontend application for the [D-REC Initiative](https://drecs.org/) (Distributed Renewable Energy Certificates). D-REC enables device registration, meter data management, and renewable energy certificate issuance for distributed energy resources. Built as part of the [Energy Web](https://www.energyweb.org/) / [EnAccess](https://enaccess.org/) ecosystem. The backend lives at [drec-origin](https://github.com/d-rec/drec-origin).
 
-## Development server
+## Tech Stack
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- Angular 15 / Angular Material
+- Bootstrap 5
+- TypeScript 4.8 / SCSS
+- Ethers.js / Web3
+- Cypress (E2E) / Karma + Jasmine (unit)
+- Sentry (error monitoring)
 
-## Code scaffolding
+## Prerequisites
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- **Node.js 20** (LTS/Iron)
+- **npm**
+- **Docker** (optional, for containerized builds)
 
-## Build
+## Getting Started
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+```bash
+git clone https://github.com/d-rec/drec-ui.git
+cd drec-ui
+```
 
-## Running unit tests
+```bash
+npm install --legacy-peer-deps
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```bash
+npm start
+```
 
-## Running end-to-end tests
+> **Note:** `--legacy-peer-deps` is required due to peer dependency conflicts. The dev server runs at `http://localhost:4200/` and expects the backend API at `http://localhost:3040/api/`.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Environment Configuration
 
-## Further help
+| Config | File | API URL | Sentry Env |
+|---|---|---|---|
+| `development` | `environment.ts` | `http://localhost:3040/api/` | `development` |
+| `dev` | `environment.dev.ts` | `https://dev-api.drecs.org/api/` | `development` |
+| `stage` | `environment.stage.ts` | `https://stage-api.drecs.org/api/` | `staging` |
+| `prod` | `environment.prod.ts` | `https://api.drecs.org/api/` | `production` |
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+Build for a specific environment:
+
+```bash
+npm run build -- --configuration=<env>
+```
+
+## Available Scripts
+
+### Development
+
+| Command | Description |
+|---|---|
+| `npm start` | Start dev server (`http://localhost:4200/`) |
+| `npm run watch` | Build in watch mode (development config) |
+
+### Build
+
+| Command | Description |
+|---|---|
+| `npm run build -- --configuration=<env>` | Production build for the given environment |
+| `npm run sentry:sourcemaps` | Inject and upload source maps to Sentry |
+
+### Code Quality
+
+| Command | Description |
+|---|---|
+| `npm run lint` | Lint source files with ESLint |
+| `npm run lint:error` | Lint showing only errors (no warnings) |
+| `npm run lint:fix` | Auto-fix lint issues |
+| `npm run prettier` | Check formatting with Prettier |
+| `npm run prettier:fix` | Auto-fix formatting |
+
+### Testing
+
+| Command | Description |
+|---|---|
+| `npm test` | Run unit tests (Karma + Jasmine) |
+| `npx cypress run` | Run E2E tests (requires backend + frontend running) |
+
+### Releases
+
+| Command | Description |
+|---|---|
+| `npm run release` | Create a release (standard-version) |
+| `npm run release:patch` | Patch release |
+| `npm run release:minor` | Minor release |
+| `npm run release:major` | Major release |
+
+## Docker
+
+The project uses a multi-stage Docker build: `node:20-alpine` compiles the Angular app, then the output is served by `nginx:alpine`.
+
+```bash
+# Build the image
+docker build --build-arg build_environment=prod -t drec-ui .
+
+# Run the container
+docker run -p 80:80 drec-ui
+```
+
+## Testing
+
+- **Unit tests:** `npm test` runs Karma with Jasmine in a headless Chrome browser.
+- **E2E tests:** `npx cypress run` executes Cypress specs located in `cypress/e2e/`. Both the backend and frontend must be running before executing E2E tests.
+
+## Contributing
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. This project follows [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
