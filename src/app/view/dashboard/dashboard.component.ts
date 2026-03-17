@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { OrganizationService } from '../../auth/services';
 import { RoleModeService } from '../../auth/services/role-mode.service';
+import { getOrgTypeName } from '../../utils/role-helper';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,6 +13,7 @@ export class DashboardComponent implements OnInit {
   apiUserOrganizations: any[] = [];
   apiUserOrgsError: string | null = null;
   loginuser: any;
+  getOrgTypeName = getOrgTypeName;
 
   get isApiMode(): boolean {
     return this.roleModeService.currentMode === 'api';

@@ -22,12 +22,49 @@ $example-sidenav-rgba-bg: rgba(247, 247, 248, 0.5);
   z-index: 0;
 }
 
+:host {
+  --sidenav-width: 200px;
+}
+
 .example-sidenav {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 200px;
   background: $example-sidenav-rgba-bg;
+  width: var(--sidenav-width) !important;
+}
+
+.resize-handle {
+  position: fixed;
+  top: 46px;
+  bottom: 38px;
+  left: calc(var(--sidenav-width) - 3px);
+  width: 6px;
+  cursor: col-resize;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover, &:active {
+    background-color: $primary;
+    opacity: 0.5;
+  }
+}
+
+.resize-grip {
+  width: 4px;
+  height: 32px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    $gray 0px,
+    $gray 3px,
+    transparent 3px,
+    transparent 6px
+  );
+  opacity: 0.4;
+  pointer-events: none;
 }
 
 .menu-button {
