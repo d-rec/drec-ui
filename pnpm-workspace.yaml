@@ -1,0 +1,7 @@
+onlyBuiltDependencies:
+  - '@sentry/cli'
+  - cypress
+  - esbuild
+  - keccak
+  - nice-napi
+  - secp256k1

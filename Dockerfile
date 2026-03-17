@@ -1,6 +1,6 @@
 FROM node:20-alpine AS build
 ARG build_environment
-ENV BUILD_ENVIRONMENT $build_environment
+ENV BUILD_ENVIRONMENT=$build_environment
 
 RUN apk add --no-cache bash
 

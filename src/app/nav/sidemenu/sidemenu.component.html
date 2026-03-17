@@ -46,7 +46,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="{{ adduserorg_url }}"
-            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
+            *ngIf="loginuser.role === 'Admin' || isApiMode"
             test-id="add-organization"
           >
             <span>Add Organizations</span>
@@ -56,7 +56,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/admin/All_organization"
-            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'ApiUser'"
+            *ngIf="loginuser.role === 'Admin' || isApiMode"
           >
             <span>All Organizations</span>
           </a>
@@ -312,7 +312,7 @@
       </mat-expansion-panel>
       <mat-expansion-panel
         [class.mat-elevation-z0]="true"
-        *ngIf="loginuser.role === 'ApiUser'"
+        *ngIf="isApiMode"
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
@@ -347,7 +347,7 @@
         [class.mat-elevation-z0]="true"
         *ngIf="
           loginuser.role === 'OrganizationAdmin' ||
-          loginuser.role === 'ApiUser' ||
+          isApiMode ||
           loginuser.role === 'Buyer'
         "
       >

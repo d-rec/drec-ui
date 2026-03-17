@@ -5,6 +5,7 @@ import { UserService, InvitationService } from '../../auth/services';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { decodeJwtToken, storeUserSession } from '../../utils/token-utils';
+import { RoleModeService } from '../../auth/services/role-mode.service';
 
 @Component({
   selector: 'app-login',
@@ -35,6 +36,7 @@ export class LoginComponent implements OnInit {
     private userService: UserService,
     private inviteservice: InvitationService,
     private activatedRoute: ActivatedRoute,
+    private roleModeService: RoleModeService,
   ) {}
 
   ngOnInit() {
@@ -54,6 +56,8 @@ export class LoginComponent implements OnInit {
           this.userService.userProfile().subscribe({
             next: (userData) => {
               storeUserSession(data['accessToken'], userData);
+
+              this.roleModeService.initFromRole(jwtObj.role);
 
               if (
                 userData.status != 'Pending' &&

@@ -11,6 +11,7 @@ import {
   getPhoneNumberErrorMessage,
 } from '../../shared/validators/phone-validators';
 import { decodeJwtToken, storeUserSession } from '../../utils/token-utils';
+import { RoleModeService } from '../../auth/services/role-mode.service';
 
 @Component({
   selector: 'app-register',
@@ -42,6 +43,7 @@ export class RegisterComponent implements OnInit {
     private toastrService: ToastrService,
     private router: Router,
     private userService: UserService,
+    private roleModeService: RoleModeService,
   ) {}
 
   ngOnInit() {
@@ -187,6 +189,8 @@ export class RegisterComponent implements OnInit {
       next: (data) => {
         const jwtObj = this.handleJwtAuthentication(data['accessToken']);
         if (!jwtObj) return;
+
+        this.roleModeService.initFromRole(jwtObj.role);
 
         if (isApiUser) {
           this.handleApiUserLogin();

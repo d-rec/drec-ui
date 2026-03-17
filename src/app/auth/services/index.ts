@@ -9,3 +9,4 @@ export * from './blockchain-drec.service';
 export * from './admin.service';
 export * from './invitation.service';
 export * from './ACL_User_permission.service';
+export * from './role-mode.service';
