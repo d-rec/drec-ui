@@ -192,7 +192,7 @@ export class AddDevicesComponent {
     } else if (this.user.role === OrganizationType.ApiUser) {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.organizationList = data.organizations.filter(
-          (org: OrganizationInformation) => org.organizationType !== 'Buyer',
+          (org: OrganizationInformation) => org.organizationType === 'Developer',
         );
         this.filteredOrganizationList = this.organizationList;
       });
@@ -540,10 +540,10 @@ export class AddDevicesComponent {
   }
 
   onSubmit() {
-    if (this.myform.valid) {
-      this.openPopupDialog();
-      this.isSubmitting = true;
-    }
+    this.myform.markAllAsTouched();
+    if (!this.formValid) return;
+    this.openPopupDialog();
+    this.isSubmitting = true;
   }
 
   submitForm() {

@@ -69,6 +69,7 @@
                         <mat-option [value]="DataSourceTypes.DataLogger">Data Logger</mat-option>
                         <mat-option [value]="DataSourceTypes.Other">Other</mat-option>
                       </mat-select>
+                      <mat-error>Data source is required</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('dataSource')?.value === DataSourceTypes.Other">
@@ -101,31 +102,30 @@
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize" test-id="fuel-code">Fuel Code</mat-label>
-
                       <mat-select formControlName="fuelCode">
                         <mat-option *ngFor="let code of fuellist" [value]="code.code" test-id="fuel-option">
                           {{ code.name }}
                         </mat-option>
                       </mat-select>
+                      <mat-error>Fuel code is required</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize" test-id="device-type">Device Type Code</mat-label>
-
                       <mat-select formControlName="deviceTypeCode">
                         <mat-option *ngFor="let code of devicetypelist" [value]="code.code" test-id="type-code-option">
                           {{ code.name }}
                         </mat-option>
                       </mat-select>
+                      <mat-error>Device type is required</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label test-id="capacity">Capacity(kW)</mat-label>
                       <input matInput type="number" formControlName="capacity" [min]="1" autocomplete="off" />
-                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                      <!-- <mat-hint>Hint</mat-hint> -->
+                      <mat-error>Capacity is required</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
@@ -138,6 +138,7 @@
                         [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
                         [disableMinute]="false" [hideTime]="false">
                       </ngx-mat-datetime-picker>
+                      <mat-error>Commissioning date is required</mat-error>
                     </mat-form-field>
                   </div>
                 </div>
@@ -149,8 +150,7 @@
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize" test-id="address">Address</mat-label>
                       <input autocomplete="off" matInput formControlName="address" />
-                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                      <!-- <mat-hint>Hint</mat-hint> -->
+                      <mat-error>Address is required</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
@@ -318,12 +318,18 @@
                       <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name">
+                      <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('FORM_SF_02')?.value">
                         {{ deviceForms.at(i).get('FORM_SF_02')?.value ?
                         shortenFileName(deviceForms.at(i).get('FORM_SF_02')?.value.name) :
                         'No file chosen' }}
                       </span>
-                      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
+                      <span class="badge px-3 py-2"
+                        [class.bg-success]="deviceForms.at(i).get('FORM_SF_02')?.value"
+                        [class.text-white]="deviceForms.at(i).get('FORM_SF_02')?.value"
+                        [class.bg-danger]="!deviceForms.at(i).get('FORM_SF_02')?.value"
+                        [class.text-white]="!deviceForms.at(i).get('FORM_SF_02')?.value">
+                        {{ deviceForms.at(i).get('FORM_SF_02')?.value ? '✓ Uploaded' : 'Missing' }}
+                      </span>
                     </div>
                   </div>
 
@@ -335,11 +341,17 @@
                       <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name">
+                      <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('SF_02C')?.value">
                         {{ deviceForms.at(i).get('SF_02C')?.value ?
                         shortenFileName(deviceForms.at(i).get('SF_02C')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
+                      <span class="badge px-3 py-2"
+                        [class.bg-success]="deviceForms.at(i).get('SF_02C')?.value"
+                        [class.text-white]="deviceForms.at(i).get('SF_02C')?.value"
+                        [class.bg-danger]="!deviceForms.at(i).get('SF_02C')?.value"
+                        [class.text-white]="!deviceForms.at(i).get('SF_02C')?.value">
+                        {{ deviceForms.at(i).get('SF_02C')?.value ? '✓ Uploaded' : 'Missing' }}
+                      </span>
                     </div>
                   </div>
 
@@ -352,11 +364,17 @@
                       <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name">
+                      <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('METERING_EVIDENCE')?.value">
                         {{ deviceForms.at(i).get('METERING_EVIDENCE')?.value ?
                         shortenFileName(deviceForms.at(i).get('METERING_EVIDENCE')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
+                      <span class="badge px-3 py-2"
+                        [class.bg-success]="deviceForms.at(i).get('METERING_EVIDENCE')?.value"
+                        [class.text-white]="deviceForms.at(i).get('METERING_EVIDENCE')?.value"
+                        [class.bg-danger]="!deviceForms.at(i).get('METERING_EVIDENCE')?.value"
+                        [class.text-white]="!deviceForms.at(i).get('METERING_EVIDENCE')?.value">
+                        {{ deviceForms.at(i).get('METERING_EVIDENCE')?.value ? '✓ Uploaded' : 'Missing' }}
+                      </span>
                     </div>
                   </div>
 
@@ -369,12 +387,17 @@
                       <button type="button" (click)="diagramFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name">
+                      <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
                         {{ deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value ?
-                        shortenFileName(deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value.name) : 'No file chosen'
-                        }}
+                        shortenFileName(deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
+                      <span class="badge px-3 py-2"
+                        [class.bg-success]="deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value"
+                        [class.text-white]="deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value"
+                        [class.bg-danger]="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value"
+                        [class.text-white]="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
+                        {{ deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value ? '✓ Uploaded' : 'Missing' }}
+                      </span>
                     </div>
                   </div>
 
@@ -387,11 +410,17 @@
                       <button type="button" (click)="photosFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name">
+                      <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value">
                         {{ deviceForms.at(i).get('PROJECT_PHOTOS')?.value ?
                         shortenFileName(deviceForms.at(i).get('PROJECT_PHOTOS')?.value.name) : 'No file chosen' }}
                       </span>
-                      <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">Required</span>
+                      <span class="badge px-3 py-2"
+                        [class.bg-success]="deviceForms.at(i).get('PROJECT_PHOTOS')?.value"
+                        [class.text-white]="deviceForms.at(i).get('PROJECT_PHOTOS')?.value"
+                        [class.bg-danger]="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value"
+                        [class.text-white]="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value">
+                        {{ deviceForms.at(i).get('PROJECT_PHOTOS')?.value ? '✓ Uploaded' : 'Missing' }}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -404,8 +433,12 @@
       </mat-card-content>
       <mat-card-footer>
         <div class="example-container mt-3">
-          <div class="col-12 d-flex justify-content-end">
-            <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="!formValid || isSubmitting"
+          <div class="col-12 d-flex justify-content-end align-items-center gap-3">
+            <span *ngIf="!formValid && !isSubmitting" class="text-danger small">
+              <mat-icon style="font-size:16px;vertical-align:middle">error_outline</mat-icon>
+              {{ !myform.valid ? 'Please fill in all required fields.' : 'Please upload all required documents.' }}
+            </span>
+            <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="isSubmitting"
               (click)="onSubmit()" test-id="submit-device">
               {{ submitButtonText }}
             </button>
