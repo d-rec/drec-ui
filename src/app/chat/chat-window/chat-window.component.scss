@@ -1,0 +1,258 @@
+.chat-window {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  width: 360px;
+  height: 520px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  background: #fff;
+  overflow: hidden;
+  transition: height 0.2s ease;
+
+  &.minimized {
+    height: 52px;
+  }
+}
+
+.chat-header {
+  background: #f2be1a;
+  color: #000;
+  border-radius: 16px 16px 0 0;
+  padding: 8px 8px 8px 4px;
+  cursor: grab;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+
+  .back-btn {
+    color: #000;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    mat-icon { font-size: 18px; width: 18px; height: 18px; }
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  .partner-name {
+    font-family: Poppins, sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+  }
+
+  .header-btn {
+    color: #000;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.conversation-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+
+  .conversation-list-title {
+    font-family: Poppins, sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    padding: 4px 16px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .conversation-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-family: Poppins, sans-serif;
+    font-size: 14px;
+    transition: background 0.15s;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+
+    .conv-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: #888;
+    }
+  }
+
+  .no-conversations {
+    padding: 20px 16px;
+    text-align: center;
+    font-family: Poppins, sans-serif;
+    font-size: 13px;
+    color: #999;
+  }
+}
+
+.new-conversation-form {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .email-input {
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    font-family: Poppins, sans-serif;
+    font-size: 14px;
+    outline: none;
+
+    &:focus {
+      border-color: #f2be1a;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 8px;
+
+    .start-btn {
+      background: #f2be1a;
+      color: #000;
+      font-weight: 600;
+      border-radius: 8px;
+      flex: 1;
+    }
+
+    .cancel-btn {
+      color: #666;
+      flex: 1;
+    }
+  }
+}
+
+.new-chat-bar {
+  padding: 8px 12px;
+  border-top: 1px solid #e6e6e6;
+
+  .new-chat-btn {
+    width: 100%;
+    color: #555;
+    font-family: Poppins, sans-serif;
+    font-size: 13px;
+  }
+}
+
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .no-messages {
+    text-align: center;
+    color: #aaa;
+    font-family: Poppins, sans-serif;
+    font-size: 13px;
+    margin-top: 20px;
+  }
+}
+
+.bubble {
+  max-width: 72%;
+  padding: 8px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  font-family: Poppins, sans-serif;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+
+  &.own {
+    align-self: flex-end;
+    background: #f2be1a;
+    color: #000;
+    border-bottom-right-radius: 4px;
+  }
+
+  &:not(.own) {
+    align-self: flex-start;
+    background: #e5e5ea;
+    color: #000;
+    border-bottom-left-radius: 4px;
+  }
+
+  .sender-name {
+    font-size: 11px;
+    font-weight: 600;
+    opacity: 0.7;
+    margin-bottom: 2px;
+  }
+
+  .text {
+    word-break: break-word;
+  }
+
+  .time {
+    font-size: 10px;
+    opacity: 0.5;
+    margin-top: 2px;
+    text-align: right;
+  }
+}
+
+.input-bar {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-top: 1px solid #e6e6e6;
+  gap: 8px;
+  flex-shrink: 0;
+
+  .message-input {
+    flex: 1;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    padding: 8px 14px;
+    font-family: Poppins, sans-serif;
+    font-size: 14px;
+    outline: none;
+    background: #f9f9f9;
+
+    &:focus {
+      border-color: #f2be1a;
+      background: #fff;
+    }
+  }
+
+  .send-btn {
+    color: #f2be1a;
+    flex-shrink: 0;
+  }
+}

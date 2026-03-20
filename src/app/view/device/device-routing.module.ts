@@ -15,6 +15,13 @@ const routes: Routes = [
     path: 'certifiedin_reservation',
     component: CertifiedDevicesDeveloperComponent,
   },
+  {
+    path: 'reviews',
+    loadChildren: () =>
+      import('../device-reviews/device-reviews.module').then(
+        (m) => m.DeviceReviewsModule,
+      ),
+  },
 ];
 
 @NgModule({

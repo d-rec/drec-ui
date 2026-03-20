@@ -1,0 +1,14 @@
+<ng-container *ngIf="url$ | async as url">
+  <app-ds-floating-window
+    title="Picture"
+    [initX]="200" [initY]="100"
+    [initWidth]="600" [initHeight]="480"
+    [zIndex]="zIndex"
+    (bringToFront)="bringToFront.emit()"
+    (close)="close()"
+  >
+    <div class="picw">
+      <img class="picw__img" [src]="url" alt="Device picture" />
+    </div>
+  </app-ds-floating-window>
+</ng-container>

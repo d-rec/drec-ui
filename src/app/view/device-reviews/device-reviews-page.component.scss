@@ -1,0 +1,48 @@
+.ds-page {
+  height: calc(100vh - 54px);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.ds-tabs {
+  display: flex;
+  gap: 4px;
+  background: #e2e8f0;
+  flex-shrink: 0;
+  padding: 8px 12px 0;
+  align-items: flex-end;
+}
+
+.ds-tab {
+  padding: 10px 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  background: #eef2f7;
+  border: 1px solid #cbd5e1;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  position: relative;
+
+  &:hover {
+    color: #1e293b;
+    background: #f1f5f9;
+  }
+
+  &--active {
+    color: #1e293b;
+    background: #ffffff;
+    border-color: #cbd5e1;
+    z-index: 1;
+  }
+}
+
+.ds-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}

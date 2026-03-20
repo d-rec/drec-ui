@@ -1,0 +1,426 @@
+import {
+  Component, Input, Output, EventEmitter,
+  OnInit, OnDestroy,
+} from '@angular/core';
+import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Asset, AssetStatus } from '../asset.model';
+import { AssetService } from '../asset.service';
+import { ChatService } from '../../../chat/chat.service';
+
+@Component({
+  selector: 'app-ds-documents-window',
+  templateUrl: './documents-window.component.html',
+  styleUrls: ['./documents-window.component.scss'],
+})
+export class DocumentsWindowComponent implements OnInit, OnDestroy {
+  @Input() zIndex = 300;
+  @Output() bringToFront = new EventEmitter<void>();
+
+  initWidth = Math.round(window.innerWidth * 2 / 3);
+  initHeight = Math.round(window.innerHeight * 2 / 3);
+
+  readonly statusOptions: AssetStatus[] = ['pending', 'approved', 'rejected'];
+
+  // filters
+  readonly searchTerm$ = new BehaviorSubject('');
+  get searchTerm(): string { return this.searchTerm$.value; }
+  set searchTerm(v: string) { this.searchTerm$.next(v); }
+
+  statusFilter: Record<AssetStatus, boolean> = { pending: true, approved: true, rejected: true };
+  readonly statusFilter$ = new BehaviorSubject(this.statusFilter);
+
+  searchMatchIds: string[] = [];
+  searchIndex = -1;
+
+  // sort state
+  sortColumn: 'serial' | 'modifiedDate' | 'status' | 'projectName' = 'projectName';
+  sortDir: 1 | -1 = 1;
+  readonly sort$ = new BehaviorSubject<{ col: string; dir: number }>({ col: 'projectName', dir: 1 });
+
+  sortBy(col: 'serial' | 'modifiedDate' | 'status' | 'projectName'): void {
+    if (this.sortColumn === col) {
+      this.sortDir = this.sortDir === 1 ? -1 : 1;
+    } else {
+      this.sortColumn = col;
+      this.sortDir = 1;
+    }
+    this.sort$.next({ col: this.sortColumn, dir: this.sortDir });
+  }
+
+  private sortAssets(assets: Asset[]): Asset[] {
+    return [...assets].sort((a, b) => {
+      let av: any, bv: any;
+      if (this.sortColumn === 'serial') { av = a.serial; bv = b.serial; }
+      else if (this.sortColumn === 'modifiedDate') { av = a.modifiedDate?.getTime() ?? 0; bv = b.modifiedDate?.getTime() ?? 0; }
+      else if (this.sortColumn === 'projectName') { av = a.projectName.toLowerCase(); bv = b.projectName.toLowerCase(); }
+      else { av = a.status; bv = b.status; }
+      if (av < bv) return -this.sortDir;
+      if (av > bv) return this.sortDir;
+      return 0;
+    });
+  }
+
+  // expand/collapse state per asset
+  expanded: Record<string, boolean> = {};
+  sectionOpen: Record<string, Record<'codProof' | 'sld' | 'sf02' | 'sf02c' | 'meteringEvidence' | 'pictures', boolean>> = {};
+
+  // document reviewed state (keyed by URL)
+  reviewed: Record<string, boolean> = {};
+
+  // detail form
+  detailForm!: FormGroup;
+  editingId: string | null = null;
+  showApproveModal = false;
+
+  // resizable detail panel
+  detailHeight = 280;
+  private resizing = false;
+  private resizeStartY = 0;
+  private resizeStartH = 0;
+
+  private sub!: Subscription;
+
+  readonly filtered$ = combineLatest([this.svc.assets$, this.svc.selectedId$, this.searchTerm$, this.statusFilter$, this.sort$]).pipe(
+    map(([assets, selId, searchTerm, statusFilter]) => ({
+      assets: this.sortAssets(this.applyFilter(assets, searchTerm, statusFilter)),
+      selId,
+      searchTerm,
+    }))
+  );
+
+  constructor(
+    readonly svc: AssetService,
+    readonly chatService: ChatService,
+    private fb: FormBuilder,
+    private sanitizer: DomSanitizer,
+  ) {}
+
+  trustUrl(url: string): SafeUrl {
+    return this.sanitizer.bypassSecurityTrustUrl(url);
+  }
+
+  hl(value: string, term: string): string | SafeHtml {
+    const safe = value.replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c] ?? c));
+    if (!term.trim()) return safe;
+    const t = term.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return this.sanitizer.bypassSecurityTrustHtml(
+      safe.replace(new RegExp(t, 'gi'), m => `<mark class="search-highlight">${m}</mark>`)
+    );
+  }
+
+  ngOnInit(): void {
+    this.detailForm = this.fb.group({
+      lat:           [''],
+      long:          [''],
+      serial:        [''],
+      capacity:      [''],
+      acCapacity:    [''],
+      countryCode:   [''],
+      reviewer:      [''],
+      dateAdded:     [''],
+      dateSubmitted: [''],
+      status:        ['pending' as AssetStatus],
+      notes:         [''],
+      submitterEmail: ['', Validators.email],
+    });
+
+    this.sub = this.svc.selectedId$.subscribe(id => {
+      if (id) {
+        const asset = this.svc.assets$.value.find(a => a.id === id);
+        if (asset) this.patchForm(asset);
+      }
+      this.editingId = id;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
+    document.removeEventListener('mousemove', this.onResizeMove);
+    document.removeEventListener('mouseup', this.onResizeEnd);
+  }
+
+  onResizeStart(event: MouseEvent): void {
+    event.preventDefault();
+    this.resizing = true;
+    this.resizeStartY = event.clientY;
+    this.resizeStartH = this.detailHeight;
+    document.addEventListener('mousemove', this.onResizeMove);
+    document.addEventListener('mouseup', this.onResizeEnd);
+  }
+
+  private onResizeMove = (event: MouseEvent): void => {
+    if (!this.resizing) return;
+    const delta = this.resizeStartY - event.clientY;
+    this.detailHeight = Math.max(120, Math.min(600, this.resizeStartH + delta));
+  };
+
+  private onResizeEnd = (): void => {
+    this.resizing = false;
+    document.removeEventListener('mousemove', this.onResizeMove);
+    document.removeEventListener('mouseup', this.onResizeEnd);
+  };
+
+  // ── Filtering ────────────────────────────────────────────────────────────────
+
+  applyFilter(assets: Asset[], searchTerm: string, statusFilter: Record<AssetStatus, boolean>): Asset[] {
+    return assets.filter(a => {
+      if (!statusFilter[a.status]) return false;
+      const term = searchTerm.trim().toLowerCase();
+      if (term) {
+        const docNames = [a.codProofUrl, a.sldUrl, a.sf02Url, a.sf02cUrl, a.meteringEvidenceUrl, ...a.pictureUrls]
+          .filter((u): u is string => !!u)
+          .map(u => this.fileName(u));
+        const haystack = [a.serial, a.projectName, a.reviewer, a.submitterEmail, a.notes, a.status, ...docNames].join(' ').toLowerCase();
+        if (!haystack.includes(term)) return false;
+      }
+      return true;
+    });
+  }
+
+  onSearch(): void {
+    const assets = this.applyFilter(this.svc.assets$.value, this.searchTerm, this.statusFilter);
+    const term = this.searchTerm.trim().toLowerCase();
+    if (!term) {
+      this.searchMatchIds = [];
+      this.searchIndex = -1;
+    } else {
+      this.searchMatchIds = assets.map(a => a.id);
+      this.searchIndex = this.searchMatchIds.length > 0 ? 0 : -1;
+      if (this.searchIndex >= 0) this.svc.select(this.searchMatchIds[0]);
+    }
+  }
+
+  searchNext(): void {
+    if (!this.searchMatchIds.length) return;
+    this.searchIndex = (this.searchIndex + 1) % this.searchMatchIds.length;
+    this.svc.select(this.searchMatchIds[this.searchIndex]);
+  }
+
+  searchPrev(): void {
+    if (!this.searchMatchIds.length) return;
+    this.searchIndex = (this.searchIndex - 1 + this.searchMatchIds.length) % this.searchMatchIds.length;
+    this.svc.select(this.searchMatchIds[this.searchIndex]);
+  }
+
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.searchMatchIds = [];
+    this.searchIndex = -1;
+  }
+
+  onFilterChange(): void {
+    this.statusFilter$.next({ ...this.statusFilter });
+    this.onSearch();
+  }
+
+  // ── Hierarchy ────────────────────────────────────────────────────────────────
+
+  toggleDevice(id: string): void {
+    this.expanded = { ...this.expanded, [id]: !this.expanded[id] };
+    if (!this.sectionOpen[id]) {
+      this.sectionOpen[id] = { codProof: true, sld: true, sf02: true, sf02c: true, meteringEvidence: true, pictures: true };
+    }
+    this.svc.select(id);
+  }
+
+  toggleSection(id: string, section: 'codProof' | 'sld' | 'sf02' | 'sf02c' | 'meteringEvidence' | 'pictures'): void {
+    if (!this.sectionOpen[id]) {
+      this.sectionOpen[id] = { codProof: true, sld: true, sf02: true, sf02c: true, meteringEvidence: true, pictures: true };
+    }
+    this.sectionOpen = {
+      ...this.sectionOpen,
+      [id]: { ...this.sectionOpen[id], [section]: !this.sectionOpen[id][section] },
+    };
+  }
+
+  isSectionOpen(id: string, section: 'codProof' | 'sld' | 'sf02' | 'sf02c' | 'meteringEvidence' | 'pictures'): boolean {
+    return this.sectionOpen[id]?.[section] ?? true;
+  }
+
+  // ── File handling ─────────────────────────────────────────────────────────────
+
+  openFile(url: string, event: MouseEvent): void {
+    event.stopPropagation();
+    window.open(url, '_blank', 'noopener');
+  }
+
+  openPicture(url: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.svc.viewPicture(url);
+  }
+
+  onCodProofChange(asset: Asset, event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.svc.saveAsset({ ...asset, codProofUrl: URL.createObjectURL(file) });
+  }
+
+  clearCodProof(asset: Asset): void {
+    this.svc.saveAsset({ ...asset, codProofUrl: null });
+  }
+
+  onSldChange(asset: Asset, event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.svc.saveAsset({ ...asset, sldUrl: URL.createObjectURL(file) });
+  }
+
+  clearSld(asset: Asset): void {
+    this.svc.saveAsset({ ...asset, sldUrl: null });
+  }
+
+  onSf02Change(asset: Asset, event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.svc.saveAsset({ ...asset, sf02Url: URL.createObjectURL(file) });
+  }
+
+  clearSf02(asset: Asset): void {
+    this.svc.saveAsset({ ...asset, sf02Url: null });
+  }
+
+  onSf02cChange(asset: Asset, event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.svc.saveAsset({ ...asset, sf02cUrl: URL.createObjectURL(file) });
+  }
+
+  clearSf02c(asset: Asset): void {
+    this.svc.saveAsset({ ...asset, sf02cUrl: null });
+  }
+
+  onMeteringEvidenceChange(asset: Asset, event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.svc.saveAsset({ ...asset, meteringEvidenceUrl: URL.createObjectURL(file) });
+  }
+
+  clearMeteringEvidence(asset: Asset): void {
+    this.svc.saveAsset({ ...asset, meteringEvidenceUrl: null });
+  }
+
+  onPictureAdd(asset: Asset, event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.svc.saveAsset({ ...asset, pictureUrls: [...asset.pictureUrls, URL.createObjectURL(file)] });
+  }
+
+  clearPicture(asset: Asset, idx: number): void {
+    const pictureUrls = asset.pictureUrls.filter((_, i) => i !== idx);
+    this.svc.saveAsset({ ...asset, pictureUrls });
+  }
+
+  fileName(url: string): string {
+    try {
+      const withoutQuery = url.split('?')[0];
+      let name = withoutQuery.split('/').pop() ?? withoutQuery;
+      // Decode repeatedly to handle double-encoded S3 keys (e.g. %2520 → %20 → space)
+      let prev = '';
+      while (name !== prev) { prev = name; try { name = decodeURIComponent(name); } catch { break; } }
+      return name.replace(/-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, '');
+    } catch { return url; }
+  }
+
+  // ── Detail form ───────────────────────────────────────────────────────────────
+
+  selectAsset(asset: Asset): void {
+    this.svc.select(asset.id);
+  }
+
+  saveDetail(): void {
+    if (!this.editingId) return;
+    const asset = this.svc.assets$.value.find(a => a.id === this.editingId);
+    if (!asset) return;
+    const v = this.detailForm.getRawValue();
+    this.svc.saveAsset({
+      ...asset,
+      lat:           v.lat !== '' ? parseFloat(v.lat) : null,
+      long:          v.long !== '' ? parseFloat(v.long) : null,
+      projectName:   asset.projectName,
+      capacity:      v.capacity !== '' ? parseFloat(v.capacity) : null,
+      acCapacity:    v.acCapacity !== '' ? parseFloat(v.acCapacity) : null,
+      countryCode:   v.countryCode,
+      reviewer:      v.reviewer,
+      dateAdded:     v.dateAdded ? new Date(v.dateAdded) : null,
+      dateSubmitted: v.dateSubmitted ? new Date(v.dateSubmitted) : null,
+      status:        v.status,
+      notes:         v.notes,
+      submitterEmail: v.submitterEmail,
+    });
+  }
+
+  cancelDetail(): void {
+    this.svc.select(null);
+  }
+
+  setStatus(status: AssetStatus): void {
+    if (!this.editingId) return;
+    const asset = this.svc.assets$.value.find(a => a.id === this.editingId);
+    if (!asset) return;
+    this.svc.saveAsset({ ...asset, status });
+    this.detailForm.patchValue({ status });
+  }
+
+  requestApprove(): void {
+    this.showApproveModal = true;
+  }
+
+  confirmApprove(): void {
+    this.showApproveModal = false;
+    this.setStatus('approved');
+  }
+
+  cancelApprove(): void {
+    this.showApproveModal = false;
+  }
+
+  toggleReviewed(key: string, event: MouseEvent): void {
+    event.stopPropagation();
+    this.reviewed = { ...this.reviewed, [key]: !this.reviewed[key] };
+  }
+
+  archiveDevice(): void {
+    if (!this.editingId) return;
+    const asset = this.svc.assets$.value.find(a => a.id === this.editingId);
+    if (!asset || asset.status === 'pending') return;
+    // TODO: call archive endpoint
+  }
+
+  populateDevices(): void {
+    this.svc.populateFromDb();
+  }
+
+  flyToDevice(): void {
+    if (!this.editingId) return;
+    const asset = this.svc.assets$.value.find(a => a.id === this.editingId);
+    if (!asset || asset.lat === null || asset.long === null) return;
+    this.svc.flyTo(asset.lat, asset.long);
+  }
+
+  private patchForm(a: Asset): void {
+    this.detailForm.patchValue({
+      lat:           a.lat ?? '',
+      long:          a.long ?? '',
+      serial:        a.serial,
+      capacity:      a.capacity ?? '',
+      acCapacity:    a.acCapacity ?? '',
+      countryCode:   a.countryCode,
+      reviewer:      a.reviewer,
+      dateAdded:     this.toDateInput(a.dateAdded),
+      dateSubmitted: this.toDateInput(a.dateSubmitted),
+      status:        a.status,
+      notes:         a.notes,
+      submitterEmail: a.submitterEmail,
+    });
+  }
+
+  private toDateInput(d: Date | null): string {
+    if (!d) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+}

@@ -1,0 +1,17 @@
+<div
+  class="fw"
+  [style.left.px]="x"
+  [style.top.px]="y"
+  [style.width.px]="width"
+  [style.height.px]="height"
+  [style.zIndex]="zIndex"
+  (mousedown)="onBodyMousedown()"
+>
+  <div class="fw__titlebar" (mousedown)="onTitlebarMousedown($event)">
+    <span class="fw__title">{{ title }}</span>
+    <button *ngIf="close.observers.length" class="fw__close" (mousedown)="$event.stopPropagation()" (click)="close.emit()" title="Close">&#10005;</button>
+  </div>
+  <div class="fw__body">
+    <ng-content></ng-content>
+  </div>
+</div>

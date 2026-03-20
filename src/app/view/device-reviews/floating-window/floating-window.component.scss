@@ -1,0 +1,52 @@
+.fw {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  resize: both;
+  overflow: hidden;
+  min-width: 260px;
+  min-height: 140px;
+
+  &__titlebar {
+    display: flex;
+    align-items: center;
+    padding: 7px 12px;
+    background: #f1f5f9;
+    border-bottom: 1px solid #d1d5db;
+    cursor: grab;
+    user-select: none;
+    flex-shrink: 0;
+    &:active { cursor: grabbing; }
+  }
+
+  &__close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 14px;
+    padding: 0 2px;
+    line-height: 1;
+    &:hover { color: #0f172a; }
+  }
+
+  &__title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+  }
+
+  &__body {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+}

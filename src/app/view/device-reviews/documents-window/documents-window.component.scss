@@ -1,0 +1,544 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+:host ::ng-deep mark.search-highlight {
+  background: #fef08a;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+$bg:       #ffffff;
+$bg-light: #f8fafc;
+$bg-mid:   #f1f5f9;
+$border:   #e2e8f0;
+$text:     #1e293b;
+$muted:    #64748b;
+$accent:   #2563eb;
+$approved: #16a34a;
+$rejected: #dc2626;
+$pending:  #d97706;
+
+// Override drec-ui's global Poppins (which is set with !important on html/body)
+// to match the original device-submission app's lighter system font stack.
+:host ::ng-deep .docw,
+:host ::ng-deep .docw * {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.docw {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+
+  &__toolbar {
+    padding: 8px 12px;
+    background: $bg-light;
+    border-bottom: 1px solid $border;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  &__table-wrap {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: $bg;
+  }
+
+  &__resize-handle {
+    height: 6px;
+    background: $border;
+    cursor: ns-resize;
+    flex-shrink: 0;
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 32px;
+      height: 3px;
+      border-top: 1px solid $muted;
+      border-bottom: 1px solid $muted;
+    }
+    &:hover { background: darken($border, 8%); }
+  }
+
+  &__detail {
+    background: $bg-light;
+    padding: 12px 16px;
+    flex-shrink: 0;
+    font-weight: 400;
+    overflow-y: auto;
+  }
+}
+
+// ── Search bar ────────────────────────────────────────────────────────────────
+.toolbar-status {
+  font-size: 11px;
+  color: $muted;
+}
+
+.toolbar-error {
+  font-size: 11px;
+  color: $rejected;
+  cursor: pointer;
+  &:hover { text-decoration: underline; }
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &__input {
+    background: $bg;
+    border: 1px solid $border;
+    border-radius: 4px;
+    color: $text;
+    font-size: 12px;
+    padding: 4px 8px;
+    width: 180px;
+    outline: none;
+    &:focus { border-color: $accent; }
+    &::placeholder { color: $muted; }
+  }
+}
+
+.search-count {
+  font-size: 11px;
+  color: $muted;
+  white-space: nowrap;
+}
+
+.icon-btn {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 4px;
+  color: $muted;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 7px;
+  line-height: 1.4;
+
+  &--refresh { font-size: 18px; padding: 3px 10px; }
+  &--chat    { padding: 4px 8px; line-height: 0; }
+  &:hover { background: $bg-mid; color: $text; }
+  &:disabled { opacity: 0.35; cursor: default; }
+}
+
+// ── Status filter checkboxes ──────────────────────────────────────────────────
+.status-filters {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.status-filter-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  color: $text;
+
+  input[type="checkbox"] { accent-color: #94a3b8; }
+}
+
+// ── Badges ────────────────────────────────────────────────────────────────────
+.badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fff;
+  &--approved { background: $approved; }
+  &--rejected  { background: $rejected; }
+  &--pending   { background: $pending; }
+}
+
+// ── Hierarchy rows ────────────────────────────────────────────────────────────
+.dr-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border-bottom: 1px solid $border;
+  font-size: 13px;
+  color: $text;
+  cursor: pointer;
+  user-select: none;
+
+  &--device {
+    background: $bg-light;
+    font-weight: 600;
+    &:hover { background: $bg-mid; }
+  }
+
+  &--selected { background: #dbeafe !important; }
+
+  &--section {
+    background: $bg;
+    padding-left: 28px;
+    font-size: 11px;
+    color: $muted;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    &:hover { background: $bg-light; }
+  }
+
+  &--file {
+    padding-left: 48px;
+    cursor: default;
+    &:hover { background: $bg-light; }
+  }
+
+  &--empty {
+    padding-left: 48px;
+    font-size: 11px;
+    color: lighten($muted, 15%);
+    cursor: default;
+    font-style: italic;
+  }
+}
+
+.chevron, .section-chevron {
+  font-size: 14px;
+  color: $muted;
+  transition: transform 0.15s;
+  display: inline-block;
+  &--open { transform: rotate(90deg); }
+}
+.section-chevron { font-size: 11px; }
+
+.dr-row--header {
+  background: #f8fafc;
+  border-bottom: 2px solid $border;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $muted;
+  cursor: default;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding-left: 28px;
+  &:hover { background: #f8fafc; }
+}
+
+.col-serial   { flex: 1; min-width: 0; }
+.col-modified { width: 90px; flex-shrink: 0; font-size: 12px; }
+.col-status   { width: 110px; flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
+
+.th-sort {
+  cursor: pointer;
+  &::after { content: ' ⇅'; opacity: 0.3; font-size: 9px; }
+  &.asc::after  { content: ' ↑'; opacity: 1; }
+  &.desc::after { content: ' ↓'; opacity: 1; }
+  &:hover { color: $text; }
+}
+
+.muted { color: $muted; }
+.status-label { font-size: 12px; }
+
+.section-label { flex: 1; }
+
+.section-count { font-size: 11px; color: $muted; font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+.review-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  color: $border;
+  &:hover { color: $muted; }
+  &--done { color: $approved; &:hover { color: darken($approved, 10%); } }
+}
+
+.file-icon {
+  display: inline-block;
+  width: 14px;
+  height: 17px;
+  flex-shrink: 0;
+}
+
+.file-name {
+  flex: 1;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: $text;
+}
+
+.thumb {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid $border;
+  display: block;
+}
+
+.add-btn {
+  background: none;
+  border: 1px dashed $border;
+  border-radius: 3px;
+  color: $muted;
+  font-size: 14px;
+  line-height: 1;
+  padding: 1px 6px;
+  cursor: pointer;
+  &:hover { border-color: $accent; color: $accent; }
+}
+
+.btn-pin {
+  background: none;
+  border: 1px solid $border;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 3px 6px;
+  flex-shrink: 0;
+  &:hover { border-color: $accent; }
+  &:disabled { opacity: 0.3; cursor: default; }
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  color: $muted;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+  &:hover { background: #fee2e2; color: #dc2626; }
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+// ── Status icons ──────────────────────────────────────────────────────────────
+.status-icon {
+  font-weight: 700;
+  font-size: 13px;
+  &--approved { color: $approved; }
+  &--rejected  { color: $rejected; }
+  &--pending   { color: $pending; }
+}
+
+// ── Detail form ───────────────────────────────────────────────────────────────
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.top-row {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+  margin-bottom: 10px;
+}
+
+.field--narrow {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  max-width: 140px !important;
+  width: 0 !important;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  &--full { grid-column: 1 / -1; }
+  &--wide { grid-column: span 2; }
+  &--auto {
+    flex: 0 1 auto;
+    .field__input--text {
+      white-space: nowrap;
+    }
+  }
+
+  &__label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $muted;
+  }
+
+  &__input-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    .field__input { flex: 1; min-width: 0; }
+  }
+
+  &__unit {
+    font-size: 12px;
+    color: $muted;
+    white-space: nowrap;
+  }
+
+  &__input {
+    background: $bg;
+    border: 1px solid $border;
+    border-radius: 4px;
+    color: $text;
+    font-size: 13px;
+    font-weight: 400;
+    padding: 5px 8px;
+    font-family: inherit;
+
+    &[readonly] {
+      appearance: textfield;
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button { display: none; }
+    }
+
+    &--text {
+      display: block;
+      cursor: default;
+      line-height: 1.5;
+      min-height: 31px;
+    }
+    outline: none;
+    &:focus { border-color: $accent; box-shadow: 0 0 0 3px rgba($accent, 0.1); }
+  }
+
+  &__select { cursor: pointer; }
+  &__textarea { resize: vertical; min-height: 52px; }
+}
+
+.status-select {
+  font-weight: 600;
+  &--pending  { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
+  &--approved { background: #dcfce7; color: #14532d; border-color: #22c55e; }
+  &--rejected { background: #fee2e2; color: #7f1d1d; border-color: #ef4444; }
+}
+
+.notes-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  .field__textarea { flex: 1; min-width: 0; }
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+}
+
+.detail-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  &__sep {
+    flex: 1;
+  }
+}
+
+.btn {
+  padding: 5px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+
+  &--save {
+    background: $accent;
+    color: #fff;
+    &:hover { background: darken($accent, 6%); }
+    &:disabled { opacity: 0.4; cursor: default; }
+  }
+
+  &--cancel {
+    background: $bg;
+    color: $muted;
+    border: 1px solid $border;
+    &:hover { background: $bg-mid; }
+  }
+
+  &--archive {
+    background: $bg;
+    color: $muted;
+    border: 1px solid $border;
+    &:hover:not(:disabled) { background: $bg-mid; color: $text; }
+    &:disabled { opacity: 0.35; cursor: default; }
+  }
+
+  &--approve {
+    background: $approved;
+    color: #fff;
+    &:hover:not(:disabled) { background: darken($approved, 6%); }
+    &:disabled { opacity: 0.35; cursor: default; }
+  }
+
+  &--reject {
+    background: $rejected;
+    color: #fff;
+    &:hover:not(:disabled) { background: darken($rejected, 6%); }
+    &:disabled { opacity: 0.35; cursor: default; }
+  }
+}
+
+// ── Approve confirmation modal ─────────────────────────────────────────────
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px 28px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  min-width: 280px;
+  max-width: 380px;
+}
+
+.modal-msg {
+  font-size: 14px;
+  color: $text;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

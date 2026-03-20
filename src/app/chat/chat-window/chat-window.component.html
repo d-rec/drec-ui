@@ -1,0 +1,88 @@
+<div class="chat-window" [class.minimized]="minimized" cdkDrag>
+  <div class="chat-header" cdkDragHandle>
+    <button mat-icon-button class="back-btn" *ngIf="isAdmin && selectedConversation" (click)="backToList()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span class="partner-name">{{ partnerName || 'Chat' }}</span>
+    <div class="header-actions">
+      <button mat-icon-button (click)="minimize()" class="header-btn">
+        <mat-icon>{{ minimized ? 'expand_less' : 'remove' }}</mat-icon>
+      </button>
+      <button mat-icon-button (click)="close()" class="header-btn">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!minimized">
+
+    <!-- Admin: conversation list -->
+    <ng-container *ngIf="isAdmin && !selectedConversation">
+      <div class="conversation-list">
+        <div
+          *ngFor="let conv of conversations"
+          class="conversation-item"
+          (click)="selectConversation(conv)"
+        >
+          <mat-icon class="conv-icon">person</mat-icon>
+          <span>{{ conversationLabel(conv) }}</span>
+        </div>
+        <div *ngIf="conversations.length === 0 && !showNewConversationForm" class="no-conversations">
+          No conversations yet
+        </div>
+      </div>
+
+      <!-- New conversation form -->
+      <div class="new-conversation-form" *ngIf="showNewConversationForm">
+        <input
+          [(ngModel)]="newConversationEmail"
+          (keydown.enter)="startNewConversation()"
+          placeholder="Enter user email..."
+          class="email-input"
+          autofocus
+        />
+        <div class="form-actions">
+          <button mat-button (click)="startNewConversation()" class="start-btn">Start</button>
+          <button mat-button (click)="showNewConversationForm = false" class="cancel-btn">Cancel</button>
+        </div>
+      </div>
+
+      <div class="new-chat-bar" *ngIf="!showNewConversationForm">
+        <button mat-button class="new-chat-btn" (click)="showNewConversationForm = true">
+          <mat-icon>add</mat-icon> New conversation
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Messages -->
+    <ng-container *ngIf="!isAdmin || selectedConversation">
+      <div class="messages-container" #messagesContainer>
+        <div
+          *ngFor="let msg of messages"
+          [class.own]="msg.username === currentUsername"
+          class="bubble"
+        >
+          <span class="sender-name">{{ msg.username }}</span>
+          <span class="text">{{ msg.chatEntry }}</span>
+          <span class="time">{{ msg.createdAt | date: 'd MMM, HH:mm' }}</span>
+        </div>
+        <div *ngIf="messages.length === 0" class="no-messages">
+          No messages yet. Say hello!
+        </div>
+      </div>
+
+      <div class="input-bar">
+        <input
+          [(ngModel)]="draft"
+          (keydown.enter)="send()"
+          placeholder="Type a message..."
+          class="message-input"
+        />
+        <button mat-icon-button (click)="send()" class="send-btn">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    </ng-container>
+
+  </ng-container>
+</div>

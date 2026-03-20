@@ -51,6 +51,7 @@ import { EvidentSettingsComponent } from './view/evident-settings/evident-settin
 import { AllIssuersComponent } from './view/all-issuers/all-issuers.component';
 import { AddIssuerComponent } from './view/add-issuer/add-issuer.component';
 import { SingleDevicePathwayComponent } from './view/single-device-pathway/single-device-pathway.component';
+import { ChatModule } from './chat/chat.module';
 
 @NgModule({
   declarations: [
@@ -110,6 +111,7 @@ import { SingleDevicePathwayComponent } from './view/single-device-pathway/singl
     }),
     SharedModule,
     LeafletModule,
+    ChatModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
