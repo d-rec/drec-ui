@@ -309,6 +309,11 @@ $pending:  #d97706;
   &:hover { border-color: $accent; color: $accent; }
 }
 
+.btn-pin--map {
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
+
 .btn-pin {
   background: none;
   border: 1px solid $border;

@@ -196,14 +196,12 @@
       <div class="docw__detail" [style.height.px]="detailHeight">
         <form [formGroup]="detailForm" (ngSubmit)="saveDetail()">
             <div class="top-row">
+              <button type="button" class="btn-pin btn-pin--map" (click)="flyToDevice()" title="Show on map" [disabled]="!detailForm.get('lat')?.value && !detailForm.get('long')?.value">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              </button>
               <div class="field field--narrow">
                 <label class="field__label">Latitude</label>
-                <div class="field__input-group">
-                  <button type="button" class="btn-pin" (click)="flyToDevice()" title="Show on map" [disabled]="!detailForm.get('lat')?.value && !detailForm.get('long')?.value">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                  </button>
-                  <input type="number" step="any" class="field__input" formControlName="lat" placeholder="e.g. 37.7749" />
-                </div>
+                <input type="number" step="any" class="field__input" formControlName="lat" placeholder="e.g. 37.7749" />
               </div>
               <div class="field field--narrow">
                 <label class="field__label">Longitude</label>
