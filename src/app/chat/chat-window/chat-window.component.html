@@ -2,7 +2,8 @@
      [style.width.px]="width" [style.height.px]="minimized ? 52 : height">
   <div class="resize-grip" (mousedown)="onResizeStart($event)"></div>
   <div class="chat-header" cdkDragHandle>
-    <span class="partner-name">{{ partnerName || 'Chat' }}</span>
+    <span class="partner-name" *ngIf="chatService.siteName$ | async as siteName; else chatFallback">Site: <strong>{{ siteName }}</strong></span>
+    <ng-template #chatFallback><span class="partner-name">Chat</span></ng-template>
     <div class="header-actions">
       <button mat-icon-button (click)="minimize()" class="header-btn">
         <mat-icon>{{ minimized ? 'expand_less' : 'remove' }}</mat-icon>
@@ -15,24 +16,34 @@
 
   <ng-container *ngIf="!minimized">
 
-    <div class="site-banner" *ngIf="chatService.siteName$ | async as siteName">
-      About site <strong>{{ siteName }}</strong>
+    <div class="chat-search-bar">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input
+        [(ngModel)]="chatSearch"
+        placeholder="Search messages..."
+        class="chat-search-input"
+      />
+      <button *ngIf="chatSearch" class="chat-search-clear" (click)="chatSearch = ''">&#10005;</button>
     </div>
 
     <!-- Messages -->
-    <div class="messages-container" #messagesContainer>
-      <div
-        *ngFor="let msg of messages"
-        [class.own]="msg.username === currentUsername"
-        class="bubble"
-      >
-        <span class="sender-name">{{ msg.username }}</span>
-        <span class="text">{{ msg.chatEntry }}</span>
-        <span class="time">{{ msg.createdAt | date: 'd MMM, HH:mm' }}</span>
+    <div class="messages-scroll-wrap">
+      <button class="scroll-arrow scroll-arrow--top" (click)="scrollToTop()" title="Jump to top">&#9650;</button>
+      <div class="messages-container" #messagesContainer>
+        <div
+          *ngFor="let msg of filteredMessages"
+          [class.own]="msg.username === currentUsername"
+          class="bubble"
+        >
+          <span class="sender-name">{{ msg.username }}</span>
+          <span class="text">{{ msg.chatEntry }}</span>
+          <span class="time">{{ msg.createdAt | date: 'd MMM, HH:mm' }}</span>
+        </div>
+        <div *ngIf="messages.length === 0" class="no-messages">
+          No messages yet. Say hello!
+        </div>
       </div>
-      <div *ngIf="messages.length === 0" class="no-messages">
-        No messages yet. Say hello!
-      </div>
+      <button class="scroll-arrow scroll-arrow--bottom" (click)="scrollToBottom()" title="Jump to bottom">&#9660;</button>
     </div>
 
     <div class="input-bar">

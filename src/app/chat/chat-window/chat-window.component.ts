@@ -23,6 +23,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   partnerEmail = '';
   partnerName = '';
   deviceProjectName: string | null = null;
+  chatSearch = '';
 
   width = 360;
   height = 520;
@@ -42,8 +43,9 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     this.currentUsername = loginUser.email || loginUser.username || '';
 
     this.messagesSubscription = this.chatService.messages$.subscribe((msgs) => {
+      const hadNew = msgs.length > this.messages.length;
       this.messages = msgs;
-      this.scrollToBottom();
+      if (hadNew) this.autoScrollToBottom();
     });
 
     this.deviceSub = this.chatService.openForDevice$.subscribe(({ submitterEmail, projectName }) => {
@@ -113,6 +115,15 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     }
   }
 
+  get filteredMessages(): ChatMessage[] {
+    const term = this.chatSearch.trim().toLowerCase();
+    if (!term) return this.messages;
+    return this.messages.filter(m =>
+      m.chatEntry.toLowerCase().includes(term) ||
+      m.username.toLowerCase().includes(term)
+    );
+  }
+
   onResizeStart(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -147,7 +158,20 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     this.chatService.isChatOpen$.next(false);
   }
 
-  private scrollToBottom(): void {
+  scrollToTop(): void {
+    if (this.messagesContainer) {
+      this.messagesContainer.nativeElement.scrollTop = 0;
+    }
+  }
+
+  scrollToBottom(): void {
+    if (this.messagesContainer) {
+      const el = this.messagesContainer.nativeElement;
+      el.scrollTop = el.scrollHeight;
+    }
+  }
+
+  private autoScrollToBottom(): void {
     setTimeout(() => {
       if (this.messagesContainer) {
         const el = this.messagesContainer.nativeElement;

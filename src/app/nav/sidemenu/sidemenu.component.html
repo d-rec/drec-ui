@@ -168,10 +168,10 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/device/reviews"
-            *ngIf="loginuser.role === 'Admin'"
+            *ngIf="(loginuser.role === 'OrganizationAdmin' || loginuser.role === 'ApiUser') && !isApiMode"
             test-id="device-reviews"
           >
-            <span>Device Reviews</span>
+            <span>Reviews</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>

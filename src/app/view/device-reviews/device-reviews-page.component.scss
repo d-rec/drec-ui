@@ -1,9 +1,14 @@
 .ds-page {
-  height: calc(100vh - 54px);
+  position: fixed;
+  top: 46px;
+  bottom: 38px;
+  left: var(--sidenav-width, 200px);
+  right: 0;
   overflow: hidden;
-  position: relative;
   display: flex;
   flex-direction: column;
+  background: #fff;
+  z-index: 1;
 }
 
 .ds-tabs {
@@ -43,6 +48,7 @@
 
 .ds-content {
   flex: 1;
+  min-height: 0;
   overflow: hidden;
   position: relative;
 }
