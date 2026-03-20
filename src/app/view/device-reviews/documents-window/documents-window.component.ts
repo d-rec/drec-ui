@@ -383,6 +383,18 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.reviewed = { ...this.reviewed, [key]: !this.reviewed[key] };
   }
 
+  openChat(): void {
+    if (!this.editingId) return;
+    const asset = this.svc.assets$.value.find(a => a.id === this.editingId);
+    if (!asset) return;
+    const submitterEmail = asset.submitterEmail || '';
+    const projectName = asset.projectName || '';
+    this.chatService.openForDevice$.next({ submitterEmail, projectName });
+    if (!this.chatService.isChatOpen$.value) {
+      this.chatService.isChatOpen$.next(true);
+    }
+  }
+
   archiveDevice(): void {
     if (!this.editingId) return;
     const asset = this.svc.assets$.value.find(a => a.id === this.editingId);
@@ -416,6 +428,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       notes:         a.notes,
       submitterEmail: a.submitterEmail,
     });
+    this.chatService.siteName$.next(a.projectName || null);
   }
 
   private toDateInput(d: Date | null): string {

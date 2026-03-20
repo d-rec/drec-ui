@@ -18,136 +18,125 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
 
   messages: ChatMessage[] = [];
   draft = '';
-  newConversationEmail = '';
   minimized = false;
-  isAdmin = false;
   currentUsername = '';
-  adminEmail = '';
+  partnerEmail = '';
   partnerName = '';
-  conversations: ChatConversation[] = [];
-  selectedConversation: ChatConversation | null = null;
-  showNewConversationForm = false;
+  deviceProjectName: string | null = null;
+
+  width = 360;
+  height = 520;
+  private resizing = false;
+  private resizeStartX = 0;
+  private resizeStartY = 0;
+  private resizeStartW = 0;
+  private resizeStartH = 0;
 
   private messagesSubscription: Subscription | null = null;
+  private deviceSub: Subscription | null = null;
 
-  constructor(private chatService: ChatService) {}
+  constructor(readonly chatService: ChatService) {}
 
   ngOnInit(): void {
     const loginUser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
     this.currentUsername = loginUser.email || loginUser.username || '';
-    this.isAdmin = loginUser.role === 'Admin';
 
     this.messagesSubscription = this.chatService.messages$.subscribe((msgs) => {
       this.messages = msgs;
       this.scrollToBottom();
     });
 
-    if (this.isAdmin) {
-      this.loadAdminConversations();
-    } else {
-      this.initNonAdminChat();
-    }
-  }
+    this.deviceSub = this.chatService.openForDevice$.subscribe(({ submitterEmail, projectName }) => {
+      if (!submitterEmail) return;
+      this.partnerEmail = submitterEmail;
+      this.partnerName = submitterEmail;
+      this.deviceProjectName = projectName || null;
 
-  private loadAdminConversations(): void {
-    this.chatService.getAllConversations().subscribe((convs) => {
-      this.conversations = convs;
-    });
-  }
-
-  private initNonAdminChat(): void {
-    this.chatService.getAdminUser().subscribe((admin) => {
-      if (!admin) return;
-      this.adminEmail = admin.email;
-      this.partnerName = `${admin.firstName} ${admin.lastName}`;
-
-      this.chatService
-        .getConversation(this.currentUsername, this.adminEmail)
-        .subscribe((conv) => {
+      // Try to find existing conversation and load its messages
+      this.chatService.getConversation(this.currentUsername, submitterEmail).subscribe({
+        next: (conv) => {
           if (conv) {
             this.chatService.openChat(conv);
+          } else {
+            this.chatService.messages$.next([]);
           }
-        });
-    });
-  }
-
-  selectConversation(conv: ChatConversation): void {
-    this.selectedConversation = conv;
-    const partner =
-      conv.participant1 === this.currentUsername
-        ? conv.participant2
-        : conv.participant1;
-    this.partnerName = partner;
-    this.chatService.openChat(conv);
-  }
-
-  backToList(): void {
-    this.selectedConversation = null;
-    this.partnerName = '';
-    this.chatService.closeChat();
-    this.loadAdminConversations();
-  }
-
-  startNewConversation(): void {
-    const email = this.newConversationEmail.trim();
-    if (!email) return;
-
-    this.chatService.getConversation(this.currentUsername, email).subscribe((conv) => {
-      if (conv) {
-        this.newConversationEmail = '';
-        this.showNewConversationForm = false;
-        this.selectConversation(conv);
-      } else {
-        // Placeholder — conversation created on first message send
-        this.selectedConversation = {
-          id: -1,
-          participant1: this.currentUsername,
-          participant2: email,
-          headUuid: '',
-          lastEntryUuid: null,
-          deviceProjectName: null,
-        };
-        this.partnerName = email;
-        this.newConversationEmail = '';
-        this.showNewConversationForm = false;
-      }
+        },
+        error: (err) => {
+          console.warn('Chat: could not load conversation', err);
+          this.chatService.messages$.next([]);
+        },
+      });
     });
   }
 
   send(): void {
     const text = this.draft.trim();
-    if (!text) return;
+    if (!text || !this.partnerEmail) return;
     this.draft = '';
 
+    // Optimistic: show message immediately
+    const optimistic: ChatMessage = {
+      uuid: 'pending-' + Date.now(),
+      username: this.currentUsername,
+      chatEntry: text,
+      nextEntryUuid: null,
+      createdAt: new Date().toISOString(),
+    };
+    this.chatService.messages$.next([...this.messages, optimistic]);
+
     if (this.chatService.currentConversationId) {
-      this.chatService.sendMessage(this.currentUsername, text).subscribe((msg) => {
-        this.chatService
-          .getChain(this.chatService.currentHeadUuid!)
-          .subscribe((msgs) => this.chatService.messages$.next(msgs));
+      // Append to existing conversation
+      this.chatService.sendMessage(this.currentUsername, text).subscribe({
+        next: () => {
+          this.chatService
+            .getChain(this.chatService.currentHeadUuid!)
+            .subscribe((msgs) => this.chatService.messages$.next(msgs));
+        },
+        error: (err) => console.error('Chat: failed to send message', err),
       });
     } else {
-      const partner = this.isAdmin
-        ? this.selectedConversation?.participant2 || ''
-        : this.adminEmail;
-      if (!partner) return;
-
+      // Start new conversation
       this.chatService
-        .startConversation(this.currentUsername, partner, this.currentUsername, text)
-        .subscribe((result) => {
-          this.selectedConversation = result.conversation;
-          this.chatService.openChat(result.conversation);
-          if (this.isAdmin) this.loadAdminConversations();
+        .startConversation(
+          this.currentUsername,
+          this.partnerEmail,
+          this.currentUsername,
+          text,
+          this.deviceProjectName ?? undefined,
+        )
+        .subscribe({
+          next: (result) => {
+            this.chatService.openChat(result.conversation);
+          },
+          error: (err) => console.error('Chat: failed to start conversation', err),
         });
     }
   }
 
-  conversationLabel(conv: ChatConversation): string {
-    const partner =
-      conv.participant1 === this.currentUsername
-        ? conv.participant2
-        : conv.participant1;
-    return conv.deviceProjectName ? `${partner} — ${conv.deviceProjectName}` : partner;
+  onResizeStart(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.resizing = true;
+    this.resizeStartX = event.clientX;
+    this.resizeStartY = event.clientY;
+    this.resizeStartW = this.width;
+    this.resizeStartH = this.height;
+    document.addEventListener('mousemove', this.onResizeMove);
+    document.addEventListener('mouseup', this.onResizeEnd);
   }
+
+  private onResizeMove = (event: MouseEvent): void => {
+    if (!this.resizing) return;
+    // Grip is top-left: dragging left = wider, dragging up = taller
+    this.width = Math.max(280, this.resizeStartW - (event.clientX - this.resizeStartX));
+    this.height = Math.max(200, this.resizeStartH - (event.clientY - this.resizeStartY));
+  };
+
+  private onResizeEnd = (): void => {
+    this.resizing = false;
+    document.removeEventListener('mousemove', this.onResizeMove);
+    document.removeEventListener('mouseup', this.onResizeEnd);
+  };
 
   minimize(): void {
     this.minimized = !this.minimized;
@@ -171,6 +160,11 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     if (this.messagesSubscription) {
       this.messagesSubscription.unsubscribe();
     }
+    if (this.deviceSub) {
+      this.deviceSub.unsubscribe();
+    }
     this.chatService.stopPolling();
+    document.removeEventListener('mousemove', this.onResizeMove);
+    document.removeEventListener('mouseup', this.onResizeEnd);
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, interval, Observable, Subscription } from 'rxjs';
+import { BehaviorSubject, ReplaySubject, interval, Observable, Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -28,6 +28,8 @@ export class ChatService implements OnDestroy {
 
   messages$ = new BehaviorSubject<ChatMessage[]>([]);
   isChatOpen$ = new BehaviorSubject<boolean>(false);
+  siteName$ = new BehaviorSubject<string | null>(null);
+  openForDevice$ = new ReplaySubject<{ submitterEmail: string; projectName: string }>(1);
   currentHeadUuid: string | null = null;
   currentConversationId: number | null = null;
 

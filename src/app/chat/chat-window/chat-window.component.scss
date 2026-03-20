@@ -2,8 +2,6 @@
   position: fixed;
   bottom: 80px;
   right: 24px;
-  width: 360px;
-  height: 520px;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
   display: flex;
@@ -11,10 +9,31 @@
   z-index: 1000;
   background: #fff;
   overflow: hidden;
-  transition: height 0.2s ease;
 
   &.minimized {
-    height: 52px;
+    height: 52px !important;
+  }
+}
+
+.resize-grip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  z-index: 2;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid rgba(0, 0, 0, 0.3);
+    border-left: 2px solid rgba(0, 0, 0, 0.3);
+    border-radius: 3px 0 0 0;
   }
 }
 
@@ -71,6 +90,16 @@
   }
 }
 
+.site-banner {
+  padding: 6px 16px;
+  background: #fef9e7;
+  border-bottom: 1px solid #f0e6b8;
+  font-family: Poppins, sans-serif;
+  font-size: 13px;
+  color: #555;
+  flex-shrink: 0;
+}
+
 .conversation-list {
   flex: 1;
   overflow-y: auto;
@@ -117,55 +146,6 @@
   }
 }
 
-.new-conversation-form {
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  .email-input {
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    padding: 8px 12px;
-    font-family: Poppins, sans-serif;
-    font-size: 14px;
-    outline: none;
-
-    &:focus {
-      border-color: #f2be1a;
-    }
-  }
-
-  .form-actions {
-    display: flex;
-    gap: 8px;
-
-    .start-btn {
-      background: #f2be1a;
-      color: #000;
-      font-weight: 600;
-      border-radius: 8px;
-      flex: 1;
-    }
-
-    .cancel-btn {
-      color: #666;
-      flex: 1;
-    }
-  }
-}
-
-.new-chat-bar {
-  padding: 8px 12px;
-  border-top: 1px solid #e6e6e6;
-
-  .new-chat-btn {
-    width: 100%;
-    color: #555;
-    font-family: Poppins, sans-serif;
-    font-size: 13px;
-  }
-}
 
 .messages-container {
   flex: 1;
@@ -254,5 +234,21 @@
   .send-btn {
     color: #f2be1a;
     flex-shrink: 0;
+  }
+
+  .send-btn--svg {
+    background: none;
+    border: none;
+    color: #f2be1a;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) { background: rgba(242, 190, 26, 0.15); }
+    &:disabled { opacity: 0.3; cursor: default; }
   }
 }
