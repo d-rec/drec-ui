@@ -48,6 +48,7 @@ export type DeviceFiles = {
   [DocumentType.METERING_EVIDENCE]: File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: File[];
   [DocumentType.PROJECT_PHOTOS]: File[];
+  [DocumentType.COD_PROOF]: File[];
 };
 type FileType = keyof DeviceFiles;
 
@@ -124,6 +125,7 @@ export class AddDevicesComponent {
     DocumentType.METERING_EVIDENCE,
     DocumentType.SINGLE_LINE_DIAGRAM,
     DocumentType.PROJECT_PHOTOS,
+    DocumentType.COD_PROOF,
   ];
   @ViewChild(MapComponent) mapComponent: MapComponent;
   @Output() zoom = new EventEmitter<number>();
@@ -249,6 +251,7 @@ export class AddDevicesComponent {
       fuelCode: [null, [Validators.required]],
       deviceTypeCode: [null, [Validators.required]],
       capacity: [null, Validators.required],
+      acCapacity: [null, Validators.required],
       commissioningDate: [new Date(), Validators.required],
       gridInterconnection: [true],
       offTaker: [null],
@@ -268,6 +271,7 @@ export class AddDevicesComponent {
       METERING_EVIDENCE: [null, [Validators.required]],
       SINGLE_LINE_DIAGRAM: [null, [Validators.required]],
       PROJECT_PHOTOS: [null, [Validators.required]],
+      COD_PROOF: [null, [Validators.required]],
     });
 
     device.get('latitude')?.valueChanges.subscribe((latitude) => {
@@ -348,6 +352,7 @@ export class AddDevicesComponent {
       fuelCode: [null],
       deviceTypeCode: [null],
       capacity: [null, Validators.required],
+      acCapacity: [null, Validators.required],
       commissioningDate: [new Date(), Validators.required],
       gridInterconnection: true,
       offTaker: [null],
@@ -361,6 +366,12 @@ export class AddDevicesComponent {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
+      FORM_SF_02: [null, [Validators.required]],
+      SF_02C: [null, [Validators.required]],
+      METERING_EVIDENCE: [null, [Validators.required]],
+      SINGLE_LINE_DIAGRAM: [null, [Validators.required]],
+      PROJECT_PHOTOS: [null, [Validators.required]],
+      COD_PROOF: [null, [Validators.required]],
     });
 
     this.deviceForms.push(device);
@@ -570,6 +581,7 @@ export class AddDevicesComponent {
         DocumentType.METERING_EVIDENCE,
         DocumentType.SINGLE_LINE_DIAGRAM,
         DocumentType.PROJECT_PHOTOS,
+        DocumentType.COD_PROOF,
       ];
 
       const allowedExtensions = [...DOCUMENTS_EXTENSIONS];
