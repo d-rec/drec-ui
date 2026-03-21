@@ -388,8 +388,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     const asset = this.svc.assets$.value.find(a => a.id === this.editingId);
     if (!asset) return;
     const submitterEmail = asset.submitterEmail || '';
-    const projectName = asset.projectName || '';
-    this.chatService.openForDevice$.next({ submitterEmail, projectName });
+    const siteName = asset.projectName || '';
+    this.chatService.openForDevice$.next({ submitterEmail, siteName });
     if (!this.chatService.isChatOpen$.value) {
       this.chatService.isChatOpen$.next(true);
     }

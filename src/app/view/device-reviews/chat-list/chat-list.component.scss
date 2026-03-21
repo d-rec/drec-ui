@@ -1,0 +1,126 @@
+$bg: #ffffff;
+$bg-light: #f8fafc;
+$border: #e2e8f0;
+$text: #1e293b;
+$muted: #64748b;
+$accent: #2563eb;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.cl {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid $border;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: $text;
+    margin: 0;
+  }
+
+  &__refresh {
+    background: none;
+    border: 1px solid $border;
+    border-radius: 4px;
+    color: $muted;
+    padding: 4px 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    &:hover { color: $text; border-color: $accent; }
+  }
+
+  &__status {
+    padding: 24px 20px;
+    text-align: center;
+    font-size: 13px;
+    color: $muted;
+    &--error { color: #dc2626; }
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    th {
+      background: $bg-light;
+      border-bottom: 2px solid $border;
+      padding: 10px 20px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: $muted;
+    }
+
+    td {
+      padding: 12px 20px;
+      border-bottom: 1px solid $border;
+      color: $text;
+    }
+  }
+
+  &__th--action {
+    width: 48px;
+  }
+
+  &__row {
+    cursor: pointer;
+    transition: background 0.1s;
+    &:hover { background: #f1f5f9; }
+  }
+
+  &__cell--site {
+    font-weight: 600;
+  }
+
+  &__cell--participant {
+    color: $muted;
+  }
+
+  &__cell--action {
+    text-align: center;
+  }
+
+  &__open-btn {
+    background: none;
+    border: none;
+    color: $accent;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    &:hover { background: rgba($accent, 0.1); }
+  }
+
+  &__empty {
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 14px;
+    color: $muted;
+  }
+}

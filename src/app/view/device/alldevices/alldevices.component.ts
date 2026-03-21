@@ -20,6 +20,7 @@ import { DeviceDetailsComponent } from '../device-details/device-details.compone
 import { ToastrService } from 'ngx-toastr';
 import { fulecodeType, devicecodeType, CountryInfo } from '../../../models';
 import { MapComponent } from '../../map/map.component';
+import { ChatService } from '../../../chat/chat.service';
 
 @Component({
   selector: 'app-alldevices',
@@ -95,6 +96,7 @@ export class AlldevicesComponent {
     private orgService: OrganizationService,
     private toastrService: ToastrService,
     private changeDetectorRef: ChangeDetectorRef,
+    private chatService: ChatService,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
@@ -507,6 +509,25 @@ export class AlldevicesComponent {
       this.dataSource.paginator.firstPage();
     }
     this.changeDetectorRef.detectChanges();
+  }
+
+  openChat(device: any): void {
+    const currentEmail = this.loginuser.email || '';
+    const siteName = device.projectName || '';
+    this.chatService.getAdminUser().subscribe({
+      next: (admin) => {
+        if (!admin?.email) return;
+        this.chatService.siteName$.next(siteName);
+        this.chatService.openForDevice$.next({
+          submitterEmail: admin.email,
+          siteName,
+        });
+        this.chatService.isChatOpen$.next(true);
+      },
+      error: (err) => {
+        console.error('Could not get admin user for chat', err);
+      },
+    });
   }
 
   resetMapFilter() {

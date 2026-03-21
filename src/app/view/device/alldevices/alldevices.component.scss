@@ -45,6 +45,21 @@ mat-progress-spinner {
   z-index: 5;
 }
 
+.chat-icon-btn {
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  vertical-align: middle;
+  margin-left: 4px;
+
+  .chat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #f2be1a;
+  }
+}
+
 .mat-elevation-z8 {
   width: 100%;
   overflow: scroll;

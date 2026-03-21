@@ -11,6 +11,7 @@ import { MapWindowComponent } from './map-window/map-window.component';
 import { SatelliteWindowComponent } from './satellite-window/satellite-window.component';
 import { AssetMapComponent } from './asset-map/asset-map.component';
 import { PictureWindowComponent } from './picture-window/picture-window.component';
+import { ChatListComponent } from './chat-list/chat-list.component';
 import { CountryNamePipe } from './country-name.pipe';
 import { HighlightPipe } from './highlight.pipe';
 import { AssetService } from './asset.service';
@@ -25,6 +26,7 @@ import { AdminGuard } from '../../guards/admin.guard';
     SatelliteWindowComponent,
     AssetMapComponent,
     PictureWindowComponent,
+    ChatListComponent,
     CountryNamePipe,
     HighlightPipe,
   ],

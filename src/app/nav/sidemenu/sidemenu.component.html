@@ -145,6 +145,16 @@
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
+            routerLink="/device/reviews"
+            *ngIf="loginuser.role === 'Admin'"
+            test-id="device-reviews"
+          >
+            <span>Device Reviews</span>
+          </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
             routerLink="/device/add"
             *ngIf="loginuser.role != 'User'"
             test-id="add-devices"
@@ -162,16 +172,6 @@
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span> Bulk Upload</span>
-          </a>
-          <a
-            mat-button
-            class="menu-button inside-menu-button"
-            routerLinkActive="active"
-            routerLink="/device/reviews"
-            *ngIf="(loginuser.role === 'OrganizationAdmin' || loginuser.role === 'ApiUser') && !isApiMode"
-            test-id="device-reviews"
-          >
-            <span>Reviews</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>

@@ -1,0 +1,36 @@
+<div class="cl">
+  <div class="cl__header">
+    <h2 class="cl__title">Open Chats</h2>
+    <button class="cl__refresh" (click)="loadConversations()" title="Refresh">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="cl__status">Loading...</div>
+  <div *ngIf="error" class="cl__status cl__status--error">{{ error }}</div>
+
+  <table class="cl__table" *ngIf="!loading && conversations.length > 0">
+    <thead>
+      <tr>
+        <th>Site Name</th>
+        <th>Other Participant</th>
+        <th class="cl__th--action"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let conv of conversations" class="cl__row" (click)="openConversation(conv)">
+        <td class="cl__cell--site">{{ conv.deviceProjectName || '(no site)' }}</td>
+        <td class="cl__cell--participant">{{ otherParticipant(conv) }}</td>
+        <td class="cl__cell--action">
+          <button class="cl__open-btn" title="Open chat">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && conversations.length === 0" class="cl__empty">
+    No open chats yet.
+  </div>
+</div>

@@ -315,6 +315,14 @@
                   ? 'Waiting For Review'
                   : element.evidentStatus
               }}
+              <button
+                mat-icon-button
+                class="chat-icon-btn"
+                (click)="openChat(element); $event.stopPropagation()"
+                title="Chat about this device"
+              >
+                <mat-icon class="chat-icon">chat</mat-icon>
+              </button>
             </td>
           </ng-container>
           <ng-container matColumnDef="commissioningDate">

@@ -48,14 +48,14 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
       if (hadNew) this.autoScrollToBottom();
     });
 
-    this.deviceSub = this.chatService.openForDevice$.subscribe(({ submitterEmail, projectName }) => {
+    this.deviceSub = this.chatService.openForDevice$.subscribe(({ submitterEmail, siteName }) => {
       if (!submitterEmail) return;
       this.partnerEmail = submitterEmail;
       this.partnerName = submitterEmail;
-      this.deviceProjectName = projectName || null;
+      this.deviceProjectName = siteName || null;
 
-      // Try to find existing conversation and load its messages
-      this.chatService.getConversation(this.currentUsername, submitterEmail).subscribe({
+      // Look up existing conversation by site name
+      this.chatService.getConversation(undefined, undefined, siteName || undefined).subscribe({
         next: (conv) => {
           if (conv) {
             this.chatService.openChat(conv);

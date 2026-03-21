@@ -29,7 +29,7 @@ export class ChatService implements OnDestroy {
   messages$ = new BehaviorSubject<ChatMessage[]>([]);
   isChatOpen$ = new BehaviorSubject<boolean>(false);
   siteName$ = new BehaviorSubject<string | null>(null);
-  openForDevice$ = new ReplaySubject<{ submitterEmail: string; projectName: string }>(1);
+  openForDevice$ = new ReplaySubject<{ submitterEmail: string; siteName: string }>(1);
   currentHeadUuid: string | null = null;
   currentConversationId: number | null = null;
 
@@ -91,12 +91,17 @@ export class ChatService implements OnDestroy {
   }
 
   getConversation(
-    participant1: string,
-    participant2: string,
+    participant1?: string,
+    participant2?: string,
+    deviceProjectName?: string,
   ): Observable<ChatConversation | null> {
+    const body: any = {};
+    if (participant1) body.participant1 = participant1;
+    if (participant2) body.participant2 = participant2;
+    if (deviceProjectName) body.deviceProjectName = deviceProjectName;
     return this.http.post<ChatConversation | null>(
       `${this.apiUrl}chat/conversations/find`,
-      { participant1, participant2 },
+      body,
     );
   }
 
@@ -118,6 +123,12 @@ export class ChatService implements OnDestroy {
 
   getAllConversations(): Observable<ChatConversation[]> {
     return this.http.get<ChatConversation[]>(`${this.apiUrl}chat/conversations`);
+  }
+
+  getConversationsForUser(email: string): Observable<ChatConversation[]> {
+    return this.http.get<ChatConversation[]>(
+      `${this.apiUrl}chat/conversations/user/${encodeURIComponent(email)}`,
+    );
   }
 
   ngOnDestroy(): void {

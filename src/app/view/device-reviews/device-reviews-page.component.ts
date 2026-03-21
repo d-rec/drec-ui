@@ -11,21 +11,27 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
   z = { map: 200, satellite: 150, documents: 300, picture: 400 };
   activeTab: 'reviews' | 'map' = 'reviews';
   showSatellite = false;
+  isAdmin = false;
 
   private sub!: Subscription;
 
   constructor(private svc: AssetService) {}
 
   ngOnInit(): void {
-    this.sub = this.svc.flyTo$.subscribe(() => {
-      this.showSatellite = true;
-      this.bringToFront('satellite');
-    });
-    this.svc.populateFromDb();
+    const loginUser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
+    this.isAdmin = loginUser.role === 'Admin';
+
+    if (this.isAdmin) {
+      this.sub = this.svc.flyTo$.subscribe(() => {
+        this.showSatellite = true;
+        this.bringToFront('satellite');
+      });
+      this.svc.populateFromDb();
+    }
   }
 
   ngOnDestroy(): void {
-    this.sub.unsubscribe();
+    this.sub?.unsubscribe();
   }
 
   bringToFront(win: 'map' | 'satellite' | 'documents' | 'picture'): void {
