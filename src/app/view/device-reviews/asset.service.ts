@@ -64,4 +64,11 @@ export class AssetService {
     const assets = this.assets$.value.map(a => a.id === updated.id ? { ...updated } : a);
     this.assets$.next(assets);
   }
+
+  toggleDocReviewed(docId: number): Observable<{ reviewed: boolean }> {
+    return this.http.patch<{ reviewed: boolean }>(
+      `${environment.API_URL}device-reviews/documents/${docId}/reviewed`,
+      {},
+    );
+  }
 }

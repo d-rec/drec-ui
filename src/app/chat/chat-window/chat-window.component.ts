@@ -115,6 +115,14 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     }
   }
 
+  isItalic(text: string): boolean {
+    return text.startsWith('_') && text.endsWith('_') && text.length > 2;
+  }
+
+  stripItalic(text: string): string {
+    return text.slice(1, -1);
+  }
+
   get filteredMessages(): ChatMessage[] {
     const term = this.chatSearch.trim().toLowerCase();
     if (!term) return this.messages;

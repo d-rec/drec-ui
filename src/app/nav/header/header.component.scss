@@ -1,24 +1,19 @@
-$primary: #f2be1a;
-$secondary: #010101;
-$tritary: #3f3f3f;
-$gray: #3f3f3f;
-$white: #fff;
-$danger: #f44336;
-$example-header-rgba: rgba(0, 0, 0, 0.1);
+$color-header-bg: #1e293b;
+$color-header-text: #f1f5f9;
 
 .example-header {
   position: fixed;
-  background: $white;
-  color: $white;
+  background: $color-header-bg;
+  color: $color-header-text;
   top: 0;
   left: 0;
   right: 0;
-  height: 10px;
-  box-shadow: 3px 0px 33px $example-header-rgba;
+  height: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   z-index: 2;
 }
 .mat-drawer-inner-container {
-  box-shadow: 0px 0px 15px $example-header-rgba;
+  box-shadow: none;
   z-index: 999;
 }
 .spacer {
@@ -26,11 +21,11 @@ $example-header-rgba: rgba(0, 0, 0, 0.1);
 }
 
 ::ng-deep .mat-toolbar-multiple-rows {
-  min-height: 54px;
+  min-height: 42px;
 }
 
 .custom-header {
   .mat-mdc-button:not(:disabled) {
-    color: $secondary;
+    color: $color-header-text;
   }
 }

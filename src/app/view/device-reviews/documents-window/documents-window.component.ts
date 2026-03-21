@@ -22,14 +22,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   initWidth = Math.round(window.innerWidth * 2 / 3);
   initHeight = Math.round(window.innerHeight * 2 / 3);
 
-  readonly statusOptions: AssetStatus[] = ['pending', 'approved', 'rejected'];
+  readonly statusOptions: AssetStatus[] = ['draft', 'pending', 'approved', 'rejected'];
 
   // filters
   readonly searchTerm$ = new BehaviorSubject('');
   get searchTerm(): string { return this.searchTerm$.value; }
   set searchTerm(v: string) { this.searchTerm$.next(v); }
 
-  statusFilter: Record<AssetStatus, boolean> = { pending: true, approved: true, rejected: true };
+  statusFilter: Record<AssetStatus, boolean> = { draft: true, pending: true, approved: true, rejected: true };
   readonly statusFilter$ = new BehaviorSubject(this.statusFilter);
 
   searchMatchIds: string[] = [];
@@ -67,8 +67,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   expanded: Record<string, boolean> = {};
   sectionOpen: Record<string, Record<'codProof' | 'sld' | 'sf02' | 'sf02c' | 'meteringEvidence' | 'pictures', boolean>> = {};
 
-  // document reviewed state (keyed by URL)
+  // document reviewed state: keyed by "deviceId:docKey" (e.g. "42:sld", "42:pic:0")
   reviewed: Record<string, boolean> = {};
+  // maps "deviceId:docKey" → document DB id for API calls
+  private docIdMap: Record<string, number> = {};
 
   // detail form
   detailForm!: FormGroup;
@@ -126,15 +128,30 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       status:        ['pending' as AssetStatus],
       notes:         [''],
       submitterEmail: ['', Validators.email],
+      evidentDeviceId: [''],
+      evidentStatus: [''],
     });
 
-    this.sub = this.svc.selectedId$.subscribe(id => {
+    // Load reviewed state from docMeta whenever assets change
+    this.sub = this.svc.assets$.subscribe(assets => {
+      for (const asset of assets) {
+        if (asset.docMeta) {
+          for (const [docKey, meta] of Object.entries(asset.docMeta)) {
+            const fullKey = asset.id + ':' + docKey;
+            this.reviewed[fullKey] = meta.reviewed;
+            this.docIdMap[fullKey] = meta.docId;
+          }
+        }
+      }
+    });
+
+    this.sub.add(this.svc.selectedId$.subscribe(id => {
       if (id) {
         const asset = this.svc.assets$.value.find(a => a.id === id);
         if (asset) this.patchForm(asset);
       }
       this.editingId = id;
-    });
+    }));
   }
 
   ngOnDestroy(): void {
@@ -336,6 +353,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     const asset = this.svc.assets$.value.find(a => a.id === this.editingId);
     if (!asset) return;
     const v = this.detailForm.getRawValue();
+    const oldStatus = asset.status;
+    const newStatus = v.status as AssetStatus;
     this.svc.saveAsset({
       ...asset,
       lat:           v.lat !== '' ? parseFloat(v.lat) : null,
@@ -347,10 +366,13 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       reviewer:      v.reviewer,
       dateAdded:     v.dateAdded ? new Date(v.dateAdded) : null,
       dateSubmitted: v.dateSubmitted ? new Date(v.dateSubmitted) : null,
-      status:        v.status,
+      status:        newStatus,
       notes:         v.notes,
       submitterEmail: v.submitterEmail,
     });
+    if (oldStatus !== newStatus) {
+      this.logStatusChange(asset.projectName, oldStatus, newStatus);
+    }
   }
 
   cancelDetail(): void {
@@ -361,8 +383,45 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     if (!this.editingId) return;
     const asset = this.svc.assets$.value.find(a => a.id === this.editingId);
     if (!asset) return;
+    const oldStatus = asset.status;
+    if (oldStatus === status) return;
     this.svc.saveAsset({ ...asset, status });
     this.detailForm.patchValue({ status });
+    this.logStatusChange(asset.projectName, oldStatus, status);
+  }
+
+  private logStatusChange(siteName: string, from: AssetStatus, to: AssetStatus): void {
+    const loginUser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
+    const username = loginUser.email || loginUser.username || 'system';
+    const entry = `_status changed from ${from} to ${to}_`;
+
+    // If the chat already has a conversation open for this site, post directly
+    if (this.chatService.currentConversationId) {
+      this.chatService.sendMessage(username, entry).subscribe({
+        next: () => {
+          if (this.chatService.currentHeadUuid) {
+            this.chatService.getChain(this.chatService.currentHeadUuid).subscribe(
+              msgs => this.chatService.messages$.next(msgs),
+            );
+          }
+        },
+        error: (err) => console.warn('Could not log status change to chat', err),
+      });
+      return;
+    }
+
+    // Otherwise look up/create a conversation for the site
+    this.chatService.getConversation(undefined, undefined, siteName).subscribe({
+      next: (conv) => {
+        if (conv) {
+          this.chatService.openChat(conv);
+          this.chatService.sendMessage(username, entry).subscribe({
+            error: (err) => console.warn('Could not log status change to chat', err),
+          });
+        }
+      },
+      error: () => {},
+    });
   }
 
   requestApprove(): void {
@@ -380,7 +439,35 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   toggleReviewed(key: string, event: MouseEvent): void {
     event.stopPropagation();
-    this.reviewed = { ...this.reviewed, [key]: !this.reviewed[key] };
+    const newVal = !this.reviewed[key];
+    this.reviewed = { ...this.reviewed, [key]: newVal };
+
+    // Switch device to draft as soon as any checkbox is checked
+    if (newVal) {
+      const deviceId = key.split(':')[0];
+      const asset = this.svc.assets$.value.find(a => a.id === deviceId);
+      if (asset && asset.status !== 'draft') {
+        const oldStatus = asset.status;
+        this.svc.saveAsset({ ...asset, status: 'draft' });
+        if (this.editingId === deviceId) {
+          this.detailForm.patchValue({ status: 'draft' });
+        }
+        this.logStatusChange(asset.projectName, oldStatus, 'draft');
+      }
+    }
+
+    // Persist to backend if document ID is known
+    const docId = this.docIdMap[key];
+    if (docId) {
+      this.svc.toggleDocReviewed(docId).subscribe({
+        next: (res) => {
+          this.reviewed = { ...this.reviewed, [key]: res.reviewed };
+        },
+        error: () => {
+          this.reviewed = { ...this.reviewed, [key]: !newVal };
+        },
+      });
+    }
   }
 
   openChat(): void {
@@ -427,6 +514,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       status:        a.status,
       notes:         a.notes,
       submitterEmail: a.submitterEmail,
+      evidentDeviceId: a.evidentDeviceId ?? '',
+      evidentStatus: a.evidentStatus ?? '',
     });
     this.chatService.siteName$.next(a.projectName || null);
   }

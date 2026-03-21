@@ -1,4 +1,9 @@
-export type AssetStatus = 'pending' | 'approved' | 'rejected';
+export type AssetStatus = 'draft' | 'pending' | 'approved' | 'rejected';
+
+export interface DocMeta {
+  docId: number;
+  reviewed: boolean;
+}
 
 export interface Asset {
   id: string;
@@ -22,4 +27,7 @@ export interface Asset {
   modifiedDate: Date | null;
   status: AssetStatus;
   notes: string;
+  evidentDeviceId: string | null;
+  evidentStatus: string | null;
+  docMeta: Record<string, DocMeta>;
 }

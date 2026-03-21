@@ -20,6 +20,7 @@ $accent:   #2563eb;
 $approved: #16a34a;
 $rejected: #dc2626;
 $pending:  #d97706;
+$draft:    #6366f1;
 
 // Override drec-ui's global Poppins (which is set with !important on html/body)
 // to match the original device-submission app's lighter system font stack.
@@ -166,6 +167,7 @@ $pending:  #d97706;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #fff;
+  &--draft    { background: $draft; }
   &--approved { background: $approved; }
   &--rejected  { background: $rejected; }
   &--pending   { background: $pending; }
@@ -350,6 +352,7 @@ $pending:  #d97706;
 .status-icon {
   font-weight: 700;
   font-size: 13px;
+  &--draft    { color: $draft; }
   &--approved { color: $approved; }
   &--rejected  { color: $rejected; }
   &--pending   { color: $pending; }
@@ -444,6 +447,7 @@ $pending:  #d97706;
 
 .status-select {
   font-weight: 600;
+  &--draft    { background: #e0e7ff; color: #3730a3; border-color: #818cf8; }
   &--pending  { background: #fef3c7; color: #92400e; border-color: #f59e0b; }
   &--approved { background: #dcfce7; color: #14532d; border-color: #22c55e; }
   &--rejected { background: #fee2e2; color: #7f1d1d; border-color: #ef4444; }

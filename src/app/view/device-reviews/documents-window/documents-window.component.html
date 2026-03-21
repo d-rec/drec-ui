@@ -244,10 +244,19 @@
               <div class="field field--narrow">
                 <label class="field__label">Status</label>
                 <select class="field__input field__select status-select status-select--{{ detailForm.get('status')?.value }}" formControlName="status">
+                  <option value="draft">Draft</option>
                   <option value="pending">Pending</option>
                   <option value="approved">Approved</option>
                   <option value="rejected">Rejected</option>
                 </select>
+              </div>
+              <div class="field field--auto">
+                <label class="field__label">Evident Id</label>
+                <span class="field__input field__input--text">{{ detailForm.get('evidentDeviceId')?.value || '—' }}</span>
+              </div>
+              <div class="field field--narrow">
+                <label class="field__label">Evident Status</label>
+                <span class="field__input field__input--text">{{ detailForm.get('evidentStatus')?.value || '—' }}</span>
               </div>
             </div>
             <div class="field field--full">
@@ -262,12 +271,12 @@
             </div>
           <div class="detail-actions">
             <span class="detail-actions__sep"></span>
-            <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value !== 'pending'">
+            <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
             </button>
-            <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value !== 'pending'">Approve</button>
-            <button type="button" class="btn btn--reject"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value !== 'pending'">Reject</button>
-            <button type="button" class="btn btn--archive" (click)="archiveDevice()" [disabled]="detailForm.get('status')?.value === 'pending'">Archive</button>
+            <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
+            <button type="button" class="btn btn--reject"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Reject</button>
+            <button type="button" class="btn btn--archive" (click)="archiveDevice()" [disabled]="detailForm.get('status')?.value === 'pending' || detailForm.get('status')?.value === 'draft'">Archive</button>
           </div>
         </form>
       </div>

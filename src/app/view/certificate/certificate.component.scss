@@ -1,5 +1,5 @@
 // Colors
-$primary: #f2be1a;
+$primary: #3b5bdb;
 $secondary: #010101;
 $tritary: #3f3f3f;
 $gray: #3f3f3f;
@@ -7,10 +7,10 @@ $white: #fff;
 $danger: #f44336;
 
 .body-bg {
-  padding: 35px 30px 35px 30px;
-  background: #f2f2f2;
+  padding: 16px 20px;
+  background: #f8f9fb;
   .mat-mdc-card {
-    box-shadow: 3px 0px 33px rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
     // border: none!important;
   }
 }
@@ -124,7 +124,7 @@ mat-card-content {
 //   display: flex;
 // }
 // .group-name{
-//   color: #f2be1a;
+//   color: #3b5bdb;
 //   text-align: center !important;
 // }
 .group-id {

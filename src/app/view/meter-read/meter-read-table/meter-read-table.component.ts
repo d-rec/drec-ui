@@ -94,7 +94,7 @@ export class MeterReadTableComponent implements OnInit {
         });
         this.readdata.ongoing.forEach((element: any) => {
           element['readtype'] = 'Ongoing';
-          element['color'] = '#f2be1a';
+          element['color'] = '#3b5bdb';
         });
         this.dataSource = new MatTableDataSource([
           ...this.readdata.historyread,
