@@ -37,6 +37,7 @@ import { UserAcceptInvitationComponent } from './view/user-accept-invitation/use
 import { ApiuserClientReponseComponent } from './view/apiuser-client-reponse/apiuser-client-reponse.component';
 import * as Sentry from '@sentry/angular';
 import { SharedModule } from './shared.module';
+import { provideNgxMatMomentDate } from '@ngxmc/moment-adapter';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
@@ -114,6 +115,7 @@ import { ChatModule } from './chat/chat.module';
     ChatModule,
   ],
   providers: [
+    provideNgxMatMomentDate(),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     {
       provide: ErrorHandler,

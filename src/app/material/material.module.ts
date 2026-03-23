@@ -47,10 +47,11 @@ import { CdkMenuModule } from '@angular/cdk/menu';
 import { DialogModule } from '@angular/cdk/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import {
-  NgxMatDatetimePickerModule,
-  NgxMatTimepickerModule,
-} from '@angular-material-components/datetime-picker';
-import { NgxMatMomentModule } from '@angular-material-components/moment-adapter';
+  NgxMatDatetimepicker,
+  NgxMatTimepickerComponent,
+  NgxMatDatepickerInput,
+  NgxMatDatepickerToggle,
+} from '@ngxmc/datetime-picker';
 import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA,
@@ -106,9 +107,10 @@ import {
     ScrollingModule,
     DialogModule,
     MatFormFieldModule,
-    NgxMatDatetimePickerModule,
-    NgxMatTimepickerModule,
-    NgxMatMomentModule,
+    NgxMatDatetimepicker,
+    NgxMatTimepickerComponent,
+    NgxMatDatepickerInput,
+    NgxMatDatepickerToggle,
   ],
   providers: [
     { provide: MatBottomSheetRef, useValue: {} },

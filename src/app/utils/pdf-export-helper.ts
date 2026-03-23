@@ -10,7 +10,7 @@ export async function generatePDFBlob(
   const pdfMakeModule = await import('pdfmake/build/pdfmake');
   const pdfFontsModule = await import('pdfmake/build/vfs_fonts');
 
-  (pdfMakeModule.default as any).vfs = pdfFontsModule.default.vfs;
+  (pdfMakeModule.default as any).vfs = (pdfFontsModule.default as any)['vfs'];
   const pdfMake = pdfMakeModule.default;
 
   // Insert header row at the start of the data array

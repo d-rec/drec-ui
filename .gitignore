@@ -42,6 +42,7 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+**/__MACOSX/
 
 # Sentry Config File
 .sentryclirc
