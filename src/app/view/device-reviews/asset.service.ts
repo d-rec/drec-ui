@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, ReplaySubject, map } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subject, map } from 'rxjs';
 import { Asset } from './asset.model';
 import { environment } from '../../../environments/environment';
 
@@ -13,6 +13,8 @@ export class AssetService {
   readonly flyTo$ = new ReplaySubject<{ lat: number; lng: number }>(1);
   readonly loading$ = new BehaviorSubject<boolean>(false);
   readonly error$ = new BehaviorSubject<string | null>(null);
+  /** Emits only when fresh data is loaded from the server (not on local saves). */
+  readonly dataLoaded$ = new Subject<Asset[]>();
 
   flyTo(lat: number, lng: number): void {
     this.flyTo$.next({ lat, lng });
@@ -29,12 +31,14 @@ export class AssetService {
     this.error$.next(null);
     this.http.get<Asset[]>(environment.API_URL + 'device-reviews').subscribe({
       next: assets => {
-        this.assets$.next(assets.map(a => ({
+        const mapped = assets.map(a => ({
           ...a,
           dateAdded:     a.dateAdded     ? new Date(a.dateAdded)     : null,
           dateSubmitted: a.dateSubmitted ? new Date(a.dateSubmitted) : null,
           modifiedDate:  a.modifiedDate  ? new Date(a.modifiedDate)  : null,
-        })));
+        }));
+        this.assets$.next(mapped);
+        this.dataLoaded$.next(mapped);
         this.selectedId$.next(null);
         this.loading$.next(false);
       },
@@ -59,10 +63,25 @@ export class AssetService {
     this.expandId$.next(id);
   }
 
-  saveAsset(updated: Asset): void {
+  saveAsset(updated: Asset, persistStatus = false): void {
+    const old = this.assets$.value.find(a => a.id === updated.id);
     updated.modifiedDate = new Date();
     const assets = this.assets$.value.map(a => a.id === updated.id ? { ...updated } : a);
     this.assets$.next(assets);
+
+    // Persist status change to backend
+    if (persistStatus || (old && old.status !== updated.status)) {
+      this.updateReviewStatus(parseInt(updated.id, 10), updated.status).subscribe({
+        error: (err) => console.warn('Failed to persist review status', err),
+      });
+    }
+  }
+
+  updateReviewStatus(deviceId: number, status: string): Observable<{ status: string }> {
+    return this.http.patch<{ status: string }>(
+      `${environment.API_URL}device-reviews/${deviceId}/status`,
+      { status },
+    );
   }
 
   toggleDocReviewed(docId: number): Observable<{ reviewed: boolean }> {

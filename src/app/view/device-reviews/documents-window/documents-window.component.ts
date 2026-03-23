@@ -1,6 +1,6 @@
 import {
   Component, Input, Output, EventEmitter,
-  OnInit, OnDestroy,
+  OnInit, OnDestroy, ChangeDetectorRef,
 } from '@angular/core';
 import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -98,6 +98,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     readonly chatService: ChatService,
     private fb: FormBuilder,
     private sanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   trustUrl(url: string): SafeUrl {
@@ -132,8 +133,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       evidentStatus: [''],
     });
 
-    // Load reviewed state from docMeta whenever assets change
-    this.sub = this.svc.assets$.subscribe(assets => {
+    // Load reviewed state from docMeta only when fresh data arrives from the server.
+    // Local toggles via saveAsset() won't trigger this.
+    this.sub = this.svc.dataLoaded$.subscribe(assets => {
+      this.reviewed = {};
+      this.docIdMap = {};
       for (const asset of assets) {
         if (asset.docMeta) {
           for (const [docKey, meta] of Object.entries(asset.docMeta)) {
@@ -411,12 +415,22 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     }
 
     // Otherwise look up/create a conversation for the site
+    const asset = this.svc.assets$.value.find(a => a.projectName === siteName);
+    const submitterEmail = asset?.submitterEmail || '';
+
     this.chatService.getConversation(undefined, undefined, siteName).subscribe({
       next: (conv) => {
         if (conv) {
           this.chatService.openChat(conv);
           this.chatService.sendMessage(username, entry).subscribe({
             error: (err) => console.warn('Could not log status change to chat', err),
+          });
+        } else {
+          this.chatService.startConversation(username, submitterEmail || username, username, entry, siteName).subscribe({
+            next: (result) => {
+              this.chatService.openChat(result.conversation);
+            },
+            error: (err) => console.warn('Could not start conversation for status log', err),
           });
         }
       },
@@ -437,16 +451,28 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.showApproveModal = false;
   }
 
+  trackById(_index: number, item: Asset): string {
+    return item.id;
+  }
+
   toggleReviewed(key: string, event: MouseEvent): void {
     event.stopPropagation();
+    event.preventDefault();
     const newVal = !this.reviewed[key];
     this.reviewed = { ...this.reviewed, [key]: newVal };
+    this.cdr.detectChanges();
 
-    // Switch device to draft as soon as any checkbox is checked
-    if (newVal) {
+    // All side effects deferred so the checkbox updates immediately
+    setTimeout(() => this.onReviewedChanged(key, newVal));
+  }
+
+  private onReviewedChanged(key: string, newVal: boolean): void {
+    try {
       const deviceId = key.split(':')[0];
       const asset = this.svc.assets$.value.find(a => a.id === deviceId);
-      if (asset && asset.status !== 'draft') {
+
+      // Switch device to draft when a checkbox is checked
+      if (newVal && asset && asset.status !== 'draft') {
         const oldStatus = asset.status;
         this.svc.saveAsset({ ...asset, status: 'draft' });
         if (this.editingId === deviceId) {
@@ -454,20 +480,80 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         }
         this.logStatusChange(asset.projectName, oldStatus, 'draft');
       }
+
+      // Persist to backend
+      const docId = this.docIdMap[key];
+      if (docId) {
+        this.svc.toggleDocReviewed(docId).subscribe({
+          error: (err) => console.warn('toggleDocReviewed failed', err),
+        });
+      }
+
+      // Log review action to chat
+      if (asset) {
+        const docLabel = this.docKeyLabel(key);
+        const action = newVal ? 'reviewed' : 'undone';
+        this.logChatEntry(asset.projectName, `_document ${docLabel} was ${action}_`);
+      }
+    } catch (e) {
+      console.error('onReviewedChanged error:', e);
+    }
+  }
+
+  private docKeyLabel(key: string): string {
+    const labels: Record<string, string> = {
+      sld: 'SLD',
+      sf02: 'SF-02',
+      sf02c: 'SF-02C',
+      codProof: 'COD Proof',
+      meteringEvidence: 'Metering Evidence',
+    };
+    const parts = key.split(':');
+    if (parts[1] === 'pic') return `Picture #${(parseInt(parts[2], 10) + 1)}`;
+    return labels[parts[1]] || parts[1];
+  }
+
+  private logChatEntry(siteName: string, entry: string): void {
+    const loginUser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
+    const username = loginUser.email || loginUser.username || 'system';
+
+    if (this.chatService.currentConversationId) {
+      this.chatService.sendMessage(username, entry).subscribe({
+        next: () => {
+          if (this.chatService.currentHeadUuid) {
+            this.chatService.getChain(this.chatService.currentHeadUuid).subscribe(
+              msgs => this.chatService.messages$.next(msgs),
+            );
+          }
+        },
+        error: (err) => console.warn('Could not log to chat', err),
+      });
+      return;
     }
 
-    // Persist to backend if document ID is known
-    const docId = this.docIdMap[key];
-    if (docId) {
-      this.svc.toggleDocReviewed(docId).subscribe({
-        next: (res) => {
-          this.reviewed = { ...this.reviewed, [key]: res.reviewed };
-        },
-        error: () => {
-          this.reviewed = { ...this.reviewed, [key]: !newVal };
-        },
-      });
-    }
+    // Look up the device to get submitter email for conversation creation
+    const asset = this.svc.assets$.value.find(a => a.projectName === siteName);
+    const submitterEmail = asset?.submitterEmail || '';
+
+    this.chatService.getConversation(undefined, undefined, siteName).subscribe({
+      next: (conv) => {
+        if (conv) {
+          this.chatService.openChat(conv);
+          this.chatService.sendMessage(username, entry).subscribe({
+            error: (err) => console.warn('Could not log to chat', err),
+          });
+        } else {
+          // No conversation yet — create one with this log entry as the first message
+          this.chatService.startConversation(username, submitterEmail || username, username, entry, siteName).subscribe({
+            next: (result) => {
+              this.chatService.openChat(result.conversation);
+            },
+            error: (err) => console.warn('Could not start conversation for log', err),
+          });
+        }
+      },
+      error: () => {},
+    });
   }
 
   openChat(): void {

@@ -34,7 +34,7 @@
       </div>
 
       <ng-container *ngIf="filtered$ | async as result">
-      <ng-container *ngFor="let item of result.assets">
+      <ng-container *ngFor="let item of result.assets; trackBy: trackById">
 
         <!-- Device row -->
         <div
@@ -238,7 +238,7 @@
                 <input type="date" class="field__input" formControlName="dateAdded" readonly />
               </div>
               <div class="field field--narrow">
-                <label class="field__label">Date Approved</label>
+                <label class="field__label">Date Closed</label>
                 <input type="date" class="field__input" formControlName="dateSubmitted" readonly />
               </div>
               <div class="field field--narrow">

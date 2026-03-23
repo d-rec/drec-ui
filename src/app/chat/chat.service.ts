@@ -131,6 +131,12 @@ export class ChatService implements OnDestroy {
     );
   }
 
+  clearConversation(conversationId: number): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(
+      `${this.apiUrl}chat/conversations/${conversationId}`,
+    );
+  }
+
   ngOnDestroy(): void {
     this.stopPolling();
   }

@@ -35,6 +35,7 @@ export class AlldevicesComponent {
     'externalId',
     'capacity',
     'countryCode',
+    'reviewStatus',
     'evidentId',
     'evidentStatus',
     'commissioningDate',
@@ -387,10 +388,26 @@ export class AlldevicesComponent {
       }, 300);
     }
   }
-  UpdateDevice(externalId: any) {
-    this.router.navigate(['/device/edit/' + externalId], {
-      queryParams: { fromdevices: true },
-    });
+  UpdateDevice(row: any) {
+    if (row.reviewStatus === 'draft') {
+      const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          title: 'Warning',
+          message: 'Warning: this device is currently under review, mind your changes.',
+        },
+      });
+      confirmDialog.afterClosed().subscribe((result) => {
+        if (result === true) {
+          this.router.navigate(['/device/edit/' + row.serialNumber], {
+            queryParams: { fromdevices: true },
+          });
+        }
+      });
+    } else {
+      this.router.navigate(['/device/edit/' + row.serialNumber], {
+        queryParams: { fromdevices: true },
+      });
+    }
   }
 
   previousPage(): void {
