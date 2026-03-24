@@ -15,6 +15,7 @@ const STATUS_COLOR: Record<string, string> = {
   approved:  '#22c55e',
   rejected:  '#ef4444',
   pending:   '#f59e0b',
+  legacy:    '#a0845c',
 };
 
 function pinIcon(color: string): L.DivIcon {

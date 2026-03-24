@@ -107,7 +107,7 @@ import { ChatModule } from './chat/chat.module';
     MarkdownModule.forRoot(),
     ToastrModule.forRoot({
       closeButton: true,
-      timeOut: 15000,
+      timeOut: 30000,
       progressBar: true,
     }),
     SharedModule,

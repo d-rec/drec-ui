@@ -193,8 +193,9 @@ export class CertificateDetailsComponent {
       this.DisplayList(this.p);
       this.getOrganizations();
     }, 1500);
-    this.getBlockchainProperties();
-    this.selectAccountAddressFromMetamask();
+    // Blockchain/MetaMask not used in staging
+    // this.getBlockchainProperties();
+    // this.selectAccountAddressFromMetamask();
     this.loadReservations();
   }
   ngOnDestroy() {

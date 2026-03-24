@@ -140,10 +140,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "origin-drec-angular-ui:build:production"
+              "buildTarget": "origin-drec-angular-ui:build:production"
             },
             "development": {
-              "browserTarget": "origin-drec-angular-ui:build:development"
+              "buildTarget": "origin-drec-angular-ui:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -151,7 +151,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "origin-drec-angular-ui:build"
+            "buildTarget": "origin-drec-angular-ui:build"
           }
         },
         "test": {

@@ -1,4 +1,4 @@
-export type AssetStatus = 'draft' | 'pending' | 'approved' | 'rejected';
+export type AssetStatus = 'draft' | 'pending' | 'approved' | 'rejected' | 'legacy';
 
 export interface DocMeta {
   docId: number;

@@ -23,14 +23,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   initWidth = Math.round(window.innerWidth * 2 / 3);
   initHeight = Math.round(window.innerHeight * 2 / 3);
 
-  readonly statusOptions: AssetStatus[] = ['draft', 'pending', 'approved', 'rejected'];
+  readonly statusOptions: AssetStatus[] = ['draft', 'pending', 'approved', 'rejected', 'legacy'];
 
   // filters
   readonly searchTerm$ = new BehaviorSubject('');
   get searchTerm(): string { return this.searchTerm$.value; }
   set searchTerm(v: string) { this.searchTerm$.next(v); }
 
-  statusFilter: Record<AssetStatus, boolean> = { draft: true, pending: true, approved: true, rejected: true };
+  statusFilter: Record<AssetStatus, boolean> = { draft: true, pending: true, approved: true, rejected: true, legacy: true };
   readonly statusFilter$ = new BehaviorSubject(this.statusFilter);
 
   searchMatchIds: string[] = [];
