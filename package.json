@@ -34,8 +34,6 @@
     "@angular/platform-browser-dynamic": "^19.2.20",
     "@angular/router": "^19.2.20",
     "@asymmetrik/ngx-leaflet": "^18.0.1",
-    "@energyweb/issuer": "7.0.1",
-    "@energyweb/utils-general": "^11.2.3",
     "@sentry/angular": "~9.47.1",
     "@sentry/cli": "^2.39.1",
     "async-mutex": "^0.5.0",
