@@ -3,6 +3,7 @@ import { AuthGuard } from './auth.guard';
 import { UserService } from '../auth/services/user.service';
 import { inject } from '@angular/core';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
   const userService = inject(UserService);
@@ -13,6 +14,11 @@ export const AuthVerifiedGuard: CanActivateFn = (route, state) => {
   // If the first check returns false or a UrlTree, return that result
   if (loggedInResult !== true) {
     return loggedInResult;
+  }
+
+  // Skip verification checks in dev/stage
+  if (!environment.production) {
+    return true;
   }
 
   // Additional access checks can go here

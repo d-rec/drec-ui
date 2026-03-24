@@ -4,7 +4,10 @@ import {
   ViewChild,
   EventEmitter,
   Output,
+  OnDestroy,
 } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { environment } from '../../../../environments/environment';
 import {
   FormGroup,
   FormBuilder,
@@ -60,6 +63,16 @@ type FileType = keyof DeviceFiles;
 })
 export class AddDevicesComponent {
   @ViewChild('popupDialog') popupDialog = {} as TemplateRef<any>;
+  @ViewChild('previewDialog') previewDialogTemplate = {} as TemplateRef<any>;
+  @ViewChild('errorDialog') errorDialogTemplate = {} as TemplateRef<any>;
+  previewDialogRef: any;
+  previewData: { url: any; type: string; name: string } | null = null;
+  ocrText: string = '';
+  ocrLoading: boolean = false;
+  ocrProgress: number = 0;
+  translatedText: string = '';
+  translating: boolean = false;
+  detectedLang: string = '';
   DataSourceTypes = DataSourceTypes;
   DocumentType = DocumentType;
   dialogRef: any;
@@ -116,6 +129,9 @@ export class AddDevicesComponent {
   files: {
     [index: number]: DeviceFiles;
   } = {};
+  filePreviews: {
+    [index: number]: { [key: string]: { url: SafeResourceUrl; type: 'image' | 'pdf' | 'other'; name: string } };
+  } = {};
   allDocumentsUploaded: boolean = false;
   formValid: boolean = false;
   isSubmitting: boolean = false;
@@ -140,6 +156,7 @@ export class AddDevicesComponent {
     private adminService: AdminService,
     private orgService: OrganizationService,
     public dialog: MatDialog,
+    private sanitizer: DomSanitizer,
   ) {
     this.user = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -165,6 +182,15 @@ export class AddDevicesComponent {
   ngOnDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe();
+    }
+    // Revoke object URLs to prevent memory leaks
+    for (const deviceIndex of Object.keys(this.filePreviews)) {
+      for (const fileType of Object.keys(this.filePreviews[+deviceIndex])) {
+        const preview = this.filePreviews[+deviceIndex][fileType];
+        if (preview?.url) {
+          URL.revokeObjectURL(preview.url as unknown as string);
+        }
+      }
     }
   }
 
@@ -420,13 +446,13 @@ export class AddDevicesComponent {
     const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
     switch (dataSource) {
       case DataSourceTypes.Inverter:
-        return 'Inverter Serial Number';
+        return 'Inverter Serial Number(s)';
       case DataSourceTypes.DataLogger:
-        return 'Data Logger Serial Number';
+        return 'Data Logger Serial Number(s)';
       case DataSourceTypes.Other:
         return 'Other Id';
       default:
-        return 'Serial Number';
+        return 'Serial Number(s)';
     }
   }
   private setupdataSourceBrandWatcher(deviceGroup: FormGroup) {
@@ -548,7 +574,153 @@ export class AddDevicesComponent {
       fileControl.setValue(input.files[0]);
       fileControl.markAsDirty();
     }
+
+    // Generate preview
+    const file = input.files[0];
+    if (!this.filePreviews[deviceIndex]) {
+      this.filePreviews[deviceIndex] = {};
+    }
+    const isImage = file.type.startsWith('image/');
+    const isPdf = file.type === 'application/pdf';
+    const objectUrl = URL.createObjectURL(file);
+    this.filePreviews[deviceIndex][fileType] = {
+      url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
+      type: isImage ? 'image' : isPdf ? 'pdf' : 'other',
+      name: file.name,
+    };
+
     this.checkDocumentsUploaded();
+  }
+
+  openPreview(deviceIndex: number, fileType: string) {
+    const preview = this.filePreviews[deviceIndex]?.[fileType];
+    if (!preview) return;
+    this.previewData = preview;
+    this.ocrText = '';
+    this.ocrLoading = false;
+    this.ocrProgress = 0;
+    this.translatedText = '';
+    this.translating = false;
+    this.detectedLang = '';
+    this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
+      width: '95vw',
+      maxWidth: '1400px',
+      height: '90vh',
+      panelClass: 'file-preview-dialog',
+    });
+
+    // Run OCR on the file
+    const file = this.files[deviceIndex]?.[fileType as keyof DeviceFiles]?.[0];
+    if (file) {
+      this.runOcr(file);
+    }
+  }
+
+  ocrPageInfo: string = '';
+
+  private async runOcr(file: File) {
+    this.ocrLoading = true;
+    this.ocrProgress = 0;
+    this.ocrPageInfo = '';
+    try {
+      const Tesseract = await import('tesseract.js' as any);
+      const createWorker = Tesseract.createWorker || Tesseract.default?.createWorker;
+      const worker = await createWorker('eng+fra', 1, {
+        logger: (m: any) => {
+          if (m.status === 'recognizing text') {
+            this.ocrProgress = Math.round(m.progress * 100);
+          }
+        },
+      });
+
+      if (file.type === 'application/pdf') {
+        const pdfjs = (window as any).pdfjsLib;
+        if (!pdfjs) {
+          this.ocrText = 'PDF.js not loaded — cannot OCR PDF files.';
+          this.ocrLoading = false;
+          await worker.terminate();
+          return;
+        }
+        pdfjs.GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.js';
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+        const totalPages = pdf.numPages;
+
+        for (let p = 1; p <= totalPages; p++) {
+          this.ocrPageInfo = `Page ${p} of ${totalPages}`;
+          this.ocrProgress = 0;
+          const page = await pdf.getPage(p);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d')!;
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          const { data: { text } } = await worker.recognize(canvas);
+          const separator = `── Page ${p} ${'─'.repeat(40)}`;
+          this.ocrText += (this.ocrText ? '\n\n' : '') + separator + '\n\n' + text.trim();
+        }
+      } else {
+        const { data: { text } } = await worker.recognize(file);
+        this.ocrText = text;
+      }
+
+      await worker.terminate();
+    } catch (err) {
+      console.error('OCR failed:', err);
+      this.ocrText = 'OCR failed — could not extract text from this document.';
+    }
+    this.ocrLoading = false;
+    this.ocrPageInfo = '';
+  }
+
+  async translateToEnglish() {
+    if (!this.ocrText || this.translating) return;
+    this.translating = true;
+    this.translatedText = '';
+    this.detectedLang = '';
+    try {
+      const chunks = this.splitTextIntoChunks(this.ocrText, 4000);
+      for (const chunk of chunks) {
+        const res = await fetch('https://api-free.deepl.com/v2/translate', {
+          method: 'POST',
+          headers: {
+            'Authorization': `DeepL-Auth-Key ${environment.DEEPL_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: [chunk], target_lang: 'EN' }),
+        });
+        if (!res.ok) throw new Error(`DeepL error: ${res.status}`);
+        const data = await res.json();
+        const t = data.translations?.[0];
+        if (t) {
+          if (!this.detectedLang) this.detectedLang = t.detected_source_language?.toLowerCase() || '';
+          this.translatedText += t.text;
+        }
+      }
+    } catch (err) {
+      console.error('Translation failed:', err);
+      this.translatedText += this.translatedText
+        ? '\n\n⚠ Translation interrupted.'
+        : 'Translation failed — check console for details.';
+    }
+    this.translating = false;
+  }
+
+  private splitTextIntoChunks(text: string, maxLen: number): string[] {
+    const chunks: string[] = [];
+    let remaining = text;
+    while (remaining.length > 0) {
+      if (remaining.length <= maxLen) {
+        chunks.push(remaining);
+        break;
+      }
+      let splitAt = remaining.lastIndexOf('\n', maxLen);
+      if (splitAt < maxLen / 2) splitAt = maxLen;
+      chunks.push(remaining.substring(0, splitAt));
+      remaining = remaining.substring(splitAt);
+    }
+    return chunks;
   }
 
   onSubmit() {
@@ -640,20 +812,21 @@ export class AddDevicesComponent {
         },
         error: (err) => {
           console.error('error caught in component', err.error.message);
-          if (err.error.statusCode === 403) {
+          this.submitButtonText = 'Submit';
+          this.isSubmitting = false;
+          const message = err.error?.message || err.message || 'Failed to register device';
+          if (err.status === 409 || err.error?.statusCode === 409) {
+            this.dialog.open(this.errorDialogTemplate, {
+              width: '450px',
+              data: { title: 'Duplicate Entry', message },
+            });
+          } else if (err.error?.statusCode === 403) {
             this.toastrService.error(
               "You don't have the permissions to add a device.",
               'Access Denied',
             );
           } else {
-            this.submitButtonText = 'Submit';
-            this.isSubmitting = false;
-            this.toastrService.error(
-              err.error?.message ||
-                err.message ||
-                'Failed to register device ' + element.serialNumber,
-              'Please try again. ',
-            );
+            this.toastrService.error(message, 'Please try again.');
           }
         },
       });

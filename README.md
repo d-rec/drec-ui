@@ -108,6 +108,17 @@ docker run -p 80:80 drec-ui
 - **Unit tests:** `npm test` runs Karma with Jasmine in a headless Chrome browser.
 - **E2E tests:** `npx cypress run` executes Cypress specs located in `cypress/e2e/`. Both the backend and frontend must be running before executing E2E tests.
 
+## Document Preview, OCR & Translation
+
+The device submission form includes document upload fields (COD proof, AC capacity, etc.). Each uploaded file shows an **eye icon** that opens a full-screen preview modal.
+
+### Preview modal features
+
+- **Images** render as `<img>`, **PDFs** render in an `<iframe>`
+- **OCR** runs automatically via [tesseract.js](https://github.com/naptha/tesseract.js) (v5) — supports English, French, and other Tesseract-supported languages
+- Multi-page PDFs are OCR'd page-by-page with streaming output (earlier pages appear while later ones process)
+- **Translate to English** auto-detects the source language and translates via Google Translate (no API key needed)
+
 ## Contributing
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. This project follows [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.

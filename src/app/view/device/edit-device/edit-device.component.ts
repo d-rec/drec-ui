@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import {
   FormGroup,
   FormBuilder,
@@ -22,6 +23,7 @@ import { MapComponent } from '../../map/map.component';
   styleUrls: ['./edit-device.component.scss'],
 })
 export class EditDeviceComponent implements OnInit {
+  @ViewChild('errorDialog') errorDialogTemplate = {} as TemplateRef<any>;
   loginuser: any;
   updateDeviceForm: FormGroup;
   countrylist: CountryInfo[] = [];
@@ -92,6 +94,7 @@ export class EditDeviceComponent implements OnInit {
     private router: Router,
     private toastrService: ToastrService,
     private activatedRoute: ActivatedRoute,
+    private dialog: MatDialog,
   ) {
     this.activatedRoute.queryParams.subscribe((params) => {
       if (params['fromdevices'] != undefined) {
@@ -203,7 +206,7 @@ export class EditDeviceComponent implements OnInit {
     return this.updateDeviceForm.get('serialNumber')?.hasError('required')
       ? 'This field is required'
       : this.updateDeviceForm.get('serialNumber')?.hasError('pattern')
-        ? 'serial number can contain only alphabets( lower and upper case included), numeric(0 to 9), hyphen(-), underscore(_) and spaces in between'
+        ? 'Serial number(s) must contain only letters, numbers, underscores, hyphens, or semicolons'
         : '';
   }
   DisplayList() {
@@ -331,12 +334,16 @@ export class EditDeviceComponent implements OnInit {
           }
         },
         error: (err: any): void => {
-          //Error callback
           console.error('error caught in component', err.error.message);
-          this.toastrService.error(
-            'some error occurred in updated due to ,' + err.error.message,
-            'Device!' + this.externalid,
-          );
+          const message = err.error?.message || err.message || 'Failed to update device';
+          if (err.status === 409 || err.error?.statusCode === 409) {
+            this.dialog.open(this.errorDialogTemplate, {
+              width: '450px',
+              data: { title: 'Duplicate Entry', message },
+            });
+          } else {
+            this.toastrService.error(message, 'Device!' + this.externalid);
+          }
         },
       });
     // })

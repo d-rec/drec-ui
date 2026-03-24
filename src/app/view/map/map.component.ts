@@ -23,6 +23,7 @@ export class MapComponent implements OnInit {
     zoom: 3,
     center: L.latLng(20, 0),
     scrollWheelZoom: false,
+    attributionControl: false,
   };
 
   map!: L.Map;

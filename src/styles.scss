@@ -172,8 +172,6 @@ fieldset:disabled .btn.btn-primary {
 .mat-mdc-form-field-icon-prefix,
 [dir='rtl'] .mat-mdc-form-field-icon-suffix {
   font-size: $f-14;
-  top: -5px;
-  position: relative;
 }
 
 .mdc-text-field--filled:not(.mdc-text-field--disabled):hover
@@ -190,7 +188,7 @@ fieldset:disabled .btn.btn-primary {
 }
 
 .mdc-text-field--filled {
-  height: 36px !important;
+  height: 48px !important;
 }
 
 .mdc-text-field--invalid:not(.mdc-text-field--disabled)
@@ -577,5 +575,21 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
   }
   .font-siz-cont {
     font-size: 12px !important;
+  }
+}
+
+.toast-copy-btn {
+  display: block;
+  margin-top: 8px;
+  padding: 2px 10px;
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.35);
   }
 }

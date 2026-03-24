@@ -143,7 +143,7 @@ export class MeterReadTableComponent implements OnInit {
 
     // Create header row
     const headers = [
-      'Serial Number',
+      'Serial Number(s)',
       'Start Datetime',
       'End Datetime',
       'Value(Wh)',
@@ -177,7 +177,7 @@ export class MeterReadTableComponent implements OnInit {
 
     try {
       const headers = [
-        'Serial Number',
+        'Serial Number(s)',
         'Start Datetime',
         'End Datetime',
         'Value(Wh)',

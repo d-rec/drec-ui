@@ -133,3 +133,26 @@ input.example-right-align {
   -webkit-animation-timing-function: ease;
   animation-timing-function: ease;
 }
+
+.doc-box {
+  border: 1px solid #e2e6ea;
+  border-radius: 6px;
+  padding: 8px 12px;
+  background: #fff;
+}
+
+.preview-btn {
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  padding: 0 8px;
+}

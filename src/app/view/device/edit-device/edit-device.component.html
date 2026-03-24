@@ -39,7 +39,7 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Current Serial Number</mat-label>
+                  <mat-label class="text-capitalize">Current Serial Number(s)</mat-label>
                   <input matInput [value]="serialNumber" readonly />
 
                   <mat-icon class="edit-icon" matSuffix (click)="editExternalid()" *ngIf="!showcancelicon"
@@ -53,7 +53,7 @@
               <div class="col-md-3" *ngIf="shownewExternalidInput">
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize">
-                    New Serial Number</mat-label>
+                    New Serial Number(s)</mat-label>
                   <input matInput placeholder="name" formControlName="serialNumber" />
                   <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                   <!-- <mat-hint>Hint</mat-hint> -->
@@ -287,3 +287,16 @@
     </form>
   </mat-card>
 </div>
+
+<ng-template #errorDialog let-data>
+  <h2 mat-dialog-title style="color: #dc3545;">
+    <mat-icon style="vertical-align: middle; margin-right: 8px;">error</mat-icon>
+    {{ data?.title || 'Error' }}
+  </h2>
+  <div mat-dialog-content>
+    <p>{{ data?.message }}</p>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-end">
+    <button mat-button class="btn btn-primary" mat-dialog-close>OK</button>
+  </div>
+</ng-template>

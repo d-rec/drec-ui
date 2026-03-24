@@ -3,6 +3,7 @@ import { AuthGuard } from './auth.guard';
 import { inject } from '@angular/core';
 import { UserService } from '../auth/services/user.service';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 const isVerified = (user: any) => {
   return (
@@ -22,6 +23,11 @@ export const AuthUnverifiedGuard: CanActivateFn = (route, state) => {
   // If the first check returns false or a UrlTree, return that result
   if (loggedInResult !== true) {
     return loggedInResult;
+  }
+
+  // In dev/stage, always treat user as verified — redirect to dashboard
+  if (!environment.production) {
+    return router.createUrlTree(['/dashboard']);
   }
 
   // Additional access checks can go here

@@ -36,6 +36,12 @@
     background: #fee2e2;
     border: 1px solid #f87171;
   }
+
+  &--legacy {
+    color: #6b4e2a;
+    background: #fdf6ec;
+    border: 1px solid #a0845c;
+  }
 }
 
 .body-bg {
@@ -81,12 +87,19 @@ mat-progress-spinner {
   z-index: 5;
 }
 
+:host ::ng-deep .actions-cell {
+  display: flex !important;
+  align-items: center !important;
+}
+
 .chat-icon-btn {
-  width: 28px;
-  height: 28px;
-  line-height: 28px;
-  vertical-align: middle;
-  margin-left: 4px;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  line-height: 1;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
 
   .chat-icon {
     font-size: 18px;

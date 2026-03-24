@@ -34,6 +34,7 @@ export class AdminAlldevicesComponent {
     'countryCode',
     'fuelCode',
     'capacity',
+    'reviewStatus',
     'IREC_Status',
     'IREC_ID',
     'actions',

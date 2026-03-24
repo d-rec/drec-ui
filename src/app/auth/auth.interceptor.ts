@@ -38,9 +38,8 @@ export class AuthInterceptor implements HttpInterceptor {
   }
   handleHttpClientError(error: any) {
     if (error.status == 401) {
-      // this.tokenHandlingService.removeTokenFromStorage();
-      // this.sharedService.showToastMessages('info', 'Your session has been timed out, you have been logged out');
-      // this.router.navigate(['login']);
+      sessionStorage.removeItem('access-token');
+      this.router.navigate(['login']);
     }
     return throwError(error);
   }

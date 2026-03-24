@@ -63,12 +63,12 @@
               appearance="outline"
               *ngIf="loginuser.role != 'Admin'"
             >
-              <mat-label class="text-capitalize">Serial Number</mat-label>
+              <mat-label class="text-capitalize">Serial Number(s)</mat-label>
               <input
                 matInput
                 formControlName="serialNumber"
                 [matAutocomplete]="auto"
-                placeholder="Search Serial Number"
+                placeholder="Search Serial Number(s)"
                 [value]="selectedResult?.serialNumber"
               />
               <mat-autocomplete
@@ -87,12 +87,12 @@
               appearance="outline"
               *ngIf="loginuser.role === 'Admin'"
             >
-              <mat-label class="text-capitalize">Serial Number</mat-label>
+              <mat-label class="text-capitalize">Serial Number(s)</mat-label>
               <input
                 matInput
                 formControlName="serialNumber"
                 [matAutocomplete]="auto"
-                placeholder="Search Serial Number"
+                placeholder="Search Serial Number(s)"
                 [value]="selectedResult?.serialNumber"
               />
 

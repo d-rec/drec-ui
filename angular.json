@@ -39,7 +39,9 @@
               "file-saver",
               "moment",
               "leaflet",
-              "bn.js"
+              "bn.js",
+              "pdfjs-dist",
+              "tesseract.js"
             ]
           },
           "configurations": {

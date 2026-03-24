@@ -85,6 +85,7 @@
                     <tr
                       mat-row
                       *matRowDef="let row; columns: displayedColumns"
+                      [class.role-group-alt]="row.roleGroupIndex % 2 === 1"
                     ></tr>
                   </table>
                   <!-- <mat-paginator [pageSize]="pageSize" aria-label="Select page of users"></mat-paginator>

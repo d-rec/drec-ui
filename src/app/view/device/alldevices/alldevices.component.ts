@@ -390,7 +390,7 @@ export class AlldevicesComponent {
     }
   }
   UpdateDevice(row: any) {
-    if (row.reviewStatus === 'draft') {
+    if (row.reviewStatus === 'draft' || row.reviewStatus === 'pending') {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
           title: 'Warning',

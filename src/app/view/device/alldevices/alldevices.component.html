@@ -273,7 +273,7 @@
             </td>
           </ng-container>
           <ng-container matColumnDef="externalId" class="text-left">
-            <th mat-header-cell *matHeaderCellDef>Serial Number</th>
+            <th mat-header-cell *matHeaderCellDef>Serial Number(s)</th>
             <td mat-cell *matCellDef="let element">{{ element.serialNumber }}</td>
           </ng-container>
           <ng-container matColumnDef="capacity">
@@ -294,7 +294,7 @@
             </th>
             <td mat-cell *matCellDef="let element">
               <span *ngIf="element.reviewStatus" class="review-badge review-badge--{{ element.reviewStatus }}">
-                <span class="review-badge__icon">{{ element.reviewStatus === 'approved' ? '✓' : element.reviewStatus === 'rejected' ? '✗' : element.reviewStatus === 'draft' ? '✎' : '●' }}</span>
+                <span class="review-badge__icon">{{ element.reviewStatus === 'approved' ? '✓' : element.reviewStatus === 'rejected' ? '✗' : element.reviewStatus === 'draft' ? '✎' : element.reviewStatus === 'legacy' ? '◆' : '●' }}</span>
                 {{ element.reviewStatus | titlecase }}
               </span>
               <span *ngIf="!element.reviewStatus">—</span>
@@ -327,14 +327,6 @@
                   ? 'Waiting For Review'
                   : element.evidentStatus
               }}
-              <button
-                mat-icon-button
-                class="chat-icon-btn"
-                (click)="openChat(element); $event.stopPropagation()"
-                title="Chat about this device"
-              >
-                <mat-icon class="chat-icon">chat</mat-icon>
-              </button>
             </td>
           </ng-container>
           <ng-container matColumnDef="commissioningDate">
@@ -356,7 +348,16 @@
 
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let row; let i = index">
+            <td mat-cell *matCellDef="let row; let i = index" class="actions-cell">
+              <button
+                mat-icon-button
+                class="chat-icon-btn"
+                (click)="openChat(row); $event.stopPropagation()"
+                title="Chat about this device"
+                *ngIf="loginuser.role === 'Admin' && row.reviewStatus === 'draft'"
+              >
+                <mat-icon class="chat-icon">chat</mat-icon>
+              </button>
               <button
                 mat-icon-button
                 class="edit-icon action-icons"
@@ -373,7 +374,6 @@
                 >
                   <mat-icon class="primary">edit</mat-icon> Edit</a
                 >
-                <!-- <a  [routerLink]="['../edit']" [queryParams]="{id:row.externalId}"><mat-icon>add</mat-icon></a> -->
                 <a
                   mat-menu-item
                   class="edit-icon action-icons"
@@ -384,13 +384,19 @@
                 <a
                   mat-menu-item
                   class="edit-icon action-icons"
+                  (click)="openChat(row)"
+                  *ngIf="loginuser.role === 'Admin' && row.reviewStatus === 'draft'"
+                >
+                  <mat-icon class="primary">chat</mat-icon> Chat
+                </a>
+                <a
+                  mat-menu-item
+                  class="edit-icon action-icons"
                   (click)="openDialog(row)"
                 >
                   <mat-icon class="primary">delete</mat-icon>
                   Delete
                 </a>
-
-                <!-- Add more action buttons as needed -->
               </mat-menu>
             </td>
           </ng-container>

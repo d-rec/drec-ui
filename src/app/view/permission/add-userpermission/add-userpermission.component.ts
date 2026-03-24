@@ -44,7 +44,8 @@ export class UserpermissionComponent {
     { id: 3, name: 'DeviceOwner' },
     { id: 4, name: 'Buyer' },
     { id: 5, name: 'User' },
-    { id: 6, name: 'SubBuyer' },
+    { id: 6, name: 'ApiUser' },
+    { id: 7, name: 'SubBuyer' },
   ];
   constructor(
     private authService: AuthbaseService,
@@ -113,6 +114,22 @@ export class UserpermissionComponent {
               (rolename: any) => rolename.id === ele.entityId,
             )?.name;
           }
+        });
+        this.userdatalist.sort((a: any, b: any) => {
+          const roleA = this.getRoleName(a.user_role || '');
+          const roleB = this.getRoleName(b.user_role || '');
+          if (roleA !== roleB) return roleA.localeCompare(roleB);
+          return (a.aclmodules?.name || '').localeCompare(b.aclmodules?.name || '');
+        });
+        let currentRole = '';
+        let roleIndex = -1;
+        this.userdatalist.forEach((ele: any) => {
+          const role = ele.user_role || '';
+          if (role !== currentRole) {
+            currentRole = role;
+            roleIndex++;
+          }
+          ele['roleGroupIndex'] = roleIndex;
         });
         this.dataSource = new MatTableDataSource(this.userdatalist);
       },

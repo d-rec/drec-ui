@@ -84,7 +84,7 @@
                       <mat-label>{{ getSerialNumberLabel(i) }}</mat-label>
                       <input matInput formControlName="serialNumber" />
                         <mat-error >
-                          Serial number must contain only letters, numbers, underscores, or hyphens.
+                          Serial number(s) must contain only letters, numbers, underscores, hyphens, or semicolons.
                         </mat-error>
                     </mat-form-field>
                   </div>
@@ -319,7 +319,7 @@
 
                   <div class="col-md-4 mb-3">
                     <label>Form SF-02 - Production Facility Registration</label>
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center doc-box">
                       <input type="file" #pfFileInput (change)="onFileChange($event, i, DocumentType.FORM_SF_02)"
                         style="display: none;" required test-id="attach-file" />
                       <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
@@ -327,22 +327,23 @@
                       </button>
                       <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('FORM_SF_02')?.value">
                         {{ deviceForms.at(i).get('FORM_SF_02')?.value ?
-                        shortenFileName(deviceForms.at(i).get('FORM_SF_02')?.value.name) :
-                        'No file chosen' }}
+                        deviceForms.at(i).get('FORM_SF_02')?.value.name : '' }}
                       </span>
-                      <span class="badge px-3 py-2"
-                        [class.bg-success]="deviceForms.at(i).get('FORM_SF_02')?.value"
-                        [class.text-white]="deviceForms.at(i).get('FORM_SF_02')?.value"
-                        [class.bg-danger]="!deviceForms.at(i).get('FORM_SF_02')?.value"
-                        [class.text-white]="!deviceForms.at(i).get('FORM_SF_02')?.value">
-                        {{ deviceForms.at(i).get('FORM_SF_02')?.value ? '✓ Uploaded' : 'Missing' }}
+                      <button *ngIf="filePreviews[i]?.['FORM_SF_02']" type="button"
+                        class="badge bg-success text-white px-3 py-2 preview-btn"
+                        (click)="openPreview(i, 'FORM_SF_02')">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                      </button>
+                      <span *ngIf="!deviceForms.at(i).get('FORM_SF_02')?.value"
+                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
                   </div>
 
                   <div class="col-md-4 mb-3">
                     <label>SF-02C Owner's Declaration or Proof of Ownership</label>
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center doc-box">
                       <input type="file" #ownershipFileInput (change)="onFileChange($event, i, DocumentType.SF_02C)"
                         style="display: none" test-id="attach-file" />
                       <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary">
@@ -350,21 +351,23 @@
                       </button>
                       <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('SF_02C')?.value">
                         {{ deviceForms.at(i).get('SF_02C')?.value ?
-                        shortenFileName(deviceForms.at(i).get('SF_02C')?.value.name) : 'No file chosen' }}
+                        deviceForms.at(i).get('SF_02C')?.value.name : '' }}
                       </span>
-                      <span class="badge px-3 py-2"
-                        [class.bg-success]="deviceForms.at(i).get('SF_02C')?.value"
-                        [class.text-white]="deviceForms.at(i).get('SF_02C')?.value"
-                        [class.bg-danger]="!deviceForms.at(i).get('SF_02C')?.value"
-                        [class.text-white]="!deviceForms.at(i).get('SF_02C')?.value">
-                        {{ deviceForms.at(i).get('SF_02C')?.value ? '✓ Uploaded' : 'Missing' }}
+                      <button *ngIf="filePreviews[i]?.['SF_02C']" type="button"
+                        class="badge bg-success text-white px-3 py-2 preview-btn"
+                        (click)="openPreview(i, 'SF_02C')">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                      </button>
+                      <span *ngIf="!deviceForms.at(i).get('SF_02C')?.value"
+                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
                   </div>
 
                   <div class="col-md-4 mb-3">
                     <label>Metering Evidence</label>
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center doc-box">
                       <input type="file" #meteringFileInput
                         (change)="onFileChange($event, i, DocumentType.METERING_EVIDENCE)" style="display: none"
                         test-id="attach-file" />
@@ -373,21 +376,23 @@
                       </button>
                       <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('METERING_EVIDENCE')?.value">
                         {{ deviceForms.at(i).get('METERING_EVIDENCE')?.value ?
-                        shortenFileName(deviceForms.at(i).get('METERING_EVIDENCE')?.value.name) : 'No file chosen' }}
+                        deviceForms.at(i).get('METERING_EVIDENCE')?.value.name : '' }}
                       </span>
-                      <span class="badge px-3 py-2"
-                        [class.bg-success]="deviceForms.at(i).get('METERING_EVIDENCE')?.value"
-                        [class.text-white]="deviceForms.at(i).get('METERING_EVIDENCE')?.value"
-                        [class.bg-danger]="!deviceForms.at(i).get('METERING_EVIDENCE')?.value"
-                        [class.text-white]="!deviceForms.at(i).get('METERING_EVIDENCE')?.value">
-                        {{ deviceForms.at(i).get('METERING_EVIDENCE')?.value ? '✓ Uploaded' : 'Missing' }}
+                      <button *ngIf="filePreviews[i]?.['METERING_EVIDENCE']" type="button"
+                        class="badge bg-success text-white px-3 py-2 preview-btn"
+                        (click)="openPreview(i, 'METERING_EVIDENCE')">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                      </button>
+                      <span *ngIf="!deviceForms.at(i).get('METERING_EVIDENCE')?.value"
+                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
                   </div>
 
                   <div class="col-md-4 mb-3">
                     <label>Single Line Diagram</label>
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center doc-box">
                       <input type="file" #diagramFileInput
                         (change)="onFileChange($event, i, DocumentType.SINGLE_LINE_DIAGRAM)" style="display: none"
                         test-id="attach-file" />
@@ -396,21 +401,23 @@
                       </button>
                       <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
                         {{ deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value ?
-                        shortenFileName(deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value.name) : 'No file chosen' }}
+                        deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value.name : '' }}
                       </span>
-                      <span class="badge px-3 py-2"
-                        [class.bg-success]="deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value"
-                        [class.text-white]="deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value"
-                        [class.bg-danger]="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value"
-                        [class.text-white]="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
-                        {{ deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value ? '✓ Uploaded' : 'Missing' }}
+                      <button *ngIf="filePreviews[i]?.['SINGLE_LINE_DIAGRAM']" type="button"
+                        class="badge bg-success text-white px-3 py-2 preview-btn"
+                        (click)="openPreview(i, 'SINGLE_LINE_DIAGRAM')">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                      </button>
+                      <span *ngIf="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value"
+                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
                   </div>
 
                   <div class="col-md-4 mb-3">
                     <label>Project Photos</label>
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center doc-box">
                       <input type="file" #photosFileInput
                         (change)="onFileChange($event, i, DocumentType.PROJECT_PHOTOS)" style="display: none"
                         test-id="attach-file" />
@@ -419,21 +426,23 @@
                       </button>
                       <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value">
                         {{ deviceForms.at(i).get('PROJECT_PHOTOS')?.value ?
-                        shortenFileName(deviceForms.at(i).get('PROJECT_PHOTOS')?.value.name) : 'No file chosen' }}
+                        deviceForms.at(i).get('PROJECT_PHOTOS')?.value.name : '' }}
                       </span>
-                      <span class="badge px-3 py-2"
-                        [class.bg-success]="deviceForms.at(i).get('PROJECT_PHOTOS')?.value"
-                        [class.text-white]="deviceForms.at(i).get('PROJECT_PHOTOS')?.value"
-                        [class.bg-danger]="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value"
-                        [class.text-white]="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value">
-                        {{ deviceForms.at(i).get('PROJECT_PHOTOS')?.value ? '✓ Uploaded' : 'Missing' }}
+                      <button *ngIf="filePreviews[i]?.['PROJECT_PHOTOS']" type="button"
+                        class="badge bg-success text-white px-3 py-2 preview-btn"
+                        (click)="openPreview(i, 'PROJECT_PHOTOS')">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                      </button>
+                      <span *ngIf="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value"
+                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
                   </div>
 
                   <div class="col-md-4 mb-3">
                     <label>COD Proof</label>
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center doc-box">
                       <input type="file" #codProofFileInput
                         (change)="onFileChange($event, i, DocumentType.COD_PROOF)" style="display: none"
                         test-id="attach-file" />
@@ -442,14 +451,16 @@
                       </button>
                       <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('COD_PROOF')?.value">
                         {{ deviceForms.at(i).get('COD_PROOF')?.value ?
-                        shortenFileName(deviceForms.at(i).get('COD_PROOF')?.value.name) : 'No file chosen' }}
+                        deviceForms.at(i).get('COD_PROOF')?.value.name : '' }}
                       </span>
-                      <span class="badge px-3 py-2"
-                        [class.bg-success]="deviceForms.at(i).get('COD_PROOF')?.value"
-                        [class.text-white]="deviceForms.at(i).get('COD_PROOF')?.value"
-                        [class.bg-danger]="!deviceForms.at(i).get('COD_PROOF')?.value"
-                        [class.text-white]="!deviceForms.at(i).get('COD_PROOF')?.value">
-                        {{ deviceForms.at(i).get('COD_PROOF')?.value ? '✓ Uploaded' : 'Missing' }}
+                      <button *ngIf="filePreviews[i]?.['COD_PROOF']" type="button"
+                        class="badge bg-success text-white px-3 py-2 preview-btn"
+                        (click)="openPreview(i, 'COD_PROOF')">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                      </button>
+                      <span *ngIf="!deviceForms.at(i).get('COD_PROOF')?.value"
+                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
                   </div>
@@ -503,5 +514,75 @@
   <div mat-dialog-actions class="d-flex justify-content-center pb-4">
     <button mat-button class="btn-primary text-capitalize" (click)="onAgreeClick()" test-id="agree">I agree</button>
     <button mat-button class="btn-default text-capitalize" (click)="dialogRef.close(false)">Cancel</button>
+  </div>
+</ng-template>
+
+<ng-template #previewDialog>
+  <h2 mat-dialog-title class="d-flex justify-content-between align-items-center mb-0">
+    <span>{{ previewData?.name }}</span>
+    <button mat-icon-button (click)="previewDialogRef.close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </h2>
+  <div mat-dialog-content style="padding: 0; min-height: 70vh; display: flex; gap: 16px;">
+    <div style="flex: 1; min-width: 0;">
+      <img *ngIf="previewData?.type === 'image'" [src]="previewData!.url"
+        style="max-width: 100%; max-height: 80vh; display: block; margin: 0 auto;" />
+      <iframe *ngIf="previewData?.type === 'pdf'" [src]="previewData!.url"
+        style="width: 100%; height: 80vh; border: none;"></iframe>
+    </div>
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden;">
+      <div class="d-flex justify-content-between align-items-center" style="margin: 8px 0;">
+        <h4 style="margin: 0; font-size: 14px; color: #64748b;">
+          <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">text_snippet</mat-icon>
+          Extracted Text (OCR)
+        </h4>
+        <button *ngIf="ocrText && !ocrLoading" type="button"
+          class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
+          (click)="translateToEnglish()" [disabled]="translating">
+          <mat-icon style="font-size: 16px; height: 16px; width: 16px;">translate</mat-icon>
+          {{ translating ? 'Translating...' : 'Translate to English' }}
+        </button>
+      </div>
+      <div *ngIf="ocrLoading" style="padding: 16px; text-align: center; color: #64748b;">
+        <mat-progress-spinner mode="determinate" [value]="ocrProgress" diameter="40"
+          style="margin: 0 auto 8px;"></mat-progress-spinner>
+        <div>Extracting text... {{ ocrProgress }}%</div>
+        <div *ngIf="ocrPageInfo" style="font-size: 12px; margin-top: 4px;">{{ ocrPageInfo }}</div>
+      </div>
+      <pre *ngIf="ocrText"
+        style="overflow: auto; padding: 12px; margin: 0; background: #f8f9fb; border: 1px solid #e2e6ea; border-radius: 6px; font-size: 12px; font-family: 'JetBrains Mono', monospace; white-space: pre-wrap; word-wrap: break-word;"
+        [style.flex]="translatedText ? '0 0 auto' : '1'"
+        [style.maxHeight]="translatedText ? '35vh' : 'none'">{{ ocrText }}</pre>
+      <div *ngIf="!ocrLoading && !ocrText" style="padding: 16px; text-align: center; color: #94a3b8; font-size: 13px;">
+        No text extracted.
+      </div>
+      <div *ngIf="translatedText || translating" style="margin-top: 8px; flex: 1; display: flex; flex-direction: column; min-height: 0;">
+        <h4 style="margin: 0 0 8px; font-size: 14px; color: #3b5bdb;">
+          <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">translate</mat-icon>
+          English Translation
+          <span *ngIf="detectedLang" style="font-size: 11px; color: #94a3b8;">(from {{ detectedLang }})</span>
+        </h4>
+        <div *ngIf="translating && !translatedText" style="padding: 16px; text-align: center; color: #64748b;">
+          <mat-progress-spinner mode="indeterminate" diameter="30" style="margin: 0 auto 8px;"></mat-progress-spinner>
+          <div>Translating...</div>
+        </div>
+        <pre *ngIf="translatedText"
+          style="flex: 1; overflow: auto; padding: 12px; margin: 0; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 6px; font-size: 12px; font-family: 'JetBrains Mono', monospace; white-space: pre-wrap; word-wrap: break-word;">{{ translatedText }}</pre>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #errorDialog let-data>
+  <h2 mat-dialog-title style="color: #dc3545;">
+    <mat-icon style="vertical-align: middle; margin-right: 8px;">error</mat-icon>
+    {{ data?.title || 'Error' }}
+  </h2>
+  <div mat-dialog-content>
+    <p>{{ data?.message }}</p>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-end">
+    <button mat-button class="btn btn-primary" mat-dialog-close>OK</button>
   </div>
 </ng-template>
