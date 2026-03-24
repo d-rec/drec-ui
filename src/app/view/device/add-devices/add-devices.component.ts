@@ -617,6 +617,25 @@ export class AddDevicesComponent {
   }
 
   ocrPageInfo: string = '';
+  ocrPaneHeight: number = 200;
+  private dragStartY: number = 0;
+  private dragStartHeight: number = 0;
+
+  onDragStart(event: MouseEvent) {
+    event.preventDefault();
+    this.dragStartY = event.clientY;
+    this.dragStartHeight = this.ocrPaneHeight;
+    const onMove = (e: MouseEvent) => {
+      const delta = e.clientY - this.dragStartY;
+      this.ocrPaneHeight = Math.max(60, this.dragStartHeight + delta);
+    };
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }
 
   private async runOcr(file: File) {
     this.ocrLoading = true;
@@ -682,7 +701,7 @@ export class AddDevicesComponent {
     try {
       const chunks = this.splitTextIntoChunks(this.ocrText, 4000);
       for (const chunk of chunks) {
-        const res = await fetch('https://api-free.deepl.com/v2/translate', {
+        const res = await fetch('/deepl/v2/translate', {
           method: 'POST',
           headers: {
             'Authorization': `DeepL-Auth-Key ${environment.DEEPL_API_KEY}`,

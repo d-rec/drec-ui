@@ -1,0 +1,10 @@
+{
+  "/deepl": {
+    "target": "https://api-free.deepl.com",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/deepl": ""
+    }
+  }
+}

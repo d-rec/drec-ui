@@ -55,7 +55,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="project-name">project Name</mat-label>
+                      <mat-label test-id="project-name">Site Name</mat-label>
                       <input matInput autocomplete="off" formControlName="projectName" />
                       <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                       <!-- <mat-hint>Hint</mat-hint> -->
@@ -524,15 +524,17 @@
       <mat-icon>close</mat-icon>
     </button>
   </h2>
-  <div mat-dialog-content style="padding: 0; min-height: 70vh; display: flex; gap: 16px;">
-    <div style="flex: 1; min-width: 0;">
+  <div mat-dialog-content class="preview-dialog-content">
+    <!-- Left: document preview -->
+    <div class="preview-left">
       <img *ngIf="previewData?.type === 'image'" [src]="previewData!.url"
-        style="max-width: 100%; max-height: 80vh; display: block; margin: 0 auto;" />
+        style="max-width: 100%; max-height: 100%; display: block; margin: 0 auto; object-fit: contain;" />
       <iframe *ngIf="previewData?.type === 'pdf'" [src]="previewData!.url"
-        style="width: 100%; height: 80vh; border: none;"></iframe>
+        style="width: 100%; height: 100%; border: none;"></iframe>
     </div>
-    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden;">
-      <div class="d-flex justify-content-between align-items-center" style="margin: 8px 0;">
+    <!-- Right: OCR + translation -->
+    <div class="preview-right">
+      <div class="preview-toolbar">
         <h4 style="margin: 0; font-size: 14px; color: #64748b;">
           <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">text_snippet</mat-icon>
           Extracted Text (OCR)
@@ -550,15 +552,20 @@
         <div>Extracting text... {{ ocrProgress }}%</div>
         <div *ngIf="ocrPageInfo" style="font-size: 12px; margin-top: 4px;">{{ ocrPageInfo }}</div>
       </div>
-      <pre *ngIf="ocrText"
-        style="overflow: auto; padding: 12px; margin: 0; background: #f8f9fb; border: 1px solid #e2e6ea; border-radius: 6px; font-size: 12px; font-family: 'JetBrains Mono', monospace; white-space: pre-wrap; word-wrap: break-word;"
-        [style.flex]="translatedText ? '0 0 auto' : '1'"
-        [style.maxHeight]="translatedText ? '35vh' : 'none'">{{ ocrText }}</pre>
+      <pre *ngIf="ocrText" class="ocr-pane"
+        [style.flex]="(translatedText || translating) ? 'none' : '1'"
+        [style.height.px]="(translatedText || translating) ? ocrPaneHeight : undefined">{{ ocrText }}</pre>
       <div *ngIf="!ocrLoading && !ocrText" style="padding: 16px; text-align: center; color: #94a3b8; font-size: 13px;">
         No text extracted.
       </div>
-      <div *ngIf="translatedText || translating" style="margin-top: 8px; flex: 1; display: flex; flex-direction: column; min-height: 0;">
-        <h4 style="margin: 0 0 8px; font-size: 14px; color: #3b5bdb;">
+      <!-- Drag handle -->
+      <div *ngIf="(translatedText || translating) && ocrText" class="drag-handle"
+        (mousedown)="onDragStart($event)">
+        <div class="drag-handle-bar"></div>
+      </div>
+      <!-- Translation pane -->
+      <div *ngIf="translatedText || translating" class="translation-pane">
+        <h4 style="margin: 0 0 8px; font-size: 14px; color: #3b5bdb; flex-shrink: 0;">
           <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">translate</mat-icon>
           English Translation
           <span *ngIf="detectedLang" style="font-size: 11px; color: #94a3b8;">(from {{ detectedLang }})</span>
@@ -567,8 +574,7 @@
           <mat-progress-spinner mode="indeterminate" diameter="30" style="margin: 0 auto 8px;"></mat-progress-spinner>
           <div>Translating...</div>
         </div>
-        <pre *ngIf="translatedText"
-          style="flex: 1; overflow: auto; padding: 12px; margin: 0; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 6px; font-size: 12px; font-family: 'JetBrains Mono', monospace; white-space: pre-wrap; word-wrap: break-word;">{{ translatedText }}</pre>
+        <pre *ngIf="translatedText" class="translation-pre">{{ translatedText }}</pre>
       </div>
     </div>
   </div>

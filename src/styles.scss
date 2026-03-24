@@ -455,7 +455,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
 // Login / Register layout
 .guest-layout {
   height: 100vh;
-  background: linear-gradient(144deg, #4c6ef5 0%, #3b5bdb 48%);
+  background: linear-gradient(144deg, #475569 0%, #1e293b 48%);
   overflow: hidden;
 
   .mat-card {
@@ -559,15 +559,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
   }
 
   .bg-solar {
-    background-image: url('./assets/images/solar-image.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center center;
-    position: absolute;
-    top: 0px;
-    width: 100%;
-    opacity: 0.2;
-    height: 100vh;
+    display: none;
   }
 
   .text-warning {

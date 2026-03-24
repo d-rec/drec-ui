@@ -489,9 +489,10 @@ $legacy:   #a0845c;
   border: none;
 
   &--save {
-    background: $accent;
-    color: #fff;
-    &:hover { background: darken($accent, 6%); }
+    background: #fff;
+    color: $text;
+    border: 1px solid $border;
+    &:hover { background: $bg-mid; }
     &:disabled { opacity: 0.4; cursor: default; }
   }
 
@@ -513,6 +514,7 @@ $legacy:   #a0845c;
   &--approve {
     background: $approved;
     color: #fff;
+    border: 1px solid #222;
     &:hover:not(:disabled) { background: darken($approved, 6%); }
     &:disabled { opacity: 0.35; cursor: default; }
   }
@@ -520,6 +522,7 @@ $legacy:   #a0845c;
   &--reject {
     background: $rejected;
     color: #fff;
+    border: 1px solid #222;
     &:hover:not(:disabled) { background: darken($rejected, 6%); }
     &:disabled { opacity: 0.35; cursor: default; }
   }
