@@ -15,6 +15,7 @@ import { EditPermissionComponent } from '../edit-permission/edit-permission.comp
 import { ToastrService } from 'ngx-toastr';
 import { getRoleName } from '../../../utils/role-helper';
 @Component({
+  standalone: false,
   selector: 'app-add-userpermission',
   templateUrl: './add-userpermission.component.html',
   styleUrls: ['./add-userpermission.component.scss'],

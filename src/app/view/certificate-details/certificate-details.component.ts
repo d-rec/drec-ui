@@ -36,6 +36,7 @@ import { DatePipe } from '@angular/common';
 import { OrganizationType } from '../../utils/drec.enum';
 
 @Component({
+  standalone: false,
   selector: 'app-certificate-details',
   templateUrl: './certificate-details.component.html',
   styleUrls: ['./certificate-details.component.scss'],

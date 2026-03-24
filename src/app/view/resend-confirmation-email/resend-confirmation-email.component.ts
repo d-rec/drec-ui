@@ -3,6 +3,7 @@ import { UserService } from '../../auth/services/user.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
+  standalone: false,
   selector: 'app-confirmemail',
   templateUrl: './resend-confirmation-email.component.html',
   styleUrls: ['./resend-confirmation-email.component.scss'],

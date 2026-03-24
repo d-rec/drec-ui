@@ -4,6 +4,7 @@ import {
 } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'app-ds-floating-window',
   templateUrl: './floating-window.component.html',
   styleUrls: ['./floating-window.component.scss'],

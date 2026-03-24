@@ -11,6 +11,7 @@ export enum IssuanceRequestFrequency {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-settings',
   templateUrl: './evident-settings.component.html',
   styleUrls: ['./evident-settings.component.scss'],

@@ -14,6 +14,7 @@ export interface Country {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-add-issuer',
   templateUrl: './add-issuer.component.html',
 })

@@ -6,6 +6,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 @Component({
+  standalone: false,
   selector: 'app-apiuser-permission-form',
   templateUrl: './apiuser-permission-form.component.html',
   styleUrls: ['./apiuser-permission-form.component.scss'],

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { SelectionType } from 'src/app/utils/drec.enum';
 
 @Component({
+  standalone: false,
   selector: 'app-single-device-pathway',
   templateUrl: './single-device-pathway.component.html',
   styleUrls: ['./single-device-pathway.component.scss'],

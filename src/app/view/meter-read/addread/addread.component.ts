@@ -22,6 +22,7 @@ import * as momentTimeZone from 'moment-timezone';
 import { getValidmsgTimezoneFormat } from '../../../utils/getTimezone_msg';
 import { CountryInfo, OrganizationInformation } from '../../../models';
 @Component({
+  standalone: false,
   selector: 'app-addread',
   templateUrl: './addread.component.html',
   styleUrls: ['./addread.component.scss'],

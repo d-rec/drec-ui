@@ -8,6 +8,7 @@ export interface MapMarker {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],

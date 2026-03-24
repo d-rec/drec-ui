@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { fulecodeType, CountryInfo } from '../../models';
 @Component({
+  standalone: false,
   selector: 'app-redemption-report',
   templateUrl: './redemption-report.component.html',
   styleUrls: ['./redemption-report.component.scss'],

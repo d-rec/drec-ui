@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ChatService } from '../../chat/chat.service';
 import { Observable } from 'rxjs';
 @Component({
+  standalone: false,
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],

@@ -19,6 +19,7 @@ import {
 } from '../../../models';
 import { MapComponent } from '../../map/map.component';
 @Component({
+  standalone: false,
   selector: 'app-admin-alldevices',
   templateUrl: './admin-alldevices.component.html',
   styleUrls: ['./admin-alldevices.component.scss'],

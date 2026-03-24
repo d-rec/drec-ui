@@ -5,6 +5,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserService } from '../../auth/services/user.service';
 @Component({
+  standalone: false,
   selector: 'app-accept-terms-and-conditions',
   templateUrl: './accept-terms-and-conditions.component.html',
   styleUrls: ['./accept-terms-and-conditions.component.scss'],

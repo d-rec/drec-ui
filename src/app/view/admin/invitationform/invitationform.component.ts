@@ -10,6 +10,7 @@ import { ToastrService } from 'ngx-toastr';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
+  standalone: false,
   selector: 'app-invitationform',
   templateUrl: './invitationform.component.html',
   styleUrls: ['./invitationform.component.scss'],

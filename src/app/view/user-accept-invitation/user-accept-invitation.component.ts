@@ -4,6 +4,7 @@ import { AuthbaseService } from '../../auth/authbase.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 @Component({
+  standalone: false,
   selector: 'app-user-accept-invitation',
   templateUrl: './user-accept-invitation.component.html',
   styleUrls: ['./user-accept-invitation.component.scss'],

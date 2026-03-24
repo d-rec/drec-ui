@@ -30,6 +30,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
 @Component({
+  standalone: false,
   selector: 'app-acl-module-permission',
   templateUrl: './acl-module-permission.component.html',
   styleUrls: ['./acl-module-permission.component.scss'],
@@ -88,9 +89,9 @@ export class AclModulePermissionComponent {
 }
 
 @Component({
+  standalone: true,
   selector: 'add_aclmodule_form',
   templateUrl: 'add_aclmodule_form.html',
-  standalone: true,
   imports: [
     MatDialogModule,
     MatButtonModule,

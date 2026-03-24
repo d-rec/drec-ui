@@ -12,6 +12,7 @@ const MAX_WIDTH = 400;
 const DEFAULT_WIDTH = 200;
 
 @Component({
+  standalone: false,
   selector: 'app-sidemenu',
   templateUrl: './sidemenu.component.html',
   styleUrls: ['./sidemenu.component.scss'],

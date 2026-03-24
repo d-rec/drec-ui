@@ -24,6 +24,7 @@ export enum DocumentUploadTargetType {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-documents-upload',
   templateUrl: './documents-upload.component.html',
   styleUrls: ['./documents-upload.component.scss'],

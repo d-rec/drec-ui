@@ -31,6 +31,7 @@ import {
 } from '../../models';
 import { GroupType, SelectionType } from 'src/app/utils/drec.enum';
 @Component({
+  standalone: false,
   selector: 'app-add-device-group',
   templateUrl: './add-device-group.component.html',
   styleUrls: ['./add-device-group.component.scss'],

@@ -34,6 +34,7 @@ function pinIcon(color: string): L.DivIcon {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-ds-asset-map',
   template: `<div #mapEl class="map-container"></div>`,
   styles: [`

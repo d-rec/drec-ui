@@ -43,6 +43,7 @@ import { DeviceService } from '../../auth/services/device.service';
 import { formatDateWithTimezone } from '../../utils/date-formatter';
 import { DATE_FORMATS } from '../../constants/date-formats';
 @Component({
+  standalone: false,
   selector: 'app-certificate',
   templateUrl: './certificate.component.html',
   styleUrls: ['./certificate.component.scss'],

@@ -23,6 +23,7 @@ import { MapComponent } from '../../map/map.component';
 import { ChatService } from '../../../chat/chat.service';
 
 @Component({
+  standalone: false,
   selector: 'app-alldevices',
   templateUrl: './alldevices.component.html',
   styleUrls: ['./alldevices.component.scss'],
@@ -558,9 +559,9 @@ export class AlldevicesComponent {
 }
 
 @Component({
+  standalone: true,
   selector: 'deviceremove_dialog',
   templateUrl: 'deviceremove_dialog.html',
-  standalone: true,
   imports: [MatDialogModule, MatButtonModule],
 })
 export class ConfirmDialogComponent {

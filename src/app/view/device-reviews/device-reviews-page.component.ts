@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { AssetService } from './asset.service';
 
 @Component({
+  standalone: false,
   selector: 'app-device-reviews-page',
   templateUrl: './device-reviews-page.component.html',
   styleUrls: ['./device-reviews-page.component.scss'],

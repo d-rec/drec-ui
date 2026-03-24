@@ -4,6 +4,7 @@ import { RoleModeService } from '../../auth/services/role-mode.service';
 import { getOrgTypeName } from '../../utils/role-helper';
 
 @Component({
+  standalone: false,
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],

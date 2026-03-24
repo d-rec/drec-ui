@@ -11,6 +11,7 @@ import { AssetService } from '../asset.service';
 import { ChatService } from '../../../chat/chat.service';
 
 @Component({
+  standalone: false,
   selector: 'app-ds-documents-window',
   templateUrl: './documents-window.component.html',
   styleUrls: ['./documents-window.component.scss'],

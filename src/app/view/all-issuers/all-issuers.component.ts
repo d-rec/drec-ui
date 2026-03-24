@@ -6,6 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 
 @Component({
+  standalone: false,
   selector: 'app-all-issuers',
   templateUrl: './all-issuers.component.html',
 })

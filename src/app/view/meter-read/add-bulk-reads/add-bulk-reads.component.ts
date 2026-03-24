@@ -11,6 +11,7 @@ import { BulkUploadType } from '../../../utils/enums/bulk-upload-type.enum';
 import { OrganizationType } from '../../../utils/enums/organization-types.enum';
 
 @Component({
+  standalone: false,
   selector: 'app-add-bulk-reads',
   templateUrl: './add-bulk-reads.component.html',
 })

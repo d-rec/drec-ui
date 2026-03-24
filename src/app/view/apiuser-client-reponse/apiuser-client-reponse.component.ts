@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
+  standalone: false,
   selector: 'app-apiuser-client-reponse',
   templateUrl: './apiuser-client-reponse.component.html',
   styleUrls: ['./apiuser-client-reponse.component.scss'],

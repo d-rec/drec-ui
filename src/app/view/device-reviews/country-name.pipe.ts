@@ -31,7 +31,7 @@ const ALPHA3_TO_ALPHA2: Record<string, string> = {
 
 const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
 
-@Pipe({ name: 'countryName' })
+@Pipe({ standalone: false, name: 'countryName' })
 export class CountryNamePipe implements PipeTransform {
   transform(code: string): string {
     if (!code) return '';

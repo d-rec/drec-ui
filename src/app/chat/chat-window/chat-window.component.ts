@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 import { ChatMessage, ChatService, ChatConversation } from '../chat.service';
 
 @Component({
+  standalone: false,
   selector: 'app-chat-window',
   templateUrl: './chat-window.component.html',
   styleUrls: ['./chat-window.component.scss'],

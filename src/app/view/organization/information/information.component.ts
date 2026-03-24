@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { OrganizationService } from '../../../auth/services';
 @Component({
+  standalone: false,
   selector: 'app-information',
   templateUrl: './information.component.html',
   styleUrls: ['./information.component.scss'],

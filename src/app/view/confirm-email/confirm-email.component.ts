@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from 'src/app/auth/services/user.service';
 
 @Component({
+  standalone: false,
   selector: 'app-confirm-email',
   templateUrl: './confirm-email.component.html',
   styleUrls: ['./confirm-email.component.scss'],

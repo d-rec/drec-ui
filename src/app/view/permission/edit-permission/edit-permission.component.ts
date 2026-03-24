@@ -10,6 +10,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { UserpermissionComponent } from '../add-userpermission/add-userpermission.component';
 @Component({
+  standalone: false,
   selector: 'app-edit-permission',
   templateUrl: './edit-permission.component.html',
   styleUrls: ['./edit-permission.component.scss'],

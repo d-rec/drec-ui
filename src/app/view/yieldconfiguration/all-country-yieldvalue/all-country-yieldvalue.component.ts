@@ -7,6 +7,7 @@ import { YieldConfigurationService } from '../../../auth/services/yieldConfigura
 import { Router } from '@angular/router';
 import { YieldConfig } from '../../../models/yieldvalue.model';
 @Component({
+  standalone: false,
   selector: 'app-all-country-yieldvalue',
   templateUrl: './all-country-yieldvalue.component.html',
   styleUrls: ['./all-country-yieldvalue.component.scss'],

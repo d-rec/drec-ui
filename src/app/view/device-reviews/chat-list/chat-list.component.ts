@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ChatService, ChatConversation } from '../../../chat/chat.service';
 
 @Component({
+  standalone: false,
   selector: 'app-ds-chat-list',
   templateUrl: './chat-list.component.html',
   styleUrls: ['./chat-list.component.scss'],

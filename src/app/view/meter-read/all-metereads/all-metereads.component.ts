@@ -14,6 +14,7 @@ import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { OrganizationInformation, Device } from '../../../models';
 @Component({
+  standalone: false,
   selector: 'app-all-metereads',
   templateUrl: './all-metereads.component.html',
   styleUrls: ['./all-metereads.component.scss'],

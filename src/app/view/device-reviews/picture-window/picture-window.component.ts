@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { AssetService } from '../asset.service';
 
 @Component({
+  standalone: false,
   selector: 'app-ds-picture-window',
   templateUrl: './picture-window.component.html',
   styleUrls: ['./picture-window.component.scss'],

@@ -35,6 +35,7 @@ import { CommonModule } from '@angular/common';
 import { EditPermissionComponent } from '../edit-permission/edit-permission.component';
 import { getRoleName } from '../../../utils/role-helper';
 @Component({
+  standalone: false,
   selector: 'app-api-user-permission',
   templateUrl: './api-user-permission.component.html',
   styleUrls: ['./api-user-permission.component.scss'],
@@ -256,9 +257,9 @@ export class ApiUserPermissionComponent {
 }
 
 @Component({
+  standalone: true,
   selector: 'permission_updatefprm',
   templateUrl: 'permission_updatefprm.html',
-  standalone: true,
   imports: [
     MatDialogModule,
     MatButtonModule,

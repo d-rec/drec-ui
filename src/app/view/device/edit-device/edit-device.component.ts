@@ -16,6 +16,7 @@ import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MapComponent } from '../../map/map.component';
 
 @Component({
+  standalone: false,
   selector: 'app-edit-device',
   templateUrl: './edit-device.component.html',
   styleUrls: ['./edit-device.component.scss'],

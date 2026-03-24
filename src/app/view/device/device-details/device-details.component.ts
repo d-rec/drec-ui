@@ -11,6 +11,7 @@ import {
 } from '../../../models';
 import { ToastrService } from 'ngx-toastr';
 @Component({
+  standalone: false,
   selector: 'app-device-details',
   templateUrl: './device-details.component.html',
   styleUrls: ['./device-details.component.scss'],

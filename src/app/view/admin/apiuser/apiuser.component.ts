@@ -14,6 +14,7 @@ import { EditUserComponent } from '../../edit-user/edit-user.component';
 import { ToastrService } from 'ngx-toastr';
 import { InvitationformComponent } from '../../admin/invitationform/invitationform.component';
 @Component({
+  standalone: false,
   selector: 'app-apiuser',
   templateUrl: './apiuser.component.html',
   styleUrls: ['./apiuser.component.scss'],

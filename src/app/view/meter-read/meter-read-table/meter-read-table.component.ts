@@ -15,6 +15,7 @@ import { generateCSVContent } from '../../../utils/csv-export-helper';
 import { generatePDFBlob } from '../../../utils/pdf-export-helper';
 
 @Component({
+  standalone: false,
   selector: 'app-meter-read-table',
   templateUrl: './meter-read-table.component.html',
   styleUrls: ['./meter-read-table.component.scss'],

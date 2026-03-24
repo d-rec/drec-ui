@@ -4,6 +4,7 @@ import { AdminService, OrganizationService } from '../../auth/services';
 import { ToastrService } from 'ngx-toastr';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 @Component({
+  standalone: false,
   selector: 'app-confirm-dialog',
   templateUrl: './confirm-dialog.component.html',
   styleUrls: ['./confirm-dialog.component.scss'],

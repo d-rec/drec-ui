@@ -15,6 +15,7 @@ import { BulkUploadService } from '../../../auth/services/bulk-upload.service';
 import { BulkUploadType } from '../../../utils/enums/bulk-upload-type.enum';
 
 @Component({
+  standalone: false,
   selector: 'app-add-bulk-device',
   templateUrl: './add-bulk-device.component.html',
   styleUrls: ['./add-bulk-device.component.scss'],

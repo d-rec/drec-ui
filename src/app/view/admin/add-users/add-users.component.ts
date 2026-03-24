@@ -16,6 +16,7 @@ import {
   phoneNumberValidator,
 } from '../../../shared/validators/phone-validators';
 @Component({
+  standalone: false,
   selector: 'app-add-users',
   templateUrl: './add-users.component.html',
   styleUrls: ['./add-users.component.scss'],

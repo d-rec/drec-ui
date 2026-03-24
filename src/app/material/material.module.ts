@@ -58,6 +58,12 @@ import {
 } from '@angular/material/bottom-sheet';
 
 @NgModule({
+  imports: [
+    NgxMatDatetimepicker,
+    NgxMatTimepickerComponent,
+    NgxMatDatepickerInput,
+    NgxMatDatepickerToggle,
+  ],
   exports: [
     A11yModule,
     CdkAccordionModule,

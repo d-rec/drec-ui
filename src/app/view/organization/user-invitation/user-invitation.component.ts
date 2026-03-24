@@ -20,6 +20,7 @@ import {
 } from '../../../shared/validators/phone-validators';
 
 @Component({
+  standalone: false,
   selector: 'app-user-invitation',
   templateUrl: './user-invitation.component.html',
   styleUrls: ['./user-invitation.component.scss'],

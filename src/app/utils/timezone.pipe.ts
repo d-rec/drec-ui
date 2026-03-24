@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 //import { formatDate } from '@angular/common';
 import * as momentTimeZone from 'moment-timezone';
-@Pipe({
+@Pipe({ standalone: false,
   name: 'timezone',
 })
 export class TimezonePipe implements PipeTransform {

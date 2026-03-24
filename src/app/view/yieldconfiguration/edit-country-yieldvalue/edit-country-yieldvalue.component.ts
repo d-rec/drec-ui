@@ -7,6 +7,7 @@ import { Observable, Subscription } from 'rxjs';
 import { startWith, map } from 'rxjs/operators';
 import { YieldConfigurationService } from '../../../auth/services/yieldConfiguration.service';
 @Component({
+  standalone: false,
   selector: 'app-edit-country-yieldvalue',
   templateUrl: './edit-country-yieldvalue.component.html',
   styleUrls: ['./edit-country-yieldvalue.component.scss'],

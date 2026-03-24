@@ -2,6 +2,7 @@ import { Directive, HostListener, ElementRef } from '@angular/core';
 import { AsYouType, parsePhoneNumberFromString } from 'libphonenumber-js';
 
 @Directive({
+  standalone: false,
   selector: '[phoneFormat]',
 })
 export class PhoneFormatDirective {

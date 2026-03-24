@@ -1,5 +1,4 @@
-import { AbiItem } from 'web3-utils';
-export const registryABI: Array<AbiItem> = [
+export const registryABI: Array<any> = [
   {
     inputs: [
       {

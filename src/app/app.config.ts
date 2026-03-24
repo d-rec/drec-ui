@@ -7,13 +7,10 @@ if (environment.production || environment.staging) {
     dsn: environment.SENTRY_DNS,
     integrations: [
       Sentry.browserTracingIntegration(),
-      Sentry.replayIntegration(),
     ],
     tracesSampleRate: 1.0,
     tracePropagationTargets: [/^\/api/],
     environment: environment.SENTRY_ENV,
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
   });
 }
 

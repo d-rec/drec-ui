@@ -53,6 +53,7 @@ export type DeviceFiles = {
 type FileType = keyof DeviceFiles;
 
 @Component({
+  standalone: false,
   selector: 'app-add-devices',
   templateUrl: './add-devices.component.html',
   styleUrls: ['./add-devices.component.scss'],

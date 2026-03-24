@@ -12,6 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import { OtpService } from '../../auth/services/otp.service';
 
 @Component({
+  standalone: false,
   selector: 'app-verification',
   templateUrl: './verification.component.html',
   styleUrls: ['./verification.component.scss'],

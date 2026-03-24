@@ -15,6 +15,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 @Component({
+  standalone: false,
   selector: 'app-ds-satellite-window',
   template: `
     <app-ds-floating-window

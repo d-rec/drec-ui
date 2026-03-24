@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from 
 import { AssetService } from '../asset.service';
 
 @Component({
+  standalone: false,
   selector: 'app-ds-map-window',
   template: `
     <div class="map-full">

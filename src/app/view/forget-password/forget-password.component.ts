@@ -4,6 +4,7 @@ import { UserService } from '../../auth/services/user.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 @Component({
+  standalone: false,
   selector: 'app-forget-password',
   templateUrl: './forget-password.component.html',
   styleUrls: ['./forget-password.component.scss'],

@@ -33,6 +33,7 @@ import { DeviceDetailsComponent } from '../device/device-details/device-details.
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
+  standalone: false,
   selector: 'app-certified-devices-developer',
   templateUrl: './certified-devices-developer.component.html',
   styleUrls: ['./certified-devices-developer.component.scss'],

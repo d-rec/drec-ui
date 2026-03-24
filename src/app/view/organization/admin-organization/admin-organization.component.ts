@@ -16,6 +16,7 @@ import {
   CountryInfo,
 } from '../../../models';
 @Component({
+  standalone: false,
   selector: 'app-admin-organization',
   templateUrl: './admin-organization.component.html',
   styleUrls: ['./admin-organization.component.scss'],

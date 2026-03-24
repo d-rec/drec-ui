@@ -14,6 +14,7 @@ import { decodeJwtToken, storeUserSession } from '../../utils/token-utils';
 import { RoleModeService } from '../../auth/services/role-mode.service';
 
 @Component({
+  standalone: false,
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],

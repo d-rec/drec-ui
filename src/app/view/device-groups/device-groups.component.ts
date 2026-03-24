@@ -21,6 +21,7 @@ import {
 } from '../../models';
 
 @Component({
+  standalone: false,
   selector: 'app-device-groups',
   templateUrl: './device-groups.component.html',
   styleUrls: ['./device-groups.component.scss'],

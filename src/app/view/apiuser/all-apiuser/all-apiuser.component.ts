@@ -15,6 +15,7 @@ import { ToastrService } from 'ngx-toastr';
 import { InvitationformComponent } from '../../admin/invitationform/invitationform.component';
 import { getRoleName } from '../../../utils/role-helper';
 @Component({
+  standalone: false,
   selector: 'app-all-apiuser',
   templateUrl: './all-apiuser.component.html',
   styleUrls: ['./all-apiuser.component.scss'],
