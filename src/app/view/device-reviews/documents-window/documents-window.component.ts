@@ -154,6 +154,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   ) {}
 
   trustUrl(url: string): SafeUrl {
+    // nosemgrep: angular-bypasssecuritytrust -- url comes from backend S3 presigned URLs, not user input
     return this.sanitizer.bypassSecurityTrustUrl(url);
   }
 
@@ -171,9 +172,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     );
     if (!term.trim()) return safe;
     const t = term.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // nosemgrep: angular-bypasssecuritytrust -- HTML-escaped value, regex-escaped term; only <mark> tags injected
     return this.sanitizer.bypassSecurityTrustHtml(
-      safe.replace(
-        new RegExp(t, 'gi'),
+      safe.replace( // nosemgrep: angular-bypasssecuritytrust
+        new RegExp(t, 'gi'), // nosemgrep: detect-non-literal-regexp -- term is regex-escaped above
         (m) => `<mark class="search-highlight">${m}</mark>`,
       ),
     );

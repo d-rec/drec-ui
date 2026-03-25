@@ -20,9 +20,9 @@ export class HighlightPipe implements PipeTransform {
     if (!term.trim()) return escaped;
     const escapedTerm = term.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const highlighted = escaped.replace(
-      new RegExp(escapedTerm, 'gi'),
+      new RegExp(escapedTerm, 'gi'), // nosemgrep: detect-non-literal-regexp -- term is regex-escaped above
       (m) => `<mark class="search-highlight">${m}</mark>`,
     );
-    return this.sanitizer.bypassSecurityTrustHtml(highlighted);
+    return this.sanitizer.bypassSecurityTrustHtml(highlighted); // nosemgrep: angular-bypasssecuritytrust -- HTML-escaped value, regex-escaped term
   }
 }
