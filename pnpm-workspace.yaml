@@ -1,5 +1,5 @@
 onlyBuiltDependencies:
-  - '@sentry/cli'
+  - "@sentry/cli"
   - cypress
   - esbuild
   - keccak

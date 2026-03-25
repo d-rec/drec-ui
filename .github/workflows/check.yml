@@ -26,7 +26,7 @@ jobs:
           node-version: lts/iron
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Run Prettier
         run: npm run prettier
@@ -44,7 +44,7 @@ jobs:
           node-version: lts/iron
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Run ESLint (error)
         run: npm run lint:error
@@ -65,7 +65,7 @@ jobs:
           node-version: lts/iron
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
-      - name: Build drec-origin
-        run: npm run build
+      - name: Build drec-ui
+        run: npx ng build

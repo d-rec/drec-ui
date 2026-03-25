@@ -103,7 +103,7 @@ docker build --build-arg build_environment=prod -t drec-ui .
 docker run -p 80:80 drec-ui
 ```
 
-## Testing
+## Testing details
 
 - **Unit tests:** `npm test` runs Karma with Jasmine in a headless Chrome browser.
 - **E2E tests:** `npx cypress run` executes Cypress specs located in `cypress/e2e/`. Both the backend and frontend must be running before executing E2E tests.
