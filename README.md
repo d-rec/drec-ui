@@ -36,12 +36,12 @@ npm start
 
 ## Environment Configuration
 
-| Config | File | API URL | Sentry Env |
-|---|---|---|---|
-| `development` | `environment.ts` | `http://localhost:3040/api/` | `development` |
-| `dev` | `environment.dev.ts` | `https://dev-api.drecs.org/api/` | `development` |
-| `stage` | `environment.stage.ts` | `https://stage-api.drecs.org/api/` | `staging` |
-| `prod` | `environment.prod.ts` | `https://api.drecs.org/api/` | `production` |
+| Config | File | API URL | Portal URL | Sentry Env |
+|---|---|---|---|---|
+| `development` | `environment.ts` | `http://localhost:3040/api/` | `http://localhost:4200/` | `development` |
+| `dev` | `environment.dev.ts` | `https://dev-api.drecs.org/api/` | `https://dev-portal.drecs.org/` | `development` |
+| `stage` | `environment.stage.ts` | `https://stage-api.drecs.org/api/` | `https://stage-portal.drecs.org/` | `staging` |
+| `prod` | `environment.prod.ts` | `https://api.drecs.org/api/` | `https://portal.drecs.org/` | `production` |
 
 Build for a specific environment:
 
