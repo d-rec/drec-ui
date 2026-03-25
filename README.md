@@ -43,6 +43,12 @@ npm start
 | `stage` | `environment.stage.ts` | `https://stage-api.drecs.org/api/` | `https://stage-portal.drecs.org/` | `staging` |
 | `prod` | `environment.prod.ts` | `https://api.drecs.org/api/` | `https://portal.drecs.org/` | `production` |
 
+### Staging Credentials
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `stageadmin@drecs.org` | `StageAdmin2026!` |
+
 Build for a specific environment:
 
 ```bash
