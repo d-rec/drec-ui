@@ -129,19 +129,20 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   readonly filtered$ = combineLatest([
     this.svc.assets$,
-    this.svc.selectedId$,
     this.searchTerm$,
     this.statusFilter$,
     this.sort$,
   ]).pipe(
-    map(([assets, selId, searchTerm, statusFilter]) => ({
+    map(([assets, searchTerm, statusFilter]) => ({
       assets: this.sortAssets(
         this.applyFilter(assets, searchTerm, statusFilter),
       ),
-      selId,
       searchTerm,
     })),
   );
+
+  /** Selected ID tracked as component property so selection changes don't trigger list re-render. */
+  selId: string | null = null;
 
   constructor(
     readonly svc: AssetService,
@@ -219,6 +220,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           if (asset) this.patchForm(asset);
         }
         this.editingId = id;
+        this.selId = id;
       }),
     );
 
