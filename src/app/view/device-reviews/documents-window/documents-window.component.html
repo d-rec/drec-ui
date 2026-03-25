@@ -28,7 +28,7 @@
 
       <!-- Column headers -->
       <div class="dr-row dr-row--header">
-        <span class="col-serial  th-sort" [class.asc]="sortColumn==='projectName'&&sortDir===1" [class.desc]="sortColumn==='projectName'&&sortDir===-1" (click)="sortBy('projectName')">Site</span>
+        <span class="col-serial  th-sort" [class.asc]="sortColumn==='projectName'&&sortDir===1" [class.desc]="sortColumn==='projectName'&&sortDir===-1" (click)="sortBy('projectName')">Project Name</span>
         <span class="col-modified th-sort" [class.asc]="sortColumn==='modifiedDate'&&sortDir===1" [class.desc]="sortColumn==='modifiedDate'&&sortDir===-1" (click)="sortBy('modifiedDate')">Modified</span>
         <span class="col-status  th-sort" [class.asc]="sortColumn==='status'&&sortDir===1" [class.desc]="sortColumn==='status'&&sortDir===-1" (click)="sortBy('status')">Status</span>
       </div>
