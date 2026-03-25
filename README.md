@@ -117,7 +117,7 @@ The device submission form includes document upload fields (COD proof, AC capaci
 - **Images** render as `<img>`, **PDFs** render in an `<iframe>`
 - **OCR** runs automatically via [tesseract.js](https://github.com/naptha/tesseract.js) (v5) — supports English, French, and other Tesseract-supported languages
 - Multi-page PDFs are OCR'd page-by-page with streaming output (earlier pages appear while later ones process)
-- **Translate to English** auto-detects the source language and translates via Google Translate (no API key needed)
+- **Translate to English** auto-detects the source language and translates via [DeepL API](https://www.deepl.com/docs-api) (requires a `DEEPL_API_KEY` in `environment.ts`; requests are proxied through the Angular dev server to avoid CORS — see `proxy.conf.json`)
 
 ## Contributing
 

@@ -45,6 +45,10 @@ export class ChatListComponent implements OnInit {
 
   openConversation(conv: ChatConversation): void {
     this.chatService.siteName$.next(conv.deviceProjectName);
+    this.chatService.openForDevice$.next({
+      submitterEmail: this.otherParticipant(conv),
+      siteName: conv.deviceProjectName || '',
+    });
     this.chatService.openChat(conv);
     this.chatService.isChatOpen$.next(true);
   }

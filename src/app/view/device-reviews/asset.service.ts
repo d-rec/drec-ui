@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, ReplaySubject, Subject, map } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subject, firstValueFrom, map } from 'rxjs';
 import { Asset } from './asset.model';
 import { environment } from '../../../environments/environment';
 
@@ -89,5 +89,35 @@ export class AssetService {
       `${environment.API_URL}device-reviews/documents/${docId}/reviewed`,
       {},
     );
+  }
+
+  /** Extract the S3 object key from a presigned URL. */
+  extractS3Key(presignedUrl: string): string | null {
+    try {
+      const url = new URL(presignedUrl);
+      // Path is like /bucket-name/subfolder/file.jpg — strip leading /bucket/
+      const parts = url.pathname.split('/');
+      // Remove empty first element and bucket name
+      return parts.slice(2).join('/') || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** Request a fresh signed URL from the backend. */
+  async refreshUrl(presignedUrl: string): Promise<string> {
+    const key = this.extractS3Key(presignedUrl);
+    if (!key) return presignedUrl;
+    try {
+      const res = await firstValueFrom(
+        this.http.post<{ url: string }>(
+          `${environment.API_URL}device-reviews/refresh-url`,
+          { key },
+        ),
+      );
+      return res.url;
+    } catch {
+      return presignedUrl; // fallback to original
+    }
   }
 }

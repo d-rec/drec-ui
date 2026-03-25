@@ -265,14 +265,20 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   // ── File handling ─────────────────────────────────────────────────────────────
 
-  openFile(url: string, event: MouseEvent): void {
+  async openFile(url: string, event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    window.open(url, '_blank', 'noopener');
+    const freshUrl = await this.svc.refreshUrl(url);
+    if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
+      this.svc.viewPicture(freshUrl);
+    } else {
+      window.open(freshUrl, '_blank', 'noopener');
+    }
   }
 
-  openPicture(url: string, event: MouseEvent): void {
+  async openPicture(url: string, event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    this.svc.viewPicture(url);
+    const freshUrl = await this.svc.refreshUrl(url);
+    this.svc.viewPicture(freshUrl);
   }
 
   onCodProofChange(asset: Asset, event: Event): void {
