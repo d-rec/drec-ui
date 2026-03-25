@@ -394,7 +394,8 @@ export class AlldevicesComponent {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
           title: 'Warning',
-          message: 'Warning: this device is currently under review, mind your changes.',
+          message:
+            'Warning: this device is currently under review, mind your changes.',
         },
       });
       confirmDialog.afterClosed().subscribe((result) => {
@@ -530,7 +531,6 @@ export class AlldevicesComponent {
   }
 
   openChat(device: any): void {
-    const currentEmail = this.loginuser.email || '';
     const siteName = device.projectName || '';
     this.chatService.getAdminUser().subscribe({
       next: (admin) => {

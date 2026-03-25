@@ -12,10 +12,10 @@ import * as L from 'leaflet';
 import { Asset } from '../asset.model';
 
 const STATUS_COLOR: Record<string, string> = {
-  approved:  '#22c55e',
-  rejected:  '#ef4444',
-  pending:   '#f59e0b',
-  legacy:    '#a0845c',
+  approved: '#22c55e',
+  rejected: '#ef4444',
+  pending: '#f59e0b',
+  legacy: '#a0845c',
 };
 
 function pinIcon(color: string): L.DivIcon {
@@ -38,10 +38,19 @@ function pinIcon(color: string): L.DivIcon {
   standalone: false,
   selector: 'app-ds-asset-map',
   template: `<div #mapEl class="map-container"></div>`,
-  styles: [`
-    :host { display: block; width: 100%; height: 100%; }
-    .map-container { width: 100%; height: 100%; }
-  `],
+  styles: [
+    `
+      :host {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .map-container {
+        width: 100%;
+        height: 100%;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
@@ -60,10 +69,13 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       maxBounds: L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180)),
       maxBoundsViscosity: 1.0,
     }).setView([20, 0], 2);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png', {
-      maxZoom: 17,
-      noWrap: true,
-    }).addTo(this.map);
+    L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+      {
+        maxZoom: 17,
+        noWrap: true,
+      },
+    ).addTo(this.map);
     this.updateMarkers();
 
     this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());
@@ -80,30 +92,34 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   private updateMarkers(): void {
-    this.markers.forEach(m => m.remove());
+    this.markers.forEach((m) => m.remove());
     this.markers = [];
 
     for (const asset of this.assets) {
       if (asset.lat === null || asset.long === null) continue;
       const color = STATUS_COLOR[asset.status] ?? '#6b7280';
-      const fmt = (d: Date | null) => d ? d.toLocaleDateString() : '—';
+      const fmt = (d: Date | null) => (d ? d.toLocaleDateString() : '—');
       const popup = L.popup({ closeButton: false, offset: [0, -6] }).setContent(
         `<div style="min-width:160px;font-size:13px;line-height:1.6">` +
-        `<strong style="font-size:14px">${asset.projectName}</strong><br>` +
-        `<span style="color:#64748b;font-size:11px">${asset.serial}</span><br>` +
-        `<span style="color:${color};font-weight:600">${asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}</span><br>` +
-        `<span style="color:#64748b;font-size:11px">${asset.lat.toFixed(5)}, ${asset.long.toFixed(5)}</span><br>` +
-        (asset.reviewer ? `Reviewer: ${asset.reviewer}<br>` : '') +
-        `Added: ${fmt(asset.dateAdded)}<br>` +
-        (asset.dateSubmitted ? `Submitted: ${fmt(asset.dateSubmitted)}<br>` : '') +
-        (asset.notes ? `<em style="color:#64748b;font-size:12px">${asset.notes}</em>` : '') +
-        `</div>`
+          `<strong style="font-size:14px">${asset.projectName}</strong><br>` +
+          `<span style="color:#64748b;font-size:11px">${asset.serial}</span><br>` +
+          `<span style="color:${color};font-weight:600">${asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}</span><br>` +
+          `<span style="color:#64748b;font-size:11px">${asset.lat.toFixed(5)}, ${asset.long.toFixed(5)}</span><br>` +
+          (asset.reviewer ? `Reviewer: ${asset.reviewer}<br>` : '') +
+          `Added: ${fmt(asset.dateAdded)}<br>` +
+          (asset.dateSubmitted
+            ? `Submitted: ${fmt(asset.dateSubmitted)}<br>`
+            : '') +
+          (asset.notes
+            ? `<em style="color:#64748b;font-size:12px">${asset.notes}</em>`
+            : '') +
+          `</div>`,
       );
 
       const marker = L.marker([asset.lat, asset.long], { icon: pinIcon(color) })
         .bindPopup(popup)
         .on('mouseover', (e) => (e.target as L.Marker).openPopup())
-        .on('mouseout',  (e) => (e.target as L.Marker).closePopup())
+        .on('mouseout', (e) => (e.target as L.Marker).closePopup())
         .addTo(this.map!);
       this.markers.push(marker);
     }

@@ -7,7 +7,9 @@ export const AdminGuard: CanActivateFn = () => {
     const user = JSON.parse(sessionStorage.getItem('loginuser') ?? 'null');
     const allowed = ['Admin', 'OrganizationAdmin', 'ApiUser'];
     if (user?.role && allowed.includes(user.role)) return true;
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   router.navigate(['/dashboard']);
   return false;
 };

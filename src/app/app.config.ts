@@ -5,9 +5,7 @@ import { environment } from 'src/environments/environment';
 if (environment.production || environment.staging) {
   Sentry.init({
     dsn: environment.SENTRY_DNS,
-    integrations: [
-      Sentry.browserTracingIntegration(),
-    ],
+    integrations: [Sentry.browserTracingIntegration()],
     tracesSampleRate: 1.0,
     tracePropagationTargets: [/^\/api/],
     environment: environment.SENTRY_ENV,

@@ -36,7 +36,11 @@ import { AdminGuard } from '../../guards/admin.guard';
     ReactiveFormsModule,
     LeafletModule,
     RouterModule.forChild([
-      { path: '', component: DeviceReviewsPageComponent, canActivate: [AdminGuard] },
+      {
+        path: '',
+        component: DeviceReviewsPageComponent,
+        canActivate: [AdminGuard],
+      },
     ]),
   ],
   providers: [AssetService],

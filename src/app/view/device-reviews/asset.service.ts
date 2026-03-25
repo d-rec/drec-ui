@@ -1,6 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, ReplaySubject, Subject, firstValueFrom, map } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  ReplaySubject,
+  Subject,
+  firstValueFrom,
+  map,
+} from 'rxjs';
 import { Asset } from './asset.model';
 import { environment } from '../../../environments/environment';
 
@@ -30,28 +37,34 @@ export class AssetService {
     this.loading$.next(true);
     this.error$.next(null);
     this.http.get<Asset[]>(environment.API_URL + 'device-reviews').subscribe({
-      next: assets => {
-        const mapped = assets.map(a => ({
+      next: (assets) => {
+        const mapped = assets.map((a) => ({
           ...a,
-          dateAdded:     a.dateAdded     ? new Date(a.dateAdded)     : null,
+          dateAdded: a.dateAdded ? new Date(a.dateAdded) : null,
           dateSubmitted: a.dateSubmitted ? new Date(a.dateSubmitted) : null,
-          modifiedDate:  a.modifiedDate  ? new Date(a.modifiedDate)  : null,
+          modifiedDate: a.modifiedDate ? new Date(a.modifiedDate) : null,
         }));
         this.assets$.next(mapped);
         this.dataLoaded$.next(mapped);
         this.selectedId$.next(null);
         this.loading$.next(false);
       },
-      error: err => {
+      error: (err) => {
         console.error('[DeviceReviews] Failed to load:', err);
-        this.error$.next(err?.error?.message ?? err?.message ?? `HTTP ${err?.status ?? 'error'}`);
+        this.error$.next(
+          err?.error?.message ??
+            err?.message ??
+            `HTTP ${err?.status ?? 'error'}`,
+        );
         this.loading$.next(false);
       },
     });
   }
 
   readonly selected$: Observable<Asset | null> = this.selectedId$.pipe(
-    map(id => id ? (this.assets$.value.find(a => a.id === id) ?? null) : null)
+    map((id) =>
+      id ? this.assets$.value.find((a) => a.id === id) ?? null : null,
+    ),
   );
 
   select(id: string | null): void {
@@ -64,20 +77,28 @@ export class AssetService {
   }
 
   saveAsset(updated: Asset, persistStatus = false): void {
-    const old = this.assets$.value.find(a => a.id === updated.id);
+    const old = this.assets$.value.find((a) => a.id === updated.id);
     updated.modifiedDate = new Date();
-    const assets = this.assets$.value.map(a => a.id === updated.id ? { ...updated } : a);
+    const assets = this.assets$.value.map((a) =>
+      a.id === updated.id ? { ...updated } : a,
+    );
     this.assets$.next(assets);
 
     // Persist status change to backend
     if (persistStatus || (old && old.status !== updated.status)) {
-      this.updateReviewStatus(parseInt(updated.id, 10), updated.status).subscribe({
+      this.updateReviewStatus(
+        parseInt(updated.id, 10),
+        updated.status,
+      ).subscribe({
         error: (err) => console.warn('Failed to persist review status', err),
       });
     }
   }
 
-  updateReviewStatus(deviceId: number, status: string): Observable<{ status: string }> {
+  updateReviewStatus(
+    deviceId: number,
+    status: string,
+  ): Observable<{ status: string }> {
     return this.http.patch<{ status: string }>(
       `${environment.API_URL}device-reviews/${deviceId}/status`,
       { status },

@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
-import { ChatMessage, ChatService, ChatConversation } from '../chat.service';
+import { ChatMessage, ChatService } from '../chat.service';
 
 @Component({
   standalone: false,
@@ -43,9 +43,14 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   private messagesSubscription: Subscription | null = null;
   private deviceSub: Subscription | null = null;
 
-  constructor(readonly chatService: ChatService, private sanitizer: DomSanitizer) {}
+  constructor(
+    readonly chatService: ChatService,
+    private sanitizer: DomSanitizer,
+  ) {}
 
-  private dismissContextMenu = () => { this.showContextMenu = false; };
+  private dismissContextMenu = () => {
+    this.showContextMenu = false;
+  };
 
   ngOnInit(): void {
     document.addEventListener('click', this.dismissContextMenu);
@@ -58,27 +63,31 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
       if (hadNew) this.autoScrollToBottom();
     });
 
-    this.deviceSub = this.chatService.openForDevice$.subscribe(({ submitterEmail, siteName }) => {
-      if (!submitterEmail) return;
-      this.partnerEmail = submitterEmail;
-      this.partnerName = submitterEmail;
-      this.deviceProjectName = siteName || null;
+    this.deviceSub = this.chatService.openForDevice$.subscribe(
+      ({ submitterEmail, siteName }) => {
+        if (!submitterEmail) return;
+        this.partnerEmail = submitterEmail;
+        this.partnerName = submitterEmail;
+        this.deviceProjectName = siteName || null;
 
-      // Look up existing conversation by site name
-      this.chatService.getConversation(undefined, undefined, siteName || undefined).subscribe({
-        next: (conv) => {
-          if (conv) {
-            this.chatService.openChat(conv);
-          } else {
-            this.chatService.messages$.next([]);
-          }
-        },
-        error: (err) => {
-          console.warn('Chat: could not load conversation', err);
-          this.chatService.messages$.next([]);
-        },
-      });
-    });
+        // Look up existing conversation by site name
+        this.chatService
+          .getConversation(undefined, undefined, siteName || undefined)
+          .subscribe({
+            next: (conv) => {
+              if (conv) {
+                this.chatService.openChat(conv);
+              } else {
+                this.chatService.messages$.next([]);
+              }
+            },
+            error: (err) => {
+              console.warn('Chat: could not load conversation', err);
+              this.chatService.messages$.next([]);
+            },
+          });
+      },
+    );
   }
 
   send(): void {
@@ -120,19 +129,32 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
           next: (result) => {
             this.chatService.openChat(result.conversation);
           },
-          error: (err) => console.error('Chat: failed to start conversation', err),
+          error: (err) =>
+            console.error('Chat: failed to start conversation', err),
         });
     }
   }
 
   highlightText(text: string): string | SafeHtml {
-    const safe = text.replace(/[&<>"']/g, c =>
-      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c));
+    const safe = text.replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+        })[c] ?? c,
+    );
     const term = this.chatSearch.trim();
     if (!term) return safe;
     const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return this.sanitizer.bypassSecurityTrustHtml(
-      safe.replace(new RegExp(escaped, 'gi'), m => `<mark class="chat-highlight">${m}</mark>`),
+      safe.replace(
+        new RegExp(escaped, 'gi'),
+        (m) => `<mark class="chat-highlight">${m}</mark>`,
+      ),
     );
   }
 
@@ -147,9 +169,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   get filteredMessages(): ChatMessage[] {
     const term = this.chatSearch.trim().toLowerCase();
     if (!term) return this.messages;
-    return this.messages.filter(m =>
-      m.chatEntry.toLowerCase().includes(term) ||
-      m.username.toLowerCase().includes(term)
+    return this.messages.filter(
+      (m) =>
+        m.chatEntry.toLowerCase().includes(term) ||
+        m.username.toLowerCase().includes(term),
     );
   }
 
@@ -168,8 +191,14 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   private onResizeMove = (event: MouseEvent): void => {
     if (!this.resizing) return;
     // Grip is top-left: dragging left = wider, dragging up = taller
-    this.width = Math.max(280, this.resizeStartW - (event.clientX - this.resizeStartX));
-    this.height = Math.max(200, this.resizeStartH - (event.clientY - this.resizeStartY));
+    this.width = Math.max(
+      280,
+      this.resizeStartW - (event.clientX - this.resizeStartX),
+    );
+    this.height = Math.max(
+      200,
+      this.resizeStartH - (event.clientY - this.resizeStartY),
+    );
   };
 
   private onResizeEnd = (): void => {

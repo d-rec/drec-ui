@@ -1,18 +1,24 @@
 import {
-  Component, Input, Output, EventEmitter,
-  AfterViewInit, OnChanges, OnDestroy,
-  ElementRef, ViewChild, ChangeDetectionStrategy,
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  AfterViewInit,
+  OnChanges,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
 import { AssetService } from '../asset.service';
-import { Asset } from '../asset.model';
 
 const STATUS_COLOR: Record<string, string> = {
   approved: '#22c55e',
   rejected: '#ef4444',
-  pending:  '#f59e0b',
-  legacy:   '#a0845c',
+  pending: '#f59e0b',
+  legacy: '#a0845c',
 };
 
 @Component({
@@ -21,8 +27,10 @@ const STATUS_COLOR: Record<string, string> = {
   template: `
     <app-ds-floating-window
       title="🛰 Satellite Map"
-      [initX]="600" [initY]="390"
-      [initWidth]="560" [initHeight]="360"
+      [initX]="600"
+      [initY]="390"
+      [initWidth]="560"
+      [initHeight]="360"
       [zIndex]="zIndex"
       (bringToFront)="bringToFront.emit()"
       (close)="close.emit()"
@@ -32,7 +40,9 @@ const STATUS_COLOR: Record<string, string> = {
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SatelliteWindowComponent implements AfterViewInit, OnChanges, OnDestroy {
+export class SatelliteWindowComponent
+  implements AfterViewInit, OnChanges, OnDestroy
+{
   @Input() zIndex = 150;
   @Output() bringToFront = new EventEmitter<void>();
   @Output() close = new EventEmitter<void>();
@@ -47,14 +57,19 @@ export class SatelliteWindowComponent implements AfterViewInit, OnChanges, OnDes
   constructor(readonly svc: AssetService) {}
 
   ngAfterViewInit(): void {
-    this.map = L.map(this.mapEl.nativeElement, { zoomControl: true, attributionControl: false, maxZoom: 19 }).setView([20, 0], 2);
+    this.map = L.map(this.mapEl.nativeElement, {
+      zoomControl: true,
+      attributionControl: false,
+      maxZoom: 19,
+    }).setView([20, 0], 2);
 
     L.tileLayer(
       'https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       {
-        attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics',
+        attribution:
+          'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics',
         maxZoom: 21,
-      }
+      },
     ).addTo(this.map);
 
     this.updateMarkers();
@@ -78,25 +93,29 @@ export class SatelliteWindowComponent implements AfterViewInit, OnChanges, OnDes
   }
 
   private updateMarkers(): void {
-    this.markers.forEach(m => m.remove());
+    this.markers.forEach((m) => m.remove());
     this.markers = [];
 
     for (const asset of this.svc.assets$.value) {
       if (asset.lat === null || asset.long === null) continue;
       const color = STATUS_COLOR[asset.status] ?? '#6b7280';
-      const fmt = (d: Date | null) => d ? d.toLocaleDateString() : '—';
+      const fmt = (d: Date | null) => (d ? d.toLocaleDateString() : '—');
 
       const popup = L.popup({ closeButton: false, offset: [0, -6] }).setContent(
         `<div style="min-width:160px;font-size:13px;line-height:1.6">` +
-        `<strong style="font-size:14px">${asset.projectName}</strong><br>` +
-        `<span style="color:#64748b;font-size:11px">${asset.serial}</span><br>` +
-        `<span style="color:${color};font-weight:600">${asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}</span><br>` +
-        `<span style="color:#64748b;font-size:11px">${asset.lat.toFixed(5)}, ${asset.long.toFixed(5)}</span><br>` +
-        (asset.reviewer ? `Reviewer: ${asset.reviewer}<br>` : '') +
-        `Added: ${fmt(asset.dateAdded)}<br>` +
-        (asset.dateSubmitted ? `Submitted: ${fmt(asset.dateSubmitted)}<br>` : '') +
-        (asset.notes ? `<em style="color:#64748b;font-size:12px">${asset.notes}</em>` : '') +
-        `</div>`
+          `<strong style="font-size:14px">${asset.projectName}</strong><br>` +
+          `<span style="color:#64748b;font-size:11px">${asset.serial}</span><br>` +
+          `<span style="color:${color};font-weight:600">${asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}</span><br>` +
+          `<span style="color:#64748b;font-size:11px">${asset.lat.toFixed(5)}, ${asset.long.toFixed(5)}</span><br>` +
+          (asset.reviewer ? `Reviewer: ${asset.reviewer}<br>` : '') +
+          `Added: ${fmt(asset.dateAdded)}<br>` +
+          (asset.dateSubmitted
+            ? `Submitted: ${fmt(asset.dateSubmitted)}<br>`
+            : '') +
+          (asset.notes
+            ? `<em style="color:#64748b;font-size:12px">${asset.notes}</em>`
+            : '') +
+          `</div>`,
       );
 
       const icon = L.divIcon({
@@ -109,7 +128,7 @@ export class SatelliteWindowComponent implements AfterViewInit, OnChanges, OnDes
       const marker = L.marker([asset.lat, asset.long], { icon })
         .bindPopup(popup)
         .on('mouseover', (e) => (e.target as L.Marker).openPopup())
-        .on('mouseout',  (e) => (e.target as L.Marker).closePopup())
+        .on('mouseout', (e) => (e.target as L.Marker).closePopup())
         .addTo(this.map!);
 
       this.markers.push(marker);

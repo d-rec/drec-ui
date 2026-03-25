@@ -1,4 +1,10 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { AssetService } from '../asset.service';
 
 @Component({
@@ -6,13 +12,22 @@ import { AssetService } from '../asset.service';
   selector: 'app-ds-map-window',
   template: `
     <div class="map-full">
-      <app-ds-asset-map [assets]="(svc.assets$ | async) || []"></app-ds-asset-map>
+      <app-ds-asset-map
+        [assets]="(svc.assets$ | async) || []"
+      ></app-ds-asset-map>
     </div>
   `,
-  styles: [`
-    :host { display: block; height: 100%; }
-    .map-full { height: 100%; }
-  `],
+  styles: [
+    `
+      :host {
+        display: block;
+        height: 100%;
+      }
+      .map-full {
+        height: 100%;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapWindowComponent {

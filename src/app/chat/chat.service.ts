@@ -1,6 +1,12 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, ReplaySubject, interval, Observable, Subscription } from 'rxjs';
+import {
+  BehaviorSubject,
+  ReplaySubject,
+  interval,
+  Observable,
+  Subscription,
+} from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
@@ -29,7 +35,10 @@ export class ChatService implements OnDestroy {
   messages$ = new BehaviorSubject<ChatMessage[]>([]);
   isChatOpen$ = new BehaviorSubject<boolean>(false);
   siteName$ = new BehaviorSubject<string | null>(null);
-  openForDevice$ = new ReplaySubject<{ submitterEmail: string; siteName: string }>(1);
+  openForDevice$ = new ReplaySubject<{
+    submitterEmail: string;
+    siteName: string;
+  }>(1);
   currentHeadUuid: string | null = null;
   currentConversationId: number | null = null;
 
@@ -86,7 +95,12 @@ export class ChatService implements OnDestroy {
     );
   }
 
-  getAdminUser(): Observable<{ id: number; firstName: string; lastName: string; email: string }> {
+  getAdminUser(): Observable<{
+    id: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+  }> {
     return this.http.get<any>(`${this.apiUrl}chat/admin`);
   }
 
@@ -122,7 +136,9 @@ export class ChatService implements OnDestroy {
   }
 
   getAllConversations(): Observable<ChatConversation[]> {
-    return this.http.get<ChatConversation[]>(`${this.apiUrl}chat/conversations`);
+    return this.http.get<ChatConversation[]>(
+      `${this.apiUrl}chat/conversations`,
+    );
   }
 
   getConversationsForUser(email: string): Observable<ChatConversation[]> {

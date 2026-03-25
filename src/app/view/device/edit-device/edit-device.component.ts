@@ -335,7 +335,8 @@ export class EditDeviceComponent implements OnInit {
         },
         error: (err: any): void => {
           console.error('error caught in component', err.error.message);
-          const message = err.error?.message || err.message || 'Failed to update device';
+          const message =
+            err.error?.message || err.message || 'Failed to update device';
           if (err.status === 409 || err.error?.statusCode === 409) {
             this.dialog.open(this.errorDialogTemplate, {
               width: '450px',

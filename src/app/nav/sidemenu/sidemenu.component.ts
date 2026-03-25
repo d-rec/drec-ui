@@ -1,4 +1,12 @@
-import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  HostListener,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+} from '@angular/core';
 import { MatSidenavContent } from '@angular/material/sidenav';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -26,7 +34,8 @@ export class SidemenuComponent implements OnInit, AfterViewInit, OnDestroy {
   isApiMode: boolean;
   getRoleName = getRoleName;
 
-  @ViewChild(MatSidenavContent, { read: ElementRef }) private contentRef: ElementRef;
+  @ViewChild(MatSidenavContent, { read: ElementRef })
+  private contentRef: ElementRef;
   sidenavWidth: number = this.loadWidth();
   private isResizing = false;
   private modeSubscription: Subscription;
@@ -79,20 +88,31 @@ export class SidemenuComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private applyWidth(width: number): void {
-    this.hostRef.nativeElement.style.setProperty('--sidenav-width', width + 'px');
+    this.hostRef.nativeElement.style.setProperty(
+      '--sidenav-width',
+      width + 'px',
+    );
     if (this.contentRef) {
-      this.contentRef.nativeElement.style.setProperty('margin-left', width + 'px', 'important');
+      this.contentRef.nativeElement.style.setProperty(
+        'margin-left',
+        width + 'px',
+        'important',
+      );
     }
   }
 
   private currentWidth(): number {
-    const val = getComputedStyle(this.hostRef.nativeElement).getPropertyValue('--sidenav-width');
+    const val = getComputedStyle(this.hostRef.nativeElement).getPropertyValue(
+      '--sidenav-width',
+    );
     return parseInt(val) || DEFAULT_WIDTH;
   }
 
   private loadWidth(): number {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? Math.min(Math.max(Number(stored), MIN_WIDTH), MAX_WIDTH) : DEFAULT_WIDTH;
+    return stored
+      ? Math.min(Math.max(Number(stored), MIN_WIDTH), MAX_WIDTH)
+      : DEFAULT_WIDTH;
   }
 
   private updateUrls(): void {

@@ -119,7 +119,9 @@ export class UserpermissionComponent {
           const roleA = this.getRoleName(a.user_role || '');
           const roleB = this.getRoleName(b.user_role || '');
           if (roleA !== roleB) return roleA.localeCompare(roleB);
-          return (a.aclmodules?.name || '').localeCompare(b.aclmodules?.name || '');
+          return (a.aclmodules?.name || '').localeCompare(
+            b.aclmodules?.name || '',
+          );
         });
         let currentRole = '';
         let roleIndex = -1;

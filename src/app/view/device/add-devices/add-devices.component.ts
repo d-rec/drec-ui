@@ -61,7 +61,7 @@ type FileType = keyof DeviceFiles;
   templateUrl: './add-devices.component.html',
   styleUrls: ['./add-devices.component.scss'],
 })
-export class AddDevicesComponent {
+export class AddDevicesComponent implements OnDestroy {
   @ViewChild('popupDialog') popupDialog = {} as TemplateRef<any>;
   @ViewChild('previewDialog') previewDialogTemplate = {} as TemplateRef<any>;
   @ViewChild('errorDialog') errorDialogTemplate = {} as TemplateRef<any>;
@@ -130,7 +130,13 @@ export class AddDevicesComponent {
     [index: number]: DeviceFiles;
   } = {};
   filePreviews: {
-    [index: number]: { [key: string]: { url: SafeResourceUrl; type: 'image' | 'pdf' | 'other'; name: string } };
+    [index: number]: {
+      [key: string]: {
+        url: SafeResourceUrl;
+        type: 'image' | 'pdf' | 'other';
+        name: string;
+      };
+    };
   } = {};
   allDocumentsUploaded: boolean = false;
   formValid: boolean = false;
@@ -221,7 +227,8 @@ export class AddDevicesComponent {
     } else if (this.user.role === OrganizationType.ApiUser) {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.organizationList = data.organizations.filter(
-          (org: OrganizationInformation) => org.organizationType === 'Developer',
+          (org: OrganizationInformation) =>
+            org.organizationType === 'Developer',
         );
         this.filteredOrganizationList = this.organizationList;
       });
@@ -643,7 +650,8 @@ export class AddDevicesComponent {
     this.ocrPageInfo = '';
     try {
       const Tesseract = await import('tesseract.js' as any);
-      const createWorker = Tesseract.createWorker || Tesseract.default?.createWorker;
+      const createWorker =
+        Tesseract.createWorker || Tesseract.default?.createWorker;
       const worker = await createWorker('eng+fra', 1, {
         logger: (m: any) => {
           if (m.status === 'recognizing text') {
@@ -662,7 +670,9 @@ export class AddDevicesComponent {
         }
         pdfjs.GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.js';
         const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+        const pdf = await pdfjs.getDocument({
+          data: new Uint8Array(arrayBuffer),
+        }).promise;
         const totalPages = pdf.numPages;
 
         for (let p = 1; p <= totalPages; p++) {
@@ -675,12 +685,17 @@ export class AddDevicesComponent {
           canvas.height = viewport.height;
           const ctx = canvas.getContext('2d')!;
           await page.render({ canvasContext: ctx, viewport }).promise;
-          const { data: { text } } = await worker.recognize(canvas);
+          const {
+            data: { text },
+          } = await worker.recognize(canvas);
           const separator = `── Page ${p} ${'─'.repeat(40)}`;
-          this.ocrText += (this.ocrText ? '\n\n' : '') + separator + '\n\n' + text.trim();
+          this.ocrText +=
+            (this.ocrText ? '\n\n' : '') + separator + '\n\n' + text.trim();
         }
       } else {
-        const { data: { text } } = await worker.recognize(file);
+        const {
+          data: { text },
+        } = await worker.recognize(file);
         this.ocrText = text;
       }
 
@@ -704,7 +719,7 @@ export class AddDevicesComponent {
         const res = await fetch('/deepl/v2/translate', {
           method: 'POST',
           headers: {
-            'Authorization': `DeepL-Auth-Key ${environment.DEEPL_API_KEY}`,
+            Authorization: `DeepL-Auth-Key ${environment.DEEPL_API_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ text: [chunk], target_lang: 'EN' }),
@@ -713,7 +728,8 @@ export class AddDevicesComponent {
         const data = await res.json();
         const t = data.translations?.[0];
         if (t) {
-          if (!this.detectedLang) this.detectedLang = t.detected_source_language?.toLowerCase() || '';
+          if (!this.detectedLang)
+            this.detectedLang = t.detected_source_language?.toLowerCase() || '';
           this.translatedText += t.text;
         }
       }
@@ -833,7 +849,8 @@ export class AddDevicesComponent {
           console.error('error caught in component', err.error.message);
           this.submitButtonText = 'Submit';
           this.isSubmitting = false;
-          const message = err.error?.message || err.message || 'Failed to register device';
+          const message =
+            err.error?.message || err.message || 'Failed to register device';
           if (err.status === 409 || err.error?.statusCode === 409) {
             this.dialog.open(this.errorDialogTemplate, {
               width: '450px',

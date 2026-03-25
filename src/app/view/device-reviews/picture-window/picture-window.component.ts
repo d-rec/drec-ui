@@ -1,4 +1,11 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AssetService } from '../asset.service';
 
@@ -18,7 +25,7 @@ export class PictureWindowComponent implements OnInit, OnDestroy {
   constructor(readonly svc: AssetService) {}
 
   ngOnInit(): void {
-    this.sub = this.svc.viewPictureUrl$.subscribe(url => {
+    this.sub = this.svc.viewPictureUrl$.subscribe((url) => {
       if (url) this.bringToFront.emit();
     });
   }
