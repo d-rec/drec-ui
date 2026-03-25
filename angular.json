@@ -140,9 +140,7 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "proxyConfig": "proxy.conf.json"
-          },
+          "options": {},
           "configurations": {
             "production": {
               "buildTarget": "origin-drec-angular-ui:build:production"

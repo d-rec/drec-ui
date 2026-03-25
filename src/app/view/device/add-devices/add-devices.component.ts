@@ -716,15 +716,15 @@ export class AddDevicesComponent implements OnDestroy {
     try {
       const chunks = this.splitTextIntoChunks(this.ocrText, 4000);
       for (const chunk of chunks) {
-        const res = await fetch('/deepl/v2/translate', {
+        const res = await fetch(`${environment.API_URL}translate`, {
           method: 'POST',
           headers: {
-            Authorization: `DeepL-Auth-Key ${environment.DEEPL_API_KEY}`,
+            Authorization: `Bearer ${sessionStorage.getItem('access-token')}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ text: [chunk], target_lang: 'EN' }),
         });
-        if (!res.ok) throw new Error(`DeepL error: ${res.status}`);
+        if (!res.ok) throw new Error(`Translation error: ${res.status}`);
         const data = await res.json();
         const t = data.translations?.[0];
         if (t) {
