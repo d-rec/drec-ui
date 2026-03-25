@@ -1,6 +1,8 @@
 import {
   Component,
   Input,
+  Output,
+  EventEmitter,
   OnChanges,
   AfterViewInit,
   OnDestroy,
@@ -55,6 +57,7 @@ function pinIcon(color: string): L.DivIcon {
 })
 export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input() assets: Asset[] = [];
+  @Output() pinClick = new EventEmitter<string>();
   @ViewChild('mapEl', { static: true }) mapEl!: ElementRef<HTMLDivElement>;
 
   private map: L.Map | null = null;
@@ -116,10 +119,12 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
           `</div>`,
       );
 
+      const id = asset.id;
       const marker = L.marker([asset.lat, asset.long], { icon: pinIcon(color) })
         .bindPopup(popup)
         .on('mouseover', (e) => (e.target as L.Marker).openPopup())
         .on('mouseout', (e) => (e.target as L.Marker).closePopup())
+        .on('click', () => this.pinClick.emit(id))
         .addTo(this.map!);
       this.markers.push(marker);
     }

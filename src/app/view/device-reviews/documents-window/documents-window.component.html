@@ -39,6 +39,7 @@
         <!-- Device row -->
         <div
           class="dr-row dr-row--device"
+          [attr.data-device-id]="item.id"
           [class.dr-row--selected]="result.selId === item.id"
           (click)="selectAsset(item); svc.expand(item.id)"
           (dblclick)="toggleDevice(item.id)"

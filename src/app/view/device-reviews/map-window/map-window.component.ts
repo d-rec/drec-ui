@@ -14,6 +14,7 @@ import { AssetService } from '../asset.service';
     <div class="map-full">
       <app-ds-asset-map
         [assets]="(svc.assets$ | async) || []"
+        (pinClick)="onPinClick.emit($event)"
       ></app-ds-asset-map>
     </div>
   `,
@@ -33,5 +34,6 @@ import { AssetService } from '../asset.service';
 export class MapWindowComponent {
   @Input() zIndex = 200;
   @Output() bringToFront = new EventEmitter<void>();
+  @Output() onPinClick = new EventEmitter<string>();
   constructor(readonly svc: AssetService) {}
 }

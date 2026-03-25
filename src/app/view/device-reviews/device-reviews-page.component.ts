@@ -35,6 +35,11 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 
+  onMapPinClick(assetId: string): void {
+    this.activeTab = 'reviews';
+    this.svc.expand(assetId);
+  }
+
   bringToFront(win: 'map' | 'satellite' | 'documents' | 'picture'): void {
     const max = Math.max(...Object.values(this.z));
     this.z = { ...this.z, [win]: max + 1 };

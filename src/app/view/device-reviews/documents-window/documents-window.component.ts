@@ -6,6 +6,7 @@ import {
   OnInit,
   OnDestroy,
   ChangeDetectorRef,
+  ElementRef,
 } from '@angular/core';
 import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -148,6 +149,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
+    private elRef: ElementRef,
   ) {}
 
   trustUrl(url: string): SafeUrl {
@@ -217,6 +219,30 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           if (asset) this.patchForm(asset);
         }
         this.editingId = id;
+      }),
+    );
+
+    this.sub.add(
+      this.svc.expandId$.subscribe((id) => {
+        if (!id) return;
+        this.expanded = { ...this.expanded, [id]: true };
+        if (!this.sectionOpen[id]) {
+          this.sectionOpen[id] = {
+            codProof: true,
+            sld: true,
+            sf02: true,
+            sf02c: true,
+            meteringEvidence: true,
+            pictures: true,
+          };
+        }
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          const row = this.elRef.nativeElement.querySelector(
+            `[data-device-id="${id}"]`,
+          );
+          if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
       }),
     );
   }
