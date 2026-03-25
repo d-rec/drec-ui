@@ -47,6 +47,3 @@ Thumbs.db
 # Sentry Config File
 .sentryclirc
 .env
-
-# Local environment (contains API keys)
-src/environments/environment.ts
