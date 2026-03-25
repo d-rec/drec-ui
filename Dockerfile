@@ -8,6 +8,9 @@ WORKDIR /dist/src/app
 RUN npm cache clean --force
 COPY . .
 
+# environment.ts is gitignored; copy the target environment file so Angular
+# file-replacement has a base file to swap out during the build.
+RUN cp src/environments/environment.${BUILD_ENVIRONMENT}.ts src/environments/environment.ts
 
 RUN npm install --legacy-peer-deps
 RUN npm run build -- --configuration=$BUILD_ENVIRONMENT
