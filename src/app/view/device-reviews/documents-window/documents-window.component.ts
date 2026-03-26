@@ -172,14 +172,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     );
     if (!term.trim()) return safe;
     const t = term.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    // nosemgrep: angular-bypasssecuritytrust -- HTML-escaped value, regex-escaped term; only <mark> tags injected
-    return this.sanitizer.bypassSecurityTrustHtml(
-      safe.replace(
-        // nosemgrep: angular-bypasssecuritytrust
-        new RegExp(t, 'gi'), // nosemgrep: detect-non-literal-regexp -- term is regex-escaped above
-        (m) => `<mark class="search-highlight">${m}</mark>`,
-      ),
+    const re = new RegExp(t, 'gi'); // nosemgrep: detect-non-literal-regexp -- term is regex-escaped above
+    const highlighted = safe.replace(
+      re,
+      (m) => `<mark class="search-highlight">${m}</mark>`,
     );
+    return this.sanitizer.bypassSecurityTrustHtml(highlighted); // nosemgrep: angular-bypasssecuritytrust
   }
 
   ngOnInit(): void {
