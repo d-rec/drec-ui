@@ -23,8 +23,7 @@ $pending:  #d97706;
 $draft:    #6366f1;
 $legacy:   #a0845c;
 
-// Override drec-ui's global Poppins (which is set with !important on html/body)
-// to match the original device-submission app's lighter system font stack.
+// Ensure Inter font is applied throughout the documents window.
 :host ::ng-deep .docw,
 :host ::ng-deep .docw * {
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;

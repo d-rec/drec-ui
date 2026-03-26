@@ -201,14 +201,8 @@ export class AllUsersComponent {
           this.totalPages = this.data.totalPages;
         },
         error: (err) => {
-          if (err.error.statusCode === 403) {
-            this.toastrService.error(
-              "You don't have the permissions to access the users page.",
-              'Access Denied',
-            );
-          } else {
-            this.toastrService.error('Error:' + err.error.message, 'Fail');
-          }
+          this.loading = false;
+          this.handleApiError(err);
         },
       });
   }
@@ -217,20 +211,14 @@ export class AllUsersComponent {
       next: (data) => {
         this.showlist = true;
         this.loading = false;
-        this.data = data; //.filter(ele => ele.organizationType === 'Developer');
+        this.data = data;
         this.dataSource = new MatTableDataSource(this.data.users);
         this.totalRows = this.data.totalCount;
         this.totalPages = this.data.totalPages;
       },
       error: (err) => {
-        if (err.error.statusCode === 403) {
-          this.toastrService.error(
-            "You don't have the permissions to access the users page.",
-            'Access Denied',
-          );
-        } else {
-          this.toastrService.error('Error:' + err.error.message, 'Fail');
-        }
+        this.loading = false;
+        this.handleApiError(err);
       },
     });
   }
@@ -242,20 +230,14 @@ export class AllUsersComponent {
           this.showorguser = false;
           this.showlist = true;
           this.loading = false;
-          this.data = data; //.filter(ele => ele.organizationType === 'Developer');
+          this.data = data;
           this.dataSource = new MatTableDataSource(this.data.users);
           this.totalRows = this.data.totalCount;
           this.totalPages = this.data.totalPages;
         },
         error: (err) => {
-          if (err.error.statusCode === 403) {
-            this.toastrService.error(
-              "You don't have the permissions to access the users page.",
-              'Access Denied',
-            );
-          } else {
-            this.toastrService.error('Error:' + err.error.message, 'Fail');
-          }
+          this.loading = false;
+          this.handleApiError(err);
         },
       });
   }
@@ -281,7 +263,7 @@ export class AllUsersComponent {
         userinfo: user,
       },
       width: '900px',
-      height: '300px',
+      height: '350px',
     });
     confirmDialog.afterClosed().subscribe((result) => {
       if (result === true) {
@@ -380,6 +362,19 @@ export class AllUsersComponent {
       },
     );
   }
+  private handleApiError(err: any): void {
+    const statusCode = err.error?.statusCode || err.status;
+    const message = err.error?.message || err.message || 'Unknown error';
+    if (statusCode === 403) {
+      this.toastrService.error(
+        "You don't have the permissions to access the users page.",
+        'Access Denied',
+      );
+    } else {
+      this.toastrService.error(message, `Error ${statusCode || ''}`);
+    }
+  }
+
   openinviteDialog() {
     const confirmDialog = this.dialog.open(InvitationformComponent, {
       data: {

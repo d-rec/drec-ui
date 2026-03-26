@@ -19,13 +19,6 @@ export class LoginComponent implements OnInit {
     password: new FormControl(''),
   });
 
-  selectedRole = '';
-  readonly loginRoles = [
-    { value: '', label: 'Default' },
-    { value: 'Reviewer', label: 'Reviewer' },
-    { value: 'SeniorReviewer', label: 'Senior Reviewer' },
-  ];
-
   selectedOption: string;
   clientid: string;
   client_secret: string;
@@ -65,18 +58,7 @@ export class LoginComponent implements OnInit {
             next: (userData) => {
               storeUserSession(data['accessToken'], userData);
 
-              // Override role if the user chose Reviewer or Senior Reviewer
-              if (this.selectedRole) {
-                const loginuser = JSON.parse(
-                  sessionStorage.getItem('loginuser')!,
-                );
-                loginuser.role = this.selectedRole;
-                sessionStorage.setItem('loginuser', JSON.stringify(loginuser));
-              }
-
-              this.roleModeService.initFromRole(
-                this.selectedRole || jwtObj.role,
-              );
+              this.roleModeService.initFromRole(jwtObj.role);
 
               if (
                 userData.status != 'Pending' &&

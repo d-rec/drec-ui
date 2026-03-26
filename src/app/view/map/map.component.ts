@@ -24,6 +24,8 @@ export class MapComponent implements OnInit {
     center: L.latLng(20, 0),
     scrollWheelZoom: false,
     attributionControl: false,
+    maxBounds: L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180)),
+    maxBoundsViscosity: 1.0,
   };
 
   map!: L.Map;
@@ -68,6 +70,7 @@ export class MapComponent implements OnInit {
       {
         minZoom: 3,
         maxZoom: 17,
+        noWrap: true,
         attribution:
           '&copy; <a href="https://carto.com/">carto.com</a> contributors',
       },

@@ -32,8 +32,6 @@ export class RegisterComponent implements OnInit {
     { value: 'Developer', viewValue: 'Developer' },
     { value: 'Buyer', viewValue: 'Buyer' },
     { value: 'ApiUser', viewValue: 'Market Intermediary' },
-    { value: 'Reviewer', viewValue: 'Reviewer' },
-    { value: 'SeniorReviewer', viewValue: 'Senior Reviewer' },
   ];
   hide = true;
   hide1 = true;
@@ -249,21 +247,8 @@ export class RegisterComponent implements OnInit {
       password: formValues.password,
     };
 
-    const isReviewer =
-      formValues.organizationType === 'Reviewer' ||
-      formValues.organizationType === 'SeniorReviewer';
-
     this.authService.PostAuth('user/register', formValues).subscribe({
       next: (data) => {
-        if (isReviewer) {
-          this.toastrService.success(
-            'Your account is pending admin approval. You will receive an email once activated.',
-            'Registration Successful',
-          );
-          this.registerForm.reset();
-          this.router.navigate(['/login']);
-          return;
-        }
         if (formValues.organizationType === 'ApiUser') {
           this.handleApiUserRegistration(data, loginCredentials);
           return;

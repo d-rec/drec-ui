@@ -33,16 +33,24 @@ export class DashboardComponent implements OnInit {
     private roleModeService: RoleModeService,
   ) {}
 
+  get isAdmin(): boolean {
+    return this.loginuser?.role === 'Admin';
+  }
+
   ngOnInit() {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
-    if (this.isApiUser) {
+    if (this.isAdmin) {
+      this.organization = {
+        name: 'D-REC',
+        organizationType: 'Admin',
+        status: 'Active',
+      };
+    } else if (this.isApiUser) {
       this.orgService.GetApiUserAllOrganization().subscribe({
         next: (data) => {
-          console.log('GetApiUserAllOrganization response:', data);
           this.apiUserOrganizations = data.organizations ?? [];
         },
         error: (err) => {
-          console.error('GetApiUserAllOrganization error:', err);
           this.apiUserOrgsError = `Error ${err.status}: ${err.error?.message ?? err.message}`;
         },
       });

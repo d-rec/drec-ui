@@ -4,7 +4,7 @@ import { AdminService } from '../../auth/services/admin.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { UserStatus } from '../../utils/drec.enum';
+import { UserStatus, Role } from '../../utils/drec.enum';
 @Component({
   standalone: false,
   selector: 'app-edit-user',
@@ -19,6 +19,7 @@ export class EditUserComponent {
   lastName: string = '';
   email: string = '';
   userstatus: any = UserStatus;
+  roles = Object.values(Role);
   emailregex: RegExp =
     // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -43,6 +44,7 @@ export class EditUserComponent {
         [Validators.required, Validators.pattern(this.emailregex)],
       ],
       status: [this.data.userinfo.status, Validators.required],
+      role: [this.data.userinfo.role],
     });
   }
   emaiErrors() {

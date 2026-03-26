@@ -52,7 +52,24 @@
             </mat-form-field>
           </div>
           <div class="col-md-3">
-            <input autofocus type="hidden" formControlName="status" />
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">Status</mat-label>
+              <mat-select formControlName="status" test-id="edit-status">
+                <mat-option *ngFor="let s of userstatus" [value]="s">
+                  {{ s }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-3">
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">Role</mat-label>
+              <mat-select formControlName="role" test-id="edit-role">
+                <mat-option *ngFor="let r of roles" [value]="r">
+                  {{ r }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           </div>
         </div>
         <mat-card-footer>
