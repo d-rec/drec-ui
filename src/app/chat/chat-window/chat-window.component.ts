@@ -152,7 +152,8 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     // nosemgrep: angular-bypasssecuritytrust -- HTML-escaped value, regex-escaped term; only <mark> tags injected
     return this.sanitizer.bypassSecurityTrustHtml(
-      safe.replace( // nosemgrep: angular-bypasssecuritytrust
+      safe.replace(
+        // nosemgrep: angular-bypasssecuritytrust
         new RegExp(escaped, 'gi'), // nosemgrep: detect-non-literal-regexp -- term is regex-escaped above
         (m) => `<mark class="chat-highlight">${m}</mark>`,
       ),

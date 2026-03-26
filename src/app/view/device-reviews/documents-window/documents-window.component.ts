@@ -174,7 +174,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     const t = term.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     // nosemgrep: angular-bypasssecuritytrust -- HTML-escaped value, regex-escaped term; only <mark> tags injected
     return this.sanitizer.bypassSecurityTrustHtml(
-      safe.replace( // nosemgrep: angular-bypasssecuritytrust
+      safe.replace(
+        // nosemgrep: angular-bypasssecuritytrust
         new RegExp(t, 'gi'), // nosemgrep: detect-non-literal-regexp -- term is regex-escaped above
         (m) => `<mark class="search-highlight">${m}</mark>`,
       ),
