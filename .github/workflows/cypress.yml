@@ -101,7 +101,7 @@ jobs:
           docker stop localstack || true
           docker rm localstack || true
           echo "Starting LocalStack container..."
-          docker run -d -p 4566:4566 -p 4571:4571 --name localstack localstack/localstack:latest
+          docker run -d -p 4566:4566 -p 4571:4571 -e LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT=1 --name localstack localstack/localstack:latest
           echo "Waiting for LocalStack to be ready (max 60 seconds)..."
           timeout=60
           elapsed=0
