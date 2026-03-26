@@ -144,6 +144,15 @@
         </button>
       </mat-form-field>
 
+      <mat-form-field class="example-full-width">
+        <mat-label class="mat-labels-cont">Login as</mat-label>
+        <mat-select [(value)]="selectedRole" test-id="login-role">
+          <mat-option *ngFor="let r of loginRoles" [value]="r.value">
+            {{ r.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
       <div class="p-3">
         <button
           type="submit"

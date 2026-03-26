@@ -2,14 +2,7 @@
   <mat-sidenav #sidenav mode="side" opened class="example-sidenav">
     <mat-nav-list *ngIf="loginuser">
       <div style="padding: 10px">
-        <p
-          style="
-            padding: 0;
-            margin: 5px 0;
-            font-size: 15px;
-            color: #3b5bdb;
-          "
-        >
+        <p style="padding: 0; margin: 5px 0; font-size: 15px; color: #3b5bdb">
           {{ loginuser.email }}
         </p>
         <small>
@@ -146,7 +139,11 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/device/reviews"
-            *ngIf="loginuser.role === 'Admin'"
+            *ngIf="
+              loginuser.role === 'Admin' ||
+              loginuser.role === 'Reviewer' ||
+              loginuser.role === 'SeniorReviewer'
+            "
             test-id="device-reviews"
           >
             <span>Device Reviews</span>
@@ -156,7 +153,11 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/device/add"
-            *ngIf="loginuser.role != 'User'"
+            *ngIf="
+              loginuser.role != 'User' &&
+              loginuser.role != 'Reviewer' &&
+              loginuser.role != 'SeniorReviewer'
+            "
             test-id="add-devices"
           >
             <!-- <mat-icon>list</mat-icon> -->
@@ -167,7 +168,11 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/device/bulk_upload"
-            *ngIf="loginuser.role != 'User'"
+            *ngIf="
+              loginuser.role != 'User' &&
+              loginuser.role != 'Reviewer' &&
+              loginuser.role != 'SeniorReviewer'
+            "
             test-id="device-bulk-upload"
           >
             <!-- <mat-icon>list</mat-icon> -->
@@ -320,10 +325,7 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <mat-expansion-panel
-        [class.mat-elevation-z0]="true"
-        *ngIf="isApiMode"
-      >
+      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="isApiMode">
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
         >

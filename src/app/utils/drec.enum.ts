@@ -25,6 +25,8 @@ export enum Role {
   Buyer = 'Buyer',
   Admin = 'Admin',
   Intermediary = 'Intermediary',
+  Reviewer = 'Reviewer',
+  SeniorReviewer = 'SeniorReviewer',
 }
 export enum OffTaker {
   School = 'School',
