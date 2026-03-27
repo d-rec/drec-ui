@@ -235,7 +235,6 @@ export class CertificateDetailsComponent {
     });
   }
   applyorgFilter() {
-    this.FilterForm.controls['organizationname'];
     this.filteredOrgList = this.FilterForm.controls[
       'organizationname'
     ].valueChanges.pipe(
@@ -276,7 +275,6 @@ export class CertificateDetailsComponent {
   }
 
   applycountryFilter() {
-    this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls[
       'countryname'
     ].valueChanges.pipe(
@@ -515,7 +513,6 @@ export class CertificateDetailsComponent {
               }
 
               if (ele.creationBlockHash != '') {
-                ele.creationBlockHash;
                 ele['energyurl'] =
                   environment.Explorer_URL +
                   '/token/' +

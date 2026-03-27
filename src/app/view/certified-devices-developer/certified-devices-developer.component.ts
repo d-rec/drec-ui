@@ -185,7 +185,6 @@ export class CertifiedDevicesDeveloperComponent {
     this.endminDate = event;
   }
   applycountryFilter() {
-    this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls[
       'countryname'
     ].valueChanges.pipe(

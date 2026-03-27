@@ -116,7 +116,6 @@ export class AdminOrganizationComponent {
     }
   }
   applyorgFilter() {
-    this.FilterForm.controls['organizationName'];
     this.filteredOptions = this.FilterForm.controls[
       'organizationName'
     ].valueChanges.pipe(

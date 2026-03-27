@@ -105,7 +105,6 @@ export class AllMetereadsComponent implements OnInit {
 
     setTimeout(() => {
       if (this.loginuser.role != 'Admin') {
-        this.FilterForm.controls['serialNumber'];
         this.filteredexternalIdOptions = this.FilterForm.controls[
           'serialNumber'
         ].valueChanges.pipe(
@@ -149,7 +148,6 @@ export class AllMetereadsComponent implements OnInit {
     this.deviceservice.GetMyDevices(deviceurl).subscribe({
       next: (data) => {
         this.devicelist = data.devices;
-        this.FilterForm.controls['serialNumber'];
         this.filteredexternalIdOptions = this.FilterForm.controls[
           'serialNumber'
         ].valueChanges.pipe(
@@ -165,7 +163,6 @@ export class AllMetereadsComponent implements OnInit {
       this.deviceservice.GetMyDevices(deviceurl).subscribe({
         next: (data) => {
           this.devicelist = data;
-          this.FilterForm.controls['serialNumber'];
           this.filteredexternalIdOptions = this.FilterForm.controls[
             'serialNumber'
           ].valueChanges.pipe(

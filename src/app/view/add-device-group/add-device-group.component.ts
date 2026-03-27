@@ -230,7 +230,6 @@ export class AddDeviceGroupComponent {
     }
   }
   applycountryFilter() {
-    this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls[
       'countryname'
     ].valueChanges.pipe(

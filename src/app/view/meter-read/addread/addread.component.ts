@@ -141,7 +141,6 @@ export class AddreadComponent implements OnInit {
 
     setTimeout(() => {
       if (this.loginuser.role != 'Admin') {
-        this.readForm.controls['serialNumber'];
         this.filteredSerialNumberOptions = this.readForm.controls[
           'serialNumber'
         ].valueChanges.pipe(
@@ -199,7 +198,6 @@ export class AddreadComponent implements OnInit {
       this.deviceservice.GetMyDevices(deviceurl, FilterForm).subscribe({
         next: (data) => {
           this.devicelist = data;
-          this.readForm.controls['serialNumber'];
           this.filteredSerialNumberOptions = this.readForm.controls[
             'serialNumber'
           ].valueChanges.pipe(

@@ -155,7 +155,6 @@ export class AdminAlldevicesComponent {
   }
 
   applyOrganizationFilter() {
-    this.FilterForm.controls['organizationname'];
     this.filteredOptions1 = this.FilterForm.controls[
       'organizationname'
     ].valueChanges.pipe(

@@ -176,7 +176,6 @@ export class DeviceGroups implements OnInit {
     });
   }
   applyorgFilter() {
-    this.FilterForm.controls['organizationname'];
     this.filteredOrgList = this.FilterForm.controls[
       'organizationname'
     ].valueChanges.pipe(

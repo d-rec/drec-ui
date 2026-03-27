@@ -60,7 +60,6 @@ export class EditCountryYieldvalueComponent {
     }
   }
   applycountryFilter() {
-    this.updayeyieldForm.controls['countryName'];
     this.filteredOptions = this.updayeyieldForm.controls[
       'countryName'
     ].valueChanges.pipe(

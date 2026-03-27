@@ -51,7 +51,6 @@ export class AddCountryYieldvalueComponent {
     }
   }
   applycountryFilter() {
-    this.yieldForm.controls['countryName'];
     this.filteredOptions = this.yieldForm.controls[
       'countryName'
     ].valueChanges.pipe(

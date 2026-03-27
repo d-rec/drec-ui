@@ -143,7 +143,6 @@ export class CertificateComponent implements OnDestroy {
     }, 2000);
     this.getBlockchainProperties();
     this.AllCountryList();
-    this.claimData.controls['countryCode'];
     this.filteredOptions = this.claimData.controls[
       'countryCode'
     ].valueChanges.pipe(
@@ -350,7 +349,6 @@ export class CertificateComponent implements OnDestroy {
             }
 
             if (ele.creationBlockHash != '') {
-              ele.creationBlockHash;
               ele['energyurl'] =
                 environment.Explorer_URL +
                 '/token/' +

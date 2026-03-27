@@ -164,7 +164,6 @@ export class EditDeviceComponent implements OnInit {
         this.updateMapMarkers(latitude, longitude);
       });
     setTimeout(() => {
-      this.updateDeviceForm.controls['countryCode'];
       this.filteredCountryList = this.updateDeviceForm.controls[
         'countryCode'
       ].valueChanges.pipe(

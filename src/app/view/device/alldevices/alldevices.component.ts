@@ -165,7 +165,6 @@ export class AlldevicesComponent {
   }
 
   applyorgFilter() {
-    this.FilterForm.controls['organizationname'];
     this.filteredOrgList = this.FilterForm.controls[
       'organizationname'
     ].valueChanges.pipe(
@@ -175,27 +174,12 @@ export class AlldevicesComponent {
   }
   private _orgfilter(value: any): string[] {
     const filterValue = value.toLowerCase();
-    if (
-      !(
-        this.orglist.filter((option: any) =>
-          option.name.toLowerCase().includes(filterValue),
-        ).length > 0
-      )
-    ) {
-      // this.showorgerror = true;
-      // const updatedFormValues = this.FilterForm.value;
-      // const isAllValuesNull = Object.values(this.FilterForm.value).some((value) => !!value);
-      // this.isAnyFieldFilled = false;
-    } else {
-      //this.showorgerror = false;
-    }
     return this.orglist.filter(
       (option: any) =>
         option.name.toLowerCase().indexOf(filterValue.toLowerCase()) === 0,
     );
   }
   applycountryFilter() {
-    this.FilterForm.controls['countryname'];
     this.filteredOptions = this.FilterForm.controls[
       'countryname'
     ].valueChanges.pipe(
