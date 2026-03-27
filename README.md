@@ -39,9 +39,10 @@ npm start
 | Config | File | API URL | Portal URL | Sentry Env |
 |---|---|---|---|---|
 | `development` | `environment.ts` | `http://localhost:3040/api/` | `http://localhost:4200/` | `development` |
-| `dev` | `environment.dev.ts` | `https://dev-api.drecs.org/api/` | `https://dev-portal.drecs.org/` | `development` |
 | `stage` | `environment.stage.ts` | `https://stage-api.drecs.org/api/` | `https://stage-portal.drecs.org/` | `staging` |
 | `prod` | `environment.prod.ts` | `https://api.drecs.org/api/` | `https://portal.drecs.org/` | `production` |
+
+> **Note:** The `development` configuration is for local use only. Run the backend on your machine with a seeded (offline) database — there is no cloud infrastructure for this environment.
 
 ### Staging Credentials
 
