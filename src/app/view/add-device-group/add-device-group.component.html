@@ -408,6 +408,7 @@
                         <mat-checkbox
                           color="primary"
                           (click)="$event.stopPropagation()"
+                          (keydown.enter)="$event.stopPropagation()"
                           (change)="$event ? selection.toggle(row) : null"
                           [checked]="selection.isSelected(row)"
                           test-id="select-device"
@@ -419,6 +420,7 @@
                         <mat-radio-button
                           name="singleDeviceSelection"
                           (click)="$event.stopPropagation()"
+                          (keydown.enter)="$event.stopPropagation()"
                           [checked]="selection.isSelected(row)"
                           (change)="selectSingleDevice(row)"
                           test-id="select-device"

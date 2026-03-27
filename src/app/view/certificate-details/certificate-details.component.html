@@ -323,10 +323,10 @@
         <div class="col-md-3 d-flex flex-column" *ngIf="oldcertificatelog">
           <span>Have you old certificate? </span>
           <mat-radio-group>
-            <mat-radio-button value="old" (click)="getcertificatelog('old')"
+            <mat-radio-button value="old" (click)="getcertificatelog('old')" (keydown.enter)="getcertificatelog('old')"
               >Yes</mat-radio-button
             >
-            <mat-radio-button value="new" (click)="getcertificatelog('new')"
+            <mat-radio-button value="new" (click)="getcertificatelog('new')" (keydown.enter)="getcertificatelog('new')"
               >No</mat-radio-button
             >
             <!-- Add more radio buttons as needed -->

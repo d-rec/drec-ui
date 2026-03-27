@@ -418,7 +418,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   // ── File handling ─────────────────────────────────────────────────────────────
 
-  async openFile(url: string, event: MouseEvent): Promise<void> {
+  async openFile(url: string, event: Event): Promise<void> {
     event.stopPropagation();
     const freshUrl = await this.svc.refreshUrl(url);
     if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
@@ -428,7 +428,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     }
   }
 
-  async openPicture(url: string, event: MouseEvent): Promise<void> {
+  async openPicture(url: string, event: Event): Promise<void> {
     event.stopPropagation();
     const freshUrl = await this.svc.refreshUrl(url);
     this.svc.viewPicture(freshUrl);
@@ -653,7 +653,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     return item.id;
   }
 
-  toggleReviewed(key: string, event: MouseEvent): void {
+  toggleReviewed(key: string, event: Event): void {
     event.stopPropagation();
     event.preventDefault();
     const newVal = !this.reviewed[key];

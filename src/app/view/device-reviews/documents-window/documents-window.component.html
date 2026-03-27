@@ -4,7 +4,7 @@
     <div class="docw__toolbar">
       <button class="icon-btn icon-btn--refresh" (click)="populateDevices()" title="Load devices from database" [disabled]="(svc.loading$ | async)">&#8635;</button>
       <span *ngIf="svc.loading$ | async" class="toolbar-status">Loading…</span>
-      <span *ngIf="svc.error$ | async as err" class="toolbar-error" title="Click to retry" (click)="populateDevices()">⚠ {{ err }}</span>
+      <span *ngIf="svc.error$ | async as err" class="toolbar-error" title="Click to retry" role="button" tabindex="0" (click)="populateDevices()" (keydown.enter)="populateDevices()">⚠ {{ err }}</span>
       <div class="search-bar">
         <input
           class="search-bar__input"
@@ -28,9 +28,9 @@
 
       <!-- Column headers -->
       <div class="dr-row dr-row--header">
-        <span class="col-serial  th-sort" [class.asc]="sortColumn==='projectName'&&sortDir===1" [class.desc]="sortColumn==='projectName'&&sortDir===-1" (click)="sortBy('projectName')">Project Name</span>
-        <span class="col-modified th-sort" [class.asc]="sortColumn==='modifiedDate'&&sortDir===1" [class.desc]="sortColumn==='modifiedDate'&&sortDir===-1" (click)="sortBy('modifiedDate')">Modified</span>
-        <span class="col-status  th-sort" [class.asc]="sortColumn==='status'&&sortDir===1" [class.desc]="sortColumn==='status'&&sortDir===-1" (click)="sortBy('status')">Status</span>
+        <span class="col-serial  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='projectName'&&sortDir===1" [class.desc]="sortColumn==='projectName'&&sortDir===-1" (click)="sortBy('projectName')" (keydown.enter)="sortBy('projectName')">Project Name</span>
+        <span class="col-modified th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='modifiedDate'&&sortDir===1" [class.desc]="sortColumn==='modifiedDate'&&sortDir===-1" (click)="sortBy('modifiedDate')" (keydown.enter)="sortBy('modifiedDate')">Modified</span>
+        <span class="col-status  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='status'&&sortDir===1" [class.desc]="sortColumn==='status'&&sortDir===-1" (click)="sortBy('status')" (keydown.enter)="sortBy('status')">Status</span>
       </div>
 
       <ng-container *ngIf="filtered$ | async as result">
@@ -39,12 +39,15 @@
         <!-- Device row -->
         <div
           class="dr-row dr-row--device"
+          role="row"
+          tabindex="0"
           [attr.data-device-id]="item.id"
           [class.dr-row--selected]="selId === item.id"
           (click)="selectAsset(item); svc.expand(item.id)"
+          (keydown.enter)="selectAsset(item); svc.expand(item.id)"
           (dblclick)="toggleDevice(item.id)"
         >
-          <span class="chevron" [class.chevron--open]="expanded[item.id]" (click)="toggleDevice(item.id); $event.stopPropagation()">&#8250;</span>
+          <span class="chevron" role="button" tabindex="0" [class.chevron--open]="expanded[item.id]" (click)="toggleDevice(item.id); $event.stopPropagation()" (keydown.enter)="toggleDevice(item.id); $event.stopPropagation()">&#8250;</span>
           <span class="col-serial" [innerHTML]="hl(item.projectName, result.searchTerm)"></span>
           <span class="col-modified muted">{{ item.modifiedDate ? (item.modifiedDate | date:'dd/MM/yyyy') : '—' }}</span>
           <span class="col-status">
@@ -57,17 +60,17 @@
         <ng-container *ngIf="expanded[item.id]">
 
           <!-- ── SLD section ───────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--section" (click)="toggleSection(item.id, 'sld')">
+          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'sld')" (keydown.enter)="toggleSection(item.id, 'sld')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'sld')">&#8250;</span>
             <span class="section-label">SLD</span>
-            <label class="add-btn" title="Upload SLD PDF" (click)="$event.stopPropagation()">
+            <label class="add-btn" title="Upload SLD PDF" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="application/pdf" class="sr-only" (change)="onSldChange(item, $event)" />
             </label>
           </div>
           <ng-container *ngIf="isSectionOpen(item.id, 'sld')">
-            <div *ngIf="item.sldUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.sldUrl, $event)">
-              <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sld']" (click)="toggleReviewed(item.id + ':sld', $event)" title="Mark as reviewed">
+            <div *ngIf="item.sldUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.sldUrl, $event)" (keydown.enter)="openFile(item.sldUrl, $event)">
+              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':sld']" [class.review-check--done]="reviewed[item.id + ':sld']" (click)="toggleReviewed(item.id + ':sld', $event)" (keydown.enter)="toggleReviewed(item.id + ':sld', $event)" title="Mark as reviewed">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sld']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -78,17 +81,17 @@
           </ng-container>
 
           <!-- ── SF-02 section ─────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--section" (click)="toggleSection(item.id, 'sf02')">
+          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'sf02')" (keydown.enter)="toggleSection(item.id, 'sf02')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'sf02')">&#8250;</span>
             <span class="section-label">Form SF-02 - Production Facility Registration</span>
-            <label class="add-btn" title="Upload SF-02 PDF" (click)="$event.stopPropagation()">
+            <label class="add-btn" title="Upload SF-02 PDF" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="application/pdf" class="sr-only" (change)="onSf02Change(item, $event)" />
             </label>
           </div>
           <ng-container *ngIf="isSectionOpen(item.id, 'sf02')">
-            <div *ngIf="item.sf02Url" class="dr-row dr-row--file" (dblclick)="openFile(item.sf02Url, $event)">
-              <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02']" (click)="toggleReviewed(item.id + ':sf02', $event)" title="Mark as reviewed">
+            <div *ngIf="item.sf02Url" class="dr-row dr-row--file" (dblclick)="openFile(item.sf02Url, $event)" (keydown.enter)="openFile(item.sf02Url, $event)">
+              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':sf02']" [class.review-check--done]="reviewed[item.id + ':sf02']" (click)="toggleReviewed(item.id + ':sf02', $event)" (keydown.enter)="toggleReviewed(item.id + ':sf02', $event)" title="Mark as reviewed">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -99,17 +102,17 @@
           </ng-container>
 
           <!-- ── SF-02C section ────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--section" (click)="toggleSection(item.id, 'sf02c')">
+          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'sf02c')" (keydown.enter)="toggleSection(item.id, 'sf02c')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'sf02c')">&#8250;</span>
             <span class="section-label">SF-02C Owner's Declaration or Proof of Ownership</span>
-            <label class="add-btn" title="Upload SF-02C PDF" (click)="$event.stopPropagation()">
+            <label class="add-btn" title="Upload SF-02C PDF" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="application/pdf" class="sr-only" (change)="onSf02cChange(item, $event)" />
             </label>
           </div>
           <ng-container *ngIf="isSectionOpen(item.id, 'sf02c')">
-            <div *ngIf="item.sf02cUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.sf02cUrl, $event)">
-              <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02c']" (click)="toggleReviewed(item.id + ':sf02c', $event)" title="Mark as reviewed">
+            <div *ngIf="item.sf02cUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.sf02cUrl, $event)" (keydown.enter)="openFile(item.sf02cUrl, $event)">
+              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':sf02c']" [class.review-check--done]="reviewed[item.id + ':sf02c']" (click)="toggleReviewed(item.id + ':sf02c', $event)" (keydown.enter)="toggleReviewed(item.id + ':sf02c', $event)" title="Mark as reviewed">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02c']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -120,17 +123,17 @@
           </ng-container>
 
           <!-- ── COD Proof section ──────────────────────────────────────────── -->
-          <div class="dr-row dr-row--section" (click)="toggleSection(item.id, 'codProof')">
+          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'codProof')" (keydown.enter)="toggleSection(item.id, 'codProof')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'codProof')">&#8250;</span>
             <span class="section-label">COD Proof</span>
-            <label class="add-btn" title="Upload COD proof" (click)="$event.stopPropagation()">
+            <label class="add-btn" title="Upload COD proof" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="application/pdf" class="sr-only" (change)="onCodProofChange(item, $event)" />
             </label>
           </div>
           <ng-container *ngIf="isSectionOpen(item.id, 'codProof')">
-            <div *ngIf="item.codProofUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.codProofUrl, $event)">
-              <span class="review-check" [class.review-check--done]="reviewed[item.id + ':codProof']" (click)="toggleReviewed(item.id + ':codProof', $event)" title="Mark as reviewed">
+            <div *ngIf="item.codProofUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.codProofUrl, $event)" (keydown.enter)="openFile(item.codProofUrl, $event)">
+              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':codProof']" [class.review-check--done]="reviewed[item.id + ':codProof']" (click)="toggleReviewed(item.id + ':codProof', $event)" (keydown.enter)="toggleReviewed(item.id + ':codProof', $event)" title="Mark as reviewed">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':codProof']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -141,17 +144,17 @@
           </ng-container>
 
           <!-- ── Metering Evidence section ─────────────────────────────────── -->
-          <div class="dr-row dr-row--section" (click)="toggleSection(item.id, 'meteringEvidence')">
+          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'meteringEvidence')" (keydown.enter)="toggleSection(item.id, 'meteringEvidence')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'meteringEvidence')">&#8250;</span>
             <span class="section-label">Metering Evidence</span>
-            <label class="add-btn" title="Upload metering evidence" (click)="$event.stopPropagation()">
+            <label class="add-btn" title="Upload metering evidence" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="application/pdf" class="sr-only" (change)="onMeteringEvidenceChange(item, $event)" />
             </label>
           </div>
           <ng-container *ngIf="isSectionOpen(item.id, 'meteringEvidence')">
-            <div *ngIf="item.meteringEvidenceUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.meteringEvidenceUrl, $event)">
-              <span class="review-check" [class.review-check--done]="reviewed[item.id + ':meteringEvidence']" (click)="toggleReviewed(item.id + ':meteringEvidence', $event)" title="Mark as reviewed">
+            <div *ngIf="item.meteringEvidenceUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.meteringEvidenceUrl, $event)" (keydown.enter)="openFile(item.meteringEvidenceUrl, $event)">
+              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':meteringEvidence']" [class.review-check--done]="reviewed[item.id + ':meteringEvidence']" (click)="toggleReviewed(item.id + ':meteringEvidence', $event)" (keydown.enter)="toggleReviewed(item.id + ':meteringEvidence', $event)" title="Mark as reviewed">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':meteringEvidence']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -162,11 +165,11 @@
           </ng-container>
 
           <!-- ── Pictures section ──────────────────────────────────────────── -->
-          <div class="dr-row dr-row--section" (click)="toggleSection(item.id, 'pictures')">
+          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'pictures')" (keydown.enter)="toggleSection(item.id, 'pictures')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'pictures')">&#8250;</span>
             <span class="section-label">Pictures</span>
             <span class="section-count">({{ item.pictureUrls.length }})</span>
-            <label class="add-btn" title="Add picture" (click)="$event.stopPropagation()">
+            <label class="add-btn" title="Add picture" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="image/png,image/jpeg" class="sr-only" (change)="onPictureAdd(item, $event)" />
             </label>
@@ -176,8 +179,9 @@
               *ngFor="let url of item.pictureUrls; let i = index"
               class="dr-row dr-row--file"
               (dblclick)="openPicture(url, $event)"
+              (keydown.enter)="openPicture(url, $event)"
             >
-              <span class="review-check" [class.review-check--done]="reviewed[item.id + ':pic:' + i]" (click)="toggleReviewed(item.id + ':pic:' + i, $event)" title="Mark as reviewed">
+              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':pic:' + i]" [class.review-check--done]="reviewed[item.id + ':pic:' + i]" (click)="toggleReviewed(item.id + ':pic:' + i, $event)" (keydown.enter)="toggleReviewed(item.id + ':pic:' + i, $event)" title="Mark as reviewed">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':pic:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <img [src]="url" class="thumb" width="28" height="28" alt="picture" />
@@ -286,8 +290,8 @@
     </ng-container>
 
   <!-- ── Approve confirmation modal ─────────────────────────────────────── -->
-  <div class="modal-backdrop" *ngIf="showApproveModal" (click)="cancelApprove()">
-    <div class="modal-box" (click)="$event.stopPropagation()">
+  <div class="modal-backdrop" *ngIf="showApproveModal" role="dialog" aria-modal="true" (click)="cancelApprove()" (keydown.escape)="cancelApprove()">
+    <div class="modal-box" role="document" (click)="$event.stopPropagation()">
       <p class="modal-msg">Approve this device and submit to Evident?</p>
       <div class="modal-actions">
         <button class="btn btn--cancel" (click)="cancelApprove()">Cancel</button>

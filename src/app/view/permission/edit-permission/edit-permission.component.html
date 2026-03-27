@@ -3,7 +3,10 @@
     Edit module permission
     <mat-icon
       aria-hidden="false"
-      (click)="dialogRef.close(false)" 
+      (click)="dialogRef.close(false)"
+      (keydown.enter)="dialogRef.close(false)"
+      tabindex="0"
+      role="button"
       class="close-icon"
     >
       close

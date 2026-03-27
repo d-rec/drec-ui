@@ -64,8 +64,8 @@
 
   </ng-container>
 
-  <div class="chat-confirm-backdrop" *ngIf="showClearConfirm" (click)="cancelClear()">
-    <div class="chat-confirm" (click)="$event.stopPropagation()">
+  <div class="chat-confirm-backdrop" *ngIf="showClearConfirm" (click)="cancelClear()" (keydown.enter)="cancelClear()" tabindex="0" role="button">
+    <div class="chat-confirm" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
       <p class="chat-confirm__msg">Clear all messages in this chat?</p>
       <div class="chat-confirm__actions">
         <button class="chat-confirm__btn chat-confirm__btn--cancel" (click)="cancelClear()">Cancel</button>

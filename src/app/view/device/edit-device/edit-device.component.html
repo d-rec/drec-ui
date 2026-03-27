@@ -42,9 +42,9 @@
                   <mat-label class="text-capitalize">Current Serial Number(s)</mat-label>
                   <input matInput [value]="serialNumber" readonly />
 
-                  <mat-icon class="edit-icon" matSuffix (click)="editExternalid()" *ngIf="!showcancelicon"
+                  <mat-icon class="edit-icon" matSuffix (click)="editExternalid()" (keydown.enter)="editExternalid()" tabindex="0" role="button" *ngIf="!showcancelicon"
                     style="cursor: pointer" matTooltip="Yes" matTooltipPosition="above">edit</mat-icon>
-                  <mat-icon matSuffix (click)="hideeditExternalid()" *ngIf="showcancelicon" style="cursor: pointer"
+                  <mat-icon matSuffix (click)="hideeditExternalid()" (keydown.enter)="hideeditExternalid()" tabindex="0" role="button" *ngIf="showcancelicon" style="cursor: pointer"
                     matTooltip="No" matTooltipPosition="above">cancel</mat-icon>
 
                   <!-- <mat-hint>Hint</mat-hint> -->

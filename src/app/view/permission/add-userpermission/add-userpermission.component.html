@@ -190,6 +190,7 @@
                         <mat-checkbox
                           color="primary"
                           (click)="$event.stopPropagation()"
+                          (keydown.enter)="$event.stopPropagation()"
                           (change)="$event ? selection.toggle(row) : null"
                           [checked]="selection.isSelected(row)"
                         >
