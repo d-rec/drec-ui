@@ -1,0 +1,15 @@
+:host .btn-primary {
+  background-color: #1e293b !important;
+  border-color: #1e293b !important;
+
+  &:hover,
+  &:focus {
+    background-color: #334155 !important;
+    border-color: #334155 !important;
+  }
+
+  &:disabled {
+    background-color: rgba(30, 41, 59, 0.4) !important;
+    border-color: rgba(30, 41, 59, 0.4) !important;
+  }
+}
