@@ -413,16 +413,39 @@
 <ng-template #previewDialog>
   <h2 mat-dialog-title class="d-flex justify-content-between align-items-center mb-0">
     <span>{{ previewData?.name }}</span>
-    <button mat-icon-button (click)="previewDialogRef.close()">
-      <mat-icon>close</mat-icon>
-    </button>
+    <div class="d-flex align-items-center" style="gap: 8px;">
+      <button *ngIf="previewData?.type === 'image'" type="button"
+        class="btn btn-sm btn-outline-primary" (click)="runOcr()" [disabled]="ocrRunning">
+        <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">text_fields</mat-icon>
+        {{ ocrRunning ? 'Reading... ' + ocrProgress + '%' : 'OCR' }}
+      </button>
+      <button mat-icon-button (click)="previewDialogRef.close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
   </h2>
-  <div mat-dialog-content style="height: calc(90vh - 80px); padding: 0;">
-    <img *ngIf="previewData?.type === 'image'" [src]="previewData!.url"
-      style="max-width: 100%; max-height: 100%; display: block; margin: 0 auto; object-fit: contain;" />
-    <iframe *ngIf="previewData?.type === 'pdf'" [src]="previewData!.url"
-      title="Document preview"
-      style="width: 100%; height: 100%; border: none;"></iframe>
+  <div mat-dialog-content style="height: calc(90vh - 80px); padding: 0; display: flex; flex-direction: column;">
+    <div style="flex: 1; min-height: 0; overflow: auto;">
+      <img *ngIf="previewData?.type === 'image'" [src]="previewData!.url"
+        style="max-width: 100%; max-height: 100%; display: block; margin: 0 auto; object-fit: contain;" />
+      <iframe *ngIf="previewData?.type === 'pdf'" [src]="previewData!.url"
+        title="Document preview"
+        style="width: 100%; height: 100%; border: none;"></iframe>
+    </div>
+    <div *ngIf="ocrRunning" style="padding: 12px;">
+      <div class="progress" style="height: 6px;">
+        <div class="progress-bar" role="progressbar" [style.width.%]="ocrProgress"></div>
+      </div>
+    </div>
+    <div *ngIf="ocrText" style="border-top: 1px solid #dee2e6; padding: 12px; max-height: 35vh; overflow: auto; background: #f8f9fa;">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <strong>Extracted Text</strong>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="copyOcrText()">
+          <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">content_copy</mat-icon> Copy
+        </button>
+      </div>
+      <pre style="white-space: pre-wrap; word-break: break-word; margin: 0; font-size: 13px;">{{ ocrText }}</pre>
+    </div>
   </div>
 </ng-template>
 
