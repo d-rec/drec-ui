@@ -208,6 +208,7 @@ $legacy:   #a0845c;
   &--file {
     padding-left: 48px;
     cursor: default;
+    min-width: 0;
     &:hover { background: $bg-light; }
   }
 
@@ -300,6 +301,7 @@ $legacy:   #a0845c;
   border-radius: 3px;
   border: 1px solid $border;
   display: block;
+  overflow: hidden;
 }
 
 .add-btn {

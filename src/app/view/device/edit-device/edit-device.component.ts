@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, TemplateRef } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatDialog } from '@angular/material/dialog';
 import {
   FormGroup,
@@ -15,6 +16,20 @@ import { map, startWith } from 'rxjs/operators';
 import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MapComponent } from '../../map/map.component';
+import { DocumentType } from '../../../utils/drec.enum';
+import {
+  validateAndAppendFiles,
+  shortenFileName,
+} from '../../../utils/file-upload.helper';
+import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
+
+type FileType =
+  | DocumentType.FORM_SF_02
+  | DocumentType.SF_02C
+  | DocumentType.METERING_EVIDENCE
+  | DocumentType.SINGLE_LINE_DIAGRAM
+  | DocumentType.PROJECT_PHOTOS
+  | DocumentType.COD_PROOF;
 
 @Component({
   standalone: false,
@@ -22,8 +37,11 @@ import { MapComponent } from '../../map/map.component';
   templateUrl: './edit-device.component.html',
   styleUrls: ['./edit-device.component.scss'],
 })
-export class EditDeviceComponent implements OnInit {
+export class EditDeviceComponent implements OnInit, OnDestroy {
   @ViewChild('errorDialog') errorDialogTemplate = {} as TemplateRef<any>;
+  @ViewChild('previewDialog') previewDialogTemplate = {} as TemplateRef<any>;
+  previewDialogRef: any;
+  previewData: { url: any; type: string; name: string } | null = null;
   loginuser: any;
   updateDeviceForm: FormGroup;
   countrylist: CountryInfo[] = [];
@@ -66,6 +84,20 @@ export class EditDeviceComponent implements OnInit {
   filteredCountryList: Observable<any[]>;
   organizationId: any;
   serialNumberChanged: boolean = false;
+
+  // Document upload support
+  DocumentType = DocumentType;
+  files: { [key: string]: File[] } = {};
+  filePreviews: { [key: string]: { url: SafeResourceUrl; type: 'image' | 'pdf' | 'other'; name: string } } = {};
+  fileTypes: FileType[] = [
+    DocumentType.FORM_SF_02,
+    DocumentType.SF_02C,
+    DocumentType.METERING_EVIDENCE,
+    DocumentType.SINGLE_LINE_DIAGRAM,
+    DocumentType.PROJECT_PHOTOS,
+    DocumentType.COD_PROOF,
+  ];
+
   offtaker = [
     'School',
     'Education',
@@ -95,6 +127,7 @@ export class EditDeviceComponent implements OnInit {
     private toastrService: ToastrService,
     private activatedRoute: ActivatedRoute,
     private dialog: MatDialog,
+    private sanitizer: DomSanitizer,
   ) {
     this.activatedRoute.queryParams.subscribe((params) => {
       if (params['fromdevices'] != undefined) {
@@ -304,18 +337,110 @@ export class EditDeviceComponent implements OnInit {
         });
       });
   }
+  ngOnDestroy() {
+    for (const key of Object.keys(this.filePreviews)) {
+      const preview = this.filePreviews[key];
+      if (preview?.url) {
+        URL.revokeObjectURL(preview.url as unknown as string);
+      }
+    }
+  }
+
+  onFileChange(event: Event, fileType: FileType) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    this.files[fileType] = Array.from(input.files);
+
+    const file = input.files[0];
+    const isImage = file.type.startsWith('image/');
+    const isPdf = file.type === 'application/pdf';
+    const objectUrl = URL.createObjectURL(file);
+    this.filePreviews[fileType] = {
+      url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
+      type: isImage ? 'image' : isPdf ? 'pdf' : 'other',
+      name: file.name,
+    };
+  }
+
+  openPreview(fileType: string) {
+    const preview = this.filePreviews[fileType];
+    if (!preview) return;
+    this.previewData = preview;
+    this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
+      width: '95vw',
+      maxWidth: '1400px',
+      height: '90vh',
+      panelClass: 'file-preview-dialog',
+    });
+  }
+
+  shortenFileName(fileName: string, maxLength: number = 20): string {
+    return shortenFileName(fileName, maxLength);
+  }
+
   onSubmit() {
     const selectedCountry: CountryInfo | undefined = this.countrylist.find(
       (option) => option.country === this.updateDeviceForm.value.countryCode,
     );
     this.updateDeviceForm.controls['organizationId'].setValue(
-      this.organizationId,
+      this.organizationId ?? this.loginuser?.organizationId,
     );
-    this.updateDeviceForm.value['countryCode'] = selectedCountry?.alpha3;
+    if (this.updateDeviceForm.controls['serialNumber'].value == null) {
+      this.updateDeviceForm.controls['serialNumber'].setValue(this.serialNumber);
+    }
+    this.updateDeviceForm.controls['countryCode'].setValue(selectedCountry?.alpha3);
+
+    // Capture the form value once — .value returns a new snapshot each call
+    const formValue = this.updateDeviceForm.value;
+
+    // Check if any files were selected
+    const hasFiles = this.fileTypes.some(
+      (ft) => this.files[ft]?.length > 0,
+    );
+
+    let payload: FormData | Record<string, any>;
+
+    if (hasFiles) {
+      // Send as multipart FormData (requires updated backend with FileFieldsInterceptor)
+      const formData = new FormData();
+      formData.append('deviceToUpdate', JSON.stringify(formValue));
+
+      const allowedExtensions = [...DOCUMENTS_EXTENSIONS];
+      const maxSizeInMB = 20;
+      let allErrors: Record<string, string[]> = {};
+
+      this.fileTypes.forEach((fileType: FileType) => {
+        const files = this.files[fileType];
+        if (files?.length) {
+          const { errors } = validateAndAppendFiles(
+            formData,
+            files,
+            fileType,
+            allowedExtensions,
+            maxSizeInMB,
+            this.toastrService,
+          );
+          if (Object.keys(errors).length > 0) {
+            allErrors = { ...allErrors, ...errors };
+          }
+        }
+      });
+
+      if (Object.keys(allErrors).length > 0) {
+        console.error('One or more files are invalid.', allErrors);
+        return;
+      }
+      payload = formData;
+    } else {
+      // No files — send as plain JSON (compatible with current backend)
+      payload = formValue;
+    }
+
     this.deviceService
       .update(
         this.externalid,
-        this.updateDeviceForm.value,
+        payload,
         this.serialNumberChanged,
       )
       .subscribe({
@@ -342,11 +467,10 @@ export class EditDeviceComponent implements OnInit {
               data: { title: 'Duplicate Entry', message },
             });
           } else {
-            this.toastrService.error(message, 'Device!' + this.externalid);
+            this.toastrService.error(message, 'Device ' + this.externalid);
           }
         },
       });
-    // })
   }
   reset() {
     if (this.frombulk) {

@@ -123,7 +123,7 @@ export class DeviceService {
   }
   public update(
     id: any,
-    data: any,
+    data: FormData | Record<string, any>,
     serialNumberChanged: boolean,
   ): Observable<any> {
     const params = new URLSearchParams({
