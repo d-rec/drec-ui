@@ -1,18 +1,33 @@
 .btn-outline-danger {
-  --bs-btn-color: #3b5bdb;
-  --bs-btn-border-color: #3b5bdb;
+  --bs-btn-color: #475569;
+  --bs-btn-border-color: #475569;
   --bs-btn-hover-color: #fff;
-  --bs-btn-hover-bg: #3b5bdb;
-  --bs-btn-hover-border-color: #3b5bdb;
-  --bs-btn-focus-shadow-rgb: 220, 53, 69;
+  --bs-btn-hover-bg: #334155;
+  --bs-btn-hover-border-color: #334155;
+  --bs-btn-focus-shadow-rgb: 71, 85, 105;
   --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: #3b5bdb;
-  --bs-btn-active-border-color: #3b5bdb;
+  --bs-btn-active-bg: #334155;
+  --bs-btn-active-border-color: #334155;
   --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-  --bs-btn-disabled-color: #3b5bdb;
+  --bs-btn-disabled-color: #475569;
   --bs-btn-disabled-bg: transparent;
-  --bs-btn-disabled-border-color: #3b5bdb;
+  --bs-btn-disabled-border-color: #475569;
   --bs-gradient: none;
+}
+
+:host ::ng-deep .btn-primary {
+  background-color: #475569 !important;
+  border-color: #475569 !important;
+
+  &:hover, &:active, &:focus {
+    background-color: #334155 !important;
+    border-color: #334155 !important;
+  }
+}
+
+:host ::ng-deep .mdc-line-ripple::before,
+:host ::ng-deep .mdc-text-field--filled .mdc-line-ripple::after {
+  border-bottom-color: #475569 !important;
 }
 
 .doc-box {

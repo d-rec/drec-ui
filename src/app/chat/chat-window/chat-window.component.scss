@@ -126,7 +126,7 @@
 }
 
 .chat-header {
-  background: #3b5bdb;
+  background: #475569;
   color: #fff;
   border-radius: 16px 16px 0 0;
   padding: 8px 8px 8px 4px;
@@ -323,7 +323,7 @@
 
   &.own {
     align-self: flex-end;
-    background: #3b5bdb;
+    background: #475569;
     color: #fff;
     border-bottom-right-radius: 4px;
   }
@@ -377,20 +377,20 @@
     background: #f9f9f9;
 
     &:focus {
-      border-color: #3b5bdb;
+      border-color: #475569;
       background: #fff;
     }
   }
 
   .send-btn {
-    color: #3b5bdb;
+    color: #475569;
     flex-shrink: 0;
   }
 
   .send-btn--svg {
     background: none;
     border: none;
-    color: #3b5bdb;
+    color: #475569;
     cursor: pointer;
     padding: 6px;
     border-radius: 50%;

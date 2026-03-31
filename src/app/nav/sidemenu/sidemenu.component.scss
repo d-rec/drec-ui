@@ -1,4 +1,4 @@
-$color-primary: #3b5bdb;
+$color-primary: #475569;
 $color-primary-light: rgba(59, 91, 219, 0.1);
 $color-text: #1e293b;
 $color-muted: #64748b;
@@ -45,7 +45,7 @@ $white: #fff;
   justify-content: center;
 
   &:hover, &:active {
-    background-color: $color-primary;
+    background-color: $color-muted;
     opacity: 0.5;
   }
 }

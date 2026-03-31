@@ -43,9 +43,12 @@ export class PdfPreviewComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['ocrSource']) {
       this.resetState();
-      if (this.ocrSource) {
-        this.runOcr(this.ocrSource);
-      }
+    }
+  }
+
+  startOcr(): void {
+    if (this.ocrSource && !this.ocrLoading) {
+      this.runOcr(this.ocrSource);
     }
   }
 

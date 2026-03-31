@@ -121,6 +121,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   detailForm!: FormGroup;
   editingId: string | null = null;
   showApproveModal = false;
+  showDeleteModal = false;
+  private pendingDelete: { asset: Asset; docKey: string; urlField: string; arrayIdx?: number } | null = null;
 
   // resizable detail panel
   detailHeight = 280;
@@ -459,7 +461,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   clearCodProof(asset: Asset): void {
-    this.svc.saveAsset({ ...asset, codProofUrl: null });
+    this.requestDelete(asset, 'codProof', 'codProofUrl');
   }
 
   onSldChange(asset: Asset, event: Event): void {
@@ -469,7 +471,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   clearSld(asset: Asset): void {
-    this.svc.saveAsset({ ...asset, sldUrl: null });
+    this.requestDelete(asset, 'sld', 'sldUrl');
   }
 
   onSf02Change(asset: Asset, event: Event): void {
@@ -479,7 +481,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   clearSf02(asset: Asset): void {
-    this.svc.saveAsset({ ...asset, sf02Url: null });
+    this.requestDelete(asset, 'sf02', 'sf02Url');
   }
 
   onSf02cChange(asset: Asset, event: Event): void {
@@ -489,7 +491,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   clearSf02c(asset: Asset): void {
-    this.svc.saveAsset({ ...asset, sf02cUrl: null });
+    this.requestDelete(asset, 'sf02c', 'sf02cUrl');
   }
 
   onMeteringEvidenceChange(asset: Asset, event: Event): void {
@@ -502,7 +504,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   clearMeteringEvidence(asset: Asset): void {
-    this.svc.saveAsset({ ...asset, meteringEvidenceUrl: null });
+    this.requestDelete(asset, 'meteringEvidence', 'meteringEvidenceUrl');
   }
 
   onPictureAdd(asset: Asset, event: Event): void {
@@ -515,8 +517,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   clearPicture(asset: Asset, idx: number): void {
-    const pictureUrls = asset.pictureUrls.filter((_, i) => i !== idx);
-    this.svc.saveAsset({ ...asset, pictureUrls });
+    this.requestDelete(asset, `pic:${idx}`, 'pictureUrls', idx);
   }
 
   onScreenshotAdd(asset: Asset, event: Event): void {
@@ -529,8 +530,43 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   clearScreenshot(asset: Asset, idx: number): void {
-    const screenshotUrls = asset.screenshotUrls.filter((_, i) => i !== idx);
-    this.svc.saveAsset({ ...asset, screenshotUrls });
+    this.requestDelete(asset, `ss:${idx}`, 'screenshotUrls', idx);
+  }
+
+  private requestDelete(asset: Asset, docKey: string, urlField: string, arrayIdx?: number): void {
+    this.pendingDelete = { asset, docKey, urlField, arrayIdx };
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete(): void {
+    this.showDeleteModal = false;
+    this.pendingDelete = null;
+  }
+
+  confirmDelete(): void {
+    if (!this.pendingDelete) return;
+    const { asset, docKey, urlField, arrayIdx } = this.pendingDelete;
+    this.showDeleteModal = false;
+    this.pendingDelete = null;
+
+    const docMeta = asset.docMeta[docKey];
+    const docId = docMeta?.docId;
+
+    // Update local state immediately
+    if (arrayIdx != null) {
+      const arr = [...(asset as any)[urlField]];
+      arr.splice(arrayIdx, 1);
+      this.svc.saveAsset({ ...asset, [urlField]: arr });
+    } else {
+      this.svc.saveAsset({ ...asset, [urlField]: null });
+    }
+
+    // Delete from DB + S3 via API
+    if (docId) {
+      this.svc.deleteDocument(docId).subscribe({
+        error: (err) => console.error('Failed to delete document:', err),
+      });
+    }
   }
 
   fileName(url: string): string {

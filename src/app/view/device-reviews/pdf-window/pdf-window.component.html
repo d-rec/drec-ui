@@ -1,6 +1,6 @@
 <ng-container *ngIf="safeUrl">
   <app-ds-floating-window
-    title="Document Viewer"
+    [title]="fileName"
     [initX]="150" [initY]="80"
     [initWidth]="1100" [initHeight]="650"
     [zIndex]="zIndex"

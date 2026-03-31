@@ -23,6 +23,7 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
 
   safeUrl: SafeResourceUrl | null = null;
   currentUrl: string | null = null;
+  fileName = 'Document Viewer';
   private sub!: Subscription;
   private blobUrl: string | null = null;
 
@@ -41,6 +42,10 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
       }
       this.safeUrl = null;
       this.currentUrl = url;
+      this.fileName = url
+        ? decodeURIComponent(url.split('?')[0].split('/').pop() || 'Document Viewer')
+            .replace(/-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=\.[^.]+$)/i, '')
+        : 'Document Viewer';
 
       if (url) {
         this.bringToFront.emit();

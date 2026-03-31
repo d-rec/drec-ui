@@ -110,6 +110,12 @@ export class AssetService {
     );
   }
 
+  deleteDocument(docId: number): Observable<void> {
+    return this.http.delete<void>(
+      `${environment.API_URL}device-reviews/documents/${docId}`,
+    );
+  }
+
   toggleDocReviewed(docId: number): Observable<{ reviewed: boolean }> {
     return this.http.patch<{ reviewed: boolean }>(
       `${environment.API_URL}device-reviews/documents/${docId}/reviewed`,

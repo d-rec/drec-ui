@@ -16,6 +16,7 @@ export enum OrganizationType {
   Developer = 'Developer',
   ApiUser = 'ApiUser',
   Admin = 'Admin',
+  Operator = 'Operator',
 }
 
 export enum Role {

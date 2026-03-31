@@ -32,6 +32,7 @@ export class RegisterComponent implements OnInit {
     { value: 'Developer', viewValue: 'Developer' },
     { value: 'Buyer', viewValue: 'Buyer' },
     { value: 'ApiUser', viewValue: 'Market Intermediary' },
+    { value: 'Operator', viewValue: 'Operator' },
   ];
   hide = true;
   hide1 = true;

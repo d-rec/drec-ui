@@ -38,6 +38,16 @@
 //       }
 //     }
 //   }
+:host ::ng-deep .btn-primary {
+  background-color: #475569 !important;
+  border-color: #475569 !important;
+
+  &:hover, &:active, &:focus {
+    background-color: #334155 !important;
+    border-color: #334155 !important;
+  }
+}
+
 mat-progress-spinner {
   position: absolute;
   top: 50%;

@@ -79,6 +79,13 @@
           <div class="example-container my-2">
             <div class="col-12 d-flex justify-content-end">
               <button
+                type="button"
+                class="btn btn-dark me-2"
+                (click)="dialogRef.close(false)"
+              >
+                Cancel
+              </button>
+              <button
                 type="submit"
                 class="btn-primary btn"
                 [disabled]="updateForm.invalid"

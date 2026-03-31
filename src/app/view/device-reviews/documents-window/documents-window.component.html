@@ -317,4 +317,15 @@
     </div>
   </div>
 
+  <!-- ── Delete confirmation modal ──────────────────────────────────────── -->
+  <div class="modal-backdrop" *ngIf="showDeleteModal" role="dialog" aria-modal="true" (click)="cancelDelete()" (keydown.escape)="cancelDelete()">
+    <div class="modal-box" role="document" (click)="$event.stopPropagation()">
+      <p class="modal-msg">Delete this document? This will permanently remove it from storage.</p>
+      <div class="modal-actions">
+        <button class="btn btn--cancel" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn--reject" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
 </div>

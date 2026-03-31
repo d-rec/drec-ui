@@ -11,6 +11,13 @@
       <div>
         <button
           class="btn btn-dark justify-content-end px-4 align-items-center"
+          routerLink="/admin/add_user"
+          *ngIf="loginuser?.role === 'Admin'"
+        >
+          <mat-icon class="align-middle me-2">person_add</mat-icon>New User
+        </button>&nbsp;
+        <button
+          class="btn btn-dark justify-content-end px-4 align-items-center"
           (click)="openinviteDialog()"
           *ngIf="showorg && !showorguser"
         >
@@ -31,7 +38,7 @@
       <mat-card *ngIf="showorg && !showorguser">
         <mat-card-content>
           <h2
-            style="text-align: center; color: #3b5bdb; font-size: 20px"
+            style="text-align: center; color: #475569; font-size: 20px"
             class="text-capitalize"
           >
             <b>Legal Entity Details</b>
@@ -73,7 +80,7 @@
         <form [formGroup]="FilterForm">
           <mat-card-content>
             <h3
-              style="text-align: center; color: #3b5bdb; font-size: 16px"
+              style="text-align: center; color: #475569; font-size: 16px"
               class="text-capitalize"
             >
               Filter User list By Select Organization
@@ -105,6 +112,7 @@
                     formControlName="organizationName"
                     [matAutocomplete]="auto"
                   />
+                  <mat-icon matSuffix>arrow_drop_down</mat-icon>
                   <mat-autocomplete
                     #auto="matAutocomplete"
                     (optionSelected)="selectOrg($event)"
@@ -266,7 +274,7 @@
           </p>
         </div>
       </div>
-      <div *ngIf="!showlist" style="text-align: center; color: #3b5bdb">
+      <div *ngIf="!showlist" style="text-align: center; color: #475569">
         No User
       </div>
     </mat-card-content>

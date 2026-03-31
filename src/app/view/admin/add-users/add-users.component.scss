@@ -16,6 +16,16 @@ mat-progress-spinner {
     padding: 10px;
   }
 }
+:host ::ng-deep .btn-primary {
+  background-color: #475569 !important;
+  border-color: #475569 !important;
+
+  &:hover, &:active, &:focus {
+    background-color: #334155 !important;
+    border-color: #334155 !important;
+  }
+}
+
 .example-container1 {
   .h6-margin-remove {
     h6 {

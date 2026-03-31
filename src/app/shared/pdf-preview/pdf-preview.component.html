@@ -30,8 +30,11 @@
     <pre *ngIf="ocrText" class="pdf-preview__ocr-pane"
       [style.flex]="(translatedText || translating) ? 'none' : '1'"
       [style.height.px]="(translatedText || translating) ? ocrPaneHeight : undefined">{{ ocrText }}</pre>
-    <div *ngIf="!ocrLoading && !ocrText" style="padding: 16px; text-align: center; color: #94a3b8; font-size: 13px;">
-      No text extracted.
+    <div *ngIf="!ocrLoading && !ocrText" style="padding: 16px; text-align: center;">
+      <button type="button" class="pdf-preview__translate-btn" (click)="startOcr()" [disabled]="!ocrSource">
+        <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">document_scanner</mat-icon>
+        Extract Text (OCR)
+      </button>
     </div>
     <!-- Drag handle -->
     <div *ngIf="(translatedText || translating) && ocrText" class="pdf-preview__drag-handle"
@@ -41,7 +44,7 @@
     <!-- Translation pane -->
     <div *ngIf="translatedText || translating" class="pdf-preview__translation">
       <div class="pdf-preview__translation-header">
-        <h4 style="margin: 0; font-size: 14px; color: #3b5bdb; white-space: nowrap;">
+        <h4 style="margin: 0; font-size: 14px; color: #475569; white-space: nowrap;">
           <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">translate</mat-icon>
           English Translation
           <span *ngIf="detectedLang" style="font-size: 11px; color: #94a3b8;">(from {{ detectedLang }})</span>

@@ -33,6 +33,8 @@ export class AddUsersComponent {
   orgtype: any[] = [
     { value: 'Developer', viewValue: 'Developer' },
     { value: 'Buyer', viewValue: 'Buyer' },
+    { value: 'Reviewer', viewValue: 'Reviewer' },
+    { value: 'SeniorReviewer', viewValue: 'Senior Reviewer' },
   ];
   hide = true;
   hide1 = true;
@@ -57,17 +59,16 @@ export class AddUsersComponent {
     this.registerForm = new FormGroup({
       firstName: new FormControl(null, [Validators.required]),
       lastName: new FormControl(null, [Validators.required]),
-      orgName: new FormControl(null, [Validators.required]),
+      orgName: new FormControl(null),
       organizationType: new FormControl(null),
       orgAddress: new FormControl(null),
       email: new FormControl(null, [
         Validators.required,
         Validators.pattern(EMAIL_REGEX),
       ]),
-      phoneNumber: new FormControl(null, [
-        Validators.required,
-        phoneNumberValidator(),
-      ]),
+      phoneNumber: new FormControl(null),
+      role: new FormControl(null, [Validators.required]),
+      emailNotification: new FormControl(false),
       password: new FormControl(null),
       confirmPassword: new FormControl(null),
       termsAndConditions: new FormControl(false),
@@ -124,6 +125,16 @@ export class AddUsersComponent {
 
     this.registerForm.controls['password'].setValue(randPassword + '1');
     this.registerForm.controls['confirmPassword'].setValue(randPassword + '1');
+    // Set organizationType from the role dropdown so the backend maps it correctly
+    this.registerForm.controls['organizationType'].setValue(
+      this.registerForm.controls['role'].value,
+    );
+    // Use admin's org name for reviewers
+    if (!this.registerForm.controls['orgName'].value) {
+      this.registerForm.controls['orgName'].setValue(
+        this.loginuser?.organization?.name ?? 'D-REC',
+      );
+    }
     if (this.loginuser.role === 'ApiUser') {
       this.userService
         .userregisterByApiUser(this.registerForm.value, this.apiuserId)

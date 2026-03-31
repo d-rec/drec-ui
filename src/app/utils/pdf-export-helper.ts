@@ -36,7 +36,7 @@ export async function generatePDFBlob(
         fontSize: 18,
         bold: true,
         margin: [0, 0, 0, 10],
-        color: '#3b5bdb',
+        color: '#475569',
       },
       tableExample: {
         margin: [0, 5, 0, 15],

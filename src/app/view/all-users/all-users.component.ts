@@ -93,14 +93,23 @@ export class AllUsersComponent {
     });
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe((data) => {
+        const seen = new Set<string>();
         this.orglist = data.organizations.filter(
-          (org: { api_user_id: string; organizationType: string }) =>
-            org.organizationType != 'ApiUser',
+          (org: { api_user_id: string; organizationType: string; name: string }) => {
+            if (org.organizationType === 'ApiUser' || seen.has(org.name)) return false;
+            seen.add(org.name);
+            return true;
+          },
         );
       });
     } else if (this.loginuser.role === 'ApiUser') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
-        this.orglist = data.organizations;
+        const seen = new Set<string>();
+        this.orglist = data.organizations.filter((org: { name: string }) => {
+          if (seen.has(org.name)) return false;
+          seen.add(org.name);
+          return true;
+        });
       });
     }
 
