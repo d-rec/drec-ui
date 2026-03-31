@@ -126,9 +126,9 @@
             routerLinkActive="active"
             routerLink="{{ devcieurl }}"
             *ngIf="
-              loginuser.role === 'OrganizationAdmin' ||
-              loginuser.role === 'User' ||
-              loginuser.role !== 'Admin'
+              loginuser.role !== 'Admin' &&
+              loginuser.role !== 'Reviewer' &&
+              loginuser.role !== 'SeniorReviewer'
             "
           >
             <!-- <mat-icon>list</mat-icon> -->

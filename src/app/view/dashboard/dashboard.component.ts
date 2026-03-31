@@ -55,8 +55,18 @@ export class DashboardComponent implements OnInit {
         },
       });
     } else {
-      this.orgService.getOrganizationInformation().subscribe((data) => {
-        this.organization = data;
+      this.orgService.getOrganizationInformation().subscribe({
+        next: (data) => {
+          this.organization = data;
+        },
+        error: () => {
+          // Fallback: use organization data from the stored user profile
+          this.organization = {
+            name: this.loginuser?.organization?.name ?? '—',
+            organizationType: this.loginuser?.role ?? '—',
+            status: this.loginuser?.status ?? '—',
+          };
+        },
       });
     }
   }

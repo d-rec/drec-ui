@@ -13,6 +13,7 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
   activeTab: 'reviews' | 'map' = 'reviews';
   showSatellite = false;
   isAdmin = false;
+  canReview = false;
 
   private sub!: Subscription;
 
@@ -21,8 +22,12 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const loginUser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
     this.isAdmin = loginUser.role === 'Admin';
+    this.canReview =
+      this.isAdmin ||
+      loginUser.role === 'Reviewer' ||
+      loginUser.role === 'SeniorReviewer';
 
-    if (this.isAdmin) {
+    if (this.canReview) {
       this.sub = this.svc.flyTo$.subscribe(() => {
         this.showSatellite = true;
         this.bringToFront('satellite');

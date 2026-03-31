@@ -37,5 +37,11 @@ export function storeUserSession(accessToken: string, userData?: any): void {
     if (userData.api_user_id) {
       sessionStorage.setItem('apiuserId', userData.api_user_id);
     }
+
+    // Merge profile data (organization, etc.) into the stored loginuser
+    if (jwtObj) {
+      const merged = { ...jwtObj, ...userData };
+      sessionStorage.setItem('loginuser', JSON.stringify(merged));
+    }
   }
 }
