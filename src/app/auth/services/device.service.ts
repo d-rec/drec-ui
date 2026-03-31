@@ -118,6 +118,11 @@ export class DeviceService {
   getDeviceInfoBYexternalId(externalid: string): Observable<any> {
     return this.httpClient.get(this.url + 'device/externalId/' + externalid);
   }
+  getDocuments(deviceId: number): Observable<{ type: string; url: string; id: number }[]> {
+    return this.httpClient.get<{ type: string; url: string; id: number }[]>(
+      this.url + 'device/' + deviceId + '/documents',
+    );
+  }
   public create(data: FormData): Observable<any> {
     return this.httpClient.post<any>(this.url + 'device', data);
   }

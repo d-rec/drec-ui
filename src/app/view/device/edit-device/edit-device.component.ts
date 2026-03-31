@@ -30,6 +30,7 @@ type FileType =
   | DocumentType.METERING_EVIDENCE
   | DocumentType.SINGLE_LINE_DIAGRAM
   | DocumentType.PROJECT_PHOTOS
+  | DocumentType.SCREENSHOTS
   | DocumentType.COD_PROOF;
 
 @Component({
@@ -93,12 +94,21 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   DocumentType = DocumentType;
   files: { [key: string]: File[] } = {};
   filePreviews: { [key: string]: { url: SafeResourceUrl; type: 'image' | 'pdf' | 'other'; name: string } } = {};
+  existingDocs: { [type: string]: { url: string; name: string }[] } = {};
+
+  existingDocLabel(type: string): string {
+    const docs = this.existingDocs[type];
+    if (!docs?.length) return '';
+    if (docs.length === 1) return docs[0].name;
+    return docs.length + ' files uploaded';
+  }
   fileTypes: FileType[] = [
     DocumentType.FORM_SF_02,
     DocumentType.SF_02C,
     DocumentType.METERING_EVIDENCE,
     DocumentType.SINGLE_LINE_DIAGRAM,
     DocumentType.PROJECT_PHOTOS,
+    DocumentType.SCREENSHOTS,
     DocumentType.COD_PROOF,
   ];
 
@@ -338,6 +348,16 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.organizationId = data.organizationId;
         this.updateDeviceForm.patchValue({
           serialNumber: data.serialNumber,
+        });
+
+        // Load existing documents
+        this.deviceService.getDocuments(data.id).subscribe((docs) => {
+          this.existingDocs = {};
+          for (const doc of docs) {
+            if (!this.existingDocs[doc.type]) this.existingDocs[doc.type] = [];
+            const name = doc.url.split('/').pop()?.split('?')[0] || doc.type;
+            this.existingDocs[doc.type].push({ url: doc.url, name: decodeURIComponent(name) });
+          }
         });
       });
   }

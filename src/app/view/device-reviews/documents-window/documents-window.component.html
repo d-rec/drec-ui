@@ -75,6 +75,7 @@
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.sldUrl!), result.searchTerm)"></span>
+              <span *ngIf="isBroken(item.sldUrl)" class="missing-tag">(missing)</span>
               <button class="clear-btn" (click)="clearSld(item)">&#10005;</button>
             </div>
             <div *ngIf="!item.sldUrl" class="dr-row dr-row--empty">No SLD uploaded</div>
@@ -96,6 +97,7 @@
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.sf02Url!), result.searchTerm)"></span>
+              <span *ngIf="isBroken(item.sf02Url)" class="missing-tag">(missing)</span>
               <button class="clear-btn" (click)="clearSf02(item)">&#10005;</button>
             </div>
             <div *ngIf="!item.sf02Url" class="dr-row dr-row--empty">No SF-02 uploaded</div>
@@ -117,6 +119,7 @@
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.sf02cUrl!), result.searchTerm)"></span>
+              <span *ngIf="isBroken(item.sf02cUrl)" class="missing-tag">(missing)</span>
               <button class="clear-btn" (click)="clearSf02c(item)">&#10005;</button>
             </div>
             <div *ngIf="!item.sf02cUrl" class="dr-row dr-row--empty">No SF-02C uploaded</div>
@@ -138,6 +141,7 @@
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.codProofUrl!), result.searchTerm)"></span>
+              <span *ngIf="isBroken(item.codProofUrl)" class="missing-tag">(missing)</span>
               <button class="clear-btn" (click)="clearCodProof(item)">&#10005;</button>
             </div>
             <div *ngIf="!item.codProofUrl" class="dr-row dr-row--empty">No COD proof uploaded</div>
@@ -159,6 +163,7 @@
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.meteringEvidenceUrl!), result.searchTerm)"></span>
+              <span *ngIf="isBroken(item.meteringEvidenceUrl)" class="missing-tag">(missing)</span>
               <button class="clear-btn" (click)="clearMeteringEvidence(item)">&#10005;</button>
             </div>
             <div *ngIf="!item.meteringEvidenceUrl" class="dr-row dr-row--empty">No metering evidence uploaded</div>
@@ -168,7 +173,7 @@
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'pictures')" (keydown.enter)="toggleSection(item.id, 'pictures')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'pictures')">&#8250;</span>
             <span class="section-label">Pictures</span>
-            <span class="section-count">({{ item.pictureUrls.length }})</span>
+            <span *ngIf="item.pictureUrls.length" class="section-count">({{ item.pictureUrls.length }})</span>
             <label class="add-btn" title="Add picture" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="image/png,image/jpeg" class="sr-only" (change)="onPictureAdd(item, $event)" />
@@ -189,6 +194,33 @@
               <button class="clear-btn" (click)="clearPicture(item, i)">&#10005;</button>
             </div>
             <div *ngIf="!item.pictureUrls.length" class="dr-row dr-row--empty">No pictures</div>
+          </ng-container>
+
+          <!-- ── Screenshots section ─────────────────────────────────────────── -->
+          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'screenshots')" (keydown.enter)="toggleSection(item.id, 'screenshots')">
+            <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'screenshots')">&#8250;</span>
+            <span class="section-label">Screenshots</span>
+            <span *ngIf="item.screenshotUrls.length" class="section-count">({{ item.screenshotUrls.length }})</span>
+            <label class="add-btn" title="Add screenshot" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+              +
+              <input type="file" accept="image/png,image/jpeg" class="sr-only" (change)="onScreenshotAdd(item, $event)" />
+            </label>
+          </div>
+          <ng-container *ngIf="isSectionOpen(item.id, 'screenshots')">
+            <div
+              *ngFor="let url of item.screenshotUrls; let i = index"
+              class="dr-row dr-row--file"
+              (dblclick)="openPicture(url, $event)"
+              (keydown.enter)="openPicture(url, $event)"
+            >
+              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':ss:' + i]" [class.review-check--done]="reviewed[item.id + ':ss:' + i]" (click)="toggleReviewed(item.id + ':ss:' + i, $event)" (keydown.enter)="toggleReviewed(item.id + ':ss:' + i, $event)" title="Mark as reviewed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':ss:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <img [src]="url" class="thumb" width="28" height="28" alt="" />
+              <span class="file-name" [innerHTML]="hl(fileName(url), result.searchTerm)"></span>
+              <button class="clear-btn" (click)="clearScreenshot(item, i)">&#10005;</button>
+            </div>
+            <div *ngIf="!item.screenshotUrls.length" class="dr-row dr-row--empty">No screenshots</div>
           </ng-container>
 
         </ng-container>

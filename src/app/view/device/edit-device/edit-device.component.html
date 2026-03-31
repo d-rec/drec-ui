@@ -284,7 +284,7 @@
                     <mat-icon>attach_file</mat-icon>
                   </button>
                   <span class="file-name">
-                    {{ files['FORM_SF_02']?.[0]?.name || '' }}
+                    {{ files['FORM_SF_02']?.[0]?.name || existingDocLabel('FORM_SF_02') }}
                   </span>
                   <button *ngIf="filePreviews['FORM_SF_02']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -303,7 +303,7 @@
                     <mat-icon>attach_file</mat-icon>
                   </button>
                   <span class="file-name">
-                    {{ files['SF_02C']?.[0]?.name || '' }}
+                    {{ files['SF_02C']?.[0]?.name || existingDocLabel('SF_02C') }}
                   </span>
                   <button *ngIf="filePreviews['SF_02C']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -322,7 +322,7 @@
                     <mat-icon>attach_file</mat-icon>
                   </button>
                   <span class="file-name">
-                    {{ files['METERING_EVIDENCE']?.[0]?.name || '' }}
+                    {{ files['METERING_EVIDENCE']?.[0]?.name || existingDocLabel('METERING_EVIDENCE') }}
                   </span>
                   <button *ngIf="filePreviews['METERING_EVIDENCE']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -341,7 +341,7 @@
                     <mat-icon>attach_file</mat-icon>
                   </button>
                   <span class="file-name">
-                    {{ files['SINGLE_LINE_DIAGRAM']?.[0]?.name || '' }}
+                    {{ files['SINGLE_LINE_DIAGRAM']?.[0]?.name || existingDocLabel('SINGLE_LINE_DIAGRAM') }}
                   </span>
                   <button *ngIf="filePreviews['SINGLE_LINE_DIAGRAM']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -362,11 +362,32 @@
                   <span class="file-name">
                     {{ (files['PROJECT_PHOTOS']?.length || 0) > 1
                       ? files['PROJECT_PHOTOS']!.length + ' files selected'
-                      : files['PROJECT_PHOTOS']?.[0]?.name || '' }}
+                      : files['PROJECT_PHOTOS']?.[0]?.name || existingDocLabel('PROJECT_PHOTOS') }}
                   </span>
                   <button *ngIf="filePreviews['PROJECT_PHOTOS']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
                     (click)="openPreview('PROJECT_PHOTOS')">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label>Screenshots</label>
+                <div class="d-flex justify-content-between align-items-center doc-box">
+                  <input type="file" #screenshotsFileInput multiple
+                    (change)="onFileChange($event, DocumentType.SCREENSHOTS)" style="display: none" />
+                  <button type="button" (click)="screenshotsFileInput.click()" class="btn btn-primary">
+                    <mat-icon>attach_file</mat-icon>
+                  </button>
+                  <span class="file-name">
+                    {{ (files['SCREENSHOTS']?.length || 0) > 1
+                      ? files['SCREENSHOTS']!.length + ' files selected'
+                      : files['SCREENSHOTS']?.[0]?.name || existingDocLabel('SCREENSHOTS') }}
+                  </span>
+                  <button *ngIf="filePreviews['SCREENSHOTS']" type="button"
+                    class="badge bg-success text-white px-3 py-2 preview-btn"
+                    (click)="openPreview('SCREENSHOTS')">
                     <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                   </button>
                 </div>
@@ -381,7 +402,7 @@
                     <mat-icon>attach_file</mat-icon>
                   </button>
                   <span class="file-name">
-                    {{ files['COD_PROOF']?.[0]?.name || '' }}
+                    {{ files['COD_PROOF']?.[0]?.name || existingDocLabel('COD_PROOF') }}
                   </span>
                   <button *ngIf="filePreviews['COD_PROOF']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"

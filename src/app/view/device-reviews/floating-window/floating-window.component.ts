@@ -39,7 +39,7 @@ export class FloatingWindowComponent implements OnInit {
 
   ngOnInit(): void {
     this.x = this.initX;
-    this.y = this.initY;
+    this.y = Math.max(0, this.initY);
     this.width = this.initWidth;
     this.height = this.initHeight;
   }
@@ -61,6 +61,11 @@ export class FloatingWindowComponent implements OnInit {
     if (!this.dragging) return;
     this.x = event.clientX - this.dragOffsetX;
     this.y = event.clientY - this.dragOffsetY;
+
+    // Keep the window inside visible bounds — at least the titlebar must stay reachable
+    if (this.y < 0) this.y = 0;
+    if (this.x < -(this.width - 80)) this.x = -(this.width - 80);
+
     this.cdr.markForCheck();
   }
 

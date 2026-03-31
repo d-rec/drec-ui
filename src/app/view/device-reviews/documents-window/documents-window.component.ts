@@ -104,7 +104,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   sectionOpen: Record<
     string,
     Record<
-      'codProof' | 'sld' | 'sf02' | 'sf02c' | 'meteringEvidence' | 'pictures',
+      'codProof' | 'sld' | 'sf02' | 'sf02c' | 'meteringEvidence' | 'pictures' | 'screenshots',
       boolean
     >
   > = {};
@@ -113,6 +113,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   reviewed: Record<string, boolean> = {};
   // maps "deviceId:docKey" → document DB id for API calls
   private docIdMap: Record<string, number> = {};
+
+  // URLs that returned 404 / failed HEAD check
+  brokenUrls = new Set<string>();
 
   // detail form
   detailForm!: FormGroup;
@@ -212,6 +215,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           }
         }
       }
+      this.validateDocumentUrls(assets);
     });
 
     this.sub.add(
@@ -237,6 +241,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
             sf02c: true,
             meteringEvidence: true,
             pictures: true,
+            screenshots: true,
           };
         }
         this.cdr.detectChanges();
@@ -295,6 +300,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           a.sf02cUrl,
           a.meteringEvidenceUrl,
           ...a.pictureUrls,
+          ...a.screenshotUrls,
         ]
           .filter((u): u is string => !!u)
           .map((u) => this.fileName(u));
@@ -369,6 +375,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         sf02c: true,
         meteringEvidence: true,
         pictures: true,
+        screenshots: true,
       };
     }
     this.svc.select(id);
@@ -382,7 +389,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       | 'sf02'
       | 'sf02c'
       | 'meteringEvidence'
-      | 'pictures',
+      | 'pictures'
+      | 'screenshots',
   ): void {
     if (!this.sectionOpen[id]) {
       this.sectionOpen[id] = {
@@ -392,6 +400,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         sf02c: true,
         meteringEvidence: true,
         pictures: true,
+        screenshots: true,
       };
     }
     this.sectionOpen = {
@@ -411,7 +420,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       | 'sf02'
       | 'sf02c'
       | 'meteringEvidence'
-      | 'pictures',
+      | 'pictures'
+      | 'screenshots',
   ): boolean {
     return this.sectionOpen[id]?.[section] ?? true;
   }
@@ -420,6 +430,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   async openFile(url: string, event: Event): Promise<void> {
     event.stopPropagation();
+    if (!url || this.isBroken(url)) {
+      alert('File is missing');
+      return;
+    }
     const freshUrl = await this.svc.refreshUrl(url);
     if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
       this.svc.viewPicture(freshUrl);
@@ -430,6 +444,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   async openPicture(url: string, event: Event): Promise<void> {
     event.stopPropagation();
+    if (!url || this.isBroken(url)) {
+      alert('File is missing');
+      return;
+    }
     const freshUrl = await this.svc.refreshUrl(url);
     this.svc.viewPicture(freshUrl);
   }
@@ -501,6 +519,20 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.svc.saveAsset({ ...asset, pictureUrls });
   }
 
+  onScreenshotAdd(asset: Asset, event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.svc.saveAsset({
+      ...asset,
+      screenshotUrls: [...asset.screenshotUrls, URL.createObjectURL(file)],
+    });
+  }
+
+  clearScreenshot(asset: Asset, idx: number): void {
+    const screenshotUrls = asset.screenshotUrls.filter((_, i) => i !== idx);
+    this.svc.saveAsset({ ...asset, screenshotUrls });
+  }
+
   fileName(url: string): string {
     try {
       const withoutQuery = url.split('?')[0];
@@ -522,6 +554,90 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     } catch {
       return url;
     }
+  }
+
+  // ── URL validation ──────────────────────────────────────────────────────────
+
+  /** Check every document URL for 404s; mark broken ones so the template can show (missing). */
+  private validateDocumentUrls(assets: Asset[]): void {
+    const urls: string[] = [];
+    for (const a of assets) {
+      if (a.sldUrl) urls.push(a.sldUrl);
+      if (a.sf02Url) urls.push(a.sf02Url);
+      if (a.sf02cUrl) urls.push(a.sf02cUrl);
+      if (a.codProofUrl) urls.push(a.codProofUrl);
+      if (a.meteringEvidenceUrl) urls.push(a.meteringEvidenceUrl);
+      for (const u of a.pictureUrls) urls.push(u);
+      for (const u of a.screenshotUrls) urls.push(u);
+    }
+    for (const url of urls) {
+      if (this.brokenUrls.has(url)) continue;
+      this.checkUrl(url);
+    }
+  }
+
+  /**
+   * Probe a single URL.
+   * For images: try to load via Image element — catches corrupt, empty, and 0-dimension files.
+   * For other files: GET + abort after reading status.
+   */
+  private checkUrl(url: string): void {
+    const isImage = /\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url.split('?')[0]);
+    if (isImage) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        // Draw to a 1x1 canvas to detect blank/placeholder images
+        if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+          this.markBroken(url);
+          return;
+        }
+        try {
+          const c = document.createElement('canvas');
+          c.width = Math.min(img.naturalWidth, 64);
+          c.height = Math.min(img.naturalHeight, 64);
+          const ctx = c.getContext('2d')!;
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          const data = ctx.getImageData(0, 0, c.width, c.height).data;
+          // Check if every pixel is the same (solid color = likely placeholder)
+          const r0 = data[0], g0 = data[1], b0 = data[2];
+          let allSame = true;
+          for (let i = 4; i < data.length; i += 4) {
+            if (data[i] !== r0 || data[i + 1] !== g0 || data[i + 2] !== b0) {
+              allSame = false;
+              break;
+            }
+          }
+          if (allSame) this.markBroken(url);
+        } catch {
+          // canvas tainted or other error — don't mark as broken
+        }
+      };
+      img.onerror = () => this.markBroken(url);
+      img.src = url;
+    } else {
+      const ctrl = new AbortController();
+      fetch(url, { method: 'GET', mode: 'cors', signal: ctrl.signal }).then(
+        (res) => {
+          ctrl.abort();
+          if (!res.ok) this.markBroken(url);
+        },
+        (err) => {
+          if (err?.name === 'AbortError') return;
+          this.markBroken(url);
+        },
+      );
+    }
+  }
+
+  private markBroken(url: string): void {
+    this.brokenUrls.add(url);
+    this.cdr.markForCheck();
+  }
+
+  /** Check if a document URL exists but the file is broken/404. */
+  isBroken(url: string | null): boolean {
+    return !!url && this.brokenUrls.has(url);
   }
 
   // ── Detail form ───────────────────────────────────────────────────────────────

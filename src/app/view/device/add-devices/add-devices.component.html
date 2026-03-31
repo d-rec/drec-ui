@@ -443,6 +443,29 @@
                   </div>
 
                   <div class="col-md-4 mb-3">
+                    <label>Screenshots</label>
+                    <div class="d-flex justify-content-between align-items-center doc-box">
+                      <input type="file" #screenshotsFileInput multiple
+                        (change)="onFileChange($event, i, DocumentType.SCREENSHOTS)" style="display: none"
+                        test-id="attach-file" />
+                      <button type="button" (click)="screenshotsFileInput.click()" class="btn btn-primary">
+                        <mat-icon>attach_file</mat-icon>
+                      </button>
+                      <span class="file-name">
+                        {{ (files[i]?.['SCREENSHOTS']?.length || 0) > 1
+                          ? files[i]['SCREENSHOTS'].length + ' files selected'
+                          : (deviceForms.at(i).get('SCREENSHOTS')?.value ?
+                             deviceForms.at(i).get('SCREENSHOTS')?.value.name : '') }}
+                      </span>
+                      <button *ngIf="filePreviews[i]?.['SCREENSHOTS']" type="button"
+                        class="badge bg-success text-white px-3 py-2 preview-btn"
+                        (click)="openPreview(i, 'SCREENSHOTS')">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4 mb-3">
                     <label>COD Proof</label>
                     <div class="d-flex justify-content-between align-items-center doc-box">
                       <input type="file" #codProofFileInput

@@ -19,6 +19,7 @@ export interface Asset {
   sf02cUrl: string | null;
   meteringEvidenceUrl: string | null;
   pictureUrls: string[];
+  screenshotUrls: string[];
   lat: number | null;
   long: number | null;
   projectName: string;

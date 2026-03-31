@@ -7,8 +7,8 @@ import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService, OrganizationService } from '../../../auth/services';
 import { Router } from '@angular/router';
-import { Observable, Subscription, debounceTime } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { Observable, Subscription, debounceTime, forkJoin, of } from 'rxjs';
+import { catchError, map, startWith } from 'rxjs/operators';
 import {
   MatDialog,
   MatDialogRef,
@@ -130,24 +130,23 @@ export class AlldevicesComponent {
         );
       });
     }
-    this.authService.GetMethod('device/fuel-type').subscribe((data1: any) => {
-      this.fuellist = data1;
-      this.fuellistLoaded = true;
-    });
-    this.authService.GetMethod('device/device-type').subscribe((data2: any) => {
-      this.devicetypelist = data2;
-      this.devicetypeLoded = true;
-    });
-    this.authService.GetMethod('countrycode/list').subscribe((data3: any) => {
-      this.countrylist = data3;
-      this.countrycodeLoded = true;
-    });
     this.authService.GetMethod('sdgbenefit/code').subscribe((data) => {
       this.sdgblist = data;
     });
 
-    setTimeout(() => {
-      if (this.countrycodeLoded) {
+    forkJoin({
+      fuel: this.authService.GetMethod('device/fuel-type').pipe(catchError(() => of([]))),
+      deviceType: this.authService.GetMethod('device/device-type').pipe(catchError(() => of([]))),
+      country: this.authService.GetMethod('countrycode/list').pipe(catchError(() => of([]))),
+    }).subscribe(({ fuel, deviceType, country }) => {
+      this.fuellist = fuel as any;
+      this.fuellistLoaded = true;
+      this.devicetypelist = deviceType as any;
+      this.devicetypeLoded = true;
+      this.countrylist = country as any;
+      this.countrycodeLoded = true;
+
+      if (this.countrylist.length) {
         this.applycountryFilter();
       }
       if (this.loginuser.role === 'ApiUser') {
@@ -155,7 +154,7 @@ export class AlldevicesComponent {
       }
       this.loading = false;
       this.getDeviceListData(this.p);
-    }, 2000);
+    });
   }
 
   ngOnDestroy() {
@@ -333,7 +332,10 @@ export class AlldevicesComponent {
               'Access Denied',
             );
           } else {
-            this.toastrService.error('Error', err.error.message);
+            this.toastrService.error(
+              err.error?.message || err.message || 'An unexpected error occurred',
+              'Error',
+            );
           }
           this.data = [];
           this.showlist = false;

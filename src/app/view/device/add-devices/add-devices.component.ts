@@ -51,6 +51,7 @@ export type DeviceFiles = {
   [DocumentType.METERING_EVIDENCE]: File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: File[];
   [DocumentType.PROJECT_PHOTOS]: File[];
+  [DocumentType.SCREENSHOTS]: File[];
   [DocumentType.COD_PROOF]: File[];
 };
 type FileType = keyof DeviceFiles;
@@ -305,6 +306,7 @@ export class AddDevicesComponent implements OnDestroy {
       METERING_EVIDENCE: [null, [Validators.required]],
       SINGLE_LINE_DIAGRAM: [null, [Validators.required]],
       PROJECT_PHOTOS: [null, [Validators.required]],
+      SCREENSHOTS: [null],
       COD_PROOF: [null, [Validators.required]],
     });
 
@@ -405,6 +407,7 @@ export class AddDevicesComponent implements OnDestroy {
       METERING_EVIDENCE: [null, [Validators.required]],
       SINGLE_LINE_DIAGRAM: [null, [Validators.required]],
       PROJECT_PHOTOS: [null, [Validators.required]],
+      SCREENSHOTS: [null],
       COD_PROOF: [null, [Validators.required]],
     });
 
@@ -789,6 +792,7 @@ export class AddDevicesComponent implements OnDestroy {
         DocumentType.METERING_EVIDENCE,
         DocumentType.SINGLE_LINE_DIAGRAM,
         DocumentType.PROJECT_PHOTOS,
+        DocumentType.SCREENSHOTS,
         DocumentType.COD_PROOF,
       ];
 
