@@ -112,16 +112,28 @@ export class ResetPasswordComponent {
         this.resetpasswordForm.get(input)?.touched);
     return validation;
   }
+  submitting = false;
+
   onSubmit() {
+    if (this.submitting) return;
+    this.submitting = true;
     this.authService
       .UserResetPassword(this.accesstoken, this.resetpasswordForm.value)
-      .subscribe((data) => {
-        this.toastrService.success(
-          'Successfully!!',
-          data.firstName + 'Reset Password',
-        );
-
-        this.router.navigate(['/login']);
+      .subscribe({
+        next: (data) => {
+          this.submitting = false;
+          this.toastrService.success(
+            'Password set successfully!',
+            'Success',
+          );
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          this.submitting = false;
+          const message =
+            err.error?.message || err.message || 'An error occurred';
+          this.toastrService.error(message, 'Password Reset Failed');
+        },
       });
   }
 }

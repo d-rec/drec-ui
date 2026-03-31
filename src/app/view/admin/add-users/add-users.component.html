@@ -90,6 +90,13 @@
                 <mat-checkbox formControlName="emailNotification" class="me-3">Email notification</mat-checkbox>
                 <button
                   mat-raised-button
+                  class="btn-dark btn btn-block me-2"
+                  routerLink="/admin/All_Users"
+                >
+                  Cancel
+                </button>
+                <button
+                  mat-raised-button
                   class="btn-primary btn btn-block"
                   [disabled]="registerForm.invalid"
                   (click)="onSubmit()"
