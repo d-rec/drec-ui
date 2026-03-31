@@ -51,7 +51,7 @@
     "moment-timezone": "0.5.40",
     "ngx-markdown": "^19.1.1",
     "ngx-toastr": "^19.1.0",
-    "pdfjs-dist": "3.11.174",
+    "pdfjs-dist": "4.2.67",
     "pdfmake": "^0.2.20",
     "rxjs": "~7.8.0",
     "standard-version": "^9.5.0",
@@ -114,7 +114,7 @@
       "path-to-regexp": "0.1.13",
       "handlebars": ">=4.7.9",
       "brace-expansion": ">=5.0.5",
-      "picomatch": ">=2.3.2",
+      "picomatch": ">=4.0.4",
       "qs": ">=6.14.2"
     }
   },
