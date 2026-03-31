@@ -37,3 +37,19 @@
   font-size: 13px;
   padding: 0 8px;
 }
+
+// Preview dialog layout
+::ng-deep .mat-mdc-dialog-container .mdc-dialog__surface {
+  overflow: hidden !important;
+  border: 1px solid #e2e6ea;
+  border-radius: 8px;
+}
+
+::ng-deep .mat-mdc-dialog-content.preview-dialog-content {
+  display: flex !important;
+  max-height: none !important;
+  height: 80vh;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+

@@ -11,11 +11,13 @@ import { MapWindowComponent } from './map-window/map-window.component';
 import { SatelliteWindowComponent } from './satellite-window/satellite-window.component';
 import { AssetMapComponent } from './asset-map/asset-map.component';
 import { PictureWindowComponent } from './picture-window/picture-window.component';
+import { PdfWindowComponent } from './pdf-window/pdf-window.component';
 import { ChatListComponent } from './chat-list/chat-list.component';
 import { CountryNamePipe } from './country-name.pipe';
 import { HighlightPipe } from './highlight.pipe';
 import { AssetService } from './asset.service';
 import { AdminGuard } from '../../guards/admin.guard';
+import { PdfPreviewComponent } from '../../shared/pdf-preview/pdf-preview.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +28,7 @@ import { AdminGuard } from '../../guards/admin.guard';
     SatelliteWindowComponent,
     AssetMapComponent,
     PictureWindowComponent,
+    PdfWindowComponent,
     ChatListComponent,
     CountryNamePipe,
     HighlightPipe,
@@ -35,6 +38,7 @@ import { AdminGuard } from '../../guards/admin.guard';
     FormsModule,
     ReactiveFormsModule,
     LeafletModule,
+    PdfPreviewComponent,
     RouterModule.forChild([
       {
         path: '',

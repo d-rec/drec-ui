@@ -9,6 +9,7 @@ import { AddBulkDeviceComponent } from './add-bulk-device/add-bulk-device.compon
 import { EditDeviceComponent } from './edit-device/edit-device.component';
 import { DeviceDetailsComponent } from './device-details/device-details.component';
 import { MapModule } from '../map/map.module';
+import { PdfPreviewComponent } from '../../shared/pdf-preview/pdf-preview.component';
 @NgModule({
   declarations: [
     AlldevicesComponent,
@@ -24,6 +25,7 @@ import { MapModule } from '../map/map.module';
     FormsModule,
     ReactiveFormsModule,
     MapModule,
+    PdfPreviewComponent,
   ],
 })
 export class DeviceModule {}

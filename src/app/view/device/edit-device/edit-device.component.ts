@@ -22,7 +22,6 @@ import {
   shortenFileName,
 } from '../../../utils/file-upload.helper';
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
-import Tesseract from 'tesseract.js';
 
 type FileType =
   | DocumentType.FORM_SF_02
@@ -44,9 +43,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   @ViewChild('previewDialog') previewDialogTemplate = {} as TemplateRef<any>;
   previewDialogRef: any;
   previewData: { url: any; type: string; name: string } | null = null;
-  ocrText: string | null = null;
-  ocrRunning = false;
-  ocrProgress = 0;
+  currentPreviewFile: File | null = null;
   loginuser: any;
   updateDeviceForm: FormGroup;
   countrylist: CountryInfo[] = [];
@@ -391,50 +388,13 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     const preview = this.filePreviews[fileType];
     if (!preview) return;
     this.previewData = preview;
-    this.ocrText = null;
-    this.ocrRunning = false;
-    this.ocrProgress = 0;
+    this.currentPreviewFile = this.files[fileType]?.[0] ?? null;
     this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
       width: '95vw',
       maxWidth: '1400px',
       height: '90vh',
       panelClass: 'file-preview-dialog',
     });
-  }
-
-  async runOcr() {
-    if (!this.previewData || this.ocrRunning) return;
-    // Find the actual File object for the current preview
-    const fileType = Object.keys(this.filePreviews).find(
-      (k) => this.filePreviews[k] === this.previewData,
-    );
-    if (!fileType || !this.files[fileType]?.[0]) return;
-
-    this.ocrRunning = true;
-    this.ocrText = null;
-    this.ocrProgress = 0;
-
-    try {
-      const result = await Tesseract.recognize(this.files[fileType][0], 'eng', {
-        logger: (m: any) => {
-          if (m.status === 'recognizing text') {
-            this.ocrProgress = Math.round(m.progress * 100);
-          }
-        },
-      });
-      this.ocrText = result.data.text;
-    } catch (err: any) {
-      this.ocrText = `OCR failed: ${err.message || err}`;
-    } finally {
-      this.ocrRunning = false;
-    }
-  }
-
-  copyOcrText() {
-    if (this.ocrText) {
-      navigator.clipboard.writeText(this.ocrText);
-      this.toastrService.success('Copied to clipboard');
-    }
   }
 
   shortenFileName(fileName: string, maxLength: number = 20): string {

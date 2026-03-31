@@ -1,0 +1,62 @@
+<div class="pdf-preview">
+  <!-- Left: document preview -->
+  <div class="pdf-preview__left">
+    <img *ngIf="previewType === 'image'" [src]="previewUrl"
+      style="max-width: 100%; max-height: 100%; display: block; margin: 0 auto; object-fit: contain;" />
+    <iframe *ngIf="previewType === 'pdf'" [src]="previewUrl"
+      title="Document preview"
+      style="width: 100%; height: 100%; border: none;"></iframe>
+  </div>
+  <!-- Right: OCR + translation -->
+  <div class="pdf-preview__right">
+    <div class="pdf-preview__toolbar">
+      <h4 style="margin: 0; font-size: 14px; color: #64748b;">
+        <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">text_snippet</mat-icon>
+        Extracted Text (OCR)
+      </h4>
+      <button *ngIf="ocrText && !ocrLoading" type="button"
+        class="pdf-preview__translate-btn"
+        (click)="translateToEnglish()" [disabled]="translating">
+        <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">translate</mat-icon>
+        {{ translating ? 'Translating...' : 'Translate to English' }}
+      </button>
+    </div>
+    <div *ngIf="ocrLoading" style="padding: 16px; text-align: center; color: #64748b;">
+      <mat-progress-spinner mode="determinate" [value]="ocrProgress" diameter="40"
+        style="margin: 0 auto 8px;"></mat-progress-spinner>
+      <div>Extracting text... {{ ocrProgress }}%</div>
+      <div *ngIf="ocrPageInfo" style="font-size: 12px; margin-top: 4px;">{{ ocrPageInfo }}</div>
+    </div>
+    <pre *ngIf="ocrText" class="pdf-preview__ocr-pane"
+      [style.flex]="(translatedText || translating) ? 'none' : '1'"
+      [style.height.px]="(translatedText || translating) ? ocrPaneHeight : undefined">{{ ocrText }}</pre>
+    <div *ngIf="!ocrLoading && !ocrText" style="padding: 16px; text-align: center; color: #94a3b8; font-size: 13px;">
+      No text extracted.
+    </div>
+    <!-- Drag handle -->
+    <div *ngIf="(translatedText || translating) && ocrText" class="pdf-preview__drag-handle"
+      (mousedown)="onDragStart($event)">
+      <div class="pdf-preview__drag-handle-bar"></div>
+    </div>
+    <!-- Translation pane -->
+    <div *ngIf="translatedText || translating" class="pdf-preview__translation">
+      <div class="pdf-preview__translation-header">
+        <h4 style="margin: 0; font-size: 14px; color: #3b5bdb; white-space: nowrap;">
+          <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">translate</mat-icon>
+          English Translation
+          <span *ngIf="detectedLang" style="font-size: 11px; color: #94a3b8;">(from {{ detectedLang }})</span>
+        </h4>
+        <input *ngIf="translatedText" type="text" placeholder="Search..."
+          [(ngModel)]="translationSearch"
+          class="pdf-preview__search" />
+        <button *ngIf="translatedText" class="pdf-preview__copy-btn" (click)="copyOcrText()">Copy</button>
+      </div>
+      <div *ngIf="translating && !translatedText" style="padding: 16px; text-align: center; color: #64748b;">
+        <mat-progress-spinner mode="indeterminate" diameter="30" style="margin: 0 auto 8px;"></mat-progress-spinner>
+        <div>Translating...</div>
+      </div>
+      <pre *ngIf="translatedText" class="pdf-preview__translation-text"
+        [innerHTML]="highlightText(translatedText, translationSearch)"></pre>
+    </div>
+  </div>
+</div>

@@ -9,6 +9,7 @@
       <app-ds-map-window       *ngIf="activeTab === 'map'" (onPinClick)="onMapPinClick($event)"></app-ds-map-window>
       <app-ds-satellite-window *ngIf="showSatellite" [zIndex]="z.satellite" (bringToFront)="bringToFront('satellite')" (close)="showSatellite=false"></app-ds-satellite-window>
       <app-ds-picture-window   [zIndex]="z.picture"   (bringToFront)="bringToFront('picture')"></app-ds-picture-window>
+      <app-ds-pdf-window       [zIndex]="z.pdf"       (bringToFront)="bringToFront('pdf')"></app-ds-pdf-window>
     </div>
   </ng-container>
   <ng-template #chatListView>

@@ -431,21 +431,21 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   async openFile(url: string, event: Event): Promise<void> {
     event.stopPropagation();
     if (!url || this.isBroken(url)) {
-      alert('File is missing');
+      alert('File is missing\n\n' + url);
       return;
     }
     const freshUrl = await this.svc.refreshUrl(url);
     if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
       this.svc.viewPicture(freshUrl);
     } else {
-      window.open(freshUrl, '_blank', 'noopener');
+      this.svc.viewPdf(freshUrl);
     }
   }
 
   async openPicture(url: string, event: Event): Promise<void> {
     event.stopPropagation();
     if (!url || this.isBroken(url)) {
-      alert('File is missing');
+      alert('File is missing\n\n' + url);
       return;
     }
     const freshUrl = await this.svc.refreshUrl(url);

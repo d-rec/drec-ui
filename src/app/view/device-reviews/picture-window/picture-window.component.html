@@ -22,9 +22,10 @@
       <div *ngIf="ocrText" class="picw__ocr-result">
         <div class="picw__ocr-header">
           <strong>Extracted Text</strong>
+          <input class="picw__search" type="text" placeholder="Search..." [(ngModel)]="ocrSearch" />
           <button class="picw__copy-btn" (click)="copyOcrText()">Copy</button>
         </div>
-        <pre class="picw__ocr-text">{{ ocrText }}</pre>
+        <pre class="picw__ocr-text" [innerHTML]="highlightOcr(ocrText!, ocrSearch)"></pre>
       </div>
     </div>
   </app-ds-floating-window>

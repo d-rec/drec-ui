@@ -17,6 +17,7 @@ export class AssetService {
   readonly selectedId$ = new BehaviorSubject<string | null>(null);
   readonly expandId$ = new BehaviorSubject<string | null>(null);
   readonly viewPictureUrl$ = new BehaviorSubject<string | null>(null);
+  readonly viewPdfUrl$ = new BehaviorSubject<string | null>(null);
   readonly flyTo$ = new ReplaySubject<{ lat: number; lng: number }>(1);
   readonly loading$ = new BehaviorSubject<boolean>(false);
   readonly error$ = new BehaviorSubject<string | null>(null);
@@ -29,6 +30,10 @@ export class AssetService {
 
   viewPicture(url: string | null): void {
     this.viewPictureUrl$.next(url);
+  }
+
+  viewPdf(url: string | null): void {
+    this.viewPdfUrl$.next(url);
   }
 
   constructor(private http: HttpClient) {}

@@ -165,90 +165,10 @@ input.example-right-align {
 }
 
 ::ng-deep .mat-mdc-dialog-content.preview-dialog-content {
+  display: flex !important;
   max-height: none !important;
   height: 80vh;
   padding: 0 !important;
-  display: flex !important;
-  gap: 16px;
   overflow: hidden !important;
 }
 
-.preview-left {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  overflow: hidden;
-}
-
-.preview-right {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-.preview-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 0;
-  flex-shrink: 0;
-}
-
-.ocr-pane {
-  overflow: auto;
-  padding: 12px;
-  margin: 0;
-  background: #f8f9fb;
-  border: 1px solid #e2e6ea;
-  border-radius: 6px;
-  font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.drag-handle {
-  height: 12px;
-  cursor: row-resize;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  user-select: none;
-
-  &:hover .drag-handle-bar {
-    background: #94a3b8;
-  }
-}
-
-.drag-handle-bar {
-  width: 40px;
-  height: 3px;
-  background: #cbd5e1;
-  border-radius: 2px;
-}
-
-.translation-pane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.translation-pre {
-  flex: 1;
-  overflow: auto;
-  padding: 12px;
-  margin: 0;
-  background: #eef2ff;
-  border: 1px solid #c7d2fe;
-  border-radius: 6px;
-  font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}

@@ -35,6 +35,12 @@ export class FloatingWindowComponent implements OnInit {
   private dragOffsetX = 0;
   private dragOffsetY = 0;
 
+  private resizing = false;
+  private resizeStartX = 0;
+  private resizeStartY = 0;
+  private resizeStartW = 0;
+  private resizeStartH = 0;
+
   constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
@@ -52,25 +58,39 @@ export class FloatingWindowComponent implements OnInit {
     event.preventDefault();
   }
 
+  onResizeMousedown(event: MouseEvent): void {
+    this.resizing = true;
+    this.resizeStartX = event.clientX;
+    this.resizeStartY = event.clientY;
+    this.resizeStartW = this.width;
+    this.resizeStartH = this.height;
+    this.bringToFront.emit();
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   onBodyMousedown(): void {
     this.bringToFront.emit();
   }
 
   @HostListener('document:mousemove', ['$event'])
   onMouseMove(event: MouseEvent): void {
-    if (!this.dragging) return;
-    this.x = event.clientX - this.dragOffsetX;
-    this.y = event.clientY - this.dragOffsetY;
-
-    // Keep the window inside visible bounds — at least the titlebar must stay reachable
-    if (this.y < 0) this.y = 0;
-    if (this.x < -(this.width - 80)) this.x = -(this.width - 80);
-
-    this.cdr.markForCheck();
+    if (this.dragging) {
+      this.x = event.clientX - this.dragOffsetX;
+      this.y = event.clientY - this.dragOffsetY;
+      if (this.y < 0) this.y = 0;
+      if (this.x < -(this.width - 80)) this.x = -(this.width - 80);
+      this.cdr.markForCheck();
+    } else if (this.resizing) {
+      this.width = Math.max(260, this.resizeStartW + (event.clientX - this.resizeStartX));
+      this.height = Math.max(140, this.resizeStartH + (event.clientY - this.resizeStartY));
+      this.cdr.markForCheck();
+    }
   }
 
   @HostListener('document:mouseup')
   onMouseUp(): void {
     this.dragging = false;
+    this.resizing = false;
   }
 }

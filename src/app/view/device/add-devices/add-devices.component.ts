@@ -7,7 +7,6 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { environment } from '../../../../environments/environment';
 import {
   FormGroup,
   FormBuilder,
@@ -68,12 +67,7 @@ export class AddDevicesComponent implements OnDestroy {
   @ViewChild('errorDialog') errorDialogTemplate = {} as TemplateRef<any>;
   previewDialogRef: any;
   previewData: { url: any; type: string; name: string } | null = null;
-  ocrText: string = '';
-  ocrLoading: boolean = false;
-  ocrProgress: number = 0;
-  translatedText: string = '';
-  translating: boolean = false;
-  detectedLang: string = '';
+  currentPreviewFile: File | null = null;
   DataSourceTypes = DataSourceTypes;
   DocumentType = DocumentType;
   dialogRef: any;
@@ -606,159 +600,14 @@ export class AddDevicesComponent implements OnDestroy {
     const preview = this.filePreviews[deviceIndex]?.[fileType];
     if (!preview) return;
     this.previewData = preview;
-    this.ocrText = '';
-    this.ocrLoading = false;
-    this.ocrProgress = 0;
-    this.translatedText = '';
-    this.translating = false;
-    this.detectedLang = '';
+    this.currentPreviewFile =
+      this.files[deviceIndex]?.[fileType as keyof DeviceFiles]?.[0] ?? null;
     this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
       width: '95vw',
       maxWidth: '1400px',
       height: '90vh',
       panelClass: 'file-preview-dialog',
     });
-
-    // Run OCR on the file
-    const file = this.files[deviceIndex]?.[fileType as keyof DeviceFiles]?.[0];
-    if (file) {
-      this.runOcr(file);
-    }
-  }
-
-  ocrPageInfo: string = '';
-  ocrPaneHeight: number = 200;
-  private dragStartY: number = 0;
-  private dragStartHeight: number = 0;
-
-  onDragStart(event: MouseEvent) {
-    event.preventDefault();
-    this.dragStartY = event.clientY;
-    this.dragStartHeight = this.ocrPaneHeight;
-    const onMove = (e: MouseEvent) => {
-      const delta = e.clientY - this.dragStartY;
-      this.ocrPaneHeight = Math.max(60, this.dragStartHeight + delta);
-    };
-    const onUp = () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-    };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
-  }
-
-  private async runOcr(file: File) {
-    this.ocrLoading = true;
-    this.ocrProgress = 0;
-    this.ocrPageInfo = '';
-    try {
-      const Tesseract = await import('tesseract.js' as any);
-      const createWorker =
-        Tesseract.createWorker || Tesseract.default?.createWorker;
-      const worker = await createWorker('eng+fra', 1, {
-        logger: (m: any) => {
-          if (m.status === 'recognizing text') {
-            this.ocrProgress = Math.round(m.progress * 100);
-          }
-        },
-      });
-
-      if (file.type === 'application/pdf') {
-        const pdfjs = (window as any).pdfjsLib;
-        if (!pdfjs) {
-          this.ocrText = 'PDF.js not loaded — cannot OCR PDF files.';
-          this.ocrLoading = false;
-          await worker.terminate();
-          return;
-        }
-        pdfjs.GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.js';
-        const arrayBuffer = await file.arrayBuffer();
-        const pdf = await pdfjs.getDocument({
-          data: new Uint8Array(arrayBuffer),
-        }).promise;
-        const totalPages = pdf.numPages;
-
-        for (let p = 1; p <= totalPages; p++) {
-          this.ocrPageInfo = `Page ${p} of ${totalPages}`;
-          this.ocrProgress = 0;
-          const page = await pdf.getPage(p);
-          const viewport = page.getViewport({ scale: 2 });
-          const canvas = document.createElement('canvas');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext('2d')!;
-          await page.render({ canvasContext: ctx, viewport }).promise;
-          const {
-            data: { text },
-          } = await worker.recognize(canvas);
-          const separator = `── Page ${p} ${'─'.repeat(40)}`;
-          this.ocrText +=
-            (this.ocrText ? '\n\n' : '') + separator + '\n\n' + text.trim();
-        }
-      } else {
-        const {
-          data: { text },
-        } = await worker.recognize(file);
-        this.ocrText = text;
-      }
-
-      await worker.terminate();
-    } catch (err) {
-      console.error('OCR failed:', err);
-      this.ocrText = 'OCR failed — could not extract text from this document.';
-    }
-    this.ocrLoading = false;
-    this.ocrPageInfo = '';
-  }
-
-  async translateToEnglish() {
-    if (!this.ocrText || this.translating) return;
-    this.translating = true;
-    this.translatedText = '';
-    this.detectedLang = '';
-    try {
-      const chunks = this.splitTextIntoChunks(this.ocrText, 4000);
-      for (const chunk of chunks) {
-        const res = await fetch(`${environment.API_URL}translate`, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem('access-token')}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ text: [chunk], target_lang: 'EN' }),
-        });
-        if (!res.ok) throw new Error(`Translation error: ${res.status}`);
-        const data = await res.json();
-        const t = data.translations?.[0];
-        if (t) {
-          if (!this.detectedLang)
-            this.detectedLang = t.detected_source_language?.toLowerCase() || '';
-          this.translatedText += t.text;
-        }
-      }
-    } catch (err) {
-      console.error('Translation failed:', err);
-      this.translatedText += this.translatedText
-        ? '\n\n⚠ Translation interrupted.'
-        : 'Translation failed — check console for details.';
-    }
-    this.translating = false;
-  }
-
-  private splitTextIntoChunks(text: string, maxLen: number): string[] {
-    const chunks: string[] = [];
-    let remaining = text;
-    while (remaining.length > 0) {
-      if (remaining.length <= maxLen) {
-        chunks.push(remaining);
-        break;
-      }
-      let splitAt = remaining.lastIndexOf('\n', maxLen);
-      if (splitAt < maxLen / 2) splitAt = maxLen;
-      chunks.push(remaining.substring(0, splitAt));
-      remaining = remaining.substring(splitAt);
-    }
-    return chunks;
   }
 
   onSubmit() {
@@ -911,4 +760,5 @@ export class AddDevicesComponent implements OnDestroy {
       }
     }
   }
+
 }

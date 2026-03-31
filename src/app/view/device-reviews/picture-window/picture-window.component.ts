@@ -26,6 +26,7 @@ export class PictureWindowComponent implements OnInit, OnDestroy {
   ocrText: string | null = null;
   ocrRunning = false;
   ocrProgress = 0;
+  ocrSearch = '';
   private currentUrl: string | null = null;
 
   constructor(readonly svc: AssetService) {}
@@ -75,5 +76,16 @@ export class PictureWindowComponent implements OnInit, OnDestroy {
     if (this.ocrText) {
       navigator.clipboard.writeText(this.ocrText);
     }
+  }
+
+  highlightOcr(text: string, term: string): string {
+    if (!term) return text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const termEscaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    return escaped.replace(
+      new RegExp(termEscaped, 'gi'),
+      (m) => `<mark>${m}</mark>`,
+    );
   }
 }

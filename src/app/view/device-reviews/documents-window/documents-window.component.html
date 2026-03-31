@@ -59,115 +59,100 @@
         <!-- Expanded sections -->
         <ng-container *ngIf="expanded[item.id]">
 
-          <!-- ── SLD section ───────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'sld')" (keydown.enter)="toggleSection(item.id, 'sld')">
-            <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'sld')">&#8250;</span>
-            <span class="section-label">SLD</span>
+          <!-- ── SLD ─────────────────────────────────────────────────────────── -->
+          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.sldUrl" (dblclick)="item.sldUrl && openFile(item.sldUrl, $event)" (keydown.enter)="item.sldUrl && openFile(item.sldUrl, $event)" tabindex="0">
+            <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sld']" [class.review-check--disabled]="!item.sldUrl" role="checkbox" [attr.tabindex]="item.sldUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sld']" [attr.aria-disabled]="!item.sldUrl" (click)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" (keydown.enter)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" title="Mark as reviewed">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sld']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="doc-label">SLD</span>
+            <ng-container *ngIf="item.sldUrl">
+              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
+              <span class="file-name" [innerHTML]="hl(fileName(item.sldUrl!), result.searchTerm)"></span>
+              <span *ngIf="isBroken(item.sldUrl)" class="missing-tag">(missing)</span>
+              <button class="clear-btn" (click)="clearSld(item); $event.stopPropagation()">&#10005;</button>
+            </ng-container>
+            <span *ngIf="!item.sldUrl" class="doc-empty">not uploaded</span>
             <label class="add-btn" title="Upload SLD PDF" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="application/pdf" class="sr-only" (change)="onSldChange(item, $event)" />
             </label>
           </div>
-          <ng-container *ngIf="isSectionOpen(item.id, 'sld')">
-            <div *ngIf="item.sldUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.sldUrl, $event)" (keydown.enter)="openFile(item.sldUrl, $event)">
-              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':sld']" [class.review-check--done]="reviewed[item.id + ':sld']" (click)="toggleReviewed(item.id + ':sld', $event)" (keydown.enter)="toggleReviewed(item.id + ':sld', $event)" title="Mark as reviewed">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sld']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(item.sldUrl!), result.searchTerm)"></span>
-              <span *ngIf="isBroken(item.sldUrl)" class="missing-tag">(missing)</span>
-              <button class="clear-btn" (click)="clearSld(item)">&#10005;</button>
-            </div>
-            <div *ngIf="!item.sldUrl" class="dr-row dr-row--empty">No SLD uploaded</div>
-          </ng-container>
 
-          <!-- ── SF-02 section ─────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'sf02')" (keydown.enter)="toggleSection(item.id, 'sf02')">
-            <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'sf02')">&#8250;</span>
-            <span class="section-label">Form SF-02 - Production Facility Registration</span>
+          <!-- ── SF-02 ───────────────────────────────────────────────────────── -->
+          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.sf02Url" (dblclick)="item.sf02Url && openFile(item.sf02Url, $event)" (keydown.enter)="item.sf02Url && openFile(item.sf02Url, $event)" tabindex="0">
+            <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02']" [class.review-check--disabled]="!item.sf02Url" role="checkbox" [attr.tabindex]="item.sf02Url ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02']" [attr.aria-disabled]="!item.sf02Url" (click)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" (keydown.enter)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" title="Mark as reviewed">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="doc-label">SF-02</span>
+            <ng-container *ngIf="item.sf02Url">
+              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
+              <span class="file-name" [innerHTML]="hl(fileName(item.sf02Url!), result.searchTerm)"></span>
+              <span *ngIf="isBroken(item.sf02Url)" class="missing-tag">(missing)</span>
+              <button class="clear-btn" (click)="clearSf02(item); $event.stopPropagation()">&#10005;</button>
+            </ng-container>
+            <span *ngIf="!item.sf02Url" class="doc-empty">not uploaded</span>
             <label class="add-btn" title="Upload SF-02 PDF" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="application/pdf" class="sr-only" (change)="onSf02Change(item, $event)" />
             </label>
           </div>
-          <ng-container *ngIf="isSectionOpen(item.id, 'sf02')">
-            <div *ngIf="item.sf02Url" class="dr-row dr-row--file" (dblclick)="openFile(item.sf02Url, $event)" (keydown.enter)="openFile(item.sf02Url, $event)">
-              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':sf02']" [class.review-check--done]="reviewed[item.id + ':sf02']" (click)="toggleReviewed(item.id + ':sf02', $event)" (keydown.enter)="toggleReviewed(item.id + ':sf02', $event)" title="Mark as reviewed">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(item.sf02Url!), result.searchTerm)"></span>
-              <span *ngIf="isBroken(item.sf02Url)" class="missing-tag">(missing)</span>
-              <button class="clear-btn" (click)="clearSf02(item)">&#10005;</button>
-            </div>
-            <div *ngIf="!item.sf02Url" class="dr-row dr-row--empty">No SF-02 uploaded</div>
-          </ng-container>
 
-          <!-- ── SF-02C section ────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'sf02c')" (keydown.enter)="toggleSection(item.id, 'sf02c')">
-            <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'sf02c')">&#8250;</span>
-            <span class="section-label">SF-02C Owner's Declaration or Proof of Ownership</span>
+          <!-- ── SF-02C ──────────────────────────────────────────────────────── -->
+          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.sf02cUrl" (dblclick)="item.sf02cUrl && openFile(item.sf02cUrl, $event)" (keydown.enter)="item.sf02cUrl && openFile(item.sf02cUrl, $event)" tabindex="0">
+            <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02c']" [class.review-check--disabled]="!item.sf02cUrl" role="checkbox" [attr.tabindex]="item.sf02cUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02c']" [attr.aria-disabled]="!item.sf02cUrl" (click)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" (keydown.enter)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" title="Mark as reviewed">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02c']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="doc-label">SF-02C</span>
+            <ng-container *ngIf="item.sf02cUrl">
+              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
+              <span class="file-name" [innerHTML]="hl(fileName(item.sf02cUrl!), result.searchTerm)"></span>
+              <span *ngIf="isBroken(item.sf02cUrl)" class="missing-tag">(missing)</span>
+              <button class="clear-btn" (click)="clearSf02c(item); $event.stopPropagation()">&#10005;</button>
+            </ng-container>
+            <span *ngIf="!item.sf02cUrl" class="doc-empty">not uploaded</span>
             <label class="add-btn" title="Upload SF-02C PDF" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="application/pdf" class="sr-only" (change)="onSf02cChange(item, $event)" />
             </label>
           </div>
-          <ng-container *ngIf="isSectionOpen(item.id, 'sf02c')">
-            <div *ngIf="item.sf02cUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.sf02cUrl, $event)" (keydown.enter)="openFile(item.sf02cUrl, $event)">
-              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':sf02c']" [class.review-check--done]="reviewed[item.id + ':sf02c']" (click)="toggleReviewed(item.id + ':sf02c', $event)" (keydown.enter)="toggleReviewed(item.id + ':sf02c', $event)" title="Mark as reviewed">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02c']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(item.sf02cUrl!), result.searchTerm)"></span>
-              <span *ngIf="isBroken(item.sf02cUrl)" class="missing-tag">(missing)</span>
-              <button class="clear-btn" (click)="clearSf02c(item)">&#10005;</button>
-            </div>
-            <div *ngIf="!item.sf02cUrl" class="dr-row dr-row--empty">No SF-02C uploaded</div>
-          </ng-container>
 
-          <!-- ── COD Proof section ──────────────────────────────────────────── -->
-          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'codProof')" (keydown.enter)="toggleSection(item.id, 'codProof')">
-            <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'codProof')">&#8250;</span>
-            <span class="section-label">COD Proof</span>
+          <!-- ── COD Proof ────────────────────────────────────────────────────── -->
+          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.codProofUrl" (dblclick)="item.codProofUrl && openFile(item.codProofUrl, $event)" (keydown.enter)="item.codProofUrl && openFile(item.codProofUrl, $event)" tabindex="0">
+            <span class="review-check" [class.review-check--done]="reviewed[item.id + ':codProof']" [class.review-check--disabled]="!item.codProofUrl" role="checkbox" [attr.tabindex]="item.codProofUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':codProof']" [attr.aria-disabled]="!item.codProofUrl" (click)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" (keydown.enter)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" title="Mark as reviewed">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':codProof']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="doc-label">COD Proof</span>
+            <ng-container *ngIf="item.codProofUrl">
+              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
+              <span class="file-name" [innerHTML]="hl(fileName(item.codProofUrl!), result.searchTerm)"></span>
+              <span *ngIf="isBroken(item.codProofUrl)" class="missing-tag">(missing)</span>
+              <button class="clear-btn" (click)="clearCodProof(item); $event.stopPropagation()">&#10005;</button>
+            </ng-container>
+            <span *ngIf="!item.codProofUrl" class="doc-empty">not uploaded</span>
             <label class="add-btn" title="Upload COD proof" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="application/pdf" class="sr-only" (change)="onCodProofChange(item, $event)" />
             </label>
           </div>
-          <ng-container *ngIf="isSectionOpen(item.id, 'codProof')">
-            <div *ngIf="item.codProofUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.codProofUrl, $event)" (keydown.enter)="openFile(item.codProofUrl, $event)">
-              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':codProof']" [class.review-check--done]="reviewed[item.id + ':codProof']" (click)="toggleReviewed(item.id + ':codProof', $event)" (keydown.enter)="toggleReviewed(item.id + ':codProof', $event)" title="Mark as reviewed">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':codProof']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(item.codProofUrl!), result.searchTerm)"></span>
-              <span *ngIf="isBroken(item.codProofUrl)" class="missing-tag">(missing)</span>
-              <button class="clear-btn" (click)="clearCodProof(item)">&#10005;</button>
-            </div>
-            <div *ngIf="!item.codProofUrl" class="dr-row dr-row--empty">No COD proof uploaded</div>
-          </ng-container>
 
-          <!-- ── Metering Evidence section ─────────────────────────────────── -->
-          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'meteringEvidence')" (keydown.enter)="toggleSection(item.id, 'meteringEvidence')">
-            <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'meteringEvidence')">&#8250;</span>
-            <span class="section-label">Metering Evidence</span>
+          <!-- ── Metering Evidence ────────────────────────────────────────────── -->
+          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.meteringEvidenceUrl" (dblclick)="item.meteringEvidenceUrl && openFile(item.meteringEvidenceUrl, $event)" (keydown.enter)="item.meteringEvidenceUrl && openFile(item.meteringEvidenceUrl, $event)" tabindex="0">
+            <span class="review-check" [class.review-check--done]="reviewed[item.id + ':meteringEvidence']" [class.review-check--disabled]="!item.meteringEvidenceUrl" role="checkbox" [attr.tabindex]="item.meteringEvidenceUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':meteringEvidence']" [attr.aria-disabled]="!item.meteringEvidenceUrl" (click)="item.meteringEvidenceUrl && toggleReviewed(item.id + ':meteringEvidence', $event)" (keydown.enter)="item.meteringEvidenceUrl && toggleReviewed(item.id + ':meteringEvidence', $event)" title="Mark as reviewed">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':meteringEvidence']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="doc-label">Metering Evidence</span>
+            <ng-container *ngIf="item.meteringEvidenceUrl">
+              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
+              <span class="file-name" [innerHTML]="hl(fileName(item.meteringEvidenceUrl!), result.searchTerm)"></span>
+              <span *ngIf="isBroken(item.meteringEvidenceUrl)" class="missing-tag">(missing)</span>
+              <button class="clear-btn" (click)="clearMeteringEvidence(item); $event.stopPropagation()">&#10005;</button>
+            </ng-container>
+            <span *ngIf="!item.meteringEvidenceUrl" class="doc-empty">not uploaded</span>
             <label class="add-btn" title="Upload metering evidence" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
               <input type="file" accept="application/pdf" class="sr-only" (change)="onMeteringEvidenceChange(item, $event)" />
             </label>
           </div>
-          <ng-container *ngIf="isSectionOpen(item.id, 'meteringEvidence')">
-            <div *ngIf="item.meteringEvidenceUrl" class="dr-row dr-row--file" (dblclick)="openFile(item.meteringEvidenceUrl, $event)" (keydown.enter)="openFile(item.meteringEvidenceUrl, $event)">
-              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':meteringEvidence']" [class.review-check--done]="reviewed[item.id + ':meteringEvidence']" (click)="toggleReviewed(item.id + ':meteringEvidence', $event)" (keydown.enter)="toggleReviewed(item.id + ':meteringEvidence', $event)" title="Mark as reviewed">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':meteringEvidence']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(item.meteringEvidenceUrl!), result.searchTerm)"></span>
-              <span *ngIf="isBroken(item.meteringEvidenceUrl)" class="missing-tag">(missing)</span>
-              <button class="clear-btn" (click)="clearMeteringEvidence(item)">&#10005;</button>
-            </div>
-            <div *ngIf="!item.meteringEvidenceUrl" class="dr-row dr-row--empty">No metering evidence uploaded</div>
-          </ng-container>
 
           <!-- ── Pictures section ──────────────────────────────────────────── -->
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'pictures')" (keydown.enter)="toggleSection(item.id, 'pictures')">
