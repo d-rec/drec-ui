@@ -198,6 +198,17 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       exceedsCeiling: boolean;
     }>;
   } | null = null;
+  showControlsModal = false;
+  controlsResult: {
+    isMode4: boolean;
+    allSatisfied: boolean;
+    controls: Array<{
+      id: string;
+      label: string;
+      satisfied: boolean;
+      detail: string;
+    }>;
+  } | null = null;
   showSourceVerifyModal = false;
   sourceVerifyResult: {
     mode: string | null;
@@ -1008,6 +1019,23 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         console.error('Source-access verification failed:', err);
         this.sourceVerifyResult = null;
         this.showSourceVerifyModal = true;
+      },
+    });
+  }
+
+  evaluateControls(): void {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.evaluateCompensatingControls(deviceId).subscribe({
+      next: (res: any) => {
+        this.controlsResult = res;
+        this.showControlsModal = true;
+      },
+      error: (err: any) => {
+        console.error('Compensating controls evaluation failed:', err);
+        this.controlsResult = null;
+        this.showControlsModal = true;
       },
     });
   }

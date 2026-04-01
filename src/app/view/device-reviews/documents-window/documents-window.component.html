@@ -325,6 +325,7 @@
             <button type="button" class="btn btn--ceiling" (click)="checkCeiling()" title="Irradiance-based production ceiling check (§3.6)">Ceiling</button>
             <button type="button" class="btn btn--consistency" (click)="checkConsistency()" title="Historical consistency review (§3.7)">History</button>
             <button type="button" class="btn btn--audit" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit</button>
+            <button type="button" class="btn btn--controls" (click)="evaluateControls()" title="Compensating controls for Mode 4 (§3.9)">Controls</button>
             <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
             <button type="button" class="btn btn--reject"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Reject</button>
             <button type="button" class="btn btn--archive" (click)="archiveDevice()" [disabled]="detailForm.get('status')?.value === 'pending' || detailForm.get('status')?.value === 'draft'">Archive</button>
@@ -564,6 +565,38 @@
     </div>
   </div>
 
+  <!-- ── Compensating controls modal (§3.9) ────────────────────────── -->
+  <div class="modal-backdrop" *ngIf="showControlsModal" role="dialog" aria-modal="true" (click)="showControlsModal = false" (keydown.escape)="showControlsModal = false">
+    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+      <p class="modal-msg" style="font-weight: 600;">Compensating Controls (§3.9)</p>
+      <ng-container *ngIf="controlsResult">
+        <div *ngIf="!controlsResult.isMode4" class="verify-section">
+          <p class="verify-heading" style="color:#64748b;">This device is not Mode 4 — compensating controls do not apply.</p>
+        </div>
+        <ng-container *ngIf="controlsResult.isMode4">
+          <div class="controls-summary" [class.controls-summary--pass]="controlsResult.allSatisfied" [class.controls-summary--fail]="!controlsResult.allSatisfied">
+            {{ controlsResult.allSatisfied ? 'All controls satisfied' : 'Controls not fully satisfied' }}
+          </div>
+          <div class="controls-list">
+            <div *ngFor="let ctrl of controlsResult.controls" class="control-item" [class.control-item--pass]="ctrl.satisfied" [class.control-item--fail]="!ctrl.satisfied">
+              <span class="control-icon">{{ ctrl.satisfied ? '✓' : '✗' }}</span>
+              <div class="control-body">
+                <span class="control-label">{{ ctrl.label }}</span>
+                <span class="control-detail">{{ ctrl.detail }}</span>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+      <div *ngIf="!controlsResult" class="verify-section">
+        <p class="verify-heading" style="color:#dc2626;">Failed to evaluate compensating controls.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--approve" (click)="showControlsModal = false">OK</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Audit trail modal (§3.8) ─────────────────────────────────── -->
   <div class="modal-backdrop" *ngIf="showAuditModal" role="dialog" aria-modal="true" (click)="showAuditModal = false" (keydown.escape)="showAuditModal = false">
     <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
@@ -577,7 +610,7 @@
             <span class="audit-entry__action">{{ entry.actionType }}</span>
             <span class="audit-entry__by">{{ entry.performedBy }}</span>
             <span class="audit-entry__time">{{ entry.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-            <span class="audit-entry__ip" *ngIf="entry.metadata?.ip">{{ entry.metadata.ip }}</span>
+            <span class="audit-entry__ip" *ngIf="entry.metadata && entry.metadata['ip']">{{ entry.metadata['ip'] }}</span>
           </div>
           <div class="audit-entry__detail" *ngIf="entry.detail">{{ entry.detail }}</div>
         </div>

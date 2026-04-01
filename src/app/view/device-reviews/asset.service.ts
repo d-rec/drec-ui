@@ -173,6 +173,12 @@ export class AssetService {
     );
   }
 
+  evaluateCompensatingControls(deviceId: number): Observable<any> {
+    return this.http.get<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/compensating-controls`,
+    );
+  }
+
   verifySourceAccessMode(deviceId: number): Observable<any> {
     return this.http.get<any>(
       `${environment.API_URL}device-reviews/${deviceId}/source-access-verify`,
