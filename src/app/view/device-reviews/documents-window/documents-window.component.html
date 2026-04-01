@@ -68,7 +68,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sld']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
             <span class="doc-label">SLD</span>
-            <span class="req-tag req-tag--{{ getReqLevel('SINGLE_LINE_DIAGRAM') }}" [title]="getDocHint('SINGLE_LINE_DIAGRAM') || ''">{{ getReqLevel('SINGLE_LINE_DIAGRAM') }}</span>
+            <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}" [title]="getDocHint('SINGLE_LINE_DIAGRAM', item.operatingConfiguration) || ''">{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}</span>
             <ng-container *ngIf="item.sldUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.sldUrl!), result.searchTerm)"></span>
@@ -88,7 +88,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
             <span class="doc-label">SF-02</span>
-            <span class="req-tag req-tag--{{ getReqLevel('FORM_SF_02') }}" [title]="getDocHint('FORM_SF_02') || ''">{{ getReqLevel('FORM_SF_02') }}</span>
+            <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}" [title]="getDocHint('FORM_SF_02', item.operatingConfiguration) || ''">{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}</span>
             <ng-container *ngIf="item.sf02Url">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.sf02Url!), result.searchTerm)"></span>
@@ -108,7 +108,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02c']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
             <span class="doc-label">SF-02C</span>
-            <span class="req-tag req-tag--{{ getReqLevel('SF_02C') }}" [title]="getDocHint('SF_02C') || ''">{{ getReqLevel('SF_02C') }}</span>
+            <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}" [title]="getDocHint('SF_02C', item.operatingConfiguration) || ''">{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}</span>
             <ng-container *ngIf="item.sf02cUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.sf02cUrl!), result.searchTerm)"></span>
@@ -128,7 +128,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':codProof']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
             <span class="doc-label">COD Proof</span>
-            <span class="req-tag req-tag--{{ getReqLevel('COD_PROOF') }}" [title]="getDocHint('COD_PROOF') || ''">{{ getReqLevel('COD_PROOF') }}</span>
+            <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}" [title]="getDocHint('COD_PROOF', item.operatingConfiguration) || ''">{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}</span>
             <ng-container *ngIf="item.codProofUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.codProofUrl!), result.searchTerm)"></span>
@@ -148,7 +148,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':meteringEvidence']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
             <span class="doc-label">Metering Evidence</span>
-            <span class="req-tag req-tag--{{ getReqLevel('METERING_EVIDENCE') }}" [title]="getDocHint('METERING_EVIDENCE') || ''">{{ getReqLevel('METERING_EVIDENCE') }}</span>
+            <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('METERING_EVIDENCE', item.operatingConfiguration, !!item.meteringEvidenceUrl) }}" [title]="getDocHint('METERING_EVIDENCE', item.operatingConfiguration) || ''">{{ getReqStatus('METERING_EVIDENCE', item.operatingConfiguration, !!item.meteringEvidenceUrl) }}</span>
             <ng-container *ngIf="item.meteringEvidenceUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.meteringEvidenceUrl!), result.searchTerm)"></span>
@@ -166,7 +166,7 @@
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'pictures')" (keydown.enter)="toggleSection(item.id, 'pictures')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'pictures')">&#8250;</span>
             <span class="section-label">Pictures</span>
-            <span class="req-tag req-tag--{{ getReqLevel('PROJECT_PHOTOS') }}">{{ getReqLevel('PROJECT_PHOTOS') }}</span>
+            <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length > 0) }}">{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length > 0) }}</span>
             <span *ngIf="item.pictureUrls.length" class="section-count">({{ item.pictureUrls.length }})</span>
             <label class="add-btn" title="Add picture" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +
@@ -194,7 +194,7 @@
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'screenshots')" (keydown.enter)="toggleSection(item.id, 'screenshots')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'screenshots')">&#8250;</span>
             <span class="section-label">Screenshots</span>
-            <span class="req-tag req-tag--{{ getReqLevel('SCREENSHOTS') }}" [title]="getDocHint('SCREENSHOTS') || ''">{{ getReqLevel('SCREENSHOTS') }}</span>
+            <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}" [title]="getDocHint('SCREENSHOTS', item.operatingConfiguration) || ''">{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}</span>
             <span *ngIf="item.screenshotUrls.length" class="section-count">({{ item.screenshotUrls.length }})</span>
             <label class="add-btn" title="Add screenshot" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               +

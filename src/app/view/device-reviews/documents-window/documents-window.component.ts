@@ -800,17 +800,31 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   // ── Conditional document requirements (§3.2) ───────────────────────────────
 
-  /** Get requirement level for a document type based on the selected device's operating config. */
-  getReqLevel(docType: string): RequirementLevel {
-    const config = this.detailForm?.get('operatingConfiguration')?.value || null;
-    const reqs = getEvidenceRequirements(config);
+  /** Get requirement level for a document type based on the device's operating config. */
+  getReqLevel(docType: string, config?: string | null): RequirementLevel | '' {
+    const c = config ?? this.detailForm?.get('operatingConfiguration')?.value ?? null;
+    if (!c) return '';
+    const reqs = getEvidenceRequirements(c);
     return (reqs as any)[docType] ?? 'required';
   }
 
+  /**
+   * Get display status for a requirement tag: considers both the requirement level
+   * and whether the document is present. Returns 'satisfied' if present, or the
+   * requirement level if missing.
+   */
+  getReqStatus(docType: string, config: string | null, hasDoc: boolean): string {
+    if (!config) return '';
+    const level = this.getReqLevel(docType, config);
+    if (!level) return '';
+    if (hasDoc) return 'satisfied';
+    return level;
+  }
+
   /** Get config-specific hint for a document type. */
-  getDocHint(docType: string): string | null {
-    const config = this.detailForm?.get('operatingConfiguration')?.value || null;
-    return getHint(config, docType);
+  getDocHint(docType: string, config?: string | null): string | null {
+    const c = config ?? this.detailForm?.get('operatingConfiguration')?.value ?? null;
+    return getHint(c, docType);
   }
 
   // ── Detail form ───────────────────────────────────────────────────────────────
