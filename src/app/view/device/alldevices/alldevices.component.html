@@ -369,7 +369,8 @@
                 <a
                   mat-menu-item
                   class="edit-icon action-icons"
-                  (click)="UpdateDevice(row)"
+                  [class.menu-item--disabled]="row.reviewStatus !== 'draft' && row.reviewStatus !== 'pending'"
+                  (click)="(row.reviewStatus === 'draft' || row.reviewStatus === 'pending') && UpdateDevice(row)"
                   *ngIf="loginuser.role != 'Admin'"
                 >
                   <mat-icon class="primary">edit</mat-icon> Edit</a

@@ -145,7 +145,8 @@ export class AddDevicesComponent implements OnDestroy {
     DocumentType.PROJECT_PHOTOS,
     DocumentType.COD_PROOF,
   ];
-  @ViewChild(MapComponent) mapComponent: MapComponent;
+  @ViewChild('streetMap') mapComponent: MapComponent;
+  @ViewChild('satelliteMap') satelliteMapComponent: MapComponent;
   @Output() zoom = new EventEmitter<number>();
 
   constructor(
@@ -304,13 +305,17 @@ export class AddDevicesComponent implements OnDestroy {
       COD_PROOF: [null, [Validators.required]],
     });
 
-    device.get('latitude')?.valueChanges.subscribe((latitude) => {
+    device.get('latitude')?.valueChanges.subscribe((v: any) => {
+      const stripped = typeof v === 'string' ? v.replace(/\s/g, '') : v;
+      if (stripped !== v) device.get('latitude')?.setValue(stripped, { emitEvent: false });
       const longitude = device.get('longitude')?.value;
-      this.updateMapMarkers(latitude, longitude);
+      this.updateMapMarkers(stripped, longitude);
     });
-    device.get('longitude')?.valueChanges.subscribe((longitude) => {
+    device.get('longitude')?.valueChanges.subscribe((v: any) => {
+      const stripped = typeof v === 'string' ? v.replace(/\s/g, '') : v;
+      if (stripped !== v) device.get('longitude')?.setValue(stripped, { emitEvent: false });
       const latitude = device.get('latitude')?.value;
-      this.updateMapMarkers(latitude, longitude);
+      this.updateMapMarkers(latitude, stripped);
     });
 
     this.deviceForms.push(device);
@@ -629,16 +634,14 @@ export class AddDevicesComponent implements OnDestroy {
       );
       element['countryCode'] = selectedCountry?.alpha3;
 
-      // Truncate lat/long to 9 decimal places (backend limit)
+      // Truncate lat/long to 9 decimal places (backend regex limit)
       if (element.latitude) {
-        element.latitude = String(
-          Math.trunc(parseFloat(element.latitude) * 1e9) / 1e9,
-        );
+        const [intLat, decLat] = String(element.latitude).split('.');
+        element.latitude = decLat ? `${intLat}.${decLat.slice(0, 20)}` : intLat;
       }
       if (element.longitude) {
-        element.longitude = String(
-          Math.trunc(parseFloat(element.longitude) * 1e9) / 1e9,
-        );
+        const [intLng, decLng] = String(element.longitude).split('.');
+        element.longitude = decLng ? `${intLng}.${decLng.slice(0, 20)}` : intLng;
       }
 
       formData.append('deviceToRegister', JSON.stringify(element));
@@ -758,7 +761,7 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   updateMapMarkers(latitude: any, longitude: any) {
-    if (this.mapComponent && latitude && longitude) {
+    if (latitude && longitude) {
       const markers = [
         {
           latitude: parseFloat(latitude),
@@ -766,10 +769,18 @@ export class AddDevicesComponent implements OnDestroy {
         },
       ];
 
-      this.mapComponent.markers = [...markers];
+      if (this.mapComponent) {
+        this.mapComponent.markers = [...markers];
+        if (this.mapComponent.isMapInitialized) {
+          this.mapComponent.update();
+        }
+      }
 
-      if (this.mapComponent.isMapInitialized) {
-        this.mapComponent.update();
+      if (this.satelliteMapComponent) {
+        this.satelliteMapComponent.markers = [...markers];
+        if (this.satelliteMapComponent.isMapInitialized) {
+          this.satelliteMapComponent.update();
+        }
       }
     }
   }

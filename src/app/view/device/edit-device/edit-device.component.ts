@@ -85,13 +85,13 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   frombulk: boolean = false;
   filteredCountryList: Observable<any[]>;
   organizationId: any;
-  serialNumberChanged: boolean = false;
 
   // Document upload support
   DocumentType = DocumentType;
   files: { [key: string]: File[] } = {};
   filePreviews: { [key: string]: { url: SafeResourceUrl; type: 'image' | 'pdf' | 'other'; name: string } } = {};
   existingDocs: { [type: string]: { url: string; name: string }[] } = {};
+  brokenDocs: { [type: string]: boolean } = {};
 
   existingDocLabel(type: string): string {
     const docs = this.existingDocs[type];
@@ -128,7 +128,8 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     'Rooftop Solar',
     'Ground Mount Solar',
   ];
-  @ViewChild(MapComponent) mapComponent: MapComponent;
+  @ViewChild('streetMap') mapComponent: MapComponent;
+  @ViewChild('satelliteMap') satelliteMapComponent: MapComponent;
 
   constructor(
     private fb: FormBuilder,
@@ -197,15 +198,19 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     this.updateDeviceForm.valueChanges.subscribe();
     this.updateDeviceForm
       .get('latitude')
-      ?.valueChanges.subscribe((latitude) => {
+      ?.valueChanges.subscribe((v) => {
+        const stripped = typeof v === 'string' ? v.replace(/\s/g, '') : v;
+        if (stripped !== v) this.updateDeviceForm.get('latitude')?.setValue(stripped, { emitEvent: false });
         const longitude = this.updateDeviceForm.get('longitude')?.value;
-        this.updateMapMarkers(latitude, longitude);
+        this.updateMapMarkers(stripped, longitude);
       });
     this.updateDeviceForm
       .get('longitude')
-      ?.valueChanges.subscribe((longitude) => {
+      ?.valueChanges.subscribe((v) => {
+        const stripped = typeof v === 'string' ? v.replace(/\s/g, '') : v;
+        if (stripped !== v) this.updateDeviceForm.get('longitude')?.setValue(stripped, { emitEvent: false });
         const latitude = this.updateDeviceForm.get('latitude')?.value;
-        this.updateMapMarkers(latitude, longitude);
+        this.updateMapMarkers(latitude, stripped);
       });
     setTimeout(() => {
       this.filteredCountryList = this.updateDeviceForm.controls[
@@ -272,19 +277,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       this.devicetypelist = data4;
     });
   }
-  shownewExternalidInput: boolean = false;
-  showcancelicon: boolean = false;
-  editExternalid() {
-    this.shownewExternalidInput = true;
-    this.showcancelicon = true;
-    this.serialNumberChanged = true;
-  }
-  hideeditExternalid() {
-    this.shownewExternalidInput = false;
-    this.updateDeviceForm.value.serialNumber = this.serialNumber;
-    this.showcancelicon = false;
-    this.serialNumberChanged = false;
-  }
+  private initSerialNumber: string | null = null;
   addmore() {
     this.addmoredetals = true;
     this.shownomore = true;
@@ -346,14 +339,38 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.updateDeviceForm.patchValue({
           serialNumber: data.serialNumber,
         });
+        this.initSerialNumber = data.serialNumber;
 
         // Load existing documents
         this.deviceService.getDocuments(data.id).subscribe((docs) => {
           this.existingDocs = {};
           for (const doc of docs) {
             if (!this.existingDocs[doc.type]) this.existingDocs[doc.type] = [];
-            const name = doc.url.split('/').pop()?.split('?')[0] || doc.type;
-            this.existingDocs[doc.type].push({ url: doc.url, name: decodeURIComponent(name) });
+            let name = doc.url.split('/').pop()?.split('?')[0] || doc.type;
+            // Decode + as space, then repeatedly decodeURIComponent for double-encoded keys
+            name = name.replace(/\+/g, ' ');
+            let prev = '';
+            while (name !== prev) {
+              prev = name;
+              try { name = decodeURIComponent(name); } catch { break; }
+            }
+            // Strip embedded UUIDs
+            name = name.replace(/-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, '');
+            // Strip upload timestamp+index suffix (e.g. _1752226304295_1.pdf → .pdf)
+            name = name.replace(/_\d{10,}_\d+\./, '.');
+            this.existingDocs[doc.type].push({ url: doc.url, name });
+          }
+          // Check each document URL for 404s (GET + abort, since HEAD may be blocked by CORS)
+          this.brokenDocs = {};
+          for (const type of Object.keys(this.existingDocs)) {
+            for (const doc of this.existingDocs[type]) {
+              if (!doc.url) { this.brokenDocs[type] = true; continue; }
+              const ctrl = new AbortController();
+              fetch(doc.url, { method: 'GET', mode: 'cors', signal: ctrl.signal }).then(
+                (res) => { ctrl.abort(); if (!res.ok) this.brokenDocs[type] = true; },
+                (err) => { if (err?.name !== 'AbortError') this.brokenDocs[type] = true; },
+              );
+            }
           }
         });
       });
@@ -416,16 +433,14 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     // Capture the form value once — .value returns a new snapshot each call
     const formValue = this.updateDeviceForm.value;
 
-    // Truncate lat/long to 9 decimal places (backend limit)
+    // Truncate lat/long to 9 decimal places (backend regex limit)
     if (formValue.latitude) {
-      formValue.latitude = String(
-        Math.trunc(parseFloat(formValue.latitude) * 1e9) / 1e9,
-      );
+      const [intLat, decLat] = String(formValue.latitude).split('.');
+      formValue.latitude = decLat ? `${intLat}.${decLat.slice(0, 20)}` : intLat;
     }
     if (formValue.longitude) {
-      formValue.longitude = String(
-        Math.trunc(parseFloat(formValue.longitude) * 1e9) / 1e9,
-      );
+      const [intLng, decLng] = String(formValue.longitude).split('.');
+      formValue.longitude = decLng ? `${intLng}.${decLng.slice(0, 20)}` : intLng;
     }
 
     // Check if any files were selected
@@ -475,7 +490,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       .update(
         this.externalid,
         payload,
-        this.serialNumberChanged,
+        this.updateDeviceForm.controls['serialNumber'].value !== this.initSerialNumber,
       )
       .subscribe({
         next: (data: any) => {
@@ -515,7 +530,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   }
 
   updateMapMarkers(latitude: any, longitude: any) {
-    if (this.mapComponent && latitude && longitude) {
+    if (latitude && longitude) {
       const markers = [
         {
           latitude: parseFloat(latitude),
@@ -523,12 +538,17 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         },
       ];
 
-      // Set the markers on the map component
-      this.mapComponent.markers = [...markers];
-
-      // If the map is already initialized, update it directly
-      if (this.mapComponent.isMapInitialized) {
-        this.mapComponent.update();
+      if (this.mapComponent) {
+        this.mapComponent.markers = [...markers];
+        if (this.mapComponent.isMapInitialized) {
+          this.mapComponent.update();
+        }
+      }
+      if (this.satelliteMapComponent) {
+        this.satelliteMapComponent.markers = [...markers];
+        if (this.satelliteMapComponent.isMapInitialized) {
+          this.satelliteMapComponent.update();
+        }
       }
     }
   }

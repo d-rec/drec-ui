@@ -121,6 +121,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   detailForm!: FormGroup;
   editingId: string | null = null;
   showApproveModal = false;
+  showApprovedInfoModal = false;
+  showUnreviewedWarning = false;
   showDeleteModal = false;
   private pendingDelete: { asset: Asset; docKey: string; urlField: string; arrayIdx?: number } | null = null;
 
@@ -455,10 +457,17 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.svc.viewPicture(freshUrl);
   }
 
+  private uploadAndRefresh(asset: Asset, docType: string, file: File): void {
+    this.svc.uploadDocument(parseInt(asset.id, 10), docType, file).subscribe({
+      next: () => this.svc.populateFromDb(),
+      error: (err) => console.error('Upload failed', err),
+    });
+  }
+
   onCodProofChange(asset: Asset, event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.svc.saveAsset({ ...asset, codProofUrl: URL.createObjectURL(file) });
+    this.uploadAndRefresh(asset, 'COD_PROOF', file);
   }
 
   clearCodProof(asset: Asset): void {
@@ -468,7 +477,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   onSldChange(asset: Asset, event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.svc.saveAsset({ ...asset, sldUrl: URL.createObjectURL(file) });
+    this.uploadAndRefresh(asset, 'SINGLE_LINE_DIAGRAM', file);
   }
 
   clearSld(asset: Asset): void {
@@ -478,7 +487,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   onSf02Change(asset: Asset, event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.svc.saveAsset({ ...asset, sf02Url: URL.createObjectURL(file) });
+    this.uploadAndRefresh(asset, 'FORM_SF_02', file);
   }
 
   clearSf02(asset: Asset): void {
@@ -488,7 +497,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   onSf02cChange(asset: Asset, event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.svc.saveAsset({ ...asset, sf02cUrl: URL.createObjectURL(file) });
+    this.uploadAndRefresh(asset, 'SF_02C', file);
   }
 
   clearSf02c(asset: Asset): void {
@@ -498,10 +507,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   onMeteringEvidenceChange(asset: Asset, event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.svc.saveAsset({
-      ...asset,
-      meteringEvidenceUrl: URL.createObjectURL(file),
-    });
+    this.uploadAndRefresh(asset, 'METERING_EVIDENCE', file);
   }
 
   clearMeteringEvidence(asset: Asset): void {
@@ -511,10 +517,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   onPictureAdd(asset: Asset, event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.svc.saveAsset({
-      ...asset,
-      pictureUrls: [...asset.pictureUrls, URL.createObjectURL(file)],
-    });
+    this.uploadAndRefresh(asset, 'PROJECT_PHOTOS', file);
   }
 
   clearPicture(asset: Asset, idx: number): void {
@@ -524,10 +527,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   onScreenshotAdd(asset: Asset, event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.svc.saveAsset({
-      ...asset,
-      screenshotUrls: [...asset.screenshotUrls, URL.createObjectURL(file)],
-    });
+    this.uploadAndRefresh(asset, 'SCREENSHOTS', file);
   }
 
   clearScreenshot(asset: Asset, idx: number): void {
@@ -565,6 +565,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     // Delete from DB + S3 via API
     if (docId) {
       this.svc.deleteDocument(docId).subscribe({
+        next: () => this.svc.populateFromDb(),
         error: (err) => console.error('Failed to delete document:', err),
       });
     }
@@ -574,7 +575,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     try {
       const withoutQuery = url.split('?')[0];
       let name = withoutQuery.split('/').pop() ?? withoutQuery;
-      // Decode repeatedly to handle double-encoded S3 keys (e.g. %2520 → %20 → space)
+      // Decode + as space, then repeatedly decodeURIComponent for double-encoded keys
+      name = name.replace(/\+/g, ' ');
       let prev = '';
       while (name !== prev) {
         prev = name;
@@ -584,10 +586,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           break;
         }
       }
-      return name.replace(
+      // Strip embedded UUIDs
+      name = name.replace(
         /-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi,
         '',
       );
+      // Strip upload timestamp+index suffix (e.g. _1752226304295_1.pdf → .pdf)
+      name = name.replace(/_\d{10,}_\d+\./, '.');
+      return name;
     } catch {
       return url;
     }
@@ -790,7 +796,38 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   requestApprove(): void {
-    this.showApproveModal = true;
+    // Check if all documents for this device have been reviewed
+    if (this.editingId && !this.allDocsReviewed()) {
+      this.showUnreviewedWarning = true;
+      return;
+    }
+    this.doApprove();
+  }
+
+  confirmUnreviewedApprove(): void {
+    this.showUnreviewedWarning = false;
+    this.doApprove();
+  }
+
+  cancelUnreviewedApprove(): void {
+    this.showUnreviewedWarning = false;
+  }
+
+  private doApprove(): void {
+    this.setStatus('approved');
+    this.showApprovedInfoModal = true;
+  }
+
+  dismissApprovedInfo(): void {
+    this.showApprovedInfoModal = false;
+  }
+
+  private allDocsReviewed(): boolean {
+    if (!this.editingId) return true;
+    const prefix = this.editingId + ':';
+    const keys = Object.keys(this.reviewed).filter((k) => k.startsWith(prefix));
+    if (keys.length === 0) return true;
+    return keys.every((k) => this.reviewed[k]);
   }
 
   confirmApprove(): void {
@@ -927,6 +964,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     if (!asset) return;
     const submitterEmail = asset.submitterEmail || '';
     const siteName = asset.projectName || '';
+    this.chatService.readOnly$.next(asset.status === 'approved' || asset.status === 'rejected');
     this.chatService.openForDevice$.next({ submitterEmail, siteName });
     if (!this.chatService.isChatOpen$.value) {
       this.chatService.isChatOpen$.next(true);

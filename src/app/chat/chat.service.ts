@@ -41,6 +41,7 @@ export class ChatService implements OnDestroy {
   }>(1);
   currentHeadUuid: string | null = null;
   currentConversationId: number | null = null;
+  readOnly$ = new BehaviorSubject<boolean>(false);
 
   constructor(private http: HttpClient) {}
 

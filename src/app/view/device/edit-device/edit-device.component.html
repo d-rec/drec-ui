@@ -39,24 +39,8 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Current Serial Number(s)</mat-label>
-                  <input matInput [value]="serialNumber" readonly />
-
-                  <mat-icon class="edit-icon" matSuffix (click)="editExternalid()" (keydown.enter)="editExternalid()" tabindex="0" role="button" *ngIf="!showcancelicon"
-                    style="cursor: pointer" matTooltip="Yes" matTooltipPosition="above">edit</mat-icon>
-                  <mat-icon matSuffix (click)="hideeditExternalid()" (keydown.enter)="hideeditExternalid()" tabindex="0" role="button" *ngIf="showcancelicon" style="cursor: pointer"
-                    matTooltip="No" matTooltipPosition="above">cancel</mat-icon>
-
-                  <!-- <mat-hint>Hint</mat-hint> -->
-                </mat-form-field>
-              </div>
-              <div class="col-md-3" *ngIf="shownewExternalidInput">
-                <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">
-                    New Serial Number(s)</mat-label>
-                  <input matInput placeholder="name" formControlName="serialNumber" />
-                  <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                  <!-- <mat-hint>Hint</mat-hint> -->
+                  <mat-label class="text-capitalize">Serial Number(s)</mat-label>
+                  <input matInput formControlName="serialNumber" />
                   <mat-error class="pb-3" *ngIf="checkValidation('serialNumber')">
                     {{ serialNumberErrors() }}
                   </mat-error>
@@ -170,8 +154,11 @@
                   <mat-error>please enter the valid value</mat-error>
                 </mat-form-field>
               </div>
-              <div class="row pb-4">
-                <app-map [zoom]="6"></app-map>
+              <div class="col-md-6 pb-4">
+                <app-map [zoom]="6" #streetMap></app-map>
+              </div>
+              <div class="col-md-6 pb-4">
+                <app-map [zoom]="19" [satellite]="true" #satelliteMap></app-map>
               </div>
             </div>
             <div class="row">
@@ -283,8 +270,12 @@
                   <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
                     <mat-icon>attach_file</mat-icon>
                   </button>
-                  <span class="file-name">
+                  <span class="file-name" [class.file-name--missing]="!files['FORM_SF_02']?.length && brokenDocs['FORM_SF_02']">
                     {{ files['FORM_SF_02']?.[0]?.name || existingDocLabel('FORM_SF_02') }}
+                  </span>
+                  <span *ngIf="!files['FORM_SF_02']?.length && brokenDocs['FORM_SF_02']"
+                    class="badge bg-danger text-white px-2 py-1" title="Missing">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
                   <button *ngIf="filePreviews['FORM_SF_02']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -302,8 +293,12 @@
                   <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary">
                     <mat-icon>attach_file</mat-icon>
                   </button>
-                  <span class="file-name">
+                  <span class="file-name" [class.file-name--missing]="!files['SF_02C']?.length && brokenDocs['SF_02C']">
                     {{ files['SF_02C']?.[0]?.name || existingDocLabel('SF_02C') }}
+                  </span>
+                  <span *ngIf="!files['SF_02C']?.length && brokenDocs['SF_02C']"
+                    class="badge bg-danger text-white px-2 py-1" title="Missing">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
                   <button *ngIf="filePreviews['SF_02C']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -321,8 +316,12 @@
                   <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary">
                     <mat-icon>attach_file</mat-icon>
                   </button>
-                  <span class="file-name">
+                  <span class="file-name" [class.file-name--missing]="!files['METERING_EVIDENCE']?.length && brokenDocs['METERING_EVIDENCE']">
                     {{ files['METERING_EVIDENCE']?.[0]?.name || existingDocLabel('METERING_EVIDENCE') }}
+                  </span>
+                  <span *ngIf="!files['METERING_EVIDENCE']?.length && brokenDocs['METERING_EVIDENCE']"
+                    class="badge bg-danger text-white px-2 py-1" title="Missing">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
                   <button *ngIf="filePreviews['METERING_EVIDENCE']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -340,8 +339,12 @@
                   <button type="button" (click)="diagramFileInput.click()" class="btn btn-primary">
                     <mat-icon>attach_file</mat-icon>
                   </button>
-                  <span class="file-name">
+                  <span class="file-name" [class.file-name--missing]="!files['SINGLE_LINE_DIAGRAM']?.length && brokenDocs['SINGLE_LINE_DIAGRAM']">
                     {{ files['SINGLE_LINE_DIAGRAM']?.[0]?.name || existingDocLabel('SINGLE_LINE_DIAGRAM') }}
+                  </span>
+                  <span *ngIf="!files['SINGLE_LINE_DIAGRAM']?.length && brokenDocs['SINGLE_LINE_DIAGRAM']"
+                    class="badge bg-danger text-white px-2 py-1" title="Missing">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
                   <button *ngIf="filePreviews['SINGLE_LINE_DIAGRAM']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -359,10 +362,14 @@
                   <button type="button" (click)="photosFileInput.click()" class="btn btn-primary">
                     <mat-icon>attach_file</mat-icon>
                   </button>
-                  <span class="file-name">
+                  <span class="file-name" [class.file-name--missing]="!files['PROJECT_PHOTOS']?.length && brokenDocs['PROJECT_PHOTOS']">
                     {{ (files['PROJECT_PHOTOS']?.length || 0) > 1
                       ? files['PROJECT_PHOTOS']!.length + ' files selected'
                       : files['PROJECT_PHOTOS']?.[0]?.name || existingDocLabel('PROJECT_PHOTOS') }}
+                  </span>
+                  <span *ngIf="!files['PROJECT_PHOTOS']?.length && brokenDocs['PROJECT_PHOTOS']"
+                    class="badge bg-danger text-white px-2 py-1" title="Missing">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
                   <button *ngIf="filePreviews['PROJECT_PHOTOS']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -380,10 +387,14 @@
                   <button type="button" (click)="screenshotsFileInput.click()" class="btn btn-primary">
                     <mat-icon>attach_file</mat-icon>
                   </button>
-                  <span class="file-name">
+                  <span class="file-name" [class.file-name--missing]="!files['SCREENSHOTS']?.length && brokenDocs['SCREENSHOTS']">
                     {{ (files['SCREENSHOTS']?.length || 0) > 1
                       ? files['SCREENSHOTS']!.length + ' files selected'
                       : files['SCREENSHOTS']?.[0]?.name || existingDocLabel('SCREENSHOTS') }}
+                  </span>
+                  <span *ngIf="!files['SCREENSHOTS']?.length && brokenDocs['SCREENSHOTS']"
+                    class="badge bg-danger text-white px-2 py-1" title="Missing">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
                   <button *ngIf="filePreviews['SCREENSHOTS']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -401,8 +412,12 @@
                   <button type="button" (click)="codProofFileInput.click()" class="btn btn-primary">
                     <mat-icon>attach_file</mat-icon>
                   </button>
-                  <span class="file-name">
+                  <span class="file-name" [class.file-name--missing]="!files['COD_PROOF']?.length && brokenDocs['COD_PROOF']">
                     {{ files['COD_PROOF']?.[0]?.name || existingDocLabel('COD_PROOF') }}
+                  </span>
+                  <span *ngIf="!files['COD_PROOF']?.length && brokenDocs['COD_PROOF']"
+                    class="badge bg-danger text-white px-2 py-1" title="Missing">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
                   <button *ngIf="filePreviews['COD_PROOF']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -420,9 +435,9 @@
         <mat-card-footer>
           <div class="example-container mt-3 row">
             <div class="col-12 d-flex justify-content-end">
+              <button class="btn btn-dark" (click)="reset()">Cancel</button>&nbsp;&nbsp;
               <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="updateDeviceForm.invalid">
-                Update</button>&nbsp;&nbsp;
-              <button class="btn btn-dark" (click)="reset()">Cancel</button>
+                Update</button>
             </div>
           </div>
         </mat-card-footer>

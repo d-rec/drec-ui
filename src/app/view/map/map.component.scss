@@ -1,12 +1,144 @@
 .map-container {
+  position: relative;
   height: 400px;
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .map {
   height: 100%;
   width: 100%;
+}
+
+.detect-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 500;
+
+  &.visible {
+    opacity: 0.75;
+  }
+}
+
+.detect-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  z-index: 600;
+}
+
+.detect-btn {
+  padding: 5px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #0f766e;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+
+  &:hover:not(:disabled) {
+    background: #115e59;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
+  &--clear {
+    background: #64748b;
+
+    &:hover {
+      background: #475569;
+    }
+  }
+}
+
+.detect-count {
+  font-size: 11px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.detect-error {
+  font-size: 11px;
+  color: #fca5a5;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.detect-confirm-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detect-confirm {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 24px;
+  max-width: 320px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  text-align: center;
+
+  &__msg {
+    margin: 0 0 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #334155;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  &__btn {
+    padding: 6px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &--cancel {
+      background: #e2e8f0;
+      color: #475569;
+
+      &:hover {
+        background: #cbd5e1;
+      }
+    }
+
+    &--ok {
+      background: #0f766e;
+      color: #fff;
+
+      &:hover {
+        background: #115e59;
+      }
+    }
+  }
 }

@@ -50,7 +50,7 @@
       <button class="scroll-arrow scroll-arrow--bottom" (click)="scrollToBottom()" title="Jump to bottom">&#9660;</button>
     </div>
 
-    <div class="input-bar">
+    <div class="input-bar" *ngIf="!(chatService.readOnly$ | async)">
       <input
         [(ngModel)]="draft"
         (keydown.enter)="send()"

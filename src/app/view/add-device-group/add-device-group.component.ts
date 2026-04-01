@@ -174,14 +174,9 @@ export class AddDeviceGroupComponent {
     this.authService.GetMethod('countrycode/list').subscribe((data3: any) => {
       this.countrylist = data3;
       this.countrycodeLoded = true;
-    });
-
-    setTimeout(() => {
-      if (this.countrycodeLoded) {
-        this.applycountryFilter();
-      }
+      this.applycountryFilter();
       this.displayList(this.p);
-    }, 2000);
+    });
   }
   ngOnDestroy() {
     if (this.subscription) {

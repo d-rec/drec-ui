@@ -123,6 +123,16 @@ export class AssetService {
     );
   }
 
+  uploadDocument(deviceId: number, type: string, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', type);
+    return this.http.post<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/documents`,
+      formData,
+    );
+  }
+
   detectPanels(imageBase64: string): Observable<any> {
     return this.http.post<any>(
       `${environment.API_URL}device-reviews/detect-panels`,

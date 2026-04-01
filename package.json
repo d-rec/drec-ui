@@ -3,7 +3,7 @@
   "version": "0.3.1",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "NODE_OPTIONS=--no-deprecation ng serve",
     "build": "ng build --configuration",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

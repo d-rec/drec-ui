@@ -141,6 +141,9 @@
               <b> Device Description</b>: {{ device_details.deviceDescription }}
             </p>
           </div>
+          <div class="row" *ngIf="device_details.reviewStatus">
+            <p><b>Review Status</b>: {{ device_details.reviewStatus }}</p>
+          </div>
           <div class="row">
             <p>
               <b> Evident Device ID</b>: {{ device_details.evidentDeviceId }}

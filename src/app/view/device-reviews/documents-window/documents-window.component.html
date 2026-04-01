@@ -274,28 +274,20 @@
                   <option value="legacy">Legacy</option>
                 </select>
               </div>
-              <div class="field field--auto">
-                <label class="field__label">Evident Id</label>
-                <span class="field__input field__input--text">{{ detailForm.get('evidentDeviceId')?.value || '—' }}</span>
-              </div>
-              <div class="field field--narrow">
-                <label class="field__label">Evident Status</label>
-                <span class="field__input field__input--text">{{ detailForm.get('evidentStatus')?.value || '—' }}</span>
-              </div>
             </div>
             <div class="field field--full">
               <label class="field__label">Notes</label>
               <div class="notes-row">
                 <textarea class="field__input field__textarea" formControlName="notes" rows="2"></textarea>
                 <div class="notes-row__actions">
-                  <button type="submit" class="btn btn--save" [disabled]="detailForm.invalid">Save</button>
-                  <button type="button" class="btn btn--cancel" (click)="cancelDetail()">Cancel</button>
+                  <button type="submit" class="btn btn--save" [disabled]="detailForm.invalid || detailForm.get('status')?.value === 'approved'">Save</button>
+                  <button type="button" class="btn btn--cancel" (click)="cancelDetail()" [disabled]="detailForm.get('status')?.value === 'approved'">Cancel</button>
                 </div>
               </div>
             </div>
           <div class="detail-actions">
             <span class="detail-actions__sep"></span>
-            <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
+            <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
             </button>
             <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
@@ -306,13 +298,23 @@
       </div>
     </ng-container>
 
-  <!-- ── Approve confirmation modal ─────────────────────────────────────── -->
-  <div class="modal-backdrop" *ngIf="showApproveModal" role="dialog" aria-modal="true" (click)="cancelApprove()" (keydown.escape)="cancelApprove()">
+  <!-- ── Unreviewed documents warning modal ────────────────────────────── -->
+  <div class="modal-backdrop" *ngIf="showUnreviewedWarning" role="dialog" aria-modal="true" (click)="cancelUnreviewedApprove()" (keydown.escape)="cancelUnreviewedApprove()">
     <div class="modal-box" role="document" (click)="$event.stopPropagation()">
-      <p class="modal-msg">Approve this device and submit to Evident?</p>
+      <p class="modal-msg">Not all documents have been reviewed &mdash; approve anyway?</p>
       <div class="modal-actions">
-        <button class="btn btn--cancel" (click)="cancelApprove()">Cancel</button>
-        <button class="btn btn--approve" (click)="confirmApprove()">Approve</button>
+        <button class="btn btn--cancel" (click)="cancelUnreviewedApprove()">Cancel</button>
+        <button class="btn btn--approve" (click)="confirmUnreviewedApprove()">Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Post-approval info modal ────────────────────────────────────── -->
+  <div class="modal-backdrop" *ngIf="showApprovedInfoModal" role="dialog" aria-modal="true" (click)="dismissApprovedInfo()" (keydown.escape)="dismissApprovedInfo()">
+    <div class="modal-box" role="document" (click)="$event.stopPropagation()">
+      <p class="modal-msg">The device can now be grouped for submission to Evident.</p>
+      <div class="modal-actions">
+        <button class="btn btn--approve" (click)="dismissApprovedInfo()">OK</button>
       </div>
     </div>
   </div>
