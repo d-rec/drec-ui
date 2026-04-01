@@ -129,4 +129,11 @@ export class DeviceGroupService {
 
     return this.httpClient.get(searchUrl);
   }
+
+  updateGroupReviewStatus(groupId: number, status: string): Observable<any> {
+    return this.httpClient.patch(
+      `${this.url}buyer-reservation/${groupId}/review-status`,
+      { status },
+    );
+  }
 }

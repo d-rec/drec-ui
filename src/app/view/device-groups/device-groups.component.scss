@@ -122,3 +122,40 @@ mat-progress-spinner {
 //   }
 
 // }
+
+.review-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: capitalize;
+
+  &.review-pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  &.review-approved {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  &.review-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+}
+
+.review-actions {
+  white-space: nowrap;
+
+  .btn-sm {
+    padding: 0 4px;
+    line-height: 1;
+  }
+}
+
+.small-icon {
+  font-size: 16px !important;
+  height: 16px !important;
+  width: 16px !important;
+}

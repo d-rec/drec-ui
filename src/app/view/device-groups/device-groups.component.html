@@ -338,6 +338,23 @@
             </td>
           </ng-container>
 
+          <ng-container matColumnDef="groupReviewStatus">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Review</th>
+            <td mat-cell *matCellDef="let row">
+              <span class="review-badge review-{{ row.groupReviewStatus || 'pending' }}">
+                {{ row.groupReviewStatus || 'pending' }}
+              </span>
+              <span *ngIf="isAdmin() && row.groupReviewStatus === 'pending'" class="review-actions">
+                <button class="btn btn-sm btn-outline-success ms-1" (click)="updateReviewStatus(row.id, 'approved'); $event.stopPropagation()">
+                  <mat-icon class="small-icon">check</mat-icon>
+                </button>
+                <button class="btn btn-sm btn-outline-danger ms-1" (click)="updateReviewStatus(row.id, 'rejected'); $event.stopPropagation()">
+                  <mat-icon class="small-icon">close</mat-icon>
+                </button>
+              </span>
+            </td>
+          </ng-container>
+
           <ng-container matColumnDef="reservationActive">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
             <td mat-cell *matCellDef="let row">

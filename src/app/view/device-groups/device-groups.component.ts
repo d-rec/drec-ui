@@ -32,6 +32,7 @@ export class DeviceGroups implements OnInit {
     'createAt',
     'name',
     'aggregatedCapacity',
+    'groupReviewStatus',
     'reservationActive',
     'frequency',
     'reservationStartDate',
@@ -488,6 +489,25 @@ export class DeviceGroups implements OnInit {
           }
         },
       });
+  }
+
+  isAdmin(): boolean {
+    return this.loginuser?.role === 'Admin';
+  }
+
+  updateReviewStatus(groupId: number, status: string): void {
+    this.deviceGroupService.updateGroupReviewStatus(groupId, status).subscribe({
+      next: () => {
+        this.toastrService.success(
+          `Group review ${status}`,
+          'Status Updated',
+        );
+        this.DisplayList(this.p);
+      },
+      error: (err: any) => {
+        this.toastrService.error('Update failed', err.error?.message || 'Error');
+      },
+    });
   }
 
   ngOnDestroy() {

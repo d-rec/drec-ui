@@ -56,6 +56,12 @@ export enum SourceAccessMode {
   Mode4_CompensatingControls = 'Mode 4 — Submitted data with compensating controls',
 }
 
+export enum GroupReviewStatus {
+  Pending = 'pending',
+  Approved = 'approved',
+  Rejected = 'rejected',
+}
+
 export enum ReadType {
   History = 'History',
   Delta = 'Delta',
