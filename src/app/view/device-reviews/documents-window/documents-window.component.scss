@@ -747,6 +747,72 @@ $legacy:   #a0845c;
   }
 }
 
+// ── Cross-source verification button & modal (§3.10) ─────────────────────────
+.btn--crosssrc {
+  background: #0d9488;
+  color: #fff;
+  border: 1px solid #0f766e;
+  &:hover { background: #0f766e; }
+}
+
+.xsrc-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.xsrc-stat {
+  text-align: center;
+  padding: 8px 4px;
+  background: $bg-mid;
+  border-radius: 4px;
+  &__label { display: block; font-size: 10px; color: $muted; text-transform: uppercase; letter-spacing: 0.04em; }
+  &__value { display: block; font-size: 18px; font-weight: 700; color: $text; margin-top: 2px; }
+  &__value--warn { color: #dc2626; }
+}
+
+.xsrc-flags {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.xsrc-flag {
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  &--warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  &--critical { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+}
+
+.xsrc-ok {
+  font-size: 12px;
+  padding: 8px;
+  background: #f0fdf4;
+  color: #166534;
+  border-radius: 4px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.xsrc-table-wrap {
+  max-height: 220px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.xsrc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  th { text-align: left; font-weight: 600; color: $muted; padding: 4px 6px; border-bottom: 1px solid $border; }
+  td { padding: 3px 6px; border-bottom: 1px solid $border; color: $text; }
+}
+
+.xsrc-row--warn td { background: #fef3c7; }
+
 // ── Compensating controls button & modal (§3.9) ──────────────────────────────
 .btn--controls {
   background: #7c3aed;

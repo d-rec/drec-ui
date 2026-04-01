@@ -198,6 +198,24 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       exceedsCeiling: boolean;
     }>;
   } | null = null;
+  showCrossSourceModal = false;
+  crossSourceResult: {
+    performanceFactor: number;
+    simpleRatio: number;
+    monthsCompared: number;
+    rSquared: number;
+    months: Array<{
+      month: string;
+      actualKwh: number;
+      modelKwh: number;
+      ratio: number;
+    }>;
+    flags: Array<{
+      type: string;
+      severity: 'warning' | 'critical';
+      description: string;
+    }>;
+  } | null = null;
   showControlsModal = false;
   controlsResult: {
     isMode4: boolean;
@@ -1019,6 +1037,23 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         console.error('Source-access verification failed:', err);
         this.sourceVerifyResult = null;
         this.showSourceVerifyModal = true;
+      },
+    });
+  }
+
+  checkCrossSource(): void {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.crossSourceVerification(deviceId).subscribe({
+      next: (res: any) => {
+        this.crossSourceResult = res;
+        this.showCrossSourceModal = true;
+      },
+      error: (err: any) => {
+        console.error('Cross-source verification failed:', err);
+        this.crossSourceResult = null;
+        this.showCrossSourceModal = true;
       },
     });
   }

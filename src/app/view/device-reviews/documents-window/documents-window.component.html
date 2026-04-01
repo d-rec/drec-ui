@@ -326,6 +326,7 @@
             <button type="button" class="btn btn--consistency" (click)="checkConsistency()" title="Historical consistency review (§3.7)">History</button>
             <button type="button" class="btn btn--audit" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit</button>
             <button type="button" class="btn btn--controls" (click)="evaluateControls()" title="Compensating controls for Mode 4 (§3.9)">Controls</button>
+            <button type="button" class="btn btn--crosssrc" (click)="checkCrossSource()" title="Cross-source verification with Performance Factor (§3.10)">X-Source</button>
             <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
             <button type="button" class="btn btn--reject"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Reject</button>
             <button type="button" class="btn btn--archive" (click)="archiveDevice()" [disabled]="detailForm.get('status')?.value === 'pending' || detailForm.get('status')?.value === 'draft'">Archive</button>
@@ -561,6 +562,65 @@
       <p class="modal-msg" *ngIf="!consistencyResult" style="color: #dc2626;">Consistency review failed.</p>
       <div class="modal-actions">
         <button class="btn btn--approve" (click)="showConsistencyModal = false">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Cross-source verification modal (§3.10) ──────────────────── -->
+  <div class="modal-backdrop" *ngIf="showCrossSourceModal" role="dialog" aria-modal="true" (click)="showCrossSourceModal = false" (keydown.escape)="showCrossSourceModal = false">
+    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+      <p class="modal-msg" style="font-weight: 600;">Cross-Source Verification (§3.10)</p>
+      <ng-container *ngIf="crossSourceResult">
+        <div *ngIf="crossSourceResult.monthsCompared === 0" class="verify-section">
+          <p class="verify-heading" style="color:#64748b;">No data available for cross-source comparison (no meter readings or missing location/capacity).</p>
+        </div>
+        <ng-container *ngIf="crossSourceResult.monthsCompared > 0">
+          <div class="xsrc-stats">
+            <div class="xsrc-stat">
+              <span class="xsrc-stat__label">Performance Factor</span>
+              <span class="xsrc-stat__value" [class.xsrc-stat__value--warn]="crossSourceResult.performanceFactor > 1.2 || crossSourceResult.performanceFactor < 0.3">{{ crossSourceResult.performanceFactor | number:'1.3-3' }}</span>
+            </div>
+            <div class="xsrc-stat">
+              <span class="xsrc-stat__label">Simple Ratio</span>
+              <span class="xsrc-stat__value">{{ crossSourceResult.simpleRatio | number:'1.3-3' }}</span>
+            </div>
+            <div class="xsrc-stat">
+              <span class="xsrc-stat__label">R²</span>
+              <span class="xsrc-stat__value" [class.xsrc-stat__value--warn]="crossSourceResult.rSquared < 0.5">{{ crossSourceResult.rSquared | number:'1.3-3' }}</span>
+            </div>
+            <div class="xsrc-stat">
+              <span class="xsrc-stat__label">Months</span>
+              <span class="xsrc-stat__value">{{ crossSourceResult.monthsCompared }}</span>
+            </div>
+          </div>
+          <div *ngIf="crossSourceResult.flags.length > 0" class="xsrc-flags">
+            <div *ngFor="let flag of crossSourceResult.flags" class="xsrc-flag" [class.xsrc-flag--critical]="flag.severity === 'critical'" [class.xsrc-flag--warning]="flag.severity === 'warning'">
+              {{ flag.description }}
+            </div>
+          </div>
+          <div *ngIf="crossSourceResult.flags.length === 0" class="xsrc-ok">No flags — actual production aligns well with modeled estimates.</div>
+          <div class="xsrc-table-wrap">
+            <table class="xsrc-table">
+              <thead>
+                <tr><th>Month</th><th>Actual (kWh)</th><th>Model (kWh)</th><th>Ratio</th></tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let m of crossSourceResult.months" [class.xsrc-row--warn]="m.ratio > 1.5 || m.ratio < 0.3">
+                  <td>{{ m.month }}</td>
+                  <td>{{ m.actualKwh | number:'1.0-0' }}</td>
+                  <td>{{ m.modelKwh | number:'1.0-0' }}</td>
+                  <td>{{ m.ratio | number:'1.2-2' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
+      </ng-container>
+      <div *ngIf="!crossSourceResult" class="verify-section">
+        <p class="verify-heading" style="color:#dc2626;">Failed to run cross-source verification.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--approve" (click)="showCrossSourceModal = false">OK</button>
       </div>
     </div>
   </div>
