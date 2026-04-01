@@ -236,6 +236,18 @@
                 </mat-radio-group>
               </div>
 
+              <div class="col-md-6">
+                <mat-form-field appearance="outline">
+                  <mat-label>Operating Configuration</mat-label>
+                  <mat-select formControlName="operatingConfiguration" [(ngModel)]="operatingConfiguration">
+                    <mat-option [value]="null">-- Not specified --</mat-option>
+                    <mat-option *ngFor="let oc of operatingConfigurations" [value]="oc">
+                      {{ oc }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
               <div class="col-md-3 d-flex flex-column">
                 <!--  <mat-form-field appearance="outline">
                                             <mat-label class="text-capitalize">Energy Storage</mat-label>

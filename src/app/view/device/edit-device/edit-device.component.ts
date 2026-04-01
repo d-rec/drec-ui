@@ -16,7 +16,7 @@ import { map, startWith } from 'rxjs/operators';
 import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MapComponent } from '../../map/map.component';
-import { DocumentType } from '../../../utils/drec.enum';
+import { DocumentType, OperatingConfiguration } from '../../../utils/drec.enum';
 import {
   validateAndAppendFiles,
   shortenFileName,
@@ -74,6 +74,8 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   qualityLabels: any;
   offTaker: any;
   gridInterconnection: any;
+  operatingConfiguration: any;
+  operatingConfigurations = Object.values(OperatingConfiguration);
   impactStory: any;
   showerror: boolean = false;
   deviceDescription: any;
@@ -178,6 +180,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       capacity: [null, Validators.required],
       commissioningDate: [new Date(), Validators.required],
       gridInterconnection: [true],
+      operatingConfiguration: [null],
       offTaker: [null],
       impactStory: [null],
       images: [null],
@@ -326,6 +329,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.qualityLabels = data.qualityLabels;
         this.impactStory = data.impactStory;
         this.gridInterconnection = data.gridInterconnection;
+        this.operatingConfiguration = data.operatingConfiguration || null;
         this.deviceDescription = data.deviceDescription;
         if (data.energyStorage != null) {
           this.energyStorage = data.energyStorage;

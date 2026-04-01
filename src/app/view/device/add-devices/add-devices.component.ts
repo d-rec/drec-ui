@@ -36,6 +36,7 @@ import {
   DocumentType,
   DataSourceTypes,
   OrganizationType,
+  OperatingConfiguration,
 } from '../../../utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
 import {
@@ -70,6 +71,7 @@ export class AddDevicesComponent implements OnDestroy {
   currentPreviewFile: File | null = null;
   DataSourceTypes = DataSourceTypes;
   DocumentType = DocumentType;
+  operatingConfigurations = Object.values(OperatingConfiguration);
   dialogRef: any;
   user: any;
   myform: FormGroup;
@@ -284,6 +286,7 @@ export class AddDevicesComponent implements OnDestroy {
       acCapacity: [null, Validators.required],
       commissioningDate: [new Date(), Validators.required],
       gridInterconnection: [true],
+      operatingConfiguration: [null],
       offTaker: [null],
       impactStory: [null],
       data: [null],
@@ -390,6 +393,7 @@ export class AddDevicesComponent implements OnDestroy {
       acCapacity: [null, Validators.required],
       commissioningDate: [new Date(), Validators.required],
       gridInterconnection: true,
+      operatingConfiguration: [null],
       offTaker: [null],
       impactStory: [null],
       images: [null],

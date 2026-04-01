@@ -213,6 +213,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       notes: [''],
       submitterEmail: ['', Validators.email],
       submitterName: [''],
+      operatingConfiguration: [''],
       evidentDeviceId: [''],
       evidentStatus: [''],
     });
@@ -1016,6 +1017,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       notes: a.notes,
       submitterEmail: a.submitterEmail,
       submitterName: a.submitterName,
+      operatingConfiguration: a.operatingConfiguration ?? '',
       evidentDeviceId: a.evidentDeviceId ?? '',
       evidentStatus: a.evidentStatus ?? '',
     });

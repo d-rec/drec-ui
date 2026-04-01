@@ -256,6 +256,10 @@
                 <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('serial')?.value ?? '', searchTerm)"></span>
               </div>
               <div class="field field--auto">
+                <label class="field__label">Operating Config</label>
+                <span class="field__input field__input--text">{{ detailForm.get('operatingConfiguration')?.value || '—' }}</span>
+              </div>
+              <div class="field field--auto">
                 <label class="field__label">Registrant</label>
                 <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('submitterName')?.value || detailForm.get('submitterEmail')?.value || '—', searchTerm)"></span>
               </div>

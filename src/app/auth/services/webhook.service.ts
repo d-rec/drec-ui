@@ -13,6 +13,8 @@ export interface Webhook {
   active: boolean;
   createdAt: string;
   updatedAt: string;
+  userName: string | null;
+  userEmail: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

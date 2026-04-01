@@ -21,6 +21,7 @@ export interface Device {
   capacity: number;
   commissioningDate: string;
   gridInterconnection: boolean;
+  operatingConfiguration?: string;
   offTaker: string;
   yieldValue: number;
   impactStory?: string;

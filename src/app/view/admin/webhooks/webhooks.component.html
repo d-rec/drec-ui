@@ -54,6 +54,14 @@
 
   <!-- Webhooks table -->
   <table mat-table [dataSource]="webhooks" class="webhooks-table" *ngIf="!loading && webhooks.length > 0">
+    <ng-container matColumnDef="user">
+      <th mat-header-cell *matHeaderCellDef>User</th>
+      <td mat-cell *matCellDef="let wh" class="user-cell">
+        <span *ngIf="wh.userName">{{ wh.userName }}</span>
+        <span class="user-email">{{ wh.userEmail }}</span>
+      </td>
+    </ng-container>
+
     <ng-container matColumnDef="url">
       <th mat-header-cell *matHeaderCellDef>URL</th>
       <td mat-cell *matCellDef="let wh" class="url-cell">{{ wh.url }}</td>
@@ -98,8 +106,8 @@
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="['url', 'events', 'secret', 'active', 'created', 'actions']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['url', 'events', 'secret', 'active', 'created', 'actions']"></tr>
+    <tr mat-header-row *matHeaderRowDef="['user', 'url', 'events', 'secret', 'active', 'created', 'actions']"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['user', 'url', 'events', 'secret', 'active', 'created', 'actions']"></tr>
   </table>
 
   <div *ngIf="!loading && webhooks.length === 0 && !showForm" class="no-webhooks">
