@@ -416,6 +416,35 @@ export class AddDeviceGroupComponent {
   }
   onSubmit(): void {
     if (this.selection.selected.length > 0) {
+      // D-REC Methodology §3: aggregate capacity must not exceed 250 kW
+      const totalCapacity = this.selection.selected.reduce(
+        (sum: number, d: any) => sum + (d.capacity || 0),
+        0,
+      );
+      if (totalCapacity > 250) {
+        this.toastrService.error(
+          `Aggregate capacity of ${Math.floor(totalCapacity)} kW exceeds the D-REC methodology limit of 250 kW`,
+          'Validation Error!',
+        );
+        return;
+      }
+
+      // All devices in a group must share the same Source Access Mode
+      const sourceAccessModes = [
+        ...new Set(
+          this.selection.selected
+            .map((d: any) => d.sourceAccessMode)
+            .filter((m: any) => m != null),
+        ),
+      ];
+      if (sourceAccessModes.length > 1) {
+        this.toastrService.error(
+          'All devices in a group must share the same Source Access Mode',
+          'Validation Error!',
+        );
+        return;
+      }
+
       const deviceId: any = [];
       this.selection.selected.forEach((ele) => {
         deviceId.push(ele.id);
@@ -498,6 +527,15 @@ export class AddDeviceGroupComponent {
       this.reservationForm.value,
       isApiUser,
       this.orgId,
+    );
+  }
+
+  getSelectedCapacity(): number {
+    return Math.floor(
+      this.selection.selected.reduce(
+        (sum: number, d: any) => sum + (d.capacity || 0),
+        0,
+      ),
     );
   }
 

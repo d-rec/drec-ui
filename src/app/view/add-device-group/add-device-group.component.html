@@ -578,7 +578,12 @@
     <br />
     <mat-card-footer>
       <div class="example-container mb-3 me-2 row">
-        <div class="col-12 d-flex justify-content-end">
+        <div class="col-12 d-flex justify-content-end align-items-center gap-3">
+          <span *ngIf="selection.selected.length > 0" class="capacity-indicator"
+            [class.over-cap]="getSelectedCapacity() > 250">
+            Selected: {{ selection.selected.length }} device(s),
+            {{ getSelectedCapacity() }} / 250 kW
+          </span>
           <button
             type="submit"
             [disabled]="reservationForm.invalid"

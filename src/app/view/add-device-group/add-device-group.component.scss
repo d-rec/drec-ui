@@ -72,3 +72,13 @@ mat-progress-spinner {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
   border: none !important;
 }
+
+.capacity-indicator {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+
+  &.over-cap {
+    color: #dc2626;
+  }
+}
