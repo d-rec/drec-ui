@@ -690,6 +690,63 @@ $legacy:   #a0845c;
 .pathway-file-based { color: #d97706; }
 .pathway-compensating { color: #dc2626; }
 
+// ── Audit button & trail ──────────────────────────────────────────────────────
+.btn--audit {
+  background: #475569;
+  color: #fff;
+  border: 1px solid #334155;
+  &:hover { background: #334155; }
+}
+
+.audit-list {
+  max-height: 320px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.audit-entry {
+  padding: 6px 0;
+  border-bottom: 1px solid $border;
+  &:last-child { border-bottom: none; }
+
+  &__header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  &__action {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: $text;
+    background: $bg-mid;
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  &__by {
+    font-size: 11px;
+    color: $muted;
+  }
+  &__time {
+    font-size: 11px;
+    color: $muted;
+    margin-left: auto;
+  }
+  &__ip {
+    font-size: 10px;
+    color: $muted;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  &__detail {
+    font-size: 12px;
+    color: $text;
+    margin-top: 2px;
+    padding-left: 2px;
+  }
+}
+
 // ── History / consistency button ───────────────────────────────────────────────
 .btn--consistency {
   background: #0369a1;

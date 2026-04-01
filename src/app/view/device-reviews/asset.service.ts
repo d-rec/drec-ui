@@ -148,6 +148,12 @@ export class AssetService {
     );
   }
 
+  getAuditTrail(deviceId: number): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${environment.API_URL}device-reviews/${deviceId}/audit-trail`,
+    );
+  }
+
   reviewHistoricalConsistency(deviceId: number): Observable<any> {
     return this.http.get<any>(
       `${environment.API_URL}device-reviews/${deviceId}/historical-consistency`,

@@ -150,6 +150,15 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     organizationId: number;
     matchType: string;
   }> = [];
+  showAuditModal = false;
+  auditTrail: Array<{
+    id: number;
+    actionType: string;
+    detail: string | null;
+    performedBy: string;
+    metadata: Record<string, any> | null;
+    createdAt: string;
+  }> = [];
   showConsistencyModal = false;
   consistencyResult: {
     totalReadings: number;
@@ -927,6 +936,23 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         console.error('Duplicate screening failed:', err);
         this.duplicateResults = [];
         this.showDuplicatesModal = true;
+      },
+    });
+  }
+
+  viewAuditTrail(): void {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.getAuditTrail(deviceId).subscribe({
+      next: (res: any[]) => {
+        this.auditTrail = res;
+        this.showAuditModal = true;
+      },
+      error: (err: any) => {
+        console.error('Audit trail fetch failed:', err);
+        this.auditTrail = [];
+        this.showAuditModal = true;
       },
     });
   }
