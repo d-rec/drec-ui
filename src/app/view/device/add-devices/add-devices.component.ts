@@ -37,8 +37,15 @@ import {
   DataSourceTypes,
   OrganizationType,
   OperatingConfiguration,
+  SourceAccessMode,
 } from '../../../utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
+import {
+  getEvidenceRequirements,
+  getHint,
+  EvidenceRequirements,
+  RequirementLevel,
+} from '../../../utils/evidence-requirements';
 import {
   validateAndAppendFiles,
   shortenFileName,
@@ -72,6 +79,24 @@ export class AddDevicesComponent implements OnDestroy {
   DataSourceTypes = DataSourceTypes;
   DocumentType = DocumentType;
   operatingConfigurations = Object.values(OperatingConfiguration);
+  sourceAccessModes = Object.values(SourceAccessMode);
+  evidenceReqs: EvidenceRequirements = getEvidenceRequirements(null);
+
+  /** Called when operating configuration changes. Updates evidence requirements. */
+  onOperatingConfigChange(config: string | null, formIndex: number): void {
+    this.evidenceReqs = getEvidenceRequirements(config);
+  }
+
+  getDocRequirement(docType: string): RequirementLevel {
+    return (this.evidenceReqs as any)[docType] ?? 'optional';
+  }
+
+  getDocHint(docType: string): string | null {
+    const devices = this.myform.get('devices') as FormArray;
+    if (!devices || devices.length === 0) return null;
+    const config = devices.at(0)?.get('operatingConfiguration')?.value;
+    return getHint(config, docType);
+  }
   dialogRef: any;
   user: any;
   myform: FormGroup;
@@ -287,6 +312,7 @@ export class AddDevicesComponent implements OnDestroy {
       commissioningDate: [new Date(), Validators.required],
       gridInterconnection: [true],
       operatingConfiguration: [null],
+      sourceAccessMode: [null],
       offTaker: [null],
       impactStory: [null],
       data: [null],
@@ -394,6 +420,7 @@ export class AddDevicesComponent implements OnDestroy {
       commissioningDate: [new Date(), Validators.required],
       gridInterconnection: true,
       operatingConfiguration: [null],
+      sourceAccessMode: [null],
       offTaker: [null],
       impactStory: [null],
       images: [null],

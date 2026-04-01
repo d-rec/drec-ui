@@ -72,3 +72,46 @@
   overflow: hidden !important;
 }
 
+.badge-required {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #fff;
+  margin-left: 6px;
+  vertical-align: middle;
+  text-transform: uppercase;
+}
+.badge-recommended {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #d97706;
+  color: #fff;
+  margin-left: 6px;
+  vertical-align: middle;
+  text-transform: uppercase;
+}
+.badge-optional {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #94a3b8;
+  color: #fff;
+  margin-left: 6px;
+  vertical-align: middle;
+  text-transform: uppercase;
+}
+.doc-hint {
+  display: block;
+  font-size: 11px;
+  color: #d97706;
+  margin-bottom: 4px;
+  font-style: italic;
+}

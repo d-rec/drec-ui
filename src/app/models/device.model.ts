@@ -22,6 +22,7 @@ export interface Device {
   commissioningDate: string;
   gridInterconnection: boolean;
   operatingConfiguration?: string;
+  sourceAccessMode?: string;
   offTaker: string;
   yieldValue: number;
   impactStory?: string;

@@ -239,10 +239,25 @@
               <div class="col-md-6">
                 <mat-form-field appearance="outline">
                   <mat-label>Operating Configuration</mat-label>
-                  <mat-select formControlName="operatingConfiguration" [(ngModel)]="operatingConfiguration">
+                  <mat-select formControlName="operatingConfiguration" [(ngModel)]="operatingConfiguration"
+                    (selectionChange)="onOperatingConfigChange($event.value)">
                     <mat-option [value]="null">-- Not specified --</mat-option>
                     <mat-option *ngFor="let oc of operatingConfigurations" [value]="oc">
                       {{ oc }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="example-container1 row" *ngIf="addmoredetals">
+              <div class="col-md-6">
+                <mat-form-field appearance="outline">
+                  <mat-label>Source Access Mode</mat-label>
+                  <mat-select formControlName="sourceAccessMode" [(ngModel)]="sourceAccessMode">
+                    <mat-option [value]="null">-- Not specified --</mat-option>
+                    <mat-option *ngFor="let sam of sourceAccessModes" [value]="sam">
+                      {{ sam }}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
@@ -275,7 +290,10 @@
               </div>
 
               <div class="col-md-4 mb-3">
-                <label>Form SF-02 - Production Facility Registration</label>
+                <label>Form SF-02 - Production Facility Registration
+                  <span class="badge-{{getDocRequirement('FORM_SF_02')}}">{{getDocRequirement('FORM_SF_02')}}</span>
+                </label>
+                <small class="doc-hint" *ngIf="getDocHint('FORM_SF_02')">{{getDocHint('FORM_SF_02')}}</small>
                 <div class="d-flex justify-content-between align-items-center doc-box">
                   <input type="file" #pfFileInput (change)="onFileChange($event, DocumentType.FORM_SF_02)"
                     style="display: none;" />
@@ -298,7 +316,10 @@
               </div>
 
               <div class="col-md-4 mb-3">
-                <label>SF-02C Owner's Declaration or Proof of Ownership</label>
+                <label>SF-02C Owner's Declaration or Proof of Ownership
+                  <span class="badge-{{getDocRequirement('SF_02C')}}">{{getDocRequirement('SF_02C')}}</span>
+                </label>
+                <small class="doc-hint" *ngIf="getDocHint('SF_02C')">{{getDocHint('SF_02C')}}</small>
                 <div class="d-flex justify-content-between align-items-center doc-box">
                   <input type="file" #ownershipFileInput (change)="onFileChange($event, DocumentType.SF_02C)"
                     style="display: none" />
@@ -321,7 +342,10 @@
               </div>
 
               <div class="col-md-4 mb-3">
-                <label>Metering Evidence</label>
+                <label>Metering Evidence
+                  <span class="badge-{{getDocRequirement('METERING_EVIDENCE')}}">{{getDocRequirement('METERING_EVIDENCE')}}</span>
+                </label>
+                <small class="doc-hint" *ngIf="getDocHint('METERING_EVIDENCE')">{{getDocHint('METERING_EVIDENCE')}}</small>
                 <div class="d-flex justify-content-between align-items-center doc-box">
                   <input type="file" #meteringFileInput
                     (change)="onFileChange($event, DocumentType.METERING_EVIDENCE)" style="display: none" />
@@ -344,7 +368,10 @@
               </div>
 
               <div class="col-md-4 mb-3">
-                <label>Single Line Diagram</label>
+                <label>Single Line Diagram
+                  <span class="badge-{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}">{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}</span>
+                </label>
+                <small class="doc-hint" *ngIf="getDocHint('SINGLE_LINE_DIAGRAM')">{{getDocHint('SINGLE_LINE_DIAGRAM')}}</small>
                 <div class="d-flex justify-content-between align-items-center doc-box">
                   <input type="file" #diagramFileInput
                     (change)="onFileChange($event, DocumentType.SINGLE_LINE_DIAGRAM)" style="display: none" />
@@ -367,7 +394,10 @@
               </div>
 
               <div class="col-md-4 mb-3">
-                <label>Project Photos</label>
+                <label>Project Photos
+                  <span class="badge-{{getDocRequirement('PROJECT_PHOTOS')}}">{{getDocRequirement('PROJECT_PHOTOS')}}</span>
+                </label>
+                <small class="doc-hint" *ngIf="getDocHint('PROJECT_PHOTOS')">{{getDocHint('PROJECT_PHOTOS')}}</small>
                 <div class="d-flex justify-content-between align-items-center doc-box">
                   <input type="file" #photosFileInput multiple
                     (change)="onFileChange($event, DocumentType.PROJECT_PHOTOS)" style="display: none" />
@@ -392,7 +422,10 @@
               </div>
 
               <div class="col-md-4 mb-3">
-                <label>Screenshots</label>
+                <label>Screenshots
+                  <span class="badge-{{getDocRequirement('SCREENSHOTS')}}">{{getDocRequirement('SCREENSHOTS')}}</span>
+                </label>
+                <small class="doc-hint" *ngIf="getDocHint('SCREENSHOTS')">{{getDocHint('SCREENSHOTS')}}</small>
                 <div class="d-flex justify-content-between align-items-center doc-box">
                   <input type="file" #screenshotsFileInput multiple
                     (change)="onFileChange($event, DocumentType.SCREENSHOTS)" style="display: none" />
@@ -417,7 +450,10 @@
               </div>
 
               <div class="col-md-4 mb-3">
-                <label>COD Proof</label>
+                <label>COD Proof
+                  <span class="badge-{{getDocRequirement('COD_PROOF')}}">{{getDocRequirement('COD_PROOF')}}</span>
+                </label>
+                <small class="doc-hint" *ngIf="getDocHint('COD_PROOF')">{{getDocHint('COD_PROOF')}}</small>
                 <div class="d-flex justify-content-between align-items-center doc-box">
                   <input type="file" #codProofFileInput
                     (change)="onFileChange($event, DocumentType.COD_PROOF)" style="display: none" />

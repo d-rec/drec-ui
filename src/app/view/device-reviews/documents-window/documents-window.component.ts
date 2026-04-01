@@ -214,6 +214,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       submitterEmail: ['', Validators.email],
       submitterName: [''],
       operatingConfiguration: [''],
+      sourceAccessMode: [''],
       evidentDeviceId: [''],
       evidentStatus: [''],
     });
@@ -1018,6 +1019,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       submitterEmail: a.submitterEmail,
       submitterName: a.submitterName,
       operatingConfiguration: a.operatingConfiguration ?? '',
+      sourceAccessMode: a.sourceAccessMode ?? '',
       evidentDeviceId: a.evidentDeviceId ?? '',
       evidentStatus: a.evidentStatus ?? '',
     });

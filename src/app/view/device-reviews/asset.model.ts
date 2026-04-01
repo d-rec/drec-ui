@@ -35,6 +35,7 @@ export interface Asset {
   status: AssetStatus;
   notes: string;
   operatingConfiguration: string | null;
+  sourceAccessMode: string | null;
   evidentDeviceId: string | null;
   evidentStatus: string | null;
   docMeta: Record<string, DocMeta>;

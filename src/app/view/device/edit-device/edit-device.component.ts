@@ -16,7 +16,13 @@ import { map, startWith } from 'rxjs/operators';
 import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MapComponent } from '../../map/map.component';
-import { DocumentType, OperatingConfiguration } from '../../../utils/drec.enum';
+import { DocumentType, OperatingConfiguration, SourceAccessMode } from '../../../utils/drec.enum';
+import {
+  getEvidenceRequirements,
+  getHint,
+  EvidenceRequirements,
+  RequirementLevel,
+} from '../../../utils/evidence-requirements';
 import {
   validateAndAppendFiles,
   shortenFileName,
@@ -76,6 +82,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   gridInterconnection: any;
   operatingConfiguration: any;
   operatingConfigurations = Object.values(OperatingConfiguration);
+  sourceAccessMode: any;
+  sourceAccessModes = Object.values(SourceAccessMode);
+  evidenceReqs: EvidenceRequirements = getEvidenceRequirements(null);
   impactStory: any;
   showerror: boolean = false;
   deviceDescription: any;
@@ -181,6 +190,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       commissioningDate: [new Date(), Validators.required],
       gridInterconnection: [true],
       operatingConfiguration: [null],
+      sourceAccessMode: [null],
       offTaker: [null],
       impactStory: [null],
       images: [null],
@@ -330,6 +340,8 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.impactStory = data.impactStory;
         this.gridInterconnection = data.gridInterconnection;
         this.operatingConfiguration = data.operatingConfiguration || null;
+        this.sourceAccessMode = data.sourceAccessMode || null;
+        this.evidenceReqs = getEvidenceRequirements(this.operatingConfiguration);
         this.deviceDescription = data.deviceDescription;
         if (data.energyStorage != null) {
           this.energyStorage = data.energyStorage;
@@ -555,5 +567,17 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         }
       }
     }
+  }
+
+  onOperatingConfigChange(config: string | null): void {
+    this.evidenceReqs = getEvidenceRequirements(config);
+  }
+
+  getDocRequirement(docType: string): RequirementLevel {
+    return (this.evidenceReqs as any)[docType] ?? 'optional';
+  }
+
+  getDocHint(docType: string): string | null {
+    return getHint(this.operatingConfiguration, docType);
   }
 }
