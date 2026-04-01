@@ -8,6 +8,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddUsersComponent } from './add-users/add-users.component';
 import { InvitationformComponent } from './invitationform/invitationform.component';
 import { ApiuserComponent } from './apiuser/apiuser.component';
+import { WebhooksComponent } from './webhooks/webhooks.component';
 import { SharedModule } from '../../shared.module';
 import { MapModule } from '../map/map.module';
 @NgModule({
@@ -17,6 +18,7 @@ import { MapModule } from '../map/map.module';
     AddUsersComponent,
     InvitationformComponent,
     ApiuserComponent,
+    WebhooksComponent,
   ],
   imports: [
     CommonModule,

@@ -76,6 +76,15 @@
           </a>
           <a
             mat-button
+            class="menu-button max-height-content inside-menu-button"
+            routerLinkActive="active"
+            routerLink="/admin/webhooks"
+            *ngIf="loginuser.role === 'Admin'"
+          >
+            <span>Chat Webhooks</span>
+          </a>
+          <a
+            mat-button
             class="menu-button inside-menu-button certified-metarides"
             routerLinkActive="active"
             routerLink="/organization/user/invitation"
