@@ -148,6 +148,12 @@ export class AssetService {
     );
   }
 
+  checkProductionCeiling(deviceId: number): Observable<any> {
+    return this.http.get<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/production-ceiling`,
+    );
+  }
+
   classifyPathway(deviceId: number): Observable<any> {
     return this.http.post<any>(
       `${environment.API_URL}device-reviews/${deviceId}/classify-pathway`,

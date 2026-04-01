@@ -322,6 +322,7 @@
             </button>
             <button type="button" class="btn btn--screen" (click)="screenDuplicates()" title="Screen for duplicates across all organizations">Screen</button>
             <button type="button" class="btn btn--verify" (click)="verifySourceAccess()" title="Verify source-access mode requirements (§3.3)">Verify</button>
+            <button type="button" class="btn btn--ceiling" (click)="checkCeiling()" title="Irradiance-based production ceiling check (§3.6)">Ceiling</button>
             <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
             <button type="button" class="btn btn--reject"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Reject</button>
             <button type="button" class="btn btn--archive" (click)="archiveDevice()" [disabled]="detailForm.get('status')?.value === 'pending' || detailForm.get('status')?.value === 'draft'">Archive</button>
@@ -431,6 +432,78 @@
       <p class="modal-msg" *ngIf="!sourceVerifyResult" style="color: #dc2626;">Verification request failed.</p>
       <div class="modal-actions">
         <button class="btn btn--approve" (click)="showSourceVerifyModal = false">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Production ceiling check modal (§3.6) ───────────────────────── -->
+  <div class="modal-backdrop" *ngIf="showCeilingModal" role="dialog" aria-modal="true" (click)="showCeilingModal = false" (keydown.escape)="showCeilingModal = false">
+    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+      <ng-container *ngIf="ceilingResult">
+        <p class="modal-msg" style="font-weight: 600;">Production Ceiling Check</p>
+
+        <!-- Irradiance estimate -->
+        <div class="verify-section" *ngIf="ceilingResult.irradiance">
+          <p class="verify-heading">Location-based irradiance estimate (lat {{ ceilingResult.irradiance.absLatitude }}°)</p>
+          <div class="ceiling-grid">
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val">{{ ceilingResult.irradiance.yieldLow }}–{{ ceilingResult.irradiance.yieldHigh }}</span>
+              <span class="ceiling-stat__label">kWh/kW/year</span>
+            </div>
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val">{{ ceilingResult.irradiance.annualCeilingKwh | number }}</span>
+              <span class="ceiling-stat__label">Annual ceiling (kWh)</span>
+            </div>
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val">{{ ceilingResult.irradiance.monthlyCeilingKwh | number }}</span>
+              <span class="ceiling-stat__label">Monthly ceiling (kWh)</span>
+            </div>
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val">{{ ceilingResult.capacityKw }}</span>
+              <span class="ceiling-stat__label">Capacity (kW)</span>
+            </div>
+          </div>
+        </div>
+        <div class="verify-section verify-section--warn" *ngIf="!ceilingResult.irradiance">
+          <p class="verify-heading">No coordinates set — cannot estimate irradiance.</p>
+        </div>
+
+        <!-- Yield mismatch warning -->
+        <div class="verify-section verify-section--fail" *ngIf="ceilingResult.yieldMismatch">
+          <p class="verify-heading">Configured yield ({{ ceilingResult.configuredYield }} kWh/kW/year) exceeds location-based estimate ({{ ceilingResult.irradiance?.yieldHigh }} kWh/kW/year).</p>
+        </div>
+        <div class="verify-section verify-section--pass" *ngIf="!ceilingResult.yieldMismatch && ceilingResult.irradiance">
+          <p class="verify-heading">Configured yield ({{ ceilingResult.configuredYield }} kWh/kW/year) is within expected range.</p>
+        </div>
+
+        <!-- Recent readings -->
+        <div *ngIf="ceilingResult.recentReadings.length > 0" class="verify-section" [class.verify-section--fail]="hasCeilingExceedance()">
+          <p class="verify-heading">Recent meter readings (last {{ ceilingResult.recentReadings.length }}):</p>
+          <table class="dup-table">
+            <thead>
+              <tr><th>Period</th><th>Hours</th><th>Value (kWh)</th><th>Ceiling (kWh)</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of ceilingResult.recentReadings" [style.background]="r.exceedsCeiling ? '#fef2f2' : ''">
+                <td>{{ r.startDate | date:'dd/MM' }}–{{ r.endDate | date:'dd/MM' }}</td>
+                <td>{{ r.periodHours }}</td>
+                <td>{{ r.valueKwh | number:'1.0-1' }}</td>
+                <td>{{ r.ceilingKwh | number:'1.0-1' }}</td>
+                <td>
+                  <span *ngIf="r.exceedsCeiling" class="dup-match-badge" style="background:#fee2e2;color:#b91c1c;">EXCEEDS</span>
+                  <span *ngIf="!r.exceedsCeiling" style="color:#059669;font-size:11px;font-weight:600;">OK</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="ceilingResult.recentReadings.length === 0" class="verify-section">
+          <p class="verify-heading" style="color:#64748b;">No meter readings found for this device.</p>
+        </div>
+      </ng-container>
+      <p class="modal-msg" *ngIf="!ceilingResult" style="color: #dc2626;">Ceiling check failed.</p>
+      <div class="modal-actions">
+        <button class="btn btn--approve" (click)="showCeilingModal = false">OK</button>
       </div>
     </div>
   </div>

@@ -690,6 +690,38 @@ $legacy:   #a0845c;
 .pathway-file-based { color: #d97706; }
 .pathway-compensating { color: #dc2626; }
 
+// ── Ceiling button ────────────────────────────────────────────────────────────
+.btn--ceiling {
+  background: #7c3aed;
+  color: #fff;
+  border: 1px solid #6d28d9;
+  &:hover { background: #6d28d9; }
+}
+
+.ceiling-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.ceiling-stat {
+  text-align: center;
+  &__val {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: $text;
+  }
+  &__label {
+    display: block;
+    font-size: 10px;
+    color: $muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+}
+
 // ── Verify button ─────────────────────────────────────────────────────────────
 .btn--verify {
   background: #1e40af;

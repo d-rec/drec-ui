@@ -150,6 +150,27 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     organizationId: number;
     matchType: string;
   }> = [];
+  showCeilingModal = false;
+  ceilingResult: {
+    irradiance: {
+      absLatitude: number;
+      yieldHigh: number;
+      yieldLow: number;
+      annualCeilingKwh: number;
+      monthlyCeilingKwh: number;
+    } | null;
+    configuredYield: number;
+    capacityKw: number;
+    yieldMismatch: boolean;
+    recentReadings: Array<{
+      startDate: string;
+      endDate: string;
+      valueKwh: number;
+      periodHours: number;
+      ceilingKwh: number;
+      exceedsCeiling: boolean;
+    }>;
+  } | null = null;
   showSourceVerifyModal = false;
   sourceVerifyResult: {
     mode: string | null;
@@ -888,6 +909,27 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         console.error('Duplicate screening failed:', err);
         this.duplicateResults = [];
         this.showDuplicatesModal = true;
+      },
+    });
+  }
+
+  hasCeilingExceedance(): boolean {
+    return !!this.ceilingResult?.recentReadings?.some((r) => r.exceedsCeiling);
+  }
+
+  checkCeiling(): void {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.checkProductionCeiling(deviceId).subscribe({
+      next: (res: any) => {
+        this.ceilingResult = res;
+        this.showCeilingModal = true;
+      },
+      error: (err: any) => {
+        console.error('Production ceiling check failed:', err);
+        this.ceilingResult = null;
+        this.showCeilingModal = true;
       },
     });
   }
