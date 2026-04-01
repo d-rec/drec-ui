@@ -42,8 +42,83 @@ export class ChatService implements OnDestroy {
   currentHeadUuid: string | null = null;
   currentConversationId: number | null = null;
   readOnly$ = new BehaviorSubject<boolean>(false);
+  unreadCount$ = new BehaviorSubject<number>(0);
+  unreadDevices$ = new BehaviorSubject<Set<string>>(new Set());
+
+  private unreadPolling: Subscription | null = null;
 
   constructor(private http: HttpClient) {}
+
+  startUnreadPolling(): void {
+    this.stopUnreadPolling();
+    const email = this.getCurrentUserEmail();
+    if (!email) return;
+    this.fetchUnreadCount(email);
+    this.unreadPolling = interval(30000).subscribe(() =>
+      this.fetchUnreadCount(email),
+    );
+  }
+
+  stopUnreadPolling(): void {
+    if (this.unreadPolling) {
+      this.unreadPolling.unsubscribe();
+      this.unreadPolling = null;
+    }
+  }
+
+  private fetchUnreadCount(email: string): void {
+    console.log('[ChatService] fetchUnreadCount for', email);
+    this.getUnreadCount(email).subscribe({
+      next: (res) => {
+        console.log('[ChatService] unread count:', res.count);
+        this.unreadCount$.next(res.count);
+      },
+      error: (err) => console.error('[ChatService] unread count error:', err),
+    });
+    this.getUnreadDeviceNames(email).subscribe({
+      next: (names) => {
+        console.log('[ChatService] unread devices:', names);
+        this.unreadDevices$.next(new Set(names));
+      },
+      error: (err) => console.error('[ChatService] unread devices error:', err),
+    });
+  }
+
+  private getUnreadCount(
+    email: string,
+  ): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(
+      `${this.apiUrl}chat/unread-count/${encodeURIComponent(email)}`,
+    );
+  }
+
+  getUnreadDeviceNames(
+    email: string,
+  ): Observable<string[]> {
+    return this.http.get<string[]>(
+      `${this.apiUrl}chat/unread-devices/${encodeURIComponent(email)}`,
+    );
+  }
+
+  markConversationRead(conversationId: number): void {
+    const email = this.getCurrentUserEmail();
+    if (!email) return;
+    this.http
+      .patch<any>(
+        `${this.apiUrl}chat/conversations/${conversationId}/read`,
+        { email },
+      )
+      .subscribe(() => this.fetchUnreadCount(email));
+  }
+
+  getCurrentUserEmail(): string | null {
+    try {
+      const user = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
+      return user.email || null;
+    } catch {
+      return null;
+    }
+  }
 
   toggleChat(): void {
     this.isChatOpen$.next(!this.isChatOpen$.value);
@@ -54,6 +129,7 @@ export class ChatService implements OnDestroy {
     this.currentConversationId = conversation.id;
     this.loadChain(conversation.headUuid);
     this.startPolling(conversation.headUuid);
+    this.markConversationRead(conversation.id);
   }
 
   closeChat(): void {

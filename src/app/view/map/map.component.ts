@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { environment } from '../../../environments/environment';
@@ -15,7 +15,7 @@ export interface MapMarker {
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
-export class MapComponent implements OnInit {
+export class MapComponent implements OnInit, OnDestroy {
   @Input() markers: MapMarker[] = [];
   @Input() zoom: number = 2;
   @Input() satellite = false;
@@ -50,12 +50,48 @@ export class MapComponent implements OnInit {
     this.options.layers = [this.satellite ? this.createSatelliteLayer() : this.createTileLayer()];
   }
 
+  private tileObserver: MutationObserver | null = null;
+
   onMapReady(map: L.Map): void {
     this.map = map;
     this.markerGroup.addTo(this.map);
     this.isMapInitialized = true;
 
+    if (this.satellite) {
+      this.observeTileCORS();
+    }
+
     this.update();
+  }
+
+  /** Force crossorigin="anonymous" on every tile <img> so canvas capture works. */
+  private observeTileCORS(): void {
+    const container = this.map.getContainer();
+    const tilePane = container.querySelector('.leaflet-tile-pane');
+    if (!tilePane) return;
+
+    const fix = (img: HTMLImageElement) => {
+      if (img.crossOrigin !== 'anonymous') {
+        img.crossOrigin = 'anonymous';
+      }
+    };
+
+    // Fix existing tiles
+    tilePane.querySelectorAll('img').forEach((img) => fix(img as HTMLImageElement));
+
+    // Watch for new tiles
+    this.tileObserver = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        for (const node of Array.from(m.addedNodes)) {
+          if (node instanceof HTMLImageElement) {
+            fix(node);
+          } else if (node instanceof HTMLElement) {
+            node.querySelectorAll('img').forEach((img) => fix(img as HTMLImageElement));
+          }
+        }
+      }
+    });
+    this.tileObserver.observe(tilePane, { childList: true, subtree: true });
   }
 
   ngOnChanges(): void {
@@ -79,7 +115,40 @@ export class MapComponent implements OnInit {
     this.showDetectConfirm = false;
     this.detecting = true;
     this.detectError = '';
-    setTimeout(() => this.captureAndDetect(), 500);
+    this.waitForTilesThenCapture();
+  }
+
+  private waitForTilesThenCapture(): void {
+    const tileLayer = this.map.eachLayer((layer: any) => {
+      if (layer._url && layer._loading) return layer;
+    });
+
+    // Check if any tiles are still loading
+    const mapEl = this.map.getContainer();
+    const imgs = mapEl.querySelectorAll('.leaflet-tile-pane img');
+    const allLoaded = Array.from(imgs).every(
+      (img: any) => img.complete && img.naturalWidth > 0,
+    );
+
+    if (allLoaded && imgs.length > 0) {
+      setTimeout(() => this.captureAndDetect(), 200);
+    } else {
+      // Wait for tiles to finish loading, with a max timeout
+      let attempts = 0;
+      const check = () => {
+        attempts++;
+        const currentImgs = mapEl.querySelectorAll('.leaflet-tile-pane img');
+        const ready = Array.from(currentImgs).every(
+          (img: any) => img.complete && img.naturalWidth > 0,
+        );
+        if (ready || attempts > 20) {
+          setTimeout(() => this.captureAndDetect(), 200);
+        } else {
+          setTimeout(check, 250);
+        }
+      };
+      setTimeout(check, 300);
+    }
   }
 
   cancelDetect(): void {
@@ -97,7 +166,7 @@ export class MapComponent implements OnInit {
     }
   }
 
-  private captureAndDetect(): void {
+  private async captureAndDetect(): Promise<void> {
     const mapEl = this.map.getContainer();
     const w = mapEl.offsetWidth;
     const h = mapEl.offsetHeight;
@@ -115,30 +184,69 @@ export class MapComponent implements OnInit {
     }
 
     const mapRect = mapEl.getBoundingClientRect();
-    const imgs = tilePane.querySelectorAll('img');
-    for (const img of Array.from(imgs)) {
+    const imgs = Array.from(tilePane.querySelectorAll('img'));
+
+    // Try direct drawImage first; if CORS blocks it, re-fetch tiles as blobs
+    let drawn = 0;
+    for (const img of imgs) {
       const rect = img.getBoundingClientRect();
       const x = rect.left - mapRect.left;
       const y = rect.top - mapRect.top;
       try {
         srcCtx.drawImage(img, x, y, rect.width, rect.height);
+        drawn++;
       } catch {
-        // CORS — skip tile
+        // CORS tainted — will fallback below
       }
     }
 
-    const cropFraction = 0.7;
-    const cropW = Math.round(w * cropFraction);
-    const cropH = Math.round(h * cropFraction);
+    if (drawn === 0 && imgs.length > 0) {
+      // Fallback: re-fetch each tile as a blob to bypass CORS tainting
+      await Promise.all(
+        imgs.map(async (img) => {
+          const src = img.getAttribute('src');
+          if (!src) return;
+          const rect = img.getBoundingClientRect();
+          const x = rect.left - mapRect.left;
+          const y = rect.top - mapRect.top;
+          try {
+            const resp = await fetch(src);
+            const blob = await resp.blob();
+            const bmp = await createImageBitmap(blob);
+            srcCtx.drawImage(bmp, x, y, rect.width, rect.height);
+            bmp.close();
+          } catch {
+            // skip tile
+          }
+        }),
+      );
+    }
+
+    // Verify canvas isn't blank
+    const sample = srcCtx.getImageData(
+      Math.floor(w / 2), Math.floor(h / 2), 1, 1,
+    ).data;
+    if (sample[0] === 0 && sample[1] === 0 && sample[2] === 0 && sample[3] === 0) {
+      this.detecting = false;
+      this.detectError = 'Could not capture map tiles (CORS)';
+      return;
+    }
+
+    // Crop center 80% of viewport and cap at 1024px to keep payload small
+    const frac = 0.8;
+    const cropW = Math.round(w * frac);
+    const cropH = Math.round(h * frac);
     const cropX = Math.round((w - cropW) / 2);
     const cropY = Math.round((h - cropH) / 2);
 
     const cropCanvas = document.createElement('canvas');
-    cropCanvas.width = cropW;
-    cropCanvas.height = cropH;
-    cropCanvas.getContext('2d')!.drawImage(
-      srcCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH,
-    );
+    const maxDim = 1024;
+    const scale = Math.min(1, maxDim / Math.max(cropW, cropH));
+    cropCanvas.width = Math.round(cropW * scale);
+    cropCanvas.height = Math.round(cropH * scale);
+    const cropCtx = cropCanvas.getContext('2d')!;
+    cropCtx.drawImage(srcCanvas, cropX, cropY, cropW, cropH,
+      0, 0, cropCanvas.width, cropCanvas.height);
 
     const base64 = cropCanvas.toDataURL('image/jpeg', 0.85).split(',')[1];
 
@@ -219,6 +327,10 @@ export class MapComponent implements OnInit {
     this.detecting = false;
   }
 
+  ngOnDestroy(): void {
+    this.tileObserver?.disconnect();
+  }
+
   // --- Tile layers ---
 
   private createCustomIcon(): L.Icon {
@@ -251,8 +363,8 @@ export class MapComponent implements OnInit {
         maxZoom: 21,
         noWrap: true,
         attribution: '&copy; Google',
-        crossOrigin: 'anonymous',
-      } as L.TileLayerOptions,
+        crossOrigin: true,
+      } as any,
     );
   }
 

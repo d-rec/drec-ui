@@ -111,9 +111,23 @@
     <!--  <span>HOME</span> -->
     <!-- <span><a href="/">HOME</a></span> -->
     <span class="spacer"></span>
-    <!-- <a mat-button routerLink="/register">Register</a>
-    <a mat-button routerLink="/login" *ngIf="!isLoggedIn">Login</a> -->
-<a mat-button (click)="logout()" *ngIf="isLoggedIn"
+    <div class="notification-wrap" *ngIf="isLoggedIn">
+      <button mat-icon-button class="notification-bell" (click)="onBellClick()" title="Chat notifications">
+        <mat-icon>notifications</mat-icon>
+        <span class="notification-badge" *ngIf="(unreadCount$ | async) as count">{{ count > 9 ? '9+' : count }}</span>
+      </button>
+      <div class="notification-dropdown" *ngIf="showUnreadList">
+        <div class="notification-dropdown__title">Unread messages</div>
+        <button
+          *ngFor="let name of unreadDeviceNames"
+          class="notification-dropdown__item"
+          (click)="openChatForDevice(name)"
+        >
+          {{ name }}
+        </button>
+      </div>
+    </div>
+    <a mat-button (click)="logout()" *ngIf="isLoggedIn"
       ><mat-icon>logout</mat-icon>Logout</a
     >
   </mat-toolbar-row>

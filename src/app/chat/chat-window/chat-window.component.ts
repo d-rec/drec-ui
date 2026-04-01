@@ -41,6 +41,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   private resizeStartW = 0;
   private resizeStartH = 0;
 
+  unreadUuids = new Set<string>();
+  private openedAt: Date | null = null;
+  private boldTimers: Map<string, any> = new Map();
+
   private messagesSubscription: Subscription | null = null;
   private deviceSub: Subscription | null = null;
 
@@ -61,6 +65,26 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
 
     this.messagesSubscription = this.chatService.messages$.subscribe((msgs) => {
       const hadNew = msgs.length > this.messages.length;
+
+      // Mark new messages from others as unread (bold)
+      if (this.openedAt) {
+        for (const msg of msgs) {
+          if (
+            !msg.uuid.startsWith('pending-') &&
+            !this.unreadUuids.has(msg.uuid) &&
+            !this.boldTimers.has(msg.uuid) &&
+            !this.isOwnMessage(msg) &&
+            new Date(msg.createdAt) > this.openedAt
+          ) {
+            this.unreadUuids.add(msg.uuid);
+            this.boldTimers.set(msg.uuid, setTimeout(() => {
+              this.unreadUuids.delete(msg.uuid);
+              this.boldTimers.delete(msg.uuid);
+            }, 5000));
+          }
+        }
+      }
+
       this.messages = msgs;
       if (hadNew) this.autoScrollToBottom();
     });
@@ -71,6 +95,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
         this.partnerEmail = submitterEmail;
         this.partnerName = submitterEmail;
         this.deviceProjectName = siteName || null;
+        this.openedAt = new Date();
 
         // Look up existing conversation by site name
         this.chatService
@@ -296,6 +321,8 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
       this.deviceSub.unsubscribe();
     }
     this.chatService.stopPolling();
+    this.boldTimers.forEach((t) => clearTimeout(t));
+    this.boldTimers.clear();
     document.removeEventListener('click', this.dismissContextMenu);
     document.removeEventListener('mousemove', this.onResizeMove);
     document.removeEventListener('mouseup', this.onResizeEnd);

@@ -48,7 +48,10 @@
           (dblclick)="toggleDevice(item.id)"
         >
           <span class="chevron" role="button" tabindex="0" [class.chevron--open]="expanded[item.id]" (click)="toggleDevice(item.id); $event.stopPropagation()" (keydown.enter)="toggleDevice(item.id); $event.stopPropagation()">&#8250;</span>
-          <span class="col-serial" [innerHTML]="hl(item.projectName, result.searchTerm)"></span>
+          <span class="col-serial">
+            <span [innerHTML]="hl(item.projectName, result.searchTerm)"></span>
+            <span class="unread-dot" *ngIf="(chatService.unreadDevices$ | async)?.has(item.projectName)" title="New message">●</span>
+          </span>
           <span class="col-modified muted">{{ item.modifiedDate ? (item.modifiedDate | date:'dd/MM/yyyy') : '—' }}</span>
           <span class="col-status">
             <span class="status-icon status-icon--{{ item.status }}">{{ item.status === 'approved' ? '✓' : item.status === 'rejected' ? '✗' : '●' }}</span>

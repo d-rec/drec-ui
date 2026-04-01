@@ -36,6 +36,7 @@
         <div
           *ngFor="let msg of filteredMessages"
           [class.own]="isOwnMessage(msg)"
+          [class.unread-bold]="unreadUuids.has(msg.uuid)"
           class="bubble"
         >
           <span class="sender-name">{{ msg.username }}</span>

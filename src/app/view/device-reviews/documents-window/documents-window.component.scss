@@ -246,7 +246,14 @@ $legacy:   #a0845c;
   &:hover { background: #f8fafc; }
 }
 
-.col-serial   { flex: 1; min-width: 0; user-select: text; cursor: text; }
+.col-serial   { flex: 1; min-width: 0; user-select: text; cursor: text; display: flex; align-items: center; gap: 6px; }
+
+.unread-dot {
+  color: #ef4444;
+  font-size: 10px;
+  line-height: 1;
+  flex-shrink: 0;
+}
 .col-modified { width: 90px; flex-shrink: 0; font-size: 12px; }
 .col-status   { width: 110px; flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
 
