@@ -199,6 +199,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       status: ['pending' as AssetStatus],
       notes: [''],
       submitterEmail: ['', Validators.email],
+      submitterName: [''],
       evidentDeviceId: [''],
       evidentStatus: [''],
     });
@@ -964,6 +965,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       status: a.status,
       notes: a.notes,
       submitterEmail: a.submitterEmail,
+      submitterName: a.submitterName,
       evidentDeviceId: a.evidentDeviceId ?? '',
       evidentStatus: a.evidentStatus ?? '',
     });

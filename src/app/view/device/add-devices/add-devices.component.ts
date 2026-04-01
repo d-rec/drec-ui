@@ -628,6 +628,19 @@ export class AddDevicesComponent implements OnDestroy {
         (option: CountryInfo) => option.country === element.countryCodename,
       );
       element['countryCode'] = selectedCountry?.alpha3;
+
+      // Truncate lat/long to 9 decimal places (backend limit)
+      if (element.latitude) {
+        element.latitude = String(
+          Math.trunc(parseFloat(element.latitude) * 1e9) / 1e9,
+        );
+      }
+      if (element.longitude) {
+        element.longitude = String(
+          Math.trunc(parseFloat(element.longitude) * 1e9) / 1e9,
+        );
+      }
+
       formData.append('deviceToRegister', JSON.stringify(element));
       if (element.countryCode) {
         formData.append('countryCode', element.countryCode);

@@ -22,6 +22,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   draft = '';
   minimized = false;
   currentUsername = '';
+  currentRole = '';
   partnerEmail = '';
   partnerName = '';
   deviceProjectName: string | null = null;
@@ -56,6 +57,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
     document.addEventListener('click', this.dismissContextMenu);
     const loginUser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
     this.currentUsername = loginUser.email || loginUser.username || '';
+    this.currentRole = loginUser.role || '';
 
     this.messagesSubscription = this.chatService.messages$.subscribe((msgs) => {
       const hadNew = msgs.length > this.messages.length;
@@ -164,6 +166,17 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
 
   stripItalic(text: string): string {
     return text.slice(1, -1);
+  }
+
+  private get isInternalUser(): boolean {
+    return ['Admin', 'Reviewer', 'SeniorReviewer'].includes(this.currentRole);
+  }
+
+  isOwnMessage(msg: ChatMessage): boolean {
+    if (this.isInternalUser) {
+      return msg.username !== this.partnerEmail;
+    }
+    return msg.username === this.currentUsername;
   }
 
   get filteredMessages(): ChatMessage[] {

@@ -9,6 +9,7 @@ import {
   ElementRef,
   ViewChild,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
@@ -35,9 +36,108 @@ const STATUS_COLOR: Record<string, string> = {
       (bringToFront)="bringToFront.emit()"
       (close)="close.emit()"
     >
-      <div #mapEl style="width:100%;height:100%"></div>
+      <div style="position:relative;width:100%;height:100%">
+        <div #mapEl style="width:100%;height:100%"></div>
+        <canvas
+          #overlayCanvas
+          class="detect-overlay"
+          [class.visible]="showOverlay"
+        ></canvas>
+        <div class="detect-toolbar">
+          <button
+            class="detect-btn"
+            (click)="detectPanels()"
+            [disabled]="detecting"
+          >
+            {{
+              detecting
+                ? 'Scanning...'
+                : showOverlay
+                  ? 'Re-scan'
+                  : '⚡ Detect Panels'
+            }}
+          </button>
+          <button
+            class="detect-btn detect-btn--clear"
+            *ngIf="showOverlay"
+            (click)="clearOverlay()"
+          >
+            Clear
+          </button>
+          <span class="detect-count" *ngIf="panelCount > 0"
+            >{{ panelCount }} region{{ panelCount === 1 ? '' : 's' }}
+            found</span
+          >
+          <span class="detect-error" *ngIf="detectError">{{ detectError }}</span>
+        </div>
+      </div>
     </app-ds-floating-window>
   `,
+  styles: [
+    `
+      .detect-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: 500;
+      }
+      .detect-overlay.visible {
+        opacity: 0.75;
+      }
+      .detect-toolbar {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        z-index: 600;
+      }
+      .detect-btn {
+        padding: 5px 12px;
+        border: none;
+        border-radius: 6px;
+        background: #0f766e;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      }
+      .detect-btn:hover:not(:disabled) {
+        background: #115e59;
+      }
+      .detect-btn:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+      .detect-btn--clear {
+        background: #64748b;
+      }
+      .detect-btn--clear:hover {
+        background: #475569;
+      }
+      .detect-count {
+        font-size: 11px;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+      .detect-error {
+        font-size: 11px;
+        color: #fca5a5;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SatelliteWindowComponent
@@ -48,13 +148,23 @@ export class SatelliteWindowComponent
   @Output() close = new EventEmitter<void>();
 
   @ViewChild('mapEl', { static: true }) mapEl!: ElementRef<HTMLDivElement>;
+  @ViewChild('overlayCanvas', { static: true })
+  overlayCanvas!: ElementRef<HTMLCanvasElement>;
+
+  detecting = false;
+  showOverlay = false;
+  panelCount = 0;
+  detectError = '';
 
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
   private resizeObserver: ResizeObserver | null = null;
   private sub: Subscription | null = null;
 
-  constructor(readonly svc: AssetService) {}
+  constructor(
+    readonly svc: AssetService,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngAfterViewInit(): void {
     this.map = L.map(this.mapEl.nativeElement, {
@@ -63,14 +173,11 @@ export class SatelliteWindowComponent
       maxZoom: 19,
     }).setView([20, 0], 2);
 
-    L.tileLayer(
-      'https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      {
-        attribution:
-          'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics',
-        maxZoom: 21,
-      },
-    ).addTo(this.map);
+    L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+      attribution: '© Google',
+      maxZoom: 21,
+      crossOrigin: 'anonymous',
+    } as L.TileLayerOptions).addTo(this.map);
 
     this.updateMarkers();
 
@@ -78,6 +185,7 @@ export class SatelliteWindowComponent
     this.resizeObserver.observe(this.mapEl.nativeElement);
 
     this.sub = this.svc.flyTo$.subscribe(({ lat, lng }) => {
+      this.clearOverlay();
       this.map?.setView([lat, lng], this.map.getMaxZoom(), { animate: false });
     });
   }
@@ -92,6 +200,155 @@ export class SatelliteWindowComponent
     this.map?.remove();
   }
 
+  detectPanels(): void {
+    if (!this.map || this.detecting) return;
+    this.detecting = true;
+    this.detectError = '';
+    this.cdr.markForCheck();
+    // Small delay for tiles to finish rendering
+    setTimeout(() => this.captureAndDetect(), 500);
+  }
+
+  clearOverlay(): void {
+    this.showOverlay = false;
+    this.panelCount = 0;
+    this.detectError = '';
+    const canvas = this.overlayCanvas.nativeElement;
+    const ctx = canvas.getContext('2d');
+    ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    this.cdr.markForCheck();
+  }
+
+  private captureAndDetect(): void {
+    const mapEl = this.mapEl.nativeElement;
+    const w = mapEl.offsetWidth;
+    const h = mapEl.offsetHeight;
+
+    // Capture map tiles into a canvas
+    const srcCanvas = document.createElement('canvas');
+    srcCanvas.width = w;
+    srcCanvas.height = h;
+    const srcCtx = srcCanvas.getContext('2d')!;
+
+    const tilePane = mapEl.querySelector('.leaflet-tile-pane') as HTMLElement;
+    if (!tilePane) {
+      this.detecting = false;
+      this.detectError = 'Could not capture map';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    const mapRect = mapEl.getBoundingClientRect();
+    const imgs = tilePane.querySelectorAll('img');
+    for (const img of Array.from(imgs)) {
+      const rect = img.getBoundingClientRect();
+      const x = rect.left - mapRect.left;
+      const y = rect.top - mapRect.top;
+      try {
+        srcCtx.drawImage(img, x, y, rect.width, rect.height);
+      } catch {
+        // CORS — skip tile
+      }
+    }
+
+    // Crop to center 50% of the map for focused detection
+    const cropFraction = 0.7;
+    const cropW = Math.round(w * cropFraction);
+    const cropH = Math.round(h * cropFraction);
+    const cropX = Math.round((w - cropW) / 2);
+    const cropY = Math.round((h - cropH) / 2);
+
+    const cropCanvas = document.createElement('canvas');
+    cropCanvas.width = cropW;
+    cropCanvas.height = cropH;
+    cropCanvas.getContext('2d')!.drawImage(
+      srcCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH,
+    );
+
+    const base64 = cropCanvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+
+    // Call backend proxy (keeps Roboflow API key server-side)
+    this.svc.detectPanels(base64).subscribe({
+      next: (data) => this.drawDetections(data, w, h, cropX, cropY, cropW, cropH),
+      error: (err) => {
+        this.detectError =
+          'Detection failed: ' + (err?.error?.message || err?.message || err);
+        this.detecting = false;
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
+  private drawDetections(
+    data: any, w: number, h: number,
+    cropX: number, cropY: number, cropW: number, cropH: number,
+  ): void {
+    const canvas = this.overlayCanvas.nativeElement;
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d')!;
+    ctx.clearRect(0, 0, w, h);
+
+    const outputs = data?.outputs?.[0];
+    const predictions = outputs?.predictions?.predictions ?? [];
+
+    // Roboflow coordinates are relative to the cropped image we sent.
+    // Scale them to crop size, then offset to full-map position.
+    const imgW = outputs?.predictions?.image?.width ?? cropW;
+    const imgH = outputs?.predictions?.image?.height ?? cropH;
+    const scaleX = cropW / imgW;
+    const scaleY = cropH / imgH;
+
+    this.panelCount = predictions.length;
+
+    for (const pred of predictions) {
+      const points: { x: number; y: number }[] = pred.points ?? [];
+
+      if (points.length > 2) {
+        // Draw filled polygon (offset from crop origin)
+        ctx.beginPath();
+        ctx.moveTo(points[0].x * scaleX + cropX, points[0].y * scaleY + cropY);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i].x * scaleX + cropX, points[i].y * scaleY + cropY);
+        }
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
+        ctx.fill();
+        ctx.strokeStyle = '#00ffb4';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      } else {
+        // Fallback: draw bounding box
+        const bx = (pred.x - pred.width / 2) * scaleX + cropX;
+        const by = (pred.y - pred.height / 2) * scaleY + cropY;
+        const bw = pred.width * scaleX;
+        const bh = pred.height * scaleY;
+        ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeStyle = '#00ffb4';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(bx, by, bw, bh);
+      }
+
+      // Confidence label
+      if (pred.confidence) {
+        const cx = (pred.x - pred.width / 2) * scaleX + cropX;
+        const cy = (pred.y - pred.height / 2) * scaleY + cropY - 4;
+        ctx.font = '11px Inter, system-ui, sans-serif';
+        ctx.fillStyle = 'rgba(0,0,0,0.7)';
+        const label = `${Math.round(pred.confidence * 100)}%`;
+        const tw = ctx.measureText(label).width;
+        ctx.fillRect(cx, cy - 12, tw + 6, 15);
+        ctx.fillStyle = '#00ffb4';
+        ctx.fillText(label, cx + 3, cy);
+      }
+    }
+
+    this.showOverlay = true;
+    this.detecting = false;
+    this.cdr.markForCheck();
+  }
+
   private updateMarkers(): void {
     this.markers.forEach((m) => m.remove());
     this.markers = [];
@@ -101,7 +358,10 @@ export class SatelliteWindowComponent
       const color = STATUS_COLOR[asset.status] ?? '#6b7280';
       const fmt = (d: Date | null) => (d ? d.toLocaleDateString() : '—');
 
-      const popup = L.popup({ closeButton: false, offset: [0, -6] }).setContent(
+      const popup = L.popup({
+        closeButton: false,
+        offset: [0, -6],
+      }).setContent(
         `<div style="min-width:160px;font-size:13px;line-height:1.6">` +
           `<strong style="font-size:14px">${asset.projectName}</strong><br>` +
           `<span style="color:#64748b;font-size:11px">${asset.serial}</span><br>` +

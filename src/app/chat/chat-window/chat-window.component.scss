@@ -323,15 +323,15 @@
 
   &.own {
     align-self: flex-end;
-    background: #475569;
+    background: #0f766e;
     color: #fff;
     border-bottom-right-radius: 4px;
   }
 
   &:not(.own) {
     align-self: flex-start;
-    background: #e5e5ea;
-    color: #000;
+    background: #e0f2fe;
+    color: #1e293b;
     border-bottom-left-radius: 4px;
   }
 

@@ -35,7 +35,7 @@
       <div class="messages-container" #messagesContainer>
         <div
           *ngFor="let msg of filteredMessages"
-          [class.own]="msg.username === currentUsername"
+          [class.own]="isOwnMessage(msg)"
           class="bubble"
         >
           <span class="sender-name">{{ msg.username }}</span>

@@ -27,6 +27,7 @@ export interface Asset {
   acCapacity: number | null;
   countryCode: string;
   submitterEmail: string;
+  submitterName: string;
   reviewer: string;
   dateAdded: Date | null;
   dateSubmitted: Date | null;

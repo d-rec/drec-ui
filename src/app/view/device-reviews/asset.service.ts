@@ -123,6 +123,13 @@ export class AssetService {
     );
   }
 
+  detectPanels(imageBase64: string): Observable<any> {
+    return this.http.post<any>(
+      `${environment.API_URL}device-reviews/detect-panels`,
+      { image: imageBase64 },
+    );
+  }
+
   /** Extract the S3 object key from a presigned URL. */
   extractS3Key(presignedUrl: string): string | null {
     try {

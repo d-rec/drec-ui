@@ -416,6 +416,18 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     // Capture the form value once — .value returns a new snapshot each call
     const formValue = this.updateDeviceForm.value;
 
+    // Truncate lat/long to 9 decimal places (backend limit)
+    if (formValue.latitude) {
+      formValue.latitude = String(
+        Math.trunc(parseFloat(formValue.latitude) * 1e9) / 1e9,
+      );
+    }
+    if (formValue.longitude) {
+      formValue.longitude = String(
+        Math.trunc(parseFloat(formValue.longitude) * 1e9) / 1e9,
+      );
+    }
+
     // Check if any files were selected
     const hasFiles = this.fileTypes.some(
       (ft) => this.files[ft]?.length > 0,
