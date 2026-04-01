@@ -135,6 +135,15 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   showApprovedInfoModal = false;
   showUnreviewedWarning = false;
   showDeleteModal = false;
+  showDuplicatesModal = false;
+  duplicateResults: Array<{
+    id: number;
+    externalId: string;
+    projectName: string;
+    serialNumber: string;
+    organizationId: number;
+    matchType: string;
+  }> = [];
   private pendingDelete: { asset: Asset; docKey: string; urlField: string; arrayIdx?: number } | null = null;
 
   // resizable detail panel
@@ -834,6 +843,23 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   dismissApprovedInfo(): void {
     this.showApprovedInfoModal = false;
+  }
+
+  screenDuplicates(): void {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.screenForDuplicates(deviceId).subscribe({
+      next: (res: any) => {
+        this.duplicateResults = res.duplicates || [];
+        this.showDuplicatesModal = true;
+      },
+      error: (err: any) => {
+        console.error('Duplicate screening failed:', err);
+        this.duplicateResults = [];
+        this.showDuplicatesModal = true;
+      },
+    });
   }
 
   private allDocsReviewed(): boolean {

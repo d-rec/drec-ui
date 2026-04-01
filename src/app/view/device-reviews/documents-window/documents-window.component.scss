@@ -568,6 +568,13 @@ $legacy:   #a0845c;
     &:hover:not(:disabled) { background: darken($rejected, 6%); }
     &:disabled { opacity: 0.35; cursor: default; }
   }
+
+  &--screen {
+    background: #475569;
+    color: #fff;
+    border: 1px solid #334155;
+    &:hover { background: #334155; }
+  }
 }
 
 // ── Approve confirmation modal ─────────────────────────────────────────────
@@ -601,4 +608,36 @@ $legacy:   #a0845c;
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.modal-box--wide {
+  max-width: 560px;
+}
+
+.dup-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 16px;
+
+  th, td {
+    padding: 4px 8px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: left;
+  }
+  th {
+    font-weight: 600;
+    color: #475569;
+    background: #f8fafc;
+  }
+}
+
+.dup-match-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: #fef3c7;
+  color: #92400e;
 }

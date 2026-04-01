@@ -301,6 +301,7 @@
             <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
             </button>
+            <button type="button" class="btn btn--screen" (click)="screenDuplicates()" title="Screen for duplicates across all organizations">Screen</button>
             <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
             <button type="button" class="btn btn--reject"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Reject</button>
             <button type="button" class="btn btn--archive" (click)="archiveDevice()" [disabled]="detailForm.get('status')?.value === 'pending' || detailForm.get('status')?.value === 'draft'">Archive</button>
@@ -337,6 +338,33 @@
       <div class="modal-actions">
         <button class="btn btn--cancel" (click)="cancelDelete()">Cancel</button>
         <button class="btn btn--reject" (click)="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Duplicate screening results modal ───────────────────────────── -->
+  <div class="modal-backdrop" *ngIf="showDuplicatesModal" role="dialog" aria-modal="true" (click)="showDuplicatesModal = false" (keydown.escape)="showDuplicatesModal = false">
+    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+      <p class="modal-msg" *ngIf="duplicateResults.length === 0">No potential duplicates found.</p>
+      <div *ngIf="duplicateResults.length > 0">
+        <p class="modal-msg" style="color: #dc2626; font-weight: 600;">{{ duplicateResults.length }} potential duplicate(s) found:</p>
+        <table class="dup-table">
+          <thead>
+            <tr><th>ID</th><th>Project</th><th>Serial</th><th>Org</th><th>Match</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of duplicateResults">
+              <td>{{ d.id }}</td>
+              <td>{{ d.projectName }}</td>
+              <td>{{ d.serialNumber }}</td>
+              <td>{{ d.organizationId }}</td>
+              <td><span class="dup-match-badge">{{ d.matchType }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn--approve" (click)="showDuplicatesModal = false">OK</button>
       </div>
     </div>
   </div>

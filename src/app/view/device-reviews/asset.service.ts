@@ -133,6 +133,21 @@ export class AssetService {
     );
   }
 
+  screenForDuplicates(deviceId: number): Observable<{
+    duplicates: Array<{
+      id: number;
+      externalId: string;
+      projectName: string;
+      serialNumber: string;
+      organizationId: number;
+      matchType: string;
+    }>;
+  }> {
+    return this.http.get<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/duplicates`,
+    );
+  }
+
   detectPanels(imageBase64: string): Observable<any> {
     return this.http.post<any>(
       `${environment.API_URL}device-reviews/detect-panels`,
