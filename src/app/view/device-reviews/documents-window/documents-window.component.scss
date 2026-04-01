@@ -651,6 +651,36 @@ $legacy:   #a0845c;
 .ownership-verified { color: #059669; }
 .ownership-flagged { color: #dc2626; }
 
+// ── Document requirement tags (§3.2) ──────────────────────────────────────────
+.req-tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  cursor: default;
+  line-height: 16px;
+
+  &--required {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+  }
+  &--recommended {
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+  }
+  &--optional {
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #86efac;
+  }
+}
+
 // ── Evidence pathway badges ───────────────────────────────────────────────────
 .pathway-badge {
   font-weight: 600;

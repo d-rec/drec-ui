@@ -15,6 +15,12 @@ import { map } from 'rxjs/operators';
 import { Asset, AssetStatus } from '../asset.model';
 import { AssetService } from '../asset.service';
 import { ChatService } from '../../../chat/chat.service';
+import {
+  EvidenceRequirements,
+  RequirementLevel,
+  getEvidenceRequirements,
+  getHint,
+} from '../../../utils/evidence-requirements';
 
 @Component({
   standalone: false,
@@ -713,6 +719,21 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   /** Check if a document URL exists but the file is broken/404. */
   isBroken(url: string | null): boolean {
     return !!url && this.brokenUrls.has(url);
+  }
+
+  // ── Conditional document requirements (§3.2) ───────────────────────────────
+
+  /** Get requirement level for a document type based on the selected device's operating config. */
+  getReqLevel(docType: string): RequirementLevel {
+    const config = this.detailForm?.get('operatingConfiguration')?.value || null;
+    const reqs = getEvidenceRequirements(config);
+    return (reqs as any)[docType] ?? 'required';
+  }
+
+  /** Get config-specific hint for a document type. */
+  getDocHint(docType: string): string | null {
+    const config = this.detailForm?.get('operatingConfiguration')?.value || null;
+    return getHint(config, docType);
   }
 
   // ── Detail form ───────────────────────────────────────────────────────────────
