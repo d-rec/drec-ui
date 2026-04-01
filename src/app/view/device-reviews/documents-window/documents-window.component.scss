@@ -641,3 +641,12 @@ $legacy:   #a0845c;
   background: #fef3c7;
   color: #92400e;
 }
+
+.ownership-badge {
+  text-transform: capitalize;
+  font-weight: 600;
+  font-size: 11px;
+}
+.ownership-unverified { color: #94a3b8; }
+.ownership-verified { color: #059669; }
+.ownership-flagged { color: #dc2626; }

@@ -224,6 +224,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       submitterName: [''],
       operatingConfiguration: [''],
       sourceAccessMode: [''],
+      ownershipStatus: [''],
       evidentDeviceId: [''],
       evidentStatus: [''],
     });
@@ -1046,6 +1047,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       submitterName: a.submitterName,
       operatingConfiguration: a.operatingConfiguration ?? '',
       sourceAccessMode: a.sourceAccessMode ?? '',
+      ownershipStatus: a.ownershipStatus ?? 'unverified',
       evidentDeviceId: a.evidentDeviceId ?? '',
       evidentStatus: a.evidentStatus ?? '',
     });

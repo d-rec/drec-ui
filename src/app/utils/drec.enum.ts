@@ -56,6 +56,12 @@ export enum SourceAccessMode {
   Mode4_CompensatingControls = 'Mode 4 — Submitted data with compensating controls',
 }
 
+export enum OwnershipStatus {
+  Unverified = 'unverified',
+  Verified = 'verified',
+  Flagged = 'flagged',
+}
+
 export enum GroupReviewStatus {
   Pending = 'pending',
   Approved = 'approved',
