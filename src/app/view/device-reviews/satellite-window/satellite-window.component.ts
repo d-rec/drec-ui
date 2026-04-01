@@ -205,8 +205,34 @@ export class SatelliteWindowComponent
     this.detecting = true;
     this.detectError = '';
     this.cdr.markForCheck();
-    // Small delay for tiles to finish rendering
-    setTimeout(() => this.captureAndDetect(), 500);
+    this.waitForTilesThenCapture();
+  }
+
+  private waitForTilesThenCapture(): void {
+    const mapEl = this.mapEl.nativeElement;
+    const imgs = mapEl.querySelectorAll('.leaflet-tile-pane img');
+    const allLoaded = Array.from(imgs).every(
+      (img: any) => img.complete && img.naturalWidth > 0,
+    );
+
+    if (allLoaded && imgs.length > 0) {
+      setTimeout(() => this.captureAndDetect(), 200);
+    } else {
+      let attempts = 0;
+      const check = () => {
+        attempts++;
+        const currentImgs = mapEl.querySelectorAll('.leaflet-tile-pane img');
+        const ready = Array.from(currentImgs).every(
+          (img: any) => img.complete && img.naturalWidth > 0,
+        );
+        if (ready || attempts > 20) {
+          setTimeout(() => this.captureAndDetect(), 200);
+        } else {
+          setTimeout(check, 250);
+        }
+      };
+      setTimeout(check, 300);
+    }
   }
 
   clearOverlay(): void {
@@ -219,12 +245,11 @@ export class SatelliteWindowComponent
     this.cdr.markForCheck();
   }
 
-  private captureAndDetect(): void {
+  private async captureAndDetect(): Promise<void> {
     const mapEl = this.mapEl.nativeElement;
     const w = mapEl.offsetWidth;
     const h = mapEl.offsetHeight;
 
-    // Capture map tiles into a canvas
     const srcCanvas = document.createElement('canvas');
     srcCanvas.width = w;
     srcCanvas.height = h;
@@ -239,19 +264,56 @@ export class SatelliteWindowComponent
     }
 
     const mapRect = mapEl.getBoundingClientRect();
-    const imgs = tilePane.querySelectorAll('img');
-    for (const img of Array.from(imgs)) {
+    const imgs = Array.from(tilePane.querySelectorAll('img'));
+
+    // Try direct drawImage first; if CORS blocks it, re-fetch tiles as blobs
+    let drawn = 0;
+    for (const img of imgs) {
       const rect = img.getBoundingClientRect();
       const x = rect.left - mapRect.left;
       const y = rect.top - mapRect.top;
       try {
         srcCtx.drawImage(img, x, y, rect.width, rect.height);
+        drawn++;
       } catch {
-        // CORS — skip tile
+        // CORS tainted — will fallback below
       }
     }
 
-    // Crop to center 50% of the map for focused detection
+    if (drawn === 0 && imgs.length > 0) {
+      // Fallback: re-fetch each tile as a blob to bypass CORS tainting
+      await Promise.all(
+        imgs.map(async (img) => {
+          const src = img.getAttribute('src');
+          if (!src) return;
+          const rect = img.getBoundingClientRect();
+          const x = rect.left - mapRect.left;
+          const y = rect.top - mapRect.top;
+          try {
+            const resp = await fetch(src);
+            const blob = await resp.blob();
+            const bmp = await createImageBitmap(blob);
+            srcCtx.drawImage(bmp, x, y, rect.width, rect.height);
+            bmp.close();
+          } catch {
+            // skip tile
+          }
+        }),
+      );
+    }
+
+    // Verify canvas isn't blank
+    const sample = srcCtx.getImageData(
+      Math.floor(w / 2), Math.floor(h / 2), 1, 1,
+    ).data;
+    if (sample[0] === 0 && sample[1] === 0 && sample[2] === 0 && sample[3] === 0) {
+      this.detecting = false;
+      this.detectError = 'Could not capture map tiles (CORS)';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    // Crop center 70% of viewport
     const cropFraction = 0.7;
     const cropW = Math.round(w * cropFraction);
     const cropH = Math.round(h * cropFraction);
@@ -259,10 +321,13 @@ export class SatelliteWindowComponent
     const cropY = Math.round((h - cropH) / 2);
 
     const cropCanvas = document.createElement('canvas');
-    cropCanvas.width = cropW;
-    cropCanvas.height = cropH;
+    const maxDim = 1024;
+    const scale = Math.min(1, maxDim / Math.max(cropW, cropH));
+    cropCanvas.width = Math.round(cropW * scale);
+    cropCanvas.height = Math.round(cropH * scale);
     cropCanvas.getContext('2d')!.drawImage(
-      srcCanvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH,
+      srcCanvas, cropX, cropY, cropW, cropH,
+      0, 0, cropCanvas.width, cropCanvas.height,
     );
 
     const base64 = cropCanvas.toDataURL('image/jpeg', 0.85).split(',')[1];

@@ -36,6 +36,7 @@ export interface Asset {
   notes: string;
   operatingConfiguration: string | null;
   sourceAccessMode: string | null;
+  evidencePathway: string | null;
   ownershipStatus: string | null;
   evidentDeviceId: string | null;
   evidentStatus: string | null;

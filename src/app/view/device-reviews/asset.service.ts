@@ -148,6 +148,19 @@ export class AssetService {
     );
   }
 
+  classifyPathway(deviceId: number): Observable<any> {
+    return this.http.post<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/classify-pathway`,
+      {},
+    );
+  }
+
+  verifySourceAccessMode(deviceId: number): Observable<any> {
+    return this.http.get<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/source-access-verify`,
+    );
+  }
+
   detectPanels(imageBase64: string): Observable<any> {
     return this.http.post<any>(
       `${environment.API_URL}device-reviews/detect-panels`,

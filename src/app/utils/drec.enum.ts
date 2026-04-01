@@ -56,6 +56,14 @@ export enum SourceAccessMode {
   Mode4_CompensatingControls = 'Mode 4 — Submitted data with compensating controls',
 }
 
+export enum EvidencePathway {
+  DirectGrid = 'Direct Grid-Connected',
+  FileBasedGrid = 'File-Based Grid-Connected',
+  CompensatingGrid = 'Compensating Grid-Connected',
+  DirectOffGrid = 'Direct Off-Grid',
+  CompensatingOffGrid = 'Compensating Off-Grid',
+}
+
 export enum OwnershipStatus {
   Unverified = 'unverified',
   Verified = 'verified',

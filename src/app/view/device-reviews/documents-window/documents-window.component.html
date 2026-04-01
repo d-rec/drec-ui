@@ -264,6 +264,12 @@
                 <span class="field__input field__input--text">{{ detailForm.get('sourceAccessMode')?.value || '—' }}</span>
               </div>
               <div class="field field--auto">
+                <label class="field__label">Evidence Pathway</label>
+                <span class="field__input field__input--text pathway-badge pathway-{{ (detailForm.get('evidencePathway')?.value || '').split(' ')[0] | lowercase }}">
+                  {{ detailForm.get('evidencePathway')?.value || '—' }}
+                </span>
+              </div>
+              <div class="field field--auto">
                 <label class="field__label">Ownership</label>
                 <span class="field__input field__input--text ownership-badge ownership-{{ detailForm.get('ownershipStatus')?.value || 'unverified' }}">
                   {{ detailForm.get('ownershipStatus')?.value || 'unverified' }}
@@ -308,6 +314,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
             </button>
             <button type="button" class="btn btn--screen" (click)="screenDuplicates()" title="Screen for duplicates across all organizations">Screen</button>
+            <button type="button" class="btn btn--verify" (click)="verifySourceAccess()" title="Verify source-access mode requirements (§3.3)">Verify</button>
             <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
             <button type="button" class="btn btn--reject"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Reject</button>
             <button type="button" class="btn btn--archive" (click)="archiveDevice()" [disabled]="detailForm.get('status')?.value === 'pending' || detailForm.get('status')?.value === 'draft'">Archive</button>
@@ -371,6 +378,52 @@
       </div>
       <div class="modal-actions">
         <button class="btn btn--approve" (click)="showDuplicatesModal = false">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Source-access mode verification modal (§3.3) ─────────────── -->
+  <div class="modal-backdrop" *ngIf="showSourceVerifyModal" role="dialog" aria-modal="true" (click)="showSourceVerifyModal = false" (keydown.escape)="showSourceVerifyModal = false">
+    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+      <ng-container *ngIf="sourceVerifyResult">
+        <p class="modal-msg" *ngIf="!sourceVerifyResult.mode" style="color: #64748b;">
+          No source-access mode set for this device. Set it before running verification.
+        </p>
+        <ng-container *ngIf="sourceVerifyResult.mode">
+          <p class="modal-msg" style="font-weight: 600;">{{ sourceVerifyResult.mode }}</p>
+
+          <!-- Missing required -->
+          <div *ngIf="sourceVerifyResult.missingRequired.length > 0" class="verify-section verify-section--fail">
+            <p class="verify-heading">Missing required documents:</p>
+            <ul class="verify-list">
+              <li *ngFor="let d of sourceVerifyResult.missingRequired">{{ d }}</li>
+            </ul>
+          </div>
+          <div *ngIf="sourceVerifyResult.missingRequired.length === 0" class="verify-section verify-section--pass">
+            <p class="verify-heading">All required documents present.</p>
+          </div>
+
+          <!-- Missing recommended -->
+          <div *ngIf="sourceVerifyResult.missingRecommended.length > 0" class="verify-section verify-section--warn">
+            <p class="verify-heading">Missing recommended documents:</p>
+            <ul class="verify-list">
+              <li *ngFor="let d of sourceVerifyResult.missingRecommended">{{ d }}</li>
+            </ul>
+          </div>
+
+          <!-- Manual checks -->
+          <div *ngIf="sourceVerifyResult.manualChecks.length > 0" class="verify-section">
+            <p class="verify-heading">Reviewer must confirm:</p>
+            <div *ngFor="let c of sourceVerifyResult.manualChecks" class="verify-check">
+              <span class="verify-check__label">{{ c.label }}</span>
+              <span class="verify-check__desc">{{ c.description }}</span>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+      <p class="modal-msg" *ngIf="!sourceVerifyResult" style="color: #dc2626;">Verification request failed.</p>
+      <div class="modal-actions">
+        <button class="btn btn--approve" (click)="showSourceVerifyModal = false">OK</button>
       </div>
     </div>
   </div>

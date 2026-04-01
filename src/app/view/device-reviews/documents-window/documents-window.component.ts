@@ -144,6 +144,13 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     organizationId: number;
     matchType: string;
   }> = [];
+  showSourceVerifyModal = false;
+  sourceVerifyResult: {
+    mode: string | null;
+    missingRequired: string[];
+    missingRecommended: string[];
+    manualChecks: Array<{ id: string; label: string; description: string }>;
+  } | null = null;
   private pendingDelete: { asset: Asset; docKey: string; urlField: string; arrayIdx?: number } | null = null;
 
   // resizable detail panel
@@ -224,6 +231,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       submitterName: [''],
       operatingConfiguration: [''],
       sourceAccessMode: [''],
+      evidencePathway: [''],
       ownershipStatus: [''],
       evidentDeviceId: [''],
       evidentStatus: [''],
@@ -863,6 +871,23 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     });
   }
 
+  verifySourceAccess(): void {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.verifySourceAccessMode(deviceId).subscribe({
+      next: (res: any) => {
+        this.sourceVerifyResult = res;
+        this.showSourceVerifyModal = true;
+      },
+      error: (err: any) => {
+        console.error('Source-access verification failed:', err);
+        this.sourceVerifyResult = null;
+        this.showSourceVerifyModal = true;
+      },
+    });
+  }
+
   private allDocsReviewed(): boolean {
     if (!this.editingId) return true;
     const prefix = this.editingId + ':';
@@ -1047,6 +1072,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       submitterName: a.submitterName,
       operatingConfiguration: a.operatingConfiguration ?? '',
       sourceAccessMode: a.sourceAccessMode ?? '',
+      evidencePathway: a.evidencePathway ?? '',
       ownershipStatus: a.ownershipStatus ?? 'unverified',
       evidentDeviceId: a.evidentDeviceId ?? '',
       evidentStatus: a.evidentStatus ?? '',
