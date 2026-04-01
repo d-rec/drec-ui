@@ -51,7 +51,7 @@
     "moment-timezone": "0.5.40",
     "ngx-markdown": "^19.1.1",
     "ngx-toastr": "^19.1.0",
-    "pdfjs-dist": "4.2.67",
+    "pdfjs-dist": "5.6.205",
     "pdfmake": "^0.2.20",
     "rxjs": "~7.8.0",
     "standard-version": "^9.5.0",
