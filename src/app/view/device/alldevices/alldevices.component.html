@@ -354,7 +354,7 @@
                 class="chat-icon-btn"
                 (click)="openChat(row); $event.stopPropagation()"
                 title="Chat about this device"
-                *ngIf="loginuser.role === 'Admin' && row.reviewStatus === 'draft'"
+                *ngIf="row.reviewStatus === 'draft' || row.reviewStatus === 'pending'"
               >
                 <mat-icon class="chat-icon">chat</mat-icon>
               </button>
@@ -386,7 +386,7 @@
                   mat-menu-item
                   class="edit-icon action-icons"
                   (click)="openChat(row)"
-                  *ngIf="loginuser.role === 'Admin' && row.reviewStatus === 'draft'"
+                  *ngIf="row.reviewStatus === 'draft' || row.reviewStatus === 'pending'"
                 >
                   <mat-icon class="primary">chat</mat-icon> Chat
                 </a>

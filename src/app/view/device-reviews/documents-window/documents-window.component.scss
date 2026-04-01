@@ -134,7 +134,7 @@ $legacy:   #a0845c;
   line-height: 1.4;
 
   &--refresh { font-size: 18px; padding: 3px 10px; }
-  &--chat    { padding: 4px 8px; line-height: 0; }
+  &--chat    { padding: 4px 8px; line-height: 0; border-color: #000; }
   &:hover { background: $bg-mid; color: $text; }
   &:disabled { opacity: 0.35; cursor: default; }
 }

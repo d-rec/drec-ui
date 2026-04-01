@@ -46,14 +46,25 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.searchTerm$.next(v);
   }
 
-  statusFilter: Record<AssetStatus, boolean> = {
-    draft: true,
-    pending: true,
-    approved: true,
-    rejected: true,
-    legacy: true,
-  };
+  statusFilter: Record<AssetStatus, boolean> = this.loadStatusFilter();
   readonly statusFilter$ = new BehaviorSubject(this.statusFilter);
+
+  private static readonly STATUS_FILTER_KEY = 'dr_statusFilter';
+
+  private loadStatusFilter(): Record<AssetStatus, boolean> {
+    try {
+      const saved = sessionStorage.getItem(DocumentsWindowComponent.STATUS_FILTER_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch { /* ignore */ }
+    return { draft: true, pending: true, approved: false, rejected: false, legacy: false };
+  }
+
+  private saveStatusFilter(): void {
+    sessionStorage.setItem(
+      DocumentsWindowComponent.STATUS_FILTER_KEY,
+      JSON.stringify(this.statusFilter),
+    );
+  }
 
   searchMatchIds: string[] = [];
   searchIndex = -1;
@@ -364,6 +375,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   onFilterChange(): void {
+    this.saveStatusFilter();
     this.statusFilter$.next({ ...this.statusFilter });
     this.onSearch();
   }

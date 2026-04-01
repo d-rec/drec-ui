@@ -95,6 +95,7 @@ mat-progress-spinner {
 :host ::ng-deep .actions-cell {
   display: flex !important;
   align-items: center !important;
+  gap: 6px;
 }
 
 .chat-icon-btn {
