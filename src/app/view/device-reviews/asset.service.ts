@@ -148,6 +148,12 @@ export class AssetService {
     );
   }
 
+  reviewHistoricalConsistency(deviceId: number): Observable<any> {
+    return this.http.get<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/historical-consistency`,
+    );
+  }
+
   checkProductionCeiling(deviceId: number): Observable<any> {
     return this.http.get<any>(
       `${environment.API_URL}device-reviews/${deviceId}/production-ceiling`,

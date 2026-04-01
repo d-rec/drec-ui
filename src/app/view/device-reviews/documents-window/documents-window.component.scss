@@ -690,6 +690,42 @@ $legacy:   #a0845c;
 .pathway-file-based { color: #d97706; }
 .pathway-compensating { color: #dc2626; }
 
+// ── History / consistency button ───────────────────────────────────────────────
+.btn--consistency {
+  background: #0369a1;
+  color: #fff;
+  border: 1px solid #075985;
+  &:hover { background: #075985; }
+}
+
+.anomaly-type {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.anomaly-severity {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0 5px;
+  border-radius: 3px;
+  margin-left: 6px;
+  line-height: 16px;
+
+  &--critical {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+  }
+  &--warning {
+    background: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fde68a;
+  }
+}
+
 // ── Ceiling button ────────────────────────────────────────────────────────────
 .btn--ceiling {
   background: #7c3aed;

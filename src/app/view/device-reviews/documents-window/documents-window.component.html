@@ -323,6 +323,7 @@
             <button type="button" class="btn btn--screen" (click)="screenDuplicates()" title="Screen for duplicates across all organizations">Screen</button>
             <button type="button" class="btn btn--verify" (click)="verifySourceAccess()" title="Verify source-access mode requirements (§3.3)">Verify</button>
             <button type="button" class="btn btn--ceiling" (click)="checkCeiling()" title="Irradiance-based production ceiling check (§3.6)">Ceiling</button>
+            <button type="button" class="btn btn--consistency" (click)="checkConsistency()" title="Historical consistency review (§3.7)">History</button>
             <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
             <button type="button" class="btn btn--reject"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Reject</button>
             <button type="button" class="btn btn--archive" (click)="archiveDevice()" [disabled]="detailForm.get('status')?.value === 'pending' || detailForm.get('status')?.value === 'draft'">Archive</button>
@@ -504,6 +505,60 @@
       <p class="modal-msg" *ngIf="!ceilingResult" style="color: #dc2626;">Ceiling check failed.</p>
       <div class="modal-actions">
         <button class="btn btn--approve" (click)="showCeilingModal = false">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Historical consistency review modal (§3.7) ───────────────── -->
+  <div class="modal-backdrop" *ngIf="showConsistencyModal" role="dialog" aria-modal="true" (click)="showConsistencyModal = false" (keydown.escape)="showConsistencyModal = false">
+    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+      <ng-container *ngIf="consistencyResult">
+        <p class="modal-msg" style="font-weight: 600;">Historical Consistency Review</p>
+
+        <!-- Summary stats -->
+        <div class="verify-section" *ngIf="consistencyResult.summary">
+          <p class="verify-heading">{{ consistencyResult.totalReadings }} readings over {{ consistencyResult.periodMonths }} month(s)</p>
+          <div class="ceiling-grid">
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val">{{ consistencyResult.summary.meanKwh | number:'1.0-1' }}</span>
+              <span class="ceiling-stat__label">Mean (kWh)</span>
+            </div>
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val">{{ consistencyResult.summary.stdDevKwh | number:'1.0-1' }}</span>
+              <span class="ceiling-stat__label">Std Dev (kWh)</span>
+            </div>
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val">{{ consistencyResult.summary.minKwh | number:'1.0-1' }}–{{ consistencyResult.summary.maxKwh | number:'1.0-1' }}</span>
+              <span class="ceiling-stat__label">Range (kWh)</span>
+            </div>
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val">{{ consistencyResult.summary.coefficientOfVariation | number:'1.0-3' }}</span>
+              <span class="ceiling-stat__label">CV</span>
+            </div>
+          </div>
+        </div>
+        <div class="verify-section" *ngIf="!consistencyResult.summary && consistencyResult.totalReadings === 0">
+          <p class="verify-heading" style="color:#64748b;">No meter readings found for this device.</p>
+        </div>
+
+        <!-- Anomalies -->
+        <div *ngIf="consistencyResult.anomalies.length === 0 && consistencyResult.totalReadings > 0" class="verify-section verify-section--pass">
+          <p class="verify-heading">No anomalies detected.</p>
+        </div>
+        <div *ngFor="let a of consistencyResult.anomalies"
+             class="verify-section"
+             [class.verify-section--fail]="a.severity === 'critical'"
+             [class.verify-section--warn]="a.severity === 'warning'">
+          <p class="verify-heading">
+            <span class="anomaly-type">{{ a.type | titlecase }}</span>
+            <span class="anomaly-severity anomaly-severity--{{ a.severity }}">{{ a.severity }}</span>
+          </p>
+          <p class="verify-check__desc">{{ a.description }}</p>
+        </div>
+      </ng-container>
+      <p class="modal-msg" *ngIf="!consistencyResult" style="color: #dc2626;">Consistency review failed.</p>
+      <div class="modal-actions">
+        <button class="btn btn--approve" (click)="showConsistencyModal = false">OK</button>
       </div>
     </div>
   </div>

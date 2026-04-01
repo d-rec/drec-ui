@@ -150,6 +150,24 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     organizationId: number;
     matchType: string;
   }> = [];
+  showConsistencyModal = false;
+  consistencyResult: {
+    totalReadings: number;
+    periodMonths: number;
+    anomalies: Array<{
+      type: string;
+      severity: 'warning' | 'critical';
+      description: string;
+      readingIds?: number[];
+    }>;
+    summary: {
+      meanKwh: number;
+      stdDevKwh: number;
+      coefficientOfVariation: number;
+      minKwh: number;
+      maxKwh: number;
+    } | null;
+  } | null = null;
   showCeilingModal = false;
   ceilingResult: {
     irradiance: {
@@ -909,6 +927,23 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         console.error('Duplicate screening failed:', err);
         this.duplicateResults = [];
         this.showDuplicatesModal = true;
+      },
+    });
+  }
+
+  checkConsistency(): void {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.reviewHistoricalConsistency(deviceId).subscribe({
+      next: (res: any) => {
+        this.consistencyResult = res;
+        this.showConsistencyModal = true;
+      },
+      error: (err: any) => {
+        console.error('Historical consistency review failed:', err);
+        this.consistencyResult = null;
+        this.showConsistencyModal = true;
       },
     });
   }
