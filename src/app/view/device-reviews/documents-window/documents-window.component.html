@@ -332,6 +332,7 @@
             <button type="button" class="btn btn--consistency" (click)="checkConsistency()" title="Historical consistency review (§3.7)">History</button>
             <button type="button" class="btn btn--audit" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit</button>
             <button type="button" class="btn btn--controls" (click)="evaluateControls()" title="Compensating controls for Mode 4 (§3.9)">Controls</button>
+            <button type="button" class="btn btn--photogps" (click)="checkPhotoGps()" title="Verify photo GPS vs declared location (VA layer)">Photo GPS</button>
             <button type="button" class="btn btn--crosssrc" (click)="checkCrossSource()" title="Cross-source verification with Performance Factor (§3.10)">X-Source</button>
             <span class="detail-actions__sep"></span>
             <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
@@ -679,6 +680,62 @@
       <div class="modal-actions">
         <button class="btn btn--save" (click)="copyAuditTrail()">{{ auditCopyLabel }}</button>
         <button class="btn btn--save" (click)="showAuditModal = false">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Photo GPS verification modal (VA layer) ──────────────────── -->
+  <div class="modal-backdrop" *ngIf="showPhotoGpsModal" role="dialog" aria-modal="true" (click)="showPhotoGpsModal = false" (keydown.escape)="showPhotoGpsModal = false">
+    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+      <ng-container *ngIf="photoGpsResult">
+        <p class="modal-msg" style="font-weight: 600;">Photo GPS Verification</p>
+        <div class="verify-section">
+          <p class="verify-heading">Device location: {{ photoGpsResult.deviceLat | number:'1.0-4' }}, {{ photoGpsResult.deviceLng | number:'1.0-4' }}</p>
+          <p class="verify-check__desc">Threshold: {{ photoGpsResult.thresholdMeters }}m</p>
+        </div>
+
+        <div *ngIf="photoGpsResult.summary.total === 0" class="verify-section">
+          <p class="verify-heading" style="color:#64748b;">No project photos uploaded.</p>
+        </div>
+
+        <div class="verify-section" *ngIf="photoGpsResult.summary.total > 0">
+          <div class="ceiling-grid">
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val">{{ photoGpsResult.summary.total }}</span>
+              <span class="ceiling-stat__label">Photos</span>
+            </div>
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val">{{ photoGpsResult.summary.withGps }}</span>
+              <span class="ceiling-stat__label">With GPS</span>
+            </div>
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val" style="color:#16a34a;">{{ photoGpsResult.summary.withinThreshold }}</span>
+              <span class="ceiling-stat__label">Within {{ photoGpsResult.thresholdMeters }}m</span>
+            </div>
+            <div class="ceiling-stat">
+              <span class="ceiling-stat__val" [style.color]="photoGpsResult.summary.flagged > 0 ? '#dc2626' : '#16a34a'">{{ photoGpsResult.summary.flagged }}</span>
+              <span class="ceiling-stat__label">Flagged</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngFor="let p of photoGpsResult.photos" class="verify-section"
+             [class.verify-section--pass]="p.withinThreshold === true"
+             [class.verify-section--fail]="p.withinThreshold === false"
+             [class.verify-section--warn]="!p.hasGps">
+          <p class="verify-heading">{{ p.fileName }}</p>
+          <p class="verify-check__desc" *ngIf="!p.hasGps">No GPS data in EXIF</p>
+          <p class="verify-check__desc" *ngIf="p.hasGps">
+            GPS: {{ p.lat }}, {{ p.lng }} —
+            <strong>{{ p.distanceMeters }}m</strong> from device
+            <span *ngIf="p.withinThreshold === true" style="color:#16a34a;"> (OK)</span>
+            <span *ngIf="p.withinThreshold === false" style="color:#dc2626;"> (EXCEEDS {{ photoGpsResult.thresholdMeters }}m)</span>
+          </p>
+        </div>
+      </ng-container>
+      <p class="modal-msg" *ngIf="!photoGpsResult" style="color: #dc2626;">Photo GPS check failed.</p>
+      <div class="modal-actions">
+        <button class="btn btn--save" (click)="showPhotoGpsModal = false">OK</button>
       </div>
     </div>
   </div>

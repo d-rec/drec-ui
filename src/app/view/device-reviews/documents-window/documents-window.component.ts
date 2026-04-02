@@ -238,6 +238,22 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     missingRecommended: string[];
     manualChecks: Array<{ id: string; label: string; description: string }>;
   } | null = null;
+  showPhotoGpsModal = false;
+  photoGpsResult: {
+    deviceLat: number | null;
+    deviceLng: number | null;
+    photos: Array<{
+      docId: number;
+      fileName: string;
+      hasGps: boolean;
+      lat: number | null;
+      lng: number | null;
+      distanceMeters: number | null;
+      withinThreshold: boolean | null;
+    }>;
+    thresholdMeters: number;
+    summary: { total: number; withGps: number; withinThreshold: number; flagged: number };
+  } | null = null;
   private pendingDelete: { asset: Asset; docKey: string; urlField: string; arrayIdx?: number } | null = null;
 
   // resizable detail panel
@@ -1109,6 +1125,23 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         console.error('Cross-source verification failed:', err);
         this.crossSourceResult = null;
         this.showCrossSourceModal = true;
+      },
+    });
+  }
+
+  checkPhotoGps(): void {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.verifyPhotoGps(deviceId).subscribe({
+      next: (res: any) => {
+        this.photoGpsResult = res;
+        this.showPhotoGpsModal = true;
+      },
+      error: (err: any) => {
+        console.error('Photo GPS check failed:', err);
+        this.photoGpsResult = null;
+        this.showPhotoGpsModal = true;
       },
     });
   }

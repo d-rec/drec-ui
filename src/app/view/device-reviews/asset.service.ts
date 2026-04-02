@@ -187,6 +187,12 @@ export class AssetService {
     );
   }
 
+  verifyPhotoGps(deviceId: number): Observable<any> {
+    return this.http.get<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/photo-gps`,
+    );
+  }
+
   verifySourceAccessMode(deviceId: number): Observable<any> {
     return this.http.get<any>(
       `${environment.API_URL}device-reviews/${deviceId}/source-access-verify`,

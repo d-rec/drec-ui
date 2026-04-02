@@ -831,6 +831,13 @@ $legacy:   #a0845c;
   &:hover { background: $bg-mid; }
 }
 
+.btn--photogps {
+  background: $bg;
+  color: $text;
+  border: 1px solid $text;
+  &:hover { background: $bg-mid; }
+}
+
 .controls-summary {
   padding: 8px 12px;
   border-radius: 4px;
