@@ -90,6 +90,17 @@ export class MeterReadReviewService {
     );
   }
 
+  bulkUpdateStatus(
+    deviceIds: number[],
+    status: string,
+    reviewer?: string,
+  ): Observable<Array<{ deviceId: number; status: string; error?: string }>> {
+    return this.http.patch<Array<{ deviceId: number; status: string; error?: string }>>(
+      environment.API_URL + 'device-reviews/meter-reads/bulk/status',
+      { deviceIds, status, reviewer },
+    );
+  }
+
   // Reuse existing device-reviews verification endpoints
   reviewHistoricalConsistency(deviceId: number): Observable<any> {
     return this.http.get(
@@ -107,6 +118,20 @@ export class MeterReadReviewService {
   crossSourceVerification(deviceId: number): Observable<any> {
     return this.http.get(
       environment.API_URL + `device-reviews/${deviceId}/cross-source`,
+    );
+  }
+
+  flagMeterRead(deviceId: number, readId: number, reason: string, reviewer?: string): Observable<{ logged: boolean }> {
+    return this.http.post<{ logged: boolean }>(
+      environment.API_URL + `device-reviews/meter-reads/${deviceId}/flag-read`,
+      { readId, reason, reviewer },
+    );
+  }
+
+  gapAnalysis(deviceId: number): Observable<any> {
+    return this.http.post(
+      environment.API_URL + `device-reviews/meter-reads/${deviceId}/gap-analysis`,
+      {},
     );
   }
 

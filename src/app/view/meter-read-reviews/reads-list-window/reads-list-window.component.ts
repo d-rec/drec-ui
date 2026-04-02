@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, combineLatest, forkJoin, Subscription } from 'rxjs';
+import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
   MeterReadReviewDevice,
@@ -83,6 +83,12 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
   auditTrail: any[] = [];
   auditCopyLabel = 'Copy';
   auditSearch = '';
+
+  showGapModal = false;
+  gapResult: any = null;
+  gapError = '';
+
+  flaggedReads: Record<number, boolean> = {};
 
   private subs: Subscription[] = [];
 
@@ -182,13 +188,13 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
 
   private hasOpenModal(): boolean {
     return this.showConsistencyModal || this.showCeilingModal
-      || this.showCrossSourceModal || this.showAuditModal;
+      || this.showCrossSourceModal || this.showAuditModal || this.showGapModal;
   }
 
   private closeTopModal(): boolean {
     const modals: (keyof this)[] = [
       'showConsistencyModal', 'showCeilingModal',
-      'showCrossSourceModal', 'showAuditModal',
+      'showCrossSourceModal', 'showAuditModal', 'showGapModal',
     ];
     for (const key of modals) {
       if (this[key]) {
@@ -422,6 +428,46 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     });
   }
 
+  flagRead(device: MeterReadReviewDevice, read: MeterReadEntry): void {
+    if (this.flaggedReads[read.id]) {
+      this.toast('Already flagged');
+      return;
+    }
+    const reason = prompt('Reason for flagging this read:');
+    if (!reason) return;
+    const loginUser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
+    const reviewer = loginUser.firstName
+      ? `${loginUser.firstName} ${loginUser.lastName || ''}`.trim()
+      : loginUser.email || 'reviewer';
+    this.svc.flagMeterRead(device.deviceId, read.id, reason, reviewer).subscribe({
+      next: () => {
+        this.flaggedReads[read.id] = true;
+        this.toast(`Read #${read.id} flagged`);
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.toast(err?.error?.message || 'Flag failed', 5000);
+      },
+    });
+  }
+
+  checkGaps(): void {
+    if (!this.editingId) return;
+    this.gapResult = null;
+    this.gapError = '';
+    this.showGapModal = true;
+    this.svc.gapAnalysis(this.editingId).subscribe({
+      next: (res) => {
+        this.gapResult = res;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.gapError = err?.error?.message || err?.message || 'Request failed';
+        this.cdr.markForCheck();
+      },
+    });
+  }
+
   get filteredAuditTrail() {
     if (!this.auditSearch) return this.auditTrail;
     const q = this.auditSearch.toLowerCase();
@@ -569,7 +615,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     const reviewer = loginUser.firstName
       ? `${loginUser.firstName} ${loginUser.lastName || ''}`.trim()
       : loginUser.email || 'unknown';
-    forkJoin(ids.map((id) => this.svc.updateStatus(id, status, undefined, reviewer))).subscribe({
+    this.svc.bulkUpdateStatus(ids, status, reviewer).subscribe({
       next: () => {
         const devices = this.svc.devices$.value.map((d) =>
           this.checked[d.deviceId] ? { ...d, reviewStatus: status as ReadReviewStatus, reviewer } : d,

@@ -89,6 +89,7 @@
             <span class="mrr__rcol mrr__rcol--unit">Unit</span>
             <span class="mrr__rcol mrr__rcol--type">Type</span>
             <span class="mrr__rcol mrr__rcol--cert">Cert</span>
+            <span class="mrr__rcol mrr__rcol--flag"></span>
           </div>
           <div
             class="mrr__read-row"
@@ -99,6 +100,9 @@
             <span class="mrr__rcol mrr__rcol--unit">{{ r.unit }}</span>
             <span class="mrr__rcol mrr__rcol--type">{{ r.type }}</span>
             <span class="mrr__rcol mrr__rcol--cert">{{ r.certified ? '✓' : '' }}</span>
+            <span class="mrr__rcol mrr__rcol--flag">
+              <button class="flag-btn" [class.flag-btn--flagged]="flaggedReads[r.id]" (click)="flagRead(row.device, r)" title="Flag as anomalous">⚑</button>
+            </span>
           </div>
           <div class="mrr__read-row mrr__read-row--empty" *ngIf="!row.device.reads.length">
             Loading reads…
@@ -167,6 +171,7 @@
             <button type="button" class="btn btn--tool" (click)="checkConsistency()">Consistency</button>
             <button type="button" class="btn btn--tool" (click)="checkCeiling()">Ceiling</button>
             <button type="button" class="btn btn--tool" (click)="checkCrossSource()">X-Source</button>
+            <button type="button" class="btn btn--tool" (click)="checkGaps()">Gaps</button>
             <button type="button" class="btn btn--tool" (click)="showAudit()">Audit</button>
           </div>
           <div class="mrr__action-buttons">
@@ -279,6 +284,36 @@
       <button class="btn btn--tool" (click)="copyAuditTrail()">{{ auditCopyLabel }}</button>
       <button class="btn btn--tool" (click)="exportAuditCsv()">⤓ CSV</button>
       <button class="btn btn--save" (click)="showAuditModal = false">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gap Analysis Modal ─────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showGapModal" (click)="showGapModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button class="modal__close" (click)="showGapModal = false">&times;</button>
+    <h3>Read Gap Analysis</h3>
+    <div *ngIf="!gapResult && !gapError" class="modal__loading">Analysing…</div>
+    <div *ngIf="gapError" class="modal__error">{{ gapError }}</div>
+    <div *ngIf="gapResult">
+      <div class="modal__stat-grid">
+        <div class="modal__stat"><span class="modal__stat-val">{{ gapResult.totalReads }}</span><span class="modal__stat-lbl">Reads</span></div>
+        <div class="modal__stat"><span class="modal__stat-val">{{ gapResult.coveragePercent }}%</span><span class="modal__stat-lbl">Coverage</span></div>
+        <div class="modal__stat" *ngIf="gapResult.expectedPeriodDays"><span class="modal__stat-val">{{ gapResult.expectedPeriodDays }}d</span><span class="modal__stat-lbl">Typical Period</span></div>
+        <div class="modal__stat"><span class="modal__stat-val">{{ gapResult.gaps.length }}</span><span class="modal__stat-lbl">Gaps Found</span></div>
+      </div>
+      <p *ngIf="gapResult.firstRead">
+        <strong>Range:</strong> {{ formatDate(gapResult.firstRead) }} – {{ formatDate(gapResult.lastRead) }}
+      </p>
+      <div *ngFor="let g of gapResult.gaps" class="modal__anomaly">
+        <span class="modal__anomaly-type">{{ g.gapDays }}-day gap</span>
+        <p class="modal__anomaly-desc">{{ formatDate(g.after) }} → {{ formatDate(g.before) }}</p>
+      </div>
+      <p *ngIf="!gapResult.gaps.length && gapResult.totalReads > 0" class="modal__ok">No significant gaps detected.</p>
+      <p *ngIf="gapResult.totalReads === 0" style="color:#64748b;">No meter reads found for this device.</p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--save" (click)="showGapModal = false">OK</button>
     </div>
   </div>
 </div>
