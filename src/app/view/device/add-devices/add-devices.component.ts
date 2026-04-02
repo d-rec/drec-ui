@@ -290,7 +290,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.myform.valueChanges.subscribe();
 
     const device = this.fb.group({
-      projectName: [null],
+      siteName: [null],
       dataSource: [null, [Validators.required]],
       serialNumber: [null, Validators.pattern(this.serialNumberRegex)],
       otherDataSource: [''],
@@ -408,7 +408,7 @@ export class AddDevicesComponent implements OnDestroy {
       dataSourceBrand: [''],
       serialNumber: [null, Validators.pattern(this.serialNumberRegex)],
       otherDataSource: [''],
-      projectName: [null],
+      siteName: [null],
       address: [null],
       latitude: [null, Validators.pattern(this.numberregex)],
       longitude: [null, Validators.pattern(this.numberregex)],
@@ -459,7 +459,7 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   private setupSiteNameWatcher(deviceGroup: FormGroup, index: number) {
-    deviceGroup.get('projectName')?.valueChanges.pipe(
+    deviceGroup.get('siteName')?.valueChanges.pipe(
       debounceTime(400),
       distinctUntilChanged(),
       switchMap((name: string) => {
@@ -467,7 +467,7 @@ export class AddDevicesComponent implements OnDestroy {
           this.siteNameExists[index] = false;
           return [];
         }
-        return this.deviceService.checkProjectName(name.trim());
+        return this.deviceService.checkSiteName(name.trim());
       }),
     ).subscribe((res) => {
       this.siteNameExists[index] = res?.exists ?? false;

@@ -44,7 +44,7 @@ export class DeviceGroups implements OnInit {
   ];
   displayedColumns1 = [
     'createdAt',
-    'projectName',
+    'siteName',
     'Name',
     'internalexternalId',
     'countryCode',
@@ -99,7 +99,7 @@ export class DeviceGroups implements OnInit {
   orglist: any;
   filteredOrgList: Observable<any[]>;
   showorgerror: boolean = false;
-  devices: { id: string; serialNumber: string; projectName: string }[] = [];
+  devices: { id: string; serialNumber: string; siteName: string }[] = [];
   constructor(
     private authService: AuthbaseService,
     private deviceGroupService: DeviceGroupService,
@@ -357,7 +357,7 @@ export class DeviceGroups implements OnInit {
               group.devices.map((device) => ({
                 id: device.id.toString(),
                 serialNumber: device.serialNumber,
-                projectName: device.projectName,
+                siteName: device.siteName,
               })),
             );
             this.isLoadingResults = false;

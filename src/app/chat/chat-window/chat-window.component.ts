@@ -25,7 +25,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   currentRole = '';
   partnerEmail = '';
   partnerName = '';
-  deviceProjectName: string | null = null;
+  deviceSiteName: string | null = null;
   chatSearch = '';
 
   showClearConfirm = false;
@@ -104,7 +104,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
         if (!submitterEmail) return;
         this.partnerEmail = submitterEmail;
         this.partnerName = submitterEmail;
-        this.deviceProjectName = siteName || null;
+        this.deviceSiteName = siteName || null;
         this.openedAt = new Date();
 
         // Look up existing conversation by site name
@@ -160,7 +160,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
           this.partnerEmail,
           this.currentUsername,
           text,
-          this.deviceProjectName ?? undefined,
+          this.deviceSiteName ?? undefined,
         )
         .subscribe({
           next: (result) => {

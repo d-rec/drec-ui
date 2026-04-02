@@ -501,7 +501,7 @@ export class SatelliteWindowComponent
         offset: [0, -6],
       }).setContent(
         `<div style="min-width:160px;font-size:13px;line-height:1.6">` +
-          `<strong style="font-size:14px">${asset.projectName}</strong><br>` +
+          `<strong style="font-size:14px">${asset.siteName}</strong><br>` +
           `<span style="color:#64748b;font-size:11px">${asset.serial}</span><br>` +
           `<span style="color:${color};font-weight:600">${asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}</span><br>` +
           `<span style="color:#64748b;font-size:11px">${asset.lat.toFixed(5)}, ${asset.long.toFixed(5)}</span><br>` +

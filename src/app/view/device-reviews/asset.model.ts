@@ -22,7 +22,7 @@ export interface Asset {
   screenshotUrls: string[];
   lat: number | null;
   long: number | null;
-  projectName: string;
+  siteName: string;
   capacity: number | null;
   acCapacity: number | null;
   countryCode: string;

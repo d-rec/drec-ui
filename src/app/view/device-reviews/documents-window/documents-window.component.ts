@@ -78,15 +78,15 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   searchIndex = -1;
 
   // sort state
-  sortColumn: 'serial' | 'modifiedDate' | 'status' | 'projectName' =
-    'projectName';
+  sortColumn: 'serial' | 'modifiedDate' | 'status' | 'siteName' =
+    'siteName';
   sortDir: 1 | -1 = 1;
   readonly sort$ = new BehaviorSubject<{ col: string; dir: number }>({
-    col: 'projectName',
+    col: 'siteName',
     dir: 1,
   });
 
-  sortBy(col: 'serial' | 'modifiedDate' | 'status' | 'projectName'): void {
+  sortBy(col: 'serial' | 'modifiedDate' | 'status' | 'siteName'): void {
     if (this.sortColumn === col) {
       this.sortDir = this.sortDir === 1 ? -1 : 1;
     } else {
@@ -105,9 +105,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       } else if (this.sortColumn === 'modifiedDate') {
         av = a.modifiedDate?.getTime() ?? 0;
         bv = b.modifiedDate?.getTime() ?? 0;
-      } else if (this.sortColumn === 'projectName') {
-        av = a.projectName.toLowerCase();
-        bv = b.projectName.toLowerCase();
+      } else if (this.sortColumn === 'siteName') {
+        av = a.siteName.toLowerCase();
+        bv = b.siteName.toLowerCase();
       } else {
         av = a.status;
         bv = b.status;
@@ -147,7 +147,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   duplicateResults: Array<{
     id: number;
     externalId: string;
-    projectName: string;
+    siteName: string;
     serialNumber: string;
     organizationId: number;
     matchType: string;
@@ -531,7 +531,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           .map((u) => this.fileName(u));
         const haystack = [
           a.serial,
-          a.projectName,
+          a.siteName,
           a.reviewer,
           a.submitterEmail,
           a.notes,
@@ -967,7 +967,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       ...asset,
       lat: v.lat !== '' ? parseFloat(v.lat) : null,
       long: v.long !== '' ? parseFloat(v.long) : null,
-      projectName: asset.projectName,
+      siteName: asset.siteName,
       capacity: v.capacity !== '' ? parseFloat(v.capacity) : null,
       acCapacity: v.acCapacity !== '' ? parseFloat(v.acCapacity) : null,
       countryCode: v.countryCode,
@@ -980,7 +980,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     });
     this.detailForm.markAsPristine();
     if (oldStatus !== newStatus) {
-      this.logStatusChange(asset.projectName, oldStatus, newStatus);
+      this.logStatusChange(asset.siteName, oldStatus, newStatus);
       this.toast(`Status changed to "${newStatus}"`);
     } else {
       this.toast('Saved');
@@ -1005,7 +1005,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     if (oldStatus === status) return;
     this.svc.saveAsset({ ...asset, status });
     this.detailForm.patchValue({ status });
-    this.logStatusChange(asset.projectName, oldStatus, status);
+    this.logStatusChange(asset.siteName, oldStatus, status);
   }
 
   private logStatusChange(
@@ -1035,7 +1035,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
     // Otherwise look up/create a conversation for the site
     const asset = this.svc.assets$.value.find(
-      (a) => a.projectName === siteName,
+      (a) => a.siteName === siteName,
     );
     const submitterEmail = asset?.submitterEmail || '';
 
@@ -1111,7 +1111,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
           if (asset) {
             const matches = this.duplicateResults.map((d: any) => d.matchType).join(', ');
-            this.logChatEntry(asset.projectName,
+            this.logChatEntry(asset.siteName,
               `_Duplicate screening flagged ${this.duplicateResults.length} potential match(es): ${matches}. Please review and clarify._`);
           }
         }
@@ -1220,7 +1220,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         if (res.yieldMismatch) {
           const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
           if (asset) {
-            this.logChatEntry(asset.projectName,
+            this.logChatEntry(asset.siteName,
               `_Production ceiling check: configured yield (${res.configuredYield} kWh/kW/yr) exceeds the location-based estimate (${res.irradiance?.yieldHigh} kWh/kW/yr). Please verify or correct the yield value._`);
           }
         }
@@ -1423,7 +1423,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         if (this.editingId === deviceId) {
           this.detailForm.patchValue({ status: 'draft' });
         }
-        this.logStatusChange(asset.projectName, oldStatus, 'draft');
+        this.logStatusChange(asset.siteName, oldStatus, 'draft');
       }
 
       // Persist to backend
@@ -1439,7 +1439,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         const docLabel = this.docKeyLabel(key);
         const action = newVal ? 'reviewed' : 'undone';
         this.logChatEntry(
-          asset.projectName,
+          asset.siteName,
           `_document ${docLabel} was ${action}_`,
         );
       }
@@ -1481,7 +1481,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
     // Look up the device to get submitter email for conversation creation
     const asset = this.svc.assets$.value.find(
-      (a) => a.projectName === siteName,
+      (a) => a.siteName === siteName,
     );
     const submitterEmail = asset?.submitterEmail || '';
 
@@ -1520,7 +1520,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
     if (!asset) return;
     const submitterEmail = asset.submitterEmail || '';
-    const siteName = asset.projectName || '';
+    const siteName = asset.siteName || '';
     this.chatService.readOnly$.next(asset.status === 'rejected');
     this.chatService.openForDevice$.next({ submitterEmail, siteName });
     if (!this.chatService.isChatOpen$.value) {
@@ -1568,7 +1568,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       evidentDeviceId: a.evidentDeviceId ?? '',
       evidentStatus: a.evidentStatus ?? '',
     });
-    this.chatService.siteName$.next(a.projectName || null);
+    this.chatService.siteName$.next(a.siteName || null);
   }
 
   private toDateInput(d: Date | null): string {
@@ -1702,7 +1702,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         this.applyFilter(this.svc.assets$.value, this.searchTerm, this.statusFilter),
       );
       const rows = assets.map((a) => ({
-        'Project Name': a.projectName,
+        'Site Name': a.siteName,
         'Status': a.status,
         'Screen Result': a.lastScreenStatus || '',
         'Screened At': a.lastScreenedAt ? new Date(a.lastScreenedAt).toLocaleDateString('en-GB') : '',

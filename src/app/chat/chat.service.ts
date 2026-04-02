@@ -24,7 +24,7 @@ export interface ChatConversation {
   participant2: string;
   headUuid: string;
   lastEntryUuid: string | null;
-  deviceProjectName: string | null;
+  deviceSiteName: string | null;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -177,12 +177,12 @@ export class ChatService implements OnDestroy {
   getConversation(
     participant1?: string,
     participant2?: string,
-    deviceProjectName?: string,
+    deviceSiteName?: string,
   ): Observable<ChatConversation | null> {
     const body: any = {};
     if (participant1) body.participant1 = participant1;
     if (participant2) body.participant2 = participant2;
-    if (deviceProjectName) body.deviceProjectName = deviceProjectName;
+    if (deviceSiteName) body.deviceSiteName = deviceSiteName;
     return this.http.post<ChatConversation | null>(
       `${this.apiUrl}chat/conversations/find`,
       body,
@@ -194,14 +194,14 @@ export class ChatService implements OnDestroy {
     participant2: string,
     username: string,
     chatEntry: string,
-    deviceProjectName?: string,
+    deviceSiteName?: string,
   ): Observable<{ conversation: ChatConversation; message: ChatMessage }> {
     return this.http.post<any>(`${this.apiUrl}chat/conversations/start`, {
       participant1,
       participant2,
       username,
       chatEntry,
-      deviceProjectName: deviceProjectName ?? null,
+      deviceSiteName: deviceSiteName ?? null,
     });
   }
 

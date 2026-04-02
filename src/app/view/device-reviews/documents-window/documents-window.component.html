@@ -42,7 +42,7 @@
       <div class="dr-row dr-row--header">
         <input type="checkbox" class="bulk-check" [checked]="isAllChecked()" (click)="toggleCheckAll($event)" title="Select all visible" />
         <span class="chevron-spacer"></span>
-        <span class="col-serial  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='projectName'&&sortDir===1" [class.desc]="sortColumn==='projectName'&&sortDir===-1" (click)="sortBy('projectName')" (keydown.enter)="sortBy('projectName')">Project Name</span>
+        <span class="col-serial  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='siteName'&&sortDir===1" [class.desc]="sortColumn==='siteName'&&sortDir===-1" (click)="sortBy('siteName')" (keydown.enter)="sortBy('siteName')">Site Name</span>
         <span class="col-modified th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='modifiedDate'&&sortDir===1" [class.desc]="sortColumn==='modifiedDate'&&sortDir===-1" (click)="sortBy('modifiedDate')" (keydown.enter)="sortBy('modifiedDate')">Modified</span>
         <span class="col-status  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='status'&&sortDir===1" [class.desc]="sortColumn==='status'&&sortDir===-1" (click)="sortBy('status')" (keydown.enter)="sortBy('status')">Status</span>
       </div>
@@ -64,8 +64,8 @@
           <input type="checkbox" class="bulk-check" [checked]="!!checked[item.id]" (click)="toggleCheck(item.id, $event)" />
           <span class="chevron" role="button" tabindex="0" [class.chevron--open]="expanded[item.id]" (click)="toggleDevice(item.id); $event.stopPropagation()" (keydown.enter)="toggleDevice(item.id); $event.stopPropagation()">&#8250;</span>
           <span class="col-serial">
-            <span [innerHTML]="hl(item.projectName, result.searchTerm)"></span>
-            <span class="unread-dot" *ngIf="(chatService.unreadDevices$ | async)?.has(item.projectName)" title="New message">●</span>
+            <span [innerHTML]="hl(item.siteName, result.searchTerm)"></span>
+            <span class="unread-dot" *ngIf="(chatService.unreadDevices$ | async)?.has(item.siteName)" title="New message">●</span>
           </span>
           <span class="col-modified muted">{{ item.modifiedDate ? (item.modifiedDate | date:'dd/MM/yyyy') : '—' }}</span>
           <span class="col-status">
@@ -375,7 +375,7 @@
           <tbody>
             <tr *ngFor="let d of duplicateResults">
               <td>{{ d.id }}</td>
-              <td>{{ d.projectName }}</td>
+              <td>{{ d.siteName }}</td>
               <td>{{ d.serialNumber }}</td>
               <td>{{ d.organizationId }}</td>
               <td><span class="dup-match-badge">{{ d.matchType }}</span></td>

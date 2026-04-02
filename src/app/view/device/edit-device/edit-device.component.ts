@@ -67,7 +67,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   showinput: boolean = true;
   serialNumber: any;
   status: any;
-  projectName: any;
+  siteName: any;
   address: any;
   latitude: any;
   longitude: any;
@@ -173,7 +173,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     this.date = new Date();
     this.updateDeviceForm = this.fb.group({
       serialNumber: [null, [Validators.pattern(/^[a-zA-Z0-9_-]+$/)]],
-      projectName: [null],
+      siteName: [null],
       address: [null, [Validators.required]],
       latitude: [
         null,
@@ -315,7 +315,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.id = data.id;
         this.serialNumber = data.serialNumber;
         this.status = data.status;
-        this.projectName = data.projectName;
+        this.siteName = data.siteName;
         this.address = data.address;
         this.latitude = data.latitude;
         this.longitude = data.longitude;

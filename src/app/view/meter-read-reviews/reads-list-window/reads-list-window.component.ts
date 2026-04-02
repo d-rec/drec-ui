@@ -51,7 +51,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     rejected: false,
   };
 
-  sortField: 'projectName' | 'readCount' | 'latestReadDate' | 'totalKwh' | 'reviewStatus' = 'latestReadDate';
+  sortField: 'siteName' | 'readCount' | 'latestReadDate' | 'totalKwh' | 'reviewStatus' = 'latestReadDate';
   sortDir: 'asc' | 'desc' = 'desc';
 
   filteredDevices: FilteredRow[] = [];
@@ -126,7 +126,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
                 (d) =>
                   filters[d.reviewStatus] &&
                   (!lc ||
-                    d.projectName?.toLowerCase().includes(lc) ||
+                    d.siteName?.toLowerCase().includes(lc) ||
                     d.externalId?.toLowerCase().includes(lc) ||
                     d.serialNumber?.toLowerCase().includes(lc)),
               )
@@ -316,7 +316,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
           const device = devices.find((d) => d.deviceId === this.editingId);
           if (device) {
             this.logChatEntry(
-              device.projectName,
+              device.siteName,
               `_Meter-read review status changed to **${reviewStatus}**._`,
             );
           }
@@ -341,7 +341,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     this.chatService.readOnly$.next(device.reviewStatus === 'rejected');
     this.chatService.openForDevice$.next({
       submitterEmail: device.submitterEmail,
-      siteName: device.projectName,
+      siteName: device.siteName,
     });
     if (!this.chatService.isChatOpen$.value) {
       this.chatService.isChatOpen$.next(true);
@@ -354,7 +354,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     if (!email) return;
 
     const device = this.svc.devices$.value.find(
-      (d) => d.projectName === siteName,
+      (d) => d.siteName === siteName,
     );
     const submitter = device?.submitterEmail;
     if (!submitter) return;

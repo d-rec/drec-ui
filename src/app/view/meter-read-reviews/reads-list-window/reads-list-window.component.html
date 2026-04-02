@@ -35,9 +35,9 @@
         <input type="checkbox" [checked]="isAllChecked()" (change)="toggleCheckAll($event)" title="Select all" />
       </span>
       <span class="mrr__col mrr__col--expand"></span>
-      <span class="mrr__col mrr__col--name" (click)="toggleSort('projectName')">
+      <span class="mrr__col mrr__col--name" (click)="toggleSort('siteName')">
         Site Name
-        <span class="sort-arrow" *ngIf="sortField === 'projectName'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+        <span class="sort-arrow" *ngIf="sortField === 'siteName'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
       </span>
       <span class="mrr__col mrr__col--count" (click)="toggleSort('readCount')">
         Reads
@@ -72,7 +72,7 @@
           <span class="mrr__col mrr__col--expand" (click)="toggleExpand(row.device); $event.stopPropagation()">
             <span class="chevron" [class.chevron--open]="isExpanded(row.device.deviceId)">›</span>
           </span>
-          <span class="mrr__col mrr__col--name" [innerHTML]="hl(row.device.projectName, row.searchTerm)"></span>
+          <span class="mrr__col mrr__col--name" [innerHTML]="hl(row.device.siteName, row.searchTerm)"></span>
           <span class="mrr__col mrr__col--count">{{ row.device.readCount }}</span>
           <span class="mrr__col mrr__col--date">{{ formatDate(row.device.latestReadDate) }}</span>
           <span class="mrr__col mrr__col--kwh">{{ formatKwh(row.device.totalKwh) }}</span>
@@ -125,7 +125,7 @@
         <div class="mrr__detail-summary">
           <div class="field">
             <label class="field__label">Site Name</label>
-            <span class="field__value">{{ d.projectName }}</span>
+            <span class="field__value">{{ d.siteName }}</span>
           </div>
           <div class="field">
             <label class="field__label">External ID</label>

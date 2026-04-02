@@ -141,7 +141,7 @@ export class AssetService {
     duplicates: Array<{
       id: number;
       externalId: string;
-      projectName: string;
+      siteName: string;
       serialNumber: string;
       organizationId: number;
       matchType: string;

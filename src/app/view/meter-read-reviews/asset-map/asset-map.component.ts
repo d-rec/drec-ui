@@ -109,7 +109,7 @@ export class MrrAssetMapComponent
         offset: [0, -6],
       }).setContent(
         `<div style="min-width:160px;font-size:13px;line-height:1.6">` +
-          `<strong style="font-size:14px">${d.projectName}</strong><br>` +
+          `<strong style="font-size:14px">${d.siteName}</strong><br>` +
           `<span style="color:#64748b;font-size:11px">${d.externalId}</span><br>` +
           `<span style="color:${color};font-weight:600">${d.reviewStatus.charAt(0).toUpperCase() + d.reviewStatus.slice(1)}</span><br>` +
           `<span style="color:#64748b;font-size:11px">${lat.toFixed(5)}, ${lng.toFixed(5)}</span><br>` +

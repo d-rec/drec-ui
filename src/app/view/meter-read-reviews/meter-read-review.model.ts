@@ -13,7 +13,7 @@ export interface MeterReadEntry {
 export interface MeterReadReviewDevice {
   deviceId: number;
   externalId: string;
-  projectName: string;
+  siteName: string;
   serialNumber: string;
   capacity: number | null;
   countryCode: string;

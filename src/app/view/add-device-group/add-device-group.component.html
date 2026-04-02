@@ -441,12 +441,12 @@
                     {{ row.createdAt | date: 'dd MMM yyyy hh:mm' }}
                   </td>
                 </ng-container>
-                <ng-container matColumnDef="projectName">
+                <ng-container matColumnDef="siteName">
                   <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                    ProjectName
+                    SiteName
                   </th>
                   <td mat-cell *matCellDef="let element">
-                    {{ element.projectName }}
+                    {{ element.siteName }}
                   </td>
                 </ng-container>
                 <ng-container matColumnDef="externalId">

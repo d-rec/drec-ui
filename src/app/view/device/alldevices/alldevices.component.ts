@@ -32,7 +32,7 @@ export class AlldevicesComponent {
   title = 'matDialog';
   dataFromDialog: any;
   displayedColumns = [
-    'projectName',
+    'siteName',
     'externalId',
     'capacity',
     'countryCode',
@@ -500,7 +500,7 @@ export class AlldevicesComponent {
   }
 
   openChat(device: any): void {
-    const siteName = device.projectName || '';
+    const siteName = device.siteName || '';
     this.chatService.getAdminUser().subscribe({
       next: (admin) => {
         if (!admin?.email) return;

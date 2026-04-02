@@ -11,7 +11,7 @@ export interface Device {
   developerExternalId?: string;
   //status: DeviceStatus;
   organizationId: number;
-  projectName: string;
+  siteName: string;
   address?: string;
   latitude: string;
   longitude: string;

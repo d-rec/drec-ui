@@ -19,7 +19,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let conv of conversations" class="cl__row" (click)="openConversation(conv)" (keydown.enter)="openConversation(conv)" tabindex="0" role="button">
-        <td class="cl__cell--site">{{ conv.deviceProjectName || '(no site)' }}</td>
+        <td class="cl__cell--site">{{ conv.deviceSiteName || '(no site)' }}</td>
         <td class="cl__cell--participant">{{ otherParticipant(conv) }}</td>
         <td class="cl__cell--action">
           <button class="cl__open-btn" title="Open chat">

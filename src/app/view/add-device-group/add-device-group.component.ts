@@ -43,7 +43,7 @@ export class AddDeviceGroupComponent {
   displayedColumns = [
     'select',
     'onboarding_date',
-    'projectName',
+    'siteName',
     'externalId',
     'internalexternalId',
     'countryCode',

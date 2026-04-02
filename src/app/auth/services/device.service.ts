@@ -299,7 +299,7 @@ export class DeviceService {
 
     return this.httpClient.delete(searchUrl);
   }
-  checkProjectName(name: string): Observable<{ exists: boolean }> {
+  checkSiteName(name: string): Observable<{ exists: boolean }> {
     return this.httpClient.get<{ exists: boolean }>(
       `${this.url}device/check-name?name=${encodeURIComponent(name)}`,
     );
