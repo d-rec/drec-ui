@@ -75,6 +75,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
   showAuditModal = false;
   auditTrail: any[] = [];
   auditCopyLabel = 'Copy';
+  auditSearch = '';
 
   private subs: Subscription[] = [];
 
@@ -356,9 +357,22 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     });
   }
 
+  get filteredAuditTrail() {
+    if (!this.auditSearch) return this.auditTrail;
+    const q = this.auditSearch.toLowerCase();
+    return this.auditTrail.filter(
+      (e: any) =>
+        e.actionType?.toLowerCase().includes(q) ||
+        e.performedBy?.toLowerCase().includes(q) ||
+        (e.detail && e.detail.toLowerCase().includes(q)) ||
+        e.createdAt?.toLowerCase().includes(q),
+    );
+  }
+
   showAudit(): void {
     if (!this.editingId) return;
     this.auditTrail = [];
+    this.auditSearch = '';
     this.showAuditModal = true;
     this.svc.getAuditTrail(this.editingId).subscribe({
       next: (res) => {

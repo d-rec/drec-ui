@@ -160,6 +160,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     createdAt: string;
   }> = [];
   auditCopyLabel = 'Copy';
+  auditSearch = '';
   showConsistencyModal = false;
   consistencyError: string | null = null;
   consistencyResult: {
@@ -177,6 +178,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       coefficientOfVariation: number;
       minKwh: number;
       maxKwh: number;
+      sigmaBand?: { low: number; high: number; outliersCount: number };
     } | null;
   } | null = null;
   showCeilingModal = false;
@@ -238,6 +240,29 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     missingRecommended: string[];
     manualChecks: Array<{ id: string; label: string; description: string }>;
   } | null = null;
+  showAutoScreenModal = false;
+  autoScreenLoading = false;
+  autoScreenResult: {
+    deviceId: number;
+    sections: Array<{
+      name: string;
+      status: 'pass' | 'warn' | 'fail' | 'skip';
+      flags: string[];
+      detail?: any;
+    }>;
+    overallStatus: 'pass' | 'warn' | 'fail';
+    timestamp: string;
+  } | null = null;
+  showSldModal = false;
+  sldResult: {
+    registeredCapacityKw: number | null;
+    sldCapacityKw: number | null;
+    hasSld: boolean;
+    differencePercent: number | null;
+    tolerancePercent: number;
+    match: boolean | null;
+  } | null = null;
+  sldInputKw: number | null = null;
   showPhotoGpsModal = false;
   photoGpsResult: {
     deviceLat: number | null;
@@ -568,7 +593,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   // ── File handling ─────────────────────────────────────────────────────────────
 
-  async openFile(url: string, event: Event): Promise<void> {
+  async openFile(url: string, event: Event, isSld = false): Promise<void> {
     event.stopPropagation();
     if (!url || this.isBroken(url)) {
       alert('File is missing\n\n' + url);
@@ -576,8 +601,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     }
     const freshUrl = await this.svc.refreshUrl(url);
     if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
+      this.svc.sldDeviceId$.next(null);
       this.svc.viewPicture(freshUrl);
     } else {
+      this.svc.sldDeviceId$.next(
+        isSld && this.editingId ? parseInt(this.editingId, 10) : null,
+      );
       this.svc.viewPdf(freshUrl);
     }
   }
@@ -1015,6 +1044,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     if (!this.editingId) return;
     const deviceId = parseInt(this.editingId, 10);
     if (isNaN(deviceId)) return;
+    this.auditSearch = '';
     this.svc.getAuditTrail(deviceId).subscribe({
       next: (res: any[]) => {
         this.auditTrail = res;
@@ -1026,6 +1056,18 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         this.showAuditModal = true;
       },
     });
+  }
+
+  get filteredAuditTrail() {
+    if (!this.auditSearch) return this.auditTrail;
+    const q = this.auditSearch.toLowerCase();
+    return this.auditTrail.filter(
+      (e) =>
+        e.actionType.toLowerCase().includes(q) ||
+        e.performedBy.toLowerCase().includes(q) ||
+        (e.detail && e.detail.toLowerCase().includes(q)) ||
+        e.createdAt.toLowerCase().includes(q),
+    );
   }
 
   copyAuditTrail(): void {
@@ -1125,6 +1167,59 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         console.error('Cross-source verification failed:', err);
         this.crossSourceResult = null;
         this.showCrossSourceModal = true;
+      },
+    });
+  }
+
+  runAutoScreen(): void {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.autoScreenLoading = true;
+    this.autoScreenResult = null;
+    this.showAutoScreenModal = true;
+    this.svc.autoScreen(deviceId).subscribe({
+      next: (res: any) => {
+        this.autoScreenResult = res;
+        this.autoScreenLoading = false;
+      },
+      error: (err: any) => {
+        console.error('Auto-screen failed:', err);
+        this.autoScreenResult = null;
+        this.autoScreenLoading = false;
+      },
+    });
+  }
+
+  checkSldCapacity(): void {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.compareSldCapacity(deviceId).subscribe({
+      next: (res: any) => {
+        this.sldResult = res;
+        this.sldInputKw = res.sldCapacityKw;
+        this.showSldModal = true;
+      },
+      error: (err: any) => {
+        console.error('SLD compare failed:', err);
+        this.sldResult = null;
+        this.showSldModal = true;
+      },
+    });
+  }
+
+  saveSldCapacity(): void {
+    if (!this.editingId || this.sldInputKw == null) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.setSldCapacity(deviceId, this.sldInputKw).subscribe({
+      next: () => {
+        // Re-fetch the comparison after saving
+        this.checkSldCapacity();
+      },
+      error: (err: any) => {
+        console.error('Failed to save SLD capacity:', err);
       },
     });
   }

@@ -63,7 +63,7 @@
         <ng-container *ngIf="expanded[item.id]">
 
           <!-- ── SLD ─────────────────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.sldUrl" (dblclick)="item.sldUrl && openFile(item.sldUrl, $event)" (keydown.enter)="item.sldUrl && openFile(item.sldUrl, $event)" tabindex="0">
+          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.sldUrl" (dblclick)="item.sldUrl && openFile(item.sldUrl, $event, true)" (keydown.enter)="item.sldUrl && openFile(item.sldUrl, $event, true)" tabindex="0">
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sld']" [class.review-check--disabled]="!item.sldUrl" role="checkbox" [attr.tabindex]="item.sldUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sld']" [attr.aria-disabled]="!item.sldUrl" (click)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" (keydown.enter)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sld']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
@@ -326,6 +326,8 @@
               </div>
             </div>
           <div class="detail-actions">
+            <button type="button" class="btn btn--autoscreen" (click)="runAutoScreen()" title="Run all verification checks (VA layer)">Auto-Screen</button>
+            <span class="detail-actions__sep"></span>
             <button type="button" class="btn btn--screen" (click)="screenDuplicates()" title="Screen for duplicates across all organizations">Screen</button>
             <button type="button" class="btn btn--verify" (click)="verifySourceAccess()" title="Verify source-access mode requirements (§3.3)">Verify</button>
             <button type="button" class="btn btn--ceiling" (click)="checkCeiling()" title="Irradiance-based production ceiling check (§3.6)">Ceiling</button>
@@ -333,6 +335,7 @@
             <button type="button" class="btn btn--audit" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit</button>
             <button type="button" class="btn btn--controls" (click)="evaluateControls()" title="Compensating controls for Mode 4 (§3.9)">Controls</button>
             <button type="button" class="btn btn--photogps" (click)="checkPhotoGps()" title="Verify photo GPS vs declared location (VA layer)">Photo GPS</button>
+            <button type="button" class="btn btn--sld" (click)="checkSldCapacity()" title="Compare SLD capacity vs registered capacity (VA layer)">SLD kW</button>
             <button type="button" class="btn btn--crosssrc" (click)="checkCrossSource()" title="Cross-source verification with Performance Factor (§3.10)">X-Source</button>
             <span class="detail-actions__sep"></span>
             <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
@@ -662,12 +665,17 @@
   <!-- ── Audit trail modal (§3.8) ─────────────────────────────────── -->
   <div class="modal-backdrop" *ngIf="showAuditModal" role="dialog" aria-modal="true" (click)="showAuditModal = false" (keydown.escape)="showAuditModal = false">
     <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
-      <p class="modal-msg" style="font-weight: 600;">Audit Trail</p>
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+        <p class="modal-msg" style="font-weight: 600; margin: 0;">Audit Trail</p>
+        <input *ngIf="auditTrail.length > 0" type="text" placeholder="Search..."
+          [(ngModel)]="auditSearch"
+          style="flex: 1; padding: 3px 8px; font-size: 12px; border: 1px solid #ced4da; border-radius: 4px; outline: none;" />
+      </div>
       <div *ngIf="auditTrail.length === 0" class="verify-section">
         <p class="verify-heading" style="color:#64748b;">No audit entries for this device.</p>
       </div>
       <div *ngIf="auditTrail.length > 0" class="audit-list">
-        <div *ngFor="let entry of auditTrail" class="audit-entry">
+        <div *ngFor="let entry of filteredAuditTrail" class="audit-entry">
           <div class="audit-entry__header">
             <span class="audit-entry__action">{{ entry.actionType }}</span>
             <span class="audit-entry__by">{{ entry.performedBy }}</span>
@@ -736,6 +744,90 @@
       <p class="modal-msg" *ngIf="!photoGpsResult" style="color: #dc2626;">Photo GPS check failed.</p>
       <div class="modal-actions">
         <button class="btn btn--save" (click)="showPhotoGpsModal = false">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Auto-Screen Report modal (VA layer) ──────────────────────── -->
+  <div class="modal-backdrop" *ngIf="showAutoScreenModal" role="dialog" aria-modal="true" (click)="showAutoScreenModal = false" (keydown.escape)="showAutoScreenModal = false">
+    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+      <button type="button" class="modal-close" (click)="showAutoScreenModal = false" aria-label="Close">&times;</button>
+      <ng-container *ngIf="autoScreenResult">
+        <p class="modal-msg" style="font-weight: 600;">Auto-Screen Report</p>
+
+        <div class="screen-overall" [ngClass]="{
+          'screen-overall--pass': autoScreenResult.overallStatus === 'pass',
+          'screen-overall--warn': autoScreenResult.overallStatus === 'warn',
+          'screen-overall--fail': autoScreenResult.overallStatus === 'fail'
+        }">
+          {{ autoScreenResult.overallStatus | uppercase }}
+        </div>
+
+        <div *ngFor="let s of autoScreenResult.sections" class="screen-section" [ngClass]="{
+          'screen-section--pass': s.status === 'pass',
+          'screen-section--warn': s.status === 'warn',
+          'screen-section--fail': s.status === 'fail',
+          'screen-section--skip': s.status === 'skip'
+        }">
+          <div class="screen-section__header">
+            <span class="screen-section__name">{{ s.name }}</span>
+            <span class="screen-section__badge">{{ s.status | uppercase }}</span>
+          </div>
+          <ul class="screen-section__flags" *ngIf="s.flags.length > 0">
+            <li *ngFor="let f of s.flags">{{ f }}</li>
+          </ul>
+        </div>
+
+        <p class="screen-timestamp">Generated: {{ autoScreenResult.timestamp | date:'medium' }}</p>
+      </ng-container>
+      <div *ngIf="autoScreenLoading" style="text-align:center; padding: 24px; color: #64748b;">
+        Running all checks…
+      </div>
+      <p class="modal-msg" *ngIf="!autoScreenResult && !autoScreenLoading" style="color: #dc2626;">Auto-screen failed.</p>
+      <div class="modal-actions">
+        <button class="btn btn--save" (click)="showAutoScreenModal = false">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SLD Capacity Compare modal (VA layer) ────────────────────── -->
+  <div class="modal-backdrop" *ngIf="showSldModal" role="dialog" aria-modal="true" (click)="showSldModal = false" (keydown.escape)="showSldModal = false">
+    <div class="modal-box" role="document" (click)="$event.stopPropagation()">
+      <ng-container *ngIf="sldResult">
+        <p class="modal-msg" style="font-weight: 600;">SLD Capacity Compare</p>
+
+        <div class="verify-section">
+          <p class="verify-heading">Registered capacity: {{ sldResult.registeredCapacityKw != null ? (sldResult.registeredCapacityKw | number:'1.0-2') + ' kW' : 'Not set' }}</p>
+          <p class="verify-check__desc" *ngIf="!sldResult.hasSld" style="color: #dc2626;">No Single Line Diagram uploaded</p>
+        </div>
+
+        <div class="verify-section">
+          <p class="verify-heading">SLD-stated capacity (kW)</p>
+          <div class="sld-input-row">
+            <input type="number" class="sld-input" [(ngModel)]="sldInputKw"
+                   [placeholder]="sldResult.sldCapacityKw != null ? sldResult.sldCapacityKw : 'Enter kW from SLD'" step="0.1" min="0">
+            <button class="btn btn--save" (click)="saveSldCapacity()" [disabled]="sldInputKw == null">Save</button>
+          </div>
+        </div>
+
+        <div class="verify-section" *ngIf="sldResult.match !== null"
+             [class.verify-section--pass]="sldResult.match"
+             [class.verify-section--fail]="!sldResult.match">
+          <p class="verify-heading">
+            {{ sldResult.match ? 'MATCH' : 'MISMATCH' }}
+            — difference: {{ sldResult.differencePercent! > 0 ? '+' : '' }}{{ sldResult.differencePercent }}%
+            (tolerance: ±{{ sldResult.tolerancePercent }}%)
+          </p>
+        </div>
+
+        <div class="verify-section verify-section--warn" *ngIf="sldResult.sldCapacityKw == null && sldResult.hasSld">
+          <p class="verify-heading">Awaiting reviewer input</p>
+          <p class="verify-check__desc">Open the SLD document and enter the stated capacity above.</p>
+        </div>
+      </ng-container>
+      <p class="modal-msg" *ngIf="!sldResult" style="color: #dc2626;">SLD comparison failed.</p>
+      <div class="modal-actions">
+        <button class="btn btn--save" (click)="showSldModal = false">OK</button>
       </div>
     </div>
   </div>

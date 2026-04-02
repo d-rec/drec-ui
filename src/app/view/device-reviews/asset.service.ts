@@ -19,6 +19,8 @@ export class AssetService {
   readonly viewPictureUrl$ = new BehaviorSubject<string | null>(null);
   readonly viewPictureIsScreenshot$ = new BehaviorSubject<boolean>(false);
   readonly viewPdfUrl$ = new BehaviorSubject<string | null>(null);
+  /** When non-null, the PDF window should show SLD capacity compare for this device. */
+  readonly sldDeviceId$ = new BehaviorSubject<number | null>(null);
   readonly flyTo$ = new ReplaySubject<{ lat: number; lng: number }>(1);
   readonly loading$ = new BehaviorSubject<boolean>(false);
   readonly error$ = new BehaviorSubject<string | null>(null);
@@ -184,6 +186,25 @@ export class AssetService {
   evaluateCompensatingControls(deviceId: number): Observable<any> {
     return this.http.get<any>(
       `${environment.API_URL}device-reviews/${deviceId}/compensating-controls`,
+    );
+  }
+
+  compareSldCapacity(deviceId: number): Observable<any> {
+    return this.http.get<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/sld-compare`,
+    );
+  }
+
+  setSldCapacity(deviceId: number, sldCapacityKw: number): Observable<any> {
+    return this.http.patch<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/sld-capacity`,
+      { sldCapacityKw },
+    );
+  }
+
+  autoScreen(deviceId: number): Observable<any> {
+    return this.http.get<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/auto-screen`,
     );
   }
 

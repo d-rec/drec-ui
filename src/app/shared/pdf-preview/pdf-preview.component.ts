@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SafeResourceUrl } from '@angular/platform-browser';
+import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -27,6 +28,21 @@ export class PdfPreviewComponent implements OnChanges {
   @Input() previewType: 'pdf' | 'image' = 'pdf';
   /** Either a File (add/edit-device) or a raw URL string (device-reviews). Triggers OCR automatically. */
   @Input() ocrSource: File | string | null = null;
+  /** When set, shows SLD capacity compare panel for this device. */
+  @Input() sldDeviceId: number | null = null;
+
+  // SLD compare state
+  sldResult: {
+    registeredCapacityKw: number | null;
+    sldCapacityKw: number | null;
+    hasSld: boolean;
+    differencePercent: number | null;
+    tolerancePercent: number;
+    match: boolean | null;
+  } | null = null;
+  sldInputKw: number | null = null;
+  sldLoading = false;
+  sldSaved = false;
 
   ocrText = '';
   ocrLoading = false;
@@ -40,10 +56,50 @@ export class PdfPreviewComponent implements OnChanges {
   private dragStartY = 0;
   private dragStartHeight = 0;
 
+  constructor(private http: HttpClient) {}
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['ocrSource']) {
       this.resetState();
     }
+    if (changes['sldDeviceId'] && this.sldDeviceId) {
+      this.fetchSldCompare();
+    }
+  }
+
+  fetchSldCompare(): void {
+    if (!this.sldDeviceId) return;
+    this.sldLoading = true;
+    this.sldSaved = false;
+    this.http
+      .get<any>(`${environment.API_URL}device-reviews/${this.sldDeviceId}/sld-compare`)
+      .subscribe({
+        next: (res) => {
+          this.sldResult = res;
+          this.sldInputKw = res.sldCapacityKw;
+          this.sldLoading = false;
+        },
+        error: () => {
+          this.sldResult = null;
+          this.sldLoading = false;
+        },
+      });
+  }
+
+  saveSldCapacity(): void {
+    if (!this.sldDeviceId || this.sldInputKw == null) return;
+    this.sldSaved = false;
+    this.http
+      .patch<any>(`${environment.API_URL}device-reviews/${this.sldDeviceId}/sld-capacity`, {
+        sldCapacityKw: this.sldInputKw,
+      })
+      .subscribe({
+        next: () => {
+          this.sldSaved = true;
+          this.fetchSldCompare();
+        },
+        error: (err) => console.error('Failed to save SLD capacity:', err),
+      });
   }
 
   startOcr(): void {

@@ -248,9 +248,14 @@
 <!-- ── Audit Trail Modal ────────────────────────────────────────────── -->
 <div class="modal-backdrop" *ngIf="showAuditModal" (click)="showAuditModal = false">
   <div class="modal modal--wide" (click)="$event.stopPropagation()">
-    <h3>Audit Trail</h3>
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+      <h3 style="margin: 0;">Audit Trail</h3>
+      <input *ngIf="auditTrail.length > 0" type="text" placeholder="Search..."
+        [(ngModel)]="auditSearch"
+        style="flex: 1; padding: 3px 8px; font-size: 12px; border: 1px solid #ced4da; border-radius: 4px; outline: none;" />
+    </div>
     <div class="audit-list">
-      <div class="audit-entry" *ngFor="let e of auditTrail">
+      <div class="audit-entry" *ngFor="let e of filteredAuditTrail">
         <span class="audit-action">{{ e.actionType }}</span>
         <span class="audit-by">{{ e.performedBy }}</span>
         <span class="audit-date">{{ formatDate(e.createdAt) }}</span>

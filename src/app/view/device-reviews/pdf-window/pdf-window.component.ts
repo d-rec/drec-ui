@@ -24,7 +24,9 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
   safeUrl: SafeResourceUrl | null = null;
   currentUrl: string | null = null;
   fileName = 'Document Viewer';
+  sldDeviceId: number | null = null;
   private sub!: Subscription;
+  private sldSub!: Subscription;
   private blobUrl: string | null = null;
 
   constructor(
@@ -34,6 +36,10 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.sldSub = this.svc.sldDeviceId$.subscribe((id) => {
+      this.sldDeviceId = id;
+      this.cdr.detectChanges();
+    });
     this.sub = this.svc.viewPdfUrl$.subscribe((url) => {
       // Revoke previous blob URL
       if (this.blobUrl) {
@@ -70,6 +76,7 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
+    this.sldSub.unsubscribe();
     if (this.blobUrl) {
       URL.revokeObjectURL(this.blobUrl);
     }

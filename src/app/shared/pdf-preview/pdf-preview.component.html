@@ -41,6 +41,40 @@
       (mousedown)="onDragStart($event)">
       <div class="pdf-preview__drag-handle-bar"></div>
     </div>
+    <!-- SLD Capacity Compare (only when viewing an SLD) -->
+    <div *ngIf="sldDeviceId" class="pdf-preview__sld">
+      <div class="pdf-preview__sld-header">
+        <h4 style="margin: 0; font-size: 14px; color: #475569;">
+          <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">electric_bolt</mat-icon>
+          SLD Capacity Compare
+        </h4>
+      </div>
+      <div *ngIf="sldLoading" style="padding: 8px; text-align: center; color: #64748b; font-size: 12px;">Loading…</div>
+      <div *ngIf="sldResult && !sldLoading" class="pdf-preview__sld-body">
+        <div class="pdf-preview__sld-row">
+          <span class="pdf-preview__sld-label">Registered</span>
+          <span class="pdf-preview__sld-val">{{ sldResult.registeredCapacityKw != null ? (sldResult.registeredCapacityKw + ' kW') : '—' }}</span>
+        </div>
+        <div class="pdf-preview__sld-row">
+          <span class="pdf-preview__sld-label">SLD stated (kW)</span>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <input type="number" class="pdf-preview__sld-input" [(ngModel)]="sldInputKw" step="0.1" min="0" placeholder="Enter kW">
+            <button class="pdf-preview__sld-save" (click)="saveSldCapacity()" [disabled]="sldInputKw == null">Save</button>
+          </div>
+        </div>
+        <div *ngIf="sldResult.match !== null" class="pdf-preview__sld-result"
+             [class.pdf-preview__sld-result--pass]="sldResult.match"
+             [class.pdf-preview__sld-result--fail]="!sldResult.match">
+          {{ sldResult.match ? 'MATCH' : 'MISMATCH' }}
+          ({{ sldResult.differencePercent! > 0 ? '+' : '' }}{{ sldResult.differencePercent }}%, tolerance ±{{ sldResult.tolerancePercent }}%)
+        </div>
+        <div *ngIf="sldResult.match === null && sldResult.sldCapacityKw == null" class="pdf-preview__sld-hint">
+          Read the capacity from the SLD document and enter it above.
+        </div>
+        <div *ngIf="sldSaved" class="pdf-preview__sld-hint" style="color: #16a34a;">Saved.</div>
+      </div>
+    </div>
+
     <!-- Translation pane -->
     <div *ngIf="translatedText || translating" class="pdf-preview__translation">
       <div class="pdf-preview__translation-header">

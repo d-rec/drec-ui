@@ -99,6 +99,83 @@
     border-radius: 2px;
   }
 
+  &__sld {
+    flex-shrink: 0;
+    border: 1px solid #e2e6ea;
+    border-radius: 6px;
+    background: #f8f9fb;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+
+  &__sld-header {
+    padding: 6px 10px;
+    border-bottom: 1px solid #e2e6ea;
+    background: #f1f5f9;
+  }
+
+  &__sld-body {
+    padding: 8px 10px;
+  }
+
+  &__sld-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+
+  &__sld-label {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  &__sld-val {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  &__sld-input {
+    width: 90px;
+    padding: 3px 6px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 12px;
+    &:focus { outline: none; border-color: #1e293b; }
+  }
+
+  &__sld-save {
+    background: #1e293b;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    &:hover:not(:disabled) { background: #334155; }
+    &:disabled { opacity: 0.5; cursor: default; }
+  }
+
+  &__sld-result {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+    &--pass { background: #dcfce7; color: #166534; }
+    &--fail { background: #fef2f2; color: #991b1b; }
+  }
+
+  &__sld-hint {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 4px;
+    font-style: italic;
+  }
+
   &__translation {
     flex: 1;
     display: flex;
