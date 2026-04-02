@@ -65,8 +65,9 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
 
     this.messagesSubscription = this.chatService.messages$.subscribe((msgs) => {
       const hadNew = msgs.length > this.messages.length;
+      let incomingCount = 0;
 
-      // Mark new messages from others as unread (bold)
+      // Mark new messages from others as unread (bold) + notify
       if (this.openedAt) {
         for (const msg of msgs) {
           if (
@@ -76,6 +77,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
             !this.isOwnMessage(msg) &&
             new Date(msg.createdAt) > this.openedAt
           ) {
+            incomingCount++;
             this.unreadUuids.add(msg.uuid);
             this.boldTimers.set(msg.uuid, setTimeout(() => {
               this.unreadUuids.delete(msg.uuid);
@@ -87,6 +89,14 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
 
       this.messages = msgs;
       if (hadNew) this.autoScrollToBottom();
+
+      // Auto-mark conversation as read so the bell badge doesn't
+      // count messages the reviewer is already looking at
+      if (incomingCount > 0 && this.chatService.currentConversationId) {
+        this.chatService.markConversationRead(this.chatService.currentConversationId);
+        this.playNotificationSound();
+        this.flashHeader();
+      }
     });
 
     this.deviceSub = this.chatService.openForDevice$.subscribe(
@@ -289,6 +299,29 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
   close(): void {
     this.chatService.closeChat();
     this.chatService.isChatOpen$.next(false);
+  }
+
+  headerFlash = false;
+
+  private playNotificationSound(): void {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.value = 0.08;
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      osc.stop(ctx.currentTime + 0.15);
+    } catch { /* audio not available */ }
+  }
+
+  private flashHeader(): void {
+    this.headerFlash = true;
+    setTimeout(() => (this.headerFlash = false), 1500);
   }
 
   scrollToTop(): void {

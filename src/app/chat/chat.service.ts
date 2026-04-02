@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   BehaviorSubject,
-  ReplaySubject,
+  Subject,
   interval,
   Observable,
   Subscription,
@@ -35,10 +35,10 @@ export class ChatService implements OnDestroy {
   messages$ = new BehaviorSubject<ChatMessage[]>([]);
   isChatOpen$ = new BehaviorSubject<boolean>(false);
   siteName$ = new BehaviorSubject<string | null>(null);
-  openForDevice$ = new ReplaySubject<{
+  openForDevice$ = new Subject<{
     submitterEmail: string;
     siteName: string;
-  }>(1);
+  }>();
   currentHeadUuid: string | null = null;
   currentConversationId: number | null = null;
   readOnly$ = new BehaviorSubject<boolean>(false);
@@ -67,20 +67,13 @@ export class ChatService implements OnDestroy {
   }
 
   private fetchUnreadCount(email: string): void {
-    console.log('[ChatService] fetchUnreadCount for', email);
     this.getUnreadCount(email).subscribe({
-      next: (res) => {
-        console.log('[ChatService] unread count:', res.count);
-        this.unreadCount$.next(res.count);
-      },
-      error: (err) => console.error('[ChatService] unread count error:', err),
+      next: (res) => this.unreadCount$.next(res.count),
+      error: () => {},
     });
     this.getUnreadDeviceNames(email).subscribe({
-      next: (names) => {
-        console.log('[ChatService] unread devices:', names);
-        this.unreadDevices$.next(new Set(names));
-      },
-      error: (err) => console.error('[ChatService] unread devices error:', err),
+      next: (names) => this.unreadDevices$.next(new Set(names)),
+      error: () => {},
     });
   }
 

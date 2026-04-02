@@ -96,6 +96,34 @@ $muted:    #64748b;
     &--rejected { background: #dc2626; }
   }
 
+  &__bulk {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 12px;
+  }
+
+  &__bulk-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: $muted;
+  }
+
+  &__bulk-btn {
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #fff;
+    border: 1px solid $border;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8);
+    &:hover { background: $bg-light; }
+    &--approve { color: #16a34a; border-color: #16a34a; }
+    &--reject { color: #dc2626; border-color: #dc2626; }
+    &--pending { color: #d97706; border-color: #d97706; }
+  }
+
   // ── List ─────────────────────────────────────────────────────────
   &__header {
     display: flex;
@@ -113,6 +141,7 @@ $muted:    #64748b;
   &__col {
     cursor: pointer;
     user-select: none;
+    &--check { width: 24px; flex-shrink: 0; text-align: center; cursor: default; }
     &--expand { width: 24px; flex-shrink: 0; text-align: center; cursor: pointer; }
     &--name { flex: 2; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     &--count { width: 60px; text-align: right; }
@@ -290,7 +319,14 @@ $muted:    #64748b;
     border: 1px solid $border;
     border-radius: 4px;
     outline: none;
+    font-family: inherit;
     &:focus { border-color: #64748b; }
+  }
+
+  &__textarea {
+    resize: vertical;
+    min-height: 36px;
+    max-height: 120px;
   }
 
   &__select {
@@ -359,6 +395,7 @@ $muted:    #64748b;
 }
 
 .modal {
+  position: relative;
   background: #fff;
   border-radius: 8px;
   padding: 20px 24px;
@@ -367,6 +404,21 @@ $muted:    #64748b;
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+
+  &__close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 18px;
+    line-height: 1;
+    padding: 1px 7px;
+    cursor: pointer;
+    color: #64748b;
+    &:hover { color: #fff; background: #ef4444; border-color: #ef4444; }
+  }
 
   &--wide {
     min-width: 480px;

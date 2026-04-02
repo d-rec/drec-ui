@@ -21,6 +21,18 @@
           <span class="badge badge--{{ s }}">{{ s | titlecase }}</span>
         </label>
       </div>
+      <!-- Bulk actions -->
+      <div class="bulk-actions" *ngIf="checkedCount > 0">
+        <span class="bulk-actions__count">{{ checkedCount }} selected</span>
+        <button class="bulk-btn bulk-btn--approve" (click)="bulkSetStatus('approved')" [disabled]="bulkBusy">✓ Approve</button>
+        <button class="bulk-btn bulk-btn--reject" (click)="bulkSetStatus('rejected')" [disabled]="bulkBusy">✗ Reject</button>
+        <button class="bulk-btn bulk-btn--pending" (click)="bulkSetStatus('pending')" [disabled]="bulkBusy">↩ Reopen</button>
+        <button class="bulk-btn bulk-btn--screen" (click)="bulkScreen()" [disabled]="bulkBusy">⚡ Screen</button>
+      </div>
+      <button class="bulk-btn bulk-btn--screen-all" (click)="screenAllUnscreened()" [disabled]="bulkBusy" title="Auto-screen all unscreened pending devices (up to 50)">⚡ Screen All</button>
+      <span class="toolbar-sep"></span>
+      <button class="bulk-btn" (click)="exportExcel()" title="Export filtered list to Excel">⤓ Excel</button>
+      <span *ngIf="bulkBusy" class="toolbar-status">Processing…</span>
     </div>
 
     <!-- ── Hierarchical table ──────────────────────────────────────────────── -->
@@ -28,6 +40,8 @@
 
       <!-- Column headers -->
       <div class="dr-row dr-row--header">
+        <input type="checkbox" class="bulk-check" [checked]="isAllChecked()" (click)="toggleCheckAll($event)" title="Select all visible" />
+        <span class="chevron-spacer"></span>
         <span class="col-serial  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='projectName'&&sortDir===1" [class.desc]="sortColumn==='projectName'&&sortDir===-1" (click)="sortBy('projectName')" (keydown.enter)="sortBy('projectName')">Project Name</span>
         <span class="col-modified th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='modifiedDate'&&sortDir===1" [class.desc]="sortColumn==='modifiedDate'&&sortDir===-1" (click)="sortBy('modifiedDate')" (keydown.enter)="sortBy('modifiedDate')">Modified</span>
         <span class="col-status  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='status'&&sortDir===1" [class.desc]="sortColumn==='status'&&sortDir===-1" (click)="sortBy('status')" (keydown.enter)="sortBy('status')">Status</span>
@@ -47,6 +61,7 @@
           (keydown.enter)="selectAsset(item); svc.expand(item.id)"
           (dblclick)="toggleDevice(item.id)"
         >
+          <input type="checkbox" class="bulk-check" [checked]="!!checked[item.id]" (click)="toggleCheck(item.id, $event)" />
           <span class="chevron" role="button" tabindex="0" [class.chevron--open]="expanded[item.id]" (click)="toggleDevice(item.id); $event.stopPropagation()" (keydown.enter)="toggleDevice(item.id); $event.stopPropagation()">&#8250;</span>
           <span class="col-serial">
             <span [innerHTML]="hl(item.projectName, result.searchTerm)"></span>
@@ -74,13 +89,8 @@
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.sldUrl!), result.searchTerm)"></span>
               <span *ngIf="isBroken(item.sldUrl)" class="missing-tag">(missing)</span>
-              <button class="clear-btn" (click)="clearSld(item); $event.stopPropagation()">&#10005;</button>
             </ng-container>
             <span *ngIf="!item.sldUrl" class="doc-empty">not uploaded</span>
-            <label class="add-btn" title="Upload SLD PDF" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
-              +
-              <input type="file" accept="application/pdf" class="sr-only" (change)="onSldChange(item, $event)" />
-            </label>
           </div>
 
           <!-- ── SF-02 ───────────────────────────────────────────────────────── -->
@@ -94,13 +104,8 @@
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.sf02Url!), result.searchTerm)"></span>
               <span *ngIf="isBroken(item.sf02Url)" class="missing-tag">(missing)</span>
-              <button class="clear-btn" (click)="clearSf02(item); $event.stopPropagation()">&#10005;</button>
             </ng-container>
             <span *ngIf="!item.sf02Url" class="doc-empty">not uploaded</span>
-            <label class="add-btn" title="Upload SF-02 PDF" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
-              +
-              <input type="file" accept="application/pdf" class="sr-only" (change)="onSf02Change(item, $event)" />
-            </label>
           </div>
 
           <!-- ── SF-02C ──────────────────────────────────────────────────────── -->
@@ -114,13 +119,8 @@
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.sf02cUrl!), result.searchTerm)"></span>
               <span *ngIf="isBroken(item.sf02cUrl)" class="missing-tag">(missing)</span>
-              <button class="clear-btn" (click)="clearSf02c(item); $event.stopPropagation()">&#10005;</button>
             </ng-container>
             <span *ngIf="!item.sf02cUrl" class="doc-empty">not uploaded</span>
-            <label class="add-btn" title="Upload SF-02C PDF" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
-              +
-              <input type="file" accept="application/pdf" class="sr-only" (change)="onSf02cChange(item, $event)" />
-            </label>
           </div>
 
           <!-- ── COD Proof ────────────────────────────────────────────────────── -->
@@ -134,13 +134,8 @@
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.codProofUrl!), result.searchTerm)"></span>
               <span *ngIf="isBroken(item.codProofUrl)" class="missing-tag">(missing)</span>
-              <button class="clear-btn" (click)="clearCodProof(item); $event.stopPropagation()">&#10005;</button>
             </ng-container>
             <span *ngIf="!item.codProofUrl" class="doc-empty">not uploaded</span>
-            <label class="add-btn" title="Upload COD proof" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
-              +
-              <input type="file" accept="application/pdf" class="sr-only" (change)="onCodProofChange(item, $event)" />
-            </label>
           </div>
 
           <!-- ── Metering Evidence ────────────────────────────────────────────── -->
@@ -154,13 +149,8 @@
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <span class="file-name" [innerHTML]="hl(fileName(item.meteringEvidenceUrl!), result.searchTerm)"></span>
               <span *ngIf="isBroken(item.meteringEvidenceUrl)" class="missing-tag">(missing)</span>
-              <button class="clear-btn" (click)="clearMeteringEvidence(item); $event.stopPropagation()">&#10005;</button>
             </ng-container>
             <span *ngIf="!item.meteringEvidenceUrl" class="doc-empty">not uploaded</span>
-            <label class="add-btn" title="Upload metering evidence" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
-              +
-              <input type="file" accept="application/pdf" class="sr-only" (change)="onMeteringEvidenceChange(item, $event)" />
-            </label>
           </div>
 
           <!-- ── Pictures section ──────────────────────────────────────────── -->
@@ -169,14 +159,10 @@
             <span class="section-label">Pictures</span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length > 0) }}">{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length > 0) }}</span>
             <span *ngIf="item.pictureUrls.length" class="section-count">({{ item.pictureUrls.length }})</span>
-            <label class="add-btn" title="Add picture" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
-              +
-              <input type="file" accept="image/png,image/jpeg" class="sr-only" (change)="onPictureAdd(item, $event)" />
-            </label>
           </div>
           <ng-container *ngIf="isSectionOpen(item.id, 'pictures')">
             <div
-              *ngFor="let url of item.pictureUrls; let i = index"
+              *ngFor="let url of item.pictureUrls; let i = index; trackBy: trackByIndex"
               class="dr-row dr-row--file"
               (dblclick)="openFile(url, $event)"
               (keydown.enter)="openFile(url, $event)"
@@ -186,7 +172,6 @@
               </span>
               <img [src]="url" class="thumb" width="28" height="28" alt="" />
               <span class="file-name" [innerHTML]="hl(fileName(url), result.searchTerm)"></span>
-              <button class="clear-btn" (click)="clearPicture(item, i)">&#10005;</button>
             </div>
             <div *ngIf="!item.pictureUrls.length" class="dr-row dr-row--empty">No pictures</div>
           </ng-container>
@@ -197,14 +182,10 @@
             <span class="section-label">Screenshots</span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}" [title]="getDocHint('SCREENSHOTS', item.operatingConfiguration) || ''">{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}</span>
             <span *ngIf="item.screenshotUrls.length" class="section-count">({{ item.screenshotUrls.length }})</span>
-            <label class="add-btn" title="Add screenshot" tabindex="0" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
-              +
-              <input type="file" accept="image/png,image/jpeg" class="sr-only" (change)="onScreenshotAdd(item, $event)" />
-            </label>
           </div>
           <ng-container *ngIf="isSectionOpen(item.id, 'screenshots')">
             <div
-              *ngFor="let url of item.screenshotUrls; let i = index"
+              *ngFor="let url of item.screenshotUrls; let i = index; trackBy: trackByIndex"
               class="dr-row dr-row--file"
               (dblclick)="openPicture(url, $event)"
               (keydown.enter)="openPicture(url, $event)"
@@ -214,7 +195,6 @@
               </span>
               <img [src]="url" class="thumb" width="28" height="28" alt="" />
               <span class="file-name" [innerHTML]="hl(fileName(url), result.searchTerm)"></span>
-              <button class="clear-btn" (click)="clearScreenshot(item, i)">&#10005;</button>
             </div>
             <div *ngIf="!item.screenshotUrls.length" class="dr-row dr-row--empty">No screenshots</div>
           </ng-container>
@@ -688,6 +668,7 @@
       </div>
       <div class="modal-actions">
         <button class="btn btn--save" (click)="copyAuditTrail()">{{ auditCopyLabel }}</button>
+        <button class="btn btn--save" (click)="exportAuditCsv()">⤓ CSV</button>
         <button class="btn btn--save" (click)="showAuditModal = false">OK</button>
       </div>
     </div>

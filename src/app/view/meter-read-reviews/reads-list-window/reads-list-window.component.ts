@@ -3,9 +3,11 @@ import {
   OnInit,
   OnDestroy,
   ChangeDetectorRef,
+  HostListener,
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { BehaviorSubject, combineLatest, forkJoin, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
   MeterReadReviewDevice,
@@ -59,6 +61,11 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
   detailHeight = 220;
   resizing = false;
 
+  get editingDevice(): MeterReadReviewDevice | null {
+    if (this.editingId === null) return null;
+    return this.svc.devices$.value.find((d) => d.deviceId === this.editingId) ?? null;
+  }
+
   // Verification state
   showConsistencyModal = false;
   consistencyResult: any = null;
@@ -84,6 +91,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     private chatService: ChatService,
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
+    private snackBar: MatSnackBar,
   ) {}
 
   ngOnInit(): void {
@@ -153,6 +161,52 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     this.subs.forEach((s) => s.unsubscribe());
   }
 
+  @HostListener('keydown', ['$event'])
+  onKeydown(e: KeyboardEvent): void {
+    if (e.ctrlKey && e.key === 's') {
+      e.preventDefault();
+      if (this.editingId !== null) this.saveDetail();
+      return;
+    }
+    if (e.key === 'Escape') {
+      if (this.closeTopModal()) return;
+      if (this.editingId !== null) { this.closeDetail(); return; }
+    }
+    if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && !this.hasOpenModal()) {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      e.preventDefault();
+      this.navigateList(e.key === 'ArrowUp' ? -1 : 1);
+    }
+  }
+
+  private hasOpenModal(): boolean {
+    return this.showConsistencyModal || this.showCeilingModal
+      || this.showCrossSourceModal || this.showAuditModal;
+  }
+
+  private closeTopModal(): boolean {
+    const modals: (keyof this)[] = [
+      'showConsistencyModal', 'showCeilingModal',
+      'showCrossSourceModal', 'showAuditModal',
+    ];
+    for (const key of modals) {
+      if (this[key]) {
+        (this as any)[key] = false;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private navigateList(dir: number): void {
+    if (!this.filteredDevices.length) return;
+    const idx = this.filteredDevices.findIndex((r) => r.device.deviceId === this.editingId);
+    const next = Math.max(0, Math.min(this.filteredDevices.length - 1, idx + dir));
+    if (!this.confirmDiscard()) return;
+    this.openDetail(this.filteredDevices[next].device.deviceId);
+  }
+
   // ── Sorting ──────────────────────────────────────────────────────────
 
   toggleSort(field: typeof this.sortField): void {
@@ -195,6 +249,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
   }
 
   openDetail(deviceId: number): void {
+    if (this.editingId !== null && this.editingId !== deviceId && !this.confirmDiscard()) return;
     this.editingId = deviceId;
     const device = this.svc.devices$.value.find(
       (d) => d.deviceId === deviceId,
@@ -222,7 +277,13 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
   }
 
   closeDetail(): void {
+    if (!this.confirmDiscard()) return;
     this.editingId = null;
+  }
+
+  private confirmDiscard(): boolean {
+    if (!this.detailForm?.dirty) return true;
+    return confirm('You have unsaved changes. Discard them?');
   }
 
   saveDetail(): void {
@@ -253,9 +314,13 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
               `_Meter-read review status changed to **${reviewStatus}**._`,
             );
           }
+          this.detailForm.markAsPristine();
+          this.toast(`Status changed to "${reviewStatus}"`);
         },
-        error: (err) =>
-          console.error('Failed to update meter-read review status', err),
+        error: (err) => {
+          console.error('Failed to update meter-read review status', err);
+          this.toast('Save failed', 5000);
+        },
       });
   }
 
@@ -405,6 +470,23 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     });
   }
 
+  exportAuditCsv(): void {
+    const escape = (v: string) => `"${(v || '').replace(/"/g, '""')}"`;
+    const header = 'Action,Performed By,Date,Detail';
+    const rows = this.filteredAuditTrail.map((e: any) => {
+      const ts = new Date(e.createdAt).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return [escape(e.actionType), escape(e.performedBy), escape(ts), escape(e.detail || '')].join(',');
+    });
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `audit-trail-${this.editingId ?? 'unknown'}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   // ── Resize detail panel ──────────────────────────────────────────────
 
   onResizeStart(event: MouseEvent): void {
@@ -446,5 +528,77 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
       new RegExp(`(${escaped})`, 'gi'),
       '<mark>$1</mark>',
     );
+  }
+
+  // ── Bulk actions ──────────────────────────────────────────────────
+
+  checked: Record<number, boolean> = {};
+  bulkBusy = false;
+
+  get checkedIds(): number[] {
+    return Object.keys(this.checked).filter((k) => this.checked[+k]).map(Number);
+  }
+
+  get checkedCount(): number {
+    return this.checkedIds.length;
+  }
+
+  toggleCheck(id: number, event: Event): void {
+    event.stopPropagation();
+    this.checked[id] = !this.checked[id];
+  }
+
+  toggleCheckAll(event: Event): void {
+    event.stopPropagation();
+    const allChecked = this.filteredDevices.every((r) => this.checked[r.device.deviceId]);
+    for (const r of this.filteredDevices) {
+      this.checked[r.device.deviceId] = !allChecked;
+    }
+  }
+
+  isAllChecked(): boolean {
+    return this.filteredDevices.length > 0 && this.filteredDevices.every((r) => this.checked[r.device.deviceId]);
+  }
+
+  bulkSetStatus(status: string): void {
+    const ids = this.checkedIds;
+    if (!ids.length) return;
+    if (!confirm(`Set ${ids.length} device(s) to "${status}"?`)) return;
+    this.bulkBusy = true;
+    const loginUser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
+    const reviewer = loginUser.firstName
+      ? `${loginUser.firstName} ${loginUser.lastName || ''}`.trim()
+      : loginUser.email || 'unknown';
+    forkJoin(ids.map((id) => this.svc.updateStatus(id, status, undefined, reviewer))).subscribe({
+      next: () => {
+        const devices = this.svc.devices$.value.map((d) =>
+          this.checked[d.deviceId] ? { ...d, reviewStatus: status as ReadReviewStatus, reviewer } : d,
+        );
+        this.svc.devices$.next(devices);
+        this.checked = {};
+        this.bulkBusy = false;
+        this.toast(`${ids.length} device(s) set to "${status}"`);
+      },
+      error: () => {
+        this.bulkBusy = false;
+        this.toast('Bulk update failed', 5000);
+      },
+    });
+  }
+
+  trackByDeviceId(_index: number, row: FilteredRow): number {
+    return row.device.deviceId;
+  }
+
+  trackByReadId(_index: number, read: MeterReadEntry): number {
+    return read.id;
+  }
+
+  private toast(message: string, duration = 2500): void {
+    this.snackBar.open(message, undefined, {
+      duration,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
   }
 }

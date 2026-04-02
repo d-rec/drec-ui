@@ -7,9 +7,11 @@ import {
   OnDestroy,
   ChangeDetectorRef,
   ElementRef,
+  HostListener,
 } from '@angular/core';
 import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Asset, AssetStatus } from '../asset.model';
@@ -313,6 +315,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
     private elRef: ElementRef,
+    private snackBar: MatSnackBar,
   ) {}
 
   trustUrl(url: string): SafeUrl {
@@ -423,6 +426,64 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.sub.unsubscribe();
     document.removeEventListener('mousemove', this.onResizeMove);
     document.removeEventListener('mouseup', this.onResizeEnd);
+  }
+
+  @HostListener('keydown', ['$event'])
+  onKeydown(e: KeyboardEvent): void {
+    // Ctrl+S — save detail
+    if (e.ctrlKey && e.key === 's') {
+      e.preventDefault();
+      if (this.editingId) this.saveDetail();
+      return;
+    }
+    // Escape — close topmost modal, or close detail
+    if (e.key === 'Escape') {
+      if (this.closeTopModal()) return;
+      if (this.editingId) { this.cancelDetail(); return; }
+    }
+    // Arrow keys — navigate list when no modal is open and not in an input
+    if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && !this.hasOpenModal()) {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      e.preventDefault();
+      this.navigateList(e.key === 'ArrowUp' ? -1 : 1);
+    }
+  }
+
+  private hasOpenModal(): boolean {
+    return this.showApproveModal || this.showApprovedInfoModal || this.showDeleteModal
+      || this.showDuplicatesModal || this.showAuditModal || this.showConsistencyModal
+      || this.showCeilingModal || this.showCrossSourceModal || this.showControlsModal
+      || this.showSourceVerifyModal || this.showAutoScreenModal || this.showSldModal
+      || this.showPhotoGpsModal || this.showUnreviewedWarning;
+  }
+
+  private closeTopModal(): boolean {
+    const modals: (keyof this)[] = [
+      'showApproveModal', 'showApprovedInfoModal', 'showDeleteModal',
+      'showDuplicatesModal', 'showAuditModal', 'showConsistencyModal',
+      'showCeilingModal', 'showCrossSourceModal', 'showControlsModal',
+      'showSourceVerifyModal', 'showAutoScreenModal', 'showSldModal',
+      'showPhotoGpsModal', 'showUnreviewedWarning',
+    ];
+    for (const key of modals) {
+      if (this[key]) {
+        (this as any)[key] = false;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private navigateList(dir: number): void {
+    const assets = this.sortAssets(
+      this.applyFilter(this.svc.assets$.value, this.searchTerm, this.statusFilter),
+    );
+    if (!assets.length) return;
+    const idx = assets.findIndex((a) => a.id === this.editingId);
+    const next = Math.max(0, Math.min(assets.length - 1, idx + dir));
+    if (!this.confirmDiscard()) return;
+    this.svc.select(assets[next].id);
   }
 
   onResizeStart(event: MouseEvent): void {
@@ -623,8 +684,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   private uploadAndRefresh(asset: Asset, docType: string, file: File): void {
     this.svc.uploadDocument(parseInt(asset.id, 10), docType, file).subscribe({
-      next: () => this.svc.populateFromDb(),
-      error: (err) => console.error('Upload failed', err),
+      next: () => {
+        this.svc.populateFromDb();
+        this.toast('Document uploaded');
+      },
+      error: (err) => {
+        console.error('Upload failed', err);
+        this.toast('Upload failed — ' + (err?.error?.message || err?.message || 'unknown error'), 5000);
+      },
     });
   }
 
@@ -729,8 +796,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     // Delete from DB + S3 via API
     if (docId) {
       this.svc.deleteDocument(docId).subscribe({
-        next: () => this.svc.populateFromDb(),
-        error: (err) => console.error('Failed to delete document:', err),
+        next: () => {
+          this.svc.populateFromDb();
+          this.toast('Document deleted');
+        },
+        error: (err) => {
+          console.error('Failed to delete document:', err);
+          this.toast('Delete failed', 5000);
+        },
       });
     }
   }
@@ -879,6 +952,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   // ── Detail form ───────────────────────────────────────────────────────────────
 
   selectAsset(asset: Asset): void {
+    if (!this.confirmDiscard()) return;
     this.svc.select(asset.id);
   }
 
@@ -904,13 +978,23 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       notes: v.notes,
       submitterEmail: v.submitterEmail,
     });
+    this.detailForm.markAsPristine();
     if (oldStatus !== newStatus) {
       this.logStatusChange(asset.projectName, oldStatus, newStatus);
+      this.toast(`Status changed to "${newStatus}"`);
+    } else {
+      this.toast('Saved');
     }
   }
 
   cancelDetail(): void {
+    if (!this.confirmDiscard()) return;
     this.svc.select(null);
+  }
+
+  private confirmDiscard(): boolean {
+    if (!this.detailForm?.dirty) return true;
+    return confirm('You have unsaved changes. Discard them?');
   }
 
   setStatus(status: AssetStatus): void {
@@ -1084,6 +1168,23 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       this.auditCopyLabel = 'Copied';
       setTimeout(() => (this.auditCopyLabel = 'Copy'), 2000);
     });
+  }
+
+  exportAuditCsv(): void {
+    const escape = (v: string) => `"${(v || '').replace(/"/g, '""')}"`;
+    const header = 'Action,Performed By,Date,Detail';
+    const rows = this.filteredAuditTrail.map((e: any) => {
+      const ts = new Date(e.createdAt).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return [escape(e.actionType), escape(e.performedBy), escape(ts), escape(e.detail || '')].join(',');
+    });
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `audit-trail-${this.editingId || 'unknown'}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   checkConsistency(): void {
@@ -1295,6 +1396,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     return item.id;
   }
 
+  trackByIndex(index: number): number {
+    return index;
+  }
+
   toggleReviewed(key: string, event: Event): void {
     event.stopPropagation();
     event.preventDefault();
@@ -1470,5 +1575,177 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     if (!d) return '';
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
+  // ── Bulk actions ───────────────────────────────────────────────────────────
+
+  checked: Record<string, boolean> = {};
+  bulkBusy = false;
+
+  get checkedIds(): string[] {
+    return Object.keys(this.checked).filter((k) => this.checked[k]);
+  }
+
+  get checkedCount(): number {
+    return this.checkedIds.length;
+  }
+
+  toggleCheck(id: string, event: Event): void {
+    event.stopPropagation();
+    this.checked[id] = !this.checked[id];
+  }
+
+  toggleCheckAll(event: Event): void {
+    event.stopPropagation();
+    // Use the currently visible (filtered) list
+    const visible = this.applyFilter(
+      this.svc.assets$.value,
+      this.searchTerm,
+      this.statusFilter,
+    );
+    const allChecked = visible.every((a) => this.checked[a.id]);
+    for (const a of visible) {
+      this.checked[a.id] = !allChecked;
+    }
+  }
+
+  isAllChecked(): boolean {
+    const visible = this.applyFilter(
+      this.svc.assets$.value,
+      this.searchTerm,
+      this.statusFilter,
+    );
+    return visible.length > 0 && visible.every((a) => this.checked[a.id]);
+  }
+
+  bulkSetStatus(status: string): void {
+    const ids = this.checkedIds.map((id) => parseInt(id, 10)).filter((n) => !isNaN(n));
+    if (!ids.length) return;
+    if (!confirm(`Set ${ids.length} device(s) to "${status}"?`)) return;
+    this.bulkBusy = true;
+    this.svc.bulkUpdateStatus(ids, status).subscribe({
+      next: () => {
+        // Update local state
+        const assets = this.svc.assets$.value.map((a) =>
+          this.checked[a.id] ? { ...a, status: status as AssetStatus, modifiedDate: new Date() } : a,
+        );
+        this.svc.assets$.next(assets);
+        this.checked = {};
+        this.bulkBusy = false;
+        this.toast(`${ids.length} device(s) set to "${status}"`);
+      },
+      error: (err: any) => {
+        console.error('Bulk status update failed:', err);
+        this.bulkBusy = false;
+        this.toast('Bulk update failed', 5000);
+      },
+    });
+  }
+
+  bulkScreen(): void {
+    const ids = this.checkedIds.map((id) => parseInt(id, 10)).filter((n) => !isNaN(n));
+    if (!ids.length) return;
+    if (!confirm(`Auto-screen ${ids.length} device(s)? This may take a while.`)) return;
+    this.bulkBusy = true;
+    this.svc.bulkAutoScreen(ids).subscribe({
+      next: (results: any[]) => {
+        // Update badges
+        for (const r of results) {
+          const asset = this.svc.assets$.value.find((a) => a.id === String(r.deviceId));
+          if (asset) {
+            asset.lastScreenStatus = r.overallStatus ?? r.error ? 'fail' : null;
+            asset.lastScreenedAt = r.timestamp ?? new Date().toISOString();
+          }
+        }
+        this.checked = {};
+        this.bulkBusy = false;
+        this.cdr.markForCheck();
+        const passed = results.filter((r: any) => r.overallStatus === 'pass').length;
+        this.toast(`Screened ${results.length} device(s) — ${passed} passed`);
+      },
+      error: (err: any) => {
+        console.error('Bulk auto-screen failed:', err);
+        this.bulkBusy = false;
+        this.toast('Bulk screening failed', 5000);
+      },
+    });
+  }
+
+  screenAllUnscreened(): void {
+    if (!confirm('Auto-screen all unscreened pending devices (up to 50)? This may take a while.')) return;
+    this.bulkBusy = true;
+    this.svc.bulkAutoScreen().subscribe({
+      next: (results: any[]) => {
+        for (const r of results) {
+          const asset = this.svc.assets$.value.find((a) => a.id === String(r.deviceId));
+          if (asset) {
+            asset.lastScreenStatus = r.overallStatus ?? (r.error ? 'fail' : null);
+            asset.lastScreenedAt = r.timestamp ?? new Date().toISOString();
+          }
+        }
+        this.bulkBusy = false;
+        this.cdr.markForCheck();
+        const passed = results.filter((r: any) => r.overallStatus === 'pass').length;
+        this.toast(`Screened ${results.length} device(s) — ${passed} passed`);
+      },
+      error: (err: any) => {
+        console.error('Screen all failed:', err);
+        this.bulkBusy = false;
+        this.toast('Screen all failed', 5000);
+      },
+    });
+  }
+
+  exportExcel(): void {
+    import('xlsx').then((XLSX) => {
+      const assets = this.sortAssets(
+        this.applyFilter(this.svc.assets$.value, this.searchTerm, this.statusFilter),
+      );
+      const rows = assets.map((a) => ({
+        'Project Name': a.projectName,
+        'Status': a.status,
+        'Screen Result': a.lastScreenStatus || '',
+        'Screened At': a.lastScreenedAt ? new Date(a.lastScreenedAt).toLocaleDateString('en-GB') : '',
+        'Reviewer': a.reviewer || '',
+        'Submitter': a.submitterEmail || '',
+        'Country': a.countryCode || '',
+        'Capacity (kW)': a.capacity ?? '',
+        'AC Capacity (kW)': a.acCapacity ?? '',
+        'Latitude': a.lat ?? '',
+        'Longitude': a.long ?? '',
+        'Date Added': a.dateAdded ? a.dateAdded.toLocaleDateString('en-GB') : '',
+        'Date Submitted': a.dateSubmitted ? a.dateSubmitted.toLocaleDateString('en-GB') : '',
+        'Modified': a.modifiedDate ? a.modifiedDate.toLocaleDateString('en-GB') : '',
+        'Config': a.operatingConfiguration || '',
+        'Pathway': a.evidencePathway || '',
+        'Notes': a.notes || '',
+        'SLD': a.sldUrl ? 'Yes' : '',
+        'SF-02': a.sf02Url ? 'Yes' : '',
+        'SF-02C': a.sf02cUrl ? 'Yes' : '',
+        'COD Proof': a.codProofUrl ? 'Yes' : '',
+        'Metering Evidence': a.meteringEvidenceUrl ? 'Yes' : '',
+        'Pictures': a.pictureUrls.length || '',
+        'Screenshots': a.screenshotUrls.length || '',
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      // Auto-width columns
+      const colWidths = Object.keys(rows[0] || {}).map((key) => ({
+        wch: Math.max(key.length, ...rows.map((r) => String((r as any)[key] ?? '').length)).valueOf(),
+      }));
+      ws['!cols'] = colWidths;
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Device Reviews');
+      const date = new Date().toISOString().slice(0, 10);
+      XLSX.writeFile(wb, `device-reviews-${date}.xlsx`);
+      this.toast(`Exported ${rows.length} devices`);
+    });
+  }
+
+  private toast(message: string, duration = 2500): void {
+    this.snackBar.open(message, undefined, {
+      duration,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+    });
   }
 }

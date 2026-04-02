@@ -1,14 +1,14 @@
 <div class="chat-window" [class.minimized]="minimized" cdkDrag
      [style.width.px]="width" [style.height.px]="minimized ? 52 : height">
   <div class="resize-grip" (mousedown)="onResizeStart($event)"></div>
-  <div class="chat-header" cdkDragHandle>
+  <div class="chat-header" [class.chat-header--flash]="headerFlash" cdkDragHandle>
     <span class="partner-name" *ngIf="chatService.siteName$ | async as siteName; else chatFallback">Site: <strong>{{ siteName }}</strong></span>
     <ng-template #chatFallback><span class="partner-name">Chat</span></ng-template>
     <div class="header-actions">
-      <button mat-icon-button (click)="minimize()" class="header-btn">
+      <button mat-icon-button (click)="minimize()" class="header-btn" title="Minimize">
         <mat-icon>{{ minimized ? 'expand_less' : 'remove' }}</mat-icon>
       </button>
-      <button mat-icon-button (click)="close()" class="header-btn">
+      <button mat-icon-button (click)="close()" class="header-btn header-btn--close" title="Close">
         <mat-icon>close</mat-icon>
       </button>
     </div>
