@@ -17,6 +17,8 @@ export interface MeterReadReviewDevice {
   serialNumber: string;
   capacity: number | null;
   countryCode: string;
+  lat: number | null;
+  long: number | null;
   submitterEmail: string;
   reviewStatus: ReadReviewStatus;
   reviewer: string | null;

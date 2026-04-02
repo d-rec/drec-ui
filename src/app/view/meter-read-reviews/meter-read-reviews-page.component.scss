@@ -11,18 +11,40 @@
   z-index: 1;
 }
 
-.mrr-header {
+.ds-tabs {
+  display: flex;
+  gap: 4px;
+  background: #e2e8f0;
   flex-shrink: 0;
-  padding: 20px 16px 10px;
-  background: #fff;
-  border-bottom: 1px solid #e2e6ea;
+  padding: 12px 12px 0;
+  margin-top: 12px;
+  align-items: flex-end;
 }
 
-.mrr-title {
-  margin: 0;
-  font-size: 15px;
+.ds-tab {
+  padding: 10px 28px;
+  font-size: 14px;
   font-weight: 600;
-  color: #1e293b;
+  color: #64748b;
+  background: #eef2f7;
+  border: 1px solid #cbd5e1;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  position: relative;
+
+  &:hover {
+    color: #1e293b;
+    background: #f1f5f9;
+  }
+
+  &--active {
+    color: #1e293b;
+    background: #ffffff;
+    border-color: #cbd5e1;
+    z-index: 1;
+  }
 }
 
 .mrr-content {

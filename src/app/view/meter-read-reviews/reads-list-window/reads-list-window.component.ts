@@ -44,9 +44,9 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
 
   statusFilters: Record<string, boolean> = {
     pending: true,
-    approved: true,
+    approved: false,
     flagged: true,
-    rejected: true,
+    rejected: false,
   };
 
   sortField: 'projectName' | 'readCount' | 'latestReadDate' | 'totalKwh' | 'reviewStatus' = 'latestReadDate';
@@ -210,7 +210,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
   }
 
   private loadReads(device: MeterReadReviewDevice): void {
-    this.svc.loadReads(device.externalId).subscribe({
+    this.svc.loadReads(device.deviceId).subscribe({
       next: (reads) => {
         device.reads = reads;
         this.cdr.markForCheck();
@@ -414,7 +414,10 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
 
   formatDate(d: string | null): string {
     if (!d) return '—';
-    return new Date(d).toLocaleDateString('en-GB');
+    const dt = new Date(d);
+    const date = dt.toLocaleDateString('en-GB');
+    const time = dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    return `${date} ${time}`;
   }
 
   formatKwh(v: number | null): string {

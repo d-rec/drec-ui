@@ -7,11 +7,13 @@ import { MeterReadReviewService } from './meter-read-review.service';
   template: `
     <div class="mrr-page">
       <ng-container *ngIf="canReview; else chatListView">
-        <div class="mrr-header">
-          <h2 class="mrr-title">Meter Read Reviews</h2>
+        <div class="ds-tabs">
+          <button class="ds-tab" [class.ds-tab--active]="activeTab === 'reviews'" (click)="activeTab = 'reviews'">Meter Read Reviews</button>
+          <button class="ds-tab" [class.ds-tab--active]="activeTab === 'map'" (click)="activeTab = 'map'">World Map</button>
         </div>
         <div class="mrr-content">
-          <app-mrr-reads-list></app-mrr-reads-list>
+          <app-mrr-reads-list *ngIf="activeTab === 'reviews'"></app-mrr-reads-list>
+          <app-mrr-map-window *ngIf="activeTab === 'map'" (onPinClick)="onMapPinClick($event)"></app-mrr-map-window>
         </div>
       </ng-container>
       <ng-template #chatListView>
@@ -25,6 +27,7 @@ import { MeterReadReviewService } from './meter-read-review.service';
 })
 export class MeterReadReviewsPageComponent implements OnInit {
   canReview = false;
+  activeTab: 'reviews' | 'map' = 'reviews';
 
   constructor(private svc: MeterReadReviewService) {}
 
@@ -38,5 +41,10 @@ export class MeterReadReviewsPageComponent implements OnInit {
     if (this.canReview) {
       this.svc.populateFromDb();
     }
+  }
+
+  onMapPinClick(deviceId: number): void {
+    this.activeTab = 'reviews';
+    this.svc.expand(deviceId);
   }
 }

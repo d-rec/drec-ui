@@ -228,7 +228,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/reads/add"
-            *ngIf="loginuser.role != 'User'"
+            *ngIf="loginuser.role != 'User' && loginuser.role != 'Reviewer' && loginuser.role != 'SeniorReviewer'"
             test-id="add-meter-read"
           >
             <!-- <mat-icon>list</mat-icon> -->
@@ -239,7 +239,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/reads/bulk-upload"
-            *ngIf="loginuser.role != 'User'"
+            *ngIf="loginuser.role != 'User' && loginuser.role != 'Reviewer' && loginuser.role != 'SeniorReviewer'"
             test-id="meter-read-bulk-upload"
           >
             <!-- <mat-icon>list</mat-icon> -->

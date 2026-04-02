@@ -25,7 +25,7 @@
     <div class="mrr__header">
       <span class="mrr__col mrr__col--expand"></span>
       <span class="mrr__col mrr__col--name" (click)="toggleSort('projectName')">
-        Project Name
+        Site Name
         <span class="sort-arrow" *ngIf="sortField === 'projectName'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
       </span>
       <span class="mrr__col mrr__col--count" (click)="toggleSort('readCount')">
@@ -109,7 +109,7 @@
               <!-- Summary row -->
               <div class="mrr__detail-summary">
                 <div class="field">
-                  <label class="field__label">Project</label>
+                  <label class="field__label">Site Name</label>
                   <span class="field__value">{{ d.projectName }}</span>
                 </div>
                 <div class="field">

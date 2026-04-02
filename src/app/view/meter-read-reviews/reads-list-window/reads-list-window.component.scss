@@ -116,7 +116,7 @@ $muted:    #64748b;
     &--expand { width: 24px; flex-shrink: 0; text-align: center; cursor: pointer; }
     &--name { flex: 2; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     &--count { width: 60px; text-align: right; }
-    &--date { width: 100px; text-align: center; }
+    &--date { width: 140px; text-align: center; white-space: nowrap; }
     &--kwh { width: 100px; text-align: right; }
     &--status { width: 80px; text-align: center; }
   }

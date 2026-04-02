@@ -60,9 +60,9 @@ export class MeterReadReviewService {
     this.expandId$.next(id);
   }
 
-  loadReads(externalId: string): Observable<MeterReadEntry[]> {
+  loadReads(deviceId: number): Observable<MeterReadEntry[]> {
     return this.http
-      .get<any>(environment.API_URL + `meter-reads/${externalId}`)
+      .get<any>(environment.API_URL + `device-reviews/meter-reads/${deviceId}/reads`)
       .pipe(
         map((data: any[]) =>
           data.map((r) => ({
