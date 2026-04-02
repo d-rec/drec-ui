@@ -208,6 +208,20 @@ export class AssetService {
     );
   }
 
+  bulkUpdateStatus(deviceIds: number[], status: string): Observable<any[]> {
+    return this.http.patch<any[]>(
+      `${environment.API_URL}device-reviews/bulk/status`,
+      { deviceIds, status },
+    );
+  }
+
+  bulkAutoScreen(deviceIds?: number[]): Observable<any[]> {
+    return this.http.post<any[]>(
+      `${environment.API_URL}device-reviews/bulk/auto-screen`,
+      { deviceIds: deviceIds || [] },
+    );
+  }
+
   verifyPhotoGps(deviceId: number): Observable<any> {
     return this.http.get<any>(
       `${environment.API_URL}device-reviews/${deviceId}/photo-gps`,
