@@ -40,5 +40,7 @@ export interface Asset {
   ownershipStatus: string | null;
   evidentDeviceId: string | null;
   evidentStatus: string | null;
+  lastScreenStatus: string | null;
+  lastScreenedAt: string | null;
   docMeta: Record<string, DocMeta>;
 }

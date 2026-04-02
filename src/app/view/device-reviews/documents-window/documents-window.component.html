@@ -56,6 +56,7 @@
           <span class="col-status">
             <span class="status-icon status-icon--{{ item.status }}">{{ item.status === 'approved' ? '✓' : item.status === 'rejected' ? '✗' : '●' }}</span>
             <span class="status-label" [innerHTML]="hl(item.status | titlecase, result.searchTerm)"></span>
+            <span *ngIf="item.lastScreenStatus" class="screen-badge screen-badge--{{ item.lastScreenStatus }}" [title]="'Last screened: ' + (item.lastScreenedAt | date:'dd/MM/yyyy HH:mm')">{{ item.lastScreenStatus === 'pass' ? '✓' : item.lastScreenStatus === 'fail' ? '✗' : '!' }}</span>
           </span>
         </div>
 
@@ -335,7 +336,7 @@
             <button type="button" class="btn btn--audit" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit</button>
             <button type="button" class="btn btn--controls" (click)="evaluateControls()" title="Compensating controls for Mode 4 (§3.9)">Controls</button>
             <button type="button" class="btn btn--photogps" (click)="checkPhotoGps()" title="Verify photo GPS vs declared location (VA layer)">Photo GPS</button>
-            <button type="button" class="btn btn--sld" (click)="checkSldCapacity()" title="Compare SLD capacity vs registered capacity (VA layer)">SLD kW</button>
+            <button type="button" class="btn btn--sld" (click)="openSldCompare($event)" title="Open SLD document with capacity compare panel (VA layer)">SLD kW</button>
             <button type="button" class="btn btn--crosssrc" (click)="checkCrossSource()" title="Cross-source verification with Performance Factor (§3.10)">X-Source</button>
             <span class="detail-actions__sep"></span>
             <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
@@ -825,8 +826,10 @@
           <p class="verify-check__desc">Open the SLD document and enter the stated capacity above.</p>
         </div>
       </ng-container>
+      <button type="button" class="modal-close" (click)="showSldModal = false" aria-label="Close">&times;</button>
       <p class="modal-msg" *ngIf="!sldResult" style="color: #dc2626;">SLD comparison failed.</p>
       <div class="modal-actions">
+        <button class="btn btn--cancel" (click)="showSldModal = false">Cancel</button>
         <button class="btn btn--save" (click)="showSldModal = false">OK</button>
       </div>
     </div>

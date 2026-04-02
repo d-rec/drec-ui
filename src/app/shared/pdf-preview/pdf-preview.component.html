@@ -10,15 +10,20 @@
   <!-- Right: OCR + translation -->
   <div class="pdf-preview__right">
     <div class="pdf-preview__toolbar">
-      <h4 style="margin: 0; font-size: 14px; color: #64748b;">
+      <h4 style="margin: 0; font-size: 14px; color: #64748b; white-space: nowrap;">
         <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">text_snippet</mat-icon>
         Extracted Text (OCR)
       </h4>
+      <input *ngIf="ocrText && !ocrLoading" type="text" placeholder="Search..." [(ngModel)]="ocrSearch"
+        class="pdf-preview__search"
+        [style.borderColor]="ocrSearch && !hasMatch(ocrText, ocrSearch) ? '#dc2626' : null" />
+      <span *ngIf="ocrSearch && !hasMatch(ocrText, ocrSearch)" style="font-size: 11px; color: #dc2626; white-space: nowrap;">No matches</span>
+      <button *ngIf="ocrText && !ocrLoading" class="pdf-preview__copy-btn" (click)="copyOcrText()">Copy</button>
       <button *ngIf="ocrText && !ocrLoading" type="button"
         class="pdf-preview__translate-btn"
         (click)="translateToEnglish()" [disabled]="translating">
         <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">translate</mat-icon>
-        {{ translating ? 'Translating...' : 'Translate to English' }}
+        {{ translating ? 'Translating...' : 'Translate' }}
       </button>
     </div>
     <div *ngIf="ocrLoading" style="padding: 16px; text-align: center; color: #64748b;">
@@ -29,7 +34,8 @@
     </div>
     <pre *ngIf="ocrText" class="pdf-preview__ocr-pane"
       [style.flex]="(translatedText || translating) ? 'none' : '1'"
-      [style.height.px]="(translatedText || translating) ? ocrPaneHeight : undefined">{{ ocrText }}</pre>
+      [style.height.px]="(translatedText || translating) ? ocrPaneHeight : undefined"
+      [innerHTML]="highlightText(ocrText, ocrSearch)"></pre>
     <div *ngIf="!ocrLoading && !ocrText" style="padding: 16px; text-align: center;">
       <button type="button" class="pdf-preview__translate-btn" (click)="startOcr()" [disabled]="!ocrSource">
         <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">document_scanner</mat-icon>
@@ -85,7 +91,9 @@
         </h4>
         <input *ngIf="translatedText" type="text" placeholder="Search..."
           [(ngModel)]="translationSearch"
-          class="pdf-preview__search" />
+          class="pdf-preview__search"
+          [style.borderColor]="translationSearch && !hasMatch(translatedText, translationSearch) ? '#dc2626' : null" />
+        <span *ngIf="translationSearch && !hasMatch(translatedText, translationSearch)" style="font-size: 11px; color: #dc2626; white-space: nowrap;">No matches</span>
         <button *ngIf="translatedText" class="pdf-preview__copy-btn" (click)="copyOcrText()">Copy</button>
       </div>
       <div *ngIf="translating && !translatedText" style="padding: 16px; text-align: center; color: #64748b;">

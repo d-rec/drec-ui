@@ -48,6 +48,7 @@ export class PdfPreviewComponent implements OnChanges {
   ocrLoading = false;
   ocrProgress = 0;
   ocrPageInfo = '';
+  ocrSearch = '';
   ocrPaneHeight = 200;
   translatedText = '';
   translating = false;
@@ -113,6 +114,7 @@ export class PdfPreviewComponent implements OnChanges {
     this.ocrLoading = false;
     this.ocrProgress = 0;
     this.ocrPageInfo = '';
+    this.ocrSearch = '';
     this.translatedText = '';
     this.translating = false;
     this.detectedLang = '';
@@ -176,12 +178,16 @@ export class PdfPreviewComponent implements OnChanges {
   }
 
   private async ocrPdf(worker: any, source: File | string): Promise<void> {
-    const pdfjs = (window as any).pdfjsLib;
+    let pdfjs = (window as any).pdfjsLib;
     if (!pdfjs) {
-      this.ocrText = 'PDF.js not loaded — cannot OCR PDF files.';
-      this.ocrLoading = false;
-      await worker.terminate();
-      return;
+      try {
+        pdfjs = await import('pdfjs-dist' as any);
+      } catch {
+        this.ocrText = 'PDF.js not loaded — cannot OCR PDF files.';
+        this.ocrLoading = false;
+        await worker.terminate();
+        return;
+      }
     }
     pdfjs.GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.js';
 
@@ -219,6 +225,11 @@ export class PdfPreviewComponent implements OnChanges {
 
   async translateToEnglish(): Promise<void> {
     if (!this.ocrText || this.translating) return;
+    const ok = confirm(
+      'Translation uses the DeepL API free tier (500,000 characters/month). ' +
+      'Large documents consume quota quickly.\n\nProceed anyway?',
+    );
+    if (!ok) return;
     this.translating = true;
     this.translatedText = '';
     this.detectedLang = '';
@@ -272,6 +283,11 @@ export class PdfPreviewComponent implements OnChanges {
     if (this.ocrText) {
       navigator.clipboard.writeText(this.ocrText);
     }
+  }
+
+  hasMatch(text: string, term: string): boolean {
+    if (!term) return true;
+    return text.toLowerCase().includes(term.toLowerCase());
   }
 
   highlightText(text: string, term: string): string {

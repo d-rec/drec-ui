@@ -25,13 +25,14 @@
   &__close {
     margin-left: auto;
     background: none;
-    border: none;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
     cursor: pointer;
     color: #64748b;
-    font-size: 14px;
-    padding: 0 2px;
+    font-size: 15px;
+    padding: 1px 6px;
     line-height: 1;
-    &:hover { color: #0f172a; }
+    &:hover { color: #fff; background: #ef4444; border-color: #ef4444; }
   }
 
   &__title {

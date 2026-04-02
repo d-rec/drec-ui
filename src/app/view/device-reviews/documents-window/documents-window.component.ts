@@ -1182,6 +1182,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         this.autoScreenResult = res;
         this.autoScreenLoading = false;
+        // Update the badge on the asset list immediately
+        const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
+        if (asset) {
+          asset.lastScreenStatus = res.overallStatus;
+          asset.lastScreenedAt = res.timestamp;
+        }
       },
       error: (err: any) => {
         console.error('Auto-screen failed:', err);
@@ -1189,6 +1195,16 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         this.autoScreenLoading = false;
       },
     });
+  }
+
+  openSldCompare(event: Event): void {
+    if (!this.editingId) return;
+    const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
+    if (asset?.sldUrl && !this.isBroken(asset.sldUrl)) {
+      this.openFile(asset.sldUrl, event, true);
+    } else {
+      this.checkSldCapacity();
+    }
   }
 
   checkSldCapacity(): void {
