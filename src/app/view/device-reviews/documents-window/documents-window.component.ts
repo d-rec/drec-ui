@@ -159,7 +159,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     metadata: Record<string, any> | null;
     createdAt: string;
   }> = [];
+  auditCopyLabel = 'Copy';
   showConsistencyModal = false;
+  consistencyError: string | null = null;
   consistencyResult: {
     totalReadings: number;
     periodMonths: number;
@@ -178,6 +180,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     } | null;
   } | null = null;
   showCeilingModal = false;
+  ceilingError: string | null = null;
   ceilingResult: {
     irradiance: {
       absLatitude: number;
@@ -228,6 +231,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     }>;
   } | null = null;
   showSourceVerifyModal = false;
+  sourceVerifyError: string | null = null;
   sourceVerifyResult: {
     mode: string | null;
     missingRequired: string[];
@@ -974,6 +978,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         this.duplicateResults = res.duplicates || [];
         this.showDuplicatesModal = true;
+        if (this.duplicateResults.length > 0) {
+          const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
+          if (asset) {
+            const matches = this.duplicateResults.map((d: any) => d.matchType).join(', ');
+            this.logChatEntry(asset.projectName,
+              `_Duplicate screening flagged ${this.duplicateResults.length} potential match(es): ${matches}. Please review and clarify._`);
+          }
+        }
       },
       error: (err: any) => {
         console.error('Duplicate screening failed:', err);
@@ -997,6 +1009,22 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         this.auditTrail = [];
         this.showAuditModal = true;
       },
+    });
+  }
+
+  copyAuditTrail(): void {
+    const text = this.auditTrail
+      .map((e) => {
+        const date = new Date(e.createdAt);
+        const ts = date.toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        let line = `${e.actionType}  ${e.performedBy}  ${ts}`;
+        if (e.detail) line += `\n  ${e.detail}`;
+        return line;
+      })
+      .join('\n\n');
+    navigator.clipboard.writeText(text).then(() => {
+      this.auditCopyLabel = 'Copied';
+      setTimeout(() => (this.auditCopyLabel = 'Copy'), 2000);
     });
   }
 
@@ -1028,11 +1056,21 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.svc.checkProductionCeiling(deviceId).subscribe({
       next: (res: any) => {
         this.ceilingResult = res;
+        this.ceilingError = null;
         this.showCeilingModal = true;
+        if (res.yieldMismatch) {
+          const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
+          if (asset) {
+            this.logChatEntry(asset.projectName,
+              `_Production ceiling check: configured yield (${res.configuredYield} kWh/kW/yr) exceeds the location-based estimate (${res.irradiance?.yieldHigh} kWh/kW/yr). Please verify or correct the yield value._`);
+          }
+        }
       },
       error: (err: any) => {
         console.error('Production ceiling check failed:', err);
         this.ceilingResult = null;
+        this.ceilingError =
+          err?.error?.message || err?.message || 'Unknown error — check the browser console for details.';
         this.showCeilingModal = true;
       },
     });
@@ -1045,11 +1083,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.svc.verifySourceAccessMode(deviceId).subscribe({
       next: (res: any) => {
         this.sourceVerifyResult = res;
+        this.sourceVerifyError = null;
         this.showSourceVerifyModal = true;
       },
       error: (err: any) => {
         console.error('Source-access verification failed:', err);
         this.sourceVerifyResult = null;
+        this.sourceVerifyError =
+          err?.error?.message || err?.message || 'Unknown error — check the browser console for details.';
         this.showSourceVerifyModal = true;
       },
     });

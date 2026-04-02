@@ -70,6 +70,15 @@ const STATUS_COLOR: Record<string, string> = {
           >
           <span class="detect-error" *ngIf="detectError">{{ detectError }}</span>
         </div>
+        <div class="detect-confirm-backdrop" *ngIf="showDetectConfirm" (click)="cancelDetect()">
+          <div class="detect-confirm" (click)="$event.stopPropagation()">
+            <p class="detect-confirm__msg">Panel detection uses a free-tier license with a limited number of scans. Proceed anyway?</p>
+            <div class="detect-confirm__actions">
+              <button type="button" class="detect-confirm__btn detect-confirm__btn--cancel" (click)="cancelDetect()">Cancel</button>
+              <button type="button" class="detect-confirm__btn detect-confirm__btn--ok" (click)="confirmDetect()">OK</button>
+            </div>
+          </div>
+        </div>
       </div>
     </app-ds-floating-window>
   `,
@@ -136,6 +145,56 @@ const STATUS_COLOR: Record<string, string> = {
         padding: 4px 8px;
         border-radius: 4px;
       }
+      .detect-confirm-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .detect-confirm {
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px 24px;
+        max-width: 320px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        text-align: center;
+      }
+      .detect-confirm__msg {
+        margin: 0 0 16px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #334155;
+      }
+      .detect-confirm__actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+      .detect-confirm__btn {
+        padding: 6px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .detect-confirm__btn--cancel {
+        background: #e2e8f0;
+        color: #475569;
+      }
+      .detect-confirm__btn--cancel:hover {
+        background: #cbd5e1;
+      }
+      .detect-confirm__btn--ok {
+        background: #0f766e;
+        color: #fff;
+      }
+      .detect-confirm__btn--ok:hover {
+        background: #115e59;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -200,8 +259,21 @@ export class SatelliteWindowComponent
     this.map?.remove();
   }
 
+  showDetectConfirm = false;
+
   detectPanels(): void {
     if (!this.map || this.detecting) return;
+    this.showDetectConfirm = true;
+    this.cdr.markForCheck();
+  }
+
+  cancelDetect(): void {
+    this.showDetectConfirm = false;
+    this.cdr.markForCheck();
+  }
+
+  confirmDetect(): void {
+    this.showDetectConfirm = false;
     this.detecting = true;
     this.detectError = '';
     this.cdr.markForCheck();
@@ -420,7 +492,7 @@ export class SatelliteWindowComponent
 
     for (const asset of this.svc.assets$.value) {
       if (asset.lat === null || asset.long === null) continue;
-      const color = STATUS_COLOR[asset.status] ?? '#6b7280';
+      const color = '#dc2626';
       const fmt = (d: Date | null) => (d ? d.toLocaleDateString() : '—');
 
       const popup = L.popup({

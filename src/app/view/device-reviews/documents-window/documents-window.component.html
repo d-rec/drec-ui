@@ -282,9 +282,19 @@
                   {{ detailForm.get('ownershipStatus')?.value || 'unverified' }}
                 </span>
               </div>
+            </div>
+            <div class="top-row">
               <div class="field field--auto">
                 <label class="field__label">Registrant</label>
                 <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('submitterName')?.value || detailForm.get('submitterEmail')?.value || '—', searchTerm)"></span>
+              </div>
+              <div class="field field--auto">
+                <label class="field__label">Evident ID</label>
+                <span class="field__input field__input--text">{{ detailForm.get('evidentDeviceId')?.value || '—' }}</span>
+              </div>
+              <div class="field field--auto">
+                <label class="field__label">Evident Status</label>
+                <span class="field__input field__input--text">{{ detailForm.get('evidentStatus')?.value || '—' }}</span>
               </div>
               <div class="field field--narrow">
                 <label class="field__label">Date Added</label>
@@ -316,10 +326,6 @@
               </div>
             </div>
           <div class="detail-actions">
-            <span class="detail-actions__sep"></span>
-            <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-            </button>
             <button type="button" class="btn btn--screen" (click)="screenDuplicates()" title="Screen for duplicates across all organizations">Screen</button>
             <button type="button" class="btn btn--verify" (click)="verifySourceAccess()" title="Verify source-access mode requirements (§3.3)">Verify</button>
             <button type="button" class="btn btn--ceiling" (click)="checkCeiling()" title="Irradiance-based production ceiling check (§3.6)">Ceiling</button>
@@ -327,6 +333,10 @@
             <button type="button" class="btn btn--audit" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit</button>
             <button type="button" class="btn btn--controls" (click)="evaluateControls()" title="Compensating controls for Mode 4 (§3.9)">Controls</button>
             <button type="button" class="btn btn--crosssrc" (click)="checkCrossSource()" title="Cross-source verification with Performance Factor (§3.10)">X-Source</button>
+            <span class="detail-actions__sep"></span>
+            <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+            </button>
             <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
             <button type="button" class="btn btn--reject"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Reject</button>
             <button type="button" class="btn btn--archive" (click)="archiveDevice()" [disabled]="detailForm.get('status')?.value === 'pending' || detailForm.get('status')?.value === 'draft'">Archive</button>
@@ -351,7 +361,7 @@
     <div class="modal-box" role="document" (click)="$event.stopPropagation()">
       <p class="modal-msg">The device can now be grouped for submission to Evident.</p>
       <div class="modal-actions">
-        <button class="btn btn--approve" (click)="dismissApprovedInfo()">OK</button>
+        <button class="btn btn--save" (click)="dismissApprovedInfo()">OK</button>
       </div>
     </div>
   </div>
@@ -389,7 +399,7 @@
         </table>
       </div>
       <div class="modal-actions">
-        <button class="btn btn--approve" (click)="showDuplicatesModal = false">OK</button>
+        <button class="btn btn--save" (click)="showDuplicatesModal = false">OK</button>
       </div>
     </div>
   </div>
@@ -433,9 +443,12 @@
           </div>
         </ng-container>
       </ng-container>
-      <p class="modal-msg" *ngIf="!sourceVerifyResult" style="color: #dc2626;">Verification request failed.</p>
+      <div *ngIf="!sourceVerifyResult" style="color: #dc2626;">
+        <p class="modal-msg">Verification request failed.</p>
+        <p class="modal-msg" *ngIf="sourceVerifyError" style="font-size: 12px; margin-top: 4px; color: #64748b;">{{ sourceVerifyError }}</p>
+      </div>
       <div class="modal-actions">
-        <button class="btn btn--approve" (click)="showSourceVerifyModal = false">OK</button>
+        <button class="btn btn--save" (click)="showSourceVerifyModal = false">OK</button>
       </div>
     </div>
   </div>
@@ -481,33 +494,13 @@
         </div>
 
         <!-- Recent readings -->
-        <div *ngIf="ceilingResult.recentReadings.length > 0" class="verify-section" [class.verify-section--fail]="hasCeilingExceedance()">
-          <p class="verify-heading">Recent meter readings (last {{ ceilingResult.recentReadings.length }}):</p>
-          <table class="dup-table">
-            <thead>
-              <tr><th>Period</th><th>Hours</th><th>Value (kWh)</th><th>Ceiling (kWh)</th><th></th></tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let r of ceilingResult.recentReadings" [style.background]="r.exceedsCeiling ? '#fef2f2' : ''">
-                <td>{{ r.startDate | date:'dd/MM' }}–{{ r.endDate | date:'dd/MM' }}</td>
-                <td>{{ r.periodHours }}</td>
-                <td>{{ r.valueKwh | number:'1.0-1' }}</td>
-                <td>{{ r.ceilingKwh | number:'1.0-1' }}</td>
-                <td>
-                  <span *ngIf="r.exceedsCeiling" class="dup-match-badge" style="background:#fee2e2;color:#b91c1c;">EXCEEDS</span>
-                  <span *ngIf="!r.exceedsCeiling" style="color:#059669;font-size:11px;font-weight:600;">OK</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div *ngIf="ceilingResult.recentReadings.length === 0" class="verify-section">
-          <p class="verify-heading" style="color:#64748b;">No meter readings found for this device.</p>
-        </div>
       </ng-container>
-      <p class="modal-msg" *ngIf="!ceilingResult" style="color: #dc2626;">Ceiling check failed.</p>
+      <div *ngIf="!ceilingResult" style="color: #dc2626;">
+        <p class="modal-msg">Ceiling check failed.</p>
+        <p class="modal-msg" *ngIf="ceilingError" style="font-size: 12px; margin-top: 4px; color: #64748b;">{{ ceilingError }}</p>
+      </div>
       <div class="modal-actions">
-        <button class="btn btn--approve" (click)="showCeilingModal = false">OK</button>
+        <button class="btn btn--save" (click)="showCeilingModal = false">OK</button>
       </div>
     </div>
   </div>
@@ -561,7 +554,7 @@
       </ng-container>
       <p class="modal-msg" *ngIf="!consistencyResult" style="color: #dc2626;">Consistency review failed.</p>
       <div class="modal-actions">
-        <button class="btn btn--approve" (click)="showConsistencyModal = false">OK</button>
+        <button class="btn btn--save" (click)="showConsistencyModal = false">OK</button>
       </div>
     </div>
   </div>
@@ -620,7 +613,7 @@
         <p class="verify-heading" style="color:#dc2626;">Failed to run cross-source verification.</p>
       </div>
       <div class="modal-actions">
-        <button class="btn btn--approve" (click)="showCrossSourceModal = false">OK</button>
+        <button class="btn btn--save" (click)="showCrossSourceModal = false">OK</button>
       </div>
     </div>
   </div>
@@ -652,7 +645,7 @@
         <p class="verify-heading" style="color:#dc2626;">Failed to evaluate compensating controls.</p>
       </div>
       <div class="modal-actions">
-        <button class="btn btn--approve" (click)="showControlsModal = false">OK</button>
+        <button class="btn btn--save" (click)="showControlsModal = false">OK</button>
       </div>
     </div>
   </div>
@@ -676,7 +669,8 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button class="btn btn--approve" (click)="showAuditModal = false">OK</button>
+        <button class="btn btn--save" (click)="copyAuditTrail()">{{ auditCopyLabel }}</button>
+        <button class="btn btn--save" (click)="showAuditModal = false">OK</button>
       </div>
     </div>
   </div>

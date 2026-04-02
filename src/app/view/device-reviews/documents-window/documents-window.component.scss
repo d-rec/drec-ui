@@ -515,7 +515,8 @@ $legacy:   #a0845c;
 
 .detail-actions {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
   align-items: center;
 
   &__sep {
@@ -571,10 +572,10 @@ $legacy:   #a0845c;
   }
 
   &--screen {
-    background: #475569;
-    color: #fff;
-    border: 1px solid #334155;
-    &:hover { background: #334155; }
+    background: $bg;
+    color: $text;
+    border: 1px solid $text;
+    &:hover { background: $bg-mid; }
   }
 }
 
@@ -694,25 +695,28 @@ $legacy:   #a0845c;
 }
 .pathway-direct { color: #059669; }
 .pathway-file-based { color: #d97706; }
-.pathway-compensating { color: #dc2626; }
+.pathway-compensating { color: #7c3aed; }
 
 // ── Audit button & trail ──────────────────────────────────────────────────────
 .btn--audit {
-  background: #475569;
-  color: #fff;
-  border: 1px solid #334155;
-  &:hover { background: #334155; }
+  background: $bg;
+  color: $text;
+  border: 1px solid $text;
+  &:hover { background: $bg-mid; }
 }
 
 .audit-list {
-  max-height: 320px;
+  max-height: 360px;
   overflow-y: auto;
   margin-bottom: 12px;
+  border: 1px solid $border;
+  border-radius: 4px;
 }
 
 .audit-entry {
-  padding: 6px 0;
+  padding: 8px 10px;
   border-bottom: 1px solid $border;
+  &:nth-child(even) { background: $bg-light; }
   &:last-child { border-bottom: none; }
 
   &__header {
@@ -755,10 +759,10 @@ $legacy:   #a0845c;
 
 // ── Cross-source verification button & modal (§3.10) ─────────────────────────
 .btn--crosssrc {
-  background: #0d9488;
-  color: #fff;
-  border: 1px solid #0f766e;
-  &:hover { background: #0f766e; }
+  background: $bg;
+  color: $text;
+  border: 1px solid $text;
+  &:hover { background: $bg-mid; }
 }
 
 .xsrc-stats {
@@ -821,10 +825,10 @@ $legacy:   #a0845c;
 
 // ── Compensating controls button & modal (§3.9) ──────────────────────────────
 .btn--controls {
-  background: #7c3aed;
-  color: #fff;
-  border: 1px solid #6d28d9;
-  &:hover { background: #6d28d9; }
+  background: $bg;
+  color: $text;
+  border: 1px solid $text;
+  &:hover { background: $bg-mid; }
 }
 
 .controls-summary {
@@ -884,10 +888,10 @@ $legacy:   #a0845c;
 
 // ── History / consistency button ───────────────────────────────────────────────
 .btn--consistency {
-  background: #0369a1;
-  color: #fff;
-  border: 1px solid #075985;
-  &:hover { background: #075985; }
+  background: $bg;
+  color: $text;
+  border: 1px solid $text;
+  &:hover { background: $bg-mid; }
 }
 
 .anomaly-type {
@@ -920,10 +924,10 @@ $legacy:   #a0845c;
 
 // ── Ceiling button ────────────────────────────────────────────────────────────
 .btn--ceiling {
-  background: #7c3aed;
-  color: #fff;
-  border: 1px solid #6d28d9;
-  &:hover { background: #6d28d9; }
+  background: $bg;
+  color: $text;
+  border: 1px solid $text;
+  &:hover { background: $bg-mid; }
 }
 
 .ceiling-grid {
@@ -952,10 +956,10 @@ $legacy:   #a0845c;
 
 // ── Verify button ─────────────────────────────────────────────────────────────
 .btn--verify {
-  background: #1e40af;
-  color: #fff;
-  border: 1px solid #1e3a8a;
-  &:hover { background: #1e3a8a; }
+  background: $bg;
+  color: $text;
+  border: 1px solid $text;
+  &:hover { background: $bg-mid; }
 }
 
 // ── Source-access verification modal sections ─────────────────────────────────
