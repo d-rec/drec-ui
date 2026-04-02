@@ -179,11 +179,26 @@
     <div *ngIf="!consistencyResult && !consistencyError" class="modal__loading">Analysing…</div>
     <div *ngIf="consistencyError" class="modal__error">{{ consistencyError }}</div>
     <div *ngIf="consistencyResult">
-      <p><strong>Anomalies:</strong> {{ consistencyResult.anomalies?.length || 0 }}</p>
-      <div *ngFor="let a of consistencyResult.anomalies" class="modal__anomaly">
-        <span class="modal__anomaly-type">{{ a.type }}</span>: {{ a.message }}
+      <!-- Summary stats -->
+      <div class="modal__stats" *ngIf="consistencyResult.summary">
+        <p class="modal__subtitle">{{ consistencyResult.totalReadings }} readings over {{ consistencyResult.periodMonths }} month(s)</p>
+        <div class="modal__stat-grid">
+          <div class="modal__stat"><span class="modal__stat-val">{{ consistencyResult.summary.meanKwh | number:'1.0-1' }}</span><span class="modal__stat-lbl">Mean (kWh)</span></div>
+          <div class="modal__stat"><span class="modal__stat-val">{{ consistencyResult.summary.stdDevKwh | number:'1.0-1' }}</span><span class="modal__stat-lbl">Std Dev</span></div>
+          <div class="modal__stat"><span class="modal__stat-val">{{ consistencyResult.summary.minKwh | number:'1.0-1' }}–{{ consistencyResult.summary.maxKwh | number:'1.0-1' }}</span><span class="modal__stat-lbl">Range</span></div>
+          <div class="modal__stat"><span class="modal__stat-val">{{ consistencyResult.summary.coefficientOfVariation | number:'1.0-3' }}</span><span class="modal__stat-lbl">CV</span></div>
+          <div class="modal__stat" *ngIf="consistencyResult.summary.sigmaBand"><span class="modal__stat-val">{{ consistencyResult.summary.sigmaBand.low | number:'1.0-1' }}–{{ consistencyResult.summary.sigmaBand.high | number:'1.0-1' }}</span><span class="modal__stat-lbl">±1.5σ Band</span></div>
+          <div class="modal__stat" *ngIf="consistencyResult.summary.sigmaBand"><span class="modal__stat-val">{{ consistencyResult.summary.sigmaBand.outliersCount }}</span><span class="modal__stat-lbl">Outliers</span></div>
+        </div>
       </div>
-      <p *ngIf="!consistencyResult.anomalies?.length" class="modal__ok">No anomalies detected.</p>
+      <p *ngIf="!consistencyResult.summary && consistencyResult.totalReadings === 0" style="color:#64748b;">No meter readings found.</p>
+      <!-- Anomalies -->
+      <div *ngFor="let a of consistencyResult.anomalies" class="modal__anomaly" [class.modal__anomaly--critical]="a.severity === 'critical'">
+        <span class="modal__anomaly-type">{{ a.type }}</span>
+        <span class="modal__anomaly-sev">{{ a.severity }}</span>
+        <p class="modal__anomaly-desc">{{ a.description }}</p>
+      </div>
+      <p *ngIf="!consistencyResult.anomalies?.length && consistencyResult.totalReadings > 0" class="modal__ok">No anomalies detected.</p>
     </div>
     <div class="modal__footer">
       <button class="btn btn--save" (click)="showConsistencyModal = false">OK</button>

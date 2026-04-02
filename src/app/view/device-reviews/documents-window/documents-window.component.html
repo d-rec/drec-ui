@@ -531,6 +531,14 @@
               <span class="ceiling-stat__val">{{ consistencyResult.summary.coefficientOfVariation | number:'1.0-3' }}</span>
               <span class="ceiling-stat__label">CV</span>
             </div>
+            <div class="ceiling-stat" *ngIf="consistencyResult.summary.sigmaBand">
+              <span class="ceiling-stat__val">{{ consistencyResult.summary.sigmaBand.low | number:'1.0-1' }}–{{ consistencyResult.summary.sigmaBand.high | number:'1.0-1' }}</span>
+              <span class="ceiling-stat__label">±1.5σ Band (kWh)</span>
+            </div>
+            <div class="ceiling-stat" *ngIf="consistencyResult.summary.sigmaBand">
+              <span class="ceiling-stat__val">{{ consistencyResult.summary.sigmaBand.outliersCount }}</span>
+              <span class="ceiling-stat__label">Outliers</span>
+            </div>
           </div>
         </div>
         <div class="verify-section" *ngIf="!consistencyResult.summary && consistencyResult.totalReadings === 0">
