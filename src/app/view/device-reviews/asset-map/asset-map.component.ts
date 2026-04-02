@@ -68,10 +68,10 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     this.map = L.map(this.mapEl.nativeElement, {
       zoomControl: true,
       attributionControl: false,
-      minZoom: 2,
+      minZoom: 3,
       maxBounds: L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180)),
       maxBoundsViscosity: 1.0,
-    }).setView([20, 0], 2);
+    }).setView([20, 0], 3);
     L.tileLayer(
       'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
       {
