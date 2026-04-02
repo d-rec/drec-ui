@@ -71,7 +71,7 @@ export class UserInvitationComponent {
   }
 
   ngOnInit() {
-    if (this.loginuser.role === 'ApiUser') {
+    if (this.loginuser.role === 'MarketIntermediary') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType != 'Buyer',

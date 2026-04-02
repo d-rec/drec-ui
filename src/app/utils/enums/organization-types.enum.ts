@@ -6,6 +6,6 @@ export enum OrganizationType {
   Admin = 'Admin',
   SubBuyer = 'SubBuyer',
   Developer = 'Developer',
-  ApiUser = 'ApiUser',
+  MarketIntermediary = 'MarketIntermediary',
   Operator = 'Operator',
 }

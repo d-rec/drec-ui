@@ -58,7 +58,7 @@ export class AddBulkReadsComponent implements OnInit {
         );
         this.filteredOrganizations = this.organizationList;
       });
-    } else if (this.loggedInUser.role === OrganizationType.ApiUser) {
+    } else if (this.loggedInUser.role === OrganizationType.MarketIntermediary) {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.organizationList = data.organizations.filter(
           (organization) =>

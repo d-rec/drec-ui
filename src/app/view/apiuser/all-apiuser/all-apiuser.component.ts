@@ -80,7 +80,7 @@ export class AllApiuserComponent {
       this.adminService.GetAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: { organizationType: string; api_user_id: string }) =>
-            org.organizationType == 'ApiUser' &&
+            org.organizationType == 'MarketIntermediary' &&
             org.api_user_id != this.apiuserId,
         );
       });

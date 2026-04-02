@@ -230,7 +230,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.orgService.getOrganizationInformation().subscribe((data) => {
       this.currentOrganization = data;
       if (
-        ![OrganizationType.ApiUser, OrganizationType.Admin].includes(
+        ![OrganizationType.MarketIntermediary, OrganizationType.Admin].includes(
           this.user.role,
         )
       ) {
@@ -250,7 +250,7 @@ export class AddDevicesComponent implements OnDestroy {
         this.filteredOrganizationList = this.organizationList;
         this.date = new Date();
       });
-    } else if (this.user.role === OrganizationType.ApiUser) {
+    } else if (this.user.role === OrganizationType.MarketIntermediary) {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.organizationList = data.organizations.filter(
           (org: OrganizationInformation) =>
@@ -738,7 +738,7 @@ export class AddDevicesComponent implements OnDestroy {
           if (deviceArray.length === 0) {
             if (this.user.role === OrganizationType.Admin) {
               this.router.navigate(['/admin/All_devices']);
-            } else if (this.user.role === OrganizationType.ApiUser) {
+            } else if (this.user.role === OrganizationType.MarketIntermediary) {
               this.router.navigate(['/apiuser/All_devices']);
             } else {
               this.router.navigate(['/device/AllList']);

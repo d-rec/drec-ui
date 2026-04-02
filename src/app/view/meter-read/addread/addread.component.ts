@@ -74,7 +74,7 @@ export class AddreadComponent implements OnInit {
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
 
-    if (this.loginuser.role === 'Admin' || this.loginuser.role === 'ApiUser') {
+    if (this.loginuser.role === 'Admin' || this.loginuser.role === 'MarketIntermediary') {
       this.showmeter_readformadmin = true;
     } else {
       this.showmeter_readformadmin = false;
@@ -90,7 +90,7 @@ export class AddreadComponent implements OnInit {
 
         this.filteredOrgList = this.orglist;
       });
-    } else if (this.loginuser.role === 'ApiUser') {
+    } else if (this.loginuser.role === 'MarketIntermediary') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType != 'Buyer',
@@ -166,7 +166,7 @@ export class AddreadComponent implements OnInit {
     );
     if (selectedCountry) {
       this.orgId = selectedCountry.id;
-      if (this.loginuser.role === 'ApiUser') {
+      if (this.loginuser.role === 'MarketIntermediary') {
         this.gedevicefororg();
       } else {
         this.gedeviceforadmin(this.orgId);
@@ -192,7 +192,7 @@ export class AddreadComponent implements OnInit {
   }
 
   gedevicefororg() {
-    if (this.loginuser.role === 'ApiUser') {
+    if (this.loginuser.role === 'MarketIntermediary') {
       const deviceurl = 'device/my?';
       const FilterForm = { organizationId: this.orgId };
       this.deviceservice.GetMyDevices(deviceurl, FilterForm).subscribe({
@@ -325,7 +325,7 @@ export class AddreadComponent implements OnInit {
     if (this.loginuser.role === 'Admin') {
       this.readForm.controls['serialNumber'].setValue(result.serialNumber);
       deivceid = result.id;
-    } else if (this.loginuser.role === 'ApiUser') {
+    } else if (this.loginuser.role === 'MarketIntermediary') {
       this.readForm.controls['serialNumber'].setValue(result.serialNumber);
       deivceid = result.id;
     } else {
@@ -442,7 +442,7 @@ export class AddreadComponent implements OnInit {
     if (this.readForm.valid) {
       const serialNumber = this.readForm.value.serialNumber;
       const myobj: any = {};
-      if (this.loginuser.role === 'ApiUser') {
+      if (this.loginuser.role === 'MarketIntermediary') {
         myobj['organizationId'] = this.orgId;
       }
       if (

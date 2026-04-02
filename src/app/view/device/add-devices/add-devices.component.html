@@ -15,7 +15,7 @@
     <hr class="mb-0 pb-0" />
     <form [formGroup]="myform" (ngSubmit)="onSubmit()">
       <mat-card-content>
-        <div class="col-md-3" *ngIf="user.role === 'Admin' || user.role === 'ApiUser'">
+        <div class="col-md-3" *ngIf="user.role === 'Admin' || user.role === 'MarketIntermediary'">
           <mat-form-field appearance="outline">
             <mat-label class="text-capitalize" test-id="organization">Organization</mat-label>
 

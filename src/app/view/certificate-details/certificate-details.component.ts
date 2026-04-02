@@ -156,7 +156,7 @@ export class CertificateDetailsComponent {
   }
   ngOnInit() {
     this.energyurl = environment.Explorer_URL + '/block/';
-    if (this.loginuser.role === 'ApiUser') {
+    if (this.loginuser.role === 'MarketIntermediary') {
       this.FilterForm.addControl(
         'organizationname',
         this.formBuilder.control(''),

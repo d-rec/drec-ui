@@ -135,7 +135,7 @@ export class AddUsersComponent {
         this.loginuser?.organization?.name ?? 'D-REC',
       );
     }
-    if (this.loginuser.role === 'ApiUser') {
+    if (this.loginuser.role === 'MarketIntermediary') {
       this.userService
         .userregisterByApiUser(this.registerForm.value, this.apiuserId)
         .subscribe({

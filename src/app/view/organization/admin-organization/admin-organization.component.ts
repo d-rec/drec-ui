@@ -86,11 +86,11 @@ export class AdminOrganizationComponent {
     if (this.loginuser.role === 'Admin') {
       this.adminService.GetAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
-          (org: OrganizationInformation) => org.organizationType != 'ApiUser',
+          (org: OrganizationInformation) => org.organizationType != 'MarketIntermediary',
         );
         this.orglistload = true;
       });
-    } else if (this.loginuser.role === 'ApiUser') {
+    } else if (this.loginuser.role === 'MarketIntermediary') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations;
         this.orglistload = true;
@@ -101,7 +101,7 @@ export class AdminOrganizationComponent {
       this.loading = false;
       if (this.loginuser.role === 'Admin') {
         this.getAllOrganization(this.p);
-      } else if (this.loginuser.role === 'ApiUser') {
+      } else if (this.loginuser.role === 'MarketIntermediary') {
         this.getApiuserAllOrganization(this.p);
       }
       if (this.orglistload) {
@@ -160,13 +160,13 @@ export class AdminOrganizationComponent {
     if (this.loginuser.role === 'Admin') {
       this.getAllOrganization(this.p);
     }
-    if (this.loginuser.role === 'ApiUser') {
+    if (this.loginuser.role === 'MarketIntermediary') {
       this.getApiuserAllOrganization(this.p);
     }
   }
   getAllOrganization(page: number) {
     const limit = 20;
-    this.FilterForm.value['organizationType'] = 'ApiUser';
+    this.FilterForm.value['organizationType'] = 'MarketIntermediary';
     this.adminService
       .GetAllOrganization(page, limit, this.FilterForm.value)
       .subscribe(
@@ -215,7 +215,7 @@ export class AdminOrganizationComponent {
       if (this.loginuser.role === 'Admin') {
         this.getAllOrganization(this.p);
       }
-      if (this.loginuser.role === 'ApiUser') {
+      if (this.loginuser.role === 'MarketIntermediary') {
         this.getApiuserAllOrganization(this.p);
       }
     }
@@ -227,7 +227,7 @@ export class AdminOrganizationComponent {
       if (this.loginuser.role === 'Admin') {
         this.getAllOrganization(this.p);
       }
-      if (this.loginuser.role === 'ApiUser') {
+      if (this.loginuser.role === 'MarketIntermediary') {
         this.getApiuserAllOrganization(this.p);
       }
     }

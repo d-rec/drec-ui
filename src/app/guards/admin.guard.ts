@@ -8,7 +8,7 @@ export const AdminGuard: CanActivateFn = () => {
     const allowed = [
       'Admin',
       'OrganizationAdmin',
-      'ApiUser',
+      'MarketIntermediary',
       'Reviewer',
       'SeniorReviewer',
     ];

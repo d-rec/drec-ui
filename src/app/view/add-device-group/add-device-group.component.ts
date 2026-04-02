@@ -150,7 +150,7 @@ export class AddDeviceGroupComponent {
     });
   }
   ngOnInit() {
-    if (this.loginuser.role === 'ApiUser') {
+    if (this.loginuser.role === 'MarketIntermediary') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) =>
@@ -516,7 +516,7 @@ export class AddDeviceGroupComponent {
     this.reservationForm.controls[
       'continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'
     ].setValue(result.continueWithTCLessDTC);
-    const isApiUser = this.loginuser?.role === 'ApiUser';
+    const isApiUser = this.loginuser?.role === 'MarketIntermediary';
     const reservationType =
       this.selectionType === SelectionType.Checkbox
         ? GroupType.Multiple

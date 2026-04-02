@@ -44,7 +44,7 @@ export class UserpermissionComponent {
     { id: 3, name: 'DeviceOwner' },
     { id: 4, name: 'Buyer' },
     { id: 5, name: 'User' },
-    { id: 6, name: 'ApiUser' },
+    { id: 6, name: 'MarketIntermediary' },
     { id: 7, name: 'SubBuyer' },
   ];
   constructor(

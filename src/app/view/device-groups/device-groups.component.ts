@@ -129,7 +129,7 @@ export class DeviceGroups implements OnInit {
     this.displayCountriesList();
     this.DisplayfuelList();
     this.DisplaytypeList();
-    if (this.loginuser.role === 'ApiUser') {
+    if (this.loginuser.role === 'MarketIntermediary') {
       this.FilterForm.addControl(
         'organizationname',
         this.formBuilder.control(''),
@@ -324,7 +324,7 @@ export class DeviceGroups implements OnInit {
     this.FilterForm.reset();
     this.FilterForm.controls['countryCode'].setValue(null);
     this.FilterForm.controls['reservationActive'].setValue(null);
-    if (this.loginuser.role === 'ApiUser') {
+    if (this.loginuser.role === 'MarketIntermediary') {
       this.FilterForm.controls['organizationname'].setValue(null);
       this.FilterForm.controls['organizationId'].setValue(null);
     }
@@ -336,7 +336,7 @@ export class DeviceGroups implements OnInit {
   }
   DisplayList(page: number) {
     if (
-      this.loginuser.role === 'ApiUser' ||
+      this.loginuser.role === 'MarketIntermediary' ||
       this.loginuser.role === 'OrganizationAdmin'
     ) {
       if (this.FilterForm.value.reservationActive === 'All') {

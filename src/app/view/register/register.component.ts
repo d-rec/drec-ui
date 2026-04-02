@@ -31,7 +31,7 @@ export class RegisterComponent implements OnInit {
   orgtype: any[] = [
     { value: 'Developer', viewValue: 'Developer' },
     { value: 'Buyer', viewValue: 'Buyer' },
-    { value: 'ApiUser', viewValue: 'Market Intermediary' },
+    { value: 'MarketIntermediary', viewValue: 'Market Intermediary' },
     { value: 'Operator', viewValue: 'Operator' },
   ];
   hide = true;
@@ -250,7 +250,7 @@ export class RegisterComponent implements OnInit {
 
     this.authService.PostAuth('user/register', formValues).subscribe({
       next: (data) => {
-        if (formValues.organizationType === 'ApiUser') {
+        if (formValues.organizationType === 'MarketIntermediary') {
           this.handleApiUserRegistration(data, loginCredentials);
           return;
         }

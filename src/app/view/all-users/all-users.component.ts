@@ -65,7 +65,7 @@ export class AllUsersComponent {
     if (this.activatedRoute.snapshot.params['id']) {
       this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
       this.showorg = true;
-      if (this.loginuser.role === 'ApiUser') {
+      if (this.loginuser.role === 'MarketIntermediary') {
         this.orgService
           .GetOrganizationById(this.orgnaizatioId)
           .subscribe((data) => {
@@ -96,13 +96,13 @@ export class AllUsersComponent {
         const seen = new Set<string>();
         this.orglist = data.organizations.filter(
           (org: { api_user_id: string; organizationType: string; name: string }) => {
-            if (org.organizationType === 'ApiUser' || seen.has(org.name)) return false;
+            if (org.organizationType === 'MarketIntermediary' || seen.has(org.name)) return false;
             seen.add(org.name);
             return true;
           },
         );
       });
-    } else if (this.loginuser.role === 'ApiUser') {
+    } else if (this.loginuser.role === 'MarketIntermediary') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         const seen = new Set<string>();
         this.orglist = data.organizations.filter((org: { name: string }) => {
@@ -182,7 +182,7 @@ export class AllUsersComponent {
       }
     } else {
       this.showorg = true;
-      if (this.loginuser.role === 'ApiUser') {
+      if (this.loginuser.role === 'MarketIntermediary') {
         if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
           this.getAllUserByorganzationId(page, limit);
         } else {
