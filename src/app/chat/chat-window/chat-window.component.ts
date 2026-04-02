@@ -80,7 +80,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
             this.boldTimers.set(msg.uuid, setTimeout(() => {
               this.unreadUuids.delete(msg.uuid);
               this.boldTimers.delete(msg.uuid);
-            }, 5000));
+            }, 10000));
           }
         }
       }

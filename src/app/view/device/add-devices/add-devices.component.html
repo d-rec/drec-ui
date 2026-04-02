@@ -57,9 +57,10 @@
                     <mat-form-field appearance="outline">
                       <mat-label test-id="project-name">Site Name</mat-label>
                       <input matInput autocomplete="off" formControlName="projectName" />
-                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
-                      <!-- <mat-hint>Hint</mat-hint> -->
                     </mat-form-field>
+                    <div *ngIf="siteNameExists[i]" class="text-danger" style="font-size:11px;margin-top:-4px">
+                      Site name already exists
+                    </div>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline" class="w-100" test-id="data-source">
@@ -190,27 +191,27 @@
                       Invalid Country Selected
                     </mat-error>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize" test-id="latitude">Latitude</mat-label>
                       <input matInput formControlName="latitude" />
-                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
                   </div>
 
-                  <div class="col-md-6">
+                  <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize" test-id="longitude">Longitude</mat-label>
                       <input matInput formControlName="longitude" />
-                      <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
                   </div>
-                  <div class="col-md-6 pb-4">
+                </div>
+                <div class="row map-row">
+                  <div class="col-md-6 pb-4 map-col">
                     <app-map [zoom]="6" #streetMap></app-map>
                   </div>
-                  <div class="col-md-6 pb-4">
+                  <div class="col-md-6 pb-4 map-col">
                     <app-map [zoom]="19" [satellite]="true" #satelliteMap></app-map>
                   </div>
                 </div>
@@ -230,24 +231,44 @@
                     </mat-form-field>
                   </div>
 
-                  <!-- <mat-form-field appearance="outline">
-                                      <mat-label>Version</mat-label>
-                                      <input matInput placeholder="version" formControlName='version'>
-                                  </mat-form-field> -->
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize">Device Description</mat-label>
+
+                      <mat-select formControlName="deviceDescription" test-id="device-description">
+                        <mat-option *ngFor="let code of devicedescription" [value]="code">
+                          {{ code }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+
+                  <div class="col-md-6">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Operating Configuration</mat-label>
+                      <mat-select formControlName="operatingConfiguration"
+                        (selectionChange)="onOperatingConfigChange($event.value, i)">
+                        <mat-option [value]="null">-- Not specified --</mat-option>
+                        <mat-option *ngFor="let oc of operatingConfigurations" [value]="oc">
+                          {{ oc }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
 
                   <div class="col-md-3">
                     <button
-                      class="btn py-2 pb-3 fw-bold btn-outline-danger d-block w-100 text-capitalize align-middle cursor-pointer"
+                      class="btn btn-outline-danger d-block w-100 text-capitalize cursor-pointer"
+                      style="height:48px;font-size:13px"
                       (click)="addmore(i)" *ngIf="showaddmore[i]" test-id="add-more">
-                      Add more details
-                      <mat-icon class="pt-2 scroll-down">keyboard_arrow_down</mat-icon>
+                      More details &hellip;
                     </button>
 
                     <button
-                      class="btn py-2 pb-3 fw-bold btn-outline-dark d-block w-100 text-capitalize align-middle cursor-pointer"
+                      class="btn btn-outline-dark d-block w-100 text-capitalize cursor-pointer"
+                      style="height:48px;font-size:13px"
                       (click)="nomore(i)" *ngIf="shownomore[i]">
-                      hide details
-                      <mat-icon class="pt-2 scroll-down">keyboard_arrow_up</mat-icon>
+                      Less details
                     </button>
                   </div>
                 </div>
@@ -258,18 +279,6 @@
 
                       <mat-select formControlName="offTaker" test-id="off-taker">
                         <mat-option *ngFor="let code of offtaker" [value]="code">
-                          {{ code }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">Device Description</mat-label>
-
-                      <mat-select formControlName="deviceDescription" test-id="device-description">
-                        <mat-option *ngFor="let code of devicedescription" [value]="code">
                           {{ code }}
                         </mat-option>
                       </mat-select>
@@ -288,27 +297,12 @@
                       <input matInput formControlName="qualityLabels" test-id="quality" />
                     </mat-form-field>
                   </div>
-                </div>
-
-                <div class="row" *ngIf="addmoredetals[i]">
                   <div class="col-md-3 d-flex flex-column">
                     <span>Grid Inter-connection:</span>
                     <mat-radio-group formControlName="gridInterconnection" test-id="grid-interconnection">
                       <mat-radio-button [value]="true">Yes</mat-radio-button>
                       <mat-radio-button [value]="false">No</mat-radio-button>
                     </mat-radio-group>
-                  </div>
-                  <div class="col-md-6">
-                    <mat-form-field appearance="outline">
-                      <mat-label>Operating Configuration</mat-label>
-                      <mat-select formControlName="operatingConfiguration"
-                        (selectionChange)="onOperatingConfigChange($event.value, i)">
-                        <mat-option [value]="null">-- Not specified --</mat-option>
-                        <mat-option *ngFor="let oc of operatingConfigurations" [value]="oc">
-                          {{ oc }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
                   </div>
                 </div>
                 <div class="row" *ngIf="addmoredetals[i]">
@@ -362,7 +356,7 @@
                       <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('FORM_SF_02')?.value">
+                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('FORM_SF_02')?.value">
                         {{ deviceForms.at(i).get('FORM_SF_02')?.value ?
                         deviceForms.at(i).get('FORM_SF_02')?.value.name : '' }}
                       </span>
@@ -372,7 +366,7 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
                       <span *ngIf="!deviceForms.at(i).get('FORM_SF_02')?.value"
-                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
@@ -389,7 +383,7 @@
                       <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('SF_02C')?.value">
+                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('SF_02C')?.value">
                         {{ deviceForms.at(i).get('SF_02C')?.value ?
                         deviceForms.at(i).get('SF_02C')?.value.name : '' }}
                       </span>
@@ -399,7 +393,7 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
                       <span *ngIf="!deviceForms.at(i).get('SF_02C')?.value"
-                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
@@ -417,7 +411,7 @@
                       <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('METERING_EVIDENCE')?.value">
+                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('METERING_EVIDENCE')?.value">
                         {{ deviceForms.at(i).get('METERING_EVIDENCE')?.value ?
                         deviceForms.at(i).get('METERING_EVIDENCE')?.value.name : '' }}
                       </span>
@@ -427,7 +421,7 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
                       <span *ngIf="!deviceForms.at(i).get('METERING_EVIDENCE')?.value"
-                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
@@ -445,7 +439,7 @@
                       <button type="button" (click)="diagramFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
+                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
                         {{ deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value ?
                         deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value.name : '' }}
                       </span>
@@ -455,7 +449,7 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
                       <span *ngIf="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value"
-                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
@@ -473,7 +467,7 @@
                       <button type="button" (click)="photosFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value">
+                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value">
                         {{ (files[i]?.['PROJECT_PHOTOS']?.length || 0) > 1
                           ? files[i]['PROJECT_PHOTOS'].length + ' files selected'
                           : (deviceForms.at(i).get('PROJECT_PHOTOS')?.value ?
@@ -485,7 +479,7 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
                       <span *ngIf="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value"
-                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
@@ -529,7 +523,7 @@
                       <button type="button" (click)="codProofFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-danger]="!deviceForms.at(i).get('COD_PROOF')?.value">
+                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('COD_PROOF')?.value">
                         {{ deviceForms.at(i).get('COD_PROOF')?.value ?
                         deviceForms.at(i).get('COD_PROOF')?.value.name : '' }}
                       </span>
@@ -539,7 +533,7 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
                       <span *ngIf="!deviceForms.at(i).get('COD_PROOF')?.value"
-                        class="badge bg-danger text-white px-2 py-1" title="Missing">
+                        class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>

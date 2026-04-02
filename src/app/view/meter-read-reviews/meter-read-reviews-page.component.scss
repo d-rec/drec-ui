@@ -1,0 +1,33 @@
+.mrr-page {
+  position: fixed;
+  top: 42px;
+  bottom: 32px;
+  left: var(--sidenav-width, 200px);
+  right: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  z-index: 1;
+}
+
+.mrr-header {
+  flex-shrink: 0;
+  padding: 20px 16px 10px;
+  background: #fff;
+  border-bottom: 1px solid #e2e6ea;
+}
+
+.mrr-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.mrr-content {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}

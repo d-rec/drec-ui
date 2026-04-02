@@ -22,8 +22,8 @@ import {
 } from '../../../auth/services';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subscription } from 'rxjs';
-import { startWith, map } from 'rxjs/operators';
+import { Observable, Subscription, Subject } from 'rxjs';
+import { startWith, map, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import {
   OrganizationInformation,
   fulecodeType,
@@ -108,6 +108,7 @@ export class AddDevicesComponent implements OnDestroy {
   shownomore: any[] = [];
   showaddmore: any[] = [];
   showerror: any[] = [];
+  siteNameExists: boolean[] = [];
   maxDate = new Date();
   public date: any;
   public sdgblist: any;
@@ -197,14 +198,16 @@ export class AddDevicesComponent implements OnDestroy {
     this.addmoredetals[0] = false;
     this.showaddmore[0] = true;
     this.showerror[0] = false;
+    this.siteNameExists[0] = false;
     this.shownomore[0] = false;
 
     setTimeout(() => {
       this.setupCountryAutocomplete(0);
     }, 1500);
-    this.deviceForms.controls.forEach((group) => {
+    this.deviceForms.controls.forEach((group, i) => {
       this.setupdataSourceBrandWatcher(group as FormGroup);
       this.setupDataSourceWatcher(group as FormGroup);
+      this.setupSiteNameWatcher(group as FormGroup, i);
     });
   }
 
@@ -289,13 +292,10 @@ export class AddDevicesComponent implements OnDestroy {
     const device = this.fb.group({
       projectName: [null],
       dataSource: [null, [Validators.required]],
-      serialNumber: [
-        { value: null, disabled: true },
-        Validators.pattern(this.serialNumberRegex),
-      ],
+      serialNumber: [null, Validators.pattern(this.serialNumberRegex)],
       otherDataSource: [''],
       address: [null, [Validators.required]],
-      dataSourceBrand: [{ value: '', disabled: true }],
+      dataSourceBrand: [''],
       latitude: [
         null,
         [Validators.required, Validators.pattern(this.numberregex)],
@@ -405,7 +405,7 @@ export class AddDevicesComponent implements OnDestroy {
   adddevice() {
     const device = this.fb.group({
       dataSource: [null, [Validators.required]],
-      dataSourceBrand: [{ value: '', disabled: true }],
+      dataSourceBrand: [''],
       serialNumber: [null, Validators.pattern(this.serialNumberRegex)],
       otherDataSource: [''],
       projectName: [null],
@@ -454,6 +454,24 @@ export class AddDevicesComponent implements OnDestroy {
     );
 
     this.setupDataSourceWatcher(device);
+    this.siteNameExists[index] = false;
+    this.setupSiteNameWatcher(device, index);
+  }
+
+  private setupSiteNameWatcher(deviceGroup: FormGroup, index: number) {
+    deviceGroup.get('projectName')?.valueChanges.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      switchMap((name: string) => {
+        if (!name || name.trim().length < 2) {
+          this.siteNameExists[index] = false;
+          return [];
+        }
+        return this.deviceService.checkProjectName(name.trim());
+      }),
+    ).subscribe((res) => {
+      this.siteNameExists[index] = res?.exists ?? false;
+    });
   }
 
   private setupDataSourceWatcher(deviceGroup: FormGroup) {
@@ -462,16 +480,6 @@ export class AddDevicesComponent implements OnDestroy {
     const otherDataSource = deviceGroup.get('otherDataSource');
 
     dataSource?.valueChanges.subscribe((value) => {
-      if (value) {
-        serialNumber?.enable();
-        serialNumber?.setValidators([Validators.required]);
-      } else {
-        serialNumber?.disable();
-        serialNumber?.clearValidators();
-        serialNumber?.reset();
-      }
-      serialNumber?.updateValueAndValidity();
-
       if (value === DataSourceTypes.Other) {
         otherDataSource?.setValidators([Validators.required]);
       } else {
@@ -499,15 +507,7 @@ export class AddDevicesComponent implements OnDestroy {
     const dataSource = deviceGroup.get('dataSource');
     const dataSourceBrand = deviceGroup.get('dataSourceBrand');
 
-    dataSource?.valueChanges.subscribe((value) => {
-      if (value) {
-        dataSourceBrand?.enable();
-        dataSourceBrand?.setValidators([Validators.required]);
-      } else {
-        dataSourceBrand?.disable();
-        dataSourceBrand?.clearValidators();
-        dataSourceBrand?.reset();
-      }
+    dataSource?.valueChanges.subscribe(() => {
       dataSourceBrand?.updateValueAndValidity();
     });
   }

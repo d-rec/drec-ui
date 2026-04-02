@@ -585,3 +585,41 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
     background: rgba(255, 255, 255, 0.35);
   }
 }
+
+// ── Ensure dropdown arrow is visible on all mat-select ────────────────────────
+.mat-mdc-select-arrow-wrapper {
+  .mat-mdc-select-arrow {
+    color: $color-text;
+  }
+}
+
+// Native <select> dropdown arrow
+select.field__select {
+  appearance: auto;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23475569'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 10px 6px;
+  padding-right: 24px;
+}
+
+// ── Dropdown arrow for matAutocomplete inputs ─────────────────────────────────
+.mat-mdc-form-field:has(.mat-mdc-autocomplete-trigger) {
+  .mat-mdc-text-field-wrapper {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 6px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23475569'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-size: 10px 6px;
+      pointer-events: none;
+    }
+  }
+}

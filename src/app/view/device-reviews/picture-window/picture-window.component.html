@@ -8,13 +8,33 @@
     (close)="close()"
   >
     <div class="picw">
-      <div class="picw__toolbar">
+      <!-- Screenshot toolbar: OCR -->
+      <div class="picw__toolbar" *ngIf="isScreenshot">
         <button class="picw__ocr-btn" (click)="runOcr()" [disabled]="ocrRunning">
           {{ ocrRunning ? 'Reading... ' + ocrProgress + '%' : 'OCR' }}
         </button>
       </div>
+      <!-- Photo toolbar: Detect Panels -->
+      <div class="picw__toolbar" *ngIf="!isScreenshot">
+        <button class="picw__detect-btn" (click)="detectPanels()" [disabled]="detecting">
+          {{ detecting ? 'Scanning...' : showOverlay ? 'Re-scan' : '⚡ Detect Panels' }}
+        </button>
+        <button class="picw__detect-btn picw__detect-btn--clear" *ngIf="showOverlay" (click)="clearOverlay()">
+          Clear
+        </button>
+        <span class="picw__detect-count" *ngIf="detectDone && panelCount > 0">
+          {{ panelCount }} region{{ panelCount === 1 ? '' : 's' }} found
+        </span>
+        <span class="picw__detect-none" *ngIf="detectDone && panelCount === 0">
+          No panels detected
+        </span>
+        <span class="picw__detect-error" *ngIf="detectError">{{ detectError }}</span>
+      </div>
       <div class="picw__image-area" [class.picw__image-area--with-text]="ocrText">
-        <img class="picw__img" [src]="url" alt="Device picture" />
+        <div class="picw__image-wrap">
+          <img #imgEl class="picw__img" [src]="url" alt="Device picture" crossorigin="anonymous" />
+          <canvas #overlayCanvas class="picw__overlay" [class.visible]="showOverlay"></canvas>
+        </div>
       </div>
       <div *ngIf="ocrRunning" class="picw__progress">
         <div class="picw__progress-bar" [style.width.%]="ocrProgress"></div>
@@ -26,6 +46,16 @@
           <button class="picw__copy-btn" (click)="copyOcrText()">Copy</button>
         </div>
         <pre class="picw__ocr-text" [innerHTML]="highlightOcr(ocrText!, ocrSearch)"></pre>
+      </div>
+      <!-- Detect confirm dialog -->
+      <div class="picw__confirm-backdrop" *ngIf="showDetectConfirm" (click)="cancelDetect()">
+        <div class="picw__confirm" (click)="$event.stopPropagation()">
+          <p class="picw__confirm-msg">Panel detection uses a free-tier license with a limited number of scans. Proceed anyway?</p>
+          <div class="picw__confirm-actions">
+            <button type="button" class="picw__confirm-btn picw__confirm-btn--cancel" (click)="cancelDetect()">Cancel</button>
+            <button type="button" class="picw__confirm-btn picw__confirm-btn--ok" (click)="confirmDetect()">OK</button>
+          </div>
+        </div>
       </div>
     </div>
   </app-ds-floating-window>

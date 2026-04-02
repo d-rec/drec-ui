@@ -8,7 +8,13 @@ const routes: Routes = [
   { path: 'All', component: AllMetereadsComponent },
   { path: 'add', component: AddreadComponent },
   { path: 'bulk-upload', component: AddBulkReadsComponent },
-  // { path: 'edit/:id', component: EditDeviceComponent },
+  {
+    path: 'reviews',
+    loadChildren: () =>
+      import('../meter-read-reviews/meter-read-reviews.module').then(
+        (m) => m.MeterReadReviewsModule,
+      ),
+  },
 ];
 
 @NgModule({

@@ -230,7 +230,8 @@ export class SatelliteWindowComponent
       zoomControl: true,
       attributionControl: false,
       maxZoom: 19,
-    }).setView([20, 0], 2);
+      minZoom: 3,
+    }).setView([20, 0], 3);
 
     L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
       attribution: '© Google',

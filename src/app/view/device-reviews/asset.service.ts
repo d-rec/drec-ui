@@ -17,6 +17,7 @@ export class AssetService {
   readonly selectedId$ = new BehaviorSubject<string | null>(null);
   readonly expandId$ = new BehaviorSubject<string | null>(null);
   readonly viewPictureUrl$ = new BehaviorSubject<string | null>(null);
+  readonly viewPictureIsScreenshot$ = new BehaviorSubject<boolean>(false);
   readonly viewPdfUrl$ = new BehaviorSubject<string | null>(null);
   readonly flyTo$ = new ReplaySubject<{ lat: number; lng: number }>(1);
   readonly loading$ = new BehaviorSubject<boolean>(false);
@@ -28,7 +29,8 @@ export class AssetService {
     this.flyTo$.next({ lat, lng });
   }
 
-  viewPicture(url: string | null): void {
+  viewPicture(url: string | null, isScreenshot = false): void {
+    this.viewPictureIsScreenshot$.next(isScreenshot);
     this.viewPictureUrl$.next(url);
   }
 

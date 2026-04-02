@@ -54,7 +54,7 @@ export class ChatService implements OnDestroy {
     const email = this.getCurrentUserEmail();
     if (!email) return;
     this.fetchUnreadCount(email);
-    this.unreadPolling = interval(30000).subscribe(() =>
+    this.unreadPolling = interval(10000).subscribe(() =>
       this.fetchUnreadCount(email),
     );
   }

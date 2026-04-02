@@ -1,0 +1,251 @@
+<div class="mrr">
+  <!-- ── Toolbar ────────────────────────────────────────────────────── -->
+  <div class="mrr__toolbar">
+    <button class="mrr__refresh" (click)="svc.populateFromDb()" title="Refresh">↻</button>
+    <span class="mrr__loading" *ngIf="svc.loading$ | async">Loading…</span>
+    <span class="mrr__error" *ngIf="svc.error$ | async as err">{{ err }}</span>
+    <input
+      class="mrr__search"
+      type="text"
+      placeholder="Search…"
+      [(ngModel)]="searchTerm"
+    />
+    <button class="mrr__search-clear" *ngIf="searchTerm" (click)="searchTerm = ''">✕</button>
+    <div class="mrr__filters">
+      <label *ngFor="let s of statusOptions" class="mrr__filter">
+        <input type="checkbox" [(ngModel)]="statusFilters[s]" (change)="onFilterChange()" />
+        <span class="mrr__filter-label mrr__filter-label--{{ s }}">{{ s | titlecase }}</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ── List ───────────────────────────────────────────────────────── -->
+  <div class="mrr__list" [style.flex]="editingId !== null ? '1' : '1'">
+    <!-- Column headers -->
+    <div class="mrr__header">
+      <span class="mrr__col mrr__col--expand"></span>
+      <span class="mrr__col mrr__col--name" (click)="toggleSort('projectName')">
+        Project Name
+        <span class="sort-arrow" *ngIf="sortField === 'projectName'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+      </span>
+      <span class="mrr__col mrr__col--count" (click)="toggleSort('readCount')">
+        Reads
+        <span class="sort-arrow" *ngIf="sortField === 'readCount'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+      </span>
+      <span class="mrr__col mrr__col--date" (click)="toggleSort('latestReadDate')">
+        Latest Read
+        <span class="sort-arrow" *ngIf="sortField === 'latestReadDate'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+      </span>
+      <span class="mrr__col mrr__col--kwh" (click)="toggleSort('totalKwh')">
+        Total kWh
+        <span class="sort-arrow" *ngIf="sortField === 'totalKwh'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+      </span>
+      <span class="mrr__col mrr__col--status" (click)="toggleSort('reviewStatus')">
+        Status
+        <span class="sort-arrow" *ngIf="sortField === 'reviewStatus'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span>
+      </span>
+    </div>
+
+    <!-- Device rows -->
+    <div class="mrr__scroll">
+      <ng-container *ngFor="let row of filteredDevices">
+        <div
+          class="mrr__row"
+          [class.mrr__row--selected]="editingId === row.device.deviceId"
+          (click)="openDetail(row.device.deviceId)"
+          (dblclick)="toggleExpand(row.device)"
+        >
+          <span class="mrr__col mrr__col--expand" (click)="toggleExpand(row.device); $event.stopPropagation()">
+            <span class="chevron" [class.chevron--open]="isExpanded(row.device.deviceId)">›</span>
+          </span>
+          <span class="mrr__col mrr__col--name" [innerHTML]="hl(row.device.projectName, row.searchTerm)"></span>
+          <span class="mrr__col mrr__col--count">{{ row.device.readCount }}</span>
+          <span class="mrr__col mrr__col--date">{{ formatDate(row.device.latestReadDate) }}</span>
+          <span class="mrr__col mrr__col--kwh">{{ formatKwh(row.device.totalKwh) }}</span>
+          <span class="mrr__col mrr__col--status">
+            <span class="status-badge status-badge--{{ row.device.reviewStatus }}">{{ row.device.reviewStatus }}</span>
+          </span>
+        </div>
+
+        <!-- Expanded reads -->
+        <ng-container *ngIf="isExpanded(row.device.deviceId)">
+          <div class="mrr__reads-header">
+            <span class="mrr__rcol mrr__rcol--period">Period</span>
+            <span class="mrr__rcol mrr__rcol--value">Value</span>
+            <span class="mrr__rcol mrr__rcol--unit">Unit</span>
+            <span class="mrr__rcol mrr__rcol--type">Type</span>
+            <span class="mrr__rcol mrr__rcol--cert">Cert</span>
+          </div>
+          <div
+            class="mrr__read-row"
+            *ngFor="let r of row.device.reads"
+          >
+            <span class="mrr__rcol mrr__rcol--period">{{ formatDate(r.startDate) }} – {{ formatDate(r.endDate) }}</span>
+            <span class="mrr__rcol mrr__rcol--value">{{ r.value | number:'1.0-2' }}</span>
+            <span class="mrr__rcol mrr__rcol--unit">{{ r.unit }}</span>
+            <span class="mrr__rcol mrr__rcol--type">{{ r.type }}</span>
+            <span class="mrr__rcol mrr__rcol--cert">{{ r.certified ? '✓' : '' }}</span>
+          </div>
+          <div class="mrr__read-row mrr__read-row--empty" *ngIf="!row.device.reads.length">
+            Loading reads…
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <div class="mrr__empty" *ngIf="!filteredDevices.length && !(svc.loading$ | async)">
+        No devices with meter reads match the current filters.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Detail Panel ───────────────────────────────────────────────── -->
+  <ng-container *ngIf="editingId !== null">
+    <div class="mrr__detail-resize" (mousedown)="onResizeStart($event)"></div>
+    <div class="mrr__detail" [style.height.px]="detailHeight">
+      <ng-container *ngIf="svc.devices$ | async as devices">
+        <ng-container *ngFor="let d of devices">
+          <ng-container *ngIf="d.deviceId === editingId">
+            <form [formGroup]="detailForm" (ngSubmit)="saveDetail()" class="mrr__detail-form">
+              <!-- Summary row -->
+              <div class="mrr__detail-summary">
+                <div class="field">
+                  <label class="field__label">Project</label>
+                  <span class="field__value">{{ d.projectName }}</span>
+                </div>
+                <div class="field">
+                  <label class="field__label">External ID</label>
+                  <span class="field__value">{{ d.externalId }}</span>
+                </div>
+                <div class="field">
+                  <label class="field__label">Capacity</label>
+                  <span class="field__value">{{ d.capacity ?? '—' }} kW</span>
+                </div>
+                <div class="field">
+                  <label class="field__label">Submitter</label>
+                  <span class="field__value">{{ d.submitterEmail || '—' }}</span>
+                </div>
+                <div class="field">
+                  <label class="field__label">Reads</label>
+                  <span class="field__value">{{ d.readCount }}</span>
+                </div>
+                <div class="field">
+                  <label class="field__label">Total</label>
+                  <span class="field__value">{{ formatKwh(d.totalKwh) }} kWh</span>
+                </div>
+              </div>
+
+              <!-- Status + Notes -->
+              <div class="mrr__detail-edit">
+                <div class="field">
+                  <label class="field__label">Status</label>
+                  <select class="field__input field__select status-select status-select--{{ detailForm.get('reviewStatus')?.value }}" formControlName="reviewStatus">
+                    <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+                  </select>
+                </div>
+                <div class="field field--notes">
+                  <label class="field__label">Notes</label>
+                  <input class="field__input" type="text" formControlName="notes" placeholder="Review notes…" />
+                </div>
+                <button type="submit" class="btn btn--save">Save</button>
+                <button type="button" class="btn btn--cancel" (click)="closeDetail()">Close</button>
+              </div>
+
+              <!-- Actions -->
+              <div class="mrr__detail-actions">
+                <div class="mrr__tool-buttons">
+                  <button type="button" class="btn btn--tool" (click)="checkConsistency()">Consistency</button>
+                  <button type="button" class="btn btn--tool" (click)="checkCeiling()">Ceiling</button>
+                  <button type="button" class="btn btn--tool" (click)="checkCrossSource()">X-Source</button>
+                  <button type="button" class="btn btn--tool" (click)="showAudit()">Audit</button>
+                </div>
+                <div class="mrr__action-buttons">
+                  <button type="button" class="btn btn--chat" (click)="openChat()">Chat</button>
+                  <button type="button" class="btn btn--approve" (click)="detailForm.patchValue({reviewStatus:'approved'}); saveDetail()">Approve</button>
+                  <button type="button" class="btn btn--reject" (click)="detailForm.patchValue({reviewStatus:'rejected'}); saveDetail()">Reject</button>
+                </div>
+              </div>
+            </form>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>
+
+<!-- ── Consistency Modal ────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showConsistencyModal" (click)="showConsistencyModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Historical Consistency</h3>
+    <div *ngIf="!consistencyResult && !consistencyError" class="modal__loading">Analysing…</div>
+    <div *ngIf="consistencyError" class="modal__error">{{ consistencyError }}</div>
+    <div *ngIf="consistencyResult">
+      <p><strong>Anomalies:</strong> {{ consistencyResult.anomalies?.length || 0 }}</p>
+      <div *ngFor="let a of consistencyResult.anomalies" class="modal__anomaly">
+        <span class="modal__anomaly-type">{{ a.type }}</span>: {{ a.message }}
+      </div>
+      <p *ngIf="!consistencyResult.anomalies?.length" class="modal__ok">No anomalies detected.</p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--save" (click)="showConsistencyModal = false">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Ceiling Modal ────────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showCeilingModal" (click)="showCeilingModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Production Ceiling</h3>
+    <div *ngIf="!ceilingResult && !ceilingError" class="modal__loading">Checking…</div>
+    <div *ngIf="ceilingError" class="modal__error">{{ ceilingError }}</div>
+    <div *ngIf="ceilingResult">
+      <p><strong>Configured yield:</strong> {{ ceilingResult.configuredYield }} kWh/kW/yr</p>
+      <p *ngIf="ceilingResult.irradiance"><strong>Estimated range:</strong> {{ ceilingResult.irradiance.yieldLow }}–{{ ceilingResult.irradiance.yieldHigh }} kWh/kW/yr</p>
+      <p [class.modal__flag]="ceilingResult.yieldMismatch">
+        <strong>Yield mismatch:</strong> {{ ceilingResult.yieldMismatch ? 'Yes' : 'No' }}
+      </p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--save" (click)="showCeilingModal = false">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Cross-Source Modal ───────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showCrossSourceModal" (click)="showCrossSourceModal = false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>Cross-Source Verification</h3>
+    <div *ngIf="!crossSourceResult && !crossSourceError" class="modal__loading">Verifying…</div>
+    <div *ngIf="crossSourceError" class="modal__error">{{ crossSourceError }}</div>
+    <div *ngIf="crossSourceResult">
+      <p><strong>Performance Factor:</strong> {{ crossSourceResult.performanceFactor | number:'1.2-2' }}</p>
+      <p><strong>R²:</strong> {{ crossSourceResult.rSquared | number:'1.3-3' }}</p>
+      <p [class.modal__flag]="crossSourceResult.flagged">
+        <strong>Flagged:</strong> {{ crossSourceResult.flagged ? 'Yes' : 'No' }}
+      </p>
+      <p *ngIf="crossSourceResult.note">{{ crossSourceResult.note }}</p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--save" (click)="showCrossSourceModal = false">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Audit Trail Modal ────────────────────────────────────────────── -->
+<div class="modal-backdrop" *ngIf="showAuditModal" (click)="showAuditModal = false">
+  <div class="modal modal--wide" (click)="$event.stopPropagation()">
+    <h3>Audit Trail</h3>
+    <div class="audit-list">
+      <div class="audit-entry" *ngFor="let e of auditTrail">
+        <span class="audit-action">{{ e.actionType }}</span>
+        <span class="audit-by">{{ e.performedBy }}</span>
+        <span class="audit-date">{{ formatDate(e.createdAt) }}</span>
+        <span class="audit-detail" *ngIf="e.detail">{{ e.detail }}</span>
+      </div>
+      <div *ngIf="!auditTrail.length" class="modal__loading">Loading…</div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--tool" (click)="copyAuditTrail()">{{ auditCopyLabel }}</button>
+      <button class="btn btn--save" (click)="showAuditModal = false">OK</button>
+    </div>
+  </div>
+</div>

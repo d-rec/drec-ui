@@ -573,7 +573,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       return;
     }
     const freshUrl = await this.svc.refreshUrl(url);
-    this.svc.viewPicture(freshUrl);
+    this.svc.viewPicture(freshUrl, true);
   }
 
   private uploadAndRefresh(asset: Asset, docType: string, file: File): void {
@@ -1272,7 +1272,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     if (!asset) return;
     const submitterEmail = asset.submitterEmail || '';
     const siteName = asset.projectName || '';
-    this.chatService.readOnly$.next(asset.status === 'approved' || asset.status === 'rejected');
+    this.chatService.readOnly$.next(asset.status === 'rejected');
     this.chatService.openForDevice$.next({ submitterEmail, siteName });
     if (!this.chatService.isChatOpen$.value) {
       this.chatService.isChatOpen$.next(true);
