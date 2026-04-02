@@ -15,7 +15,7 @@ The frontend application for the [D-REC Initiative](https://drecs.org/) (Distrib
 
 - **Node.js 20** (LTS/Iron)
 - **npm**
-- **Docker** (optional, for containerized builds)
+- **Docker** (optional, for local development)
 
 ## Getting Started
 
