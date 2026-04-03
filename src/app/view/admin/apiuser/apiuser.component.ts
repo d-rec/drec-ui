@@ -80,13 +80,8 @@ export class ApiuserComponent {
       });
     }
 
-    setTimeout(() => {
-      // if (this.countrycodeLoded) {
-      this.applyorgFilter();
-      // }
-      this.loading = false;
-      this.getAllUsers(this.p);
-    }, 2000);
+    this.applyorgFilter();
+    this.getAllUsers(this.p);
   }
   ngOnDestroy() {
     if (this.subscription) {
