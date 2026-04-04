@@ -1,4 +1,4 @@
-<div class="content mat-elevation-z8 text-center" *ngIf="showname">
+<div class="content text-center" *ngIf="showname">
   <h2
     style="text-align: center; color: #475569; font-size: 16px"
     class="text-capitalize mt-0 pt-0 mb-0 pb-0"
@@ -7,7 +7,7 @@
   </h2>
 </div>
 <!-- <mat-progress-spinner [mode]="'indeterminate'" *ngIf="loading"></mat-progress-spinner> -->
-<div class="content mat-elevation-z8 text-center" *ngIf="filter">
+<div class="content text-center" *ngIf="filter">
   <div class="m-2 text-end">
     <button mat-raised-button class="btn-primary me-3" (click)="exportToPDF()">
       <mat-icon>picture_as_pdf</mat-icon> Export to PDF

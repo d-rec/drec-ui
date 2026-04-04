@@ -13,7 +13,7 @@ $secondary: #010101;
   // this is for table
   .mat-elevation-z8 {
     width: 100%;
-    overflow: scroll;
+    overflow: auto;
     mat-paginator {
       display: initial !important;
     }

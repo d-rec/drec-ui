@@ -16,14 +16,14 @@
     <mat-card-content>
       <mat-tab-group
         mat-stretch-tabs
-        class="example-stretched-tabs mat-elevation-z4"
+        class="example-stretched-tabs"
       >
         <mat-tab label="User Role Permissions list">
           <mat-card>
             <hr />
             <mat-card-content>
-              <div class="content mat-elevation-z8 text-center">
-                <div class="content mat-elevation-z8 text-center thead-width">
+              <div class="content text-center">
+                <div class="content text-center thead-width">
                   <table mat-table [dataSource]="dataSource" matSort>
                     <!-- <ng-container matColumnDef="select" sticky>
                       <mat-header-cell *matHeaderCellDef>
@@ -166,7 +166,7 @@
                 <table
                   mat-table
                   [dataSource]="dataSource1"
-                  class="mat-elevation-z8"
+                  
                 >
                   <ng-container matColumnDef="select" sticky>
                     <th>
@@ -233,7 +233,7 @@
                     *matRowDef="let row; columns: displayedColumns1"
                   ></tr>
                 </table>
-                <!-- <div class="content mat-elevation-z8 text-center thead-width">
+                <!-- <div class="content text-center thead-width">
 
                   <table mat-table [dataSource]="dataSource" matSort>
 

@@ -86,7 +86,7 @@
         [mode]="'indeterminate'"
         *ngIf="loading"
       ></mat-progress-spinner>
-      <div class="content mat-elevation-z8 text-center" *ngIf="showlist">
+      <div class="content text-center" *ngIf="showlist">
         <table mat-table [dataSource]="dataSource" class="" matSort>
           <ng-container matColumnDef="organization">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">

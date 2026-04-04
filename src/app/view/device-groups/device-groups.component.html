@@ -235,7 +235,7 @@
         [mode]="'indeterminate'"
         *ngIf="isLoadingResults"
       ></mat-progress-spinner>
-      <!-- <div class="mat-elevation-z8"> -->
+      <!-- <div > -->
 
       <!--            
                 <mat-form-field class="mat-form-filte ">
@@ -243,7 +243,7 @@
                     <input matInput (keyup)="applyFilter($event)" placeholder="Search" #input
                         class="filetr-desc pb-0 mb-0">
                 </mat-form-field> -->
-      <div class="content mat-elevation-z8 thead-width d-flex flex-column">
+      <div class="content thead-width d-flex flex-column">
         <table mat-table [dataSource]="dataSource" matSort>
           <ng-container matColumnDef="actions" sticky>
             <th mat-header-cell *matHeaderCellDef class="text-truncate">
@@ -621,7 +621,7 @@
       <hr />
       <!-- <mat-progress-spinner [mode]="'indeterminate'" *ngIf="isLoadingResults"></mat-progress-spinner>
              -->
-      <div class="content mat-elevation-z8 thead-width d-flex flex-column">
+      <div class="content thead-width d-flex flex-column">
         <table mat-table [dataSource]="dataSource1" matSort>
           <ng-container matColumnDef="createdAt">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>

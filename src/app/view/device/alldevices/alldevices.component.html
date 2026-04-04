@@ -265,7 +265,7 @@
         [mode]="'indeterminate'"
         *ngIf="loading"
       ></mat-progress-spinner>
-      <div class="content mat-elevation-z8 text-center" *ngIf="showlist">
+      <div class="content text-center" *ngIf="showlist">
         <table mat-table [dataSource]="dataSource" class="" matSort>
           <!-- Position Column -->
           <ng-container matColumnDef="siteName" class="text-left">
