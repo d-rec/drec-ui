@@ -9,6 +9,13 @@
         </mat-card-title>
       </div>
       <div class="d-flex justify-content-end gap-2">
+        <button
+          *ngIf="showResetMapFilter"
+          class="btn btn-outline-secondary"
+          (click)="resetMapFilter()"
+        >
+          Clear map filter
+        </button>
         <button class="btn btn-primary" (click)="toggleFilterDevices()">
           {{ hideFilterDevices ? 'Show Device Filter' : 'Hide Device Filter' }}
         </button>
@@ -226,13 +233,6 @@
         #mapComponent
         (markerClicked)="onMarkerClick($event)"
       ></app-map>
-      <button
-        *ngIf="showResetMapFilter"
-        class="btn btn-sm btn-outline-secondary mt-2 mb-2"
-        (click)="resetMapFilter()"
-      >
-        Clear map filter
-      </button>
       <hr />
       <div style="display:flex;align-items:center;gap:12px">
         <mat-form-field appearance="outline" style="width: 25%; text-align: left">
