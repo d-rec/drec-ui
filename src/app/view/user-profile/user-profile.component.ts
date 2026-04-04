@@ -76,13 +76,16 @@ export class UserProfileComponent {
         validators: (control) => {
           const newPassword = control.get('newPassword')?.value;
           const confirmPassword = control.get('confirmPassword')?.value;
+          const confirmCtrl = control.get('confirmPassword');
 
           if (
             newPassword !== null &&
             confirmPassword !== null &&
             newPassword !== confirmPassword
           ) {
-            control.get('confirmPassword')?.setErrors({ notSame: true });
+            confirmCtrl?.setErrors({ notSame: true });
+          } else if (confirmCtrl?.hasError('notSame')) {
+            confirmCtrl.setErrors(null);
           }
           return null;
         },
@@ -167,5 +170,32 @@ export class UserProfileComponent {
           'Successfully',
         );
       });
+  }
+
+  onDeleteAccount() {
+    const confirmed = window.confirm(
+      'Are you sure you want to permanently delete your account?\n\n' +
+      'This action cannot be undone. All your data will be lost.',
+    );
+    if (!confirmed) return;
+
+    const doubleConfirmed = window.confirm(
+      'This is your last chance. Type-check: do you really want to delete your account?',
+    );
+    if (!doubleConfirmed) return;
+
+    this.userService.deleteAccount().subscribe({
+      next: () => {
+        this.toastrService.success('Account deleted successfully.', 'Goodbye');
+        sessionStorage.clear();
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        this.toastrService.error(
+          err.error?.message || 'Failed to delete account',
+          'Error',
+        );
+      },
+    });
   }
 }

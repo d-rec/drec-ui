@@ -136,6 +136,21 @@
                       <mat-error>AC Capacity is required</mat-error>
                     </mat-form-field>
                   </div>
+                  <div class="col-md-3 d-flex flex-column">
+                    <span>Energy Storage:</span>
+                    <mat-radio-group formControlName="energyStorage"
+                      (ngModelChange)="showenergycapacity_input(i, $event)" test-id="energy-storage">
+                      <mat-radio-button [value]="true">Yes</mat-radio-button>
+                      <mat-radio-button [value]="false">No</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+                  <div class="col-md-3" *ngIf="showinput[i]">
+                    <mat-form-field appearance="outline">
+                      <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
+                      <input matInput autocomplete="off" type="number" formControlName="energyStorageCapacity"
+                        test-id="energy-storage" />
+                    </mat-form-field>
+                  </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize">Commissioning Date</mat-label>
@@ -315,21 +330,6 @@
                           {{ sam }}
                         </mat-option>
                       </mat-select>
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-3 d-flex flex-column">
-                    <span>Energy Storage:</span>
-                    <mat-radio-group formControlName="energyStorage"
-                      (ngModelChange)="showenergycapacity_input(i, $event)" test-id="energy-storage">
-                      <mat-radio-button [value]="true">Yes</mat-radio-button>
-                      <mat-radio-button [value]="false">No</mat-radio-button>
-                    </mat-radio-group>
-                  </div>
-                  <div class="col-md-3" *ngIf="showinput[i]">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
-                      <input matInput autocomplete="off" type="number" formControlName="energyStorageCapacity"
-                        test-id="energy-storage" />
                     </mat-form-field>
                   </div>
                 </div>
@@ -512,7 +512,7 @@
                   </div>
 
                   <div class="col-md-4 mb-3">
-                    <label>COD Proof
+                    <label title="Commercial Operation Date">COD Proof
                       <span class="badge-{{getDocRequirement('COD_PROOF')}}">{{getDocRequirement('COD_PROOF')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('COD_PROOF')">{{getDocHint('COD_PROOF')}}</small>

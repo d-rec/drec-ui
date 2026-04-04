@@ -1,0 +1,18 @@
+input {
+  border: rgb(182, 178, 178) 1px solid;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+input::placeholder {
+  color: rgb(194, 189, 189);
+}
+
+.license-section {
+  padding: 0 0.5rem;
+}
+
+.credits-display .badge {
+  font-size: 0.85rem;
+  padding: 0.4em 0.8em;
+}

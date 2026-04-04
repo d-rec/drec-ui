@@ -189,13 +189,13 @@ export class ApiuserComponent {
     if (user.role === 'OrganizationAdmin' || user.role === 'Buyer') {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
-          title: 'Confirm Remove User',
+          title: 'Are you sure? This cannot be undone.',
           message:
-            'Are you sure, you want to remove User: ' +
+            'WARNING: This will permanently delete user ' +
             user.firstName +
-            '' +
+            ' ' +
             user.lastName +
-            ', if yes please assign this role to other user of this organization',
+            ' and all their data. This action cannot be undone. If yes, please assign this role to another user of this organization first.',
           data: user,
           showchangeform: true,
         },
@@ -209,12 +209,13 @@ export class ApiuserComponent {
     } else {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
-          title: 'Confirm Remove User',
+          title: 'Are you sure? This cannot be undone.',
           message:
-            'Are you sure, you want to remove User: ' +
+            'WARNING: This will permanently delete user ' +
             user.firstName +
-            '' +
-            user.lastName,
+            ' ' +
+            user.lastName +
+            ' and all their data. This action cannot be undone.',
         },
       });
       confirmDialog.afterClosed().subscribe((result) => {

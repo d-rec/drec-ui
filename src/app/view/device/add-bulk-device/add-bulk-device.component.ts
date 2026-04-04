@@ -102,23 +102,48 @@ export class AddBulkDeviceComponent implements OnInit {
       this.organizationId = selectedCountry.id;
     }
   }
+  dragOver = false;
+
   reset() {
     this.currentFile = null;
     this.fileName = 'Please click here to select file';
   }
+
   selectFile(event: any): void {
     if (event.target.files && event.target.files[0]) {
-      const file: File = event.target.files[0];
-      this.currentFile = file;
-      this.fileName = this.currentFile.name;
-      if (!this.fileName.endsWith('.csv')) {
-        this.fileName = 'Invalid file';
-        this.currentFile = null;
-      }
-    } else {
-      this.fileName = 'Please click here to select file';
+      this.handleFile(event.target.files[0]);
     }
     event.target.value = '';
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = true;
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dragOver = false;
+    const file = event.dataTransfer?.files?.[0];
+    if (file) this.handleFile(file);
+  }
+
+  private handleFile(file: File): void {
+    if (!file.name.endsWith('.csv')) {
+      this.fileName = 'Invalid file — only .csv allowed';
+      this.currentFile = null;
+      return;
+    }
+    this.currentFile = file;
+    this.fileName = file.name;
   }
 
   openFileExplorer() {

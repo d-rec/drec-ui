@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { DeviceService } from '../../../auth/services/device.service';
@@ -17,6 +17,7 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./device-details.component.scss'],
 })
 export class DeviceDetailsComponent {
+  @ViewChild('reportContent') reportContent: ElementRef;
   form: FormGroup;
   id: number;
   device_details: any = {};
@@ -81,9 +82,12 @@ export class DeviceDetailsComponent {
     });
   }
 
-  submit() {
-    this.dialogRef.close({
-      clicked: 'submit',
+  copyToClipboard() {
+    const el = this.reportContent?.nativeElement;
+    if (!el) return;
+    const text = el.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      this.toastrService.success('Copied to clipboard');
     });
   }
 }

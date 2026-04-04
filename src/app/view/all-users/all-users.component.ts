@@ -13,7 +13,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 import { EditUserComponent } from '../edit-user/edit-user.component';
 import { ToastrService } from 'ngx-toastr';
 import { InvitationformComponent } from '../admin/invitationform/invitationform.component';
-import { getRoleName } from '../../utils/role-helper';
+import { getRoleName, getOrgTypeName } from '../../utils/role-helper';
 @Component({
   standalone: false,
   selector: 'app-all-users',
@@ -22,6 +22,7 @@ import { getRoleName } from '../../utils/role-helper';
 })
 export class AllUsersComponent {
   getRoleName = getRoleName;
+  getOrgTypeName = getOrgTypeName;
   FilterForm: FormGroup;
   displayedColumns = [
     'organization',
@@ -49,6 +50,8 @@ export class AllUsersComponent {
   filteredOptions: Observable<any[]>;
   subscription: Subscription;
   showerror: boolean = false;
+  searchText: string = '';
+  allUsers: any[] = [];
   apiuserId: string;
   constructor(
     private authService: AuthbaseService,
@@ -113,14 +116,9 @@ export class AllUsersComponent {
       });
     }
 
-    setTimeout(() => {
-      // if (this.countrycodeLoded) {
-      this.applyorgFilter();
-      // }
-      this.loading = false;
-
-      this.getAllUsers(this.p);
-    }, 2000);
+    this.applyorgFilter();
+    this.loading = false;
+    this.getAllUsers(this.p);
   }
   ngOnDestroy() {
     if (this.subscription) {
@@ -153,27 +151,31 @@ export class AllUsersComponent {
   }
 
   selectOrg(event: any) {
-    this.subscription = this.filteredOptions.subscribe((options) => {
-      const selectedorg = options.find(
-        (option) => option.name === event.option.value,
-      );
-      if (selectedorg) {
-        this.FilterForm.controls['organizationName'].setValue(selectedorg.name);
-
-        this.orgnaizatioId = selectedorg.id;
-      }
-    });
+    const selectedName = event.option.value;
+    const selectedorg = this.orglist.find(
+      (org: any) => org.name === selectedName,
+    );
+    if (selectedorg) {
+      this.orgnaizatioId = selectedorg.id;
+    }
   }
-  reset() {
-    this.FilterForm.reset();
-    this.FilterForm.controls['organizationName'].setValue(null);
-    this.loading = true;
-    this.orgnaizatioId = null;
-    this.applyorgFilter();
-    this.getAllUsers(this.p);
+  applySearch() {
+    if (!this.allUsers.length) return;
+    const term = (this.searchText || '').trim().toLowerCase();
+    if (!term) {
+      this.dataSource = new MatTableDataSource(this.allUsers);
+      return;
+    }
+    const filtered = this.allUsers.filter((u: any) =>
+      (u.firstName + ' ' + u.lastName).toLowerCase().includes(term) ||
+      u.email?.toLowerCase().includes(term) ||
+      u.organization?.name?.toLowerCase().includes(term) ||
+      u.role?.toLowerCase().includes(term),
+    );
+    this.dataSource = new MatTableDataSource(filtered);
   }
   getAllUsers(page: number) {
-    const limit = 20;
+    const limit = 10000;
     if (this.loginuser.role === 'Admin') {
       if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
         this.getAllUserByorganzationId(page, limit);
@@ -198,16 +200,14 @@ export class AllUsersComponent {
   }
   getadminAllUserList(page: number, limit: number) {
     this.adminService
-      .GetAllUsers(page, limit, this.FilterForm.value)
+      .GetAllUsers(page, limit)
       .subscribe({
         next: (data) => {
           this.showlist = true;
           this.showorguser = false;
           this.loading = false;
-          this.data = data; //.filter(ele => ele.organizationType === 'Developer');
-          this.dataSource = new MatTableDataSource(this.data.users);
-          this.totalRows = this.data.totalCount;
-          this.totalPages = this.data.totalPages;
+          this.allUsers = data.users;
+          this.dataSource = new MatTableDataSource(this.allUsers);
         },
         error: (err) => {
           this.loading = false;
@@ -220,10 +220,8 @@ export class AllUsersComponent {
       next: (data) => {
         this.showlist = true;
         this.loading = false;
-        this.data = data;
-        this.dataSource = new MatTableDataSource(this.data.users);
-        this.totalRows = this.data.totalCount;
-        this.totalPages = this.data.totalPages;
+        this.allUsers = (data as any).users;
+        this.dataSource = new MatTableDataSource(this.allUsers);
       },
       error: (err) => {
         this.loading = false;
@@ -239,10 +237,8 @@ export class AllUsersComponent {
           this.showorguser = false;
           this.showlist = true;
           this.loading = false;
-          this.data = data;
-          this.dataSource = new MatTableDataSource(this.data.users);
-          this.totalRows = this.data.totalCount;
-          this.totalPages = this.data.totalPages;
+          this.allUsers = data.users;
+          this.dataSource = new MatTableDataSource(this.allUsers);
         },
         error: (err) => {
           this.loading = false;
@@ -287,13 +283,13 @@ export class AllUsersComponent {
       if (user.role === 'OrganizationAdmin' || user.role === 'Buyer') {
         const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
           data: {
-            title: 'Confirm Remove User',
+            title: 'Are you sure? This cannot be undone.',
             message:
-              'Are you sure, you want to remove User: ' +
+              'WARNING: This will permanently delete user ' +
               user.firstName +
-              '' +
+              ' ' +
               user.lastName +
-              ', if yes please assign this role to other user of this organization',
+              ' and all their data. This action cannot be undone. If yes, please assign this role to another user of this organization first.',
             data: user,
             showchangeform: true,
           },
@@ -307,12 +303,13 @@ export class AllUsersComponent {
       } else {
         const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
           data: {
-            title: 'Confirm Remove User',
+            title: 'Are you sure? This cannot be undone.',
             message:
-              'Are you sure, you want to remove User: ' +
+              'WARNING: This will permanently delete user ' +
               user.firstName +
-              '' +
-              user.lastName,
+              ' ' +
+              user.lastName +
+              ' and all their data. This action cannot be undone.',
           },
         });
         confirmDialog.afterClosed().subscribe((result) => {
@@ -325,12 +322,13 @@ export class AllUsersComponent {
     } else {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
-          title: 'Confirm Remove User',
+          title: 'Are you sure? This cannot be undone.',
           message:
-            'Are you sure, you want to remove User: ' +
+            'WARNING: This will permanently delete user ' +
             user.firstName +
-            '' +
-            user.lastName,
+            ' ' +
+            user.lastName +
+            ' and all their data. This action cannot be undone.',
         },
       });
       confirmDialog.afterClosed().subscribe((result) => {

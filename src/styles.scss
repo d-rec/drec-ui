@@ -317,8 +317,8 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
   margin-top: 8px !important;
 }
 .btn.btn-primary:disabled {
-  background-color: rgba(59, 91, 219, 0.4) !important;
-  border: 1px solid rgba(59, 91, 219, 0.4);
+  background-color: rgba(71, 85, 105, 0.4) !important;
+  border: 1px solid rgba(71, 85, 105, 0.4) !important;
 }
 
 .value-fs {
@@ -363,6 +363,52 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
   .mat-sort-header-content {
     text-align: left;
   }
+}
+
+// Override Angular Material primary color (indigo → slate)
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-flat-button.mat-primary,
+.mat-mdc-unelevated-button.mat-primary {
+  --mdc-filled-button-container-color: #{$color-primary} !important;
+  --mdc-filled-button-label-text-color: #{$white} !important;
+  --mdc-protected-button-container-color: #{$color-primary} !important;
+  --mdc-protected-button-label-text-color: #{$white} !important;
+
+  &:hover, &:focus {
+    --mdc-filled-button-container-color: #{$color-primary-dark} !important;
+    --mdc-protected-button-container-color: #{$color-primary-dark} !important;
+  }
+}
+
+.mat-mdc-mini-fab.mat-primary,
+.mat-mdc-fab.mat-primary {
+  --mdc-fab-container-color: #{$color-primary} !important;
+  --mat-mdc-fab-color: #{$white} !important;
+}
+
+// Material checkbox, slide-toggle, progress-bar primary overrides
+.mat-mdc-checkbox.mat-primary {
+  --mdc-checkbox-selected-checkmark-color: #{$white} !important;
+  --mdc-checkbox-selected-focus-icon-color: #{$color-primary} !important;
+  --mdc-checkbox-selected-hover-icon-color: #{$color-primary} !important;
+  --mdc-checkbox-selected-icon-color: #{$color-primary} !important;
+  --mdc-checkbox-selected-pressed-icon-color: #{$color-primary} !important;
+}
+
+.mat-mdc-slide-toggle.mat-primary {
+  --mdc-switch-selected-handle-color: #{$color-primary} !important;
+  --mdc-switch-selected-track-color: rgba(71, 85, 105, 0.5) !important;
+  --mdc-switch-selected-focus-handle-color: #{$color-primary-dark} !important;
+  --mdc-switch-selected-hover-handle-color: #{$color-primary-dark} !important;
+  --mdc-switch-selected-pressed-handle-color: #{$color-primary-dark} !important;
+}
+
+.mat-mdc-progress-bar.mat-primary {
+  --mdc-linear-progress-active-indicator-color: #{$color-primary} !important;
+}
+
+.mat-mdc-progress-spinner.mat-primary {
+  --mdc-circular-progress-active-indicator-color: #{$color-primary} !important;
 }
 
 // edit icon color

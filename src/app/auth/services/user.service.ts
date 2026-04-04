@@ -65,4 +65,8 @@ export class UserService {
       phoneNumber,
     });
   }
+
+  public deleteAccount(): Observable<any> {
+    return this.httpClient.delete<any>(this.url + 'user/me');
+  }
 }

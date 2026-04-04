@@ -16,10 +16,7 @@
         >
           Reset Map Filter
         </button>
-        <button class="btn btn-primary" (click)="toggleMap()">
-          {{ hideMap ? 'Show Map' : 'Hide Map' }}
-        </button>
-        <button class="btn btn-primary" (click)="toggleFilterDevices()">
+<button class="btn btn-primary" (click)="toggleFilterDevices()">
           {{ hideFilterDevices ? 'Show Device Filter' : 'Hide Device Filter' }}
         </button>
         <button
@@ -244,19 +241,26 @@
         </form>
         <hr />
       </div>
-      <div *ngIf="!hideMap">
-        <app-map (markerClicked)="onMarkerClick($event)"></app-map>
+      <app-map (markerClicked)="onMarkerClick($event)"></app-map>
+      <hr />
+      <div style="display:flex;align-items:center;gap:12px">
+        <mat-form-field appearance="outline" style="width: 25%; text-align: left">
+          <mat-label>Search</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchText"
+            (keyup)="applyFilter($event)"
+            placeholder="Search devices..."
+          />
+          <button *ngIf="searchText" matSuffix mat-icon-button (click)="clearSearch()">
+            <mat-icon>close</mat-icon>
+          </button>
+          <mat-icon *ngIf="!searchText" matSuffix>search</mat-icon>
+        </mat-form-field>
+        <span *ngIf="dataSource" style="font-size:13px;color:#64748b">
+          {{ dataSource.filteredData.length }} device{{ dataSource.filteredData.length === 1 ? '' : 's' }}
+        </span>
       </div>
-      <mat-form-field>
-        <mat-icon matPrefix>search</mat-icon>
-        <mat-label>Search</mat-label>
-        <input
-          matInput
-          (keyup)="applyFilter($event)"
-          placeholder="Search with device external id"
-          #input
-        />
-      </mat-form-field>
       <mat-progress-spinner
         [mode]="'indeterminate'"
         *ngIf="loading"
@@ -273,23 +277,23 @@
             </td>
           </ng-container>
           <ng-container matColumnDef="externalId" class="text-left">
-            <th mat-header-cell *matHeaderCellDef>Serial Number(s)</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Serial Number(s)</th>
             <td mat-cell *matCellDef="let element">{{ element.serialNumber }}</td>
           </ng-container>
           <ng-container matColumnDef="capacity">
-            <th mat-header-cell *matHeaderCellDef class="text-left">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">
               Capacity(kW)
             </th>
             <td mat-cell *matCellDef="let element">{{ element.capacity }}</td>
           </ng-container>
           <ng-container matColumnDef="countryCode">
-            <th mat-header-cell *matHeaderCellDef class="text-left">Country</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">Country</th>
             <td mat-cell *matCellDef="let element">
               {{ element.countryname }}
             </td>
           </ng-container>
           <ng-container matColumnDef="reviewStatus">
-            <th mat-header-cell *matHeaderCellDef class="text-left">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">
               Review Status
             </th>
             <td mat-cell *matCellDef="let element">
@@ -301,7 +305,7 @@
             </td>
           </ng-container>
           <ng-container matColumnDef="evidentId">
-            <th mat-header-cell *matHeaderCellDef class="text-left">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">
               Evident Id
             </th>
             <td mat-cell *matCellDef="let element">
@@ -309,7 +313,7 @@
             </td>
           </ng-container>
           <ng-container matColumnDef="evidentStatus">
-            <th mat-header-cell *matHeaderCellDef class="text-left">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">
               Evident Status
             </th>
             <td
@@ -330,7 +334,7 @@
             </td>
           </ng-container>
           <ng-container matColumnDef="commissioningDate">
-            <th mat-header-cell *matHeaderCellDef class="text-left">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">
               Commissioning Date
             </th>
             <td mat-cell *matCellDef="let element">
@@ -338,7 +342,7 @@
             </td>
           </ng-container>
           <ng-container matColumnDef="onboarding_date">
-            <th mat-header-cell *matHeaderCellDef class="text-left">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">
               OnBoarding Date
             </th>
             <td mat-cell *matCellDef="let row; let i = index">
@@ -402,7 +406,11 @@
             </td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"
+            (mouseenter)="showSatPreview($event, row)"
+            (mousemove)="moveSatPreview($event)"
+            (mouseleave)="hideSatPreview()"
+          ></tr>
           <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="4">No Device found</td>
           </tr>
@@ -446,6 +454,15 @@
     </mat-card-content>
     <mat-card-footer></mat-card-footer>
   </mat-card>
+  <div class="sat-preview" *ngIf="satPreview" [style.top.px]="satPreview.y" [style.left.px]="satPreview.x">
+    <div style="width:256px;height:256px;overflow:hidden;position:relative;border-radius:4px">
+      <div [style.left.px]="satPreview.preview.offsetX" [style.top.px]="satPreview.preview.offsetY" style="position:absolute">
+        <img *ngFor="let t of satPreview.preview.tiles" [src]="t.url" width="256" height="256"
+          [style.position]="'absolute'" [style.left.px]="t.left" [style.top.px]="t.top" />
+      </div>
+    </div>
+    <div class="sat-preview__label">{{ satPreview.label }}</div>
+  </div>
 </div>
 
 <ng-template

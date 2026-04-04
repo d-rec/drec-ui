@@ -67,47 +67,43 @@
               </mat-autocomplete>
             </mat-form-field>
           </div>
-          <div class="col-md-3">
-            <mat-form-field appearance="outline">
-              <div>
-                <mat-toolbar>
-                  <input
-                    matInput
-                    [value]="fileName"
-                    (click)="openFileExplorer()"
-                    test-id="browse"
-                  />
-                </mat-toolbar>
-                <div class="d-flex justify-content-center">
-                  <input
-                    type="file"
-                    hidden
-                    id="fileInput"
-                    (change)="selectFile($event)"
-                    name="fileInput"
-                    accept=".csv"
-                    test-id="file-name"
-                  />
-                </div>
+          <div class="col-md-6">
+            <div
+              class="drop-zone"
+              [class.drop-zone--over]="dragOver"
+              (dragover)="onDragOver($event)"
+              (dragleave)="onDragLeave($event)"
+              (drop)="onDrop($event)"
+              (click)="openFileExplorer()"
+              test-id="browse"
+            >
+              <input
+                type="file"
+                hidden
+                id="fileInput"
+                (change)="selectFile($event)"
+                name="fileInput"
+                accept=".csv"
+                test-id="file-name"
+              />
+              <div *ngIf="!currentFile" class="drop-zone__prompt">
+                <span class="drop-zone__icon">&#8683;</span>
+                <span>Drag &amp; drop a CSV file here, or click to browse</span>
               </div>
-            </mat-form-field>
+              <div *ngIf="currentFile" class="drop-zone__file">
+                <span class="drop-zone__name">{{ fileName }}</span>
+                <button class="drop-zone__clear" (click)="reset(); $event.stopPropagation()" title="Clear">&times;</button>
+              </div>
+            </div>
           </div>
-          <div class="col-md-6 upload-reset-buttons">
+          <div class="col-md-3 upload-reset-buttons">
             <button
               class="btn btn-primary"
               [disabled]="!currentFile"
               (click)="upload()"
               test-id="upload"
             >
-              Upload</button
-            >&nbsp;
-            <button
-              class="btn btn-dark"
-              [disabled]="!currentFile"
-              (click)="reset()"
-              test-id="reset"
-            >
-              Clear
+              Upload
             </button>
           </div>
         </div>

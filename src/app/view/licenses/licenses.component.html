@@ -1,0 +1,93 @@
+<div class="body-bg">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <h2 class="pb-0 mb-3 fw-bold text-capitalize">API Service Licenses</h2>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="licensesForm" (ngSubmit)="onSubmit()">
+
+        <!-- Roboflow Section -->
+        <div class="license-section mb-4">
+          <h4 class="fw-bold mb-1">Roboflow &mdash; Solar Panel Detection</h4>
+          <p class="text-muted mb-2">
+            Automatically detects and counts solar panels from satellite or drone
+            imagery during device review. Powered by Roboflow ML.
+          </p>
+          <p class="mb-2">
+            <a href="https://roboflow.com/pricing" target="_blank" rel="noopener noreferrer">
+              Purchase a Roboflow license &rarr;
+            </a>
+          </p>
+          <div class="credits-display mb-2">
+            <span
+              class="badge"
+              [ngClass]="roboflowCredits > 0 ? 'bg-success' : 'bg-danger'"
+            >
+              {{ roboflowCredits }} of 3 free credits remaining
+            </span>
+          </div>
+          <div class="col-md-6 d-flex flex-column">
+            <label class="form-label text-capitalize">Roboflow API Key</label>
+            <input
+              type="text"
+              formControlName="roboflowApiKey"
+              placeholder="Enter your Roboflow API key (optional)"
+            />
+          </div>
+        </div>
+
+        <hr class="my-4" />
+
+        <!-- DeepL Section -->
+        <div class="license-section mb-4">
+          <h4 class="fw-bold mb-1">DeepL &mdash; Document Translation</h4>
+          <p class="text-muted mb-2">
+            Translates uploaded documents to English for review.
+            Supports 30+ languages via the DeepL API.
+          </p>
+          <p class="mb-2">
+            <a href="https://www.deepl.com/en/pro-api" target="_blank" rel="noopener noreferrer">
+              Purchase a DeepL API license &rarr;
+            </a>
+          </p>
+          <div class="credits-display mb-2">
+            <span
+              class="badge"
+              [ngClass]="deeplCredits > 0 ? 'bg-success' : 'bg-danger'"
+            >
+              {{ deeplCredits }} of 3 free credits remaining
+            </span>
+          </div>
+          <div class="col-md-6 d-flex flex-column">
+            <label class="form-label text-capitalize">DeepL API Key</label>
+            <input
+              type="text"
+              formControlName="deeplApiKey"
+              placeholder="Enter your DeepL API key (optional)"
+            />
+          </div>
+        </div>
+
+        <mat-card-footer>
+          <div class="col-12 d-flex justify-content-end gap-2">
+            <button
+              type="button"
+              class="btn-content-back btn text-capitalize px-2"
+              (click)="onCancel()"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn-primary btn text-capitalize px-2"
+            >
+              Save
+            </button>
+          </div>
+        </mat-card-footer>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

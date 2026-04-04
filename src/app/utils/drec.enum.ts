@@ -1,8 +1,7 @@
 export const UserStatus = [
   'Pending',
   'Active',
-  // 'Suspended',
-  //'Deleted',
+  'Suspended',
 ];
 export enum UserEnumStatus {
   Pending = 'Pending',
@@ -16,7 +15,7 @@ export enum OrganizationType {
   Developer = 'Developer',
   MarketIntermediary = 'MarketIntermediary',
   Admin = 'Admin',
-  Operator = 'Operator',
+  SiteOperator = 'SiteOperator',
 }
 
 export enum Role {
@@ -28,6 +27,7 @@ export enum Role {
   Intermediary = 'Intermediary',
   Reviewer = 'Reviewer',
   SeniorReviewer = 'SeniorReviewer',
+  SiteOperator = 'SiteOperator',
 }
 export enum OffTaker {
   School = 'School',
@@ -98,7 +98,7 @@ export enum DocumentType {
   SINGLE_LINE_DIAGRAM = 'SINGLE_LINE_DIAGRAM', //Single Line Diagram
   PROJECT_PHOTOS = 'PROJECT_PHOTOS', //Project Photos
   SCREENSHOTS = 'SCREENSHOTS', //Screenshots
-  COD_PROOF = 'COD_PROOF', //Certificate of Completion / COD Proof
+  COD_PROOF = 'COD_PROOF', // Commercial Operation Date Proof
 }
 
 export enum DataSourceTypes {

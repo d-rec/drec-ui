@@ -62,10 +62,11 @@ export class ConfirmDialogComponent {
           } else {
             this.loading = false;
             this.message =
-              'Are you sure, you want to remove User: ' +
+              'WARNING: This will permanently delete user ' +
               this.user.firstName +
-              '' +
-              this.user.lastName;
+              ' ' +
+              this.user.lastName +
+              ' and all their data. This action cannot be undone.';
           }
         },
       });

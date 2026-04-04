@@ -17,7 +17,7 @@ import {
   devicecodeType,
   CountryInfo,
 } from '../../../models';
-import { MapComponent } from '../../map/map.component';
+import { MapComponent, satellitePreview, SatellitePreview } from '../../map/map.component';
 @Component({
   standalone: false,
   selector: 'app-admin-alldevices',
@@ -28,11 +28,11 @@ export class AdminAlldevicesComponent {
   title = 'matDialog';
   dataFromDialog: any;
   displayedColumns = [
+    'siteName',
     'organization',
     'developerExternalId',
     'externalId',
     'countryCode',
-    'fuelCode',
     'capacity',
     'reviewStatus',
     'IREC_Status',
@@ -40,10 +40,18 @@ export class AdminAlldevicesComponent {
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
+  private _sort: MatSort;
+  @ViewChild(MatSort) set sort(s: MatSort) {
+    this._sort = s;
+    if (this.dataSource) {
+      this.dataSource.sort = s;
+    }
+  }
   @ViewChild('mapComponent') mapComponent: MapComponent;
   dataSource: MatTableDataSource<any>;
   data: any;
+  searchText: string = '';
+  satPreview: { preview: SatellitePreview; label: string; x: number; y: number } | null = null;
   loginuser: any;
   deviceurl: any;
   pageSize: number = 20;
@@ -316,13 +324,15 @@ export class AdminAlldevicesComponent {
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
+  }
+  clearSearch() {
+    this.searchText = '';
+    if (this.dataSource) {
+      this.dataSource.filter = '';
     }
   }
   getDeviceListData(page: number) {
-    this.deviceurl = 'device?';
+    this.deviceurl = 'device?limit=10000&';
 
     this.deviceService
       .GetMyDevices(this.deviceurl, this.FilterForm.value, page)
@@ -371,7 +381,7 @@ export class AdminAlldevicesComponent {
       this.totalRows = this.data.totalCount;
       this.totalPages = this.data.totalPages;
       // this.dataSource.paginator = this.paginator;
-      this.dataSource.sort = this.sort;
+      this.dataSource.sort = this._sort;
 
       // Use setTimeout to ensure the map component is fully initialized
       setTimeout(() => {
@@ -463,6 +473,7 @@ export class AdminAlldevicesComponent {
         latitude: parseFloat(device.latitude),
         longitude: parseFloat(device.longitude),
         externalId: device.externalId || '',
+        siteName: device.siteName || '',
         device,
       }));
 
@@ -492,5 +503,38 @@ export class AdminAlldevicesComponent {
     }
     this.showResetMapFilter = false;
     this.changeDetectorRef.detectChanges();
+  }
+
+  showSatPreview(event: MouseEvent, row: any) {
+    const lat = parseFloat(row.latitude);
+    const lng = parseFloat(row.longitude);
+    if (isNaN(lat) || isNaN(lng)) return;
+    const pos = this.satPreviewPos(event);
+    this.satPreview = {
+      preview: satellitePreview(lat, lng, 19),
+      label: row.siteName || row.externalId || '',
+      x: pos.x,
+      y: pos.y,
+    };
+  }
+
+  moveSatPreview(event: MouseEvent) {
+    if (!this.satPreview) return;
+    const pos = this.satPreviewPos(event);
+    this.satPreview = { ...this.satPreview, x: pos.x, y: pos.y };
+  }
+
+  private satPreviewPos(event: MouseEvent): { x: number; y: number } {
+    const boxW = 270;
+    const boxH = 290;
+    const gap = 16;
+    const rightFits = event.clientX + gap + boxW < window.innerWidth;
+    const x = rightFits ? event.clientX + gap : event.clientX - gap - boxW;
+    const y = Math.min(Math.max(event.clientY - boxH / 2, 4), window.innerHeight - boxH - 4);
+    return { x, y };
+  }
+
+  hideSatPreview() {
+    this.satPreview = null;
   }
 }

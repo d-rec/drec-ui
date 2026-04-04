@@ -172,7 +172,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
 
     this.date = new Date();
     this.updateDeviceForm = this.fb.group({
-      serialNumber: [null, [Validators.pattern(/^[a-zA-Z0-9_-]+$/)]],
+      serialNumber: [null, [Validators.pattern(/^[a-zA-Z0-9_;-]+$/)]],
       siteName: [null],
       address: [null, [Validators.required]],
       latitude: [

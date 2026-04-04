@@ -124,7 +124,7 @@ export class AddDevicesComponent implements OnDestroy {
   public stepMinute = 1;
   public stepSecond = 1;
   numberregex: RegExp = /^-?[0-9]+(\.[0-9]*)?$/;
-  serialNumberRegex: RegExp = /^[a-zA-Z0-9_-]+$/;
+  serialNumberRegex: RegExp = /^[a-zA-Z0-9_;-]+$/;
   filteredCountryList: Observable<any[]>[] = [];
   subscription: Subscription;
   filteredOrganizationList: OrganizationInformation[] = [];
@@ -676,6 +676,37 @@ export class AddDevicesComponent implements OnDestroy {
       }
 
       formData.append('deviceToRegister', JSON.stringify(element));
+
+      // E-signature evidence
+      const canvas = document.createElement('canvas');
+      canvas.width = 200;
+      canvas.height = 50;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.textBaseline = 'top';
+        ctx.font = '14px Arial';
+        ctx.fillText('fingerprint', 2, 2);
+      }
+      const canvasHash = canvas.toDataURL();
+
+      formData.append(
+        'eSignature',
+        JSON.stringify({
+          browserFingerprint: canvasHash
+            ? btoa(canvasHash).substring(0, 64)
+            : null,
+          screenResolution: `${screen.width}x${screen.height}`,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          language: navigator.language,
+          signedAt: new Date().toISOString(),
+          metadata: {
+            colorDepth: screen.colorDepth,
+            platform: navigator.platform,
+            hardwareConcurrency: navigator.hardwareConcurrency,
+            touchSupport: navigator.maxTouchPoints > 0,
+          },
+        }),
+      );
       if (element.countryCode) {
         formData.append('countryCode', element.countryCode);
       } else {

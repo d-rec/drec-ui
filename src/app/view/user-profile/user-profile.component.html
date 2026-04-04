@@ -185,4 +185,23 @@
       </mat-tab-group>
     </mat-card-content>
   </mat-card>
+
+  <mat-card class="mb-3" *ngIf="loginuser?.role !== 'Admin'">
+    <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center">
+      <div>
+        <h2 class="pb-0 mb-0 fw-bold text-capitalize" style="color: #dc3545;">Delete Account</h2>
+      </div>
+    </mat-card-header>
+    <hr />
+    <mat-card-content>
+      <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+      <button
+        type="button"
+        class="btn btn-danger text-capitalize px-4"
+        (click)="onDeleteAccount()"
+      >
+        Delete My Account
+      </button>
+    </mat-card-content>
+  </mat-card>
 </div>

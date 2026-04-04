@@ -91,12 +91,28 @@
             *ngIf="
               loginuser?.role === 'OrganizationAdmin' ||
               loginuser?.role === 'DeviceOwner' ||
+              loginuser?.role === 'SiteOperator' ||
               loginuser?.role === 'Buyer' ||
               loginuser?.role === 'SubBuyer'
             "
             test-id="invitation"
           >
             <span> Invitation</span>
+          </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button certified-metarides"
+            routerLinkActive="active"
+            routerLink="/settings/licenses"
+            *ngIf="
+              loginuser?.role === 'OrganizationAdmin' ||
+              loginuser?.role === 'DeviceOwner' ||
+              loginuser?.role === 'SiteOperator' ||
+              loginuser?.role === 'Buyer' ||
+              loginuser?.role === 'SubBuyer'
+            "
+          >
+            <span> Licenses</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
@@ -250,7 +266,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/device/certifiedin_reservation"
-            *ngIf="loginuser.role === 'OrganizationAdmin'"
+            *ngIf="loginuser.role === 'OrganizationAdmin' || loginuser.role === 'SiteOperator'"
             test-id="certified-meter-read"
           >
             <!-- <mat-icon>list</mat-icon> -->
@@ -377,6 +393,7 @@
         [class.mat-elevation-z0]="true"
         *ngIf="
           loginuser.role === 'OrganizationAdmin' ||
+          loginuser.role === 'SiteOperator' ||
           loginuser.role === 'MarketIntermediary' ||
           loginuser.role === 'Buyer'
         "

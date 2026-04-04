@@ -29,10 +29,10 @@ export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   fieldRequired: string = 'This field is required';
   orgtype: any[] = [
-    { value: 'Developer', viewValue: 'Developer' },
+    { value: 'Developer', viewValue: 'Organization Admin' },
     { value: 'Buyer', viewValue: 'Buyer' },
     { value: 'MarketIntermediary', viewValue: 'Market Intermediary' },
-    { value: 'Operator', viewValue: 'Operator' },
+    { value: 'SiteOperator', viewValue: 'Site Operator' },
   ];
   hide = true;
   hide1 = true;
@@ -82,13 +82,16 @@ export class RegisterComponent implements OnInit {
         validators: (control) => {
           const password = control.get('password')?.value;
           const confirmPassword = control.get('confirmPassword')?.value;
+          const confirmCtrl = control.get('confirmPassword');
 
           if (
             password !== null &&
             confirmPassword !== null &&
             password !== confirmPassword
           ) {
-            control.get('confirmPassword')?.setErrors({ notSame: true });
+            confirmCtrl?.setErrors({ notSame: true });
+          } else if (confirmCtrl?.hasError('notSame')) {
+            confirmCtrl.setErrors(null);
           }
           return null;
         },

@@ -7,6 +7,53 @@ export interface MapMarker {
   latitude: number;
   longitude: number;
   externalId?: string;
+  siteName?: string;
+}
+
+export function satelliteTileUrl(lat: number, lng: number, zoom: number = 18): string {
+  const n = Math.pow(2, zoom);
+  const x = Math.floor((lng + 180) / 360 * n);
+  const latRad = lat * Math.PI / 180;
+  const y = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
+  return `https://mt1.google.com/vt/lyrs=s&x=${x}&y=${y}&z=${zoom}`;
+}
+
+export interface SatellitePreview {
+  tiles: { url: string; left: number; top: number }[];
+  offsetX: number;
+  offsetY: number;
+}
+
+/** Returns a 2x2 tile grid + offsets to render a 256px view centered on the coordinate. */
+export function satellitePreview(lat: number, lng: number, zoom: number = 19): SatellitePreview {
+  const n = Math.pow(2, zoom);
+  const xFrac = (lng + 180) / 360 * n;
+  const latRad = lat * Math.PI / 180;
+  const yFrac = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;
+
+  const tileX = Math.floor(xFrac);
+  const tileY = Math.floor(yFrac);
+  const pixelX = (xFrac - tileX) * 256;
+  const pixelY = (yFrac - tileY) * 256;
+
+  const startTileX = pixelX < 128 ? tileX - 1 : tileX;
+  const startTileY = pixelY < 128 ? tileY - 1 : tileY;
+
+  const compositeX = (tileX - startTileX) * 256 + pixelX;
+  const compositeY = (tileY - startTileY) * 256 + pixelY;
+
+  const tiles: { url: string; left: number; top: number }[] = [];
+  for (let dy = 0; dy < 2; dy++) {
+    for (let dx = 0; dx < 2; dx++) {
+      tiles.push({
+        url: `https://mt1.google.com/vt/lyrs=s&x=${startTileX + dx}&y=${startTileY + dy}&z=${zoom}`,
+        left: dx * 256,
+        top: dy * 256,
+      });
+    }
+  }
+
+  return { tiles, offsetX: -(compositeX - 128), offsetY: -(compositeY - 128) };
 }
 
 @Component({
@@ -27,9 +74,9 @@ export class MapComponent implements OnInit, OnDestroy {
     layers: [],
     zoom: 3,
     center: L.latLng(20, 0),
-    scrollWheelZoom: false,
+    scrollWheelZoom: true,
     attributionControl: false,
-    maxBounds: L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180)),
+    maxBounds: L.latLngBounds(L.latLng(-85, -220), L.latLng(85, 220)),
     maxBoundsViscosity: 1.0,
   };
 
@@ -327,8 +374,45 @@ export class MapComponent implements OnInit, OnDestroy {
     this.detecting = false;
   }
 
+  private pinOverlay: HTMLElement | null = null;
+
+  private showPinOverlay(html: string, lat: number, lng: number): void {
+    this.removePinOverlay();
+    const el = document.createElement('div');
+    el.className = 'sat-pin-overlay';
+    el.innerHTML = html;
+    el.style.cssText = 'position:fixed;z-index:10000;pointer-events:none;background:#1e293b;border-radius:6px;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,0.4);color:#fff;';
+    document.body.appendChild(el);
+    this.pinOverlay = el;
+    this.positionPinOverlay(lat, lng);
+  }
+
+  private positionPinOverlay(lat: number, lng: number): void {
+    if (!this.pinOverlay || !this.map) return;
+    const mapRect = this.map.getContainer().getBoundingClientRect();
+    const px = this.map.latLngToContainerPoint([lat, lng]);
+    const screenX = mapRect.left + px.x;
+    const screenY = mapRect.top + px.y;
+    const boxW = 270;
+    const boxH = 290;
+    const gap = 16;
+    const rightFits = screenX + gap + boxW < window.innerWidth;
+    const x = rightFits ? screenX + gap : screenX - gap - boxW;
+    const y = Math.min(Math.max(screenY - boxH / 2, 4), window.innerHeight - boxH - 4);
+    this.pinOverlay.style.left = x + 'px';
+    this.pinOverlay.style.top = y + 'px';
+  }
+
+  private removePinOverlay(): void {
+    if (this.pinOverlay) {
+      this.pinOverlay.remove();
+      this.pinOverlay = null;
+    }
+  }
+
   ngOnDestroy(): void {
     this.tileObserver?.disconnect();
+    this.removePinOverlay();
   }
 
   // --- Tile layers ---
@@ -384,7 +468,7 @@ export class MapComponent implements OnInit, OnDestroy {
     const customIcon = this.createCustomIcon();
 
     this.markers.forEach((markerData: MapMarker) => {
-      const { latitude, longitude, externalId } = markerData;
+      const { latitude, longitude, externalId, siteName } = markerData;
 
       if (isNaN(latitude) || isNaN(longitude)) {
         return;
@@ -395,11 +479,28 @@ export class MapComponent implements OnInit, OnDestroy {
         icon: customIcon,
       });
 
+      const sp = satellitePreview(latitude, longitude, 19);
+      const label = siteName || externalId || '';
+      const tilesHtml = sp.tiles.map(t =>
+        `<img src="${t.url}" width="256" height="256" style="position:absolute;left:${t.left}px;top:${t.top}px" />`
+      ).join('');
+      const tooltipHtml = `<div style="text-align:center">
+          <div style="width:256px;height:256px;overflow:hidden;position:relative;border-radius:4px">
+            <div style="position:absolute;left:${sp.offsetX}px;top:${sp.offsetY}px">${tilesHtml}</div>
+          </div>
+          <div style="font-size:11px;font-weight:600;margin-top:4px">${label}</div>
+        </div>`;
+
+      marker.on('mouseover', () => {
+        this.showPinOverlay(tooltipHtml, latitude, longitude);
+      });
+
+      marker.on('mouseout', () => {
+        this.removePinOverlay();
+      });
+
       marker.on('click', () => {
-        const deviceData = {
-          externalId,
-        };
-        this.markerClicked.emit(deviceData);
+        this.markerClicked.emit({ externalId });
       });
 
       this.markerGroup.addLayer(marker);

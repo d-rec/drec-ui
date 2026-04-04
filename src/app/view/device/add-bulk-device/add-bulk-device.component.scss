@@ -185,3 +185,66 @@ mat-progress-spinner {
 .upload-reset-buttons {
   margin-top: 30px;
 }
+
+.drop-zone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: #fafbfc;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    border-color: #94a3b8;
+    background: #f1f5f9;
+  }
+
+  &--over {
+    border-color: #3b82f6;
+    background: #eff6ff;
+  }
+
+  &__prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  &__icon {
+    font-size: 28px;
+    line-height: 1;
+    color: #94a3b8;
+  }
+
+  &__file {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  &__clear {
+    background: none;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1;
+    padding: 1px 6px;
+    cursor: pointer;
+    color: #64748b;
+    &:hover { color: #fff; background: #ef4444; border-color: #ef4444; }
+  }
+}

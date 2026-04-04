@@ -52,6 +52,39 @@ mat-progress-spinner {
   z-index: 5;
 }
 
+:host ::ng-deep tr.mat-mdc-row:nth-child(odd),
+:host ::ng-deep tr.mat-row:nth-child(odd) {
+  background-color: #f1f5f9;
+}
+
+:host ::ng-deep tr.mat-mdc-row:nth-child(even),
+:host ::ng-deep tr.mat-row:nth-child(even) {
+  background-color: #ffffff;
+}
+
+.sat-preview {
+  position: fixed;
+  z-index: 1000;
+  background: #1e293b;
+  border-radius: 6px;
+  padding: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+
+  img {
+    display: block;
+    border-radius: 4px;
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    margin-top: 4px;
+  }
+}
+
 .mat-elevation-z8 {
   width: 100%;
   overflow: scroll;

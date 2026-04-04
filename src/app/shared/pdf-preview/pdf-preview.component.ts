@@ -13,6 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { OrgApiLicensesService } from '../../auth/services/org-api-licenses.service';
 
 @Component({
   standalone: true,
@@ -57,7 +58,10 @@ export class PdfPreviewComponent implements OnChanges {
   private dragStartY = 0;
   private dragStartHeight = 0;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private licensesService: OrgApiLicensesService,
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['ocrSource']) {
@@ -225,11 +229,34 @@ export class PdfPreviewComponent implements OnChanges {
 
   async translateToEnglish(): Promise<void> {
     if (!this.ocrText || this.translating) return;
-    const ok = confirm(
-      'Translation uses the DeepL API free tier (500,000 characters/month). ' +
-      'Large documents consume quota quickly.\n\nProceed anyway?',
-    );
-    if (!ok) return;
+
+    // Check credits before proceeding
+    try {
+      const credits = await this.licensesService.getCredits().toPromise();
+      if (credits && !credits.deepl.hasOwnKey) {
+        const remaining = credits.deepl.credits;
+        if (remaining <= 0) {
+          alert(
+            'DeepL credits exhausted.\n\n' +
+            'Please add your own DeepL API key in Organization > Licenses.',
+          );
+          return;
+        }
+        const ok = confirm(
+          `You have ${remaining} free DeepL credit(s) remaining \u2014 proceed?\n\n` +
+          `This will use 1 credit. Once exhausted, you\u2019ll need to add ` +
+          `your own API key in Organization > Licenses.`,
+        );
+        if (!ok) return;
+      }
+    } catch {
+      // Credits endpoint unavailable (dev mode) — show free tier warning
+      const ok = confirm(
+        'Translation uses the DeepL API free tier (500,000 characters/month). ' +
+        'Large documents consume quota quickly.\n\nProceed anyway?',
+      );
+      if (!ok) return;
+    }
     this.translating = true;
     this.translatedText = '';
     this.detectedLang = '';
@@ -244,6 +271,10 @@ export class PdfPreviewComponent implements OnChanges {
           },
           body: JSON.stringify({ text: [chunk], target_lang: 'EN' }),
         });
+        if (res.status === 403) {
+          const err = await res.json().catch(() => null);
+          throw new Error(err?.message || 'Credits exhausted');
+        }
         if (!res.ok) throw new Error(`Translation error: ${res.status}`);
         const data = await res.json();
         const t = data.translations?.[0];

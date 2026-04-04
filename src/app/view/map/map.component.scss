@@ -1,11 +1,27 @@
+::ng-deep .sat-tooltip {
+  background: #1e293b !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  color: #fff !important;
+
+  &::before {
+    border-top-color: #1e293b !important;
+  }
+}
+
 .map-container {
   position: relative;
   height: 400px;
   width: 100%;
   border-radius: 8px;
-  overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.12);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+::ng-deep .leaflet-tooltip.sat-tooltip {
+  z-index: 10000 !important;
 }
 
 .map {

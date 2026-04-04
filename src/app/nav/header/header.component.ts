@@ -28,16 +28,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLoggedIn = this.authService.isLoggedIn();
-    if (this.isLoggedIn) {
+    if (this.isLoggedIn && !this.isReviewerOrAdmin()) {
       this.chatService.startUnreadPolling();
     }
+  }
+
+  private isReviewerOrAdmin(): boolean {
+    const user = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
+    const role = user?.role;
+    return role === 'Admin' || role === 'Reviewer' || role === 'SeniorReviewer';
   }
 
   showUnreadList = false;
   unreadDeviceNames: string[] = [];
 
   onBellClick(): void {
-    // Refresh device list on each click in case polling hasn't caught up
+    if (this.isReviewerOrAdmin()) return;
     const email = this.chatService.getCurrentUserEmail();
     if (!email) return;
 
@@ -63,13 +69,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     this.chatService.getConversation(undefined, undefined, deviceName).subscribe({
       next: (conv) => {
-        if (conv) {
-          // Determine the partner (the other participant)
-          const partner = conv.participant1 === email ? conv.participant2 : conv.participant1;
-          this.chatService.siteName$.next(deviceName);
-          this.chatService.openForDevice$.next({ submitterEmail: partner, siteName: deviceName });
-          this.chatService.isChatOpen$.next(true);
-        }
+        if (!conv) return;
+        // Only open if the current user is a participant
+        if (conv.participant1 !== email && conv.participant2 !== email) return;
+        const partner = conv.participant1 === email ? conv.participant2 : conv.participant1;
+        this.chatService.siteName$.next(deviceName);
+        this.chatService.openForDevice$.next({ submitterEmail: partner, siteName: deviceName });
+        this.chatService.isChatOpen$.next(true);
       },
     });
   }
