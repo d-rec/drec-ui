@@ -19,7 +19,11 @@ $white: #fff;
 }
 
 :host {
-  --sidenav-width: 180px;
+  --sidenav-width: 200px;
+}
+
+::ng-deep mat-sidenav-content {
+  overflow-x: hidden !important;
 }
 
 .example-sidenav {
@@ -73,13 +77,6 @@ $white: #fff;
   font-size: 12px;
   margin-bottom: 0;
   height: 30px !important;
-
-  mat-icon {
-    margin-right: 6px;
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-  }
 
   &.active {
     background-color: $color-primary-light !important;
@@ -141,6 +138,38 @@ mat-nav-list {
   height: 32px !important;
 }
 
+// Move indicator to the left and use a filled triangle
+::ng-deep .mat-expansion-panel-header {
+  flex-direction: row-reverse !important;
+
+  .mat-expansion-indicator {
+    margin: 0 6px 0 0 !important;
+
+    svg {
+      display: none !important;
+    }
+
+    &::after {
+      display: none !important;
+    }
+
+    &::before {
+      content: '';
+      display: block;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 5px 0 5px 7px;
+      border-color: transparent transparent transparent $color-muted;
+      transition: transform 0.2s ease;
+    }
+  }
+}
+
+::ng-deep .mat-expansion-panel-header.mat-expanded .mat-expansion-indicator::before {
+  transform: rotate(90deg);
+}
+
 .mdc-button {
   width: 100%;
   display: flex;
@@ -149,14 +178,6 @@ mat-nav-list {
   margin-bottom: 0;
   padding: 0 8px 0 6px;
   font-size: 12px;
-
-  mat-icon {
-    margin-right: 6px;
-    vertical-align: top;
-    font-size: 16px;
-    height: 16px;
-    width: 16px;
-  }
 
   ::ng-deep .mat-content {
     display: flex;

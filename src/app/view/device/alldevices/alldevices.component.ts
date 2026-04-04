@@ -324,7 +324,7 @@ export class AlldevicesComponent {
   }
 
   getDeviceListData(page: number) {
-    this.deviceurl = 'device/my?';
+    this.deviceurl = 'device/my?limit=10000&';
 
     this.deviceService
       .GetMyDevices(this.deviceurl, this.FilterForm.value, page)

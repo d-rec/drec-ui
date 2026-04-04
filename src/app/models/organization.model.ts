@@ -14,6 +14,7 @@ export interface OrganizationInformation {
   blockchainAccountAddress: string;
   blockchainAccountSignedMessage: string;
   api_user_id: string;
+  createdAt?: string;
 }
 export class IPublicOrganization {
   id: number;

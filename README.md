@@ -42,13 +42,7 @@ npm start
 | `stage` | `environment.stage.ts` | `https://stage-api.drecs.org/api/` | `https://stage-portal.drecs.org/` | `staging` |
 | `prod` | `environment.prod.ts` | `https://api.drecs.org/api/` | `https://portal.drecs.org/` | `production` |
 
-> **Note:** The `development` configuration is for local use only. Run the backend on your machine with a seeded (offline) database — there is no cloud infrastructure for this environment.
-
-### Staging Credentials
-
-| Role | Email | Password |
-|---|---|---|
-| Admin | `stageadmin@drecs.org` | `StageAdmin2026!` |
+> **Note:** The `development` configuration is for local use only. Run the backend on your machine with a seeded (offline) database — there is no cloud infrastructure for this environment. See the [drec-origin README](https://github.com/d-rec/drec-origin/blob/develop/README.md) for backend setup instructions and seeded credentials.
 
 Build for a specific environment:
 

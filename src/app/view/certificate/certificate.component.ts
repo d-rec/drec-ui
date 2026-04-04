@@ -136,11 +136,9 @@ export class CertificateComponent implements OnDestroy {
         this.reservationstatus = data.reservationActive;
       });
     this.energyurl = environment.Explorer_URL + '/block/';
-    setTimeout(() => {
-      if (this.group_uid != undefined) {
-        this.DisplayList(this.p);
-      }
-    }, 2000);
+    if (this.group_uid != undefined) {
+      this.DisplayList(this.p);
+    }
     this.getBlockchainProperties();
     this.AllCountryList();
     this.filteredOptions = this.claimData.controls[

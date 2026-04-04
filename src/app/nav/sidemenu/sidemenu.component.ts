@@ -8,6 +8,7 @@ import {
   AfterViewInit,
 } from '@angular/core';
 import { MatSidenavContent } from '@angular/material/sidenav';
+import { MAT_EXPANSION_PANEL_DEFAULT_OPTIONS } from '@angular/material/expansion';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -24,6 +25,9 @@ const DEFAULT_WIDTH = 200;
   selector: 'app-sidemenu',
   templateUrl: './sidemenu.component.html',
   styleUrls: ['./sidemenu.component.scss'],
+  providers: [
+    { provide: MAT_EXPANSION_PANEL_DEFAULT_OPTIONS, useValue: { expandedHeight: '32px', collapsedHeight: '32px', togglePosition: 'before' } },
+  ],
 })
 export class SidemenuComponent implements OnInit, AfterViewInit, OnDestroy {
   loginuser: any;

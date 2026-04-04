@@ -419,34 +419,6 @@
           aria-label="Select page">
         </mat-paginator> -->
         <!-- <hr> -->
-        <div class="d-flex justify-content-start align-items-center p-10">
-          <button
-            class="btn-primary me-2 btn text-capitalize px-4"
-            (click)="previousPage()"
-            [disabled]="p === 1"
-          >
-            Previous</button
-          >&nbsp;&nbsp; Total Pages:&nbsp;{{
-            totalPages
-          }}&nbsp;&nbsp;&nbsp;&nbsp;
-          <button
-            class="btn-primary me-2 btn text-capitalize px-4"
-            (click)="nextPage()"
-            [disabled]="p === totalPages"
-          >
-            Next
-          </button>
-          <p
-            style="
-              width: 150px;
-              height: 25px;
-              margin-left: 420px;
-              padding: 10px 5px 0px 0px;
-            "
-          >
-            <b>Page Number:&nbsp;</b>{{ p }}
-          </p>
-        </div>
       </div>
       <div *ngIf="!showlist" style="text-align: center; color: #475569">
         No Device

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { OrganizationService } from '../../auth/services';
+import { OrganizationService, UserService } from '../../auth/services';
 import { RoleModeService } from '../../auth/services/role-mode.service';
 import { getOrgTypeName } from '../../utils/role-helper';
 
@@ -14,6 +14,7 @@ export class DashboardComponent implements OnInit {
   apiUserOrganizations: any[] = [];
   apiUserOrgsError: string | null = null;
   loginuser: any;
+  accountCreatedAt: string | null = null;
   getOrgTypeName = getOrgTypeName;
 
   get isApiMode(): boolean {
@@ -31,6 +32,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private orgService: OrganizationService,
     private roleModeService: RoleModeService,
+    private userService: UserService,
   ) {}
 
   get isAdmin(): boolean {
@@ -39,6 +41,11 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
+    this.userService.userProfile().subscribe({
+      next: (user: any) => {
+        this.accountCreatedAt = user.createdAt;
+      },
+    });
     if (this.isAdmin) {
       this.organization = {
         name: 'D-REC',

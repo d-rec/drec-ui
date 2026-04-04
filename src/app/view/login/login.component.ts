@@ -27,6 +27,7 @@ export class LoginComponent implements OnInit {
   fromregister: boolean = true;
   message: string;
   success: boolean = true;
+  loginError: string = '';
 
   @Output() submitEM = new EventEmitter();
 
@@ -48,6 +49,7 @@ export class LoginComponent implements OnInit {
    * Handle login form submission
    */
   onSubmit() {
+    this.loginError = '';
     this.authService.login('auth/login', this.loginForm.value).subscribe({
       next: (data) => {
         if (data['accessToken'] != null) {
@@ -74,16 +76,14 @@ export class LoginComponent implements OnInit {
             },
           });
         } else {
-          this.toastrService.info(
-            'Message Failure!',
-            'Check Your Credentials !!',
-          );
-          this.router.navigate(['/login']);
+          const user = this.loginForm.value.username || '';
+          this.loginError = `Login failed for "${user}". Please check your username and password.`;
         }
       },
       error: (error) => {
         console.error('error caught in component', error);
-        this.toastrService.error('Check Your Credential!', 'Login Fail!!');
+        const user = this.loginForm.value.username || '';
+        this.loginError = `Login failed for "${user}". Please check your username and password.`;
       },
     });
   }

@@ -2,7 +2,7 @@
   <mat-sidenav #sidenav mode="side" opened class="example-sidenav">
     <mat-nav-list *ngIf="loginuser">
       <div style="padding: 10px">
-        <p style="padding: 0; margin: 5px 0; font-size: 15px; color: #475569">
+        <p style="padding: 0; margin: 5px 0; font-size: 13px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap" [title]="loginuser.email">
           {{ loginuser.email }}
         </p>
         <small>
@@ -16,13 +16,31 @@
         routerLinkActive="active"
         routerLink="/dashboard"
       >
-        <mat-icon>dashboard</mat-icon>
         <span>Dashboard</span>
       </button>
+      <mat-expansion-panel [class.mat-elevation-z0]="true">
+        <mat-expansion-panel-header
+          class="mdc-button"
+          [attr.test-id]="'account-setting-header'"
+        >
+          Account Settings
+        </mat-expansion-panel-header>
+
+        <mat-nav-list class="p-0">
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="/user/profile"
+            test-id="profile"
+          >
+            <span>Profile</span>
+          </a>
+        </mat-nav-list>
+      </mat-expansion-panel>
       <!--1st  -->
       <mat-expansion-panel [class.mat-elevation-z0]="true">
         <mat-expansion-panel-header class="mdc-button" test-id="organization">
-          <mat-icon>corporate_fare</mat-icon>
           Organization
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -127,7 +145,6 @@
           class="mdc-button d-flex align-items-center"
           test-id="devices"
         >
-          <mat-icon>solar_power</mat-icon>
           Device
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -194,9 +211,8 @@
             routerLinkActive="active"
             routerLink="/device/bulk_upload"
             *ngIf="
-              loginuser.role != 'User' &&
-              loginuser.role != 'Reviewer' &&
-              loginuser.role != 'SeniorReviewer'
+              loginuser.role === 'Admin' ||
+              loginuser.organization?.organizationType === 'Developer'
             "
             test-id="device-bulk-upload"
           >
@@ -213,7 +229,6 @@
         *ngIf="loginuser.role != 'Buyer' && loginuser.role != 'SubBuyer'"
       >
         <mat-expansion-panel-header class="mdc-button" test-id="meter-read">
-          <mat-icon>electric_meter</mat-icon>
           MeterRead
         </mat-expansion-panel-header>
         <mat-nav-list>
@@ -255,7 +270,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/reads/bulk-upload"
-            *ngIf="loginuser.role != 'User' && loginuser.role != 'Reviewer' && loginuser.role != 'SeniorReviewer'"
+            *ngIf="loginuser.role === 'Admin' || loginuser.organization?.organizationType === 'Developer'"
             test-id="meter-read-bulk-upload"
           >
             <!-- <mat-icon>list</mat-icon> -->
@@ -282,7 +297,6 @@
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
         >
-          <mat-icon>bolt</mat-icon>
           Yield Configuration
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -319,7 +333,6 @@
           class="mdc-button d-flex align-items-center"
           test-id="permission"
         >
-          <mat-icon>admin_panel_settings</mat-icon>
           Permission
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -363,7 +376,6 @@
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
         >
-          <mat-icon>admin_panel_settings</mat-icon>
           Permission
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -402,7 +414,6 @@
           class="mdc-button d-flex align-items-center"
           test-id="device-groups"
         >
-          <mat-icon>bookmark</mat-icon>
           <span>Device Groups</span>
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -442,7 +453,6 @@
         routerLinkActive="active"
         routerLink="/tokens"
       >
-        <mat-icon>card_membership</mat-icon>
         <span test-id="all-certificates">D-REC Tokens</span>
       </button>
       <!--7th  -->
@@ -453,38 +463,14 @@
         routerLink="/redemption-report"
         *ngIf="loginuser.role === 'Buyer' || loginuser.role === 'SubBuyer'"
       >
-        <mat-icon>description</mat-icon>
         <span class="text-start">Redemption Report</span>
       </button>
       <!--8th  -->
-
-      <mat-expansion-panel [class.mat-elevation-z0]="true">
-        <mat-expansion-panel-header
-          class="mdc-button"
-          [attr.test-id]="'account-setting-header'"
-        >
-          <mat-icon>manage_accounts</mat-icon>
-          Account Setting
-        </mat-expansion-panel-header>
-
-        <mat-nav-list class="p-0">
-          <a
-            mat-button
-            class="menu-button inside-menu-button"
-            routerLinkActive="active"
-            routerLink="/user/profile"
-            test-id="profile"
-          >
-            <span>Profile</span>
-          </a>
-        </mat-nav-list>
-      </mat-expansion-panel>
       <mat-expansion-panel
         *ngIf="loginuser.role === 'Admin'"
         [class.mat-elevation-z0]="true"
       >
         <mat-expansion-panel-header class="mdc-button">
-          <mat-icon>badge</mat-icon>
           Evident Issuers
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
@@ -511,7 +497,6 @@
           class="mdc-button"
           test-id="evident-configuration"
         >
-          <mat-icon>tune</mat-icon>
           Evident configuration
         </mat-expansion-panel-header>
 
