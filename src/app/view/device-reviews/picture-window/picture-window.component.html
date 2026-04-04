@@ -50,7 +50,7 @@
       <!-- Detect confirm dialog -->
       <div class="picw__confirm-backdrop" *ngIf="showDetectConfirm" (click)="cancelDetect()">
         <div class="picw__confirm" (click)="$event.stopPropagation()">
-          <p class="picw__confirm-msg">Panel detection uses a free-tier license with a limited number of scans. Proceed anyway?</p>
+          <p class="picw__confirm-msg">{{ detectConfirmMsg }}</p>
           <div class="picw__confirm-actions">
             <button type="button" class="picw__confirm-btn picw__confirm-btn--cancel" (click)="cancelDetect()">Cancel</button>
             <button type="button" class="picw__confirm-btn picw__confirm-btn--ok" (click)="confirmDetect()">OK</button>

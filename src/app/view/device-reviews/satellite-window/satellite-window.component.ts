@@ -14,6 +14,7 @@ import {
 import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
 import { AssetService } from '../asset.service';
+import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.service';
 
 const STATUS_COLOR: Record<string, string> = {
   approved: '#22c55e',
@@ -72,7 +73,7 @@ const STATUS_COLOR: Record<string, string> = {
         </div>
         <div class="detect-confirm-backdrop" *ngIf="showDetectConfirm" (click)="cancelDetect()">
           <div class="detect-confirm" (click)="$event.stopPropagation()">
-            <p class="detect-confirm__msg">Panel detection uses a free-tier license with a limited number of scans. Proceed anyway?</p>
+            <p class="detect-confirm__msg">{{ detectConfirmMsg }}</p>
             <div class="detect-confirm__actions">
               <button type="button" class="detect-confirm__btn detect-confirm__btn--cancel" (click)="cancelDetect()">Cancel</button>
               <button type="button" class="detect-confirm__btn detect-confirm__btn--ok" (click)="confirmDetect()">OK</button>
@@ -214,6 +215,7 @@ export class SatelliteWindowComponent
   showOverlay = false;
   panelCount = 0;
   detectError = '';
+  detectConfirmMsg = '';
 
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
@@ -223,6 +225,7 @@ export class SatelliteWindowComponent
   constructor(
     readonly svc: AssetService,
     private cdr: ChangeDetectorRef,
+    private licensesService: OrgApiLicensesService,
   ) {}
 
   ngAfterViewInit(): void {
@@ -264,8 +267,37 @@ export class SatelliteWindowComponent
 
   detectPanels(): void {
     if (!this.map || this.detecting) return;
-    this.showDetectConfirm = true;
-    this.cdr.markForCheck();
+
+    this.licensesService.getCredits().subscribe({
+      next: (credits) => {
+        if (credits.roboflow.hasOwnKey) {
+          // Org has own key — skip dialog, detect immediately
+          this.detecting = true;
+          this.detectError = '';
+          this.cdr.markForCheck();
+          this.waitForTilesThenCapture();
+          return;
+        }
+        if (credits.roboflow.credits <= 0) {
+          this.detectError =
+            'Roboflow credits exhausted. Add your own API key in Organization > Licenses.';
+          this.cdr.markForCheck();
+          return;
+        }
+        this.detectConfirmMsg =
+          `You have ${credits.roboflow.credits} free Roboflow credit(s) remaining \u2014 proceed?\n\n` +
+          `This will use 1 credit. Once exhausted, you\u2019ll need to add your own API key in Organization > Licenses.`;
+        this.showDetectConfirm = true;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        // Credits endpoint unavailable — show generic warning
+        this.detectConfirmMsg =
+          'Panel detection uses a limited number of free scans. Proceed anyway?';
+        this.showDetectConfirm = true;
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   cancelDetect(): void {

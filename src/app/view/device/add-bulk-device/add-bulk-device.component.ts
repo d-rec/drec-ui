@@ -76,7 +76,7 @@ export class AddBulkDeviceComponent implements OnInit {
         );
         this.filteredOrgList = this.orglist;
       });
-    } else if (this.loggedInUser.role === 'MarketIntermediary') {
+    } else if (this.loggedInUser.role === 'Registrant') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org) => org.organizationType != 'Buyer',

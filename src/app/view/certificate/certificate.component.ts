@@ -280,7 +280,7 @@ export class CertificateComponent implements OnDestroy {
   }
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
-    //((u) => isRole(u.role, Role.DeviceOwner));
+    //((u) => isRole(u.role, Role.SiteOperator));
     return this.countrylist.filter((option: { country: string }) =>
       option.country.toLowerCase().includes(filterValue),
     );
@@ -571,12 +571,10 @@ export class CertificateComponent implements OnDestroy {
           this.encodeClaimData(claimData),
         );
 
-        setTimeout(() => {
-          this.toastrService.info(
-            `Please check metamask for success or failure of claim of this certificate`,
-          );
-          this.closeTemplateSheetMenu();
-        }, 1000);
+        this.toastrService.info(
+          `Please check metamask for success or failure of claim of this certificate`,
+        );
+        this.closeTemplateSheetMenu();
       } catch (error) {
         console.error('Error during the claim process:', error);
         this.toastrService.error(

@@ -185,7 +185,7 @@ export class DocumentsUploadComponent {
           this.toastrService.success('All documents uploaded successfully');
           this.isUploading = false;
           const user = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
-          if (user.role === OrganizationType.MarketIntermediary) {
+          if (user.role === OrganizationType.Registrant) {
             this.authService
               .ApiUserExportAccesskey('user/export-accesskey/', this.userApiId)
               .subscribe({

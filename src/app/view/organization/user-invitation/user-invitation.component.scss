@@ -1,0 +1,15 @@
+::ng-deep .mat-mdc-tab-header {
+  --mdc-tab-indicator-active-indicator-color: transparent;
+}
+
+::ng-deep .mdc-tab-indicator__content--underline {
+  border-color: transparent !important;
+}
+
+::ng-deep .mat-mdc-tab-body-content {
+  overflow: hidden !important;
+}
+
+:host ::ng-deep mat-card {
+  overflow: hidden;
+}

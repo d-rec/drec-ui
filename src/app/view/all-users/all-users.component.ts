@@ -68,7 +68,7 @@ export class AllUsersComponent {
     if (this.activatedRoute.snapshot.params['id']) {
       this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
       this.showorg = true;
-      if (this.loginuser.role === 'MarketIntermediary') {
+      if (this.loginuser.role === 'Registrant') {
         this.orgService
           .GetOrganizationById(this.orgnaizatioId)
           .subscribe((data) => {
@@ -99,13 +99,13 @@ export class AllUsersComponent {
         const seen = new Set<string>();
         this.orglist = data.organizations.filter(
           (org: { api_user_id: string; organizationType: string; name: string }) => {
-            if (org.organizationType === 'MarketIntermediary' || seen.has(org.name)) return false;
+            if (org.organizationType === 'Registrant' || seen.has(org.name)) return false;
             seen.add(org.name);
             return true;
           },
         );
       });
-    } else if (this.loginuser.role === 'MarketIntermediary') {
+    } else if (this.loginuser.role === 'Registrant') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         const seen = new Set<string>();
         this.orglist = data.organizations.filter((org: { name: string }) => {
@@ -184,7 +184,7 @@ export class AllUsersComponent {
       }
     } else {
       this.showorg = true;
-      if (this.loginuser.role === 'MarketIntermediary') {
+      if (this.loginuser.role === 'Registrant') {
         if (this.orgnaizatioId != null || this.orgnaizatioId != undefined) {
           this.getAllUserByorganzationId(page, limit);
         } else {
@@ -280,7 +280,7 @@ export class AllUsersComponent {
 
   openDialog(user: any) {
     if (this.loginuser.role === 'Admin') {
-      if (user.role === 'OrganizationAdmin' || user.role === 'Buyer') {
+      if (user.role === 'Registrant' || user.role === 'Buyer') {
         const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
           data: {
             title: 'Are you sure? This cannot be undone.',

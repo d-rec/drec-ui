@@ -31,10 +31,8 @@ export class AddUsersComponent {
   registerForm: FormGroup;
   fieldRequired: string = 'This field is required';
   orgtype: any[] = [
-    { value: 'Developer', viewValue: 'Developer' },
+    { value: 'Registrant', viewValue: 'Registrant' },
     { value: 'Buyer', viewValue: 'Buyer' },
-    { value: 'Reviewer', viewValue: 'Reviewer' },
-    { value: 'SeniorReviewer', viewValue: 'Senior Reviewer' },
   ];
   hide = true;
   hide1 = true;
@@ -125,17 +123,14 @@ export class AddUsersComponent {
 
     this.registerForm.controls['password'].setValue(randPassword + '1');
     this.registerForm.controls['confirmPassword'].setValue(randPassword + '1');
-    // Set organizationType from the role dropdown so the backend maps it correctly
-    this.registerForm.controls['organizationType'].setValue(
-      this.registerForm.controls['role'].value,
-    );
-    // Use admin's org name for reviewers
+    // Reviewers don't need an organizationType — the backend uses the role field
+    // For non-reviewer flows, organizationType is already set on the form
     if (!this.registerForm.controls['orgName'].value) {
       this.registerForm.controls['orgName'].setValue(
         this.loginuser?.organization?.name ?? 'D-REC',
       );
     }
-    if (this.loginuser.role === 'MarketIntermediary') {
+    if (this.loginuser.role === 'Registrant') {
       this.userService
         .userregisterByApiUser(this.registerForm.value, this.apiuserId)
         .subscribe({

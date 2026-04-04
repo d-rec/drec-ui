@@ -516,7 +516,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
           );
           if (this.loginuser.role === 'Admin') {
             this.router.navigate(['/admin/All_devices']);
-          } else if (this.loginuser.role === 'MarketIntermediary') {
+          } else if (this.loginuser.role === 'Registrant') {
             this.router.navigate(['/apiuser/All_devices']);
           } else {
             this.router.navigate(['/device/AllList']);

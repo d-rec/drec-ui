@@ -22,7 +22,7 @@ export class RoleModeService {
 
   /** Call this after login/register to initialise mode from the user's role. */
   initFromRole(role: string): void {
-    const mode: RoleMode = role === 'MarketIntermediary' ? 'api' : 'ui';
+    const mode: RoleMode = role === 'Registrant' ? 'api' : 'ui';
     this.setMode(mode);
   }
 
@@ -33,7 +33,7 @@ export class RoleModeService {
     // No explicit preference stored — derive from the logged-in user's role.
     try {
       const loginuser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
-      return loginuser.role === 'MarketIntermediary' ? 'api' : 'ui';
+      return loginuser.role === 'Registrant' ? 'api' : 'ui';
     } catch {
       return 'ui';
     }

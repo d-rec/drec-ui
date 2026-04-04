@@ -28,7 +28,7 @@
           </div>
           <div class="column col-4" *ngIf="accountCreatedAt">
             <div class="row">
-              <p><b>Account Created</b>:&nbsp;{{ accountCreatedAt | date:'mediumDate' }}</p>
+              <p><b>Account Created</b>:&nbsp;{{ accountCreatedAt | date:'medium':'UTC' }} UTC</p>
             </div>
           </div>
         </div>
@@ -51,7 +51,7 @@
           </ng-container>
           <ng-container matColumnDef="createdAt">
             <th mat-header-cell *matHeaderCellDef>Created</th>
-            <td mat-cell *matCellDef="let org">{{ org.createdAt | date:'mediumDate' }}</td>
+            <td mat-cell *matCellDef="let org">{{ org.createdAt | date:'medium':'UTC' }} UTC</td>
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="['name', 'organizationType', 'status', 'createdAt']"></tr>
           <tr mat-row *matRowDef="let row; columns: ['name', 'organizationType', 'status', 'createdAt']"></tr>
@@ -63,7 +63,7 @@
       </ng-container>
 
       <p *ngIf="isApiUser && accountCreatedAt" class="mt-2">
-        <b>Account Created</b>:&nbsp;{{ accountCreatedAt | date:'mediumDate' }}
+        <b>Account Created</b>:&nbsp;{{ accountCreatedAt | date:'medium':'UTC' }} UTC
       </p>
       <div class="d-flex align-items-center gap-2 mt-3" *ngIf="isApiUser">
         <span>UI</span>

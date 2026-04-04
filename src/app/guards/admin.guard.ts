@@ -7,8 +7,8 @@ export const AdminGuard: CanActivateFn = () => {
     const user = JSON.parse(sessionStorage.getItem('loginuser') ?? 'null');
     const allowed = [
       'Admin',
-      'OrganizationAdmin',
-      'MarketIntermediary',
+      'Registrant',
+      'Registrant',
       'Reviewer',
       'SeniorReviewer',
     ];

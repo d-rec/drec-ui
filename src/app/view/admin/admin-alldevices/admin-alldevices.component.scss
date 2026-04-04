@@ -52,16 +52,6 @@ mat-progress-spinner {
   z-index: 5;
 }
 
-:host ::ng-deep tr.mat-mdc-row:nth-child(odd),
-:host ::ng-deep tr.mat-row:nth-child(odd) {
-  background-color: #f1f5f9;
-}
-
-:host ::ng-deep tr.mat-mdc-row:nth-child(even),
-:host ::ng-deep tr.mat-row:nth-child(even) {
-  background-color: #ffffff;
-}
-
 .sat-preview {
   position: fixed;
   z-index: 1000;

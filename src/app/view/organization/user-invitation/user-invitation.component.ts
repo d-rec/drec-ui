@@ -42,7 +42,7 @@ export class UserInvitationComponent {
   showorginviteuser: boolean = false;
   loading: boolean = false;
   orgtype: any[] = [
-    { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
+    { value: 'SiteOperator', viewValue: 'SiteOperator' },
     { value: 'User', viewValue: 'User' },
   ];
   orgtypebuyer: any[] = [
@@ -71,7 +71,7 @@ export class UserInvitationComponent {
   }
 
   ngOnInit() {
-    if (this.loginuser.role === 'MarketIntermediary') {
+    if (this.loginuser.role === 'Registrant') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType != 'Buyer',
@@ -87,9 +87,7 @@ export class UserInvitationComponent {
       role: [null, [Validators.required]],
     });
 
-    setTimeout(() => {
-      this.getorginviteuserlist();
-    }, 1000);
+    this.getorginviteuserlist();
   }
 
   checkValidation(input: string) {

@@ -12,16 +12,14 @@ export enum UserEnumStatus {
 
 export enum OrganizationType {
   Buyer = 'Buyer',
-  Developer = 'Developer',
-  MarketIntermediary = 'MarketIntermediary',
+  Registrant = 'Registrant',
   Admin = 'Admin',
   SiteOperator = 'SiteOperator',
 }
 
 export enum Role {
   User = 'User',
-  DeviceOwner = 'DeviceOwner',
-  OrganizationAdmin = 'OrganizationAdmin',
+  Registrant = 'Registrant',
   Buyer = 'Buyer',
   Admin = 'Admin',
   Intermediary = 'Intermediary',

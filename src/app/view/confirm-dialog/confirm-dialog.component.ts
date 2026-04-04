@@ -19,7 +19,7 @@ export class ConfirmDialogComponent {
   roleForm: FormGroup;
   userId: number;
   dailogmessage: string;
-  role: string = 'OrganizationAdmin';
+  role: string = 'Registrant';
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<ConfirmDialogComponent>,

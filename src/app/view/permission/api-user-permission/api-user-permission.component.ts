@@ -86,7 +86,7 @@ export class ApiUserPermissionComponent {
       this.showgoback = true;
       this.showuserdetails = true;
       this.getuserinfo();
-    } else if (this.loginuser.role === 'MarketIntermediary') {
+    } else if (this.loginuser.role === 'Registrant') {
       this.getapiUser();
     } else {
       this.showuserdetails = false;
@@ -201,7 +201,7 @@ export class ApiUserPermissionComponent {
             this.totalPages = this.data.totalPages;
           }
         });
-    } else if (this.loginuser.role === 'MarketIntermediary') {
+    } else if (this.loginuser.role === 'Registrant') {
       const data = {
         user_id: this.userId,
       };

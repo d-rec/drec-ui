@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AssetService } from '../asset.service';
+import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.service';
 import Tesseract from 'tesseract.js';
 
 @Component({
@@ -43,10 +44,14 @@ export class PictureWindowComponent implements OnInit, OnDestroy {
   detectDone = false;
   detectError = '';
   showDetectConfirm = false;
+  detectConfirmMsg = '';
 
   private currentUrl: string | null = null;
 
-  constructor(readonly svc: AssetService) {}
+  constructor(
+    readonly svc: AssetService,
+    private licensesService: OrgApiLicensesService,
+  ) {}
 
   ngOnInit(): void {
     this.sub = this.svc.viewPictureUrl$.subscribe((url) => {
@@ -114,7 +119,31 @@ export class PictureWindowComponent implements OnInit, OnDestroy {
 
   detectPanels(): void {
     if (this.detecting) return;
-    this.showDetectConfirm = true;
+
+    this.licensesService.getCredits().subscribe({
+      next: (credits) => {
+        if (credits.roboflow.hasOwnKey) {
+          this.detecting = true;
+          this.detectError = '';
+          this.runDetection();
+          return;
+        }
+        if (credits.roboflow.credits <= 0) {
+          this.detectError =
+            'Roboflow credits exhausted. Add your own API key in Organization > Licenses.';
+          return;
+        }
+        this.detectConfirmMsg =
+          `You have ${credits.roboflow.credits} free Roboflow credit(s) remaining \u2014 proceed?\n\n` +
+          `This will use 1 credit. Once exhausted, you\u2019ll need to add your own API key in Organization > Licenses.`;
+        this.showDetectConfirm = true;
+      },
+      error: () => {
+        this.detectConfirmMsg =
+          'Panel detection uses a limited number of free scans. Proceed anyway?';
+        this.showDetectConfirm = true;
+      },
+    });
   }
 
   cancelDetect(): void {

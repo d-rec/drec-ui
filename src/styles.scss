@@ -18,6 +18,7 @@ $color-success: #16a34a;
 $color-warning: #d97706;
 $white: #fff;
 $danger: #dc2626;
+$color-row-alt: #e4eaf4; // blue-tinted alternating table rows
 
 $font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 $font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -668,4 +669,15 @@ select.field__select {
       pointer-events: none;
     }
   }
+}
+
+// --- Global alternating table row colours ---
+tr.mat-mdc-row:nth-child(odd),
+tr.mat-row:nth-child(odd) {
+  background-color: #e4eaf4 !important;
+}
+
+tr.mat-mdc-row:nth-child(even),
+tr.mat-row:nth-child(even) {
+  background-color: #ffffff !important;
 }

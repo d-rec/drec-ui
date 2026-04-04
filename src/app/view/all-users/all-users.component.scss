@@ -38,6 +38,21 @@
 //       }
 //     }
 //   }
+::ng-deep .body-bg .mat-mdc-card {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+::ng-deep .content {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+::ng-deep table.mat-mdc-table {
+  border: none !important;
+  box-shadow: none !important;
+}
+
 :host ::ng-deep .btn-primary {
   background-color: #475569 !important;
   border-color: #475569 !important;
@@ -56,9 +71,9 @@ mat-progress-spinner {
   z-index: 5;
 }
 
-.mat-elevation-z8 {
+.content {
   width: 100%;
-  overflow: scroll;
+  overflow: auto;
   mat-paginator {
     display: initial !important;
   }
@@ -84,12 +99,3 @@ mat-progress-spinner {
   text-align: left;
 }
 
-:host ::ng-deep tr.mat-mdc-row:nth-child(odd),
-:host ::ng-deep tr.mat-row:nth-child(odd) {
-  background-color: #f1f5f9;
-}
-
-:host ::ng-deep tr.mat-mdc-row:nth-child(even),
-:host ::ng-deep tr.mat-row:nth-child(even) {
-  background-color: #ffffff;
-}

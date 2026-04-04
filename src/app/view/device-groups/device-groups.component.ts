@@ -129,7 +129,7 @@ export class DeviceGroups implements OnInit {
     this.displayCountriesList();
     this.DisplayfuelList();
     this.DisplaytypeList();
-    if (this.loginuser.role === 'MarketIntermediary') {
+    if (this.loginuser.role === 'Registrant') {
       this.FilterForm.addControl(
         'organizationname',
         this.formBuilder.control(''),
@@ -140,7 +140,7 @@ export class DeviceGroups implements OnInit {
       );
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
-          (org) => org.organizationType === 'Developer',
+          (org) => org.organizationType === 'Registrant',
         );
         if (this.orglist.length > 0) {
           this.applyorgFilter();
@@ -324,7 +324,7 @@ export class DeviceGroups implements OnInit {
     this.FilterForm.reset();
     this.FilterForm.controls['countryCode'].setValue(null);
     this.FilterForm.controls['reservationActive'].setValue(null);
-    if (this.loginuser.role === 'MarketIntermediary') {
+    if (this.loginuser.role === 'Registrant') {
       this.FilterForm.controls['organizationname'].setValue(null);
       this.FilterForm.controls['organizationId'].setValue(null);
     }
@@ -336,8 +336,8 @@ export class DeviceGroups implements OnInit {
   }
   DisplayList(page: number) {
     if (
-      this.loginuser.role === 'MarketIntermediary' ||
-      this.loginuser.role === 'OrganizationAdmin'
+      this.loginuser.role === 'Registrant' ||
+      this.loginuser.role === 'Registrant'
     ) {
       if (this.FilterForm.value.reservationActive === 'All') {
         this.FilterForm.removeControl('reservationActive');

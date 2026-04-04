@@ -6,7 +6,7 @@
       <div>
         <mat-card-title>
           <h2 class="pb-0 mb-0 fw-bold text-capitalize ps-2"> 
-            Market Intermediary Permission
+            Registrant Permission
           </h2>
         </mat-card-title>
       </div>
@@ -110,14 +110,14 @@
         </mat-card-content>
         <hr />
       </mat-card>
-      <mat-card *ngIf="!showuserdetails && loginuser?.role != 'MarketIntermediary'">
+      <mat-card *ngIf="!showuserdetails && loginuser?.role != 'Registrant'">
         <form [formGroup]="FilterForm">
           <mat-card-content>
             <h3
               style="text-align: center; color: #475569; font-size: 16px"
               class="text-capitalize"
             >
-              Filter Market Intermediary User
+              Filter Registrant User
             </h3>
             <div class="example-container1 row">
               <div class="col-md-3">

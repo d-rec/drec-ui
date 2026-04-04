@@ -123,11 +123,11 @@ export class SidemenuComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isApiMode) {
       this.devcieurl = '/apiuser/All_devices';
       this.Alluserurl = './apiuser/All_users';
-      this.adduserorg_url = '/apiuser/add_user';
+      this.adduserorg_url = '/organization/user/invitation';
     } else {
       this.devcieurl = '/device/AllList';
       this.Alluserurl = './admin/All_users';
-      this.adduserorg_url = '/admin/add_user';
+      this.adduserorg_url = '/organization/user/invitation';
     }
   }
 

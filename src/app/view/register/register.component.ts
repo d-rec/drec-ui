@@ -29,9 +29,8 @@ export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   fieldRequired: string = 'This field is required';
   orgtype: any[] = [
-    { value: 'Developer', viewValue: 'Organization Admin' },
     { value: 'Buyer', viewValue: 'Buyer' },
-    { value: 'MarketIntermediary', viewValue: 'Market Intermediary' },
+    { value: 'Registrant', viewValue: 'Registrant' },
     { value: 'SiteOperator', viewValue: 'Site Operator' },
   ];
   hide = true;
@@ -253,7 +252,7 @@ export class RegisterComponent implements OnInit {
 
     this.authService.PostAuth('user/register', formValues).subscribe({
       next: (data) => {
-        if (formValues.organizationType === 'MarketIntermediary') {
+        if (formValues.organizationType === 'Registrant') {
           this.handleApiUserRegistration(data, loginCredentials);
           return;
         }

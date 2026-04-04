@@ -79,7 +79,7 @@ export class AllMetereadsComponent implements OnInit {
         );
         this.filteredOrgList = this.orglist;
       });
-    } else if (this.loginuser.role === 'MarketIntermediary') {
+    } else if (this.loginuser.role === 'Registrant') {
       this.orgService.GetApiUserAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType != 'Buyer',
@@ -132,7 +132,7 @@ export class AllMetereadsComponent implements OnInit {
       this.filter = false;
       this.serialNumber = null;
       this.orgId = selectedCountry.id;
-      if (this.loginuser.role === 'MarketIntermediary') {
+      if (this.loginuser.role === 'Registrant') {
         this.FilterForm.addControl(
           'organizationId',
           this.formBuilder.control(''),
@@ -158,7 +158,7 @@ export class AllMetereadsComponent implements OnInit {
     });
   }
   gedevicefororg() {
-    if (this.loginuser.role === 'MarketIntermediary') {
+    if (this.loginuser.role === 'Registrant') {
       const deviceurl = 'device/my?organizationId=' + this.orgId;
       this.deviceservice.GetMyDevices(deviceurl).subscribe({
         next: (data) => {
@@ -272,7 +272,7 @@ export class AllMetereadsComponent implements OnInit {
       this.FilterForm.controls['serialNumber'].setValue(result.serialNumber);
       this.serialNumber = result.id;
     }
-    //else if (this.loginuser.role === 'MarketIntermediary') {
+    //else if (this.loginuser.role === 'Registrant') {
 
     //   this.FilterForm.controls['serialNumber'].setValue(result.serialNumber);
     //   this.serialNumber = result.id;
@@ -309,7 +309,7 @@ export class AllMetereadsComponent implements OnInit {
       this.deviceservice.GetUnreserveDevices().subscribe((data) => {
         this.devicedata = data;
       });
-    } else if (this.loginuser.role === 'OrganizationAdmin') {
+    } else if (this.loginuser.role === 'Registrant') {
       const deviceurl = 'device/my';
       this.deviceservice.GetMyDevices(deviceurl).subscribe((data) => {
         this.devicedata = data;
@@ -326,7 +326,7 @@ export class AllMetereadsComponent implements OnInit {
   getPagedData() {
     this.filter = true;
     this.FilterForm.controls['pagenumber'].setValue(this.p);
-    if (this.loginuser.role === 'MarketIntermediary') {
+    if (this.loginuser.role === 'Registrant') {
       this.FilterForm.controls['organizationId'].setValue(this.orgId);
     }
     this.counterComponent.start(

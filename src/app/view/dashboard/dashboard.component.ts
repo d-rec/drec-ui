@@ -26,7 +26,7 @@ export class DashboardComponent implements OnInit {
   }
 
   get isApiUser(): boolean {
-    return this.loginuser?.role === 'MarketIntermediary';
+    return this.loginuser?.role === 'Registrant';
   }
 
   constructor(

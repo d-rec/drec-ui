@@ -57,17 +57,17 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="{{ adduserorg_url }}"
-            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'MarketIntermediary'"
+            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'Registrant'"
             test-id="add-organization"
           >
-            <span>Add Organizations</span>
+            <span>Invite User</span>
           </a>
           <a
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/admin/All_organization"
-            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'MarketIntermediary'"
+            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'Registrant'"
           >
             <span>All Organizations</span>
           </a>
@@ -90,7 +90,7 @@
             *ngIf="loginuser.role === 'Admin'"
             test-id="all-market-intermediaries"
           >
-            <span>All Market Intermediaries</span>
+            <span>All Registrants</span>
           </a>
           <a
             mat-button
@@ -105,26 +105,9 @@
             mat-button
             class="menu-button inside-menu-button certified-metarides"
             routerLinkActive="active"
-            routerLink="/organization/user/invitation"
-            *ngIf="
-              loginuser?.role === 'OrganizationAdmin' ||
-              loginuser?.role === 'DeviceOwner' ||
-              loginuser?.role === 'SiteOperator' ||
-              loginuser?.role === 'Buyer' ||
-              loginuser?.role === 'SubBuyer'
-            "
-            test-id="invitation"
-          >
-            <span> Invitation</span>
-          </a>
-          <a
-            mat-button
-            class="menu-button inside-menu-button certified-metarides"
-            routerLinkActive="active"
             routerLink="/settings/licenses"
             *ngIf="
-              loginuser?.role === 'OrganizationAdmin' ||
-              loginuser?.role === 'DeviceOwner' ||
+              loginuser?.role === 'Registrant' ||
               loginuser?.role === 'SiteOperator' ||
               loginuser?.role === 'Buyer' ||
               loginuser?.role === 'SubBuyer'
@@ -148,7 +131,7 @@
           Device
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
-          <!-- <a mat-list-item class="menu-button" routerLinkActive="active"routerLink="/device/AllList" *ngIf="loginuser.role ==='OrganizationAdmin'">
+          <!-- <a mat-list-item class="menu-button" routerLinkActive="active"routerLink="/device/AllList" *ngIf="loginuser.role ==='Registrant'">
                 <mat-icon>list</mat-icon>
                 <span>My Devices</span>
               </a> -->
@@ -196,7 +179,6 @@
             routerLinkActive="active"
             routerLink="/device/add"
             *ngIf="
-              loginuser.role != 'User' &&
               loginuser.role != 'Reviewer' &&
               loginuser.role != 'SeniorReviewer'
             "
@@ -212,7 +194,7 @@
             routerLink="/device/bulk_upload"
             *ngIf="
               loginuser.role === 'Admin' ||
-              loginuser.organization?.organizationType === 'Developer'
+              loginuser.organization?.organizationType === 'Registrant'
             "
             test-id="device-bulk-upload"
           >
@@ -232,7 +214,7 @@
           MeterRead
         </mat-expansion-panel-header>
         <mat-nav-list>
-          <!-- <a mat-list-item class="menu-button" routerLinkActive="active"routerLink="/device/AllList" *ngIf="loginuser.role ==='OrganizationAdmin'">
+          <!-- <a mat-list-item class="menu-button" routerLinkActive="active"routerLink="/device/AllList" *ngIf="loginuser.role ==='Registrant'">
                 <mat-icon>list</mat-icon>
                 <span>My Devices</span>
               </a> -->
@@ -259,7 +241,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/reads/add"
-            *ngIf="loginuser.role != 'User' && loginuser.role != 'Reviewer' && loginuser.role != 'SeniorReviewer'"
+            *ngIf="loginuser.role != 'Reviewer' && loginuser.role != 'SeniorReviewer'"
             test-id="add-meter-read"
           >
             <!-- <mat-icon>list</mat-icon> -->
@@ -270,7 +252,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/reads/bulk-upload"
-            *ngIf="loginuser.role === 'Admin' || loginuser.organization?.organizationType === 'Developer'"
+            *ngIf="loginuser.role === 'Admin' || loginuser.organization?.organizationType === 'Registrant'"
             test-id="meter-read-bulk-upload"
           >
             <!-- <mat-icon>list</mat-icon> -->
@@ -281,7 +263,7 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/device/certifiedin_reservation"
-            *ngIf="loginuser.role === 'OrganizationAdmin' || loginuser.role === 'SiteOperator'"
+            *ngIf="loginuser.role === 'Registrant' || loginuser.role === 'SiteOperator'"
             test-id="certified-meter-read"
           >
             <!-- <mat-icon>list</mat-icon> -->
@@ -300,7 +282,7 @@
           Yield Configuration
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
-          <!-- <a mat-list-item class="menu-button" routerLinkActive="active"routerLink="/device/AllList" *ngIf="loginuser.role ==='OrganizationAdmin'">
+          <!-- <a mat-list-item class="menu-button" routerLinkActive="active"routerLink="/device/AllList" *ngIf="loginuser.role ==='Registrant'">
               <mat-icon>list</mat-icon>
               <span>My Devices</span>
             </a> -->
@@ -336,7 +318,7 @@
           Permission
         </mat-expansion-panel-header>
         <mat-nav-list class="p-0">
-          <!-- <a mat-list-item class="menu-button" routerLinkActive="active"routerLink="/device/AllList" *ngIf="loginuser.role ==='OrganizationAdmin'">
+          <!-- <a mat-list-item class="menu-button" routerLinkActive="active"routerLink="/device/AllList" *ngIf="loginuser.role ==='Registrant'">
               <mat-icon>list</mat-icon>
               <span>My Devices</span>
             </a> -->
@@ -368,11 +350,11 @@
             test-id="api-user-permission"
           >
             <!-- <mat-icon>list</mat-icon> -->
-            <span>Market Intermediary User Permission </span>
+            <span>Registrant User Permission </span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role === 'MarketIntermediary'">
+      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role === 'Registrant'">
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
         >
@@ -404,9 +386,9 @@
       <mat-expansion-panel
         [class.mat-elevation-z0]="true"
         *ngIf="
-          loginuser.role === 'OrganizationAdmin' ||
+          loginuser.role === 'Registrant' ||
           loginuser.role === 'SiteOperator' ||
-          loginuser.role === 'MarketIntermediary' ||
+          loginuser.role === 'Registrant' ||
           loginuser.role === 'Buyer'
         "
       >

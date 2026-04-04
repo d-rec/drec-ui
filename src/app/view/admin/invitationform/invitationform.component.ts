@@ -25,7 +25,7 @@ export class InvitationformComponent {
     // eslint-disable-next-line no-useless-escape
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   orgtype: any[] = [
-    { value: 'DeviceOwner', viewValue: 'DeviceOwner' },
+    { value: 'SiteOperator', viewValue: 'SiteOperator' },
     { value: 'User', viewValue: 'User' },
   ];
   orgtypebuyer: any[] = [
@@ -48,8 +48,8 @@ export class InvitationformComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.data = data.orginfo;
-    if (data.orginfo.organizationType === 'Developer') {
-      this.role = 'OrganizationAdmin';
+    if (data.orginfo.organizationType === 'Registrant') {
+      this.role = 'Registrant';
     }
     if (data.orginfo.organizationType === 'Buyer') {
       this.role = 'Buyer';
@@ -80,27 +80,25 @@ export class InvitationformComponent {
     });
   }
   async onSubmit() {
-    setTimeout(() => {
-      this.inveiteService
-        .Postuserinvitation(this.inviteForm.value, this.data.id)
-        .subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.toastrService.success('Invitation Sent');
-              this.dialogRef.close(true);
-            }
-          },
-          error: (err) => {
-            if (err.error.statusCode === 403) {
-              this.toastrService.error('You are Unauthorized');
-            }
-            this.toastrService.error(
-              'Error:' + err.error.message,
-              'Invitation Fail',
-            );
-          },
-        });
-    }, 2000);
+    this.inveiteService
+      .Postuserinvitation(this.inviteForm.value, this.data.id)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.toastrService.success('Invitation Sent');
+            this.dialogRef.close(true);
+          }
+        },
+        error: (err) => {
+          if (err.error.statusCode === 403) {
+            this.toastrService.error('You are Unauthorized');
+          }
+          this.toastrService.error(
+            'Error:' + err.error.message,
+            'Invitation Fail',
+          );
+        },
+      });
   }
   getinvitationList() {
     this.inveiteService.getinvitaion().subscribe({

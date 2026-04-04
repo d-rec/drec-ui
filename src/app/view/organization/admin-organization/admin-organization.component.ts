@@ -34,7 +34,7 @@ export class AdminOrganizationComponent {
   ngOnInit() {
     if (this.loginuser.role === 'Admin') {
       this.getAllOrganization();
-    } else if (this.loginuser.role === 'MarketIntermediary') {
+    } else if (this.loginuser.role === 'Registrant') {
       this.getApiuserAllOrganization();
     }
   }
@@ -56,7 +56,7 @@ export class AdminOrganizationComponent {
 
   getAllOrganization() {
     this.adminService
-      .GetAllOrganization(1, 10000, { organizationType: 'MarketIntermediary' })
+      .GetAllOrganization(1, 10000, { organizationType: 'Registrant' })
       .subscribe({
         next: (data) => {
           this.showlist = true;

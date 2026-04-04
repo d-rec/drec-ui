@@ -82,8 +82,12 @@ export class LoginComponent implements OnInit {
       },
       error: (error) => {
         console.error('error caught in component', error);
-        const user = this.loginForm.value.username || '';
-        this.loginError = `Login failed for "${user}". Please check your username and password.`;
+        if (error.status === 403 && error.error?.message) {
+          this.loginError = error.error.message;
+        } else {
+          const user = this.loginForm.value.username || '';
+          this.loginError = `Login failed for "${user}". Please check your username and password.`;
+        }
       },
     });
   }

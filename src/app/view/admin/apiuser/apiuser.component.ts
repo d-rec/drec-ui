@@ -186,7 +186,7 @@ export class ApiuserComponent {
   }
 
   openDialog(user: any) {
-    if (user.role === 'OrganizationAdmin' || user.role === 'Buyer') {
+    if (user.role === 'Registrant' || user.role === 'Buyer') {
       const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
         data: {
           title: 'Are you sure? This cannot be undone.',

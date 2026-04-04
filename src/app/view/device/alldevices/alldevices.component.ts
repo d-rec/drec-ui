@@ -123,7 +123,7 @@ export class AlldevicesComponent {
     });
   }
   ngOnInit(): void {
-    if (this.loginuser.role === 'MarketIntermediary') {
+    if (this.loginuser.role === 'Registrant') {
       this.FilterForm.addControl(
         'organizationname',
         this.formBuilder.control(''),
@@ -157,7 +157,7 @@ export class AlldevicesComponent {
       if (this.countrylist.length) {
         this.applycountryFilter();
       }
-      if (this.loginuser.role === 'MarketIntermediary') {
+      if (this.loginuser.role === 'Registrant') {
         this.applyorgFilter();
       }
       this.loading = false;

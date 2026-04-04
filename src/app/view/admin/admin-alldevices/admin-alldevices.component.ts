@@ -121,7 +121,7 @@ export class AdminAlldevicesComponent {
     });
   }
   ngOnInit(): void {
-    if (this.loginuser.role === 'MarketIntermediary') {
+    if (this.loginuser.role === 'Registrant') {
       this.showapiuser_devices = true;
     }
 

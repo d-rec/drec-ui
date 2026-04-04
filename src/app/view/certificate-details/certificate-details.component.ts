@@ -156,7 +156,7 @@ export class CertificateDetailsComponent {
   }
   ngOnInit() {
     this.energyurl = environment.Explorer_URL + '/block/';
-    if (this.loginuser.role === 'MarketIntermediary') {
+    if (this.loginuser.role === 'Registrant') {
       this.FilterForm.addControl(
         'organizationname',
         this.formBuilder.control(''),
@@ -229,7 +229,7 @@ export class CertificateDetailsComponent {
   getOrganizations() {
     this.orgService.GetApiUserAllOrganization().subscribe((data) => {
       this.orglist = data.organizations.filter(
-        (org) => org.organizationType == OrganizationType.Developer,
+        (org) => org.organizationType == OrganizationType.Registrant,
       );
       this.applyorgFilter();
     });

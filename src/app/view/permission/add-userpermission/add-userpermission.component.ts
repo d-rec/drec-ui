@@ -40,11 +40,11 @@ export class UserpermissionComponent {
   UserPermissionForm: FormGroup;
   rolelist: any = [
     { id: 1, name: 'Admin' },
-    { id: 2, name: 'OrganizationAdmin' },
-    { id: 3, name: 'DeviceOwner' },
+    { id: 2, name: 'Registrant' },
+    { id: 3, name: 'SiteOperator' },
     { id: 4, name: 'Buyer' },
     { id: 5, name: 'User' },
-    { id: 6, name: 'MarketIntermediary' },
+    { id: 6, name: 'Registrant' },
     { id: 7, name: 'SubBuyer' },
   ];
   constructor(
