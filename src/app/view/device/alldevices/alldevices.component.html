@@ -261,10 +261,6 @@
           {{ dataSource.filteredData.length }} device{{ dataSource.filteredData.length === 1 ? '' : 's' }}
         </span>
       </div>
-      <mat-progress-spinner
-        [mode]="'indeterminate'"
-        *ngIf="loading"
-      ></mat-progress-spinner>
       <div class="content text-center" *ngIf="showlist">
         <table mat-table [dataSource]="dataSource" class="" matSort>
           <!-- Position Column -->

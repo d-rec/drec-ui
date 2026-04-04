@@ -231,10 +231,6 @@
         </mat-card-content>
       </mat-card>
       <hr />
-      <mat-progress-spinner
-        [mode]="'indeterminate'"
-        *ngIf="isLoadingResults"
-      ></mat-progress-spinner>
       <!-- <div > -->
 
       <!--            
@@ -619,7 +615,7 @@
         </mat-card-content>
       </mat-card>
       <hr />
-      <!-- <mat-progress-spinner [mode]="'indeterminate'" *ngIf="isLoadingResults"></mat-progress-spinner>
+      <!--
              -->
       <div class="content thead-width d-flex flex-column">
         <table mat-table [dataSource]="dataSource1" matSort>

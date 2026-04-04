@@ -166,10 +166,6 @@
       >
         <b>All certificate of those device group in which my devices reserve </b>
       </h2>
-      <mat-progress-spinner
-        [mode]="'indeterminate'"
-        *ngIf="loading"
-      ></mat-progress-spinner>
       <ng-container *ngIf="!loading">
         <div *ngIf="data?.length">
           <mat-card

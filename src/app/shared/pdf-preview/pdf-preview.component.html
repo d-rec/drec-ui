@@ -27,8 +27,6 @@
       </button>
     </div>
     <div *ngIf="ocrLoading" style="padding: 16px; text-align: center; color: #64748b;">
-      <mat-progress-spinner mode="determinate" [value]="ocrProgress" diameter="40"
-        style="margin: 0 auto 8px;"></mat-progress-spinner>
       <div>Extracting text... {{ ocrProgress }}%</div>
       <div *ngIf="ocrPageInfo" style="font-size: 12px; margin-top: 4px;">{{ ocrPageInfo }}</div>
     </div>
@@ -97,7 +95,6 @@
         <button *ngIf="translatedText" class="pdf-preview__copy-btn" (click)="copyOcrText()">Copy</button>
       </div>
       <div *ngIf="translating && !translatedText" style="padding: 16px; text-align: center; color: #64748b;">
-        <mat-progress-spinner mode="indeterminate" diameter="30" style="margin: 0 auto 8px;"></mat-progress-spinner>
         <div>Translating...</div>
       </div>
       <pre *ngIf="translatedText" class="pdf-preview__translation-text"

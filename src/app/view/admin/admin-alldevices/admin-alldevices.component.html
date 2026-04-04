@@ -226,6 +226,13 @@
         #mapComponent
         (markerClicked)="onMarkerClick($event)"
       ></app-map>
+      <button
+        *ngIf="showResetMapFilter"
+        class="btn btn-sm btn-outline-secondary mt-2 mb-2"
+        (click)="resetMapFilter()"
+      >
+        Clear map filter
+      </button>
       <hr />
       <div style="display:flex;align-items:center;gap:12px">
         <mat-form-field appearance="outline" style="width: 25%; text-align: left">
@@ -245,10 +252,6 @@
           {{ dataSource.filteredData.length }} device{{ dataSource.filteredData.length === 1 ? '' : 's' }}
         </span>
       </div>
-      <mat-progress-spinner
-        [mode]="'indeterminate'"
-        *ngIf="loading"
-      ></mat-progress-spinner>
       <div class="content text-center" *ngIf="showlist">
         <table mat-table [dataSource]="dataSource" class="" matSort>
           <ng-container matColumnDef="organization" class="text-left">

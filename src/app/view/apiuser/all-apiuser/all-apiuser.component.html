@@ -81,11 +81,6 @@
         </button>
         <mat-icon *ngIf="!searchText" matSuffix>search</mat-icon>
       </mat-form-field>
-
-      <mat-progress-spinner
-        [mode]="'indeterminate'"
-        *ngIf="loading"
-      ></mat-progress-spinner>
       <div class="content text-center" *ngIf="showlist">
         <table mat-table [dataSource]="dataSource" class="" matSort>
           <ng-container matColumnDef="organization">
