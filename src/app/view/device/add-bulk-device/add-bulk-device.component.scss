@@ -12,6 +12,23 @@ p {
   font-family: Lato, sans-serif;
 }
 
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
+.logs-link {
+  color: #1976d2;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.logs-link:hover {
+  color: #0d47a1;
+}
+
 .output {
   background-color: rgb(253, 253, 253);
   padding: 0px 10px 10px 10px;
@@ -183,18 +200,30 @@ mat-progress-spinner {
 }
 
 .upload-reset-buttons {
-  margin-top: 30px;
+  display: flex;
+  align-items: center;
+}
+
+// Align the three fields (org, drop-zone, upload) on their visible centers.
+// mat-form-field outline reserves ~22px subscript space below the input which
+// would otherwise shift its center down; nudge the form-field up to match.
+.bulk-upload-device .example-container1.row {
+  align-items: center;
+
+  .mat-mdc-form-field {
+    margin-bottom: -22px;
+  }
 }
 
 .drop-zone {
   border: 2px dashed #cbd5e1;
-  border-radius: 8px;
-  padding: 24px 16px;
+  border-radius: 4px;
+  padding: 0 16px;
   text-align: center;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
   background: #fafbfc;
-  min-height: 80px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,6 +236,16 @@ mat-progress-spinner {
   &--over {
     border-color: #3b82f6;
     background: #eff6ff;
+  }
+
+  &--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f1f5f9;
+    &:hover {
+      border-color: #cbd5e1;
+      background: #f1f5f9;
+    }
   }
 
   &__prompt {

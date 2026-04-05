@@ -7,7 +7,7 @@ import { AdminAlldevicesComponent } from './admin-alldevices/admin-alldevices.co
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddUsersComponent } from './add-users/add-users.component';
 import { InvitationformComponent } from './invitationform/invitationform.component';
-import { ApiuserComponent } from './apiuser/apiuser.component';
+import { RegistrantComponent } from './registrant/registrant.component';
 import { WebhooksComponent } from './webhooks/webhooks.component';
 import { SharedModule } from '../../shared.module';
 import { MapModule } from '../map/map.module';
@@ -17,7 +17,7 @@ import { MapModule } from '../map/map.module';
     AdminAlldevicesComponent,
     AddUsersComponent,
     InvitationformComponent,
-    ApiuserComponent,
+    RegistrantComponent,
     WebhooksComponent,
   ],
   imports: [

@@ -1,4 +1,8 @@
 .form-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  overflow: hidden;
   .device-details-heading {
     text-align: center;
     color: #475569;
@@ -14,8 +18,16 @@
       font-size: 22px;
     }
   }
+  .close-icon-container {
+    flex: 0 0 auto;
+  }
   .mat-mdc-dialog-content {
-    max-height: 63vh;
+    flex: 1 1 auto;
+    max-height: none;
+    overflow-y: auto;
+  }
+  .mat-mdc-dialog-actions {
+    flex: 0 0 auto;
   }
 }
 

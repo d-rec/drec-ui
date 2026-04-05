@@ -86,7 +86,7 @@
             mat-button
             class="menu-button max-height-content inside-menu-button"
             routerLinkActive="active"
-            routerLink="/admin/All_apiusers"
+            routerLink="/admin/All_registrants"
             *ngIf="loginuser.role === 'Admin'"
             test-id="all-market-intermediaries"
           >
@@ -346,8 +346,8 @@
             mat-button
             class="menu-button max-height-content inside-menu-button"
             routerLinkActive="active"
-            routerLink="/admin/permission/api_user_role/list"
-            test-id="api-user-permission"
+            routerLink="/admin/permission/registrant_role/list"
+            test-id="registrant-permission"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>Registrant User Permission </span>
@@ -365,7 +365,7 @@
             mat-button
             class="menu-button max-height-content inside-menu-button"
             routerLinkActive="active"
-            routerLink="/apiuser/permission/request/form"
+            routerLink="/registrant/permission/request/form"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>Permission Request</span>
@@ -374,7 +374,7 @@
             mat-button
             class="menu-button max-height-content inside-menu-button"
             routerLinkActive="active"
-            routerLink="/apiuser/permission/list"
+            routerLink="/registrant/permission/list"
           >
             <!-- <mat-icon>list</mat-icon> -->
             <span>My Permission </span>

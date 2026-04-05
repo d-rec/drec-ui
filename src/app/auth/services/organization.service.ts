@@ -45,12 +45,12 @@ export class OrganizationService {
       environment.API_URL + 'Organization/' + orgId,
     );
   }
-  public GetApiUserAllOrganization(
+  public GetRegistrantAllOrganization(
     pagenumber?: number,
     limit?: number,
     searchData?: any,
   ): Observable<{ organizations: OrganizationInformation[] }> {
-    let searchUrl = `${environment.API_URL}Organization/apiuser/all_organization`;
+    let searchUrl = `${environment.API_URL}Organization/registrant/all_organization`;
     if (pagenumber != undefined && limit != undefined) {
       if (!(pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;

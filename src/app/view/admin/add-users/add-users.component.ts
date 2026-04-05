@@ -38,7 +38,7 @@ export class AddUsersComponent {
   hide1 = true;
   matchconfirm: boolean = false;
   loginuser: any;
-  apiuserId: string;
+  registrantId: string;
 
   constructor(
     private authService: AuthbaseService,
@@ -50,7 +50,7 @@ export class AddUsersComponent {
 
   ngOnInit() {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-    this.apiuserId = sessionStorage.getItem('apiuserId')!;
+    this.registrantId = sessionStorage.getItem('registrantId')!;
     this.createForm();
   }
   createForm() {
@@ -132,7 +132,7 @@ export class AddUsersComponent {
     }
     if (this.loginuser.role === 'Registrant') {
       this.userService
-        .userregisterByApiUser(this.registerForm.value, this.apiuserId)
+        .userregisterByRegistrant(this.registerForm.value, this.registrantId)
         .subscribe({
           next: () => {
             this.toastrService.success('Successful!!', 'Registration ');
@@ -143,7 +143,7 @@ export class AddUsersComponent {
               const control = formControls[key];
               control.setErrors(null);
             });
-            this.router.navigate(['/apiuser/All_users']);
+            this.router.navigate(['/registrant/All_users']);
             // this.router.navigate(['/confirm-email']);
           },
           error: (err) => {

@@ -7,7 +7,7 @@ import { AllUsersComponent } from '../all-users/all-users.component';
 import { AddUsersComponent } from './add-users/add-users.component';
 import { EditUserComponent } from '../edit-user/edit-user.component';
 
-import { AllApiuserComponent } from '../apiuser/all-apiuser/all-apiuser.component';
+import { AllRegistrantComponent } from '../registrant/all-registrant/all-registrant.component';
 import { WebhooksComponent } from './webhooks/webhooks.component';
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -28,8 +28,8 @@ const routes: Routes = [
     component: AllUsersComponent,
   },
   {
-    path: 'All_apiusers',
-    component: AllApiuserComponent,
+    path: 'All_registrants',
+    component: AllRegistrantComponent,
   },
   {
     path: 'AllOrganization_users/:id',

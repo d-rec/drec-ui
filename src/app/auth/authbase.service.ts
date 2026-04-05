@@ -15,11 +15,11 @@ export class AuthbaseService {
     return this.httpClient.post<any>(this.url + routePath, data);
   }
 
-  ApiUserExportAccesskey(
+  RegistrantExportAccesskey(
     routePath: string,
-    api_userid: string,
+    registrantid: string,
   ): Observable<any> {
-    return this.httpClient.get(this.url + routePath + api_userid, {
+    return this.httpClient.get(this.url + routePath + registrantid, {
       responseType: 'blob',
     });
   }

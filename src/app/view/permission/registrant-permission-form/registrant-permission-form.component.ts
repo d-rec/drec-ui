@@ -7,11 +7,11 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
 @Component({
   standalone: false,
-  selector: 'app-apiuser-permission-form',
-  templateUrl: './apiuser-permission-form.component.html',
-  styleUrls: ['./apiuser-permission-form.component.scss'],
+  selector: 'app-registrant-permission-form',
+  templateUrl: './registrant-permission-form.component.html',
+  styleUrls: ['./registrant-permission-form.component.scss'],
 })
-export class ApiuserPermissionFormComponent {
+export class RegistrantPermissionFormComponent {
   form: FormGroup;
   selection = new SelectionModel<any>(true, []);
   selectedModules: any[] = [];
@@ -96,13 +96,13 @@ export class ApiuserPermissionFormComponent {
       } else {
         //, this.form.value.client_id, this.form.value.client_secret
         this.aclpermissionServcie
-          .ApiUserPermissionRequest(permissionrequest)
+          .RegistrantPermissionRequest(permissionrequest)
           .subscribe({
             next: () => {
               this.form.reset();
               this.selection.clear();
               this.toastrService.success('Successful', 'Request Sent');
-              this.router.navigate(['/apiuser/permission/list']);
+              this.router.navigate(['/registrant/permission/list']);
             },
             error: (err) => {
               this.toastrService.error(

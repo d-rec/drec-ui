@@ -2,12 +2,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { getapiuser_header } from '../../utils/apiuser_clientinfo';
+import { getregistrant_header } from '../../utils/registrant_clientinfo';
 @Injectable({
   providedIn: 'root',
 })
 export class ACLModulePermisionService {
-  headersData = getapiuser_header();
+  headersData = getregistrant_header();
   constructor(private httpClient: HttpClient) {}
 
   /*  add ACL Module wise Permission*/
@@ -63,7 +63,7 @@ export class ACLModulePermisionService {
       environment.API_URL + 'permission/role/' + id,
     );
   }
-  ApiUserPermissionRequest(
+  RegistrantPermissionRequest(
     data: any,
     client_id?: string,
     client_secret?: string,
@@ -76,7 +76,7 @@ export class ACLModulePermisionService {
       });
     }
     return this.httpClient.post<any>(
-      environment.API_URL + 'permission/module/apiuser/request',
+      environment.API_URL + 'permission/module/registrant/request',
       data,
       { headers },
     );

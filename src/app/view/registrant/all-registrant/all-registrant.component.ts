@@ -13,11 +13,11 @@ import { getRoleName } from '../../../utils/role-helper';
 
 @Component({
   standalone: false,
-  selector: 'app-all-apiuser',
-  templateUrl: './all-apiuser.component.html',
-  styleUrls: ['./all-apiuser.component.scss'],
+  selector: 'app-all-registrant',
+  templateUrl: './all-registrant.component.html',
+  styleUrls: ['./all-registrant.component.scss'],
 })
-export class AllApiuserComponent {
+export class AllRegistrantComponent {
   displayedColumns = [
     'organization',
     'name',
@@ -37,7 +37,7 @@ export class AllApiuserComponent {
   loginuser: any;
   showorguser = true;
   searchText = '';
-  apiuserId: string;
+  registrantId: string;
   getRoleName = getRoleName;
 
   constructor(
@@ -49,7 +49,7 @@ export class AllApiuserComponent {
     private activatedRoute: ActivatedRoute,
     private toastrService: ToastrService,
   ) {
-    this.apiuserId = sessionStorage.getItem('apiuserId')!;
+    this.registrantId = sessionStorage.getItem('registrantId')!;
     if (this.activatedRoute.snapshot.params['id']) {
       this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
       this.showorg = true;
@@ -70,7 +70,7 @@ export class AllApiuserComponent {
     if (this.loginuser.role !== 'Admin') return;
 
     const limit = 10000;
-    this.adminService.GetAllApiUsers(1, limit, {}).subscribe((data) => {
+    this.adminService.GetAllRegistrants(1, limit, {}).subscribe((data) => {
       this.allUsers = data.users || [];
       this.showlist = true;
       this.showorguser = false;

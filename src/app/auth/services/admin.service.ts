@@ -2,13 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { getapiuser_header } from '../../utils/apiuser_clientinfo';
+import { getregistrant_header } from '../../utils/registrant_clientinfo';
 @Injectable({
   providedIn: 'root',
 })
 export class AdminService {
   url: string = environment.API_URL;
-  headersData = getapiuser_header();
+  headersData = getregistrant_header();
   constructor(private httpClient: HttpClient) {}
 
   public GetAllOrganization(
@@ -112,12 +112,12 @@ export class AdminService {
     );
   }
 
-  public GetAllApiUsers(
+  public GetAllRegistrants(
     pagenumber?: number,
     limit?: number,
     searchData?: any,
   ): Observable<any> {
-    let searchUrl = `${this.url}admin/apiusers`;
+    let searchUrl = `${this.url}admin/registrants`;
     if (pagenumber != undefined && limit != undefined) {
       if (!(pagenumber === undefined || pagenumber === null)) {
         searchUrl += `?pageNumber=${pagenumber}&limit=${limit}`;

@@ -251,7 +251,7 @@ export class AddDevicesComponent implements OnDestroy {
         this.date = new Date();
       });
     } else if (this.user.role === OrganizationType.Registrant) {
-      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+      this.orgService.GetRegistrantAllOrganization().subscribe((data) => {
         this.organizationList = data.organizations.filter(
           (org: OrganizationInformation) =>
             org.organizationType === 'Registrant',
@@ -305,7 +305,7 @@ export class AddDevicesComponent implements OnDestroy {
         [Validators.required, Validators.pattern(this.numberregex)],
       ],
       countryCodename: [null, Validators.required],
-      fuelCode: [null, [Validators.required]],
+      fuelCode: ['ES100', [Validators.required]],
       deviceTypeCode: [null, [Validators.required]],
       capacity: [null, Validators.required],
       acCapacity: [null, Validators.required],
@@ -413,7 +413,7 @@ export class AddDevicesComponent implements OnDestroy {
       latitude: [null, Validators.pattern(this.numberregex)],
       longitude: [null, Validators.pattern(this.numberregex)],
       countryCodename: [null, Validators.required],
-      fuelCode: [null],
+      fuelCode: ['ES100'],
       deviceTypeCode: [null],
       capacity: [null, Validators.required],
       acCapacity: [null, Validators.required],
@@ -770,7 +770,7 @@ export class AddDevicesComponent implements OnDestroy {
             if (this.user.role === OrganizationType.Admin) {
               this.router.navigate(['/admin/All_devices']);
             } else if (this.user.role === OrganizationType.Registrant) {
-              this.router.navigate(['/apiuser/All_devices']);
+              this.router.navigate(['/registrant/All_devices']);
             } else {
               this.router.navigate(['/device/AllList']);
             }

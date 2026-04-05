@@ -102,17 +102,6 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="fuel-code">Fuel Code</mat-label>
-                      <mat-select formControlName="fuelCode">
-                        <mat-option *ngFor="let code of fuellist" [value]="code.code" test-id="fuel-option">
-                          {{ code.name }}
-                        </mat-option>
-                      </mat-select>
-                      <mat-error>Fuel code is required</mat-error>
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize" test-id="device-type">Device Type Code</mat-label>
                       <mat-select formControlName="deviceTypeCode">
                         <mat-option *ngFor="let code of devicetypelist" [value]="code.code" test-id="type-code-option">

@@ -10,6 +10,15 @@
       </div>
       <div class="d-flex justify-content-end gap-2">
         <button
+          *ngIf="selection.selected.length > 0"
+          class="btn btn-danger"
+          (click)="bulkDeleteSelected()"
+          [disabled]="bulkDeleting"
+        >
+          <mat-icon class="align-middle me-1" style="font-size:18px;height:18px;width:18px;vertical-align:-4px">delete</mat-icon>
+          Delete selected ({{ selection.selected.length }})
+        </button>
+        <button
           *ngIf="showResetMapFilter"
           class="btn btn-dark"
           (click)="resetMapFilter()"
@@ -241,7 +250,7 @@
         </form>
         <hr />
       </div>
-      <app-map (markerClicked)="onMarkerClick($event)"></app-map>
+      <app-map [scrollWheelZoom]="true" (markerClicked)="onMarkerClick($event)"></app-map>
       <hr />
       <div style="display:flex;align-items:center;gap:12px">
         <mat-form-field appearance="outline" style="width: 25%; text-align: left">
@@ -263,6 +272,22 @@
       </div>
       <div class="content text-center" *ngIf="showlist">
         <table mat-table [dataSource]="dataSource" class="" matSort>
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef style="width:40px">
+              <mat-checkbox
+                (change)="$event ? toggleAllRows() : null"
+                [checked]="selection.hasValue() && isAllSelected()"
+                [indeterminate]="selection.hasValue() && !isAllSelected()"
+              ></mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox
+                (click)="$event.stopPropagation()"
+                (change)="$event ? selection.toggle(row) : null"
+                [checked]="selection.isSelected(row)"
+              ></mat-checkbox>
+            </td>
+          </ng-container>
           <!-- Position Column -->
           <ng-container matColumnDef="siteName" class="text-left">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>

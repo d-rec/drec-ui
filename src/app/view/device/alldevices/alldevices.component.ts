@@ -1,6 +1,7 @@
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ChangeDetectorRef, Component, Inject, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
+import { SelectionModel } from '@angular/cdk/collections';
 
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -32,6 +33,7 @@ export class AlldevicesComponent {
   title = 'matDialog';
   dataFromDialog: any;
   displayedColumns = [
+    'select',
     'siteName',
     'externalId',
     'capacity',
@@ -97,6 +99,8 @@ export class AlldevicesComponent {
   hideMap: boolean = false;
   hideFilterDevices: boolean = true;
   showResetMapFilter = false;
+  selection = new SelectionModel<any>(true, []);
+  bulkDeleting: boolean = false;
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -132,7 +136,7 @@ export class AlldevicesComponent {
         'organizationId',
         this.formBuilder.control(''),
       );
-      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+      this.orgService.GetRegistrantAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org) => org.organizationType != 'Buyer',
         );
@@ -458,6 +462,59 @@ export class AlldevicesComponent {
     });
   }
 
+  isAllSelected(): boolean {
+    if (!this.dataSource) return false;
+    const rows = this.dataSource.filteredData;
+    return rows.length > 0 && this.selection.selected.length === rows.length;
+  }
+
+  toggleAllRows(): void {
+    if (!this.dataSource) return;
+    if (this.isAllSelected()) {
+      this.selection.clear();
+    } else {
+      this.dataSource.filteredData.forEach((row) => this.selection.select(row));
+    }
+  }
+
+  bulkDeleteSelected(): void {
+    if (this.bulkDeleting) return;
+    const rows = this.selection.selected;
+    if (!rows.length) return;
+    const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        title: `Delete ${rows.length} device${rows.length === 1 ? '' : 's'}?`,
+        message: `This will permanently remove ${rows.length} selected device${rows.length === 1 ? '' : 's'}. This action cannot be undone.`,
+      },
+    });
+    confirmDialog.afterClosed().subscribe((result) => {
+      if (result !== true) return;
+      this.bulkDeleting = true;
+      const calls = rows.map((r) =>
+        this.deviceService.RemoveDevice(r.id).pipe(
+          map((resp) => ({ ok: !!resp?.success, id: r.id, msg: resp?.message })),
+          catchError((err) => of({ ok: false, id: r.id, msg: err?.error?.message ?? err?.message ?? 'error' })),
+        ),
+      );
+      forkJoin(calls).subscribe((results) => {
+        this.bulkDeleting = false;
+        const ok = results.filter((r: any) => r.ok).length;
+        const failed = results.length - ok;
+        if (ok > 0) {
+          this.toastrService.success(`Deleted ${ok} device${ok === 1 ? '' : 's'}`, 'Bulk delete');
+        }
+        if (failed > 0) {
+          this.toastrService.warning(
+            `${failed} device${failed === 1 ? '' : 's'} could not be deleted (likely grouped or in-use)`,
+            'Partial failure',
+          );
+        }
+        this.selection.clear();
+        this.getDeviceListData(this.p);
+      });
+    });
+  }
+
   toggleMap() {
     this.hideMap = !this.hideMap;
 
@@ -483,10 +540,6 @@ export class AlldevicesComponent {
           !isNaN(parseFloat(device.latitude)) &&
           !isNaN(parseFloat(device.longitude)),
       );
-
-      if (validDevices.length === 0) {
-        return;
-      }
 
       const markers = validDevices.map((device) => ({
         latitude: parseFloat(device.latitude),

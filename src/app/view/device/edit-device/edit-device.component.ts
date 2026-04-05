@@ -184,7 +184,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         [Validators.required, Validators.pattern(this.numberregex)],
       ],
       countryCode: [null, Validators.required],
-      fuelCode: [null, [Validators.required]],
+      fuelCode: ['ES100', [Validators.required]],
       deviceTypeCode: [null, [Validators.required]],
       capacity: [null, Validators.required],
       commissioningDate: [new Date(), Validators.required],
@@ -517,7 +517,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
           if (this.loginuser.role === 'Admin') {
             this.router.navigate(['/admin/All_devices']);
           } else if (this.loginuser.role === 'Registrant') {
-            this.router.navigate(['/apiuser/All_devices']);
+            this.router.navigate(['/registrant/All_devices']);
           } else {
             this.router.navigate(['/device/AllList']);
           }

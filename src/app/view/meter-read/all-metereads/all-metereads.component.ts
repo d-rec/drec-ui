@@ -59,7 +59,7 @@ export class AllMetereadsComponent implements OnInit {
   showerror: boolean;
   filteredexternalIdOptions: Observable<any[]>;
   devicelist: any = [];
-  apiuserId: string;
+  registrantId: string;
   constructor(
     private service: MeterReadService,
     private formBuilder: FormBuilder,
@@ -68,7 +68,7 @@ export class AllMetereadsComponent implements OnInit {
     private orgService: OrganizationService,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-    this.apiuserId = sessionStorage.getItem('apiuserId')!;
+    this.registrantId = sessionStorage.getItem('registrantId')!;
   }
 
   ngOnInit() {
@@ -80,7 +80,7 @@ export class AllMetereadsComponent implements OnInit {
         this.filteredOrgList = this.orglist;
       });
     } else if (this.loginuser.role === 'Registrant') {
-      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+      this.orgService.GetRegistrantAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType != 'Buyer',
         );

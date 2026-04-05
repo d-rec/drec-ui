@@ -91,7 +91,7 @@ export class AddreadComponent implements OnInit {
         this.filteredOrgList = this.orglist;
       });
     } else if (this.loginuser.role === 'Registrant') {
-      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+      this.orgService.GetRegistrantAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType != 'Buyer',
         );

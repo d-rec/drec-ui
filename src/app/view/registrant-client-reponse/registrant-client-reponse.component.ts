@@ -3,13 +3,13 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   standalone: false,
-  selector: 'app-apiuser-client-reponse',
-  templateUrl: './apiuser-client-reponse.component.html',
-  styleUrls: ['./apiuser-client-reponse.component.scss'],
+  selector: 'app-registrant-client-reponse',
+  templateUrl: './registrant-client-reponse.component.html',
+  styleUrls: ['./registrant-client-reponse.component.scss'],
 })
-export class ApiuserClientReponseComponent {
+export class RegistrantClientReponseComponent {
   constructor(
-    public dialogRef: MatDialogRef<ApiuserClientReponseComponent>,
+    public dialogRef: MatDialogRef<RegistrantClientReponseComponent>,
     @Inject(MAT_DIALOG_DATA) public response: any,
   ) {}
 

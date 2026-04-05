@@ -227,7 +227,7 @@ export class CertificateDetailsComponent {
     }
   }
   getOrganizations() {
-    this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+    this.orgService.GetRegistrantAllOrganization().subscribe((data) => {
       this.orglist = data.organizations.filter(
         (org) => org.organizationType == OrganizationType.Registrant,
       );

@@ -34,7 +34,7 @@ import { UserProfileComponent } from './view/user-profile/user-profile.component
 //import { UserInvitationComponent } from./view/organization/user-invitation/user-invitation.componentnt';
 import { AdminModule } from './view/admin/admin.module';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
-import { ApiuserClientReponseComponent } from './view/apiuser-client-reponse/apiuser-client-reponse.component';
+import { RegistrantClientReponseComponent } from './view/registrant-client-reponse/registrant-client-reponse.component';
 import * as Sentry from '@sentry/angular';
 import { SharedModule } from './shared.module';
 import { provideNgxMatMomentDate } from '@ngxmc/moment-adapter';
@@ -82,7 +82,7 @@ import { ChatModule } from './chat/chat.module';
     UserProfileComponent,
     UserAcceptInvitationComponent,
     // UserInvitationComponent,
-    ApiuserClientReponseComponent,
+    RegistrantClientReponseComponent,
     TermsAndConditionsComponent,
     DocumentsUploadComponent,
     VerificationComponent,

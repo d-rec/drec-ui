@@ -151,7 +151,7 @@ export class AddDeviceGroupComponent {
   }
   ngOnInit() {
     if (this.loginuser.role === 'Registrant') {
-      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+      this.orgService.GetRegistrantAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) =>
             org.organizationType === 'Registrant',
@@ -473,7 +473,7 @@ export class AddDeviceGroupComponent {
   private submitReservation(
     reservationType: GroupType,
     reservationFormValue: any,
-    isApiUser: boolean,
+    isRegistrant: boolean,
     orgId?: number,
   ) {
     reservationFormValue['type'] = reservationType;
@@ -481,12 +481,12 @@ export class AddDeviceGroupComponent {
     if (reservationType === GroupType.Multiple) {
       request = this.deviceGroupService.add(
         reservationFormValue,
-        isApiUser ? orgId : undefined,
+        isRegistrant ? orgId : undefined,
       );
     } else {
       request = this.deviceGroupService.addSingleDevicePathway(
         reservationFormValue,
-        isApiUser ? orgId : undefined,
+        isRegistrant ? orgId : undefined,
       );
     }
     request.subscribe({
@@ -516,7 +516,7 @@ export class AddDeviceGroupComponent {
     this.reservationForm.controls[
       'continueWithReservationIfTargetCapacityIsLessThanDeviceTotalCapacityBetweenDuration'
     ].setValue(result.continueWithTCLessDTC);
-    const isApiUser = this.loginuser?.role === 'Registrant';
+    const isRegistrant = this.loginuser?.role === 'Registrant';
     const reservationType =
       this.selectionType === SelectionType.Checkbox
         ? GroupType.Multiple
@@ -525,7 +525,7 @@ export class AddDeviceGroupComponent {
     this.submitReservation(
       reservationType,
       this.reservationForm.value,
-      isApiUser,
+      isRegistrant,
       this.orgId,
     );
   }

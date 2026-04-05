@@ -35,7 +35,7 @@ export class AdminOrganizationComponent {
     if (this.loginuser.role === 'Admin') {
       this.getAllOrganization();
     } else if (this.loginuser.role === 'Registrant') {
-      this.getApiuserAllOrganization();
+      this.getRegistrantAllOrganization();
     }
   }
 
@@ -69,9 +69,9 @@ export class AdminOrganizationComponent {
         },
       });
   }
-  getApiuserAllOrganization() {
+  getRegistrantAllOrganization() {
     this.orgService
-      .GetApiUserAllOrganization(1, 10000)
+      .GetRegistrantAllOrganization(1, 10000)
       .subscribe({
         next: (data) => {
           this.showlist = true;

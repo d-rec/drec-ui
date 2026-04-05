@@ -28,6 +28,9 @@ export class LoginComponent implements OnInit {
   message: string;
   success: boolean = true;
   loginError: string = '';
+  loggingIn: boolean = false;
+  loginElapsed: number = 0;
+  private loginTimer: any = null;
 
   @Output() submitEM = new EventEmitter();
 
@@ -49,9 +52,18 @@ export class LoginComponent implements OnInit {
    * Handle login form submission
    */
   onSubmit() {
+    if (this.loggingIn) return;
     this.loginError = '';
+    this.loggingIn = true;
+    this.loginElapsed = 0;
+    const started = Date.now();
+    this.loginTimer = setInterval(() => {
+      this.loginElapsed = Math.floor((Date.now() - started) / 100) / 10;
+    }, 100);
     this.authService.login('auth/login', this.loginForm.value).subscribe({
       next: (data) => {
+        this.loggingIn = false;
+        clearInterval(this.loginTimer);
         if (data['accessToken'] != null) {
           storeUserSession(data['accessToken']);
           const jwtObj = decodeJwtToken(data['accessToken']);
@@ -81,6 +93,8 @@ export class LoginComponent implements OnInit {
         }
       },
       error: (error) => {
+        this.loggingIn = false;
+        clearInterval(this.loginTimer);
         console.error('error caught in component', error);
         if (error.status === 403 && error.error?.message) {
           this.loginError = error.error.message;

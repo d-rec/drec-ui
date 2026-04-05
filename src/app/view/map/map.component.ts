@@ -66,6 +66,7 @@ export class MapComponent implements OnInit, OnDestroy {
   @Input() markers: MapMarker[] = [];
   @Input() zoom: number = 2;
   @Input() satellite = false;
+  @Input() scrollWheelZoom = false;
   @Output() markerClicked = new EventEmitter();
 
   @ViewChild('overlayCanvas') overlayCanvas!: ElementRef<HTMLCanvasElement>;
@@ -74,7 +75,7 @@ export class MapComponent implements OnInit, OnDestroy {
     layers: [],
     zoom: 3,
     center: L.latLng(20, 0),
-    scrollWheelZoom: true,
+    scrollWheelZoom: false,
     attributionControl: false,
     maxBounds: L.latLngBounds(L.latLng(-85, -220), L.latLng(85, 220)),
     maxBoundsViscosity: 1.0,
@@ -95,6 +96,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.options.layers = [this.satellite ? this.createSatelliteLayer() : this.createTileLayer()];
+    this.options.scrollWheelZoom = this.scrollWheelZoom;
   }
 
   private tileObserver: MutationObserver | null = null;

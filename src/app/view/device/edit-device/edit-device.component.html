@@ -10,7 +10,6 @@
                 </button>
             </div> -->
     </mat-card-header>
-    <hr class="mb-0 pb-0" />
     <form [formGroup]="updateDeviceForm" (ngSubmit)="onSubmit()">
       <mat-card-content>
         <!-- <div *ngFor="let phone of deviceForms.controls; let i=index" [formGroupName]="i"> -->
@@ -23,7 +22,6 @@
                                 </mat-card-title>
                             </mat-card-header> -->
 
-          <hr />
           <mat-card-content>
             <div class="example-container1 row">
               <div class="row">
@@ -51,18 +49,6 @@
               <div class="row">
                 <h3>Technical Details</h3>
               </div>
-              <div class="col-md-3">
-                <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Fuel Code</mat-label>
-
-                  <mat-select formControlName="fuelCode" [(ngModel)]="fuelCode">
-                    <mat-option *ngFor="let code of fuellist" [value]="code.code">
-                      {{ code.name }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize">Device Type Code</mat-label>
@@ -107,6 +93,28 @@
                     [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false" [disableMinute]="false"
                     [hideTime]="false">
                   </ngx-mat-datetime-picker>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">Device Description</mat-label>
+                  <mat-select formControlName="deviceDescription" [(ngModel)]="deviceDescription">
+                    <mat-option *ngFor="let code of devicediscription" [value]="code">
+                      {{ code }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Operating Configuration</mat-label>
+                  <mat-select formControlName="operatingConfiguration" [(ngModel)]="operatingConfiguration"
+                    (selectionChange)="onOperatingConfigChange($event.value)">
+                    <mat-option [value]="null">-- Not specified --</mat-option>
+                    <mat-option *ngFor="let oc of operatingConfigurations" [value]="oc">
+                      {{ oc }}
+                    </mat-option>
+                  </mat-select>
                 </mat-form-field>
               </div>
             </div>
@@ -185,30 +193,6 @@
                   <mat-label class="text-capitalize">SDG Benefits</mat-label>
                   <mat-select formControlName="SDGBenefits" [(ngModel)]="SDGBenefits" multiple>
                     <mat-option *ngFor="let sdgb of sdgblist" [value]="sdgb.name">{{ sdgb.value }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-
-              <div class="col-md-3">
-                <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Device Description</mat-label>
-                  <mat-select formControlName="deviceDescription" [(ngModel)]="deviceDescription">
-                    <mat-option *ngFor="let code of devicediscription" [value]="code">
-                      {{ code }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-
-              <div class="col-md-6">
-                <mat-form-field appearance="outline">
-                  <mat-label>Operating Configuration</mat-label>
-                  <mat-select formControlName="operatingConfiguration" [(ngModel)]="operatingConfiguration"
-                    (selectionChange)="onOperatingConfigChange($event.value)">
-                    <mat-option [value]="null">-- Not specified --</mat-option>
-                    <mat-option *ngFor="let oc of operatingConfigurations" [value]="oc">
-                      {{ oc }}
-                    </mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>

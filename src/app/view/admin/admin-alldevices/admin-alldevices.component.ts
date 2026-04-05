@@ -89,8 +89,8 @@ export class AdminAlldevicesComponent {
   showorgerror: boolean = false;
   showlist: boolean = false;
   orglist: OrganizationInformation[] = [];
-  showapiuser_devices: boolean = false;
-  apiuserId: string;
+  showregistrant_devices: boolean = false;
+  registrantId: string;
   hideMap: boolean = false;
   hideFilterDevices: boolean = true;
   showResetMapFilter: boolean = false;
@@ -105,7 +105,7 @@ export class AdminAlldevicesComponent {
     private changeDetectorRef: ChangeDetectorRef,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-    this.apiuserId = sessionStorage.getItem('apiuserId')!;
+    this.registrantId = sessionStorage.getItem('registrantId')!;
     this.FilterForm = this.formBuilder.group({
       organizationname: [],
       organizationId: [],
@@ -122,7 +122,7 @@ export class AdminAlldevicesComponent {
   }
   ngOnInit(): void {
     if (this.loginuser.role === 'Registrant') {
-      this.showapiuser_devices = true;
+      this.showregistrant_devices = true;
     }
 
     this.adminService.GetAllOrganization().subscribe((data) => {

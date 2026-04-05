@@ -168,9 +168,11 @@ const routes: Routes = [
         component: UserProfileComponent,
       },
       {
-        path: 'apiuser',
+        path: 'registrant',
         loadChildren: () =>
-          import('./view/apiuser/apiuser.module').then((m) => m.ApiuserModule),
+          import('./view/registrant/registrant.module').then(
+            (m) => m.RegistrantModule,
+          ),
       },
     ],
   },

@@ -3,6 +3,20 @@
   pointer-events: none;
 }
 
+// Make unchecked checkboxes in the device table visible (Material's default
+// outline is very faint and can disappear on light backgrounds)
+::ng-deep .mat-mdc-table mat-checkbox .mdc-checkbox__background {
+  border-color: #475569 !important;
+  border-width: 2px !important;
+  background-color: #fff !important;
+}
+
+::ng-deep .mat-mdc-table mat-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background,
+::ng-deep .mat-mdc-table mat-checkbox .mdc-checkbox--selected .mdc-checkbox__background {
+  background-color: #1976d2 !important;
+  border-color: #1976d2 !important;
+}
+
 .review-badge {
   display: inline-flex;
   align-items: center;

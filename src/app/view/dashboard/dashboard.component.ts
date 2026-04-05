@@ -11,8 +11,8 @@ import { getOrgTypeName } from '../../utils/role-helper';
 })
 export class DashboardComponent implements OnInit {
   organization: any = {};
-  apiUserOrganizations: any[] = [];
-  apiUserOrgsError: string | null = null;
+  registrantOrganizations: any[] = [];
+  registrantOrgsError: string | null = null;
   loginuser: any;
   accountCreatedAt: string | null = null;
   getOrgTypeName = getOrgTypeName;
@@ -25,7 +25,7 @@ export class DashboardComponent implements OnInit {
     this.roleModeService.setMode(value ? 'api' : 'ui');
   }
 
-  get isApiUser(): boolean {
+  get isRegistrant(): boolean {
     return this.loginuser?.role === 'Registrant';
   }
 
@@ -52,13 +52,13 @@ export class DashboardComponent implements OnInit {
         organizationType: 'Admin',
         status: 'Active',
       };
-    } else if (this.isApiUser) {
-      this.orgService.GetApiUserAllOrganization().subscribe({
+    } else if (this.isRegistrant) {
+      this.orgService.GetRegistrantAllOrganization().subscribe({
         next: (data) => {
-          this.apiUserOrganizations = data.organizations ?? [];
+          this.registrantOrganizations = data.organizations ?? [];
         },
         error: (err) => {
-          this.apiUserOrgsError = `Error ${err.status}: ${err.error?.message ?? err.message}`;
+          this.registrantOrgsError = `Error ${err.status}: ${err.error?.message ?? err.message}`;
         },
       });
     } else {

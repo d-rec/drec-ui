@@ -43,6 +43,14 @@ export class BulkUploadService {
     return this.http.get(url);
   }
 
+  clearBulkUploadHistory(
+    bulkUploadType: BulkUploadType,
+  ): Observable<{ deleted: number }> {
+    return this.http.delete<{ deleted: number }>(
+      `${this.baseUrl}/?bulkUploadType=${bulkUploadType}`,
+    );
+  }
+
   getBulkUploadLogs(
     bulkUploadId: number,
     organizationId?: number,

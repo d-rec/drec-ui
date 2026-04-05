@@ -52,7 +52,7 @@ export class AllUsersComponent {
   showerror: boolean = false;
   searchText: string = '';
   allUsers: any[] = [];
-  apiuserId: string;
+  registrantId: string;
   constructor(
     private authService: AuthbaseService,
     private orgService: OrganizationService,
@@ -64,7 +64,7 @@ export class AllUsersComponent {
     private toastrService: ToastrService,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
-    this.apiuserId = sessionStorage.getItem('apiuserId')!;
+    this.registrantId = sessionStorage.getItem('registrantId')!;
     if (this.activatedRoute.snapshot.params['id']) {
       this.orgnaizatioId = this.activatedRoute.snapshot.params['id'];
       this.showorg = true;
@@ -106,7 +106,7 @@ export class AllUsersComponent {
         );
       });
     } else if (this.loginuser.role === 'Registrant') {
-      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+      this.orgService.GetRegistrantAllOrganization().subscribe((data) => {
         const seen = new Set<string>();
         this.orglist = data.organizations.filter((org: { name: string }) => {
           if (seen.has(org.name)) return false;

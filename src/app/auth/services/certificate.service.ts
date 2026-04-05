@@ -2,14 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
-import { getapiuser_header } from '../../utils/apiuser_clientinfo';
+import { getregistrant_header } from '../../utils/registrant_clientinfo';
 import { isEmpty } from '../../utils/validations';
 @Injectable({
   providedIn: 'root',
 })
 export class CertificateService {
   url: string = environment.API_URL;
-  headersData = getapiuser_header();
+  headersData = getregistrant_header();
   constructor(private httpClient: HttpClient) {}
   GetRedemptionMethod(): Observable<any> {
     return this.httpClient.get(this.url + 'certificate-log/redemption-report');

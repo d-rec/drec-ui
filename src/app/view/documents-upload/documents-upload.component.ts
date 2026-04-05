@@ -187,7 +187,7 @@ export class DocumentsUploadComponent {
           const user = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
           if (user.role === OrganizationType.Registrant) {
             this.authService
-              .ApiUserExportAccesskey('user/export-accesskey/', this.userApiId)
+              .RegistrantExportAccesskey('user/export-accesskey/', this.userApiId)
               .subscribe({
                 next: (keydata: any) => {
                   this.downloadAccessKey(keydata);
@@ -195,7 +195,7 @@ export class DocumentsUploadComponent {
               });
 
             this.toastrService.success('Access key downloaded successfully');
-            this.router.navigate(['/apiuser/permission/request/form']);
+            this.router.navigate(['/registrant/permission/request/form']);
           } else {
             this.router.navigate(['/dashboard']);
           }

@@ -15,11 +15,11 @@ import { ToastrService } from 'ngx-toastr';
 import { InvitationformComponent } from '../../admin/invitationform/invitationform.component';
 @Component({
   standalone: false,
-  selector: 'app-apiuser',
-  templateUrl: './apiuser.component.html',
-  styleUrls: ['./apiuser.component.scss'],
+  selector: 'app-registrant',
+  templateUrl: './registrant.component.html',
+  styleUrls: ['./registrant.component.scss'],
 })
-export class ApiuserComponent {
+export class RegistrantComponent {
   FilterForm: FormGroup;
   displayedColumns = [
     'organization',
@@ -141,7 +141,7 @@ export class ApiuserComponent {
     const limit = 20;
     if (this.loginuser.role === 'Admin') {
       this.adminService
-        .GetAllApiUsers(page, limit, this.FilterForm.value)
+        .GetAllRegistrants(page, limit, this.FilterForm.value)
         .subscribe((data) => {
           this.showlist = true;
           this.showorguser = false;

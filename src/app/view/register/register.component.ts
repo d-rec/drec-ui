@@ -188,7 +188,7 @@ export class RegisterComponent implements OnInit {
     return jwtObj;
   }
 
-  private handleUserLogin(loginCredentials: any, isApiUser = false): void {
+  private handleUserLogin(loginCredentials: any, isRegistrant = false): void {
     this.authService.login('auth/login', loginCredentials).subscribe({
       next: (data) => {
         const jwtObj = this.handleJwtAuthentication(data['accessToken']);
@@ -196,8 +196,8 @@ export class RegisterComponent implements OnInit {
 
         this.roleModeService.initFromRole(jwtObj.role);
 
-        if (isApiUser) {
-          this.handleApiUserLogin();
+        if (isRegistrant) {
+          this.handleRegistrantLogin();
           return;
         }
 
@@ -218,12 +218,12 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  private handleApiUserLogin(): void {
+  private handleRegistrantLogin(): void {
     this.userService.userProfile().subscribe({
       next: (userData: any) => {
-        sessionStorage.setItem('apiuserId', userData.api_user_id);
+        sessionStorage.setItem('registrantId', userData.api_user_id);
         sessionStorage.setItem('status', userData.status);
-        this.router.navigate(['/apiuser/permission/request/form']);
+        this.router.navigate(['/registrant/permission/request/form']);
       },
       error: (err) => {
         this.toastrService.error('Error!', err.error.message);
@@ -231,7 +231,7 @@ export class RegisterComponent implements OnInit {
     });
   }
 
-  private handleApiUserRegistration(data: any, loginCredentials: any): void {
+  private handleRegistrantRegistration(data: any, loginCredentials: any): void {
     this.response = data;
     this.showPopup = true;
     this.toastrService.success('User Register Successful');
@@ -253,7 +253,7 @@ export class RegisterComponent implements OnInit {
     this.authService.PostAuth('user/register', formValues).subscribe({
       next: (data) => {
         if (formValues.organizationType === 'Registrant') {
-          this.handleApiUserRegistration(data, loginCredentials);
+          this.handleRegistrantRegistration(data, loginCredentials);
           return;
         }
         this.handleUserLogin(loginCredentials);

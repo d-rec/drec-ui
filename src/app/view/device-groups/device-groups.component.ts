@@ -138,7 +138,7 @@ export class DeviceGroups implements OnInit {
         'organizationId',
         this.formBuilder.control(''),
       );
-      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+      this.orgService.GetRegistrantAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org) => org.organizationType === 'Registrant',
         );

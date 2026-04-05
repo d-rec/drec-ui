@@ -1,18 +1,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../material/material.module';
-import { ApiuserRoutingModule } from './apiuser-routing.module';
-import { AllApiuserComponent } from './all-apiuser/all-apiuser.component';
+import { RegistrantRoutingModule } from './registrant-routing.module';
+import { AllRegistrantComponent } from './all-registrant/all-registrant.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [AllApiuserComponent],
+  declarations: [AllRegistrantComponent],
   imports: [
     CommonModule,
     MaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    ApiuserRoutingModule,
+    RegistrantRoutingModule,
   ],
 })
-export class ApiuserModule {}
+export class RegistrantModule {}

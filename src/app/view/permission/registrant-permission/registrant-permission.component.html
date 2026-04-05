@@ -20,7 +20,7 @@
         >&nbsp;
         <button
           class="btn btn-dark justify-content-end px-4 align-items-center"
-          routerLink="/admin/All_apiusers"
+          routerLink="/admin/All_registrants"
           *ngIf="showgoback"
         >
           <mat-icon class="align-middle me-2">arrow_back</mat-icon>Go Back
@@ -28,7 +28,7 @@
       </div>
     </mat-card-header>
     <mat-card-content class="mat-body-cont text-center">
-      <!-- <form [formGroup]="form" *ngIf="loginuser?.role==='ApiUser'&&showclientform">
+      <!-- <form [formGroup]="form" *ngIf="loginuser?.role==='Registrant'&&showclientform">
 
                 <div class="example-container1 row" >
                     <div class="col-md-3">
@@ -128,7 +128,7 @@
                     (ngModelChange)="selectOrg()"
                   >
                     <mat-option
-                      *ngFor="let user of apiuserlist"
+                      *ngFor="let user of registrantlist"
                       [value]="user.id"
                     >
                       {{ user.firstName }} {{ user.lastName }}

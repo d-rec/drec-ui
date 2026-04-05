@@ -36,11 +36,11 @@ import { EditPermissionComponent } from '../edit-permission/edit-permission.comp
 import { getRoleName } from '../../../utils/role-helper';
 @Component({
   standalone: false,
-  selector: 'app-api-user-permission',
-  templateUrl: './api-user-permission.component.html',
-  styleUrls: ['./api-user-permission.component.scss'],
+  selector: 'app-registrant-permission',
+  templateUrl: './registrant-permission.component.html',
+  styleUrls: ['./registrant-permission.component.scss'],
 })
-export class ApiUserPermissionComponent {
+export class RegistrantPermissionComponent {
   FilterForm: FormGroup;
   displayedColumns = ['module_name', 'permission', 'status', 'Action'];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -57,7 +57,7 @@ export class ApiUserPermissionComponent {
   showuserdetails: boolean;
   userdetails: any;
   loginuser: any;
-  apiuserlist: any;
+  registrantlist: any;
   showgoback: boolean = false;
   filteredOptions: Observable<any[]>;
   subscription: Subscription;
@@ -87,7 +87,7 @@ export class ApiUserPermissionComponent {
       this.showuserdetails = true;
       this.getuserinfo();
     } else if (this.loginuser.role === 'Registrant') {
-      this.getapiUser();
+      this.getregistrant();
     } else {
       this.showuserdetails = false;
     }
@@ -105,12 +105,12 @@ export class ApiUserPermissionComponent {
     });
 
     if (this.loginuser.role === 'Admin') {
-      this.adminService.GetAllApiUsers().subscribe((data) => {
-        this.apiuserlist = data.users;
+      this.adminService.GetAllRegistrants().subscribe((data) => {
+        this.registrantlist = data.users;
       });
     }
   }
-  async getapiUser() {
+  async getregistrant() {
     this.userId = this.loginuser.id;
     this.showuserdetails = true;
     this.userService.userProfile().subscribe({
@@ -149,7 +149,7 @@ export class ApiUserPermissionComponent {
     const filterValue = value.toLowerCase();
     if (
       !(
-        this.apiuserlist.filter((option: any) =>
+        this.registrantlist.filter((option: any) =>
           option.firstName.toLowerCase().includes(filterValue),
         ).length > 0
       )
@@ -158,7 +158,7 @@ export class ApiUserPermissionComponent {
     } else {
       this.showerror = false;
     }
-    return this.apiuserlist.filter(
+    return this.registrantlist.filter(
       (option: any) =>
         option.firstName.toLowerCase().indexOf(filterValue.toLowerCase()) === 0,
     );
@@ -222,7 +222,7 @@ export class ApiUserPermissionComponent {
     const confirmDialog = this.dialog.open(PermissionUpdateComponent, {
       data: {
         title:
-          'Apiuser Permission Verification of ' +
+          'Registrant Permission Verification of ' +
           this.userdetails.firstName +
           ' ' +
           this.userdetails.lastName,
@@ -276,7 +276,7 @@ export class PermissionUpdateComponent {
   message: string;
   permistion_updateForm: FormGroup;
   Permissionstatus: any = ['Active', 'Inactive'];
-  api_userId: string;
+  registrantId: string;
   constructor(
     public dialogRef: MatDialogRef<PermissionUpdateComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
@@ -285,7 +285,7 @@ export class PermissionUpdateComponent {
     private aclmoduleService: ACLModulePermisionService,
   ) {}
   ngOnInit() {
-    this.api_userId = this.data.userinfo.api_user_id;
+    this.registrantId = this.data.userinfo.api_user_id;
     this.permistion_updateForm = this.fb.group({
       // api_user_id: [this.data.userinfo.api_user_id],
       status: [this.data.userinfo.permission_status],
@@ -295,7 +295,7 @@ export class PermissionUpdateComponent {
   onSubmit() {
     this.aclmoduleService
       .updateUserpermissionByAdmin(
-        this.api_userId,
+        this.registrantId,
         this.permistion_updateForm.value,
       )
       .subscribe({

@@ -10,7 +10,7 @@ export class UserService {
   url: string = environment.API_URL;
 
   constructor(private httpClient: HttpClient) {}
-  public userregisterByApiUser(
+  public userregisterByRegistrant(
     data: any,
     api_user_id: string,
   ): Observable<any> {

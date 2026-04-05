@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
 import {
   DeviceService,
   AdminService,
@@ -56,17 +55,19 @@ export class AddBulkDeviceComponent implements OnInit {
   ) {
     this.loggedInUser = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
-  @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   dataSource1: MatTableDataSource<any>;
   data: any;
-  orglist: any;
-  filteredOrgList: OrganizationInformation[] = [];
-  //public color: ThemePalette = 'primary';
-  orgname: string;
+  orglist: OrganizationInformation[] = [];
   organizationId: number;
   loggedInUser: any;
+  get orgSelectorShown(): boolean {
+    return this.loggedInUser?.role === 'Registrant';
+  }
+  get canUpload(): boolean {
+    return this.loggedInUser?.role !== 'Admin';
+  }
 
   ngOnInit(): void {
     if (this.loggedInUser.role === 'Admin') {
@@ -74,33 +75,15 @@ export class AddBulkDeviceComponent implements OnInit {
         this.orglist = data.organizations.filter(
           (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
-        this.filteredOrgList = this.orglist;
       });
     } else if (this.loggedInUser.role === 'Registrant') {
-      this.orgService.GetApiUserAllOrganization().subscribe((data) => {
+      this.orgService.GetRegistrantAllOrganization().subscribe((data) => {
         this.orglist = data.organizations.filter(
           (org) => org.organizationType != 'Buyer',
         );
-        this.filteredOrgList = this.orglist;
       });
     }
     this.displayBulkUploads();
-  }
-
-  filterOrgList() {
-    this.filteredOrgList = this.orglist.filter(
-      (org: OrganizationInformation) => {
-        return org.name.toLowerCase().includes(this.orgname.toLowerCase());
-      },
-    );
-  }
-  selectOrg(event: any) {
-    const selectedCountry = this.orglist.find(
-      (option: any) => option.name === event.option.value,
-    );
-    if (selectedCountry) {
-      this.organizationId = selectedCountry.id;
-    }
   }
   dragOver = false;
 
@@ -147,7 +130,22 @@ export class AddBulkDeviceComponent implements OnInit {
   }
 
   openFileExplorer() {
+    if (this.orgSelectorShown && !this.organizationId) {
+      this.toastrService.warning('Please select an organization first');
+      return;
+    }
     document.getElementById('fileInput')?.click();
+  }
+
+  onDropZoneDrop(event: DragEvent): void {
+    if (this.orgSelectorShown && !this.organizationId) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.dragOver = false;
+      this.toastrService.warning('Please select an organization first');
+      return;
+    }
+    this.onDrop(event);
   }
 
   async downloadFile() {
@@ -159,9 +157,23 @@ export class AddBulkDeviceComponent implements OnInit {
     }
   }
 
+  uploading: boolean = false;
+  processing: boolean = false;
+  uploadElapsed: number = 0;
+  processingJobId: string | null = null;
+  private uploadTimer: any = null;
+  private processingPoll: any = null;
+
   upload(): void {
+    if (this.uploading || this.processing) return;
     if (!this.currentFile) return;
     const organizationId = this.organizationId;
+    this.uploading = true;
+    this.uploadElapsed = 0;
+    const started = Date.now();
+    this.uploadTimer = setInterval(() => {
+      this.uploadElapsed = Math.floor((Date.now() - started) / 100) / 10;
+    }, 100);
     this.bulkUploadService
       .bulkUpload({
         file: this.currentFile,
@@ -169,34 +181,112 @@ export class AddBulkDeviceComponent implements OnInit {
         bulkUploadType: BulkUploadType.Devices,
       })
       .subscribe({
-        next: () => {
-          this.displayBulkUploads();
+        next: (job: any) => {
+          this.uploading = false;
           this.currentFile = null;
           this.fileName = 'Please click here to Select File';
           this.toastrService.success(
-            'Successfully!',
-            'File Uploaded in Bulk!!',
+            'File uploaded — server is now processing rows',
+            'Upload accepted',
           );
+          this.processing = true;
+          this.processingJobId = job?.jobId ?? null;
+          this.pollUntilDone();
         },
         error: (err) => {
-          if (err.error.statusCode === 403) {
+          this.uploading = false;
+          clearInterval(this.uploadTimer);
+          if (err?.error?.statusCode === 403) {
             this.toastrService.error('You are Unauthorized');
           } else {
-            this.toastrService.error('error!', err.error.message);
+            this.toastrService.error('error!', err?.error?.message ?? err?.message ?? 'unknown');
           }
         },
       });
   }
 
+  private pollUntilDone(): void {
+    clearInterval(this.processingPoll);
+    const targetJobId = this.processingJobId;
+    this.processingPoll = setInterval(() => {
+      this.bulkUploadService
+        .getBulkUploads(BulkUploadType.Devices)
+        .subscribe((data) => {
+          this.data = data;
+          this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
+          this.dataSource.sort = this.sort;
+          const job = this.data.bulkUploadJobs?.find(
+            (j: any) => j.jobId === targetJobId,
+          );
+          if (
+            job &&
+            (job.status === 'Completed' || job.status === 'Failed')
+          ) {
+            clearInterval(this.processingPoll);
+            clearInterval(this.uploadTimer);
+            this.processing = false;
+            if (job.status === 'Completed') {
+              this.toastrService.success('Processing complete', 'Done');
+            } else {
+              this.toastrService.error('Processing finished with errors', 'Failed');
+            }
+          }
+        });
+    }, 500);
+  }
+
+  clearing: boolean = false;
+  clearHistory(): void {
+    if (this.clearing) return;
+    if (
+      !confirm(
+        'Delete all Completed/Failed bulk upload records from the history? (Jobs still in progress will be kept.)',
+      )
+    )
+      return;
+    this.clearing = true;
+    this.bulkUploadService
+      .clearBulkUploadHistory(BulkUploadType.Devices)
+      .subscribe({
+        next: (res) => {
+          this.clearing = false;
+          this.toastrService.success(
+            `Deleted ${res?.deleted ?? 0} record(s)`,
+            'History cleared',
+          );
+          this.displayBulkUploads();
+        },
+        error: (err) => {
+          this.clearing = false;
+          this.toastrService.error(
+            err?.error?.message ?? err?.message ?? 'Failed to clear history',
+            'Clear failed',
+          );
+        },
+      });
+  }
+
+  refreshing: boolean = false;
   displayBulkUploads() {
+    if (this.refreshing) return;
     this.showBulkUploadLogs = false;
+    this.refreshing = true;
     this.bulkUploadService
       .getBulkUploads(BulkUploadType.Devices)
-      .subscribe((data) => {
-        this.data = data;
-        this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+      .subscribe({
+        next: (data) => {
+          this.refreshing = false;
+          this.data = data;
+          this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
+          this.dataSource.sort = this.sort;
+        },
+        error: (err) => {
+          this.refreshing = false;
+          this.toastrService.error(
+            err?.error?.message ?? err?.message ?? 'Failed to load jobs',
+            'Refresh failed',
+          );
+        },
       });
   }
   getBulkUploadLogs(bulkUploadId: number, organizationId: number) {
@@ -210,13 +300,11 @@ export class AddBulkDeviceComponent implements OnInit {
               this.showBulkUploadLogs = true;
               this.data = errorDetails;
               this.dataSource1 = new MatTableDataSource(this.data);
-              this.dataSource1.paginator = this.paginator;
             }
           } catch (error) {
             this.showBulkUploadLogs = true;
             this.data = ['No logs'];
             this.dataSource1 = new MatTableDataSource(this.data);
-            this.dataSource1.paginator = this.paginator;
           }
         },
       });

@@ -154,9 +154,11 @@
           type="submit"
           class="btn-primary btn btn-block"
           (click)="onSubmit()"
+          [disabled]="loggingIn"
           test-id="login-submit"
         >
-          Login
+          <span *ngIf="!loggingIn">Login</span>
+          <span *ngIf="loggingIn">Signing in… {{ loginElapsed | number:'1.1-1' }} seconds elapsed</span>
         </button>
       </div>
     </form>
