@@ -103,17 +103,14 @@ export class AllMetereadsComponent implements OnInit {
       pagenumber: [this.p],
     });
 
-    setTimeout(() => {
-      if (this.loginuser.role != 'Admin') {
-        this.filteredexternalIdOptions = this.FilterForm.controls[
-          'serialNumber'
-        ].valueChanges.pipe(
-          startWith(''),
-          map((value) => this._externalIdfilter(value || '')),
-        );
-      }
-      //  this.getDeviceinfo();
-    }, 2000);
+    if (this.loginuser.role != 'Admin') {
+      this.filteredexternalIdOptions = this.FilterForm.controls[
+        'serialNumber'
+      ].valueChanges.pipe(
+        startWith(''),
+        map((value) => this._externalIdfilter(value || '')),
+      );
+    }
   }
   filterOrgList() {
     this.filteredOrgList = this.orglist.filter(

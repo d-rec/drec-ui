@@ -179,20 +179,15 @@ export class CertificateDetailsComponent {
     this.authService.GetMethod('countrycode/list').subscribe((data3) => {
       this.countrylist = data3;
       this.countrycodeLoded = true;
+      this.applycountryFilter();
     });
     this.authService.GetMethod('sdgbenefit/code').subscribe((data) => {
       // display list in the console
       this.sdgblist = data;
     });
 
-    setTimeout(() => {
-      if (this.countrycodeLoded) {
-        this.applycountryFilter();
-      }
-
-      this.DisplayList(this.p);
-      this.getOrganizations();
-    }, 1500);
+    this.DisplayList(this.p);
+    this.getOrganizations();
     // Blockchain/MetaMask not used in staging
     // this.getBlockchainProperties();
     // this.selectAccountAddressFromMetamask();

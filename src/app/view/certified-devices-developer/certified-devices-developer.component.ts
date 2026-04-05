@@ -159,12 +159,7 @@ export class CertifiedDevicesDeveloperComponent {
       // display list in the console
       this.sdgblist = data;
     });
-    setTimeout(() => {
-      if (this.countrycodeLoded) {
-        this.applycountryFilter();
-      }
-      this.DisplayList(this.p);
-    }, 1000);
+    this.DisplayList(this.p);
     this.getBlockchainProperties();
 
     this.selectAccountAddressFromMetamask();

@@ -36,9 +36,7 @@ export class UserAcceptInvitationComponent {
   }
 
   ngOnInit() {
-    setTimeout(() => {
-      this.acceptinvitaion();
-    }, 500);
+    this.acceptinvitaion();
   }
   padBase64(token: any) {
     const base64 = token.replace('-', '+').replace('_', '/');

@@ -323,6 +323,90 @@
                   </div>
                 </div>
 
+                <div class="row" *ngIf="addmoredetals[i]">
+                  <div class="col-md-12">
+                    <h4 class="text-capitalize" style="margin-top:16px">Ownership &amp; Incentives</h4>
+                  </div>
+                  <div class="col-md-4">
+                    <mat-form-field appearance="outline">
+                      <mat-label>PV System Owner</mat-label>
+                      <input matInput formControlName="pvSystemOwner" />
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Off-taker Name</mat-label>
+                      <input matInput formControlName="offTakerName" />
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Off-taker same company as PV owner?</mat-label>
+                      <mat-select formControlName="offTakerSameCompanyAsOwner">
+                        <mat-option [value]="null">--</mat-option>
+                        <mat-option value="Yes">Yes</mat-option>
+                        <mat-option value="No">No</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Ever received any subsidy or incentive?</mat-label>
+                      <mat-select formControlName="hasSubsidy">
+                        <mat-option [value]="null">--</mat-option>
+                        <mat-option value="Yes">Yes</mat-option>
+                        <mat-option value="No">No</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4" *ngIf="deviceForms.at(i).get('hasSubsidy')?.value === 'Yes'">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Subsidy types</mat-label>
+                      <mat-select formControlName="subsidyTypes" multiple>
+                        <mat-option value="Net Metering">Net Metering</mat-option>
+                        <mat-option value="Feed In Tariff">Feed In Tariff</mat-option>
+                        <mat-option value="Tax Credit">Tax Credit</mat-option>
+                        <mat-option value="Performance Based Grant">Performance Based Grant</mat-option>
+                        <mat-option value="Other">Other</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4" *ngIf="deviceForms.at(i).get('subsidyTypes')?.value?.includes('Other')">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Other &mdash; details</mat-label>
+                      <input matInput formControlName="subsidyOtherDetails" />
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4" *ngIf="deviceForms.at(i).get('hasSubsidy')?.value === 'Yes'">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Do subsidies claim the environmental attributes?</mat-label>
+                      <mat-select formControlName="subsidyClaimsEacs">
+                        <mat-option [value]="null">--</mat-option>
+                        <mat-option value="Yes">Yes</mat-option>
+                        <mat-option value="No">No</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Ever received public (government) funding?</mat-label>
+                      <mat-select formControlName="hasPublicFunding">
+                        <mat-option [value]="null">--</mat-option>
+                        <mat-option value="Yes">Yes</mat-option>
+                        <mat-option value="No">No</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4" *ngIf="deviceForms.at(i).get('hasPublicFunding')?.value === 'Yes'">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Public funding end date</mat-label>
+                      <input matInput [matDatepicker]="fundEnd" formControlName="publicFundingEndDate" />
+                      <mat-datepicker-toggle matSuffix [for]="fundEnd"></mat-datepicker-toggle>
+                      <mat-datepicker #fundEnd></mat-datepicker>
+                    </mat-form-field>
+                  </div>
+                </div>
+
                 <div class="row">
                   <div class="row">
                     <h3>Supporting Documents</h3>
@@ -501,31 +585,39 @@
                   </div>
 
                   <div class="col-md-4 mb-3">
-                    <label title="Commercial Operation Date">COD Proof
-                      <span class="badge-{{getDocRequirement('COD_PROOF')}}">{{getDocRequirement('COD_PROOF')}}</span>
-                    </label>
-                    <small class="doc-hint" *ngIf="getDocHint('COD_PROOF')">{{getDocHint('COD_PROOF')}}</small>
-                    <div class="d-flex justify-content-between align-items-center doc-box">
-                      <input type="file" #codProofFileInput
-                        (change)="onFileChange($event, i, DocumentType.COD_PROOF)" style="display: none"
-                        test-id="attach-file" />
-                      <button type="button" (click)="codProofFileInput.click()" class="btn btn-primary">
-                        <mat-icon>attach_file</mat-icon>
-                      </button>
-                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('COD_PROOF')?.value">
-                        {{ deviceForms.at(i).get('COD_PROOF')?.value ?
-                        deviceForms.at(i).get('COD_PROOF')?.value.name : '' }}
-                      </span>
-                      <button *ngIf="filePreviews[i]?.['COD_PROOF']" type="button"
-                        class="badge bg-success text-white px-3 py-2 preview-btn"
-                        (click)="openPreview(i, 'COD_PROOF')">
-                        <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
-                      </button>
-                      <span *ngIf="!deviceForms.at(i).get('COD_PROOF')?.value"
-                        class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
-                        <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
-                      </span>
+                    <label title="Commercial Operation Date">COD Proof</label>
+                    <mat-radio-group formControlName="codEvidenceMode" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px">
+                      <mat-radio-button value="self">Self-declaration (we generate it)</mat-radio-button>
+                      <mat-radio-button value="upload">Upload utility / grid-operator doc</mat-radio-button>
+                    </mat-radio-group>
+                    <div *ngIf="deviceForms.at(i).get('codEvidenceMode')?.value === 'upload'">
+                      <small class="doc-hint" *ngIf="getDocHint('COD_PROOF')">{{getDocHint('COD_PROOF')}}</small>
+                      <div class="d-flex justify-content-between align-items-center doc-box">
+                        <input type="file" #codProofFileInput
+                          (change)="onFileChange($event, i, DocumentType.COD_PROOF)" style="display: none"
+                          test-id="attach-file" />
+                        <button type="button" (click)="codProofFileInput.click()" class="btn btn-primary">
+                          <mat-icon>attach_file</mat-icon>
+                        </button>
+                        <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('COD_PROOF')?.value">
+                          {{ deviceForms.at(i).get('COD_PROOF')?.value ?
+                          deviceForms.at(i).get('COD_PROOF')?.value.name : '' }}
+                        </span>
+                        <button *ngIf="filePreviews[i]?.['COD_PROOF']" type="button"
+                          class="badge bg-success text-white px-3 py-2 preview-btn"
+                          (click)="openPreview(i, 'COD_PROOF')">
+                          <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                        </button>
+                        <span *ngIf="!deviceForms.at(i).get('COD_PROOF')?.value"
+                          class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
+                          <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
+                        </span>
+                      </div>
                     </div>
+                    <small *ngIf="deviceForms.at(i).get('codEvidenceMode')?.value === 'self'"
+                           style="color:#64748b;font-style:italic">
+                      A COD declaration will be generated from the commissioning date &amp; site details, for registrant signature at submission.
+                    </small>
                   </div>
                 </div>
 

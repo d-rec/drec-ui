@@ -38,4 +38,16 @@ export interface Device {
   version?: string;
   timezone?: string;
   serialNumber: string;
+  // Ownership & off-taker (Evident checklist rows 76, 77, 81)
+  pvSystemOwner?: string;
+  offTakerName?: string;
+  offTakerSameCompanyAsOwner?: 'Yes' | 'No';
+  // Subsidies & incentives (rows 78, 79, 80)
+  hasSubsidy?: 'Yes' | 'No';
+  subsidyTypes?: string[];
+  subsidyOtherDetails?: string;
+  subsidyClaimsEacs?: 'Yes' | 'No';
+  // Public funding (rows 50, 51)
+  hasPublicFunding?: 'Yes' | 'No';
+  publicFundingEndDate?: string;
 }

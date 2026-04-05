@@ -11,7 +11,7 @@ import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService } from '../../../auth/services/device.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
@@ -165,11 +165,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.DisplayList();
-    this.DisplaySDGBList();
-    this.DisplayfuelList();
-    this.DisplaytypeList();
-
     this.date = new Date();
     this.updateDeviceForm = this.fb.group({
       serialNumber: [null, [Validators.pattern(/^[a-zA-Z0-9_;-]+$/)]],
@@ -203,6 +198,16 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       version: ['1.0'],
       organizationId: [null],
       postcode: [null, [postcodeValidator()]],
+      pvSystemOwner: [null],
+      offTakerName: [null],
+      offTakerSameCompanyAsOwner: [null],
+      hasSubsidy: [null],
+      subsidyTypes: [[]],
+      subsidyOtherDetails: [null],
+      subsidyClaimsEacs: [null],
+      hasPublicFunding: [null],
+      publicFundingEndDate: [null],
+      codEvidenceMode: ['self'],
     });
     this.showinput = true;
     this.addmoredetals = false;
@@ -225,7 +230,16 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         const latitude = this.updateDeviceForm.get('latitude')?.value;
         this.updateMapMarkers(latitude, stripped);
       });
-    setTimeout(() => {
+    forkJoin({
+      countrylist: this.authService.GetMethod('countrycode/list'),
+      sdgblist: this.authService.GetMethod('sdgbenefit/code'),
+      fuellist: this.authService.GetMethod('device/fuel-type'),
+      devicetypelist: this.authService.GetMethod('device/device-type'),
+    }).subscribe(({ countrylist, sdgblist, fuellist, devicetypelist }: any) => {
+      this.countrylist = countrylist;
+      this.sdgblist = sdgblist;
+      this.fuellist = fuellist;
+      this.devicetypelist = devicetypelist;
       this.filteredCountryList = this.updateDeviceForm.controls[
         'countryCode'
       ].valueChanges.pipe(
@@ -233,7 +247,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         map((value) => this._filter(value || '')),
       );
       this.getDeviceinfo();
-    }, 1000);
+    });
   }
   private _filter(value: string): CountryInfo[] {
     const filterValue = value.toLowerCase();

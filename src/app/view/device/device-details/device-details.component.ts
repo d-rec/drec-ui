@@ -1,6 +1,7 @@
 import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { forkJoin } from 'rxjs';
 import { DeviceService } from '../../../auth/services/device.service';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import {
@@ -10,6 +11,7 @@ import {
   devicecodeType,
 } from '../../../models';
 import { ToastrService } from 'ngx-toastr';
+import { satellitePreview, SatellitePreview } from '../../map/map.component';
 @Component({
   standalone: false,
   selector: 'app-device-details',
@@ -21,6 +23,7 @@ export class DeviceDetailsComponent {
   form: FormGroup;
   id: number;
   device_details: any = {};
+  satPreview: SatellitePreview | null = null;
   countrylist: CountryInfo[] = [];
   fuellist: fulecodeType[] = [];
   devicetypelist: devicecodeType[] = [];
@@ -36,22 +39,19 @@ export class DeviceDetailsComponent {
     private toastrService: ToastrService,
   ) {
     this.id = data.deviceid;
-
-    this.authService.GetMethod('device/fuel-type').subscribe((data1: any) => {
-      this.fuellist = data1;
-    });
-    this.authService.GetMethod('device/device-type').subscribe((data2: any) => {
-      this.devicetypelist = data2;
-    });
   }
   name: any;
   ngOnInit(): void {
-    this.authService.GetMethod('countrycode/list').subscribe((data3: any) => {
-      this.countrylist = data3;
-    });
-    setTimeout(() => {
+    forkJoin({
+      fuellist: this.authService.GetMethod('device/fuel-type'),
+      devicetypelist: this.authService.GetMethod('device/device-type'),
+      countrylist: this.authService.GetMethod('countrycode/list'),
+    }).subscribe(({ fuellist, devicetypelist, countrylist }: any) => {
+      this.fuellist = fuellist;
+      this.devicetypelist = devicetypelist;
+      this.countrylist = countrylist;
       this.getdeviceinfo();
-    }, 1200);
+    });
   }
   getdeviceinfo() {
     this.deviceService.GetDevicesInfo(this.id).subscribe({
@@ -74,6 +74,12 @@ export class DeviceDetailsComponent {
             (countrycode) =>
               countrycode.alpha3 == this.device_details.countryCode,
           )?.country;
+
+          const lat = parseFloat(this.device_details.latitude);
+          const lng = parseFloat(this.device_details.longitude);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            this.satPreview = satellitePreview(lat, lng, 19);
+          }
         }
       },
       error: (err) => {

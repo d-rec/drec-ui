@@ -43,6 +43,13 @@
         <p><b>Timezone</b>: {{ device_details.timezone }}</p>
         <p><b>Latitude</b>: {{ device_details.latitude }}</p>
         <p><b>Longitude</b>: {{ device_details.longitude }}</p>
+        <div *ngIf="satPreview"
+             style="width:256px;height:256px;overflow:hidden;position:relative;border-radius:4px;margin-top:8px;border:1px solid #cbd5e1">
+          <div [style.left.px]="satPreview.offsetX" [style.top.px]="satPreview.offsetY" style="position:absolute">
+            <img *ngFor="let t of satPreview.tiles" [src]="t.url" width="256" height="256"
+                 [style.position]="'absolute'" [style.left.px]="t.left" [style.top.px]="t.top" alt="" />
+          </div>
+        </div>
 
         <h3 class="section-heading">Other Details</h3>
         <p><b>Off Takers</b>: {{ device_details.offTaker }}</p>

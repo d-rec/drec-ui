@@ -139,16 +139,14 @@ export class AddreadComponent implements OnInit {
       this.countrylist = data3;
     });
 
-    setTimeout(() => {
-      if (this.loginuser.role != 'Admin') {
-        this.filteredSerialNumberOptions = this.readForm.controls[
-          'serialNumber'
-        ].valueChanges.pipe(
-          startWith(''),
-          map((value) => this._externalIdfilter(value ?? '')),
-        );
-      }
-    }, 2000);
+    if (this.loginuser.role != 'Admin') {
+      this.filteredSerialNumberOptions = this.readForm.controls[
+        'serialNumber'
+      ].valueChanges.pipe(
+        startWith(''),
+        map((value) => this._externalIdfilter(value ?? '')),
+      );
+    }
   }
 
   get addreads() {

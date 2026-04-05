@@ -80,9 +80,7 @@ export class AclModulePermissionComponent {
     });
     confirmDialog.afterClosed().subscribe((result) => {
       if (result === true) {
-        setTimeout(() => {
-          this.getaclmodulelist();
-        }, 1000);
+        this.getaclmodulelist();
       }
     });
   }

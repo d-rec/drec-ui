@@ -33,11 +33,8 @@ export class AllCountryYieldvalueComponent {
       this.countrylist = data3;
       this.countrycodeLoded = true;
     });
-
-    setTimeout(() => {
-      this.loading = false;
-      this.getCountryyieldListData();
-    }, 1000);
+    this.loading = false;
+    this.getCountryyieldListData();
   }
 
   getCountryyieldListData() {

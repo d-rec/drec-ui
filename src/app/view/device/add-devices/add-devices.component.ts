@@ -201,9 +201,6 @@ export class AddDevicesComponent implements OnDestroy {
     this.siteNameExists[0] = false;
     this.shownomore[0] = false;
 
-    setTimeout(() => {
-      this.setupCountryAutocomplete(0);
-    }, 1500);
     this.deviceForms.controls.forEach((group, i) => {
       this.setupdataSourceBrandWatcher(group as FormGroup);
       this.setupDataSourceWatcher(group as FormGroup);
@@ -325,13 +322,23 @@ export class AddDevicesComponent implements OnDestroy {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
+      pvSystemOwner: [null],
+      offTakerName: [null],
+      offTakerSameCompanyAsOwner: [null],
+      hasSubsidy: [null],
+      subsidyTypes: [[]],
+      subsidyOtherDetails: [null],
+      subsidyClaimsEacs: [null],
+      hasPublicFunding: [null],
+      publicFundingEndDate: [null],
       FORM_SF_02: [null, [Validators.required]],
       SF_02C: [null, [Validators.required]],
       METERING_EVIDENCE: [null, [Validators.required]],
       SINGLE_LINE_DIAGRAM: [null, [Validators.required]],
       PROJECT_PHOTOS: [null, [Validators.required]],
       SCREENSHOTS: [null],
-      COD_PROOF: [null, [Validators.required]],
+      COD_PROOF: [null],
+      codEvidenceMode: ['self'],
     });
 
     device.get('latitude')?.valueChanges.subscribe((v: any) => {
@@ -367,6 +374,7 @@ export class AddDevicesComponent implements OnDestroy {
   DisplayList() {
     this.authService.GetMethod('countrycode/list').subscribe((data: any) => {
       this.countrylist = data;
+      this.setupCountryAutocomplete(0);
     });
   }
 
@@ -432,13 +440,23 @@ export class AddDevicesComponent implements OnDestroy {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
+      pvSystemOwner: [null],
+      offTakerName: [null],
+      offTakerSameCompanyAsOwner: [null],
+      hasSubsidy: [null],
+      subsidyTypes: [[]],
+      subsidyOtherDetails: [null],
+      subsidyClaimsEacs: [null],
+      hasPublicFunding: [null],
+      publicFundingEndDate: [null],
       FORM_SF_02: [null, [Validators.required]],
       SF_02C: [null, [Validators.required]],
       METERING_EVIDENCE: [null, [Validators.required]],
       SINGLE_LINE_DIAGRAM: [null, [Validators.required]],
       PROJECT_PHOTOS: [null, [Validators.required]],
       SCREENSHOTS: [null],
-      COD_PROOF: [null, [Validators.required]],
+      COD_PROOF: [null],
+      codEvidenceMode: ['self'],
     });
 
     this.deviceForms.push(device);

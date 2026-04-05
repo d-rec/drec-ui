@@ -604,7 +604,10 @@ export class AlldevicesComponent {
 
   onMarkerClick(event: { externalId: string }) {
     this.showResetMapFilter = true;
-    this.dataSource.filter = event.externalId.trim().toLowerCase();
+    this.searchText = event.externalId;
+    // Clear status filters so the single device is always visible regardless of its status
+    this.reviewStatusFilters.clear();
+    this.refreshFilter();
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
@@ -630,7 +633,9 @@ export class AlldevicesComponent {
   }
 
   resetMapFilter() {
-    this.dataSource.filter = '';
+    this.searchText = '';
+    this.reviewStatusFilters = new Set(['pending']);
+    this.refreshFilter();
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }

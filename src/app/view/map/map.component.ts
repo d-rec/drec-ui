@@ -67,6 +67,7 @@ export class MapComponent implements OnInit, OnDestroy {
   @Input() zoom: number = 2;
   @Input() satellite = false;
   @Input() scrollWheelZoom = false;
+  @Input() satPreviewEnabled = true;
   @Output() markerClicked = new EventEmitter();
 
   @ViewChild('overlayCanvas') overlayCanvas!: ElementRef<HTMLCanvasElement>;
@@ -494,6 +495,7 @@ export class MapComponent implements OnInit, OnDestroy {
         </div>`;
 
       marker.on('mouseover', () => {
+        if (!this.satPreviewEnabled) return;
         this.showPinOverlay(tooltipHtml, latitude, longitude);
       });
 

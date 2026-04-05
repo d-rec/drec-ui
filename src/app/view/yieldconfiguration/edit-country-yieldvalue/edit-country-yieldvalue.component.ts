@@ -36,22 +36,17 @@ export class EditCountryYieldvalueComponent {
   }
 
   ngOnInit() {
-    this.authService.GetMethod('countrycode/list').subscribe((data3: any) => {
-      this.countrylist = data3;
-      this.countrycodeLoded = true;
-    });
     this.updayeyieldForm = this.fb.group({
       countryName: [null, Validators.required],
       countryCode: [null],
       yieldValue: [null, Validators.required],
       status: [true, Validators.required],
     });
-    setTimeout(() => {
-      if (this.countrycodeLoded) {
-        this.applycountryFilter();
-      }
-      // this.displayList(this.p);
-    }, 2000);
+    this.authService.GetMethod('countrycode/list').subscribe((data3: any) => {
+      this.countrylist = data3;
+      this.countrycodeLoded = true;
+      this.applycountryFilter();
+    });
     this.getYieldinfo();
   }
   ngOnDestroy() {
