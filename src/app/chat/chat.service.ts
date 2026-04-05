@@ -2,6 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   BehaviorSubject,
+  ReplaySubject,
   Subject,
   interval,
   Observable,
@@ -35,10 +36,10 @@ export class ChatService implements OnDestroy {
   messages$ = new BehaviorSubject<ChatMessage[]>([]);
   isChatOpen$ = new BehaviorSubject<boolean>(false);
   siteName$ = new BehaviorSubject<string | null>(null);
-  openForDevice$ = new Subject<{
+  openForDevice$ = new ReplaySubject<{
     submitterEmail: string;
     siteName: string;
-  }>();
+  }>(1);
   currentHeadUuid: string | null = null;
   currentConversationId: number | null = null;
   readOnly$ = new BehaviorSubject<boolean>(false);

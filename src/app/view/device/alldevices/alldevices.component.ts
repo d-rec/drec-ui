@@ -34,6 +34,7 @@ export class AlldevicesComponent {
   dataFromDialog: any;
   displayedColumns = [
     'select',
+    'index',
     'siteName',
     'externalId',
     'capacity',
@@ -58,6 +59,7 @@ export class AlldevicesComponent {
   data: any;
   searchText: string = '';
   satPreview: { preview: SatellitePreview; label: string; x: number; y: number } | null = null;
+  satPreviewEnabled = false;
   loginuser: any;
   deviceurl: any;
   pageSize: number = 20;
@@ -101,6 +103,14 @@ export class AlldevicesComponent {
   showResetMapFilter = false;
   selection = new SelectionModel<any>(true, []);
   bulkDeleting: boolean = false;
+  reviewStatusFilters: Set<string> = new Set(['pending']);
+  readonly reviewStatusOptions = [
+    { key: 'pending', label: 'Pending', icon: '●' },
+    { key: 'approved', label: 'Approved', icon: '✓' },
+    { key: 'rejected', label: 'Rejected', icon: '✗' },
+    { key: 'draft', label: 'Draft', icon: '✎' },
+    { key: 'legacy', label: 'Legacy', icon: '◆' },
+  ];
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -220,7 +230,8 @@ export class AlldevicesComponent {
 
   applyFilter(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    this.searchText = filterValue;
+    this.refreshFilter();
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
@@ -228,9 +239,34 @@ export class AlldevicesComponent {
 
   clearSearch() {
     this.searchText = '';
-    if (this.dataSource) {
-      this.dataSource.filter = '';
+    this.refreshFilter();
+  }
+
+  toggleReviewStatusFilter(key: string) {
+    if (this.reviewStatusFilters.has(key)) {
+      this.reviewStatusFilters.delete(key);
+    } else {
+      this.reviewStatusFilters.add(key);
     }
+    this.refreshFilter();
+  }
+
+  private refreshFilter() {
+    if (!this.dataSource) return;
+    this.dataSource.filterPredicate = (row: any, filter: string) => {
+      const { text, statuses } = JSON.parse(filter);
+      if (statuses.length && !statuses.includes(row.reviewStatus)) {
+        return false;
+      }
+      if (!text) return true;
+      return Object.values(row)
+        .map((v) => (v == null ? '' : String(v)).toLowerCase())
+        .some((s) => s.includes(text));
+    };
+    this.dataSource.filter = JSON.stringify({
+      text: this.searchText.trim().toLowerCase(),
+      statuses: Array.from(this.reviewStatusFilters),
+    });
   }
 
   checkFormValidity(): void {
@@ -368,7 +404,8 @@ export class AlldevicesComponent {
       this.devicetypeLoded == true &&
       this.countrycodeLoded === true
     ) {
-      this.data.devices.forEach((ele: any) => {
+      this.data.devices.forEach((ele: any, idx: number) => {
+        ele['_rowIndex'] = idx;
         ele['fuelname'] = this.fuellist.find(
           (fuelType) => fuelType.code === ele.fuelCode,
         )?.name;
@@ -386,7 +423,13 @@ export class AlldevicesComponent {
       this.totalRows = this.data.totalCount;
       this.totalPages = this.data.totalPages;
       // this.dataSource.paginator = this.paginator;
+      this.dataSource.sortingDataAccessor = (row: any, key: string) => {
+        if (key === 'index') return row._rowIndex;
+        const v = row[key];
+        return typeof v === 'string' ? v.toLowerCase() : v;
+      };
       this.dataSource.sort = this._sort;
+      this.refreshFilter();
 
       // Use setTimeout to ensure the map component is fully initialized
       setTimeout(() => {
@@ -596,6 +639,7 @@ export class AlldevicesComponent {
   }
 
   showSatPreview(event: MouseEvent, row: any) {
+    if (!this.satPreviewEnabled) return;
     const lat = parseFloat(row.latitude);
     const lng = parseFloat(row.longitude);
     if (isNaN(lat) || isNaN(lng)) return;

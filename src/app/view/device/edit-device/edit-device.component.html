@@ -68,21 +68,6 @@
                   <!-- <mat-hint>Hint</mat-hint> -->
                 </mat-form-field>
               </div>
-              <div class="col-md-3 d-flex flex-column">
-                <span>Energy Storage:</span>
-                <mat-radio-group formControlName="energyStorage" [(ngModel)]="energyStorage"
-                  (ngModelChange)="showenergycapacity_input($event)">
-                  <mat-radio-button [value]="true">Yes</mat-radio-button>
-                  <mat-radio-button [value]="false">No</mat-radio-button>
-                </mat-radio-group>
-              </div>
-              <div class="col-md-3" *ngIf="showinput">
-                <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
-                  <input matInput autocomplete="off"
-                    [(ngModel)]="energyStorageCapacity" type="number" formControlName="energyStorageCapacity" />
-                </mat-form-field>
-              </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize">commissioning Date</mat-label>
@@ -115,6 +100,15 @@
                       {{ oc }}
                     </mat-option>
                   </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">Energy Storage (kWh)</mat-label>
+                  <input matInput autocomplete="off" placeholder="0 = no storage"
+                    [(ngModel)]="energyStorageCapacity" type="number" min="0"
+                    formControlName="energyStorageCapacity"
+                    (ngModelChange)="onEnergyStorageCapacityChange($event)" />
                 </mat-form-field>
               </div>
             </div>

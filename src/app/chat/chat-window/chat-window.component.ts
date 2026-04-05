@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   OnDestroy,
@@ -15,8 +16,9 @@ import { ChatMessage, ChatService } from '../chat.service';
   templateUrl: './chat-window.component.html',
   styleUrls: ['./chat-window.component.scss'],
 })
-export class ChatWindowComponent implements OnInit, OnDestroy {
+export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
+  @ViewChild('messageInput') messageInput?: ElementRef<HTMLInputElement>;
 
   messages: ChatMessage[] = [];
   draft = '';
@@ -344,6 +346,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy {
         el.scrollTop = el.scrollHeight;
       }
     }, 50);
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => this.messageInput?.nativeElement.focus(), 0);
   }
 
   ngOnDestroy(): void {

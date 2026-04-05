@@ -53,6 +53,7 @@
 
     <div class="input-bar" *ngIf="!(chatService.readOnly$ | async)">
       <input
+        #messageInput
         [(ngModel)]="draft"
         (keydown.enter)="send()"
         placeholder="Type a message..."

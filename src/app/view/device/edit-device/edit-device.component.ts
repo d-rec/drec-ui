@@ -308,6 +308,11 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       this.showinput = false;
     }
   }
+  onEnergyStorageCapacityChange(value: any) {
+    const num = Number(value);
+    this.energyStorage = !!num && num > 0;
+    this.updateDeviceForm.get('energyStorage')?.setValue(this.energyStorage, { emitEvent: false });
+  }
   getDeviceinfo() {
     this.deviceService
       .getDeviceInfoBYexternalId(this.externalid)
