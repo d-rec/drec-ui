@@ -31,6 +31,7 @@ import { AllUsersComponent } from './view/all-users/all-users.component';
 import { ConfirmDialogComponent } from './view/confirm-dialog/confirm-dialog.component';
 import { EditUserComponent } from './view/edit-user/edit-user.component';
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
+import { PasswordResetDialogComponent } from './view/user-profile/password-reset-dialog.component';
 //import { UserInvitationComponent } from./view/organization/user-invitation/user-invitation.componentnt';
 import { AdminModule } from './view/admin/admin.module';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
@@ -80,6 +81,7 @@ import { ChatModule } from './chat/chat.module';
     ConfirmDialogComponent,
     EditUserComponent,
     UserProfileComponent,
+    PasswordResetDialogComponent,
     UserAcceptInvitationComponent,
     // UserInvitationComponent,
     RegistrantClientReponseComponent,

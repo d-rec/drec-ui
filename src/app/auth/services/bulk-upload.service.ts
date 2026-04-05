@@ -61,6 +61,29 @@ export class BulkUploadService {
     }
     return this.http.get(Url);
   }
+
+  getBulkUploadPreview(
+    bulkUploadId: string,
+  ): Observable<{ records: any[]; organizationId: number }> {
+    return this.http.get<{ records: any[]; organizationId: number }>(
+      `${this.baseUrl}/${bulkUploadId}/preview`,
+    );
+  }
+
+  confirmBulkUpload(
+    bulkUploadId: string,
+  ): Observable<{ successCount: number; failedCount: number }> {
+    return this.http.post<{ successCount: number; failedCount: number }>(
+      `${this.baseUrl}/${bulkUploadId}/confirm`,
+      {},
+    );
+  }
+
+  discardBulkUpload(bulkUploadId: string): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(
+      `${this.baseUrl}/${bulkUploadId}/discard`,
+    );
+  }
   downloadFile(type: BulkUploadType): Promise<boolean> {
     const filename = this.templates[type];
     if (!filename) throw new Error('Invalid template');

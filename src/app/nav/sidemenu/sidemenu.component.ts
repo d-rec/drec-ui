@@ -16,6 +16,7 @@ import { getRoleName } from '../../utils/role-helper';
 import { RoleModeService } from '../../auth/services/role-mode.service';
 
 const STORAGE_KEY = 'sidenav-width';
+const EXPANSION_STORAGE_KEY = 'sidenav-expansion-state';
 const MIN_WIDTH = 150;
 const MAX_WIDTH = 400;
 const DEFAULT_WIDTH = 200;
@@ -41,6 +42,7 @@ export class SidemenuComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatSidenavContent, { read: ElementRef })
   private contentRef: ElementRef;
   sidenavWidth: number = this.loadWidth();
+  expandedState: Record<string, boolean> = this.loadExpandedState();
   private isResizing = false;
   private modeSubscription: Subscription;
 
@@ -110,6 +112,31 @@ export class SidemenuComponent implements OnInit, AfterViewInit, OnDestroy {
       '--sidenav-width',
     );
     return parseInt(val) || DEFAULT_WIDTH;
+  }
+
+  isExpanded(key: string): boolean {
+    return !!this.expandedState[key];
+  }
+
+  setExpanded(key: string, expanded: boolean): void {
+    if (expanded) {
+      this.expandedState = { [key]: true };
+    } else {
+      this.expandedState[key] = false;
+    }
+    localStorage.setItem(
+      EXPANSION_STORAGE_KEY,
+      JSON.stringify(this.expandedState),
+    );
+  }
+
+  private loadExpandedState(): Record<string, boolean> {
+    try {
+      const stored = localStorage.getItem(EXPANSION_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
   }
 
   private loadWidth(): number {

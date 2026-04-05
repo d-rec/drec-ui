@@ -44,6 +44,12 @@ export class UserService {
   public updatPassword(data: any): Observable<any> {
     return this.httpClient.put<any>(this.url + 'user/profile', data);
   }
+  public updateOwnPassword(data: {
+    oldPassword: string;
+    newPassword: string;
+  }): Observable<any> {
+    return this.httpClient.put<any>(this.url + 'user/password', data);
+  }
   public resetPassword(token: any, data: any): Observable<any> {
     return this.httpClient.put<any>(
       this.url + 'user/reset/password/' + token,

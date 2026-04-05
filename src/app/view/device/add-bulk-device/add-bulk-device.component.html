@@ -1,5 +1,5 @@
 <div class="body-bg bulk-upload-device">
-  <mat-card *ngIf="!showBulkUploadLogs">
+  <mat-card *ngIf="!showBulkUploadLogs && !showPreview">
     <mat-card-header
       class="d-flex justify-content-between mat-crd-hide align-items-center"
     >
@@ -164,6 +164,13 @@
               <!-- <button>certificate</button> -->
 
               <a
+                *ngIf="row.status === 'PendingConfirmation'"
+                class="logs-link"
+                style="color:#1976d2;font-weight:600;margin-right:12px"
+                (click)="openPreview(row.id, row.organizationId)"
+                >Review</a
+              >
+              <a
                 class="logs-link"
                 (click)="getBulkUploadLogs(row.id, row.organizationId)"
                 >Logs</a
@@ -274,6 +281,68 @@
           </ng-container>
           <tr mat-header-row *matHeaderRowDef="displayedColumns1"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns1"></tr>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card *ngIf="showPreview">
+    <mat-card-header class="d-flex justify-content-between align-items-center">
+      <mat-card-title>
+        <h2 class="pb-0 mb-0 fw-bold text-capitalize">
+          Review Bulk Upload — {{ previewRecords.length }} device(s) parsed
+        </h2>
+      </mat-card-title>
+      <div class="d-flex gap-2 justify-content-end">
+        <button
+          class="btn btn-outline-secondary"
+          (click)="discardPreview()"
+          [disabled]="previewBusy"
+        >
+          Discard
+        </button>
+        <button
+          class="btn btn-primary"
+          (click)="confirmPreview()"
+          [disabled]="previewBusy"
+        >
+          <span *ngIf="!previewBusy">Import {{ previewRecords.length }} device(s)</span>
+          <span *ngIf="previewBusy">Importing…</span>
+        </button>
+      </div>
+    </mat-card-header>
+    <hr />
+    <mat-card-content>
+      <div style="max-height:60vh;overflow:auto">
+        <table mat-table [dataSource]="previewDataSource" class="w-100">
+          <ng-container matColumnDef="row">
+            <th mat-header-cell *matHeaderCellDef>#</th>
+            <td mat-cell *matCellDef="let row; let i = index">{{ i + 1 }}</td>
+          </ng-container>
+          <ng-container matColumnDef="siteName">
+            <th mat-header-cell *matHeaderCellDef>Site name</th>
+            <td mat-cell *matCellDef="let row">{{ row.siteName }}</td>
+          </ng-container>
+          <ng-container matColumnDef="serialNumber">
+            <th mat-header-cell *matHeaderCellDef>Serial number</th>
+            <td mat-cell *matCellDef="let row">{{ row.serialNumber }}</td>
+          </ng-container>
+          <ng-container matColumnDef="capacity">
+            <th mat-header-cell *matHeaderCellDef>Capacity (kW)</th>
+            <td mat-cell *matCellDef="let row">{{ row.capacity | number:'1.1-3' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="countryCode">
+            <th mat-header-cell *matHeaderCellDef>Country</th>
+            <td mat-cell *matCellDef="let row">{{ row.countryCode }}</td>
+          </ng-container>
+          <ng-container matColumnDef="commissioningDate">
+            <th mat-header-cell *matHeaderCellDef>Commissioned</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.commissioningDate | date: 'dd MMM y' }}
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="previewColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: previewColumns"></tr>
         </table>
       </div>
     </mat-card-content>

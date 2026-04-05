@@ -18,7 +18,10 @@
       >
         <span>Dashboard</span>
       </button>
-      <mat-expansion-panel [class.mat-elevation-z0]="true">
+      <mat-expansion-panel [class.mat-elevation-z0]="true"
+        [expanded]="isExpanded('account-settings')"
+        (opened)="setExpanded('account-settings', true)"
+        (closed)="setExpanded('account-settings', false)">
         <mat-expansion-panel-header
           class="mdc-button"
           [attr.test-id]="'account-setting-header'"
@@ -39,7 +42,10 @@
         </mat-nav-list>
       </mat-expansion-panel>
       <!--1st  -->
-      <mat-expansion-panel [class.mat-elevation-z0]="true">
+      <mat-expansion-panel [class.mat-elevation-z0]="true"
+        [expanded]="isExpanded('organization')"
+        (opened)="setExpanded('organization', true)"
+        (closed)="setExpanded('organization', false)">
         <mat-expansion-panel-header class="mdc-button" test-id="organization">
           Organization
         </mat-expansion-panel-header>
@@ -123,6 +129,9 @@
       <mat-expansion-panel
         [class.mat-elevation-z0]="true"
         *ngIf="!(loginuser.role == 'Buyer' || loginuser.role == 'SubBuyer')"
+        [expanded]="isExpanded('device')"
+        (opened)="setExpanded('device', true)"
+        (closed)="setExpanded('device', false)"
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
@@ -209,6 +218,9 @@
       <mat-expansion-panel
         [class.mat-elevation-z0]="true"
         *ngIf="loginuser.role != 'Buyer' && loginuser.role != 'SubBuyer'"
+        [expanded]="isExpanded('meter-read')"
+        (opened)="setExpanded('meter-read', true)"
+        (closed)="setExpanded('meter-read', false)"
       >
         <mat-expansion-panel-header class="mdc-button" test-id="meter-read">
           MeterRead
@@ -275,6 +287,9 @@
       <mat-expansion-panel
         [class.mat-elevation-z0]="true"
         *ngIf="loginuser.role === 'Admin'"
+        [expanded]="isExpanded('yield')"
+        (opened)="setExpanded('yield', true)"
+        (closed)="setExpanded('yield', false)"
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
@@ -310,6 +325,9 @@
       <mat-expansion-panel
         [class.mat-elevation-z0]="true"
         *ngIf="loginuser.role === 'Admin'"
+        [expanded]="isExpanded('permission-admin')"
+        (opened)="setExpanded('permission-admin', true)"
+        (closed)="setExpanded('permission-admin', false)"
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
@@ -354,7 +372,10 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role === 'Registrant'">
+      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role === 'Registrant'"
+        [expanded]="isExpanded('permission-registrant')"
+        (opened)="setExpanded('permission-registrant', true)"
+        (closed)="setExpanded('permission-registrant', false)">
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
         >
@@ -391,6 +412,9 @@
           loginuser.role === 'Registrant' ||
           loginuser.role === 'Buyer'
         "
+        [expanded]="isExpanded('device-groups')"
+        (opened)="setExpanded('device-groups', true)"
+        (closed)="setExpanded('device-groups', false)"
       >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
@@ -451,6 +475,9 @@
       <mat-expansion-panel
         *ngIf="loginuser.role === 'Admin'"
         [class.mat-elevation-z0]="true"
+        [expanded]="isExpanded('evident-issuers')"
+        (opened)="setExpanded('evident-issuers', true)"
+        (closed)="setExpanded('evident-issuers', false)"
       >
         <mat-expansion-panel-header class="mdc-button">
           Evident Issuers
@@ -474,7 +501,10 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <mat-expansion-panel [class.mat-elevation-z0]="true">
+      <mat-expansion-panel [class.mat-elevation-z0]="true"
+        [expanded]="isExpanded('evident-config')"
+        (opened)="setExpanded('evident-config', true)"
+        (closed)="setExpanded('evident-config', false)">
         <mat-expansion-panel-header
           class="mdc-button"
           test-id="evident-configuration"

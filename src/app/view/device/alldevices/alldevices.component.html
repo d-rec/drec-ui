@@ -305,7 +305,7 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">
               Capacity(kW)
             </th>
-            <td mat-cell *matCellDef="let element">{{ element.capacity }}</td>
+            <td mat-cell *matCellDef="let element">{{ element.capacity | number:'1.1-3' }}</td>
           </ng-container>
           <ng-container matColumnDef="countryCode">
             <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">Country</th>

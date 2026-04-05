@@ -220,13 +220,21 @@ export class AddBulkDeviceComponent implements OnInit {
           );
           if (
             job &&
-            (job.status === 'Completed' || job.status === 'Failed')
+            (job.status === 'Completed' ||
+              job.status === 'Failed' ||
+              job.status === 'PendingConfirmation')
           ) {
             clearInterval(this.processingPoll);
             clearInterval(this.uploadTimer);
             this.processing = false;
             if (job.status === 'Completed') {
               this.toastrService.success('Processing complete', 'Done');
+            } else if (job.status === 'PendingConfirmation') {
+              this.toastrService.info(
+                'Parsed — review rows then click Import',
+                'Ready for review',
+              );
+              this.openPreview(job.id, job.organizationId);
             } else {
               this.toastrService.error('Processing finished with errors', 'Failed');
             }
@@ -289,6 +297,88 @@ export class AddBulkDeviceComponent implements OnInit {
         },
       });
   }
+  // Preview (two-stage bulk upload) state
+  showPreview: boolean = false;
+  previewBulkUploadId: string | null = null;
+  previewRecords: any[] = [];
+  previewDataSource: MatTableDataSource<any>;
+  previewColumns = ['row', 'siteName', 'serialNumber', 'capacity', 'countryCode', 'commissioningDate'];
+  previewBusy: boolean = false;
+
+  openPreview(bulkUploadId: string, organizationId: number) {
+    this.bulkUploadService.getBulkUploadPreview(bulkUploadId).subscribe({
+      next: (res) => {
+        this.previewBulkUploadId = bulkUploadId;
+        this.previewRecords = res.records ?? [];
+        this.previewDataSource = new MatTableDataSource(this.previewRecords);
+        this.showPreview = true;
+      },
+      error: (err) => {
+        this.toastrService.error(
+          err?.error?.message ?? err?.message ?? 'Failed to load preview',
+          'Preview unavailable',
+        );
+      },
+    });
+  }
+
+  confirmPreview() {
+    if (!this.previewBulkUploadId || this.previewBusy) return;
+    this.previewBusy = true;
+    this.bulkUploadService
+      .confirmBulkUpload(this.previewBulkUploadId)
+      .subscribe({
+        next: (res) => {
+          this.previewBusy = false;
+          this.showPreview = false;
+          this.previewBulkUploadId = null;
+          if (res.failedCount === 0) {
+            this.toastrService.success(
+              `Imported ${res.successCount} device(s)`,
+              'Import complete',
+            );
+          } else {
+            this.toastrService.warning(
+              `Imported ${res.successCount} of ${res.successCount + res.failedCount} — ${res.failedCount} failed`,
+              'Import finished with errors',
+            );
+          }
+          this.displayBulkUploads();
+        },
+        error: (err) => {
+          this.previewBusy = false;
+          this.toastrService.error(
+            err?.error?.message ?? err?.message ?? 'Import failed',
+            'Import failed',
+          );
+        },
+      });
+  }
+
+  discardPreview() {
+    if (!this.previewBulkUploadId || this.previewBusy) return;
+    if (!confirm('Discard this upload? The parsed rows will be thrown away.')) return;
+    this.previewBusy = true;
+    this.bulkUploadService
+      .discardBulkUpload(this.previewBulkUploadId)
+      .subscribe({
+        next: () => {
+          this.previewBusy = false;
+          this.showPreview = false;
+          this.previewBulkUploadId = null;
+          this.toastrService.info('Upload discarded', 'Discarded');
+          this.displayBulkUploads();
+        },
+        error: (err) => {
+          this.previewBusy = false;
+          this.toastrService.error(
+            err?.error?.message ?? err?.message ?? 'Discard failed',
+            'Discard failed',
+          );
+        },
+      });
+  }
+
   getBulkUploadLogs(bulkUploadId: number, organizationId: number) {
     this.bulkUploadService
       .getBulkUploadLogs(bulkUploadId, organizationId)
