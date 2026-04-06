@@ -199,7 +199,7 @@ export class AddBulkDeviceComponent implements OnInit {
           if (err?.error?.statusCode === 403) {
             this.toastrService.error('You are Unauthorized');
           } else {
-            this.toastrService.error('error!', err?.error?.message ?? err?.message ?? 'unknown');
+            this.toastrService.error(err?.error?.message ?? err?.message ?? 'Unknown error', 'Upload failed');
           }
         },
       });
