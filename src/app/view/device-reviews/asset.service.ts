@@ -7,6 +7,8 @@ import {
   Subject,
   firstValueFrom,
   map,
+  retry,
+  timer,
 } from 'rxjs';
 import { Asset } from './asset.model';
 import { environment } from '../../../environments/environment';
@@ -238,6 +240,8 @@ export class AssetService {
     return this.http.post<any>(
       `${environment.API_URL}device-reviews/detect-panels`,
       { image: imageBase64 },
+    ).pipe(
+      retry({ count: 2, delay: (err, attempt) => timer(attempt * 3000) }),
     );
   }
 

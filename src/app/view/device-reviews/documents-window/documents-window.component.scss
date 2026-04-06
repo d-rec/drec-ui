@@ -271,6 +271,7 @@ $legacy:   #a0845c;
   &--device {
     background: $bg-light;
     font-weight: 600;
+    &:nth-child(even) { background: $bg; }
     &:hover { background: $bg-mid; }
   }
 
@@ -327,7 +328,6 @@ $legacy:   #a0845c;
   position: sticky;
   top: 0;
   z-index: 1;
-  padding-left: 28px;
   &:hover { background: #f8fafc; }
 }
 
@@ -339,6 +339,7 @@ $legacy:   #a0845c;
   line-height: 1;
   flex-shrink: 0;
 }
+.col-country  { width: 80px; flex-shrink: 0; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .col-modified { width: 90px; flex-shrink: 0; font-size: 12px; }
 .col-status   { width: 110px; flex-shrink: 0; display: flex; align-items: center; gap: 5px; }
 
@@ -732,6 +733,24 @@ $legacy:   #a0845c;
   max-width: 560px;
 }
 
+.modal-box--audit {
+  @extend .modal-box;
+  width: 560px;
+  max-width: 90vw;
+  max-height: 80vh;
+  min-width: 320px;
+  min-height: 200px;
+  resize: both;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+
+  .audit-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+}
+
 .dup-table {
   width: 100%;
   border-collapse: collapse;
@@ -870,6 +889,11 @@ $legacy:   #a0845c;
     color: $text;
     margin-top: 2px;
     padding-left: 2px;
+
+    &--warn {
+      color: #b45309;
+      font-weight: 600;
+    }
   }
 }
 
@@ -1226,5 +1250,47 @@ $legacy:   #a0845c;
     font-size: 11px;
     color: $muted;
     margin-top: 1px;
+  }
+}
+
+// ── Satellite preview on hover ───────────────────────────────────────────────
+.sat-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: $muted;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.device-count {
+  font-size: 12px;
+  color: $muted;
+  white-space: nowrap;
+  padding-left: 12px;
+}
+
+.sat-preview {
+  position: fixed;
+  z-index: 1000;
+  background: #1e293b;
+  border-radius: 6px;
+  padding: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+
+  img {
+    display: block;
+    border-radius: 4px;
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    margin-top: 4px;
   }
 }

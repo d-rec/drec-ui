@@ -16,7 +16,7 @@ import { map, startWith } from 'rxjs/operators';
 import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MapComponent } from '../../map/map.component';
-import { DocumentType, OperatingConfiguration, SourceAccessMode } from '../../../utils/drec.enum';
+import { DocumentType, OperatingConfiguration, PublicFundingType, RegistrationType, SourceAccessMode, VolumeEvidenceType } from '../../../utils/drec.enum';
 import {
   getEvidenceRequirements,
   getHint,
@@ -36,7 +36,8 @@ type FileType =
   | DocumentType.SINGLE_LINE_DIAGRAM
   | DocumentType.PROJECT_PHOTOS
   | DocumentType.SCREENSHOTS
-  | DocumentType.COD_PROOF;
+  | DocumentType.COD_PROOF
+  | DocumentType.OTHER_DOCUMENTS;
 
 @Component({
   standalone: false,
@@ -84,6 +85,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   operatingConfigurations = Object.values(OperatingConfiguration);
   sourceAccessMode: any;
   sourceAccessModes = Object.values(SourceAccessMode);
+  registrationTypes = Object.values(RegistrationType);
+  volumeEvidenceTypes = Object.values(VolumeEvidenceType);
+  publicFundingTypes = Object.values(PublicFundingType);
   evidenceReqs: EvidenceRequirements = getEvidenceRequirements(null);
   impactStory: any;
   showerror: boolean = false;
@@ -118,6 +122,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     DocumentType.PROJECT_PHOTOS,
     DocumentType.SCREENSHOTS,
     DocumentType.COD_PROOF,
+    DocumentType.OTHER_DOCUMENTS,
   ];
 
   offtaker = [
@@ -198,6 +203,23 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       version: ['1.0'],
       organizationId: [null],
       postcode: [null, [postcodeValidator()]],
+      defaultAccountCode: [null],
+      requestedEffectiveRegDate: [null],
+      signatoryName: [null],
+      isGridConnected: [null],
+      gridExportType: [null],
+      hasNetworkMeter: [null],
+      meterReadsShareable: [null],
+      hasCaptiveConsumer: [null],
+      hasAuxiliaryEnergySources: [null],
+      auxiliaryEnergySourceDetails: [null],
+      nonMeterImportDetails: [null],
+      otherEacSchemeRegistration: [null],
+      additionalInfo: [null],
+      meterIds: [null],
+      generatingUnitCount: [null],
+      networkOwner: [null],
+      interconnectionVoltage: [null],
       pvSystemOwner: [null],
       offTakerName: [null],
       offTakerSameCompanyAsOwner: [null],
@@ -207,6 +229,12 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       subsidyClaimsEacs: [null],
       hasPublicFunding: [null],
       publicFundingEndDate: [null],
+      registrationType: [null],
+      volumeEvidenceType: [null],
+      publicFundingType: [null],
+      labellingSchemeAccreditation: [null],
+      verificationAgentName: [null],
+      offGridCircumstances: [null],
       codEvidenceMode: ['self'],
     });
     this.showinput = true;

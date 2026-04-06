@@ -68,6 +68,25 @@ export enum OwnershipStatus {
   Flagged = 'flagged',
 }
 
+export enum RegistrationType {
+  New = 'New',
+  ChangeOfDetails = 'Change of details',
+  Renewal = 'Renewal',
+  Transfer = 'Transfer',
+}
+
+export enum VolumeEvidenceType {
+  MeteringData = 'Metering data',
+  ContractSalesInvoice = 'Contract sales invoice',
+  Other = 'Other',
+}
+
+export enum PublicFundingType {
+  No = 'No',
+  Investment = 'Investment',
+  Production = 'Production',
+}
+
 export enum GroupReviewStatus {
   Pending = 'pending',
   Approved = 'approved',
@@ -97,6 +116,7 @@ export enum DocumentType {
   PROJECT_PHOTOS = 'PROJECT_PHOTOS', //Project Photos
   SCREENSHOTS = 'SCREENSHOTS', //Screenshots
   COD_PROOF = 'COD_PROOF', // Commercial Operation Date Proof
+  OTHER_DOCUMENTS = 'OTHER_DOCUMENTS', // Other supporting documents
 }
 
 export enum DataSourceTypes {

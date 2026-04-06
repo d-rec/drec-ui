@@ -22,7 +22,9 @@
     padding-top: 12px;
   }
   ::ng-deep .row {
-    align-items: end;
+    align-items: start;
+    margin-bottom: 8px;
+    row-gap: 8px;
   }
   ::ng-deep h3 {
     font-size: 14px;

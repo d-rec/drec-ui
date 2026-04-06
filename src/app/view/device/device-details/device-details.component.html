@@ -27,13 +27,27 @@
         <h3 class="section-heading">General</h3>
         <p><b>Site Name</b>: {{ device_details.siteName }}</p>
         <p><b>Serial Number(s)</b>: {{ device_details.serialNumber }}</p>
+        <p *ngIf="device_details.defaultAccountCode"><b>Default Account Code</b>: {{ device_details.defaultAccountCode }}</p>
+        <p *ngIf="device_details.requestedEffectiveRegDate"><b>Requested Effective Reg. Date</b>: {{ device_details.requestedEffectiveRegDate }}</p>
+        <p *ngIf="device_details.registrationType"><b>Registration Type</b>: {{ device_details.registrationType }}</p>
+        <p *ngIf="device_details.volumeEvidenceType"><b>Volume Evidence Type</b>: {{ device_details.volumeEvidenceType }}</p>
+        <p *ngIf="device_details.verificationAgentName"><b>Verification Agent</b>: {{ device_details.verificationAgentName }}</p>
 
         <h3 class="section-heading">Technical Details</h3>
         <p><b>Fuel Code</b>: {{ device_details.fuelname }}</p>
         <p><b>Device Type Code</b>: {{ device_details.devicetypename }}</p>
         <p><b>Capacity</b>: {{ device_details.capacity }}</p>
+        <p *ngIf="device_details.acCapacity"><b>AC Capacity</b>: {{ device_details.acCapacity }}</p>
         <p><b>Commissioning Date</b>: {{ device_details.commissioningDate | date: 'dd MMM y hh:mm' }}</p>
         <p><b>OnBoarding Date</b>: {{ device_details.createdAt | date: 'dd MMM y hh:mm' }}</p>
+        <p *ngIf="device_details.operatingConfiguration"><b>Operating Configuration</b>: {{ device_details.operatingConfiguration }}</p>
+        <p *ngIf="device_details.sourceAccessMode"><b>Source Access Mode</b>: {{ device_details.sourceAccessMode }}</p>
+
+        <h3 class="section-heading">Facility Technical</h3>
+        <p *ngIf="device_details.meterIds"><b>Meter / Measurement ID(s)</b>: {{ device_details.meterIds }}</p>
+        <p *ngIf="device_details.generatingUnitCount"><b>Number of Generating Units</b>: {{ device_details.generatingUnitCount }}</p>
+        <p *ngIf="device_details.networkOwner"><b>Network Owner</b>: {{ device_details.networkOwner }}</p>
+        <p *ngIf="device_details.interconnectionVoltage"><b>Interconnection Voltage</b>: {{ device_details.interconnectionVoltage }}</p>
 
         <h3 class="section-heading">Location</h3>
         <p><b>Address</b>: {{ device_details.address }}</p>
@@ -51,7 +65,36 @@
           </div>
         </div>
 
-        <h3 class="section-heading">Other Details</h3>
+        <h3 class="section-heading">Ownership & Incentives</h3>
+        <p *ngIf="device_details.pvSystemOwner"><b>PV System Owner</b>: {{ device_details.pvSystemOwner }}</p>
+        <p *ngIf="device_details.offTakerName"><b>Off-Taker Name</b>: {{ device_details.offTakerName }}</p>
+        <p *ngIf="device_details.offTakerSameCompanyAsOwner"><b>Off-Taker Same as Owner</b>: {{ device_details.offTakerSameCompanyAsOwner }}</p>
+        <p *ngIf="device_details.hasSubsidy"><b>Subsidy Received</b>: {{ device_details.hasSubsidy }}</p>
+        <p *ngIf="device_details.subsidyTypes?.length"><b>Subsidy Types</b>: {{ device_details.subsidyTypes.join(', ') }}</p>
+        <p *ngIf="device_details.subsidyOtherDetails"><b>Subsidy Other Details</b>: {{ device_details.subsidyOtherDetails }}</p>
+        <p *ngIf="device_details.subsidyClaimsEacs"><b>Subsidy Claims EACs</b>: {{ device_details.subsidyClaimsEacs }}</p>
+        <p *ngIf="device_details.hasPublicFunding"><b>Public Funding</b>: {{ device_details.hasPublicFunding }}</p>
+        <p *ngIf="device_details.publicFundingEndDate"><b>Public Funding End Date</b>: {{ device_details.publicFundingEndDate }}</p>
+        <p *ngIf="device_details.publicFundingType"><b>Public Funding Type</b>: {{ device_details.publicFundingType }}</p>
+
+        <h3 class="section-heading">Business Details</h3>
+        <p *ngIf="device_details.hasCaptiveConsumer"><b>Captive Consumer</b>: {{ device_details.hasCaptiveConsumer }}</p>
+        <p *ngIf="device_details.hasAuxiliaryEnergySources"><b>Auxiliary Energy Sources</b>: {{ device_details.hasAuxiliaryEnergySources }}</p>
+        <p *ngIf="device_details.auxiliaryEnergySourceDetails"><b>Auxiliary Source Details</b>: {{ device_details.auxiliaryEnergySourceDetails }}</p>
+        <p *ngIf="device_details.nonMeterImportDetails"><b>Non-Meter Import Details</b>: {{ device_details.nonMeterImportDetails }}</p>
+        <p *ngIf="device_details.otherEacSchemeRegistration"><b>Other EAC Scheme Registration</b>: {{ device_details.otherEacSchemeRegistration }}</p>
+        <p *ngIf="device_details.additionalInfo"><b>Additional Info</b>: {{ device_details.additionalInfo }}</p>
+        <p *ngIf="device_details.labellingSchemeAccreditation"><b>Labelling Scheme</b>: {{ device_details.labellingSchemeAccreditation }}</p>
+        <p *ngIf="device_details.offGridCircumstances"><b>Off-Grid Circumstances</b>: {{ device_details.offGridCircumstances }}</p>
+
+        <h3 class="section-heading">Evidence Pathway & Signature</h3>
+        <p *ngIf="device_details.signatoryName"><b>Signatory Name</b>: {{ device_details.signatoryName }}</p>
+        <p *ngIf="device_details.isGridConnected"><b>Grid Connected</b>: {{ device_details.isGridConnected }}</p>
+        <p *ngIf="device_details.gridExportType"><b>Grid Export Type</b>: {{ device_details.gridExportType }}</p>
+        <p *ngIf="device_details.hasNetworkMeter"><b>Network Meter</b>: {{ device_details.hasNetworkMeter }}</p>
+        <p *ngIf="device_details.meterReadsShareable"><b>Meter Reads Shareable</b>: {{ device_details.meterReadsShareable }}</p>
+
+        <h3 class="section-heading">Classification & Impact</h3>
         <p><b>Off Takers</b>: {{ device_details.offTaker }}</p>
         <p><b>SDG Benefits</b>: {{ device_details.SDGBenefits }}</p>
         <p><b>Energy Storage</b>: {{ device_details.energyStorage }}</p>
@@ -66,10 +109,12 @@
       </div>
     </ng-template>
   </mat-dialog-content>
+  <hr style="margin:8px 0" *ngIf="!loading" />
   <mat-dialog-actions align="end" *ngIf="!loading">
     <button mat-button (click)="copyToClipboard()">
       <mat-icon class="me-1">content_copy</mat-icon> Copy
     </button>
+    <button mat-button (click)="dialogRef.close(false)">Cancel</button>
     <button mat-flat-button color="primary" (click)="dialogRef.close(false)">OK</button>
   </mat-dialog-actions>
 </div>

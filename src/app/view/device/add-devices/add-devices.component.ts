@@ -38,6 +38,9 @@ import {
   OrganizationType,
   OperatingConfiguration,
   SourceAccessMode,
+  RegistrationType,
+  VolumeEvidenceType,
+  PublicFundingType,
 } from '../../../utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
 import {
@@ -60,6 +63,7 @@ export type DeviceFiles = {
   [DocumentType.PROJECT_PHOTOS]: File[];
   [DocumentType.SCREENSHOTS]: File[];
   [DocumentType.COD_PROOF]: File[];
+  [DocumentType.OTHER_DOCUMENTS]: File[];
 };
 type FileType = keyof DeviceFiles;
 
@@ -80,6 +84,9 @@ export class AddDevicesComponent implements OnDestroy {
   DocumentType = DocumentType;
   operatingConfigurations = Object.values(OperatingConfiguration);
   sourceAccessModes = Object.values(SourceAccessMode);
+  registrationTypes = Object.values(RegistrationType);
+  volumeEvidenceTypes = Object.values(VolumeEvidenceType);
+  publicFundingTypes = Object.values(PublicFundingType);
   evidenceReqs: EvidenceRequirements = getEvidenceRequirements(null);
 
   /** Called when operating configuration changes. Updates evidence requirements. */
@@ -322,6 +329,23 @@ export class AddDevicesComponent implements OnDestroy {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
+      defaultAccountCode: [null],
+      requestedEffectiveRegDate: [null],
+      signatoryName: [null],
+      isGridConnected: [null],
+      gridExportType: [null],
+      hasNetworkMeter: [null],
+      meterReadsShareable: [null],
+      hasCaptiveConsumer: [null],
+      hasAuxiliaryEnergySources: [null],
+      auxiliaryEnergySourceDetails: [null],
+      nonMeterImportDetails: [null],
+      otherEacSchemeRegistration: [null],
+      additionalInfo: [null],
+      meterIds: [null],
+      generatingUnitCount: [null],
+      networkOwner: [null],
+      interconnectionVoltage: [null],
       pvSystemOwner: [null],
       offTakerName: [null],
       offTakerSameCompanyAsOwner: [null],
@@ -331,6 +355,12 @@ export class AddDevicesComponent implements OnDestroy {
       subsidyClaimsEacs: [null],
       hasPublicFunding: [null],
       publicFundingEndDate: [null],
+      registrationType: [null],
+      volumeEvidenceType: [null],
+      publicFundingType: [null],
+      labellingSchemeAccreditation: [null],
+      verificationAgentName: [null],
+      offGridCircumstances: [null],
       FORM_SF_02: [null, [Validators.required]],
       SF_02C: [null, [Validators.required]],
       METERING_EVIDENCE: [null, [Validators.required]],
@@ -338,6 +368,7 @@ export class AddDevicesComponent implements OnDestroy {
       PROJECT_PHOTOS: [null, [Validators.required]],
       SCREENSHOTS: [null],
       COD_PROOF: [null],
+      OTHER_DOCUMENTS: [null],
       codEvidenceMode: ['self'],
     });
 
@@ -440,6 +471,23 @@ export class AddDevicesComponent implements OnDestroy {
       SDGBenefits: [[new FormControl([])]],
       version: ['1.0'],
       postcode: [null, [postcodeValidator()]],
+      defaultAccountCode: [null],
+      requestedEffectiveRegDate: [null],
+      signatoryName: [null],
+      isGridConnected: [null],
+      gridExportType: [null],
+      hasNetworkMeter: [null],
+      meterReadsShareable: [null],
+      hasCaptiveConsumer: [null],
+      hasAuxiliaryEnergySources: [null],
+      auxiliaryEnergySourceDetails: [null],
+      nonMeterImportDetails: [null],
+      otherEacSchemeRegistration: [null],
+      additionalInfo: [null],
+      meterIds: [null],
+      generatingUnitCount: [null],
+      networkOwner: [null],
+      interconnectionVoltage: [null],
       pvSystemOwner: [null],
       offTakerName: [null],
       offTakerSameCompanyAsOwner: [null],
@@ -449,6 +497,12 @@ export class AddDevicesComponent implements OnDestroy {
       subsidyClaimsEacs: [null],
       hasPublicFunding: [null],
       publicFundingEndDate: [null],
+      registrationType: [null],
+      volumeEvidenceType: [null],
+      publicFundingType: [null],
+      labellingSchemeAccreditation: [null],
+      verificationAgentName: [null],
+      offGridCircumstances: [null],
       FORM_SF_02: [null, [Validators.required]],
       SF_02C: [null, [Validators.required]],
       METERING_EVIDENCE: [null, [Validators.required]],
@@ -456,6 +510,7 @@ export class AddDevicesComponent implements OnDestroy {
       PROJECT_PHOTOS: [null, [Validators.required]],
       SCREENSHOTS: [null],
       COD_PROOF: [null],
+      OTHER_DOCUMENTS: [null],
       codEvidenceMode: ['self'],
     });
 
@@ -512,13 +567,13 @@ export class AddDevicesComponent implements OnDestroy {
     const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
     switch (dataSource) {
       case DataSourceTypes.Inverter:
-        return 'Inverter Serial Number(s)';
+        return 'Inverter Serial Number(s) ⁽³⁰⁾';
       case DataSourceTypes.DataLogger:
-        return 'Data Logger Serial Number(s)';
+        return 'Data Logger Serial Number(s) ⁽³⁰⁾';
       case DataSourceTypes.Other:
-        return 'Other Id';
+        return 'Other Id ⁽³⁰⁾';
       default:
-        return 'Serial Number(s)';
+        return 'Serial Number(s) ⁽³⁰⁾';
     }
   }
   private setupdataSourceBrandWatcher(deviceGroup: FormGroup) {
@@ -534,13 +589,13 @@ export class AddDevicesComponent implements OnDestroy {
     const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
     switch (dataSource) {
       case DataSourceTypes.Inverter:
-        return 'Inverter Brand Name';
+        return 'Inverter Brand Name ⁽²⁷⁾';
       case DataSourceTypes.DataLogger:
-        return 'Data Logger Brand Name';
+        return 'Data Logger Brand Name ⁽²⁷⁾';
       case DataSourceTypes.Other:
-        return 'Data source Brand Name';
+        return 'Data source Brand Name ⁽²⁷⁾';
       default:
-        return 'Data Source Brand Name';
+        return 'Data Source Brand Name ⁽²⁷⁾';
     }
   }
   private _filter(value: string, i: number): CountryInfo[] {
@@ -739,6 +794,7 @@ export class AddDevicesComponent implements OnDestroy {
         DocumentType.PROJECT_PHOTOS,
         DocumentType.SCREENSHOTS,
         DocumentType.COD_PROOF,
+        DocumentType.OTHER_DOCUMENTS,
       ];
 
       const allowedExtensions = [...DOCUMENTS_EXTENSIONS];

@@ -23,6 +23,8 @@ import {
   getEvidenceRequirements,
   getHint,
 } from '../../../utils/evidence-requirements';
+import { satellitePreview, SatellitePreview } from '../../map/map.component';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   standalone: false,
@@ -36,6 +38,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   initWidth = Math.round((window.innerWidth * 2) / 3);
   initHeight = Math.round((window.innerHeight * 2) / 3);
+  isDevMode = !environment.production;
 
   readonly statusOptions: AssetStatus[] = [
     'draft',
@@ -53,6 +56,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   set searchTerm(v: string) {
     this.searchTerm$.next(v);
   }
+
+  satPreviewEnabled = false;
+  satPreview: { preview: SatellitePreview; label: string; x: number; y: number } | null = null;
 
   statusFilter: Record<AssetStatus, boolean> = this.loadStatusFilter();
   readonly statusFilter$ = new BehaviorSubject(this.statusFilter);
@@ -78,7 +84,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   searchIndex = -1;
 
   // sort state
-  sortColumn: 'serial' | 'modifiedDate' | 'status' | 'siteName' =
+  sortColumn: 'serial' | 'modifiedDate' | 'status' | 'siteName' | 'countryCode' =
     'siteName';
   sortDir: 1 | -1 = 1;
   readonly sort$ = new BehaviorSubject<{ col: string; dir: number }>({
@@ -86,7 +92,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     dir: 1,
   });
 
-  sortBy(col: 'serial' | 'modifiedDate' | 'status' | 'siteName'): void {
+  sortBy(col: 'serial' | 'modifiedDate' | 'status' | 'siteName' | 'countryCode'): void {
     if (this.sortColumn === col) {
       this.sortDir = this.sortDir === 1 ? -1 : 1;
     } else {
@@ -108,6 +114,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       } else if (this.sortColumn === 'siteName') {
         av = a.siteName.toLowerCase();
         bv = b.siteName.toLowerCase();
+      } else if (this.sortColumn === 'countryCode') {
+        av = a.countryCode.toLowerCase();
+        bv = b.countryCode.toLowerCase();
       } else {
         av = a.status;
         bv = b.status;
@@ -297,12 +306,17 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.statusFilter$,
     this.sort$,
   ]).pipe(
-    map(([assets, searchTerm, statusFilter]) => ({
-      assets: this.sortAssets(
+    map(([assets, searchTerm, statusFilter]) => {
+      const filtered = this.sortAssets(
         this.applyFilter(assets, searchTerm, statusFilter),
-      ),
-      searchTerm,
-    })),
+      );
+      return {
+        assets: filtered,
+        searchTerm,
+        filteredCount: filtered.length,
+        totalCount: assets.length,
+      };
+    }),
   );
 
   /** Selected ID tracked as component property so selection changes don't trigger list re-render. */
@@ -1459,6 +1473,40 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     const parts = key.split(':');
     if (parts[1] === 'pic') return `Picture #${parseInt(parts[2], 10) + 1}`;
     return labels[parts[1]] || parts[1];
+  }
+
+  showSatPreview(event: MouseEvent, asset: Asset) {
+    if (!this.satPreviewEnabled) return;
+    const lat = asset.lat;
+    const lng = asset.long;
+    if (lat == null || lng == null) return;
+    const pos = this.satPreviewPos(event);
+    this.satPreview = {
+      preview: satellitePreview(lat, lng, 19),
+      label: asset.siteName || '',
+      x: pos.x,
+      y: pos.y,
+    };
+  }
+
+  moveSatPreview(event: MouseEvent) {
+    if (!this.satPreview) return;
+    const pos = this.satPreviewPos(event);
+    this.satPreview = { ...this.satPreview, x: pos.x, y: pos.y };
+  }
+
+  private satPreviewPos(event: MouseEvent): { x: number; y: number } {
+    const boxW = 270;
+    const boxH = 290;
+    const gap = 16;
+    const rightFits = event.clientX + gap + boxW < window.innerWidth;
+    const x = rightFits ? event.clientX + gap : event.clientX - gap - boxW;
+    const y = Math.min(Math.max(event.clientY - boxH / 2, 4), window.innerHeight - boxH - 4);
+    return { x, y };
+  }
+
+  hideSatPreview() {
+    this.satPreview = null;
   }
 
   private logChatEntry(siteName: string, entry: string): void {

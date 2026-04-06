@@ -15,6 +15,14 @@
         />
         <button class="icon-btn" *ngIf="searchTerm" (click)="clearSearch()" title="Clear">&#10005;</button>
       </div>
+      <ng-container *ngIf="filtered$ | async as result">
+        <span class="device-count" *ngIf="result.filteredCount < result.totalCount">
+          {{ result.filteredCount }} / {{ result.totalCount }} devices
+        </span>
+        <span class="device-count" *ngIf="result.filteredCount === result.totalCount">
+          {{ result.totalCount }} devices
+        </span>
+      </ng-container>
       <div class="status-filters">
         <label *ngFor="let s of statusOptions" class="status-filter-label">
           <input type="checkbox" [(ngModel)]="statusFilter[s]" (change)="onFilterChange()" />
@@ -33,6 +41,10 @@
       <span class="toolbar-sep"></span>
       <button class="bulk-btn" (click)="exportExcel()" title="Export filtered list to Excel">⤓ Excel</button>
       <span *ngIf="bulkBusy" class="toolbar-status">Processing…</span>
+      <label class="sat-toggle">
+        <input type="checkbox" [(ngModel)]="satPreviewEnabled" />
+        Satellite on hover
+      </label>
     </div>
 
     <!-- ── Hierarchical table ──────────────────────────────────────────────── -->
@@ -43,6 +55,7 @@
         <input type="checkbox" class="bulk-check" [checked]="isAllChecked()" (click)="toggleCheckAll($event)" title="Select all visible" />
         <span class="chevron-spacer"></span>
         <span class="col-serial  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='siteName'&&sortDir===1" [class.desc]="sortColumn==='siteName'&&sortDir===-1" (click)="sortBy('siteName')" (keydown.enter)="sortBy('siteName')">Site Name</span>
+        <span class="col-country th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='countryCode'&&sortDir===1" [class.desc]="sortColumn==='countryCode'&&sortDir===-1" (click)="sortBy('countryCode')" (keydown.enter)="sortBy('countryCode')">Country</span>
         <span class="col-modified th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='modifiedDate'&&sortDir===1" [class.desc]="sortColumn==='modifiedDate'&&sortDir===-1" (click)="sortBy('modifiedDate')" (keydown.enter)="sortBy('modifiedDate')">Modified</span>
         <span class="col-status  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='status'&&sortDir===1" [class.desc]="sortColumn==='status'&&sortDir===-1" (click)="sortBy('status')" (keydown.enter)="sortBy('status')">Status</span>
       </div>
@@ -60,6 +73,9 @@
           (click)="selectAsset(item); svc.expand(item.id)"
           (keydown.enter)="selectAsset(item); svc.expand(item.id)"
           (dblclick)="toggleDevice(item.id)"
+          (mouseenter)="showSatPreview($event, item)"
+          (mousemove)="moveSatPreview($event)"
+          (mouseleave)="hideSatPreview()"
         >
           <input type="checkbox" class="bulk-check" [checked]="!!checked[item.id]" (click)="toggleCheck(item.id, $event)" />
           <span class="chevron" role="button" tabindex="0" [class.chevron--open]="expanded[item.id]" (click)="toggleDevice(item.id); $event.stopPropagation()" (keydown.enter)="toggleDevice(item.id); $event.stopPropagation()">&#8250;</span>
@@ -67,6 +83,7 @@
             <span [innerHTML]="hl(item.siteName, result.searchTerm)"></span>
             <span class="unread-dot" *ngIf="(chatService.unreadDevices$ | async)?.has(item.siteName)" title="New message">●</span>
           </span>
+          <span class="col-country muted">{{ item.countryCode | countryName }}</span>
           <span class="col-modified muted">{{ item.modifiedDate ? (item.modifiedDate | date:'dd/MM/yyyy') : '—' }}</span>
           <span class="col-status">
             <span class="status-icon status-icon--{{ item.status }}">{{ item.status === 'approved' ? '✓' : item.status === 'rejected' ? '✗' : '●' }}</span>
@@ -83,7 +100,7 @@
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sld']" [class.review-check--disabled]="!item.sldUrl" role="checkbox" [attr.tabindex]="item.sldUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sld']" [attr.aria-disabled]="!item.sldUrl" (click)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" (keydown.enter)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sld']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <span class="doc-label">SLD</span>
+            <span class="doc-label">SLD <span class="fn">(64)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}" [title]="getDocHint('SINGLE_LINE_DIAGRAM', item.operatingConfiguration) || ''">{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}</span>
             <ng-container *ngIf="item.sldUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -98,7 +115,7 @@
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02']" [class.review-check--disabled]="!item.sf02Url" role="checkbox" [attr.tabindex]="item.sf02Url ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02']" [attr.aria-disabled]="!item.sf02Url" (click)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" (keydown.enter)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <span class="doc-label">SF-02</span>
+            <span class="doc-label">SF-02 <span class="fn">(55)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}" [title]="getDocHint('FORM_SF_02', item.operatingConfiguration) || ''">{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}</span>
             <ng-container *ngIf="item.sf02Url">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -113,7 +130,7 @@
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02c']" [class.review-check--disabled]="!item.sf02cUrl" role="checkbox" [attr.tabindex]="item.sf02cUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02c']" [attr.aria-disabled]="!item.sf02cUrl" (click)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" (keydown.enter)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02c']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <span class="doc-label">SF-02C</span>
+            <span class="doc-label">SF-02C <span class="fn">(56)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}" [title]="getDocHint('SF_02C', item.operatingConfiguration) || ''">{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}</span>
             <ng-container *ngIf="item.sf02cUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -128,7 +145,7 @@
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':codProof']" [class.review-check--disabled]="!item.codProofUrl" role="checkbox" [attr.tabindex]="item.codProofUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':codProof']" [attr.aria-disabled]="!item.codProofUrl" (click)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" (keydown.enter)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':codProof']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <span class="doc-label" title="Commercial Operation Date">COD Proof</span>
+            <span class="doc-label" title="Commercial Operation Date">COD Proof <span class="fn">(63)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}" [title]="getDocHint('COD_PROOF', item.operatingConfiguration) || ''">{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}</span>
             <ng-container *ngIf="item.codProofUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -143,7 +160,7 @@
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':meteringEvidence']" [class.review-check--disabled]="!item.meteringEvidenceUrl" role="checkbox" [attr.tabindex]="item.meteringEvidenceUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':meteringEvidence']" [attr.aria-disabled]="!item.meteringEvidenceUrl" (click)="item.meteringEvidenceUrl && toggleReviewed(item.id + ':meteringEvidence', $event)" (keydown.enter)="item.meteringEvidenceUrl && toggleReviewed(item.id + ':meteringEvidence', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':meteringEvidence']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <span class="doc-label">Metering Evidence</span>
+            <span class="doc-label">Metering Evidence <span class="fn">(58)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('METERING_EVIDENCE', item.operatingConfiguration, !!item.meteringEvidenceUrl) }}" [title]="getDocHint('METERING_EVIDENCE', item.operatingConfiguration) || ''">{{ getReqStatus('METERING_EVIDENCE', item.operatingConfiguration, !!item.meteringEvidenceUrl) }}</span>
             <ng-container *ngIf="item.meteringEvidenceUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -156,7 +173,7 @@
           <!-- ── Pictures section ──────────────────────────────────────────── -->
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'pictures')" (keydown.enter)="toggleSection(item.id, 'pictures')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'pictures')">&#8250;</span>
-            <span class="section-label">Pictures</span>
+            <span class="section-label">Pictures <span class="fn">(65)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length > 0) }}">{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length > 0) }}</span>
             <span *ngIf="item.pictureUrls.length" class="section-count">({{ item.pictureUrls.length }})</span>
           </div>
@@ -179,7 +196,7 @@
           <!-- ── Screenshots section ─────────────────────────────────────────── -->
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'screenshots')" (keydown.enter)="toggleSection(item.id, 'screenshots')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'screenshots')">&#8250;</span>
-            <span class="section-label">Screenshots</span>
+            <span class="section-label">Screenshots <span class="fn">(66)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}" [title]="getDocHint('SCREENSHOTS', item.operatingConfiguration) || ''">{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}</span>
             <span *ngIf="item.screenshotUrls.length" class="section-count">({{ item.screenshotUrls.length }})</span>
           </div>
@@ -214,41 +231,41 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
               </button>
               <div class="field field--narrow">
-                <label class="field__label">Latitude</label>
+                <label class="field__label">Latitude <span class="fn">(10)</span></label>
                 <input type="number" step="any" class="field__input" formControlName="lat" placeholder="e.g. 37.7749" />
               </div>
               <div class="field field--narrow">
-                <label class="field__label">Longitude</label>
+                <label class="field__label">Longitude <span class="fn">(10)</span></label>
                 <input type="number" step="any" class="field__input" formControlName="long" placeholder="e.g. -122.4194" />
               </div>
               <div class="field field--narrow">
-                <label class="field__label">Capacity</label>
+                <label class="field__label">Capacity <span class="fn">(31)</span></label>
                 <div class="field__input-group">
                   <input type="number" step="any" class="field__input" formControlName="capacity" readonly />
                   <span class="field__unit">kW</span>
                 </div>
               </div>
               <div class="field field--narrow">
-                <label class="field__label">AC Capacity</label>
+                <label class="field__label">AC Capacity <span class="fn">(34)</span></label>
                 <div class="field__input-group">
                   <input type="number" step="any" class="field__input" formControlName="acCapacity" readonly />
                   <span class="field__unit">V</span>
                 </div>
               </div>
               <div class="field field--narrow">
-                <label class="field__label">Country</label>
+                <label class="field__label">Country <span class="fn">(9)</span></label>
                 <span class="field__input field__input--text">{{ detailForm.get('countryCode')?.value | countryName }}</span>
               </div>
               <div class="field field--auto">
-                <label class="field__label">Serial</label>
+                <label class="field__label">Serial <span class="fn">(30)</span></label>
                 <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('serial')?.value ?? '', searchTerm)"></span>
               </div>
               <div class="field field--auto">
-                <label class="field__label">Operating Config</label>
+                <label class="field__label">Operating Config <span class="fn">(38)</span></label>
                 <span class="field__input field__input--text">{{ detailForm.get('operatingConfiguration')?.value || '—' }}</span>
               </div>
               <div class="field field--auto">
-                <label class="field__label">Source Access</label>
+                <label class="field__label">Source Access <span class="fn">(40)</span></label>
                 <span class="field__input field__input--text">{{ detailForm.get('sourceAccessMode')?.value || '—' }}</span>
               </div>
               <div class="field field--auto">
@@ -266,7 +283,7 @@
             </div>
             <div class="top-row">
               <div class="field field--auto">
-                <label class="field__label">Registrant</label>
+                <label class="field__label">Registrant <span class="fn">(4)</span></label>
                 <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('submitterName')?.value || detailForm.get('submitterEmail')?.value || '—', searchTerm)"></span>
               </div>
               <div class="field field--auto">
@@ -287,7 +304,7 @@
               </div>
               <div class="field field--narrow">
                 <label class="field__label">Status</label>
-                <select class="field__input field__select status-select status-select--{{ detailForm.get('status')?.value }}" formControlName="status">
+                <select class="field__input field__select status-select status-select--{{ detailForm.get('status')?.value }}" formControlName="status" [attr.disabled]="isDevMode ? null : true">
                   <option value="draft">Draft</option>
                   <option value="pending">Pending</option>
                   <option value="approved">Approved</option>
@@ -312,7 +329,6 @@
             <button type="button" class="btn btn--screen" (click)="screenDuplicates()" title="Screen for duplicates across all organizations">Screen</button>
             <button type="button" class="btn btn--verify" (click)="verifySourceAccess()" title="Verify source-access mode requirements (§3.3)">Verify</button>
             <button type="button" class="btn btn--ceiling" (click)="checkCeiling()" title="Irradiance-based production ceiling check (§3.6)">Ceiling</button>
-            <button type="button" class="btn btn--consistency" (click)="checkConsistency()" title="Historical consistency review (§3.7)">History</button>
             <button type="button" class="btn btn--audit" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit</button>
             <button type="button" class="btn btn--controls" (click)="evaluateControls()" title="Compensating controls for Mode 4 (§3.9)">Controls</button>
             <button type="button" class="btn btn--photogps" (click)="checkPhotoGps()" title="Verify photo GPS vs declared location (VA layer)">Photo GPS</button>
@@ -645,7 +661,7 @@
 
   <!-- ── Audit trail modal (§3.8) ─────────────────────────────────── -->
   <div class="modal-backdrop" *ngIf="showAuditModal" role="dialog" aria-modal="true" (click)="showAuditModal = false" (keydown.escape)="showAuditModal = false">
-    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-box modal-box--audit" role="document" (click)="$event.stopPropagation()">
       <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
         <p class="modal-msg" style="font-weight: 600; margin: 0;">Audit Trail</p>
         <input *ngIf="auditTrail.length > 0" type="text" placeholder="Search..."
@@ -663,7 +679,10 @@
             <span class="audit-entry__time">{{ entry.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
             <span class="audit-entry__ip" *ngIf="entry.metadata && entry.metadata['ip']">{{ entry.metadata['ip'] }}</span>
           </div>
-          <div class="audit-entry__detail" *ngIf="entry.detail">{{ entry.detail }}</div>
+          <div class="audit-entry__detail" *ngIf="entry.detail"
+               [class.audit-entry__detail--warn]="entry.detail.includes('exceeds')">
+            <span *ngIf="entry.detail.includes('exceeds')" class="audit-warn-icon">⚠</span>{{ entry.detail }}
+          </div>
         </div>
       </div>
       <div class="modal-actions">
@@ -814,6 +833,16 @@
         <button class="btn btn--save" (click)="showSldModal = false">OK</button>
       </div>
     </div>
+  </div>
+
+  <div class="sat-preview" *ngIf="satPreview" [style.top.px]="satPreview.y" [style.left.px]="satPreview.x">
+    <div style="width:256px;height:256px;overflow:hidden;position:relative;border-radius:4px">
+      <div [style.left.px]="satPreview.preview.offsetX" [style.top.px]="satPreview.preview.offsetY" style="position:absolute">
+        <img *ngFor="let t of satPreview.preview.tiles" [src]="t.url" width="256" height="256"
+          [style.position]="'absolute'" [style.left.px]="t.left" [style.top.px]="t.top" alt="" />
+      </div>
+    </div>
+    <div class="sat-preview__label">{{ satPreview.label }}</div>
   </div>
 
 </div>

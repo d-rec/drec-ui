@@ -26,7 +26,9 @@
 
   // Align fields within each row
   ::ng-deep .row {
-    align-items: end;
+    align-items: start;
+    margin-bottom: 8px;
+    row-gap: 8px;
   }
 
   // Compact section headings and doc labels
@@ -67,6 +69,12 @@
     // Remove subscript space so all fields have equal height
     .mat-mdc-form-field-subscript-wrapper {
       display: none;
+    }
+    // Let textarea fields grow beyond the fixed 48px height
+    &:has(textarea) {
+      height: auto;
+      .mat-mdc-text-field-wrapper { height: auto; }
+      .mat-mdc-form-field-flex { height: auto; }
     }
   }
   // Show subscript only when there's an actual error visible

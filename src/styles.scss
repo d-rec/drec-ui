@@ -71,6 +71,9 @@ input[type="radio"] {
   accent-color: #64748b;
 }
 
+.fn { font-size: 9px; color: #64748b; vertical-align: super; margin-left: 1px; }
+.wide-panel { min-width: 520px !important; }
+
 .body-bg {
   padding: 16px 20px;
   background: $color-bg;

@@ -38,6 +38,27 @@ export interface Device {
   version?: string;
   timezone?: string;
   serialNumber: string;
+  // General (rows 2, 8)
+  defaultAccountCode?: string;
+  requestedEffectiveRegDate?: string;
+  // Signature & evidence pathway (rows 55-56, 58-59, 61-62)
+  signatoryName?: string;
+  isGridConnected?: 'Yes' | 'No';
+  gridExportType?: string;
+  hasNetworkMeter?: 'Yes' | 'No';
+  meterReadsShareable?: 'Yes' | 'No';
+  // Business details (Evident checklist rows 43, 45-48, 54)
+  hasCaptiveConsumer?: 'Yes' | 'No';
+  hasAuxiliaryEnergySources?: 'Yes' | 'No';
+  auxiliaryEnergySourceDetails?: string;
+  nonMeterImportDetails?: string;
+  otherEacSchemeRegistration?: string;
+  additionalInfo?: string;
+  // Facility technical (Evident checklist rows 32, 33, 35, 36)
+  meterIds?: string[];
+  generatingUnitCount?: number;
+  networkOwner?: string;
+  interconnectionVoltage?: string;
   // Ownership & off-taker (Evident checklist rows 76, 77, 81)
   pvSystemOwner?: string;
   offTakerName?: string;
@@ -50,4 +71,11 @@ export interface Device {
   // Public funding (rows 50, 51)
   hasPublicFunding?: 'Yes' | 'No';
   publicFundingEndDate?: string;
+  // SF-02 gaps
+  registrationType?: string;
+  volumeEvidenceType?: string;
+  publicFundingType?: string;
+  labellingSchemeAccreditation?: string;
+  verificationAgentName?: string;
+  offGridCircumstances?: string;
 }

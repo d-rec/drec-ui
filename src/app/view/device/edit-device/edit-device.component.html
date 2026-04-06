@@ -29,7 +29,7 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label>Site Name</mat-label>
+                  <mat-label>Site Name <span class="fn">(1)</span></mat-label>
                   <input matInput autocomplete="off" formControlName="siteName" [(ngModel)]="siteName" />
                   <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                   <!-- <mat-hint>Hint</mat-hint> -->
@@ -37,7 +37,7 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Serial Number(s)</mat-label>
+                  <mat-label class="text-capitalize">Serial Number(s) <span class="fn">(30)</span></mat-label>
                   <input matInput formControlName="serialNumber" />
                   <mat-error class="pb-3" *ngIf="checkValidation('serialNumber')">
                     {{ serialNumberErrors() }}
@@ -51,7 +51,7 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Device Type Code</mat-label>
+                  <mat-label class="text-capitalize">Device Type Code <span class="fn">(29)</span></mat-label>
 
                   <mat-select formControlName="deviceTypeCode" [(ngModel)]="deviceTypeCode">
                     <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
@@ -62,7 +62,7 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label>Capacity(kW)</mat-label>
+                  <mat-label>Capacity(kW) <span class="fn">(6)</span></mat-label>
                   <input matInput type="number" [(ngModel)]="capacity" formControlName="capacity" [min]="1" />
                   <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
                   <!-- <mat-hint>Hint</mat-hint> -->
@@ -82,7 +82,7 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Device Description</mat-label>
+                  <mat-label class="text-capitalize">Device Description <span class="fn">(5)</span></mat-label>
                   <mat-select formControlName="deviceDescription" [(ngModel)]="deviceDescription">
                     <mat-option *ngFor="let code of devicediscription" [value]="code">
                       {{ code }}
@@ -92,10 +92,9 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label>Operating Configuration</mat-label>
-                  <mat-select formControlName="operatingConfiguration" [(ngModel)]="operatingConfiguration"
+                  <mat-label>Operating Configuration <span class="fn">(60)</span></mat-label>
+                  <mat-select formControlName="operatingConfiguration" [(ngModel)]="operatingConfiguration" panelClass="wide-panel"
                     (selectionChange)="onOperatingConfigChange($event.value)">
-                    <mat-option [value]="null">-- Not specified --</mat-option>
                     <mat-option *ngFor="let oc of operatingConfigurations" [value]="oc">
                       {{ oc }}
                     </mat-option>
@@ -118,7 +117,7 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Address</mat-label>
+                  <mat-label class="text-capitalize">Address <span class="fn">(10)</span></mat-label>
                   <input autocomplete="off" matInput placeholder="address" formControlName="address"
                     [(ngModel)]="address" />
                   <!-- <mat-icon matSuffix>sentiment_very_satisfied</mat-icon> -->
@@ -128,20 +127,20 @@
 
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Postcodeode (Zip Code)</mat-label>
+                  <mat-label class="text-capitalize">Postcodeode (Zip Code) <span class="fn">(12)</span></mat-label>
                   <input matInput type="string" formControlName="postcode" [(ngModel)]="postcode" />
                   <mat-error>Please enter the valid postcode</mat-error>
                 </mat-form-field>
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">State/Province/County</mat-label>
+                  <mat-label class="text-capitalize">State/Province/County <span class="fn">(11)</span></mat-label>
                   <input matInput formControlName="stateProvince" [(ngModel)]="stateProvince" />
                 </mat-form-field>
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Select country Code</mat-label>
+                  <mat-label class="text-capitalize">Select country Code <span class="fn">(9)</span></mat-label>
                   <input type="text" matInput formControlName="countryCode" [(ngModel)]="countryCode"
                     [matAutocomplete]="auto" />
                   <mat-autocomplete #auto="matAutocomplete">
@@ -156,7 +155,7 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Latitude</mat-label>
+                  <mat-label class="text-capitalize">Latitude <span class="fn">(14)</span></mat-label>
                   <input matInput placeholder="latitude" formControlName="latitude" [(ngModel)]="latitude" />
                   <mat-error>please enter the valid value</mat-error>
                 </mat-form-field>
@@ -164,7 +163,7 @@
 
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Longitude</mat-label>
+                  <mat-label class="text-capitalize">Longitude <span class="fn">(15)</span></mat-label>
                   <input matInput placeholder="longitude" formControlName="longitude" [(ngModel)]="longitude" />
                   <mat-error>please enter the valid value</mat-error>
                 </mat-form-field>
@@ -184,7 +183,7 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">SDG Benefits</mat-label>
+                  <mat-label class="text-capitalize">SDG Benefits <span class="fn">(73)</span></mat-label>
                   <mat-select formControlName="SDGBenefits" [(ngModel)]="SDGBenefits" multiple>
                     <mat-option *ngFor="let sdgb of sdgblist" [value]="sdgb.name">{{ sdgb.value }}</mat-option>
                   </mat-select>
@@ -210,7 +209,7 @@
             <div class="example-container1 row" *ngIf="addmoredetals">
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">off Taker</mat-label>
+                  <mat-label class="text-capitalize">off Taker <span class="fn">(71)</span></mat-label>
 
                   <mat-select formControlName="offTaker" placeholder="offTaker" [(ngModel)]="offTaker">
                     <mat-option *ngFor="let code of offtaker" [value]="code">
@@ -221,30 +220,29 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">impact Story</mat-label>
-                  <input matInput formControlName="impactStory" [(ngModel)]="impactStory" />
+                  <mat-label class="text-capitalize">impact Story <span class="fn">(72)</span></mat-label>
+                  <textarea matInput formControlName="impactStory" [(ngModel)]="impactStory" rows="3"
+                    matTooltip="Describe the social, environmental, or economic impact of this device. For example: number of households served, displacement of diesel generators, improvement in local air quality, support for livelihoods, or contribution to community electrification goals."
+                    matTooltipPosition="above"></textarea>
                 </mat-form-field>
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label class="text-capitalize">Quality Labels</mat-label>
+                  <mat-label class="text-capitalize">Quality Labels <span class="fn">(9)</span></mat-label>
                   <input matInput placeholder="qualityLabels" formControlName="qualityLabels"
                     [(ngModel)]="qualityLabels" />
                 </mat-form-field>
               </div>
               <div class="col-md-3 d-flex flex-column">
-                <span>Grid Inter-connection:</span>
+                <span>Grid Inter-connection: <span class="fn">(55)</span></span>
                 <mat-radio-group formControlName="gridInterconnection" [(ngModel)]="gridInterconnection">
                   <mat-radio-button [value]="true">Yes</mat-radio-button>
                   <mat-radio-button [value]="false">No</mat-radio-button>
                 </mat-radio-group>
               </div>
-            </div>
-
-            <div class="example-container1 row" *ngIf="addmoredetals">
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label>Source Access Mode</mat-label>
+                  <mat-label>Source Access Mode <span class="fn">(63)</span></mat-label>
                   <mat-select formControlName="sourceAccessMode" [(ngModel)]="sourceAccessMode">
                     <mat-option [value]="null">-- Not specified --</mat-option>
                     <mat-option *ngFor="let sam of sourceAccessModes" [value]="sam">
@@ -253,26 +251,103 @@
                   </mat-select>
                 </mat-form-field>
               </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Default Account Code <span class="fn">(2)</span></mat-label>
+                  <input matInput formControlName="defaultAccountCode"
+                    placeholder="Evident trade account code" />
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Requested Eff. Reg. Date <span class="fn">(8)</span></mat-label>
+                  <input matInput [matDatepicker]="regDatePicker" formControlName="requestedEffectiveRegDate" />
+                  <mat-datepicker-toggle matSuffix [for]="regDatePicker"></mat-datepicker-toggle>
+                  <mat-datepicker #regDatePicker></mat-datepicker>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Registration Type <span class="fn">(§1.1)</span></mat-label>
+                  <mat-select formControlName="registrationType">
+                    <mat-option *ngFor="let rt of registrationTypes" [value]="rt">
+                      {{ rt }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Volume Evidence Type <span class="fn">(§1.3)</span></mat-label>
+                  <mat-select formControlName="volumeEvidenceType">
+                    <mat-option *ngFor="let ve of volumeEvidenceTypes" [value]="ve">
+                      {{ ve }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Verification Agent <span class="fn">(§1.6)</span></mat-label>
+                  <input matInput formControlName="verificationAgentName" />
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Off-Grid Circumstances <span class="fn">(§1.3)</span></mat-label>
+                  <input matInput formControlName="offGridCircumstances" />
+                </mat-form-field>
+              </div>
             </div>
             <div class="example-container1 row" *ngIf="addmoredetals">
               <div class="col-md-12">
-                <h4 class="text-capitalize" style="margin-top:16px">Ownership &amp; Incentives</h4>
+                <h4 class="text-capitalize" style="margin-top:24px">Facility Technical</h4>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label>PV System Owner</mat-label>
+                  <mat-label>Meter / Measurement ID(s) <span class="fn">(32)</span></mat-label>
+                  <input matInput formControlName="meterIds"
+                    placeholder="e.g. MTR-001, MTR-002" />
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Number of generating units <span class="fn">(33)</span></mat-label>
+                  <input matInput formControlName="generatingUnitCount" type="number" min="1" />
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Network owner <span class="fn">(35)</span></mat-label>
+                  <input matInput formControlName="networkOwner" />
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Interconnection voltage <span class="fn">(36)</span></mat-label>
+                  <input matInput formControlName="interconnectionVoltage" />
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="example-container1 row" *ngIf="addmoredetals">
+              <div class="col-md-12">
+                <h4 class="text-capitalize" style="margin-top:24px">Ownership &amp; Incentives</h4>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>PV System Owner <span class="fn">(77)</span></mat-label>
                   <input matInput formControlName="pvSystemOwner" />
                 </mat-form-field>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label>Off-taker Name</mat-label>
+                  <mat-label>Off-taker Name <span class="fn">(76)</span></mat-label>
                   <input matInput formControlName="offTakerName" />
                 </mat-form-field>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label>Off-taker same company as PV owner?</mat-label>
+                  <mat-label>Off-taker same company as PV owner? <span class="fn">(81)</span></mat-label>
                   <mat-select formControlName="offTakerSameCompanyAsOwner">
                     <mat-option [value]="null">--</mat-option>
                     <mat-option value="Yes">Yes</mat-option>
@@ -280,9 +355,9 @@
                   </mat-select>
                 </mat-form-field>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label>Ever received any subsidy or incentive?</mat-label>
+                  <mat-label>Subsidy or incentive received? <span class="fn">(78)</span></mat-label>
                   <mat-select formControlName="hasSubsidy">
                     <mat-option [value]="null">--</mat-option>
                     <mat-option value="Yes">Yes</mat-option>
@@ -290,9 +365,9 @@
                   </mat-select>
                 </mat-form-field>
               </div>
-              <div class="col-md-4" *ngIf="updateDeviceForm.get('hasSubsidy')?.value === 'Yes'">
+              <div class="col-md-3" *ngIf="updateDeviceForm.get('hasSubsidy')?.value === 'Yes'">
                 <mat-form-field appearance="outline">
-                  <mat-label>Subsidy types</mat-label>
+                  <mat-label>Subsidy types <span class="fn">(79)</span></mat-label>
                   <mat-select formControlName="subsidyTypes" multiple>
                     <mat-option value="Net Metering">Net Metering</mat-option>
                     <mat-option value="Feed In Tariff">Feed In Tariff</mat-option>
@@ -302,15 +377,15 @@
                   </mat-select>
                 </mat-form-field>
               </div>
-              <div class="col-md-4" *ngIf="updateDeviceForm.get('subsidyTypes')?.value?.includes('Other')">
+              <div class="col-md-3" *ngIf="updateDeviceForm.get('subsidyTypes')?.value?.includes('Other')">
                 <mat-form-field appearance="outline">
                   <mat-label>Other &mdash; details</mat-label>
                   <input matInput formControlName="subsidyOtherDetails" />
                 </mat-form-field>
               </div>
-              <div class="col-md-4" *ngIf="updateDeviceForm.get('hasSubsidy')?.value === 'Yes'">
+              <div class="col-md-3" *ngIf="updateDeviceForm.get('hasSubsidy')?.value === 'Yes'">
                 <mat-form-field appearance="outline">
-                  <mat-label>Do subsidies claim the environmental attributes?</mat-label>
+                  <mat-label>Subsidies claim env. attributes? <span class="fn">(80)</span></mat-label>
                   <mat-select formControlName="subsidyClaimsEacs">
                     <mat-option [value]="null">--</mat-option>
                     <mat-option value="Yes">Yes</mat-option>
@@ -318,9 +393,9 @@
                   </mat-select>
                 </mat-form-field>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <mat-form-field appearance="outline">
-                  <mat-label>Ever received public (government) funding?</mat-label>
+                  <mat-label>Public (government) funding? <span class="fn">(50)</span></mat-label>
                   <mat-select formControlName="hasPublicFunding">
                     <mat-option [value]="null">--</mat-option>
                     <mat-option value="Yes">Yes</mat-option>
@@ -328,12 +403,132 @@
                   </mat-select>
                 </mat-form-field>
               </div>
-              <div class="col-md-4" *ngIf="updateDeviceForm.get('hasPublicFunding')?.value === 'Yes'">
+              <div class="col-md-3" *ngIf="updateDeviceForm.get('hasPublicFunding')?.value === 'Yes'">
                 <mat-form-field appearance="outline">
-                  <mat-label>Public funding end date</mat-label>
+                  <mat-label>Public funding end date <span class="fn">(51)</span></mat-label>
                   <input matInput [matDatepicker]="fundEnd" formControlName="publicFundingEndDate" />
                   <mat-datepicker-toggle matSuffix [for]="fundEnd"></mat-datepicker-toggle>
                   <mat-datepicker #fundEnd></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="example-container1 row" *ngIf="addmoredetals">
+              <div class="col-md-12">
+                <h4 class="text-capitalize" style="margin-top:24px">Business Details</h4>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Captive consumer present? <span class="fn">(43)</span></mat-label>
+                  <mat-select formControlName="hasCaptiveConsumer">
+                    <mat-option [value]="null">--</mat-option>
+                    <mat-option value="Yes">Yes</mat-option>
+                    <mat-option value="No">No</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Auxiliary energy sources? <span class="fn">(45)</span></mat-label>
+                  <mat-select formControlName="hasAuxiliaryEnergySources">
+                    <mat-option [value]="null">--</mat-option>
+                    <mat-option value="Yes">Yes</mat-option>
+                    <mat-option value="No">No</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3" *ngIf="updateDeviceForm.get('hasAuxiliaryEnergySources')?.value === 'Yes'">
+                <mat-form-field appearance="outline">
+                  <mat-label>Auxiliary source details <span class="fn">(46)</span></mat-label>
+                  <input matInput formControlName="auxiliaryEnergySourceDetails" />
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Non-meter import details <span class="fn">(47)</span></mat-label>
+                  <input matInput formControlName="nonMeterImportDetails" />
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Other EAC scheme registration <span class="fn">(48)</span></mat-label>
+                  <input matInput formControlName="otherEacSchemeRegistration"
+                    placeholder="Registration ID or 'None'" />
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Additional Information <span class="fn">(54)</span></mat-label>
+                  <input matInput formControlName="additionalInfo" />
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Labelling Scheme <span class="fn">(§1.5)</span></mat-label>
+                  <input matInput formControlName="labellingSchemeAccreditation"
+                    placeholder="Scheme name or 'None'" />
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Public Funding Type <span class="fn">(§1.5)</span></mat-label>
+                  <mat-select formControlName="publicFundingType">
+                    <mat-option [value]="null">-- Not specified --</mat-option>
+                    <mat-option *ngFor="let pf of publicFundingTypes" [value]="pf">
+                      {{ pf }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+            <div class="example-container1 row" *ngIf="addmoredetals">
+              <div class="col-md-12">
+                <h4 class="text-capitalize" style="margin-top:24px">Evidence Pathway &amp; Signature</h4>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Is this facility grid-connected? <span class="fn">(58)</span></mat-label>
+                  <mat-select formControlName="isGridConnected">
+                    <mat-option [value]="null">--</mat-option>
+                    <mat-option value="Yes">Yes</mat-option>
+                    <mat-option value="No">No</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3" *ngIf="updateDeviceForm.get('isGridConnected')?.value === 'Yes'">
+                <mat-form-field appearance="outline">
+                  <mat-label>Does this facility export to the grid? <span class="fn">(59)</span></mat-label>
+                  <mat-select formControlName="gridExportType">
+                    <mat-option [value]="null">--</mat-option>
+                    <mat-option value="No (zero-export)">No (zero-export)</mat-option>
+                    <mat-option value="Yes (partial-export)">Yes (partial-export)</mat-option>
+                    <mat-option value="Yes (full-export)">Yes (full-export)</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3" *ngIf="updateDeviceForm.get('isGridConnected')?.value === 'Yes'">
+                <mat-form-field appearance="outline">
+                  <mat-label>Network meter installed? <span class="fn">(61)</span></mat-label>
+                  <mat-select formControlName="hasNetworkMeter">
+                    <mat-option [value]="null">--</mat-option>
+                    <mat-option value="Yes">Yes</mat-option>
+                    <mat-option value="No">No</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3" *ngIf="updateDeviceForm.get('hasNetworkMeter')?.value === 'Yes'">
+                <mat-form-field appearance="outline">
+                  <mat-label>Meter reads shareable via document? <span class="fn">(62)</span></mat-label>
+                  <mat-select formControlName="meterReadsShareable">
+                    <mat-option [value]="null">--</mat-option>
+                    <mat-option value="Yes">Yes</mat-option>
+                    <mat-option value="No">No</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Signatory name <span class="fn">(56)</span></mat-label>
+                  <input matInput formControlName="signatoryName" />
                 </mat-form-field>
               </div>
             </div>
@@ -535,6 +730,23 @@
                   A COD declaration will be generated from the commissioning date &amp; site details, for registrant signature at submission.
                 </small>
               </div>
+
+              <div class="col-md-4 mb-3">
+                <label>Other Documents
+                  <span class="badge-optional">Optional</span>
+                </label>
+                <div class="d-flex justify-content-between align-items-center doc-box">
+                  <input type="file" #otherDocsFileInput
+                    (change)="onFileChange($event, DocumentType.OTHER_DOCUMENTS)" style="display: none"
+                    multiple />
+                  <button type="button" (click)="otherDocsFileInput.click()" class="btn btn-primary">
+                    <mat-icon>attach_file</mat-icon>
+                  </button>
+                  <span class="file-name" [class.text-muted]="!files['OTHER_DOCUMENTS']?.length">
+                    {{ files['OTHER_DOCUMENTS']?.[0]?.name || '' }}
+                  </span>
+                </div>
+              </div>
             </div>
 
           </mat-card-content>
@@ -542,9 +754,10 @@
         </mat-card>
         <!-- </div> -->
         <mat-card-footer>
-          <div class="example-container mt-3 row">
-            <div class="col-12 d-flex justify-content-end">
-              <button class="btn btn-dark" (click)="reset()">Cancel</button>&nbsp;&nbsp;
+          <hr style="margin:16px 0 12px" />
+          <div class="example-container row">
+            <div class="col-12 d-flex justify-content-end gap-3">
+              <button type="button" class="btn btn-outline-secondary text-capitalize px-4" (click)="reset()">Cancel</button>
               <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="updateDeviceForm.invalid">
                 Update</button>
             </div>
