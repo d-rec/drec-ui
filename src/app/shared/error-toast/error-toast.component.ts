@@ -46,7 +46,7 @@ import {
     <div *ngIf="options.progressBar">
       <div class="toast-progress" [style.width]="width() + '%'"></div>
     </div>
-    <button class="copy-btn" (click)="copyError($event)">
+    <button *ngIf="toastPackage.toastType === 'toast-error'" class="copy-btn" (click)="copyError($event)">
       {{ copied ? 'Copied!' : 'Copy error' }}
     </button>
   `,

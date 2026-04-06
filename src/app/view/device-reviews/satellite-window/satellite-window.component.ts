@@ -71,6 +71,9 @@ const STATUS_COLOR: Record<string, string> = {
           >
           <span class="detect-error" *ngIf="detectError">{{ detectError }}</span>
         </div>
+        <div class="sat-date" *ngIf="satelliteDate">
+          🛰 Latest imagery: {{ satelliteDate }}
+        </div>
         <div class="detect-confirm-backdrop" *ngIf="showDetectConfirm" (click)="cancelDetect()">
           <div class="detect-confirm" (click)="$event.stopPropagation()">
             <p class="detect-confirm__msg">{{ detectConfirmMsg }}</p>
@@ -146,6 +149,17 @@ const STATUS_COLOR: Record<string, string> = {
         padding: 4px 8px;
         border-radius: 4px;
       }
+      .sat-date {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        font-size: 11px;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 4px 10px;
+        border-radius: 4px;
+        z-index: 600;
+      }
       .detect-confirm-backdrop {
         position: absolute;
         inset: 0;
@@ -216,6 +230,7 @@ export class SatelliteWindowComponent
   panelCount = 0;
   detectError = '';
   detectConfirmMsg = '';
+  satelliteDate = '';
 
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
@@ -250,6 +265,21 @@ export class SatelliteWindowComponent
     this.sub = this.svc.flyTo$.subscribe(({ lat, lng }) => {
       this.clearOverlay();
       this.map?.setView([lat, lng], this.map.getMaxZoom(), { animate: false });
+      this.satelliteDate = '';
+      this.cdr.markForCheck();
+      this.svc.getSatelliteDate(lat, lng).subscribe({
+        next: (res) => {
+          if (res.date) {
+            const d = new Date(res.date);
+            this.satelliteDate = d.toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+            });
+          }
+          this.cdr.markForCheck();
+        },
+      });
     });
   }
 

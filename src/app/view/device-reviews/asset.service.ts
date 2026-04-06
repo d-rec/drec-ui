@@ -274,4 +274,14 @@ export class AssetService {
       return presignedUrl; // fallback to original
     }
   }
+
+  getSatelliteDate(
+    lat: number,
+    lng: number,
+  ): Observable<{ date: string | null; cloudCover: number | null }> {
+    return this.http.get<{ date: string | null; cloudCover: number | null }>(
+      `${environment.API_URL}device-reviews/satellite-date`,
+      { params: { lat: lat.toString(), lng: lng.toString() } },
+    );
+  }
 }

@@ -201,7 +201,7 @@ export class AddBulkDeviceComponent implements OnInit {
           clearInterval(this.uploadTimer);
           const msg = err?.error?.message ?? err?.message ?? 'Unknown error';
           this.lastError = err?.error?.statusCode === 403 ? 'You are Unauthorized' : msg;
-          this.toastrService.error(this.lastError, 'Upload failed');
+          this.toastrService.error(this.lastError!, 'Upload failed');
         },
       });
   }
@@ -305,16 +305,21 @@ export class AddBulkDeviceComponent implements OnInit {
   previewDataSource: MatTableDataSource<any>;
   previewColumns = ['row', 'siteName', 'serialNumber', 'capacity', 'countryCode', 'commissioningDate'];
   previewBusy: boolean = false;
+  previewTotalCsvRows: number = 0;
+  previewSkippedRows: number = 0;
 
   openPreview(bulkUploadId: string, organizationId: number) {
     this.bulkUploadService.getBulkUploadPreview(bulkUploadId).subscribe({
       next: (res) => {
         this.previewBulkUploadId = bulkUploadId;
         this.previewRecords = res.records ?? [];
+        this.previewTotalCsvRows = res.totalCsvRows ?? 0;
+        this.previewSkippedRows = res.skippedRows ?? 0;
         this.previewDataSource = new MatTableDataSource(this.previewRecords);
         this.showPreview = true;
       },
       error: (err) => {
+        console.error('[PREVIEW] error', err);
         this.toastrService.error(
           err?.error?.message ?? err?.message ?? 'Failed to load preview',
           'Preview unavailable',

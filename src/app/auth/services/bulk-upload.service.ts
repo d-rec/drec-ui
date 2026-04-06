@@ -8,7 +8,7 @@ import { BulkUploadType } from '../../../app/utils/enums/bulk-upload-type.enum';
 })
 export class BulkUploadService {
   private baseUrl = `${environment.API_URL}bulk-upload`;
-  private filePath = '../../assets/files/';
+  private filePath = 'assets/files/';
   private templates = {
     [BulkUploadType.Reads]: 'd-rec-bulk-upload-meter-read-template.csv',
     [BulkUploadType.Devices]: 'd-rec-device-bulk-upload-template.csv',
@@ -64,8 +64,8 @@ export class BulkUploadService {
 
   getBulkUploadPreview(
     bulkUploadId: string,
-  ): Observable<{ records: any[]; organizationId: number }> {
-    return this.http.get<{ records: any[]; organizationId: number }>(
+  ): Observable<{ records: any[]; organizationId: number; totalCsvRows: number; skippedRows: number }> {
+    return this.http.get<{ records: any[]; organizationId: number; totalCsvRows: number; skippedRows: number }>(
       `${this.baseUrl}/${bulkUploadId}/preview`,
     );
   }

@@ -157,8 +157,8 @@
 
           <!-- Weight Column -->
           <ng-container matColumnDef="fileId">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>File Id</th>
-            <td mat-cell *matCellDef="let element">{{ element.fileId }}</td>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>File hash</th>
+            <td mat-cell *matCellDef="let element" style="font-family:monospace;font-size:12px" [title]="element.contentHash || ''">{{ element.contentHash?.substring(0, 12) || '—' }}</td>
           </ng-container>
 
           <!-- Status Column -->
@@ -179,6 +179,7 @@
                 >Review</a
               >
               <a
+                *ngIf="row.status === 'Failed'"
                 class="logs-link"
                 (click)="getBulkUploadLogs(row.id, row.organizationId)"
                 >Logs</a
@@ -298,7 +299,8 @@
     <mat-card-header class="d-flex justify-content-between align-items-center">
       <mat-card-title>
         <h2 class="pb-0 mb-0 fw-bold text-capitalize">
-          Review Bulk Upload — {{ previewRecords.length }} device(s) parsed
+          Review Bulk Upload — {{ previewRecords.length }} of {{ previewTotalCsvRows }} row{{ previewTotalCsvRows !== 1 ? 's' : '' }} valid
+          <span *ngIf="previewSkippedRows" style="font-size:14px;color:#6b7280;font-weight:normal">({{ previewSkippedRows }} template row{{ previewSkippedRows !== 1 ? 's' : '' }} skipped)</span>
         </h2>
       </mat-card-title>
       <div class="d-flex gap-2 justify-content-end">

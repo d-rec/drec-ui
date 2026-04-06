@@ -8,6 +8,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService, OrganizationService } from '../../../auth/services';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { Observable, Subscription, debounceTime, forkJoin, of } from 'rxjs';
 import { catchError, map, startWith } from 'rxjs/operators';
 import {
@@ -22,6 +23,7 @@ import { ToastrService } from 'ngx-toastr';
 import { fulecodeType, devicecodeType, CountryInfo } from '../../../models';
 import { MapComponent, satellitePreview, SatellitePreview } from '../../map/map.component';
 import { ChatService } from '../../../chat/chat.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   standalone: false,
@@ -58,7 +60,7 @@ export class AlldevicesComponent {
   dataSource: MatTableDataSource<any>;
   data: any;
   searchText: string = '';
-  satPreview: { preview: SatellitePreview; label: string; x: number; y: number } | null = null;
+  satPreview: { preview: SatellitePreview; label: string; satDate: string; x: number; y: number } | null = null;
   satPreviewEnabled = false;
   loginuser: any;
   deviceurl: any;
@@ -121,6 +123,7 @@ export class AlldevicesComponent {
     private toastrService: ToastrService,
     private changeDetectorRef: ChangeDetectorRef,
     private chatService: ChatService,
+    private http: HttpClient,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
     this.FilterForm = this.formBuilder.group({
@@ -652,9 +655,24 @@ export class AlldevicesComponent {
     this.satPreview = {
       preview: satellitePreview(lat, lng, 19),
       label: row.siteName || row.externalId || '',
+      satDate: '',
       x: pos.x,
       y: pos.y,
     };
+    this.http.get<{ date: string | null }>(
+      `${environment.API_URL}device-reviews/satellite-date`,
+      { params: { lat: lat.toString(), lng: lng.toString() } },
+    ).subscribe({
+      next: (res) => {
+        if (res.date && this.satPreview) {
+          const d = new Date(res.date);
+          this.satPreview = {
+            ...this.satPreview,
+            satDate: d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          };
+        }
+      },
+    });
   }
 
   moveSatPreview(event: MouseEvent) {
