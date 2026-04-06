@@ -703,8 +703,8 @@
           <p class="verify-check__desc">Threshold: {{ photoGpsResult.thresholdMeters }}m</p>
         </div>
 
-        <div *ngIf="photoGpsResult.summary.total === 0" class="verify-section">
-          <p class="verify-heading" style="color:#64748b;">No project photos uploaded.</p>
+        <div *ngIf="photoGpsResult.summary.total === 0" class="verify-section verify-section--warn">
+          <p class="verify-heading" style="color:#b45309;">⚠ No project photos uploaded.</p>
         </div>
 
         <div class="verify-section" *ngIf="photoGpsResult.summary.total > 0">
