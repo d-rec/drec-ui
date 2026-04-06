@@ -118,6 +118,14 @@
         <div *ngIf="message" class="message">
           {{ message }}
         </div>
+
+        <div *ngIf="lastError" class="upload-error">
+          <div class="upload-error__header">
+            <span><mat-icon style="font-size:18px;vertical-align:middle;margin-right:4px">error_outline</mat-icon> Upload failed</span>
+            <button class="upload-error__close" (click)="lastError = null" title="Dismiss">&times;</button>
+          </div>
+          <pre class="upload-error__body">{{ lastError }}</pre>
+        </div>
       </form>
       <hr *ngIf="canUpload" />
       <div class="content text-center">

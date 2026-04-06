@@ -157,6 +157,8 @@ export class AddBulkDeviceComponent implements OnInit {
     }
   }
 
+  lastError: string | null = null;
+
   uploading: boolean = false;
   processing: boolean = false;
   uploadElapsed: number = 0;
@@ -169,6 +171,7 @@ export class AddBulkDeviceComponent implements OnInit {
     if (!this.currentFile) return;
     const organizationId = this.organizationId;
     this.uploading = true;
+    this.lastError = null;
     this.uploadElapsed = 0;
     const started = Date.now();
     this.uploadTimer = setInterval(() => {
@@ -196,11 +199,8 @@ export class AddBulkDeviceComponent implements OnInit {
         error: (err) => {
           this.uploading = false;
           clearInterval(this.uploadTimer);
-          if (err?.error?.statusCode === 403) {
-            this.toastrService.error('You are Unauthorized');
-          } else {
-            this.toastrService.error('error!', err?.error?.message ?? err?.message ?? 'unknown');
-          }
+          const msg = err?.error?.message ?? err?.message ?? 'Unknown error';
+          this.lastError = err?.error?.statusCode === 403 ? 'You are Unauthorized' : msg;
         },
       });
   }
