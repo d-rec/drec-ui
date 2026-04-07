@@ -948,7 +948,10 @@ export class AddDevicesComponent implements OnDestroy {
       }
       group.get('latitude')?.setValue(center.lat, { emitEvent: false });
       group.get('longitude')?.setValue(center.lng, { emitEvent: false });
-      this.coordsDirty = true;
+      // Only mark dirty if coords actually changed from the original
+      const origLat = parseFloat(this.savedCoords.lat);
+      const origLng = parseFloat(this.savedCoords.lng);
+      this.coordsDirty = center.lat !== origLat || center.lng !== origLng;
     }
     this.mapCenterUpdating = false;
   }

@@ -623,7 +623,10 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     this.updateDeviceForm.get('longitude')?.setValue(center.lng, { emitEvent: false });
     this.latitude = String(center.lat);
     this.longitude = String(center.lng);
-    this.coordsDirty = true;
+    // Only mark dirty if coords actually changed from the original
+    const origLat = parseFloat(this.savedCoords.lat);
+    const origLng = parseFloat(this.savedCoords.lng);
+    this.coordsDirty = center.lat !== origLat || center.lng !== origLng;
     this.mapCenterUpdating = false;
   }
 
