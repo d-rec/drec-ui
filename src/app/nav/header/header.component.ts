@@ -28,7 +28,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLoggedIn = this.authService.isLoggedIn();
-    if (this.isLoggedIn && !this.isReviewerOrAdmin()) {
+    if (this.isLoggedIn) {
       this.chatService.startUnreadPolling();
     }
   }
@@ -43,7 +43,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   unreadDeviceNames: string[] = [];
 
   onBellClick(): void {
-    if (this.isReviewerOrAdmin()) return;
     const email = this.chatService.getCurrentUserEmail();
     if (!email) return;
 

@@ -96,10 +96,10 @@
               (click)="openScreenReport(item, $event)">{{ item.lastScreenStatus === 'pass' ? '✓' : item.lastScreenStatus === 'fail' ? '✗' : '!' }}</span>
           </span>
           <span class="col-docs"
-            [class.col-docs--ready]="item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length"
+            [class.col-docs--ready]="item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length >= 3"
             [class.col-docs--not]="!item.sldUrl || !item.sf02Url || !item.codProofUrl || !item.pictureUrls.length"
-            [title]="(item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length) ? 'All documents uploaded' : 'Missing documents'">
-            {{ (item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length) ? '✓' : '✗' }}
+            [title]="(item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length >= 3) ? 'All documents uploaded' : 'Missing documents'">
+            {{ (item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length >= 3) ? '✓' : '✗' }}
           </span>
           <span class="col-cod" [class.col-cod--ready]="item.codReady" [class.col-cod--not]="!item.codReady" [title]="item.codReady ? 'Ready to generate COD' : 'Missing required fields'">
             {{ item.codReady ? '✓' : '✗' }}
@@ -121,7 +121,7 @@
               <span class="file-name" [innerHTML]="hl(fileName(item.sldUrl!), result.searchTerm)"></span>
               <span *ngIf="isBroken(item.sldUrl)" class="missing-tag">(missing)</span>
             </ng-container>
-            <span *ngIf="!item.sldUrl" class="doc-empty">not uploaded</span>
+            <span *ngIf="!item.sldUrl" class="missing-tag">missing</span>
           </div>
 
           <!-- ── SF-02 ───────────────────────────────────────────────────────── -->
@@ -136,7 +136,7 @@
               <span class="file-name" [innerHTML]="hl(fileName(item.sf02Url!), result.searchTerm)"></span>
               <span *ngIf="isBroken(item.sf02Url)" class="missing-tag">(missing)</span>
             </ng-container>
-            <span *ngIf="!item.sf02Url" class="doc-empty">not uploaded</span>
+            <span *ngIf="!item.sf02Url" class="missing-tag">missing</span>
           </div>
 
           <!-- ── SF-02C ──────────────────────────────────────────────────────── -->
@@ -151,7 +151,7 @@
               <span class="file-name" [innerHTML]="hl(fileName(item.sf02cUrl!), result.searchTerm)"></span>
               <span *ngIf="isBroken(item.sf02cUrl)" class="missing-tag">(missing)</span>
             </ng-container>
-            <span *ngIf="!item.sf02cUrl" class="doc-empty">not uploaded</span>
+            <span *ngIf="!item.sf02cUrl" class="missing-tag">missing</span>
           </div>
 
           <!-- ── COD Proof ────────────────────────────────────────────────────── -->
@@ -166,7 +166,7 @@
               <span class="file-name" [innerHTML]="hl(fileName(item.codProofUrl!), result.searchTerm)"></span>
               <span *ngIf="isBroken(item.codProofUrl)" class="missing-tag">(missing)</span>
             </ng-container>
-            <span *ngIf="!item.codProofUrl" class="doc-empty">not uploaded</span>
+            <span *ngIf="!item.codProofUrl" class="missing-tag">missing</span>
           </div>
 
           <!-- ── Metering Evidence ────────────────────────────────────────────── -->
@@ -181,14 +181,14 @@
               <span class="file-name" [innerHTML]="hl(fileName(item.meteringEvidenceUrl!), result.searchTerm)"></span>
               <span *ngIf="isBroken(item.meteringEvidenceUrl)" class="missing-tag">(missing)</span>
             </ng-container>
-            <span *ngIf="!item.meteringEvidenceUrl" class="doc-empty">not uploaded</span>
+            <span *ngIf="!item.meteringEvidenceUrl" class="missing-tag">missing</span>
           </div>
 
           <!-- ── Pictures section ──────────────────────────────────────────── -->
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'pictures')" (keydown.enter)="toggleSection(item.id, 'pictures')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'pictures')">&#8250;</span>
             <span class="section-label">Pictures <span class="fn">(65)</span></span>
-            <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length > 0) }}">{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length > 0) }}</span>
+            <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length >= 3) }}">{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length >= 3) }}</span>
             <span *ngIf="item.pictureUrls.length" class="section-count">({{ item.pictureUrls.length }})</span>
           </div>
           <ng-container *ngIf="isSectionOpen(item.id, 'pictures')">
@@ -204,7 +204,8 @@
               <img [src]="url" class="thumb" width="28" height="28" alt="" />
               <span class="file-name" [innerHTML]="hl(fileName(url), result.searchTerm)"></span>
             </div>
-            <div *ngIf="!item.pictureUrls.length" class="dr-row dr-row--empty">No pictures</div>
+            <div *ngIf="!item.pictureUrls.length" class="dr-row dr-row--empty"><span class="missing-tag">missing — at least 3 required</span></div>
+            <div *ngIf="item.pictureUrls.length > 0 && item.pictureUrls.length < 3" class="dr-row dr-row--empty"><span class="missing-tag">only {{ item.pictureUrls.length }} photo(s) — at least 3 required</span></div>
           </ng-container>
 
           <!-- ── Screenshots section ─────────────────────────────────────────── -->

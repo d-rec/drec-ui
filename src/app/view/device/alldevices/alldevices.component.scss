@@ -176,10 +176,16 @@ mat-progress-spinner {
   }
 }
 
+::ng-deep tr.mat-mdc-row {
+  border-left: 3px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
 ::ng-deep tr.mat-mdc-row:hover {
-  background: #dbeafe;
-  font-size: 15px;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
-  border-left: 3px solid #2563eb;
-  transition: all 0.15s ease;
+  background: #dbeafe !important;
+  border-left-color: #2563eb;
+  outline: 2px solid #1e293b;
+  outline-offset: -2px;
+  z-index: 1;
+  position: relative;
 }

@@ -103,6 +103,7 @@ export class AlldevicesComponent {
   hideMap: boolean = false;
   hideFilterDevices: boolean = true;
   showResetMapFilter = false;
+  deviceChats = new Set<string>();
   selection = new SelectionModel<any>(true, []);
   bulkDeleting: boolean = false;
   reviewStatusFilters: Set<string> = new Set(['pending']);
@@ -154,6 +155,14 @@ export class AlldevicesComponent {
           (org) => org.organizationType != 'Buyer',
         );
       });
+      const email = this.chatService.getCurrentUserEmail();
+      if (email) {
+        this.chatService.getConversationsForUser(email).subscribe((convs) => {
+          this.deviceChats = new Set(
+            convs.filter((c) => c.deviceSiteName).map((c) => c.deviceSiteName!),
+          );
+        });
+      }
     }
     this.authService.GetMethod('sdgbenefit/code').subscribe((data) => {
       this.sdgblist = data;
