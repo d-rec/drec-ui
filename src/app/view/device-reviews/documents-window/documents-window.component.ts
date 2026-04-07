@@ -13,6 +13,7 @@ import {
 import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastrService } from 'ngx-toastr';
 import { BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Asset, AssetStatus } from '../asset.model';
@@ -59,6 +60,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   generatingCod: Record<string, boolean> = {};
+  showCodPreview = false;
+  codPreviewLoading = false;
+  codPreviewItem: Asset | null = null;
+  codPreviewFields: Array<{ label: string; value: string }> = [];
+  codPreviewDocs: Array<{ type: string; present: boolean; required: boolean }> = [];
 
   satPreviewEnabled = false;
   satPreview: { lat: number; lng: number; label: string; x: number; y: number } | null = null;
@@ -256,6 +262,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   } | null = null;
   showAutoScreenModal = false;
   autoScreenLoading = false;
+  autoScreenError: string | null = null;
   autoScreenResult: {
     deviceId: number;
     sections: Array<{
@@ -334,6 +341,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     private elRef: ElementRef,
     private snackBar: MatSnackBar,
     private http: HttpClient,
+    private toastr: ToastrService,
   ) {}
 
   trustUrl(url: string): SafeUrl {
@@ -550,6 +558,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         const haystack = [
           a.serial,
           a.siteName,
+          a.countryCode,
+          this.countryName(a.countryCode),
           a.reviewer,
           a.submitterEmail,
           a.notes,
@@ -672,56 +682,39 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   // ── COD generation ───────────────────────────────────────────────────────────
 
-  codPreview: { item: Asset; fields: [string, string][]; hasMissing: boolean } | null = null;
-
   generateCod(item: Asset, event: Event): void {
     event.stopPropagation();
-    this.http.get<any>(
-      `${environment.API_URL}device/${item.id}`,
-    ).subscribe({
-      next: (dev) => {
-        const commDate = dev.commissioningDate
-          ? new Date(dev.commissioningDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
-          : 'Not specified';
-        this.codPreview = {
-          item,
-          fields: [
-            ['Device ID', dev.externalId || String(dev.id)],
-            ['Site Name', dev.siteName || '—'],
-            ['Organization', item.submitterName || '—'],
-            ['Serial Number', dev.serialNumber || '—'],
-            ['Country', dev.countryCode || '—'],
-            ['Location', dev.latitude && dev.longitude
-              ? `${parseFloat(dev.latitude).toFixed(6)}, ${parseFloat(dev.longitude).toFixed(6)}`
-              : '—'],
-            ['Address', dev.address || '—'],
-            ['Capacity (kW)', dev.capacity != null ? String(dev.capacity) : '—'],
-            ['Fuel Type', dev.fuelCode || '—'],
-            ['Device Type', dev.deviceTypeCode || '—'],
-            ['Grid Interconnection', dev.gridInterconnection ? 'Yes' : 'No'],
-            ['Operating Configuration', dev.operatingConfiguration || '—'],
-            ['Source Access Mode', dev.sourceAccessMode || '—'],
-            ['Commissioning Date', commDate],
-          ],
-          hasMissing: false,
-        };
-        const optionalFields = ['Operating Configuration', 'Source Access Mode', 'Grid Interconnection'];
-        this.codPreview.hasMissing = this.codPreview.fields.some(f => f[1] === '—' && !optionalFields.includes(f[0]));
+    this.codPreviewItem = item;
+    this.codPreviewLoading = true;
+    this.codPreviewFields = [];
+    this.codPreviewDocs = [];
+    this.showCodPreview = true;
+    this.cdr.markForCheck();
+
+    this.svc.previewCod(parseInt(item.id, 10)).subscribe({
+      next: (res) => {
+        this.codPreviewFields = res.fields;
+        this.codPreviewDocs = res.documents;
+        this.codPreviewLoading = false;
         this.cdr.markForCheck();
       },
       error: (err) => {
-        this.snackBar.open(
-          'Failed to load device details: ' + (err?.error?.message || err?.message || 'unknown'),
-          '', { duration: 5000 },
+        this.showCodPreview = false;
+        this.codPreviewItem = null;
+        this.codPreviewLoading = false;
+        this.toastr.error(
+          err?.error?.message || err?.message || 'unknown error',
+          'Failed to load COD preview',
         );
+        this.cdr.markForCheck();
       },
     });
   }
 
   confirmCodGeneration(): void {
-    if (!this.codPreview) return;
-    const item = this.codPreview.item;
-    this.codPreview = null;
+    const item = this.codPreviewItem;
+    if (!item) return;
+    this.showCodPreview = false;
     this.generatingCod[item.id] = true;
     this.cdr.markForCheck();
 
@@ -730,26 +723,35 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         item.codProofUrl = res.url;
         this.svc.saveAsset(item);
         this.generatingCod[item.id] = false;
+        this.codPreviewItem = null;
         this.snackBar.open('COD certificate generated', '', { duration: 3000 });
         this.cdr.markForCheck();
       },
       error: (err) => {
         this.generatingCod[item.id] = false;
-        this.snackBar.open('Failed to generate COD: ' + (err?.error?.message || err?.message || 'unknown error'), '', { duration: 5000 });
+        this.codPreviewItem = null;
+        this.toastr.error(
+          err?.error?.message || err?.message || 'unknown error',
+          'COD generation failed',
+        );
         this.cdr.markForCheck();
       },
     });
+  }
+
+  get codMissingRequired(): boolean {
+    return this.codPreviewDocs.some(d => !d.present && d.required);
+  }
+
+  cancelCodGeneration(): void {
+    this.showCodPreview = false;
+    this.codPreviewItem = null;
   }
 
   generateCodForSelected(event: Event): void {
     if (!this.editingId) return;
     const item = this.svc.assets$.value.find(a => a.id === this.editingId);
     if (item) this.generateCod(item, event);
-  }
-
-  cancelCodGeneration(): void {
-    this.codPreview = null;
-    this.cdr.markForCheck();
   }
 
   // ── File handling ─────────────────────────────────────────────────────────────
@@ -934,6 +936,30 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     } catch {
       return url;
     }
+  }
+
+  private readonly displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+  private readonly alpha3to2: Record<string, string> = {
+    IND: 'IN', USA: 'US', GBR: 'GB', DEU: 'DE', FRA: 'FR', BRA: 'BR', CHN: 'CN', JPN: 'JP',
+    KEN: 'KE', NGA: 'NG', ZAF: 'ZA', AUS: 'AU', CAN: 'CA', MEX: 'MX', IDN: 'ID', PAK: 'PK',
+    BGD: 'BD', NPL: 'NP', LKA: 'LK', THA: 'TH', VNM: 'VN', PHL: 'PH', MYS: 'MY', SGP: 'SG',
+    ETH: 'ET', TZA: 'TZ', UGA: 'UG', RWA: 'RW', GHA: 'GH', SEN: 'SN', CMR: 'CM', MOZ: 'MZ',
+    MDG: 'MG', MWI: 'MW', ZMB: 'ZM', ZWE: 'ZW', NLD: 'NL', ESP: 'ES', ITA: 'IT', PRT: 'PT',
+    SWE: 'SE', NOR: 'NO', DNK: 'DK', FIN: 'FI', CHE: 'CH', AUT: 'AT', BEL: 'BE', POL: 'PL',
+    ROU: 'RO', HUN: 'HU', CZE: 'CZ', BGR: 'BG', HRV: 'HR', SRB: 'RS', TUR: 'TR', EGY: 'EG',
+    MAR: 'MA', TUN: 'TN', DZA: 'DZ', SAU: 'SA', ARE: 'AE', QAT: 'QA', KWT: 'KW', OMN: 'OM',
+    IRQ: 'IQ', IRN: 'IR', AFG: 'AF', COL: 'CO', PER: 'PE', CHL: 'CL', ARG: 'AR', BOL: 'BO',
+    PRY: 'PY', URY: 'UY', ECU: 'EC', VEN: 'VE', CRI: 'CR', PAN: 'PA', GTM: 'GT', HND: 'HN',
+    SLV: 'SV', NIC: 'NI', DOM: 'DO', HTI: 'HT', JAM: 'JM', NZL: 'NZ', FJI: 'FJ', PNG: 'PG',
+    SOM: 'SO', SSD: 'SS', SDN: 'SD', MLI: 'ML', NER: 'NE', BFA: 'BF', TCD: 'TD', CAF: 'CF',
+    COD: 'CD', COG: 'CG', AGO: 'AO', NAM: 'NA', BWA: 'BW', LSO: 'LS', SWZ: 'SZ',
+  };
+
+  countryName(code: string): string {
+    if (!code) return '';
+    const a2 = code.length === 3 ? this.alpha3to2[code.toUpperCase()] : code.toUpperCase();
+    if (!a2) return code;
+    try { return this.displayNames.of(a2) ?? code; } catch { return code; }
   }
 
   // ── URL validation ──────────────────────────────────────────────────────────
@@ -1372,12 +1398,20 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     });
   }
 
+  openScreenReport(item: any, event: Event): void {
+    event.stopPropagation();
+    this.editingId = item.id;
+    this.expanded[item.id] = true;
+    this.runAutoScreen();
+  }
+
   runAutoScreen(): void {
     if (!this.editingId) return;
     const deviceId = parseInt(this.editingId, 10);
     if (isNaN(deviceId)) return;
     this.autoScreenLoading = true;
     this.autoScreenResult = null;
+    this.autoScreenError = null;
     this.showAutoScreenModal = true;
     this.svc.autoScreen(deviceId).subscribe({
       next: (res: any) => {
@@ -1393,6 +1427,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       error: (err: any) => {
         console.error('Auto-screen failed:', err);
         this.autoScreenResult = null;
+        this.autoScreenError = err?.error?.message || err?.message || 'Unknown error — check the browser console for details.';
         this.autoScreenLoading = false;
       },
     });

@@ -275,6 +275,15 @@ export class AssetService {
     }
   }
 
+  previewCod(deviceId: number): Observable<{
+    fields: Array<{ label: string; value: string }>;
+    documents: Array<{ type: string; present: boolean; required: boolean }>;
+  }> {
+    return this.http.get<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/cod-preview`,
+    );
+  }
+
   generateCod(deviceId: number): Observable<{ url: string; docId: number }> {
     return this.http.post<{ url: string; docId: number }>(
       `${environment.API_URL}device-reviews/${deviceId}/generate-cod`,

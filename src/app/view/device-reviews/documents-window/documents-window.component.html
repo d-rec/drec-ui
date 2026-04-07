@@ -37,7 +37,7 @@
         <button class="bulk-btn bulk-btn--pending" (click)="bulkSetStatus('pending')" [disabled]="bulkBusy">↩ Reopen</button>
         <button class="bulk-btn bulk-btn--screen" (click)="bulkScreen()" [disabled]="bulkBusy">⚡ Screen</button>
       </div>
-      <button class="bulk-btn bulk-btn--screen-all" (click)="screenAllUnscreened()" [disabled]="bulkBusy" title="Auto-screen all unscreened pending devices (up to 50)">⚡ Screen All</button>
+      <button class="bulk-btn bulk-btn--screen-all" (click)="screenAllUnscreened()" [disabled]="bulkBusy" title="Auto-screen all unscreened pending devices (up to 50)">⚡ Screen selected</button>
       <span class="toolbar-sep"></span>
       <button class="bulk-btn" (click)="exportExcel()" title="Export filtered list to Excel">⤓ Excel</button>
       <span *ngIf="bulkBusy" class="toolbar-status">Processing…</span>
@@ -72,6 +72,7 @@
           tabindex="0"
           [attr.data-device-id]="item.id"
           [class.dr-row--selected]="selId === item.id"
+          [class.dr-row--expanded]="expanded[item.id]"
           (click)="selectAsset(item); svc.expand(item.id)"
           (keydown.enter)="selectAsset(item); svc.expand(item.id)"
           (dblclick)="toggleDevice(item.id)"
@@ -90,7 +91,9 @@
           <span class="col-status">
             <span class="status-icon status-icon--{{ item.status }}">{{ item.status === 'approved' ? '✓' : item.status === 'rejected' ? '✗' : '●' }}</span>
             <span class="status-label" [innerHTML]="hl(item.status | titlecase, result.searchTerm)"></span>
-            <span *ngIf="item.lastScreenStatus" class="screen-badge screen-badge--{{ item.lastScreenStatus }}" [title]="'Last screened: ' + (item.lastScreenedAt | date:'dd/MM/yyyy HH:mm')">{{ item.lastScreenStatus === 'pass' ? '✓' : item.lastScreenStatus === 'fail' ? '✗' : '!' }}</span>
+            <span *ngIf="item.lastScreenStatus" class="screen-badge screen-badge--{{ item.lastScreenStatus }}"
+              [title]="(item.lastScreenStatus === 'pass' ? 'Passed' : item.lastScreenStatus === 'fail' ? 'Failed' : 'Warnings') + ' — screened ' + (item.lastScreenedAt | date:'dd MMM yyyy, HH:mm') + ' (click for details)'"
+              (click)="openScreenReport(item, $event)">{{ item.lastScreenStatus === 'pass' ? '✓' : item.lastScreenStatus === 'fail' ? '✗' : '!' }}</span>
           </span>
           <span class="col-docs"
             [class.col-docs--ready]="item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length"
@@ -104,7 +107,7 @@
         </div>
 
         <!-- Expanded sections -->
-        <ng-container *ngIf="expanded[item.id]">
+        <div class="expanded-block" *ngIf="expanded[item.id]">
 
           <!-- ── SLD ─────────────────────────────────────────────────────────── -->
           <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.sldUrl" (dblclick)="item.sldUrl && openFile(item.sldUrl, $event, true)" (keydown.enter)="item.sldUrl && openFile(item.sldUrl, $event, true)" tabindex="0">
@@ -227,7 +230,7 @@
             <div *ngIf="!item.screenshotUrls.length" class="dr-row dr-row--empty">No screenshots</div>
           </ng-container>
 
-        </ng-container>
+        </div><!-- /.expanded-block -->
       </ng-container>
       </ng-container>
     </div><!-- /.docw__table-wrap -->
@@ -786,7 +789,7 @@
         }">
           <div class="screen-section__header">
             <span class="screen-section__name">{{ s.name }}</span>
-            <span class="screen-section__badge">{{ s.status | uppercase }}</span>
+            <span class="screen-section__badge">{{ s.status === 'skip' ? 'ERROR' : (s.status | uppercase) }}</span>
           </div>
           <ul class="screen-section__flags" *ngIf="s.flags.length > 0">
             <li *ngFor="let f of s.flags">{{ f }}</li>
@@ -798,9 +801,57 @@
       <div *ngIf="autoScreenLoading" style="text-align:center; padding: 24px; color: #64748b;">
         Running all checks…
       </div>
-      <p class="modal-msg" *ngIf="!autoScreenResult && !autoScreenLoading" style="color: #dc2626;">Auto-screen failed.</p>
+      <div *ngIf="!autoScreenResult && !autoScreenLoading" style="padding: 12px 0;">
+        <p style="color: #dc2626; font-weight: 600; margin: 0 0 8px;">Internal Error — Auto-screen failed</p>
+        <p *ngIf="autoScreenError" style="color: #64748b; font-size: 12px; margin: 0; white-space: pre-wrap; background: #fef2f2; padding: 10px 12px; border-radius: 4px; border-left: 3px solid #dc2626;">{{ autoScreenError }}</p>
+      </div>
       <div class="modal-actions">
         <button class="btn btn--save" (click)="showAutoScreenModal = false">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COD Preview / Confirmation modal ─────────────────────────── -->
+  <div class="modal-backdrop" *ngIf="showCodPreview" role="dialog" aria-modal="true" (click)="cancelCodGeneration()" (keydown.escape)="cancelCodGeneration()">
+    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+      <button type="button" class="modal-close" (click)="cancelCodGeneration()" aria-label="Close">&times;</button>
+      <p class="modal-msg" style="font-weight: 600;" [style.color]="codMissingRequired ? '#991b1b' : ''">
+        {{ codMissingRequired ? 'Cannot Generate COD — Missing Documents' : 'Generate COD Certificate' }}
+      </p>
+      <p *ngIf="!codMissingRequired" style="color: #64748b; font-size: 12px; margin: 0 0 16px;">Review the data below. This will be included in the generated PDF.</p>
+
+      <div *ngIf="codPreviewLoading" style="text-align:center; padding: 24px; color: #64748b;">
+        Loading preview…
+      </div>
+
+      <ng-container *ngIf="!codPreviewLoading && codPreviewFields.length > 0">
+        <table class="cod-preview-table">
+          <tr *ngFor="let f of codPreviewFields" [class.cod-preview-table--empty]="f.value === '—' || f.value === 'Not specified'">
+            <td class="cod-preview-table__label">{{ f.label }}</td>
+            <td class="cod-preview-table__value">{{ f.value }}</td>
+          </tr>
+        </table>
+
+        <p style="font-weight: 600; font-size: 12px; margin: 16px 0 6px; color: #334155;">Documents</p>
+        <div class="cod-preview-docs">
+          <span *ngFor="let d of codPreviewDocs" class="cod-preview-doc"
+            [class.cod-preview-doc--present]="d.present"
+            [class.cod-preview-doc--missing]="!d.present && d.required"
+            [class.cod-preview-doc--optional]="!d.present && !d.required">
+            {{ d.present ? '✓' : '✗' }} {{ d.type | titlecase }}{{ !d.required ? ' (optional)' : '' }}
+          </span>
+        </div>
+      </ng-container>
+
+      <p *ngIf="!codPreviewLoading && codMissingRequired"
+         style="color: #991b1b; font-size: 12px; margin: 12px 0 0; font-weight: 500;">
+        Required documents are missing — upload them before generating the COD certificate.
+      </p>
+
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button class="btn btn--cancel" (click)="cancelCodGeneration()">Cancel</button>
+        <button class="btn btn--save" (click)="confirmCodGeneration()"
+          [disabled]="codPreviewLoading || codMissingRequired">Generate COD</button>
       </div>
     </div>
   </div>
@@ -858,27 +909,5 @@
     [y]="satPreview.y"
   ></app-sat-preview>
 
-  <!-- COD Preview Panel -->
-  <div class="cod-preview-backdrop" *ngIf="codPreview" (click)="cancelCodGeneration()">
-    <div class="cod-preview-panel" (click)="$event.stopPropagation()">
-      <div class="cod-preview-panel__title" [class.cod-preview-panel__title--error]="codPreview.hasMissing">
-        {{ codPreview.hasMissing ? 'Cannot generate COD — missing fields' : 'COD Certificate Fields' }}
-      </div>
-      <div class="cod-preview-panel__subtitle">The following fields will be included:</div>
-      <div class="cod-preview-panel__list">
-        <div class="cod-preview-panel__row" *ngFor="let f of codPreview.fields">
-          <span class="cod-preview-panel__check" [class.cod-preview-panel__check--missing]="f[1] === '—'">
-            {{ f[1] !== '—' ? '✓' : '✗' }}
-          </span>
-          <span class="cod-preview-panel__label" [class.cod-preview-panel__label--missing]="f[1] === '—'">{{ f[0] }}</span>
-          <span class="cod-preview-panel__value" [class.cod-preview-panel__value--missing]="f[1] === '—'">{{ f[1] === '—' ? 'Missing' : f[1] }}</span>
-        </div>
-      </div>
-      <div class="cod-preview-panel__actions">
-        <button class="cod-preview-panel__btn cod-preview-panel__btn--cancel" (click)="cancelCodGeneration()">Cancel</button>
-        <button class="cod-preview-panel__btn cod-preview-panel__btn--ok" [disabled]="codPreview.hasMissing" (click)="confirmCodGeneration()">Generate</button>
-      </div>
-    </div>
-  </div>
 
 </div>

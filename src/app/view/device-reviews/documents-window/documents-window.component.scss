@@ -278,11 +278,20 @@ $legacy:   #a0845c;
       font-size: 15px;
       box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
       border-left: 3px solid #2563eb;
+      border-top: 2px solid #1e293b;
+      border-bottom: 2px solid #1e293b;
       padding-left: 9px;
+      margin-top: -1px;
     }
   }
 
   &--selected { background: #dbeafe !important; }
+
+  &--expanded {
+    border-top: 2px solid #2563eb;
+    border-bottom: none;
+    background: #eff6ff !important;
+  }
 
   &--section {
     background: $bg;
@@ -336,6 +345,10 @@ $legacy:   #a0845c;
   top: 0;
   z-index: 1;
   &:hover { background: #f8fafc; }
+}
+
+.expanded-block {
+  border-bottom: 2px solid #2563eb;
 }
 
 .col-serial   { flex: 1; min-width: 0; user-select: text; cursor: text; display: flex; align-items: center; gap: 6px; }
@@ -537,7 +550,9 @@ $legacy:   #a0845c;
   font-size: 10px;
   font-weight: 700;
   margin-left: 4px;
-  cursor: default;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  &:hover { transform: scale(1.25); }
   &--pass { background: #dcfce7; color: #166534; }
   &--warn { background: #fef3c7; color: #92400e; }
   &--fail { background: #fef2f2; color: #991b1b; }
@@ -768,6 +783,42 @@ $legacy:   #a0845c;
 
 .modal-box--wide {
   max-width: 560px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+// ── COD Preview table ──────────────────────────────────────────────────────────
+.cod-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  tr { border-bottom: 1px solid #f1f5f9; }
+  &--empty td { color: #94a3b8; }
+  &__label {
+    padding: 5px 8px 5px 0;
+    color: #64748b;
+    font-weight: 500;
+    width: 160px;
+    white-space: nowrap;
+  }
+  &__value {
+    padding: 5px 0;
+    color: #0f172a;
+  }
+}
+
+.cod-preview-docs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cod-preview-doc {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  &--present { background: #dcfce7; color: #166534; }
+  &--missing { background: #fef2f2; color: #991b1b; }
+  &--optional { background: #f8fafc; color: #94a3b8; }
 }
 
 .modal-box--audit {
@@ -1077,7 +1128,7 @@ $legacy:   #a0845c;
   &--pass { border-left-color: #16a34a; background: #f0fdf4; }
   &--warn { border-left-color: #f59e0b; background: #fffbeb; }
   &--fail { border-left-color: #dc2626; background: #fef2f2; }
-  &--skip { border-left-color: #94a3b8; background: #f8fafc; }
+  &--skip { border-left-color: #dc2626; background: #fef2f2; }
 
   &__header {
     display: flex;
@@ -1104,6 +1155,7 @@ $legacy:   #a0845c;
   &--pass &__badge { background: #dcfce7; color: #166534; }
   &--warn &__badge { background: #fef3c7; color: #92400e; }
   &--fail &__badge { background: #fef2f2; color: #991b1b; }
+  &--skip &__badge { background: #fef2f2; color: #991b1b; }
 
   &__flags {
     margin: 4px 0 0;
@@ -1341,7 +1393,7 @@ $legacy:   #a0845c;
 
   &__date {
     font-size: 10px;
-    color: #94a3b8;
+    color: #e2e8f0;
     text-align: center;
     margin-top: 4px;
   }
