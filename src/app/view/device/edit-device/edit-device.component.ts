@@ -644,18 +644,46 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   }
 
   confirmCoordChange(): void {
-    const lat = this.updateDeviceForm.get('latitude')?.value;
-    const lng = this.updateDeviceForm.get('longitude')?.value;
+    // Build the same payload onSubmit would, but without files or navigation
+    const selectedCountry: CountryInfo | undefined = this.countrylist.find(
+      (option) => option.country === this.updateDeviceForm.value.countryCode,
+    );
+    this.updateDeviceForm.controls['organizationId'].setValue(
+      this.organizationId ?? this.loginuser?.organizationId,
+    );
+    if (this.updateDeviceForm.controls['serialNumber'].value == null) {
+      this.updateDeviceForm.controls['serialNumber'].setValue(this.serialNumber);
+    }
+    this.updateDeviceForm.controls['countryCode'].setValue(selectedCountry?.alpha3);
+
+    const formValue = { ...this.updateDeviceForm.value };
+    if (formValue.latitude) {
+      const [intLat, decLat] = String(formValue.latitude).split('.');
+      formValue.latitude = decLat ? `${intLat}.${decLat.slice(0, 20)}` : intLat;
+    }
+    if (formValue.longitude) {
+      const [intLng, decLng] = String(formValue.longitude).split('.');
+      formValue.longitude = decLng ? `${intLng}.${decLng.slice(0, 20)}` : intLng;
+    }
+
     this.deviceService
-      .update(this.externalid, { latitude: String(lat), longitude: String(lng) }, false)
+      .update(this.externalid, formValue, false)
       .subscribe({
         next: () => {
-          this.toastrService.success('Coordinates updated');
+          this.toastrService.success('Coordinates saved');
           this.savedCoords = null;
           this.coordsDirty = false;
+          // Restore country display name so form still shows it correctly
+          if (selectedCountry) {
+            this.updateDeviceForm.controls['countryCode'].setValue(selectedCountry.country);
+          }
         },
         error: (err: any) => {
           this.toastrService.error(err.error?.message || 'Failed to save coordinates');
+          // Restore country display name on error too
+          if (selectedCountry) {
+            this.updateDeviceForm.controls['countryCode'].setValue(selectedCountry.country);
+          }
         },
       });
   }

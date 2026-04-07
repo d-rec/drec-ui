@@ -89,6 +89,7 @@ export class MapComponent implements OnInit, OnDestroy {
   map!: L.Map;
   markerGroup = L.featureGroup();
   isMapInitialized = false;
+  private centerPinMarker: L.Marker | null = null;
 
   // Panel detection state
   detecting = false;
@@ -102,6 +103,9 @@ export class MapComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.options.layers = [this.satellite ? this.createSatelliteLayer() : this.createTileLayer()];
     this.options.scrollWheelZoom = this.scrollWheelZoom;
+    if (this.centerPin) {
+      this.options.zoomAnimation = false;
+    }
   }
 
   private tileObserver: MutationObserver | null = null;
@@ -116,12 +120,38 @@ export class MapComponent implements OnInit, OnDestroy {
     }
 
     if (this.centerPin) {
-      this.map.on('movestart', () => this.mapDragging.emit(true));
+      this.map.doubleClickZoom.disable();
+
+      // Use a real Leaflet marker pinned to map center — immune to zoom drift
+      const pinIcon = L.divIcon({
+        html: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42">
+          <path d="M16 0C7.16 0 0 7.16 0 16c0 12 16 26 16 26s16-14 16-26C32 7.16 24.84 0 16 0z" fill="#e53e3e" stroke="#fff" stroke-width="1"/>
+          <circle cx="16" cy="16" r="6" fill="#fff"/>
+        </svg>`,
+        className: 'center-pin-marker',
+        iconSize: [32, 42],
+        iconAnchor: [16, 42],
+      });
+      this.centerPinMarker = L.marker(this.map.getCenter(), { icon: pinIcon, interactive: false, zIndexOffset: 1000 }).addTo(this.map);
+
+      let dragging = false;
+      this.map.on('movestart', () => {
+        dragging = true;
+        this.mapDragging.emit(true);
+      });
       this.map.on('move', () => {
         const c = this.map.getCenter();
-        this.centerChanged.emit({ lat: +c.lat.toFixed(6), lng: +c.lng.toFixed(6) });
+        this.centerPinMarker?.setLatLng(c);
+        if (dragging) {
+          this.centerChanged.emit({ lat: +c.lat.toFixed(6), lng: +c.lng.toFixed(6) });
+        }
       });
-      this.map.on('moveend', () => this.mapDragging.emit(false));
+      this.map.on('moveend', () => {
+        const c = this.map.getCenter();
+        this.centerPinMarker?.setLatLng(c);
+        dragging = false;
+        this.mapDragging.emit(false);
+      });
     }
 
     this.update();
@@ -169,6 +199,7 @@ export class MapComponent implements OnInit, OnDestroy {
   recenter(lat: number, lng: number): void {
     if (this.map) {
       this.map.setView([lat, lng], this.map.getZoom(), { animate: true });
+      this.centerPinMarker?.setLatLng([lat, lng]);
     }
   }
 

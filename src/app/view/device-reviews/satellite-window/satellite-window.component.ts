@@ -252,9 +252,15 @@ export class SatelliteWindowComponent
     this.map = L.map(this.mapEl.nativeElement, {
       zoomControl: true,
       attributionControl: false,
+      scrollWheelZoom: false,
       maxZoom: 19,
       minZoom: 3,
     }).setView([20, 0], 3);
+
+    this.map.scrollWheelZoom.disable();
+    // Prevent Leaflet from ever re-enabling scroll zoom
+    const container = this.map.getContainer();
+    container.addEventListener('wheel', (e: WheelEvent) => { e.preventDefault(); e.stopPropagation(); }, { passive: false, capture: true });
 
     L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
       attribution: '© Google',
