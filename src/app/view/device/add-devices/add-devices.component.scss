@@ -1,3 +1,53 @@
+::ng-deep .coord-adjusting .mdc-notched-outline__leading,
+::ng-deep .coord-adjusting .mdc-notched-outline__notch,
+::ng-deep .coord-adjusting .mdc-notched-outline__trailing {
+  border-color: #2563eb !important;
+  border-width: 2px !important;
+}
+::ng-deep .coord-adjusting .mat-mdc-input-element {
+  color: #2563eb !important;
+  font-weight: 600 !important;
+}
+::ng-deep .coord-adjusting {
+  transition: box-shadow 0.15s ease;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-radius: 4px;
+}
+
+.coord-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  margin: -4px 0 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  font-size: 13px;
+
+  &__label {
+    color: #1e40af;
+    font-weight: 500;
+    flex: 1;
+  }
+  &__cancel {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    border-radius: 4px;
+    padding: 3px 12px;
+    &:hover { background: #f1f5f9; }
+  }
+  &__save {
+    background: #2563eb;
+    border: none;
+    color: #fff;
+    border-radius: 4px;
+    padding: 3px 12px;
+    &:hover { background: #1d4ed8; }
+  }
+}
+
 // ── Compact layout: halve field widths, fit more per row ──────────────────────
 :host {
   // Remap Bootstrap grid columns for this component
@@ -265,7 +315,7 @@ input.example-right-align {
   font-weight: 600;
   padding: 1px 6px;
   border-radius: 8px;
-  background: #475569;
+  background: #ef4444;
   color: #fff;
   margin-left: 6px;
   vertical-align: middle;

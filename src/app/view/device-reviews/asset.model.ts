@@ -42,6 +42,6 @@ export interface Asset {
   evidentStatus: string | null;
   lastScreenStatus: string | null;
   lastScreenedAt: string | null;
-  codReady: boolean;
+  sf02Ready: boolean;
   docMeta: Record<string, DocMeta>;
 }

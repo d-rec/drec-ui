@@ -192,7 +192,7 @@
                     </mat-error>
                   </div>
                   <div class="col-md-3">
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" [class.coord-adjusting]="mapAdjusting">
                       <mat-label class="text-capitalize" test-id="latitude">Latitude <span class="fn">(14)</span></mat-label>
                       <input matInput formControlName="latitude" />
                       <mat-error>please enter the valid value</mat-error>
@@ -200,7 +200,7 @@
                   </div>
 
                   <div class="col-md-3">
-                    <mat-form-field appearance="outline">
+                    <mat-form-field appearance="outline" [class.coord-adjusting]="mapAdjusting">
                       <mat-label class="text-capitalize" test-id="longitude">Longitude <span class="fn">(15)</span></mat-label>
                       <input matInput formControlName="longitude" />
                       <mat-error>please enter the valid value</mat-error>
@@ -209,11 +209,16 @@
                 </div>
                 <div class="row map-row">
                   <div class="col-md-6 pb-4 map-col">
-                    <app-map [zoom]="6" #streetMap></app-map>
+                    <app-map [zoom]="6" [centerPin]="true" [scrollWheelZoom]="true" (centerChanged)="onMapCenterChanged($event, i)" (mapDragging)="mapAdjusting = $event" #streetMap></app-map>
                   </div>
                   <div class="col-md-6 pb-4 map-col">
-                    <app-map [zoom]="19" [satellite]="true" #satelliteMap></app-map>
+                    <app-map [zoom]="19" [satellite]="true" [centerPin]="true" [scrollWheelZoom]="true" (centerChanged)="onMapCenterChanged($event, i)" (mapDragging)="mapAdjusting = $event" #satelliteMap></app-map>
                   </div>
+                </div>
+                <div class="coord-actions" *ngIf="coordsDirty">
+                  <span class="coord-actions__label">Location adjusted via map</span>
+                  <button type="button" class="btn btn-sm coord-actions__cancel" (click)="cancelCoordChange()">Revert</button>
+                  <button type="button" class="btn btn-sm coord-actions__save" (click)="confirmCoordChange()">Confirm</button>
                 </div>
 
                 <div class="row">
@@ -611,31 +616,42 @@
                     </p>
                   </div>
 
-                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('FORM_SF_02') === 'required' && !deviceForms.at(i).get('FORM_SF_02')?.value">
+                  <div class="col-md-4 mb-3">
                     <label>Form SF-02 - Production Facility Registration
-                      <span class="badge-{{getDocRequirement('FORM_SF_02')}}">{{getDocRequirement('FORM_SF_02')}}</span>
+                      <span *ngIf="deviceForms.at(i).get('sf02EvidenceMode')?.value === 'upload'"
+                        class="badge-{{getDocRequirement('FORM_SF_02')}}">{{getDocRequirement('FORM_SF_02')}}</span>
                     </label>
-                    <small class="doc-hint" *ngIf="getDocHint('FORM_SF_02')">{{getDocHint('FORM_SF_02')}}</small>
-                    <div class="d-flex justify-content-between align-items-center doc-box">
-                      <input type="file" #pfFileInput (change)="onFileChange($event, i, DocumentType.FORM_SF_02)"
-                        style="display: none;" required test-id="attach-file" />
-                      <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
-                        <mat-icon>attach_file</mat-icon>
-                      </button>
-                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('FORM_SF_02')?.value">
-                        {{ deviceForms.at(i).get('FORM_SF_02')?.value ?
-                        deviceForms.at(i).get('FORM_SF_02')?.value.name : '' }}
-                      </span>
-                      <button *ngIf="filePreviews[i]?.['FORM_SF_02']" type="button"
-                        class="badge bg-success text-white px-3 py-2 preview-btn"
-                        (click)="openPreview(i, 'FORM_SF_02')">
-                        <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
-                      </button>
-                      <span *ngIf="!deviceForms.at(i).get('FORM_SF_02')?.value"
-                        class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
-                        <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
-                      </span>
+                    <mat-radio-group formControlName="sf02EvidenceMode" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px">
+                      <mat-radio-button value="self">Self-declaration (we generate it)</mat-radio-button>
+                      <mat-radio-button value="upload">Upload your own SF-02</mat-radio-button>
+                    </mat-radio-group>
+                    <div *ngIf="deviceForms.at(i).get('sf02EvidenceMode')?.value === 'upload'">
+                      <small class="doc-hint" *ngIf="getDocHint('FORM_SF_02')">{{getDocHint('FORM_SF_02')}}</small>
+                      <div class="d-flex justify-content-between align-items-center doc-box">
+                        <input type="file" #pfFileInput (change)="onFileChange($event, i, DocumentType.FORM_SF_02)"
+                          style="display: none;" test-id="attach-file" />
+                        <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
+                          <mat-icon>attach_file</mat-icon>
+                        </button>
+                        <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('FORM_SF_02')?.value">
+                          {{ deviceForms.at(i).get('FORM_SF_02')?.value ?
+                          deviceForms.at(i).get('FORM_SF_02')?.value.name : '' }}
+                        </span>
+                        <button *ngIf="filePreviews[i]?.['FORM_SF_02']" type="button"
+                          class="badge bg-success text-white px-3 py-2 preview-btn"
+                          (click)="openPreview(i, 'FORM_SF_02')">
+                          <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                        </button>
+                        <span *ngIf="!deviceForms.at(i).get('FORM_SF_02')?.value"
+                          class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
+                          <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
+                        </span>
+                      </div>
                     </div>
+                    <small *ngIf="deviceForms.at(i).get('sf02EvidenceMode')?.value === 'self'"
+                           style="color:#64748b;font-style:italic">
+                      An SF-02 registration form will be generated from the device data during review.
+                    </small>
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C') === 'required' && !deviceForms.at(i).get('SF_02C')?.value">
@@ -778,39 +794,31 @@
                   </div>
 
                   <div class="col-md-4 mb-3">
-                    <label title="Commercial Operation Date">COD Proof</label>
-                    <mat-radio-group formControlName="codEvidenceMode" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px">
-                      <mat-radio-button value="self">Self-declaration (we generate it)</mat-radio-button>
-                      <mat-radio-button value="upload">Upload utility / grid-operator doc</mat-radio-button>
-                    </mat-radio-group>
-                    <div *ngIf="deviceForms.at(i).get('codEvidenceMode')?.value === 'upload'">
-                      <small class="doc-hint" *ngIf="getDocHint('COD_PROOF')">{{getDocHint('COD_PROOF')}}</small>
-                      <div class="d-flex justify-content-between align-items-center doc-box">
-                        <input type="file" #codProofFileInput
-                          (change)="onFileChange($event, i, DocumentType.COD_PROOF)" style="display: none"
-                          test-id="attach-file" />
-                        <button type="button" (click)="codProofFileInput.click()" class="btn btn-primary">
-                          <mat-icon>attach_file</mat-icon>
-                        </button>
-                        <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('COD_PROOF')?.value">
-                          {{ deviceForms.at(i).get('COD_PROOF')?.value ?
-                          deviceForms.at(i).get('COD_PROOF')?.value.name : '' }}
-                        </span>
-                        <button *ngIf="filePreviews[i]?.['COD_PROOF']" type="button"
-                          class="badge bg-success text-white px-3 py-2 preview-btn"
-                          (click)="openPreview(i, 'COD_PROOF')">
-                          <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
-                        </button>
-                        <span *ngIf="!deviceForms.at(i).get('COD_PROOF')?.value"
-                          class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
-                          <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
-                        </span>
-                      </div>
+                    <label title="Commercial Operation Date">COD Proof
+                      <span class="badge-{{getDocRequirement('COD_PROOF')}}">{{getDocRequirement('COD_PROOF')}}</span>
+                    </label>
+                    <small class="doc-hint" *ngIf="getDocHint('COD_PROOF')">{{getDocHint('COD_PROOF')}}</small>
+                    <div class="d-flex justify-content-between align-items-center doc-box">
+                      <input type="file" #codProofFileInput
+                        (change)="onFileChange($event, i, DocumentType.COD_PROOF)" style="display: none"
+                        test-id="attach-file" />
+                      <button type="button" (click)="codProofFileInput.click()" class="btn btn-primary">
+                        <mat-icon>attach_file</mat-icon>
+                      </button>
+                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('COD_PROOF')?.value">
+                        {{ deviceForms.at(i).get('COD_PROOF')?.value ?
+                        deviceForms.at(i).get('COD_PROOF')?.value.name : '' }}
+                      </span>
+                      <button *ngIf="filePreviews[i]?.['COD_PROOF']" type="button"
+                        class="badge bg-success text-white px-3 py-2 preview-btn"
+                        (click)="openPreview(i, 'COD_PROOF')">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                      </button>
+                      <span *ngIf="!deviceForms.at(i).get('COD_PROOF')?.value"
+                        class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
+                      </span>
                     </div>
-                    <small *ngIf="deviceForms.at(i).get('codEvidenceMode')?.value === 'self'"
-                           style="color:#64748b;font-style:italic">
-                      A COD declaration will be generated from the commissioning date &amp; site details, for registrant signature at submission.
-                    </small>
                   </div>
 
                   <div class="col-md-4 mb-3">

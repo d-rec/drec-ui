@@ -235,7 +235,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       labellingSchemeAccreditation: [null],
       verificationAgentName: [null],
       offGridCircumstances: [null],
-      codEvidenceMode: ['self'],
+      sf02EvidenceMode: ['self'],
     });
     this.showinput = true;
     this.addmoredetals = false;
@@ -434,6 +434,18 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
                 (err) => { if (err?.name !== 'AbortError') this.brokenDocs[type] = true; },
               );
             }
+            // Pre-populate filePreviews for existing docs so View button shows
+            if (!this.filePreviews[type] && this.existingDocs[type]?.length) {
+              const doc = this.existingDocs[type][0];
+              const ext = doc.name.split('.').pop()?.toLowerCase() || '';
+              const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext);
+              const isPdf = ext === 'pdf';
+              this.filePreviews[type] = {
+                url: this.sanitizer.bypassSecurityTrustResourceUrl(doc.url),
+                type: isImage ? 'image' : isPdf ? 'pdf' : 'other',
+                name: doc.name,
+              };
+            }
           }
         });
       });
@@ -590,6 +602,62 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     } else {
       this.router.navigate(['/device/AllList']);
     }
+  }
+
+  mapAdjusting = false;
+  private mapCenterUpdating = false;
+  private savedCoords: { lat: string; lng: string } | null = null;
+
+  coordsDirty = false;
+
+  onMapCenterChanged(center: { lat: number; lng: number }): void {
+    if (this.mapCenterUpdating) return;
+    this.mapCenterUpdating = true;
+    if (!this.savedCoords) {
+      this.savedCoords = {
+        lat: this.latitude,
+        lng: this.longitude,
+      };
+    }
+    this.updateDeviceForm.get('latitude')?.setValue(center.lat, { emitEvent: false });
+    this.updateDeviceForm.get('longitude')?.setValue(center.lng, { emitEvent: false });
+    this.latitude = String(center.lat);
+    this.longitude = String(center.lng);
+    this.coordsDirty = true;
+    this.mapCenterUpdating = false;
+  }
+
+  cancelCoordChange(): void {
+    if (!this.savedCoords) return;
+    this.latitude = this.savedCoords.lat;
+    this.longitude = this.savedCoords.lng;
+    this.updateDeviceForm.get('latitude')?.setValue(this.savedCoords.lat, { emitEvent: false });
+    this.updateDeviceForm.get('longitude')?.setValue(this.savedCoords.lng, { emitEvent: false });
+    const lat = parseFloat(this.savedCoords.lat);
+    const lng = parseFloat(this.savedCoords.lng);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      this.mapComponent?.recenter(lat, lng);
+      this.satelliteMapComponent?.recenter(lat, lng);
+    }
+    this.savedCoords = null;
+    this.coordsDirty = false;
+  }
+
+  confirmCoordChange(): void {
+    const lat = this.updateDeviceForm.get('latitude')?.value;
+    const lng = this.updateDeviceForm.get('longitude')?.value;
+    this.deviceService
+      .update(this.externalid, { latitude: String(lat), longitude: String(lng) }, false)
+      .subscribe({
+        next: () => {
+          this.toastrService.success('Coordinates updated');
+          this.savedCoords = null;
+          this.coordsDirty = false;
+        },
+        error: (err: any) => {
+          this.toastrService.error(err.error?.message || 'Failed to save coordinates');
+        },
+      });
   }
 
   updateMapMarkers(latitude: any, longitude: any) {

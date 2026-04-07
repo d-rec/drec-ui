@@ -59,12 +59,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.searchTerm$.next(v);
   }
 
-  generatingCod: Record<string, boolean> = {};
-  showCodPreview = false;
-  codPreviewLoading = false;
-  codPreviewItem: Asset | null = null;
-  codPreviewFields: Array<{ label: string; value: string }> = [];
-  codPreviewDocs: Array<{ type: string; present: boolean; required: boolean }> = [];
+  generatingSf02: Record<string, boolean> = {};
+  showSf02Preview = false;
+  sf02PreviewLoading = false;
+  sf02PreviewItem: Asset | null = null;
+  sf02PreviewFields: Array<{ label: string; value: string }> = [];
+  sf02PreviewDocs: Array<{ type: string; present: boolean; required: boolean }> = [];
 
   satPreviewEnabled = false;
   satPreview: { lat: number; lng: number; label: string; x: number; y: number } | null = null;
@@ -93,7 +93,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   searchIndex = -1;
 
   // sort state
-  sortColumn: 'serial' | 'modifiedDate' | 'status' | 'siteName' | 'countryCode' =
+  sortColumn: 'serial' | 'modifiedDate' | 'status' | 'siteName' | 'countryCode' | 'screenStatus' | 'docs' | 'sf02Ready' =
     'siteName';
   sortDir: 1 | -1 = 1;
   readonly sort$ = new BehaviorSubject<{ col: string; dir: number }>({
@@ -101,7 +101,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     dir: 1,
   });
 
-  sortBy(col: 'serial' | 'modifiedDate' | 'status' | 'siteName' | 'countryCode'): void {
+  sortBy(col: 'serial' | 'modifiedDate' | 'status' | 'siteName' | 'countryCode' | 'screenStatus' | 'docs' | 'sf02Ready'): void {
     if (this.sortColumn === col) {
       this.sortDir = this.sortDir === 1 ? -1 : 1;
     } else {
@@ -126,6 +126,17 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       } else if (this.sortColumn === 'countryCode') {
         av = a.countryCode.toLowerCase();
         bv = b.countryCode.toLowerCase();
+      } else if (this.sortColumn === 'screenStatus') {
+        const rank = (s: string | null) => s === 'fail' ? 0 : s === 'warn' ? 1 : s === 'pass' ? 2 : 3;
+        av = rank(a.lastScreenStatus);
+        bv = rank(b.lastScreenStatus);
+      } else if (this.sortColumn === 'docs') {
+        const docsOk = (x: Asset) => x.sldUrl && x.sf02Url && x.codProofUrl && x.pictureUrls.length >= 3 ? 1 : 0;
+        av = docsOk(a);
+        bv = docsOk(b);
+      } else if (this.sortColumn === 'sf02Ready') {
+        av = a.sf02Ready ? 1 : 0;
+        bv = b.sf02Ready ? 1 : 0;
       } else {
         av = a.status;
         bv = b.status;
@@ -157,6 +168,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   // detail form
   detailForm!: FormGroup;
   editingId: string | null = null;
+  editingSiteName: string | null = null;
   showApproveModal = false;
   showApprovedInfoModal = false;
   showUnreviewedWarning = false;
@@ -418,6 +430,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           if (asset) this.patchForm(asset);
         }
         this.editingId = id;
+        this.editingSiteName = id ? this.svc.assets$.value.find((a) => a.id === id)?.siteName ?? null : null;
         this.selId = id;
       }),
     );
@@ -680,78 +693,78 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     return this.sectionOpen[id]?.[section] ?? true;
   }
 
-  // ── COD generation ───────────────────────────────────────────────────────────
+  // ── SF-02 generation ─────────────────────────────────────────────────────────
 
-  generateCod(item: Asset, event: Event): void {
+  generateSf02(item: Asset, event: Event): void {
     event.stopPropagation();
-    this.codPreviewItem = item;
-    this.codPreviewLoading = true;
-    this.codPreviewFields = [];
-    this.codPreviewDocs = [];
-    this.showCodPreview = true;
+    this.sf02PreviewItem = item;
+    this.sf02PreviewLoading = true;
+    this.sf02PreviewFields = [];
+    this.sf02PreviewDocs = [];
+    this.showSf02Preview = true;
     this.cdr.markForCheck();
 
-    this.svc.previewCod(parseInt(item.id, 10)).subscribe({
+    this.svc.previewSf02(parseInt(item.id, 10)).subscribe({
       next: (res) => {
-        this.codPreviewFields = res.fields;
-        this.codPreviewDocs = res.documents;
-        this.codPreviewLoading = false;
+        this.sf02PreviewFields = res.fields;
+        this.sf02PreviewDocs = res.documents;
+        this.sf02PreviewLoading = false;
         this.cdr.markForCheck();
       },
       error: (err) => {
-        this.showCodPreview = false;
-        this.codPreviewItem = null;
-        this.codPreviewLoading = false;
+        this.showSf02Preview = false;
+        this.sf02PreviewItem = null;
+        this.sf02PreviewLoading = false;
         this.toastr.error(
           err?.error?.message || err?.message || 'unknown error',
-          'Failed to load COD preview',
+          'Failed to load SF-02 preview',
         );
         this.cdr.markForCheck();
       },
     });
   }
 
-  confirmCodGeneration(): void {
-    const item = this.codPreviewItem;
+  confirmSf02Generation(): void {
+    const item = this.sf02PreviewItem;
     if (!item) return;
-    this.showCodPreview = false;
-    this.generatingCod[item.id] = true;
+    this.showSf02Preview = false;
+    this.generatingSf02[item.id] = true;
     this.cdr.markForCheck();
 
-    this.svc.generateCod(parseInt(item.id, 10)).subscribe({
+    this.svc.generateSf02(parseInt(item.id, 10)).subscribe({
       next: (res) => {
-        item.codProofUrl = res.url;
+        item.sf02Url = res.url;
         this.svc.saveAsset(item);
-        this.generatingCod[item.id] = false;
-        this.codPreviewItem = null;
-        this.snackBar.open('COD certificate generated', '', { duration: 3000 });
+        this.generatingSf02[item.id] = false;
+        this.sf02PreviewItem = null;
+        this.snackBar.open('SF-02 registration form generated', '', { duration: 3000 });
         this.cdr.markForCheck();
       },
       error: (err) => {
-        this.generatingCod[item.id] = false;
-        this.codPreviewItem = null;
+        this.generatingSf02[item.id] = false;
+        this.sf02PreviewItem = null;
         this.toastr.error(
           err?.error?.message || err?.message || 'unknown error',
-          'COD generation failed',
+          'SF-02 generation failed',
         );
         this.cdr.markForCheck();
       },
     });
   }
 
-  get codMissingRequired(): boolean {
-    return this.codPreviewDocs.some(d => !d.present && d.required);
+  get sf02MissingRequired(): boolean {
+    return this.sf02PreviewDocs.some(d => !d.present && d.required);
   }
 
-  cancelCodGeneration(): void {
-    this.showCodPreview = false;
-    this.codPreviewItem = null;
+  cancelSf02Generation(): void {
+    this.showSf02Preview = false;
+    this.sf02PreviewItem = null;
   }
 
-  generateCodForSelected(event: Event): void {
+  generateSf02ForSelected(event: Event): void {
     if (!this.editingId) return;
     const item = this.svc.assets$.value.find(a => a.id === this.editingId);
-    if (item) this.generateCod(item, event);
+    if (item) this.generateSf02(item, event);
   }
 
   // ── File handling ─────────────────────────────────────────────────────────────

@@ -269,6 +269,7 @@ export class SatelliteWindowComponent
 
     this.sub = this.svc.flyTo$.subscribe(({ lat, lng }) => {
       this.clearOverlay();
+      this.updateMarkers();
       this.map?.setView([lat, lng], this.map.getMaxZoom(), { animate: false });
       this.satelliteDate = '';
       this.cdr.markForCheck();
@@ -564,7 +565,12 @@ export class SatelliteWindowComponent
     this.markers.forEach((m) => m.remove());
     this.markers = [];
 
-    for (const asset of this.svc.assets$.value) {
+    const selectedId = this.svc.selectedId$.value;
+    const assets = selectedId
+      ? this.svc.assets$.value.filter((a) => a.id === selectedId)
+      : this.svc.assets$.value;
+
+    for (const asset of assets) {
       if (asset.lat === null || asset.long === null) continue;
       const color = STATUS_COLOR[asset.status] ?? '#dc2626';
 

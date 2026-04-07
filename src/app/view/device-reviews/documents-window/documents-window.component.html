@@ -58,8 +58,9 @@
         <span class="col-country th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='countryCode'&&sortDir===1" [class.desc]="sortColumn==='countryCode'&&sortDir===-1" (click)="sortBy('countryCode')" (keydown.enter)="sortBy('countryCode')">Country</span>
         <span class="col-modified th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='modifiedDate'&&sortDir===1" [class.desc]="sortColumn==='modifiedDate'&&sortDir===-1" (click)="sortBy('modifiedDate')" (keydown.enter)="sortBy('modifiedDate')">Modified</span>
         <span class="col-status  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='status'&&sortDir===1" [class.desc]="sortColumn==='status'&&sortDir===-1" (click)="sortBy('status')" (keydown.enter)="sortBy('status')">Status</span>
-        <span class="col-docs" title="Required documents uploaded">Docs</span>
-        <span class="col-cod" title="COD certificate ready">COD gen</span>
+        <span class="col-screen th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='screenStatus'&&sortDir===1" [class.desc]="sortColumn==='screenStatus'&&sortDir===-1" (click)="sortBy('screenStatus')" (keydown.enter)="sortBy('screenStatus')" title="Auto-screen result">Screen</span>
+        <span class="col-docs th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='docs'&&sortDir===1" [class.desc]="sortColumn==='docs'&&sortDir===-1" (click)="sortBy('docs')" (keydown.enter)="sortBy('docs')" title="Required documents uploaded">Docs</span>
+        <span class="col-cod th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='sf02Ready'&&sortDir===1" [class.desc]="sortColumn==='sf02Ready'&&sortDir===-1" (click)="sortBy('sf02Ready')" (keydown.enter)="sortBy('sf02Ready')" title="SF-02 generation ready">SF-02</span>
       </div>
 
       <ng-container *ngIf="filtered$ | async as result">
@@ -84,13 +85,14 @@
           <span class="chevron" role="button" tabindex="0" [class.chevron--open]="expanded[item.id]" (click)="toggleDevice(item.id); $event.stopPropagation()" (keydown.enter)="toggleDevice(item.id); $event.stopPropagation()">&#8250;</span>
           <span class="col-serial">
             <span [innerHTML]="hl(item.siteName, result.searchTerm)"></span>
-            <span class="unread-dot" *ngIf="(chatService.unreadDevices$ | async)?.has(item.siteName)" title="New message">●</span>
           </span>
           <span class="col-country muted">{{ item.countryCode | countryName }}</span>
           <span class="col-modified muted">{{ item.modifiedDate ? (item.modifiedDate | date:'dd/MM/yyyy') : '—' }}</span>
           <span class="col-status">
             <span class="status-icon status-icon--{{ item.status }}">{{ item.status === 'approved' ? '✓' : item.status === 'rejected' ? '✗' : '●' }}</span>
             <span class="status-label" [innerHTML]="hl(item.status | titlecase, result.searchTerm)"></span>
+          </span>
+          <span class="col-screen">
             <span *ngIf="item.lastScreenStatus" class="screen-badge screen-badge--{{ item.lastScreenStatus }}"
               [title]="(item.lastScreenStatus === 'pass' ? 'Passed' : item.lastScreenStatus === 'fail' ? 'Failed' : 'Warnings') + ' — screened ' + (item.lastScreenedAt | date:'dd MMM yyyy, HH:mm') + ' (click for details)'"
               (click)="openScreenReport(item, $event)">{{ item.lastScreenStatus === 'pass' ? '✓' : item.lastScreenStatus === 'fail' ? '✗' : '!' }}</span>
@@ -101,8 +103,8 @@
             [title]="(item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length >= 3) ? 'All documents uploaded' : 'Missing documents'">
             {{ (item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length >= 3) ? '✓' : '✗' }}
           </span>
-          <span class="col-cod" [class.col-cod--ready]="item.codReady" [class.col-cod--not]="!item.codReady" [title]="item.codReady ? 'Ready to generate COD' : 'Missing required fields'">
-            {{ item.codReady ? '✓' : '✗' }}
+          <span class="col-cod" [class.col-cod--ready]="item.sf02Ready" [class.col-cod--not]="!item.sf02Ready" [title]="item.sf02Ready ? 'Ready to generate SF-02' : 'Missing required fields'">
+            {{ item.sf02Ready ? '✓' : '✗' }}
           </span>
         </div>
 
@@ -349,12 +351,13 @@
             <button type="button" class="btn btn--photogps" (click)="checkPhotoGps()" title="Verify photo GPS vs declared location (VA layer)">Photo GPS</button>
             <button type="button" class="btn btn--sld" (click)="openSldCompare($event)" title="Open SLD document with capacity compare panel (VA layer)">SLD kW</button>
             <button type="button" class="btn btn--crosssrc" (click)="checkCrossSource()" title="Cross-source verification with Performance Factor (§3.10)">X-Source</button>
-            <button type="button" class="btn btn--cod" (click)="generateCodForSelected($event)" [disabled]="!editingId || generatingCod[editingId!]" title="Generate COD certificate from device data">
-              {{ editingId && generatingCod[editingId!] ? 'Generating…' : '⚙ Generate COD' }}
+            <button type="button" class="btn btn--cod" (click)="generateSf02ForSelected($event)" [disabled]="!editingId || generatingSf02[editingId!]" title="Generate SF-02 registration form from device data">
+              {{ editingId && generatingSf02[editingId!] ? 'Generating…' : '⚙ Generate SF-02' }}
             </button>
             <span class="detail-actions__sep"></span>
             <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+              <span class="unread-dot" *ngIf="editingSiteName && (chatService.unreadDevices$ | async)?.has(editingSiteName)">●</span>
             </button>
             <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
             <button type="button" class="btn btn--reject"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Reject</button>
@@ -812,22 +815,22 @@
     </div>
   </div>
 
-  <!-- ── COD Preview / Confirmation modal ─────────────────────────── -->
-  <div class="modal-backdrop" *ngIf="showCodPreview" role="dialog" aria-modal="true" (click)="cancelCodGeneration()" (keydown.escape)="cancelCodGeneration()">
+  <!-- ── SF-02 Preview / Confirmation modal ────────────────────────── -->
+  <div class="modal-backdrop" *ngIf="showSf02Preview" role="dialog" aria-modal="true" (click)="cancelSf02Generation()" (keydown.escape)="cancelSf02Generation()">
     <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
-      <button type="button" class="modal-close" (click)="cancelCodGeneration()" aria-label="Close">&times;</button>
-      <p class="modal-msg" style="font-weight: 600;" [style.color]="codMissingRequired ? '#991b1b' : ''">
-        {{ codMissingRequired ? 'Cannot Generate COD — Missing Documents' : 'Generate COD Certificate' }}
+      <button type="button" class="modal-close" (click)="cancelSf02Generation()" aria-label="Close">&times;</button>
+      <p class="modal-msg" style="font-weight: 600;" [style.color]="sf02MissingRequired ? '#991b1b' : ''">
+        {{ sf02MissingRequired ? 'Cannot Generate SF-02 — Missing Documents' : 'Generate SF-02 Registration Form' }}
       </p>
-      <p *ngIf="!codMissingRequired" style="color: #64748b; font-size: 12px; margin: 0 0 16px;">Review the data below. This will be included in the generated PDF.</p>
+      <p *ngIf="!sf02MissingRequired" style="color: #64748b; font-size: 12px; margin: 0 0 16px;">Review the data below. This will be included in the generated PDF.</p>
 
-      <div *ngIf="codPreviewLoading" style="text-align:center; padding: 24px; color: #64748b;">
+      <div *ngIf="sf02PreviewLoading" style="text-align:center; padding: 24px; color: #64748b;">
         Loading preview…
       </div>
 
-      <ng-container *ngIf="!codPreviewLoading && codPreviewFields.length > 0">
+      <ng-container *ngIf="!sf02PreviewLoading && sf02PreviewFields.length > 0">
         <table class="cod-preview-table">
-          <tr *ngFor="let f of codPreviewFields" [class.cod-preview-table--empty]="f.value === '—' || f.value === 'Not specified'">
+          <tr *ngFor="let f of sf02PreviewFields" [class.cod-preview-table--empty]="f.value === '—' || f.value === 'Not specified'">
             <td class="cod-preview-table__label">{{ f.label }}</td>
             <td class="cod-preview-table__value">{{ f.value }}</td>
           </tr>
@@ -835,7 +838,7 @@
 
         <p style="font-weight: 600; font-size: 12px; margin: 16px 0 6px; color: #334155;">Documents</p>
         <div class="cod-preview-docs">
-          <span *ngFor="let d of codPreviewDocs" class="cod-preview-doc"
+          <span *ngFor="let d of sf02PreviewDocs" class="cod-preview-doc"
             [class.cod-preview-doc--present]="d.present"
             [class.cod-preview-doc--missing]="!d.present && d.required"
             [class.cod-preview-doc--optional]="!d.present && !d.required">
@@ -844,15 +847,15 @@
         </div>
       </ng-container>
 
-      <p *ngIf="!codPreviewLoading && codMissingRequired"
+      <p *ngIf="!sf02PreviewLoading && sf02MissingRequired"
          style="color: #991b1b; font-size: 12px; margin: 12px 0 0; font-weight: 500;">
-        Required documents are missing — upload them before generating the COD certificate.
+        Required documents are missing — upload them before generating the SF-02 form.
       </p>
 
       <div class="modal-actions" style="margin-top: 20px;">
-        <button class="btn btn--cancel" (click)="cancelCodGeneration()">Cancel</button>
-        <button class="btn btn--save" (click)="confirmCodGeneration()"
-          [disabled]="codPreviewLoading || codMissingRequired">Generate COD</button>
+        <button class="btn btn--cancel" (click)="cancelSf02Generation()">Cancel</button>
+        <button class="btn btn--save" (click)="confirmSf02Generation()"
+          [disabled]="sf02PreviewLoading || sf02MissingRequired">Generate SF-02</button>
       </div>
     </div>
   </div>

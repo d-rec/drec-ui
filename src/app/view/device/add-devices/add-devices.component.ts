@@ -372,7 +372,7 @@ export class AddDevicesComponent implements OnDestroy {
       SCREENSHOTS: [null],
       COD_PROOF: [null],
       OTHER_DOCUMENTS: [null],
-      codEvidenceMode: ['self'],
+      sf02EvidenceMode: ['self'],
     });
 
     device.get('latitude')?.valueChanges.subscribe((v: any) => {
@@ -514,7 +514,7 @@ export class AddDevicesComponent implements OnDestroy {
       SCREENSHOTS: [null],
       COD_PROOF: [null],
       OTHER_DOCUMENTS: [null],
-      codEvidenceMode: ['self'],
+      sf02EvidenceMode: ['self'],
     });
 
     this.deviceForms.push(device);
@@ -658,10 +658,10 @@ export class AddDevicesComponent implements OnDestroy {
       (group, deviceIndex) => {
         if (!this.files[deviceIndex]) return false;
         return this.requiredFileTypes.every((fileType) => {
-          // COD_PROOF not required when self-declaration mode is selected
+          // SF-02 not required when self-declaration mode is selected (platform generates it)
           if (
-            fileType === DocumentType.COD_PROOF &&
-            group.get('codEvidenceMode')?.value === 'self'
+            fileType === DocumentType.FORM_SF_02 &&
+            group.get('sf02EvidenceMode')?.value === 'self'
           ) {
             return true;
           }
@@ -849,7 +849,7 @@ export class AddDevicesComponent implements OnDestroy {
         return;
       }
 
-      const codMode = this.deviceForms.at(index)?.get('codEvidenceMode')?.value;
+      const sf02Mode = this.deviceForms.at(index)?.get('sf02EvidenceMode')?.value;
 
       this.deviceService.create(formData).subscribe({
         next: (result: any) => {
@@ -858,14 +858,14 @@ export class AddDevicesComponent implements OnDestroy {
             'Device! ' + element.serialNumber,
           );
 
-          // Auto-generate COD certificate when self-declaration mode is selected
-          if (codMode === 'self' && result?.id) {
+          // Auto-generate SF-02 registration form when self-declaration mode is selected
+          if (sf02Mode === 'self' && result?.id) {
             this.http.post(
-              `${environment.API_URL}device-reviews/${result.id}/generate-cod`,
+              `${environment.API_URL}device-reviews/${result.id}/generate-sf02`,
               {},
             ).subscribe({
-              next: () => this.toastrService.info('COD certificate generated', 'COD'),
-              error: (err) => console.warn('COD generation failed:', err?.message),
+              next: () => this.toastrService.info('SF-02 registration form generated', 'SF-02'),
+              error: (err) => console.warn('SF-02 generation failed:', err?.message),
             });
           }
 
@@ -926,6 +926,53 @@ export class AddDevicesComponent implements OnDestroy {
   onAgreeClick() {
     this.submitButtonText = 'Submitting...';
     this.dialogRef.close(true);
+  }
+
+  mapAdjusting = false;
+  coordsDirty = false;
+  private mapCenterUpdating = false;
+  private savedCoords: { lat: string; lng: string } | null = null;
+  private coordDeviceIndex = 0;
+
+  onMapCenterChanged(center: { lat: number; lng: number }, deviceIndex: number): void {
+    if (this.mapCenterUpdating) return;
+    this.mapCenterUpdating = true;
+    const group = this.deviceForms.at(deviceIndex);
+    if (group) {
+      if (!this.savedCoords) {
+        this.savedCoords = {
+          lat: group.get('latitude')?.value || '',
+          lng: group.get('longitude')?.value || '',
+        };
+        this.coordDeviceIndex = deviceIndex;
+      }
+      group.get('latitude')?.setValue(center.lat, { emitEvent: false });
+      group.get('longitude')?.setValue(center.lng, { emitEvent: false });
+      this.coordsDirty = true;
+    }
+    this.mapCenterUpdating = false;
+  }
+
+  cancelCoordChange(): void {
+    if (!this.savedCoords) return;
+    const group = this.deviceForms.at(this.coordDeviceIndex);
+    if (group) {
+      group.get('latitude')?.setValue(this.savedCoords.lat, { emitEvent: false });
+      group.get('longitude')?.setValue(this.savedCoords.lng, { emitEvent: false });
+      const lat = parseFloat(this.savedCoords.lat);
+      const lng = parseFloat(this.savedCoords.lng);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        this.mapComponent?.recenter(lat, lng);
+        this.satelliteMapComponent?.recenter(lat, lng);
+      }
+    }
+    this.savedCoords = null;
+    this.coordsDirty = false;
+  }
+
+  confirmCoordChange(): void {
+    this.savedCoords = null;
+    this.coordsDirty = false;
   }
 
   updateMapMarkers(latitude: any, longitude: any) {

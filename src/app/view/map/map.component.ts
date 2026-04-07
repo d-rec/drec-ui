@@ -69,7 +69,10 @@ export class MapComponent implements OnInit, OnDestroy {
   @Input() satellite = false;
   @Input() scrollWheelZoom = false;
   @Input() satPreviewEnabled = true;
+  @Input() centerPin = false;
   @Output() markerClicked = new EventEmitter();
+  @Output() centerChanged = new EventEmitter<{ lat: number; lng: number }>();
+  @Output() mapDragging = new EventEmitter<boolean>();
 
   @ViewChild('overlayCanvas') overlayCanvas!: ElementRef<HTMLCanvasElement>;
 
@@ -112,6 +115,15 @@ export class MapComponent implements OnInit, OnDestroy {
       this.observeTileCORS();
     }
 
+    if (this.centerPin) {
+      this.map.on('movestart', () => this.mapDragging.emit(true));
+      this.map.on('move', () => {
+        const c = this.map.getCenter();
+        this.centerChanged.emit({ lat: +c.lat.toFixed(6), lng: +c.lng.toFixed(6) });
+      });
+      this.map.on('moveend', () => this.mapDragging.emit(false));
+    }
+
     this.update();
   }
 
@@ -151,7 +163,28 @@ export class MapComponent implements OnInit, OnDestroy {
     }
   }
 
+  private centerPinInitialized = false;
+
+  /** Reposition the map center (for use with centerPin mode, e.g. reverting coords) */
+  recenter(lat: number, lng: number): void {
+    if (this.map) {
+      this.map.setView([lat, lng], this.map.getZoom(), { animate: true });
+    }
+  }
+
   update(): void {
+    if (this.centerPin) {
+      // Only set view once for initial positioning — after that the user controls the map
+      this.markerGroup.clearLayers();
+      if (!this.centerPinInitialized && this.markers?.length) {
+        const m = this.markers[0];
+        if (!isNaN(m.latitude) && !isNaN(m.longitude)) {
+          this.map.setView([m.latitude, m.longitude], this.zoom, { animate: false });
+          this.centerPinInitialized = true;
+        }
+      }
+      return;
+    }
     this.addMarkers();
   }
 
