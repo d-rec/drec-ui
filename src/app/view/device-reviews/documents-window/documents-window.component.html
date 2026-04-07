@@ -153,6 +153,10 @@
               <span *ngIf="isBroken(item.codProofUrl)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="!item.codProofUrl" class="doc-empty">not uploaded</span>
+            <button class="generate-cod-btn" (click)="generateCod(item, $event)" [disabled]="generatingCod[item.id]" title="Generate COD certificate from device data">
+              <span *ngIf="!generatingCod[item.id]">&#9881; Generate</span>
+              <span *ngIf="generatingCod[item.id]">Generating…</span>
+            </button>
           </div>
 
           <!-- ── Metering Evidence ────────────────────────────────────────────── -->

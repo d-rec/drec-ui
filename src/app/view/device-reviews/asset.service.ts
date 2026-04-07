@@ -275,6 +275,13 @@ export class AssetService {
     }
   }
 
+  generateCod(deviceId: number): Observable<{ url: string; docId: number }> {
+    return this.http.post<{ url: string; docId: number }>(
+      `${environment.API_URL}device-reviews/${deviceId}/generate-cod`,
+      {},
+    );
+  }
+
   getSatelliteDate(
     lat: number,
     lng: number,

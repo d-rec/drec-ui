@@ -7,6 +7,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { HttpClient } from '@angular/common/http';
 import {
   FormGroup,
   FormBuilder,
@@ -54,6 +55,7 @@ import {
   shortenFileName,
 } from '../../../utils/file-upload.helper';
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
+import { environment } from '../../../../environments/environment';
 
 export type DeviceFiles = {
   [DocumentType.FORM_SF_02]: File[];
@@ -194,6 +196,7 @@ export class AddDevicesComponent implements OnDestroy {
     private orgService: OrganizationService,
     public dialog: MatDialog,
     private sanitizer: DomSanitizer,
+    private http: HttpClient,
   ) {
     this.user = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -830,15 +833,28 @@ export class AddDevicesComponent implements OnDestroy {
         return;
       }
 
+      const codMode = this.deviceForms.at(index)?.get('codEvidenceMode')?.value;
+
       this.deviceService.create(formData).subscribe({
-        next: () => {
+        next: (result: any) => {
           this.toastrService.success(
             'Added Successfully !!',
             'Device! ' + element.serialNumber,
           );
 
-          const index = deviceArray.indexOf(element);
-          deviceArray.splice(index, 1);
+          // Auto-generate COD certificate when self-declaration mode is selected
+          if (codMode === 'self' && result?.id) {
+            this.http.post(
+              `${environment.API_URL}device-reviews/${result.id}/generate-cod`,
+              {},
+            ).subscribe({
+              next: () => this.toastrService.info('COD certificate generated', 'COD'),
+              error: (err) => console.warn('COD generation failed:', err?.message),
+            });
+          }
+
+          const idx = deviceArray.indexOf(element);
+          deviceArray.splice(idx, 1);
 
           if (deviceArray.length === 0) {
             if (this.user.role === OrganizationType.Admin) {

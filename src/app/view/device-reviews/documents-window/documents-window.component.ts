@@ -57,6 +57,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.searchTerm$.next(v);
   }
 
+  generatingCod: Record<string, boolean> = {};
+
   satPreviewEnabled = false;
   satPreview: { preview: SatellitePreview; label: string; x: number; y: number } | null = null;
 
@@ -664,6 +666,30 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       | 'screenshots',
   ): boolean {
     return this.sectionOpen[id]?.[section] ?? true;
+  }
+
+  // ── COD generation ───────────────────────────────────────────────────────────
+
+  generateCod(item: Asset, event: Event): void {
+    event.stopPropagation();
+    this.generatingCod[item.id] = true;
+    this.cdr.markForCheck();
+
+    this.svc.generateCod(parseInt(item.id, 10)).subscribe({
+      next: (res) => {
+        // Update the asset locally so the URL appears immediately
+        item.codProofUrl = res.url;
+        this.svc.saveAsset(item);
+        this.generatingCod[item.id] = false;
+        this.snackBar.open('COD certificate generated', '', { duration: 3000 });
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.generatingCod[item.id] = false;
+        this.snackBar.open('Failed to generate COD: ' + (err?.error?.message || err?.message || 'unknown error'), '', { duration: 5000 });
+        this.cdr.markForCheck();
+      },
+    });
   }
 
   // ── File handling ─────────────────────────────────────────────────────────────
