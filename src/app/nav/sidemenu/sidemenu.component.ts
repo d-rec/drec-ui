@@ -154,7 +154,9 @@ export class SidemenuComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.devcieurl = '/device/AllList';
       this.Alluserurl = './admin/All_users';
-      this.adduserorg_url = '/organization/user/invitation';
+      this.adduserorg_url = this.loginuser?.role === 'Admin'
+        ? '/admin/add_user'
+        : '/organization/user/invitation';
     }
   }
 

@@ -58,6 +58,8 @@
         <span class="col-country th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='countryCode'&&sortDir===1" [class.desc]="sortColumn==='countryCode'&&sortDir===-1" (click)="sortBy('countryCode')" (keydown.enter)="sortBy('countryCode')">Country</span>
         <span class="col-modified th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='modifiedDate'&&sortDir===1" [class.desc]="sortColumn==='modifiedDate'&&sortDir===-1" (click)="sortBy('modifiedDate')" (keydown.enter)="sortBy('modifiedDate')">Modified</span>
         <span class="col-status  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='status'&&sortDir===1" [class.desc]="sortColumn==='status'&&sortDir===-1" (click)="sortBy('status')" (keydown.enter)="sortBy('status')">Status</span>
+        <span class="col-docs" title="Required documents uploaded">Docs</span>
+        <span class="col-cod" title="COD certificate ready">COD gen</span>
       </div>
 
       <ng-container *ngIf="filtered$ | async as result">
@@ -89,6 +91,15 @@
             <span class="status-icon status-icon--{{ item.status }}">{{ item.status === 'approved' ? '✓' : item.status === 'rejected' ? '✗' : '●' }}</span>
             <span class="status-label" [innerHTML]="hl(item.status | titlecase, result.searchTerm)"></span>
             <span *ngIf="item.lastScreenStatus" class="screen-badge screen-badge--{{ item.lastScreenStatus }}" [title]="'Last screened: ' + (item.lastScreenedAt | date:'dd/MM/yyyy HH:mm')">{{ item.lastScreenStatus === 'pass' ? '✓' : item.lastScreenStatus === 'fail' ? '✗' : '!' }}</span>
+          </span>
+          <span class="col-docs"
+            [class.col-docs--ready]="item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length"
+            [class.col-docs--not]="!item.sldUrl || !item.sf02Url || !item.codProofUrl || !item.pictureUrls.length"
+            [title]="(item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length) ? 'All documents uploaded' : 'Missing documents'">
+            {{ (item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length) ? '✓' : '✗' }}
+          </span>
+          <span class="col-cod" [class.col-cod--ready]="item.codReady" [class.col-cod--not]="!item.codReady" [title]="item.codReady ? 'Ready to generate COD' : 'Missing required fields'">
+            {{ item.codReady ? '✓' : '✗' }}
           </span>
         </div>
 
@@ -153,10 +164,6 @@
               <span *ngIf="isBroken(item.codProofUrl)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="!item.codProofUrl" class="doc-empty">not uploaded</span>
-            <button class="generate-cod-btn" (click)="generateCod(item, $event)" [disabled]="generatingCod[item.id]" title="Generate COD certificate from device data">
-              <span *ngIf="!generatingCod[item.id]">&#9881; Generate</span>
-              <span *ngIf="generatingCod[item.id]">Generating…</span>
-            </button>
           </div>
 
           <!-- ── Metering Evidence ────────────────────────────────────────────── -->
@@ -338,6 +345,9 @@
             <button type="button" class="btn btn--photogps" (click)="checkPhotoGps()" title="Verify photo GPS vs declared location (VA layer)">Photo GPS</button>
             <button type="button" class="btn btn--sld" (click)="openSldCompare($event)" title="Open SLD document with capacity compare panel (VA layer)">SLD kW</button>
             <button type="button" class="btn btn--crosssrc" (click)="checkCrossSource()" title="Cross-source verification with Performance Factor (§3.10)">X-Source</button>
+            <button type="button" class="btn btn--cod" (click)="generateCodForSelected($event)" [disabled]="!editingId || generatingCod[editingId!]" title="Generate COD certificate from device data">
+              {{ editingId && generatingCod[editingId!] ? 'Generating…' : '⚙ Generate COD' }}
+            </button>
             <span class="detail-actions__sep"></span>
             <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
@@ -708,7 +718,7 @@
         </div>
 
         <div *ngIf="photoGpsResult.summary.total === 0" class="verify-section verify-section--warn">
-          <p class="verify-heading" style="color:#b45309;">⚠ No project photos uploaded.</p>
+          <p class="verify-heading" style="color:#ef4444;">⚠ No project photos uploaded.</p>
         </div>
 
         <div class="verify-section" *ngIf="photoGpsResult.summary.total > 0">
@@ -839,14 +849,36 @@
     </div>
   </div>
 
-  <div class="sat-preview" *ngIf="satPreview" [style.top.px]="satPreview.y" [style.left.px]="satPreview.x">
-    <div style="width:256px;height:256px;overflow:hidden;position:relative;border-radius:4px">
-      <div [style.left.px]="satPreview.preview.offsetX" [style.top.px]="satPreview.preview.offsetY" style="position:absolute">
-        <img *ngFor="let t of satPreview.preview.tiles" [src]="t.url" width="256" height="256"
-          [style.position]="'absolute'" [style.left.px]="t.left" [style.top.px]="t.top" alt="" />
+  <app-sat-preview
+    *ngIf="satPreview"
+    [lat]="satPreview.lat"
+    [lng]="satPreview.lng"
+    [label]="satPreview.label"
+    [x]="satPreview.x"
+    [y]="satPreview.y"
+  ></app-sat-preview>
+
+  <!-- COD Preview Panel -->
+  <div class="cod-preview-backdrop" *ngIf="codPreview" (click)="cancelCodGeneration()">
+    <div class="cod-preview-panel" (click)="$event.stopPropagation()">
+      <div class="cod-preview-panel__title" [class.cod-preview-panel__title--error]="codPreview.hasMissing">
+        {{ codPreview.hasMissing ? 'Cannot generate COD — missing fields' : 'COD Certificate Fields' }}
+      </div>
+      <div class="cod-preview-panel__subtitle">The following fields will be included:</div>
+      <div class="cod-preview-panel__list">
+        <div class="cod-preview-panel__row" *ngFor="let f of codPreview.fields">
+          <span class="cod-preview-panel__check" [class.cod-preview-panel__check--missing]="f[1] === '—'">
+            {{ f[1] !== '—' ? '✓' : '✗' }}
+          </span>
+          <span class="cod-preview-panel__label" [class.cod-preview-panel__label--missing]="f[1] === '—'">{{ f[0] }}</span>
+          <span class="cod-preview-panel__value" [class.cod-preview-panel__value--missing]="f[1] === '—'">{{ f[1] === '—' ? 'Missing' : f[1] }}</span>
+        </div>
+      </div>
+      <div class="cod-preview-panel__actions">
+        <button class="cod-preview-panel__btn cod-preview-panel__btn--cancel" (click)="cancelCodGeneration()">Cancel</button>
+        <button class="cod-preview-panel__btn cod-preview-panel__btn--ok" [disabled]="codPreview.hasMissing" (click)="confirmCodGeneration()">Generate</button>
       </div>
     </div>
-    <div class="sat-preview__label">{{ satPreview.label }}</div>
   </div>
 
 </div>

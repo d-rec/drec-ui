@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import {
   Component,
   Input,
@@ -60,7 +61,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   generatingCod: Record<string, boolean> = {};
 
   satPreviewEnabled = false;
-  satPreview: { preview: SatellitePreview; label: string; x: number; y: number } | null = null;
+  satPreview: { lat: number; lng: number; label: string; x: number; y: number } | null = null;
 
   statusFilter: Record<AssetStatus, boolean> = this.loadStatusFilter();
   readonly statusFilter$ = new BehaviorSubject(this.statusFilter);
@@ -332,6 +333,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private elRef: ElementRef,
     private snackBar: MatSnackBar,
+    private http: HttpClient,
   ) {}
 
   trustUrl(url: string): SafeUrl {
@@ -670,14 +672,61 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   // ── COD generation ───────────────────────────────────────────────────────────
 
+  codPreview: { item: Asset; fields: [string, string][]; hasMissing: boolean } | null = null;
+
   generateCod(item: Asset, event: Event): void {
     event.stopPropagation();
+    this.http.get<any>(
+      `${environment.API_URL}device/${item.id}`,
+    ).subscribe({
+      next: (dev) => {
+        const commDate = dev.commissioningDate
+          ? new Date(dev.commissioningDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+          : 'Not specified';
+        this.codPreview = {
+          item,
+          fields: [
+            ['Device ID', dev.externalId || String(dev.id)],
+            ['Site Name', dev.siteName || '—'],
+            ['Organization', item.submitterName || '—'],
+            ['Serial Number', dev.serialNumber || '—'],
+            ['Country', dev.countryCode || '—'],
+            ['Location', dev.latitude && dev.longitude
+              ? `${parseFloat(dev.latitude).toFixed(6)}, ${parseFloat(dev.longitude).toFixed(6)}`
+              : '—'],
+            ['Address', dev.address || '—'],
+            ['Capacity (kW)', dev.capacity != null ? String(dev.capacity) : '—'],
+            ['Fuel Type', dev.fuelCode || '—'],
+            ['Device Type', dev.deviceTypeCode || '—'],
+            ['Grid Interconnection', dev.gridInterconnection ? 'Yes' : 'No'],
+            ['Operating Configuration', dev.operatingConfiguration || '—'],
+            ['Source Access Mode', dev.sourceAccessMode || '—'],
+            ['Commissioning Date', commDate],
+          ],
+          hasMissing: false,
+        };
+        const optionalFields = ['Operating Configuration', 'Source Access Mode', 'Grid Interconnection'];
+        this.codPreview.hasMissing = this.codPreview.fields.some(f => f[1] === '—' && !optionalFields.includes(f[0]));
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.snackBar.open(
+          'Failed to load device details: ' + (err?.error?.message || err?.message || 'unknown'),
+          '', { duration: 5000 },
+        );
+      },
+    });
+  }
+
+  confirmCodGeneration(): void {
+    if (!this.codPreview) return;
+    const item = this.codPreview.item;
+    this.codPreview = null;
     this.generatingCod[item.id] = true;
     this.cdr.markForCheck();
 
     this.svc.generateCod(parseInt(item.id, 10)).subscribe({
       next: (res) => {
-        // Update the asset locally so the URL appears immediately
         item.codProofUrl = res.url;
         this.svc.saveAsset(item);
         this.generatingCod[item.id] = false;
@@ -690,6 +739,17 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       },
     });
+  }
+
+  generateCodForSelected(event: Event): void {
+    if (!this.editingId) return;
+    const item = this.svc.assets$.value.find(a => a.id === this.editingId);
+    if (item) this.generateCod(item, event);
+  }
+
+  cancelCodGeneration(): void {
+    this.codPreview = null;
+    this.cdr.markForCheck();
   }
 
   // ── File handling ─────────────────────────────────────────────────────────────
@@ -1508,7 +1568,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     if (lat == null || lng == null) return;
     const pos = this.satPreviewPos(event);
     this.satPreview = {
-      preview: satellitePreview(lat, lng, 19),
+      lat,
+      lng,
       label: asset.siteName || '',
       x: pos.x,
       y: pos.y,

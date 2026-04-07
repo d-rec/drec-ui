@@ -18,6 +18,7 @@ import { HighlightPipe } from './highlight.pipe';
 import { AssetService } from './asset.service';
 import { AdminGuard } from '../../guards/admin.guard';
 import { PdfPreviewComponent } from '../../shared/pdf-preview/pdf-preview.component';
+import { SatellitePreviewComponent } from '../../shared/satellite-preview/satellite-preview.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { PdfPreviewComponent } from '../../shared/pdf-preview/pdf-preview.compon
     ReactiveFormsModule,
     LeafletModule,
     PdfPreviewComponent,
+    SatellitePreviewComponent,
     RouterModule.forChild([
       {
         path: '',

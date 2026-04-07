@@ -60,7 +60,7 @@ export class AlldevicesComponent {
   dataSource: MatTableDataSource<any>;
   data: any;
   searchText: string = '';
-  satPreview: { preview: SatellitePreview; label: string; satDate: string; x: number; y: number } | null = null;
+  satPreview: { lat: number; lng: number; label: string; x: number; y: number } | null = null;
   satPreviewEnabled = false;
   loginuser: any;
   deviceurl: any;
@@ -653,26 +653,12 @@ export class AlldevicesComponent {
     if (isNaN(lat) || isNaN(lng)) return;
     const pos = this.satPreviewPos(event);
     this.satPreview = {
-      preview: satellitePreview(lat, lng, 19),
+      lat,
+      lng,
       label: row.siteName || row.externalId || '',
-      satDate: '',
       x: pos.x,
       y: pos.y,
     };
-    this.http.get<{ date: string | null }>(
-      `${environment.API_URL}device-reviews/satellite-date`,
-      { params: { lat: lat.toString(), lng: lng.toString() } },
-    ).subscribe({
-      next: (res) => {
-        if (res.date && this.satPreview) {
-          const d = new Date(res.date);
-          this.satPreview = {
-            ...this.satPreview,
-            satDate: d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-          };
-        }
-      },
-    });
   }
 
   moveSatPreview(event: MouseEvent) {

@@ -51,7 +51,7 @@ export class AdminAlldevicesComponent {
   dataSource: MatTableDataSource<any>;
   data: any;
   searchText: string = '';
-  satPreview: { preview: SatellitePreview; label: string; x: number; y: number } | null = null;
+  satPreview: { lat: number; lng: number; label: string; x: number; y: number } | null = null;
   loginuser: any;
   deviceurl: any;
   pageSize: number = 20;
@@ -511,7 +511,8 @@ export class AdminAlldevicesComponent {
     if (isNaN(lat) || isNaN(lng)) return;
     const pos = this.satPreviewPos(event);
     this.satPreview = {
-      preview: satellitePreview(lat, lng, 19),
+      lat,
+      lng,
       label: row.siteName || row.externalId || '',
       x: pos.x,
       y: pos.y,

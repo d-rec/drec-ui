@@ -62,7 +62,7 @@
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
-            routerLink="{{ adduserorg_url }}"
+            [routerLink]="adduserorg_url"
             *ngIf="loginuser.role === 'Admin' || loginuser.role === 'Registrant'"
             test-id="add-organization"
           >

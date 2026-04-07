@@ -10,6 +10,7 @@ import { EditDeviceComponent } from './edit-device/edit-device.component';
 import { DeviceDetailsComponent } from './device-details/device-details.component';
 import { MapModule } from '../map/map.module';
 import { PdfPreviewComponent } from '../../shared/pdf-preview/pdf-preview.component';
+import { SatellitePreviewComponent } from '../../shared/satellite-preview/satellite-preview.component';
 @NgModule({
   declarations: [
     AlldevicesComponent,
@@ -26,6 +27,7 @@ import { PdfPreviewComponent } from '../../shared/pdf-preview/pdf-preview.compon
     ReactiveFormsModule,
     MapModule,
     PdfPreviewComponent,
+    SatellitePreviewComponent,
   ],
 })
 export class DeviceModule {}

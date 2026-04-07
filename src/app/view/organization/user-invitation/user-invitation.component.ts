@@ -47,7 +47,6 @@ export class UserInvitationComponent {
   ];
   orgtypebuyer: any[] = [
     { value: 'SubBuyer', viewValue: 'SubBuyer' },
-
     { value: 'User', viewValue: 'User' },
   ];
   loginuser: any;

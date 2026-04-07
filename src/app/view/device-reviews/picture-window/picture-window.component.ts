@@ -257,6 +257,11 @@ export class PictureWindowComponent implements OnInit, OnDestroy {
     const scaleY = h / imgH;
 
     this.panelCount = predictions.length;
+    if (this.panelCount === 0) {
+      this.detectError = 'No solar panels detected in this image';
+      this.detecting = false;
+      return;
+    }
 
     for (const pred of predictions) {
       const points: { x: number; y: number }[] = pred.points ?? [];

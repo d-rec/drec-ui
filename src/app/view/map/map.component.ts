@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, 
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { environment } from '../../../environments/environment';
+import { SatellitePreviewComponent } from '../../shared/satellite-preview/satellite-preview.component';
 
 export interface MapMarker {
   latitude: number;
@@ -332,6 +333,11 @@ export class MapComponent implements OnInit, OnDestroy {
     const scaleY = cropH / imgH;
 
     this.panelCount = predictions.length;
+    if (this.panelCount === 0) {
+      this.detectError = 'No solar panels detected in this image';
+      this.detecting = false;
+      return;
+    }
 
     for (const pred of predictions) {
       const points: { x: number; y: number }[] = pred.points ?? [];
@@ -378,33 +384,6 @@ export class MapComponent implements OnInit, OnDestroy {
   }
 
   private pinOverlay: HTMLElement | null = null;
-
-  private showPinOverlay(html: string, lat: number, lng: number): void {
-    this.removePinOverlay();
-    const el = document.createElement('div');
-    el.className = 'sat-pin-overlay';
-    el.innerHTML = html;
-    el.style.cssText = 'position:fixed;z-index:10000;pointer-events:none;background:#1e293b;border-radius:6px;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,0.4);color:#fff;';
-    document.body.appendChild(el);
-    this.pinOverlay = el;
-    this.positionPinOverlay(lat, lng);
-  }
-
-  private positionPinOverlay(lat: number, lng: number): void {
-    if (!this.pinOverlay || !this.map) return;
-    const mapRect = this.map.getContainer().getBoundingClientRect();
-    const px = this.map.latLngToContainerPoint([lat, lng]);
-    const screenX = mapRect.left + px.x;
-    const screenY = mapRect.top + px.y;
-    const boxW = 270;
-    const boxH = 290;
-    const gap = 16;
-    const rightFits = screenX + gap + boxW < window.innerWidth;
-    const x = rightFits ? screenX + gap : screenX - gap - boxW;
-    const y = Math.min(Math.max(screenY - boxH / 2, 4), window.innerHeight - boxH - 4);
-    this.pinOverlay.style.left = x + 'px';
-    this.pinOverlay.style.top = y + 'px';
-  }
 
   private removePinOverlay(): void {
     if (this.pinOverlay) {
@@ -482,21 +461,17 @@ export class MapComponent implements OnInit, OnDestroy {
         icon: customIcon,
       });
 
-      const sp = satellitePreview(latitude, longitude, 19);
       const label = siteName || externalId || '';
-      const tilesHtml = sp.tiles.map(t =>
-        `<img src="${t.url}" width="256" height="256" style="position:absolute;left:${t.left}px;top:${t.top}px" />`
-      ).join('');
-      const tooltipHtml = `<div style="text-align:center">
-          <div style="width:256px;height:256px;overflow:hidden;position:relative;border-radius:4px">
-            <div style="position:absolute;left:${sp.offsetX}px;top:${sp.offsetY}px">${tilesHtml}</div>
-          </div>
-          <div style="font-size:11px;font-weight:600;margin-top:4px">${label}</div>
-        </div>`;
 
       marker.on('mouseover', () => {
         if (!this.satPreviewEnabled) return;
-        this.showPinOverlay(tooltipHtml, latitude, longitude);
+        this.removePinOverlay();
+        this.pinOverlay = SatellitePreviewComponent.createOverlay(
+          label, latitude, longitude, this.http,
+        );
+        SatellitePreviewComponent.positionOverlay(
+          this.pinOverlay, this.map!, latitude, longitude,
+        );
       });
 
       marker.on('mouseout', () => {

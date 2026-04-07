@@ -11,6 +11,7 @@ import { RegistrantComponent } from './registrant/registrant.component';
 import { WebhooksComponent } from './webhooks/webhooks.component';
 import { SharedModule } from '../../shared.module';
 import { MapModule } from '../map/map.module';
+import { SatellitePreviewComponent } from '../../shared/satellite-preview/satellite-preview.component';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -28,6 +29,7 @@ import { MapModule } from '../map/map.module';
     ReactiveFormsModule,
     SharedModule,
     MapModule,
+    SatellitePreviewComponent,
   ],
 })
 export class AdminModule {}

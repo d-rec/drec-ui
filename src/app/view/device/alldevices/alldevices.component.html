@@ -470,16 +470,14 @@
     </mat-card-content>
     <mat-card-footer></mat-card-footer>
   </mat-card>
-  <div class="sat-preview" *ngIf="satPreview" [style.top.px]="satPreview.y" [style.left.px]="satPreview.x">
-    <div class="sat-preview__label">{{ satPreview.label }}</div>
-    <div style="width:256px;height:256px;overflow:hidden;position:relative;border-radius:4px">
-      <div [style.left.px]="satPreview.preview.offsetX" [style.top.px]="satPreview.preview.offsetY" style="position:absolute">
-        <img *ngFor="let t of satPreview.preview.tiles" [src]="t.url" width="256" height="256"
-          [style.position]="'absolute'" [style.left.px]="t.left" [style.top.px]="t.top" />
-      </div>
-    </div>
-    <div class="sat-preview__date" *ngIf="satPreview.satDate">🛰 {{ satPreview.satDate }}</div>
-  </div>
+  <app-sat-preview
+    *ngIf="satPreview"
+    [lat]="satPreview.lat"
+    [lng]="satPreview.lng"
+    [label]="satPreview.label"
+    [x]="satPreview.x"
+    [y]="satPreview.y"
+  ></app-sat-preview>
 </div>
 
 <ng-template

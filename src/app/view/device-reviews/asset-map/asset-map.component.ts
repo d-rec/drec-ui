@@ -10,8 +10,10 @@ import {
   ViewChild,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { Asset } from '../asset.model';
+import { SatellitePreviewComponent } from '../../../shared/satellite-preview/satellite-preview.component';
 
 const STATUS_COLOR: Record<string, string> = {
   approved: '#22c55e',
@@ -32,7 +34,6 @@ function pinIcon(color: string): L.DivIcon {
     className: '',
     iconSize: [24, 36],
     iconAnchor: [12, 36],
-    popupAnchor: [0, -36],
   });
 }
 
@@ -63,6 +64,9 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
   private resizeObserver: ResizeObserver | null = null;
+  private pinOverlay: HTMLElement | null = null;
+
+  constructor(private http: HttpClient) {}
 
   ngAfterViewInit(): void {
     this.map = L.map(this.mapEl.nativeElement, {
@@ -91,6 +95,7 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.resizeObserver?.disconnect();
+    this.removePinOverlay();
     this.map?.remove();
   }
 
@@ -101,32 +106,37 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     for (const asset of this.assets) {
       if (asset.lat === null || asset.long === null) continue;
       const color = STATUS_COLOR[asset.status] ?? '#6b7280';
-      const fmt = (d: Date | null) => (d ? d.toLocaleDateString() : '—');
-      const popup = L.popup({ closeButton: false, offset: [0, -6] }).setContent(
-        `<div style="min-width:160px;font-size:13px;line-height:1.6">` +
-          `<strong style="font-size:14px">${asset.siteName}</strong><br>` +
-          `<span style="color:#64748b;font-size:11px">${asset.serial}</span><br>` +
-          `<span style="color:${color};font-weight:600">${asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}</span><br>` +
-          `<span style="color:#64748b;font-size:11px">${asset.lat.toFixed(5)}, ${asset.long.toFixed(5)}</span><br>` +
-          (asset.reviewer ? `Reviewer: ${asset.reviewer}<br>` : '') +
-          `Added: ${fmt(asset.dateAdded)}<br>` +
-          (asset.dateSubmitted
-            ? `Submitted: ${fmt(asset.dateSubmitted)}<br>`
-            : '') +
-          (asset.notes
-            ? `<em style="color:#64748b;font-size:12px">${asset.notes}</em>`
-            : '') +
-          `</div>`,
-      );
-
+      const lat = asset.lat;
+      const lng = asset.long;
       const id = asset.id;
-      const marker = L.marker([asset.lat, asset.long], { icon: pinIcon(color) })
-        .bindPopup(popup)
-        .on('mouseover', (e) => (e.target as L.Marker).openPopup())
-        .on('mouseout', (e) => (e.target as L.Marker).closePopup())
+
+      const marker = L.marker([lat, lng], { icon: pinIcon(color) })
+        .on('mouseover', () => {
+          this.removePinOverlay();
+          this.pinOverlay = SatellitePreviewComponent.createOverlay(
+            asset.siteName,
+            lat,
+            lng,
+            this.http,
+          );
+          SatellitePreviewComponent.positionOverlay(
+            this.pinOverlay,
+            this.map!,
+            lat,
+            lng,
+          );
+        })
+        .on('mouseout', () => this.removePinOverlay())
         .on('click', () => this.pinClick.emit(id))
         .addTo(this.map!);
       this.markers.push(marker);
+    }
+  }
+
+  private removePinOverlay(): void {
+    if (this.pinOverlay) {
+      this.pinOverlay.remove();
+      this.pinOverlay = null;
     }
   }
 }

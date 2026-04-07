@@ -12,9 +12,11 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { AssetService } from '../asset.service';
 import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.service';
+import { SatellitePreviewComponent } from '../../../shared/satellite-preview/satellite-preview.component';
 
 const STATUS_COLOR: Record<string, string> = {
   approved: '#22c55e',
@@ -237,10 +239,13 @@ export class SatelliteWindowComponent
   private resizeObserver: ResizeObserver | null = null;
   private sub: Subscription | null = null;
 
+  private pinOverlay: HTMLElement | null = null;
+
   constructor(
     readonly svc: AssetService,
     private cdr: ChangeDetectorRef,
     private licensesService: OrgApiLicensesService,
+    private http: HttpClient,
   ) {}
 
   ngAfterViewInit(): void {
@@ -500,6 +505,12 @@ export class SatelliteWindowComponent
     const scaleY = cropH / imgH;
 
     this.panelCount = predictions.length;
+    if (this.panelCount === 0) {
+      this.detectError = 'No solar panels detected in this image';
+      this.detecting = false;
+      this.cdr.markForCheck();
+      return;
+    }
 
     for (const pred of predictions) {
       const points: { x: number; y: number }[] = pred.points ?? [];
@@ -555,43 +566,37 @@ export class SatelliteWindowComponent
 
     for (const asset of this.svc.assets$.value) {
       if (asset.lat === null || asset.long === null) continue;
-      const color = '#dc2626';
-      const fmt = (d: Date | null) => (d ? d.toLocaleDateString() : '—');
-
-      const popup = L.popup({
-        closeButton: false,
-        offset: [0, -6],
-      }).setContent(
-        `<div style="min-width:160px;font-size:13px;line-height:1.6">` +
-          `<strong style="font-size:14px">${asset.siteName}</strong><br>` +
-          `<span style="color:#64748b;font-size:11px">${asset.serial}</span><br>` +
-          `<span style="color:${color};font-weight:600">${asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}</span><br>` +
-          `<span style="color:#64748b;font-size:11px">${asset.lat.toFixed(5)}, ${asset.long.toFixed(5)}</span><br>` +
-          (asset.reviewer ? `Reviewer: ${asset.reviewer}<br>` : '') +
-          `Added: ${fmt(asset.dateAdded)}<br>` +
-          (asset.dateSubmitted
-            ? `Submitted: ${fmt(asset.dateSubmitted)}<br>`
-            : '') +
-          (asset.notes
-            ? `<em style="color:#64748b;font-size:12px">${asset.notes}</em>`
-            : '') +
-          `</div>`,
-      );
+      const color = STATUS_COLOR[asset.status] ?? '#dc2626';
 
       const icon = L.divIcon({
         html: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="1"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`,
         className: '',
         iconSize: [28, 28],
         iconAnchor: [14, 28],
-        popupAnchor: [0, -28],
       });
-      const marker = L.marker([asset.lat, asset.long], { icon })
-        .bindPopup(popup)
-        .on('mouseover', (e) => (e.target as L.Marker).openPopup())
-        .on('mouseout', (e) => (e.target as L.Marker).closePopup())
+      const lat = asset.lat;
+      const lng = asset.long;
+      const marker = L.marker([lat, lng], { icon })
+        .on('mouseover', () => {
+          this.removePinOverlay();
+          this.pinOverlay = SatellitePreviewComponent.createOverlay(
+            asset.siteName, lat, lng, this.http,
+          );
+          SatellitePreviewComponent.positionOverlay(
+            this.pinOverlay, this.map!, lat, lng,
+          );
+        })
+        .on('mouseout', () => this.removePinOverlay())
         .addTo(this.map!);
 
       this.markers.push(marker);
+    }
+  }
+
+  private removePinOverlay(): void {
+    if (this.pinOverlay) {
+      this.pinOverlay.remove();
+      this.pinOverlay = null;
     }
   }
 }
