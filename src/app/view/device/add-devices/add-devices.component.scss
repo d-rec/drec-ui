@@ -271,6 +271,16 @@ input.example-right-align {
   vertical-align: middle;
   text-transform: uppercase;
 }
+
+.doc-missing-required label {
+  color: #ef4444 !important;
+}
+.doc-missing-required .badge-required {
+  background: #ef4444;
+}
+.doc-missing-required .doc-box {
+  border-color: #ef4444 !important;
+}
 .badge-recommended {
   display: inline-block;
   font-size: 10px;
@@ -306,4 +316,16 @@ input.example-right-align {
   font-size: 12px;
   color: #64748b;
   margin: -8px 0 12px;
+}
+
+::ng-deep .mat-form-field.ng-invalid.ng-touched {
+  .mat-mdc-floating-label,
+  .mdc-floating-label {
+    color: #ef4444 !important;
+  }
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #ef4444 !important;
+  }
 }

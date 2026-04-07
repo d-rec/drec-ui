@@ -142,13 +142,10 @@
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize">Commissioning Date <span class="fn">(7)</span></mat-label>
-                      <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
+                      <input matInput [matDatepicker]="commPicker" placeholder="Choose a date"
                         formControlName="commissioningDate" [max]="maxDate" test-id="commissioning-date" />
-                      <mat-datepicker-toggle matSuffix [for]="$any(picker)"></mat-datepicker-toggle>
-                      <ngx-mat-datetime-picker #picker [showSpinners]="true" [showSeconds]="false" [stepHour]="1"
-                        [stepMinute]="1" [stepSecond]="1" [touchUi]="false" [enableMeridian]="false"
-                        [disableMinute]="false" [hideTime]="false">
-                      </ngx-mat-datetime-picker>
+                      <mat-datepicker-toggle matSuffix [for]="commPicker"></mat-datepicker-toggle>
+                      <mat-datepicker #commPicker></mat-datepicker>
                       <mat-error>Commissioning date is required</mat-error>
                     </mat-form-field>
                   </div>
@@ -614,7 +611,7 @@
                     </p>
                   </div>
 
-                  <div class="col-md-4 mb-3">
+                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('FORM_SF_02') === 'required' && !deviceForms.at(i).get('FORM_SF_02')?.value">
                     <label>Form SF-02 - Production Facility Registration
                       <span class="badge-{{getDocRequirement('FORM_SF_02')}}">{{getDocRequirement('FORM_SF_02')}}</span>
                     </label>
@@ -641,7 +638,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-4 mb-3">
+                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C') === 'required' && !deviceForms.at(i).get('SF_02C')?.value">
                     <label>SF-02C Owner's Declaration or Proof of Ownership
                       <span class="badge-{{getDocRequirement('SF_02C')}}">{{getDocRequirement('SF_02C')}}</span>
                     </label>
@@ -668,7 +665,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-4 mb-3">
+                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('METERING_EVIDENCE') === 'required' && !deviceForms.at(i).get('METERING_EVIDENCE')?.value">
                     <label>Metering Evidence
                       <span class="badge-{{getDocRequirement('METERING_EVIDENCE')}}">{{getDocRequirement('METERING_EVIDENCE')}}</span>
                     </label>
@@ -696,7 +693,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-4 mb-3">
+                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SINGLE_LINE_DIAGRAM') === 'required' && !deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
                     <label>Single Line Diagram
                       <span class="badge-{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}">{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}</span>
                     </label>
@@ -724,8 +721,8 @@
                     </div>
                   </div>
 
-                  <div class="col-md-4 mb-3">
-                    <label>Project Photos
+                  <div class="col-md-4 mb-3" [class.doc-missing-required]="(files[i]?.['PROJECT_PHOTOS']?.length || 0) < 3">
+                    <label>Project Photos (min. 3)
                       <span class="badge-{{getDocRequirement('PROJECT_PHOTOS')}}">{{getDocRequirement('PROJECT_PHOTOS')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('PROJECT_PHOTOS')">{{getDocHint('PROJECT_PHOTOS')}}</small>

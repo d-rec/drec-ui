@@ -66,7 +66,7 @@ export class AddUsersComponent {
       ]),
       phoneNumber: new FormControl(null),
       role: new FormControl(null, [Validators.required]),
-      emailNotification: new FormControl(false),
+      emailNotification: new FormControl(true),
       password: new FormControl(null),
       confirmPassword: new FormControl(null),
       termsAndConditions: new FormControl(false),

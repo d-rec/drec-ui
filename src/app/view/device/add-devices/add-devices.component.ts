@@ -655,11 +655,18 @@ export class AddDevicesComponent implements OnDestroy {
     }
 
     const allDocsUploaded = this.deviceForms.controls.every(
-      (_, deviceIndex) => {
+      (group, deviceIndex) => {
         if (!this.files[deviceIndex]) return false;
-        return this.requiredFileTypes.every(
-          (fileType) => this.files[deviceIndex][fileType]?.length > 0,
-        );
+        return this.requiredFileTypes.every((fileType) => {
+          // COD_PROOF not required when self-declaration mode is selected
+          if (
+            fileType === DocumentType.COD_PROOF &&
+            group.get('codEvidenceMode')?.value === 'self'
+          ) {
+            return true;
+          }
+          return this.files[deviceIndex][fileType]?.length > 0;
+        });
       },
     );
 
@@ -683,11 +690,19 @@ export class AddDevicesComponent implements OnDestroy {
       );
     }
 
-    this.files[deviceIndex][fileType] = Array.from(files);
+    const multiTypes: string[] = ['PROJECT_PHOTOS', 'SCREENSHOTS'];
+    if (multiTypes.includes(fileType)) {
+      this.files[deviceIndex][fileType] = [
+        ...(this.files[deviceIndex][fileType] || []),
+        ...Array.from(files),
+      ];
+    } else {
+      this.files[deviceIndex][fileType] = Array.from(files);
+    }
 
     const fileControl = this.deviceForms.at(deviceIndex).get(fileType);
     if (fileControl) {
-      fileControl.setValue(input.files[0]);
+      fileControl.setValue(this.files[deviceIndex][fileType][0] ?? input.files[0]);
       fileControl.markAsDirty();
     }
 
@@ -724,6 +739,7 @@ export class AddDevicesComponent implements OnDestroy {
 
   onSubmit() {
     this.myform.markAllAsTouched();
+    this.checkDocumentsUploaded();
     if (!this.formValid) return;
     this.openPopupDialog();
     this.isSubmitting = true;
