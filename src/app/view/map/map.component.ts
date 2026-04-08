@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { environment } from '../../../environments/environment';
 import { SatellitePreviewComponent } from '../../shared/satellite-preview/satellite-preview.component';
+import { mapPinIcon } from '../../shared/map-pin';
 
 export interface MapMarker {
   latitude: number;
@@ -123,16 +124,7 @@ export class MapComponent implements OnInit, OnDestroy {
       this.map.doubleClickZoom.disable();
 
       // Use a real Leaflet marker pinned to map center — immune to zoom drift
-      const pinIcon = L.divIcon({
-        html: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 32 42">
-          <path d="M16 0C7.16 0 0 7.16 0 16c0 12 16 26 16 26s16-14 16-26C32 7.16 24.84 0 16 0z" fill="#e53e3e" stroke="#fff" stroke-width="1"/>
-          <circle cx="16" cy="16" r="6" fill="#fff"/>
-        </svg>`,
-        className: 'center-pin-marker',
-        iconSize: [32, 42],
-        iconAnchor: [16, 42],
-      });
-      this.centerPinMarker = L.marker(this.map.getCenter(), { icon: pinIcon, interactive: false, zIndexOffset: 1000 }).addTo(this.map);
+      this.centerPinMarker = L.marker(this.map.getCenter(), { icon: mapPinIcon(), interactive: false, zIndexOffset: 1000 }).addTo(this.map);
 
       let dragging = false;
       this.map.on('movestart', () => {
@@ -463,15 +455,6 @@ export class MapComponent implements OnInit, OnDestroy {
 
   // --- Tile layers ---
 
-  private createCustomIcon(): L.Icon {
-    return L.icon({
-      iconUrl: 'assets/images/map-location.svg',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32],
-    });
-  }
-
   private createTileLayer(): L.TileLayer {
     return L.tileLayer(
       'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
@@ -511,8 +494,6 @@ export class MapComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const customIcon = this.createCustomIcon();
-
     this.markers.forEach((markerData: MapMarker) => {
       const { latitude, longitude, externalId, siteName } = markerData;
 
@@ -522,7 +503,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
       const marker = L.marker([latitude, longitude], {
         title: externalId,
-        icon: customIcon,
+        icon: mapPinIcon(),
       });
 
       const label = siteName || externalId || '';

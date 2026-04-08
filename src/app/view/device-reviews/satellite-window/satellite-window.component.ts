@@ -17,6 +17,7 @@ import * as L from 'leaflet';
 import { AssetService } from '../asset.service';
 import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.service';
 import { SatellitePreviewComponent } from '../../../shared/satellite-preview/satellite-preview.component';
+import { mapPinIcon } from '../../../shared/map-pin';
 
 const STATUS_COLOR: Record<string, string> = {
   approved: '#22c55e',
@@ -575,15 +576,9 @@ export class SatelliteWindowComponent
       if (asset.lat === null || asset.long === null) continue;
       const color = STATUS_COLOR[asset.status] ?? '#dc2626';
 
-      const icon = L.divIcon({
-        html: `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="${color}" stroke="white" stroke-width="1"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`,
-        className: '',
-        iconSize: [28, 28],
-        iconAnchor: [14, 28],
-      });
       const lat = asset.lat;
       const lng = asset.long;
-      const marker = L.marker([lat, lng], { icon })
+      const marker = L.marker([lat, lng], { icon: mapPinIcon(color) })
         .on('mouseover', () => {
           this.removePinOverlay();
           this.pinOverlay = SatellitePreviewComponent.createOverlay(

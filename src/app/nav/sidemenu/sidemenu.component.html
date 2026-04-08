@@ -121,11 +121,18 @@
           >
             <span> Licenses</span>
           </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
+            routerLink="settings/evident"
+            test-id="evident-settings"
+          >
+            <span>Evident Settings</span>
+          </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <!--2st  -->
 
-      <!--3rd  -->
       <mat-expansion-panel
         [class.mat-elevation-z0]="true"
         *ngIf="!(loginuser.role == 'Buyer' || loginuser.role == 'SubBuyer')"
@@ -498,29 +505,6 @@
             routerLink="/issuer/all-issuers"
           >
             <span>All Issuers</span>
-          </a>
-        </mat-nav-list>
-      </mat-expansion-panel>
-      <mat-expansion-panel [class.mat-elevation-z0]="true"
-        [expanded]="isExpanded('evident-config')"
-        (opened)="setExpanded('evident-config', true)"
-        (closed)="setExpanded('evident-config', false)">
-        <mat-expansion-panel-header
-          class="mdc-button"
-          test-id="evident-configuration"
-        >
-          Evident configuration
-        </mat-expansion-panel-header>
-
-        <mat-nav-list class="p-0">
-          <a
-            mat-button
-            class="menu-button inside-menu-button"
-            routerLinkActive="active"
-            routerLink="settings/evident"
-            test-id="evident-settings"
-          >
-            <span>Evident settings</span>
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
