@@ -23,7 +23,7 @@ $white: #fff;
 }
 
 ::ng-deep mat-sidenav-content {
-  overflow-x: hidden !important;
+  overflow-x: auto !important;
 }
 
 .example-sidenav {

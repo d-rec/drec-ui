@@ -253,7 +253,7 @@ export class SatelliteWindowComponent
     this.map = L.map(this.mapEl.nativeElement, {
       zoomControl: true,
       attributionControl: false,
-      scrollWheelZoom: false,
+      scrollWheelZoom: true,
       maxZoom: 21,
       minZoom: 3,
     }).setView([20, 0], 3);

@@ -274,42 +274,14 @@
                 <span class="field__input field__input--text">{{ detailForm.get('countryCode')?.value | countryName }}</span>
               </div>
               <div class="field field--auto">
-                <label class="field__label">Serial <span class="fn">(30)</span></label>
+                <label class="field__label">Serial(s) <span class="fn">(30)</span></label>
                 <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('serial')?.value ?? '', searchTerm)"></span>
-              </div>
-              <div class="field field--auto">
-                <label class="field__label">Operating Config <span class="fn">(38)</span></label>
-                <span class="field__input field__input--text">{{ detailForm.get('operatingConfiguration')?.value || '—' }}</span>
-              </div>
-              <div class="field field--auto">
-                <label class="field__label">Source Access <span class="fn">(40)</span></label>
-                <span class="field__input field__input--text">{{ detailForm.get('sourceAccessMode')?.value || '—' }}</span>
-              </div>
-              <div class="field field--auto">
-                <label class="field__label">Evidence Pathway</label>
-                <span class="field__input field__input--text pathway-badge pathway-{{ (detailForm.get('evidencePathway')?.value || '').split(' ')[0] | lowercase }}">
-                  {{ detailForm.get('evidencePathway')?.value || '—' }}
-                </span>
-              </div>
-              <div class="field field--auto">
-                <label class="field__label">Ownership</label>
-                <span class="field__input field__input--text ownership-badge ownership-{{ detailForm.get('ownershipStatus')?.value || 'unverified' }}">
-                  {{ detailForm.get('ownershipStatus')?.value || 'unverified' }}
-                </span>
               </div>
             </div>
             <div class="top-row">
               <div class="field field--auto">
                 <label class="field__label">Registrant <span class="fn">(4)</span></label>
                 <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('submitterName')?.value || detailForm.get('submitterEmail')?.value || '—', searchTerm)"></span>
-              </div>
-              <div class="field field--auto">
-                <label class="field__label">Evident ID</label>
-                <span class="field__input field__input--text">{{ detailForm.get('evidentDeviceId')?.value || '—' }}</span>
-              </div>
-              <div class="field field--auto">
-                <label class="field__label">Evident Status</label>
-                <span class="field__input field__input--text">{{ detailForm.get('evidentStatus')?.value || '—' }}</span>
               </div>
               <div class="field field--narrow">
                 <label class="field__label">Date Added</label>
@@ -328,6 +300,9 @@
                   <option value="rejected">Rejected</option>
                   <option value="legacy">Legacy</option>
                 </select>
+              </div>
+              <div class="field field--auto" style="display:flex;align-items:flex-end;margin-left:auto">
+                <button type="button" class="btn btn--details" (click)="openDeviceInfo()">Details</button>
               </div>
             </div>
             <div class="field field--full">
@@ -913,5 +888,107 @@
     [y]="satPreview.y"
   ></app-sat-preview>
 
+  <!-- ── Device info modal ──────────────────────────────────────────── -->
+  <div class="modal-backdrop" *ngIf="showDeviceInfoModal" role="dialog" aria-modal="true" (click)="showDeviceInfoModal = false" (keydown.escape)="showDeviceInfoModal = false">
+    <div class="modal-box modal-box--wide device-info-modal" role="document" (click)="$event.stopPropagation()">
+      <div class="device-info-modal__header">
+        <h3 style="margin:0;font-size:14px;font-weight:700;color:#1e293b">Device Details</h3>
+        <button type="button" class="device-info-modal__close" (click)="showDeviceInfoModal = false" title="Close">&times;</button>
+      </div>
+      <div class="device-info-modal__body" #deviceInfoContent>
+      <div *ngIf="deviceInfoLoading" style="text-align:center;padding:24px;color:#64748b">Loading...</div>
+      <ng-container *ngIf="deviceInfo && !deviceInfoLoading">
+        <h3 class="section-heading">General</h3>
+        <p><b>Site Name</b>: {{ deviceInfo.siteName }}</p>
+        <p><b>Serial Number(s)</b>: {{ deviceInfo.serialNumber }}</p>
+        <p *ngIf="deviceInfo.defaultAccountCode"><b>Default Account Code</b>: {{ deviceInfo.defaultAccountCode }}</p>
+        <p *ngIf="deviceInfo.requestedEffectiveRegDate"><b>Requested Effective Reg. Date</b>: {{ deviceInfo.requestedEffectiveRegDate }}</p>
+        <p *ngIf="deviceInfo.registrationType"><b>Registration Type</b>: {{ deviceInfo.registrationType }}</p>
+        <p *ngIf="deviceInfo.volumeEvidenceType"><b>Volume Evidence Type</b>: {{ deviceInfo.volumeEvidenceType }}</p>
+        <p *ngIf="deviceInfo.verificationAgentName"><b>Verification Agent</b>: {{ deviceInfo.verificationAgentName }}</p>
+
+        <h3 class="section-heading">Technical Details</h3>
+        <p><b>Fuel Code</b>: {{ deviceInfo.fuelCode }}</p>
+        <p><b>Device Type Code</b>: {{ deviceInfo.deviceTypeCode }}</p>
+        <p><b>Capacity</b>: {{ deviceInfo.capacity }}</p>
+        <p *ngIf="deviceInfo.acCapacity"><b>AC Capacity</b>: {{ deviceInfo.acCapacity }}</p>
+        <p><b>Commissioning Date</b>: {{ deviceInfo.commissioningDate | date: 'dd MMM y' }}</p>
+        <p><b>OnBoarding Date</b>: {{ deviceInfo.createdAt | date: 'dd MMM y' }}</p>
+        <p *ngIf="deviceInfo.operatingConfiguration"><b>Operating Configuration</b>: {{ deviceInfo.operatingConfiguration }}</p>
+        <p *ngIf="deviceInfo.sourceAccessMode"><b>Source Access Mode</b>: {{ deviceInfo.sourceAccessMode }}</p>
+
+        <h3 class="section-heading">Facility Technical</h3>
+        <p *ngIf="deviceInfo.meterIds"><b>Meter / Measurement ID(s)</b>: {{ deviceInfo.meterIds }}</p>
+        <p *ngIf="deviceInfo.generatingUnitCount"><b>Number of Generating Units</b>: {{ deviceInfo.generatingUnitCount }}</p>
+        <p *ngIf="deviceInfo.networkOwner"><b>Network Owner</b>: {{ deviceInfo.networkOwner }}</p>
+        <p *ngIf="deviceInfo.interconnectionVoltage"><b>Interconnection Voltage</b>: {{ deviceInfo.interconnectionVoltage }}</p>
+
+        <h3 class="section-heading">Location</h3>
+        <p><b>Address</b>: {{ deviceInfo.address }}</p>
+        <p *ngIf="deviceInfo.stateProvince"><b>State/Province/County</b>: {{ deviceInfo.stateProvince }}</p>
+        <p *ngIf="deviceInfo.postcode"><b>Postcode (Zip Code)</b>: {{ deviceInfo.postcode }}</p>
+        <p><b>Country</b>: {{ deviceInfo.countryCode }}</p>
+        <p><b>Timezone</b>: {{ deviceInfo.timezone }}</p>
+        <p><b>Latitude</b>: {{ deviceInfo.latitude }}</p>
+        <p><b>Longitude</b>: {{ deviceInfo.longitude }}</p>
+        <div *ngIf="deviceInfoSatPreview"
+             style="width:256px;height:256px;overflow:hidden;position:relative;border-radius:4px;margin-top:8px;border:1px solid #cbd5e1">
+          <div [style.left.px]="deviceInfoSatPreview.offsetX" [style.top.px]="deviceInfoSatPreview.offsetY" style="position:absolute">
+            <img *ngFor="let t of deviceInfoSatPreview.tiles" [src]="t.url" width="256" height="256"
+                 [style.position]="'absolute'" [style.left.px]="t.left" [style.top.px]="t.top" alt="" />
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36"
+               style="position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));pointer-events:none;z-index:1">
+            <path d="M12 0C5.373 0 0 5.373 0 12c0 8.25 12 24 12 24S24 20.25 24 12C24 5.373 18.627 0 12 0z"
+                  fill="#e53e3e" stroke="#fff" stroke-width="1.5"/>
+            <circle cx="12" cy="12" r="5" fill="#fff" fill-opacity="0.85"/>
+          </svg>
+        </div>
+
+        <h3 class="section-heading">Ownership & Incentives</h3>
+        <p><b>Ownership Status</b>: {{ deviceInfo.ownershipStatus || 'unverified' }}</p>
+        <p *ngIf="deviceInfo.pvSystemOwner"><b>PV System Owner</b>: {{ deviceInfo.pvSystemOwner }}</p>
+        <p *ngIf="deviceInfo.offTakerName"><b>Off-Taker Name</b>: {{ deviceInfo.offTakerName }}</p>
+        <p *ngIf="deviceInfo.offTakerSameCompanyAsOwner"><b>Off-Taker Same as Owner</b>: {{ deviceInfo.offTakerSameCompanyAsOwner }}</p>
+        <p *ngIf="deviceInfo.hasSubsidy"><b>Subsidy Received</b>: {{ deviceInfo.hasSubsidy }}</p>
+        <p *ngIf="deviceInfo.subsidyTypes?.length"><b>Subsidy Types</b>: {{ deviceInfo.subsidyTypes.join(', ') }}</p>
+        <p *ngIf="deviceInfo.subsidyOtherDetails"><b>Subsidy Other Details</b>: {{ deviceInfo.subsidyOtherDetails }}</p>
+        <p *ngIf="deviceInfo.subsidyClaimsEacs"><b>Subsidy Claims EACs</b>: {{ deviceInfo.subsidyClaimsEacs }}</p>
+        <p *ngIf="deviceInfo.hasPublicFunding"><b>Public Funding</b>: {{ deviceInfo.hasPublicFunding }}</p>
+        <p *ngIf="deviceInfo.publicFundingEndDate"><b>Public Funding End Date</b>: {{ deviceInfo.publicFundingEndDate }}</p>
+        <p *ngIf="deviceInfo.publicFundingType"><b>Public Funding Type</b>: {{ deviceInfo.publicFundingType }}</p>
+
+        <h3 class="section-heading">Evident</h3>
+        <p><b>Evident Device ID</b>: {{ deviceInfo.evidentDeviceId || '—' }}</p>
+        <p><b>Evident Status</b>: {{ deviceInfo.evidentStatus || '—' }}</p>
+
+        <h3 class="section-heading">Business Details</h3>
+        <p *ngIf="deviceInfo.hasCaptiveConsumer"><b>Captive Consumer</b>: {{ deviceInfo.hasCaptiveConsumer }}</p>
+        <p *ngIf="deviceInfo.hasAuxiliaryEnergySources"><b>Auxiliary Energy Sources</b>: {{ deviceInfo.hasAuxiliaryEnergySources }}</p>
+        <p *ngIf="deviceInfo.auxiliaryEnergySourceDetails"><b>Auxiliary Source Details</b>: {{ deviceInfo.auxiliaryEnergySourceDetails }}</p>
+        <p *ngIf="deviceInfo.nonMeterImportDetails"><b>Non-Meter Import Details</b>: {{ deviceInfo.nonMeterImportDetails }}</p>
+        <p *ngIf="deviceInfo.otherEacSchemeRegistration"><b>Other EAC Scheme Registration</b>: {{ deviceInfo.otherEacSchemeRegistration }}</p>
+        <p *ngIf="deviceInfo.additionalInfo"><b>Additional Info</b>: {{ deviceInfo.additionalInfo }}</p>
+        <p *ngIf="deviceInfo.labellingSchemeAccreditation"><b>Labelling Scheme</b>: {{ deviceInfo.labellingSchemeAccreditation }}</p>
+        <p *ngIf="deviceInfo.offGridCircumstances"><b>Off-Grid Circumstances</b>: {{ deviceInfo.offGridCircumstances }}</p>
+
+        <h3 class="section-heading">Classification & Impact</h3>
+        <p><b>Off Takers</b>: {{ deviceInfo.offTaker }}</p>
+        <p><b>SDG Benefits</b>: {{ deviceInfo.SDGBenefits }}</p>
+        <p><b>Energy Storage</b>: {{ deviceInfo.energyStorage }}</p>
+        <p><b>Energy Storage Capacity</b>: {{ deviceInfo.energyStorageCapacity }}</p>
+        <p><b>Version</b>: {{ deviceInfo.version }}</p>
+        <p><b>Yield Value</b>: {{ deviceInfo.yieldValue }}</p>
+        <p><b>Meter Read Type</b>: {{ deviceInfo.meterReadtype }}</p>
+        <p *ngIf="deviceInfo.deviceDescription"><b>Device Description</b>: {{ deviceInfo.deviceDescription }}</p>
+      </ng-container>
+      </div>
+      <div class="device-info-modal__footer">
+        <button type="button" class="btn btn--copy" (click)="copyDeviceInfo()">Copy</button>
+        <button type="button" class="btn btn--save" (click)="showDeviceInfoModal = false">OK</button>
+        <button type="button" class="btn btn--cancel" (click)="showDeviceInfoModal = false">Cancel</button>
+      </div>
+    </div>
+  </div>
 
 </div>

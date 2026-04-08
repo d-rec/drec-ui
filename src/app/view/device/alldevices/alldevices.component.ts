@@ -42,8 +42,6 @@ export class AlldevicesComponent {
     'capacity',
     'countryCode',
     'reviewStatus',
-    'evidentId',
-    'evidentStatus',
     'commissioningDate',
     'onboarding_date',
     'actions',
