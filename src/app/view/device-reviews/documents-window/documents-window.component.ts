@@ -1268,9 +1268,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           this.deviceInfoSatPreview = satellitePreview(lat, lng, 19);
         }
       },
-      error: () => {
+      error: (err) => {
         this.deviceInfoLoading = false;
-        this.toastr.error('Failed to load device details');
+        const msg = err?.error?.message || err?.statusText || err?.message || 'Unknown error';
+        this.toastr.error(`Failed to load device details: ${msg}`);
       },
     });
   }

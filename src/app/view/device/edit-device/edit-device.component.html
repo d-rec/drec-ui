@@ -553,15 +553,23 @@
                 </mat-radio-group>
                 <div *ngIf="updateDeviceForm.get('sf02EvidenceMode')?.value === 'upload'">
                   <small class="doc-hint" *ngIf="getDocHint('FORM_SF_02')">{{getDocHint('FORM_SF_02')}}</small>
-                  <div class="d-flex justify-content-between align-items-center doc-box">
+                  <p class="checklist-intro">Please provide a completed copy of the form SF-02. A checklist for key elements is provided below.</p>
+                  <div class="doc-checklist">
+                    <label *ngFor="let item of docChecklists['FORM_SF_02']; let i = index" class="checklist-item">
+                      <input type="checkbox" [(ngModel)]="checklistState['FORM_SF_02'][i]" [ngModelOptions]="{standalone: true}" />
+                      <span>{{ item }}</span>
+                    </label>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center doc-box" [class.doc-box--disabled]="!allChecked('FORM_SF_02')">
                     <input type="file" #pfFileInput (change)="onFileChange($event, DocumentType.FORM_SF_02)"
                       style="display: none;" />
-                    <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
+                    <button type="button" (click)="pfFileInput.click()" class="btn btn-primary" [disabled]="!allChecked('FORM_SF_02')">
                       <mat-icon>attach_file</mat-icon>
                     </button>
                     <span class="file-name" [class.file-name--missing]="!files['FORM_SF_02']?.length && brokenDocs['FORM_SF_02']">
                       {{ files['FORM_SF_02']?.[0]?.name || existingDocLabel('FORM_SF_02') }}
                     </span>
+                    <span *ngIf="!allChecked('FORM_SF_02') && !files['FORM_SF_02']?.length" class="checklist-gate">Review and tick all requirements above to enable the file uploader.</span>
                     <span *ngIf="!files['FORM_SF_02']?.length && brokenDocs['FORM_SF_02']"
                       class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                       <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
@@ -584,15 +592,27 @@
                   <span class="badge-{{getDocRequirement('SF_02C')}}">{{getDocRequirement('SF_02C')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('SF_02C')">{{getDocHint('SF_02C')}}</small>
-                <div class="d-flex justify-content-between align-items-center doc-box">
+                <p class="checklist-intro">Select the type of file(s) you are providing:</p>
+                <div class="doc-checklist">
+                  <label class="checklist-item checklist-item--radio">
+                    <input type="radio" name="sf02cType" [value]="'declaration'" [(ngModel)]="sf02cType" [ngModelOptions]="{standalone: true}" />
+                    <span>Owner's Declaration letter (SF-02C)</span>
+                  </label>
+                  <label class="checklist-item checklist-item--radio">
+                    <input type="radio" name="sf02cType" [value]="'ownership'" [(ngModel)]="sf02cType" [ngModelOptions]="{standalone: true}" />
+                    <span>Proof of Ownership</span>
+                  </label>
+                </div>
+                <div class="d-flex justify-content-between align-items-center doc-box" [class.doc-box--disabled]="!sf02cReady()">
                   <input type="file" #ownershipFileInput (change)="onFileChange($event, DocumentType.SF_02C)"
                     style="display: none" />
-                  <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary">
+                  <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary" [disabled]="!sf02cReady()">
                     <mat-icon>attach_file</mat-icon>
                   </button>
                   <span class="file-name" [class.file-name--missing]="!files['SF_02C']?.length && brokenDocs['SF_02C']">
                     {{ files['SF_02C']?.[0]?.name || existingDocLabel('SF_02C') }}
                   </span>
+                  <span *ngIf="!sf02cReady() && !files['SF_02C']?.length" class="checklist-gate">Review and tick all requirements above to enable the file uploader.</span>
                   <span *ngIf="!files['SF_02C']?.length && brokenDocs['SF_02C']"
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
@@ -610,15 +630,23 @@
                   <span class="badge-{{getDocRequirement('METERING_EVIDENCE')}}">{{getDocRequirement('METERING_EVIDENCE')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('METERING_EVIDENCE')">{{getDocHint('METERING_EVIDENCE')}}</small>
-                <div class="d-flex justify-content-between align-items-center doc-box">
+                <p class="checklist-intro">Please provide official metering evidence for this facility; accepted forms of metering are listed in the Evident IREC(E) Code.</p>
+                <div class="doc-checklist">
+                  <label *ngFor="let item of docChecklists['METERING_EVIDENCE']; let i = index" class="checklist-item">
+                    <input type="checkbox" [(ngModel)]="checklistState['METERING_EVIDENCE'][i]" [ngModelOptions]="{standalone: true}" />
+                    <span>{{ item }}</span>
+                  </label>
+                </div>
+                <div class="d-flex justify-content-between align-items-center doc-box" [class.doc-box--disabled]="!allChecked('METERING_EVIDENCE')">
                   <input type="file" #meteringFileInput
                     (change)="onFileChange($event, DocumentType.METERING_EVIDENCE)" style="display: none" />
-                  <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary">
+                  <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary" [disabled]="!allChecked('METERING_EVIDENCE')">
                     <mat-icon>attach_file</mat-icon>
                   </button>
                   <span class="file-name" [class.file-name--missing]="!files['METERING_EVIDENCE']?.length && brokenDocs['METERING_EVIDENCE']">
                     {{ files['METERING_EVIDENCE']?.[0]?.name || existingDocLabel('METERING_EVIDENCE') }}
                   </span>
+                  <span *ngIf="!allChecked('METERING_EVIDENCE') && !files['METERING_EVIDENCE']?.length" class="checklist-gate">Review and tick all requirements above to enable the file uploader.</span>
                   <span *ngIf="!files['METERING_EVIDENCE']?.length && brokenDocs['METERING_EVIDENCE']"
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
@@ -636,15 +664,23 @@
                   <span class="badge-{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}">{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('SINGLE_LINE_DIAGRAM')">{{getDocHint('SINGLE_LINE_DIAGRAM')}}</small>
-                <div class="d-flex justify-content-between align-items-center doc-box">
+                <p class="checklist-intro">Please provide an official Single Line Diagram (SLD) showing the electrical construction of the facility.</p>
+                <div class="doc-checklist">
+                  <label *ngFor="let item of docChecklists['SINGLE_LINE_DIAGRAM']; let i = index" class="checklist-item">
+                    <input type="checkbox" [(ngModel)]="checklistState['SINGLE_LINE_DIAGRAM'][i]" [ngModelOptions]="{standalone: true}" />
+                    <span>{{ item }}</span>
+                  </label>
+                </div>
+                <div class="d-flex justify-content-between align-items-center doc-box" [class.doc-box--disabled]="!allChecked('SINGLE_LINE_DIAGRAM')">
                   <input type="file" #diagramFileInput
                     (change)="onFileChange($event, DocumentType.SINGLE_LINE_DIAGRAM)" style="display: none" />
-                  <button type="button" (click)="diagramFileInput.click()" class="btn btn-primary">
+                  <button type="button" (click)="diagramFileInput.click()" class="btn btn-primary" [disabled]="!allChecked('SINGLE_LINE_DIAGRAM')">
                     <mat-icon>attach_file</mat-icon>
                   </button>
                   <span class="file-name" [class.file-name--missing]="!files['SINGLE_LINE_DIAGRAM']?.length && brokenDocs['SINGLE_LINE_DIAGRAM']">
                     {{ files['SINGLE_LINE_DIAGRAM']?.[0]?.name || existingDocLabel('SINGLE_LINE_DIAGRAM') }}
                   </span>
+                  <span *ngIf="!allChecked('SINGLE_LINE_DIAGRAM') && !files['SINGLE_LINE_DIAGRAM']?.length" class="checklist-gate">Review and tick all requirements above to enable the file uploader.</span>
                   <span *ngIf="!files['SINGLE_LINE_DIAGRAM']?.length && brokenDocs['SINGLE_LINE_DIAGRAM']"
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
@@ -662,10 +698,17 @@
                   <span class="badge-{{getDocRequirement('PROJECT_PHOTOS')}}">{{getDocRequirement('PROJECT_PHOTOS')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('PROJECT_PHOTOS')">{{getDocHint('PROJECT_PHOTOS')}}</small>
-                <div class="d-flex justify-content-between align-items-center doc-box">
+                <p class="checklist-intro">Please provide clear project photos which clearly show the facility and confirms its location.</p>
+                <div class="doc-checklist">
+                  <label *ngFor="let item of docChecklists['PROJECT_PHOTOS']; let i = index" class="checklist-item">
+                    <input type="checkbox" [(ngModel)]="checklistState['PROJECT_PHOTOS'][i]" [ngModelOptions]="{standalone: true}" />
+                    <span>{{ item }}</span>
+                  </label>
+                </div>
+                <div class="d-flex justify-content-between align-items-center doc-box" [class.doc-box--disabled]="!allChecked('PROJECT_PHOTOS')">
                   <input type="file" #photosFileInput multiple
                     (change)="onFileChange($event, DocumentType.PROJECT_PHOTOS)" style="display: none" />
-                  <button type="button" (click)="photosFileInput.click()" class="btn btn-primary">
+                  <button type="button" (click)="photosFileInput.click()" class="btn btn-primary" [disabled]="!allChecked('PROJECT_PHOTOS')">
                     <mat-icon>attach_file</mat-icon>
                   </button>
                   <span class="file-name" [class.file-name--missing]="!files['PROJECT_PHOTOS']?.length && brokenDocs['PROJECT_PHOTOS']">
@@ -673,6 +716,7 @@
                       ? files['PROJECT_PHOTOS']!.length + ' files selected'
                       : files['PROJECT_PHOTOS']?.[0]?.name || existingDocLabel('PROJECT_PHOTOS') }}
                   </span>
+                  <span *ngIf="!allChecked('PROJECT_PHOTOS') && !files['PROJECT_PHOTOS']?.length" class="checklist-gate">Review and tick all requirements above to enable the file uploader.</span>
                   <span *ngIf="!files['PROJECT_PHOTOS']?.length && brokenDocs['PROJECT_PHOTOS']"
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
