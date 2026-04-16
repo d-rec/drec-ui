@@ -757,10 +757,10 @@ export class MapComponent implements OnInit, OnDestroy {
 
     outCanvas.toBlob((blob) => {
       if (!blob) return;
-      const filename = name.replace(/[^a-zA-Z0-9_\- ]/g, '') + '.png';
-      const file = new File([blob], filename, { type: 'image/png' });
+      const filename = name.replace(/[^a-zA-Z0-9_\- ]/g, '') + '.jpg';
+      const file = new File([blob], filename, { type: 'image/jpeg' });
       this.zone.run(() => this.screenshotTaken.emit(file));
-    }, 'image/png');
+    }, 'image/jpeg', 0.85);
   }
 
   private pinOverlay: HTMLElement | null = null;
