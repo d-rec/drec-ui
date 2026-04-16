@@ -11,11 +11,13 @@
       class="detect-overlay"
       [class.visible]="showOverlay"
       [class.draw-active]="drawMode"
+      [class.select-active]="predictions.length > 0 && !drawMode"
+      (click)="onRegionClick($event)"
       (mousedown)="onCanvasMouseDown($event)"
-      (mousemove)="onCanvasMouseMove($event)"
+      (mousemove)="onCanvasMouseMove($event); onRegionHover($event)"
       (mouseup)="onCanvasMouseUp($event)"
     ></canvas>
-    <div class="detect-toolbar">
+    <div class="detect-toolbar" (click)="$event.stopPropagation()" (mousedown)="$event.stopPropagation()" (mouseup)="$event.stopPropagation()">
       <button
         type="button"
         class="detect-btn"

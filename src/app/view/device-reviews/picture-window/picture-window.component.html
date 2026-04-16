@@ -22,6 +22,13 @@
         <button class="picw__detect-btn picw__detect-btn--clear" *ngIf="showOverlay" (click)="clearOverlay()">
           Clear
         </button>
+        <button
+          class="picw__detect-btn picw__detect-btn--delete"
+          *ngIf="selectedRegion >= 0"
+          (click)="deleteSelected()"
+        >
+          ✕ Remove Region
+        </button>
         <span class="picw__detect-count" *ngIf="detectDone && panelCount > 0">
           {{ panelCount }} region{{ panelCount === 1 ? '' : 's' }} found
         </span>
@@ -33,7 +40,7 @@
       <div class="picw__image-area" [class.picw__image-area--with-text]="ocrText">
         <div class="picw__image-wrap">
           <img #imgEl class="picw__img" [src]="url" alt="Device picture" crossorigin="anonymous" />
-          <canvas #overlayCanvas class="picw__overlay" [class.visible]="showOverlay"></canvas>
+          <canvas #overlayCanvas class="picw__overlay" [class.visible]="showOverlay" (click)="onCanvasClick($event)"></canvas>
         </div>
       </div>
       <div *ngIf="ocrRunning" class="picw__progress">

@@ -99,6 +99,15 @@ export class MapComponent implements OnInit, OnDestroy {
   panelCount = 0;
   detectError = '';
 
+  // Region selection state
+  predictions: any[] = [];
+  selectedRegion: number = -1;
+  private detScaleX = 1;
+  private detScaleY = 1;
+  private detCropX = 0;
+  private detCropY = 0;
+  private deleteBtn: { x: number; y: number; r: number } | null = null;
+
   // Rectangle draw state
   drawMode = false;
   drawnRect: { x: number; y: number; w: number; h: number } | null = null;
@@ -277,6 +286,8 @@ export class MapComponent implements OnInit, OnDestroy {
     this.detectError = '';
     this.drawnRect = null;
     this.drawMode = false;
+    this.predictions = [];
+    this.selectedRegion = -1;
     if (this.overlayCanvas) {
       const canvas = this.overlayCanvas.nativeElement;
       const ctx = canvas.getContext('2d');
@@ -388,66 +399,215 @@ export class MapComponent implements OnInit, OnDestroy {
     const canvas = this.overlayCanvas.nativeElement;
     canvas.width = w;
     canvas.height = h;
-    const ctx = canvas.getContext('2d')!;
-    ctx.clearRect(0, 0, w, h);
 
     const outputs = data?.outputs?.[0];
-    const predictions = outputs?.predictions?.predictions ?? [];
+    const preds = outputs?.predictions?.predictions ?? [];
 
     const imgW = outputs?.predictions?.image?.width ?? cropW;
     const imgH = outputs?.predictions?.image?.height ?? cropH;
-    const scaleX = cropW / imgW;
-    const scaleY = cropH / imgH;
+    this.detScaleX = cropW / imgW;
+    this.detScaleY = cropH / imgH;
+    this.detCropX = cropX;
+    this.detCropY = cropY;
 
-    this.panelCount = predictions.length;
+    this.predictions = preds;
+    this.selectedRegion = -1;
+    this.panelCount = preds.length;
+
     if (this.panelCount === 0) {
       this.detectError = 'No solar panels detected in this image';
       this.detecting = false;
       return;
     }
 
-    for (const pred of predictions) {
+    this.redrawDetections();
+    this.showOverlay = true;
+    this.detecting = false;
+  }
+
+  onRegionClick(event: MouseEvent): void {
+    if (!this.predictions.length || this.drawMode) return;
+    const canvas = this.overlayCanvas.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const cssToCanvasX = canvas.width / rect.width;
+    const cssToCanvasY = canvas.height / rect.height;
+    const x = (event.clientX - rect.left) * cssToCanvasX;
+    const y = (event.clientY - rect.top) * cssToCanvasY;
+
+    // Check × button first
+    if (this.deleteBtn && this.selectedRegion >= 0) {
+      const dx = x - this.deleteBtn.x;
+      const dy = y - this.deleteBtn.y;
+      if (dx * dx + dy * dy <= this.deleteBtn.r * this.deleteBtn.r) {
+        this.predictions = this.predictions.filter((_: any, i: number) => i !== this.selectedRegion);
+        this.selectedRegion = -1;
+        this.deleteBtn = null;
+        this.panelCount = this.predictions.length;
+        const ctx = canvas.getContext('2d')!;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (this.panelCount === 0) {
+          this.showOverlay = false;
+        } else {
+          this.redrawDetections();
+        }
+        return;
+      }
+    }
+
+    for (let i = this.predictions.length - 1; i >= 0; i--) {
+      if (this.regionHitTest(this.predictions[i], x, y)) {
+        this.selectedRegion = this.selectedRegion === i ? -1 : i;
+        this.redrawDetections();
+        return;
+      }
+    }
+    if (this.selectedRegion >= 0) {
+      this.selectedRegion = -1;
+      this.deleteBtn = null;
+      this.redrawDetections();
+    }
+  }
+
+  onRegionHover(event: MouseEvent): void {
+    if (!this.predictions.length || this.drawMode) return;
+    const canvas = this.overlayCanvas.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const cssToCanvasX = canvas.width / rect.width;
+    const cssToCanvasY = canvas.height / rect.height;
+    const x = (event.clientX - rect.left) * cssToCanvasX;
+    const y = (event.clientY - rect.top) * cssToCanvasY;
+
+    // Pointer over × button
+    if (this.deleteBtn) {
+      const dx = x - this.deleteBtn.x;
+      const dy = y - this.deleteBtn.y;
+      if (dx * dx + dy * dy <= this.deleteBtn.r * this.deleteBtn.r) {
+        canvas.style.cursor = 'default';
+        return;
+      }
+    }
+
+    canvas.style.cursor = this.predictions.some((p: any) => this.regionHitTest(p, x, y)) ? 'default' : 'grab';
+  }
+
+  deleteSelectedRegion(): void {
+    if (this.selectedRegion < 0 || this.selectedRegion >= this.predictions.length) return;
+    this.predictions = this.predictions.filter((_: any, i: number) => i !== this.selectedRegion);
+    this.selectedRegion = -1;
+    this.panelCount = this.predictions.length;
+    const canvas = this.overlayCanvas.nativeElement;
+    const ctx = canvas.getContext('2d')!;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (this.panelCount === 0) {
+      this.showOverlay = false;
+    } else {
+      this.redrawDetections();
+    }
+  }
+
+  private regionHitTest(pred: any, mx: number, my: number): boolean {
+    const points: { x: number; y: number }[] = pred.points ?? [];
+    if (points.length > 2) {
+      const scaled = points.map((p: any) => ({
+        x: p.x * this.detScaleX + this.detCropX,
+        y: p.y * this.detScaleY + this.detCropY,
+      }));
+      let inside = false;
+      for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
+        const xi = scaled[i].x, yi = scaled[i].y;
+        const xj = scaled[j].x, yj = scaled[j].y;
+        if (((yi > my) !== (yj > my)) && (mx < (xj - xi) * (my - yi) / (yj - yi) + xi)) {
+          inside = !inside;
+        }
+      }
+      return inside;
+    }
+    const bx = (pred.x - pred.width / 2) * this.detScaleX + this.detCropX;
+    const by = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
+    const bw = pred.width * this.detScaleX;
+    const bh = pred.height * this.detScaleY;
+    return mx >= bx && mx <= bx + bw && my >= by && my <= by + bh;
+  }
+
+  private redrawDetections(): void {
+    const canvas = this.overlayCanvas.nativeElement;
+    const ctx = canvas.getContext('2d')!;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Re-draw any committed drawn rectangle
+    if (this.drawnRect) {
+      ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
+      ctx.fillRect(this.drawnRect.x, this.drawnRect.y, this.drawnRect.w, this.drawnRect.h);
+      ctx.strokeStyle = '#00ffb4';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(this.drawnRect.x, this.drawnRect.y, this.drawnRect.w, this.drawnRect.h);
+    }
+
+    for (let i = 0; i < this.predictions.length; i++) {
+      const pred = this.predictions[i];
+      const selected = i === this.selectedRegion;
+      const fill = selected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(0, 255, 180, 0.3)';
+      const stroke = selected ? '#ef4444' : '#00ffb4';
       const points: { x: number; y: number }[] = pred.points ?? [];
 
       if (points.length > 2) {
         ctx.beginPath();
-        ctx.moveTo(points[0].x * scaleX + cropX, points[0].y * scaleY + cropY);
-        for (let i = 1; i < points.length; i++) {
-          ctx.lineTo(points[i].x * scaleX + cropX, points[i].y * scaleY + cropY);
+        ctx.moveTo(points[0].x * this.detScaleX + this.detCropX, points[0].y * this.detScaleY + this.detCropY);
+        for (let j = 1; j < points.length; j++) {
+          ctx.lineTo(points[j].x * this.detScaleX + this.detCropX, points[j].y * this.detScaleY + this.detCropY);
         }
         ctx.closePath();
-        ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
+        ctx.fillStyle = fill;
         ctx.fill();
-        ctx.strokeStyle = '#00ffb4';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = selected ? 3 : 2;
         ctx.stroke();
       } else {
-        const bx = (pred.x - pred.width / 2) * scaleX + cropX;
-        const by = (pred.y - pred.height / 2) * scaleY + cropY;
-        const bw = pred.width * scaleX;
-        const bh = pred.height * scaleY;
-        ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
+        const bx = (pred.x - pred.width / 2) * this.detScaleX + this.detCropX;
+        const by = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
+        const bw = pred.width * this.detScaleX;
+        const bh = pred.height * this.detScaleY;
+        ctx.fillStyle = fill;
         ctx.fillRect(bx, by, bw, bh);
-        ctx.strokeStyle = '#00ffb4';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = selected ? 3 : 2;
         ctx.strokeRect(bx, by, bw, bh);
       }
 
-      if (pred.confidence) {
-        const cx = (pred.x - pred.width / 2) * scaleX + cropX;
-        const cy = (pred.y - pred.height / 2) * scaleY + cropY - 4;
-        ctx.font = '11px Inter, system-ui, sans-serif';
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        const label = `${Math.round(pred.confidence * 100)}%`;
-        const tw = ctx.measureText(label).width;
-        ctx.fillRect(cx, cy - 12, tw + 6, 15);
-        ctx.fillStyle = '#00ffb4';
-        ctx.fillText(label, cx + 3, cy);
+      // Draw × button at top-right of selected region
+      if (selected) {
+        let dotX: number, dotY: number;
+        if (points.length > 2) {
+          const xs = points.map((p: any) => p.x * this.detScaleX + this.detCropX);
+          const ys = points.map((p: any) => p.y * this.detScaleY + this.detCropY);
+          dotX = Math.max(...xs);
+          dotY = Math.min(...ys);
+        } else {
+          dotX = (pred.x + pred.width / 2) * this.detScaleX + this.detCropX;
+          dotY = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
+        }
+        const r = 10;
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, r, 0, Math.PI * 2);
+        ctx.fillStyle = '#dc2626';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('\u00d7', dotX, dotY + 0.5);
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'alphabetic';
+        this.deleteBtn = { x: dotX, y: dotY, r: r + 4 }; // slightly larger hit area
       }
     }
 
-    this.showOverlay = true;
-    this.detecting = false;
+    if (this.selectedRegion < 0) {
+      this.deleteBtn = null;
+    }
   }
 
   // --- Rectangle draw ---
@@ -561,6 +721,32 @@ export class MapComponent implements OnInit, OnDestroy {
             bmp.close();
           } catch { /* skip */ }
         }
+      }
+    }
+
+    // Draw marker pane (pins — DivIcon SVGs) on top of tiles
+    const markerPane = mapEl.querySelector('.leaflet-marker-pane') as HTMLElement;
+    if (markerPane) {
+      const svgs = Array.from(markerPane.querySelectorAll('svg'));
+      for (const svg of svgs) {
+        const parent = svg.closest('.leaflet-marker-icon') as HTMLElement;
+        if (!parent) continue;
+        const r = parent.getBoundingClientRect();
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(svgBlob);
+        try {
+          const img = new Image();
+          img.width = r.width;
+          img.height = r.height;
+          await new Promise<void>((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = reject;
+            img.src = url;
+          });
+          outCtx.drawImage(img, r.left - mapRect.left, r.top - mapRect.top, r.width, r.height);
+        } catch { /* skip */ }
+        URL.revokeObjectURL(url);
       }
     }
 

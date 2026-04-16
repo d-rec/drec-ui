@@ -5,6 +5,9 @@ import {
   EventEmitter,
   OnChanges,
   SimpleChanges,
+  ViewChild,
+  ElementRef,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
+import { retry, timer } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { OrgApiLicensesService } from '../../auth/services/org-api-licenses.service';
 
@@ -45,6 +49,18 @@ export class PdfPreviewComponent implements OnChanges {
   sldLoading = false;
   sldSaved = false;
 
+  // Panel detection state
+  @ViewChild('detectImg') detectImg!: ElementRef<HTMLImageElement>;
+  @ViewChild('detectCanvas') detectCanvas!: ElementRef<HTMLCanvasElement>;
+  detecting = false;
+  showDetectOverlay = false;
+  panelCount = 0;
+  detectError = '';
+  predictions: any[] = [];
+  selectedRegion: number = -1;
+  private detScaleX = 1;
+  private detScaleY = 1;
+
   ocrText = '';
   ocrLoading = false;
   ocrProgress = 0;
@@ -61,6 +77,7 @@ export class PdfPreviewComponent implements OnChanges {
   constructor(
     private http: HttpClient,
     private licensesService: OrgApiLicensesService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -123,6 +140,7 @@ export class PdfPreviewComponent implements OnChanges {
     this.translating = false;
     this.detectedLang = '';
     this.translationSearch = '';
+    this.clearDetectOverlay();
   }
 
   onDragStart(event: MouseEvent): void {
@@ -332,5 +350,263 @@ export class PdfPreviewComponent implements OnChanges {
       new RegExp(termEscaped, 'gi'),
       (m) => `<mark>${m}</mark>`,
     );
+  }
+
+  // ── Panel Detection ──────────────────────────────────────────────
+
+  detectPanels(): void {
+    if (this.detecting) return;
+    this.licensesService.getCredits().subscribe({
+      next: (credits) => {
+        if (credits.roboflow.hasOwnKey) {
+          this.runDetection();
+          return;
+        }
+        if (credits.roboflow.credits <= 0) {
+          this.detectError = 'Roboflow credits exhausted. Add your own API key in Organization > Licenses.';
+          this.cdr.detectChanges();
+          return;
+        }
+        if (confirm(
+          `You have ${credits.roboflow.credits} free Roboflow credit(s) remaining — proceed?\n\n` +
+          `This will use 1 credit.`,
+        )) {
+          this.runDetection();
+        }
+      },
+      error: () => {
+        if (confirm('Panel detection uses a limited number of free scans. Proceed anyway?')) {
+          this.runDetection();
+        }
+      },
+    });
+  }
+
+  clearDetectOverlay(): void {
+    this.showDetectOverlay = false;
+    this.panelCount = 0;
+    this.detectError = '';
+    this.predictions = [];
+    this.selectedRegion = -1;
+    this.detecting = false;
+    if (this.detectCanvas?.nativeElement) {
+      const ctx = this.detectCanvas.nativeElement.getContext('2d');
+      ctx?.clearRect(0, 0, this.detectCanvas.nativeElement.width, this.detectCanvas.nativeElement.height);
+    }
+  }
+
+  onDetectCanvasClick(event: MouseEvent): void {
+    if (!this.predictions.length) return;
+    const canvas = this.detectCanvas.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const cssToCanvasX = canvas.width / rect.width;
+    const cssToCanvasY = canvas.height / rect.height;
+    const x = (event.clientX - rect.left) * cssToCanvasX;
+    const y = (event.clientY - rect.top) * cssToCanvasY;
+
+    for (let i = this.predictions.length - 1; i >= 0; i--) {
+      if (this.detectHitTest(this.predictions[i], x, y)) {
+        this.selectedRegion = this.selectedRegion === i ? -1 : i;
+        this.detectRedraw();
+        this.cdr.detectChanges();
+        return;
+      }
+    }
+    this.selectedRegion = -1;
+    this.detectRedraw();
+    this.cdr.detectChanges();
+  }
+
+  deleteSelectedRegion(): void {
+    if (this.selectedRegion < 0 || this.selectedRegion >= this.predictions.length) return;
+    this.predictions.splice(this.selectedRegion, 1);
+    this.selectedRegion = -1;
+    this.panelCount = this.predictions.length;
+    this.detectRedraw();
+    this.cdr.detectChanges();
+  }
+
+  private runDetection(): void {
+    const img = this.detectImg?.nativeElement;
+    if (!img || !img.complete) {
+      this.detectError = 'Image not loaded';
+      this.cdr.detectChanges();
+      return;
+    }
+    this.detecting = true;
+    this.detectError = '';
+    this.cdr.detectChanges();
+
+    const canvas = document.createElement('canvas');
+    const maxDim = 640;
+    const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+    canvas.width = Math.round(img.naturalWidth * scale);
+    canvas.height = Math.round(img.naturalHeight * scale);
+    const ctx = canvas.getContext('2d')!;
+
+    try {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toDataURL(); // taint check
+      const base64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+      this.sendDetection(base64);
+    } catch {
+      this.fetchAndDetect(img.src);
+    }
+  }
+
+  private async fetchAndDetect(src: string): Promise<void> {
+    try {
+      const resp = await fetch(src);
+      const blob = await resp.blob();
+      const bmp = await createImageBitmap(blob);
+      const canvas = document.createElement('canvas');
+      const maxDim = 640;
+      const scale = Math.min(1, maxDim / Math.max(bmp.width, bmp.height));
+      canvas.width = Math.round(bmp.width * scale);
+      canvas.height = Math.round(bmp.height * scale);
+      canvas.getContext('2d')!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      bmp.close();
+      const base64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+      this.sendDetection(base64);
+    } catch {
+      this.detecting = false;
+      this.detectError = 'Could not load image for detection';
+      this.cdr.detectChanges();
+    }
+  }
+
+  private sendDetection(base64: string): void {
+    this.http.post<any>(
+      `${environment.API_URL}device-reviews/detect-panels`,
+      { image: base64 },
+    ).pipe(
+      retry({ count: 2, delay: (_err: any, attempt: number) => timer(attempt * 3000) }),
+    ).subscribe({
+      next: (data) => this.handleDetections(data),
+      error: (err) => {
+        this.detectError = 'Detection failed: ' + (err?.error?.message || err?.message || err);
+        this.detecting = false;
+        this.cdr.detectChanges();
+      },
+    });
+  }
+
+  private handleDetections(data: any): void {
+    const img = this.detectImg.nativeElement;
+    const w = img.clientWidth;
+    const h = img.clientHeight;
+
+    const canvas = this.detectCanvas.nativeElement;
+    canvas.width = w;
+    canvas.height = h;
+
+    const outputs = data?.outputs?.[0];
+    const preds = outputs?.predictions?.predictions ?? [];
+    const imgW = outputs?.predictions?.image?.width ?? img.naturalWidth;
+    const imgH = outputs?.predictions?.image?.height ?? img.naturalHeight;
+    this.detScaleX = w / imgW;
+    this.detScaleY = h / imgH;
+
+    this.predictions = preds;
+    this.selectedRegion = -1;
+    this.panelCount = preds.length;
+
+    if (this.panelCount === 0) {
+      this.detectError = 'No solar panels detected in this image';
+      this.detecting = false;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.detectRedraw();
+    this.showDetectOverlay = true;
+    this.detecting = false;
+    this.cdr.detectChanges();
+  }
+
+  private detectHitTest(pred: any, mx: number, my: number): boolean {
+    const points: { x: number; y: number }[] = pred.points ?? [];
+    if (points.length > 2) {
+      const scaled = points.map((p: any) => ({ x: p.x * this.detScaleX, y: p.y * this.detScaleY }));
+      let inside = false;
+      for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
+        const xi = scaled[i].x, yi = scaled[i].y;
+        const xj = scaled[j].x, yj = scaled[j].y;
+        if (((yi > my) !== (yj > my)) && (mx < (xj - xi) * (my - yi) / (yj - yi) + xi)) {
+          inside = !inside;
+        }
+      }
+      return inside;
+    }
+    const bx = (pred.x - pred.width / 2) * this.detScaleX;
+    const by = (pred.y - pred.height / 2) * this.detScaleY;
+    const bw = pred.width * this.detScaleX;
+    const bh = pred.height * this.detScaleY;
+    return mx >= bx && mx <= bx + bw && my >= by && my <= by + bh;
+  }
+
+  private detectRedraw(): void {
+    const canvas = this.detectCanvas.nativeElement;
+    const ctx = canvas.getContext('2d')!;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < this.predictions.length; i++) {
+      const pred = this.predictions[i];
+      const selected = i === this.selectedRegion;
+      const fill = selected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(0, 255, 180, 0.3)';
+      const stroke = selected ? '#ef4444' : '#00ffb4';
+      const points: { x: number; y: number }[] = pred.points ?? [];
+
+      if (points.length > 2) {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x * this.detScaleX, points[0].y * this.detScaleY);
+        for (let j = 1; j < points.length; j++) {
+          ctx.lineTo(points[j].x * this.detScaleX, points[j].y * this.detScaleY);
+        }
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = selected ? 3 : 2;
+        ctx.stroke();
+      } else {
+        const bx = (pred.x - pred.width / 2) * this.detScaleX;
+        const by = (pred.y - pred.height / 2) * this.detScaleY;
+        const bw = pred.width * this.detScaleX;
+        const bh = pred.height * this.detScaleY;
+        ctx.fillStyle = fill;
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = selected ? 3 : 2;
+        ctx.strokeRect(bx, by, bw, bh);
+      }
+
+      if (selected) {
+        let dotX: number, dotY: number;
+        if (points.length > 2) {
+          const xs = points.map((p: any) => p.x * this.detScaleX);
+          const ys = points.map((p: any) => p.y * this.detScaleY);
+          dotX = Math.max(...xs);
+          dotY = Math.min(...ys);
+        } else {
+          dotX = (pred.x + pred.width / 2) * this.detScaleX;
+          dotY = (pred.y - pred.height / 2) * this.detScaleY;
+        }
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#ef4444';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('\u00d7', dotX, dotY + 0.5);
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'alphabetic';
+      }
+    }
   }
 }

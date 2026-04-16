@@ -46,6 +46,7 @@ const STATUS_COLOR: Record<string, string> = {
           #overlayCanvas
           class="detect-overlay"
           [class.visible]="showOverlay"
+          (click)="onCanvasClick($event)"
         ></canvas>
         <div class="detect-toolbar">
           <button
@@ -67,6 +68,13 @@ const STATUS_COLOR: Record<string, string> = {
             (click)="clearOverlay()"
           >
             Clear
+          </button>
+          <button
+            class="detect-btn detect-btn--delete"
+            *ngIf="selectedRegion >= 0"
+            (click)="deleteSelected()"
+          >
+            ✕ Remove Region
           </button>
           <span class="detect-count" *ngIf="panelCount > 0"
             >{{ panelCount }} region{{ panelCount === 1 ? '' : 's' }}
@@ -104,6 +112,8 @@ const STATUS_COLOR: Record<string, string> = {
       }
       .detect-overlay.visible {
         opacity: 0.75;
+        pointer-events: auto;
+        cursor: crosshair;
       }
       .detect-toolbar {
         position: absolute;
@@ -137,6 +147,12 @@ const STATUS_COLOR: Record<string, string> = {
       }
       .detect-btn--clear:hover {
         background: #475569;
+      }
+      .detect-btn--delete {
+        background: #dc2626;
+      }
+      .detect-btn--delete:hover {
+        background: #b91c1c;
       }
       .detect-count {
         font-size: 11px;
@@ -234,6 +250,14 @@ export class SatelliteWindowComponent
   detectError = '';
   detectConfirmMsg = '';
   satelliteDate = '';
+
+  // Region selection state
+  predictions: any[] = [];
+  selectedRegion: number = -1;
+  private satScaleX = 1;
+  private satScaleY = 1;
+  private satCropX = 0;
+  private satCropY = 0;
 
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
@@ -382,10 +406,134 @@ export class SatelliteWindowComponent
     this.showOverlay = false;
     this.panelCount = 0;
     this.detectError = '';
+    this.predictions = [];
+    this.selectedRegion = -1;
     const canvas = this.overlayCanvas.nativeElement;
     const ctx = canvas.getContext('2d');
     ctx?.clearRect(0, 0, canvas.width, canvas.height);
     this.cdr.markForCheck();
+  }
+
+  onCanvasClick(event: MouseEvent): void {
+    if (!this.predictions.length) return;
+    const canvas = this.overlayCanvas.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    // Scale from CSS pixels to canvas coordinate space
+    const cssToCanvasX = canvas.width / rect.width;
+    const cssToCanvasY = canvas.height / rect.height;
+    const x = (event.clientX - rect.left) * cssToCanvasX;
+    const y = (event.clientY - rect.top) * cssToCanvasY;
+
+    for (let i = this.predictions.length - 1; i >= 0; i--) {
+      if (this.satHitTest(this.predictions[i], x, y)) {
+        this.selectedRegion = this.selectedRegion === i ? -1 : i;
+        this.satRedraw();
+        this.cdr.detectChanges();
+        return;
+      }
+    }
+    this.selectedRegion = -1;
+    this.satRedraw();
+    this.cdr.detectChanges();
+  }
+
+  deleteSelected(): void {
+    if (this.selectedRegion < 0 || this.selectedRegion >= this.predictions.length) return;
+    this.predictions.splice(this.selectedRegion, 1);
+    this.selectedRegion = -1;
+    this.panelCount = this.predictions.length;
+    this.satRedraw();
+    this.cdr.markForCheck();
+  }
+
+  private satHitTest(pred: any, mx: number, my: number): boolean {
+    const points: { x: number; y: number }[] = pred.points ?? [];
+    if (points.length > 2) {
+      const scaled = points.map(p => ({
+        x: p.x * this.satScaleX + this.satCropX,
+        y: p.y * this.satScaleY + this.satCropY,
+      }));
+      let inside = false;
+      for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
+        const xi = scaled[i].x, yi = scaled[i].y;
+        const xj = scaled[j].x, yj = scaled[j].y;
+        if (((yi > my) !== (yj > my)) && (mx < (xj - xi) * (my - yi) / (yj - yi) + xi)) {
+          inside = !inside;
+        }
+      }
+      return inside;
+    }
+    const bx = (pred.x - pred.width / 2) * this.satScaleX + this.satCropX;
+    const by = (pred.y - pred.height / 2) * this.satScaleY + this.satCropY;
+    const bw = pred.width * this.satScaleX;
+    const bh = pred.height * this.satScaleY;
+    return mx >= bx && mx <= bx + bw && my >= by && my <= by + bh;
+  }
+
+  private satRedraw(): void {
+    const canvas = this.overlayCanvas.nativeElement;
+    const ctx = canvas.getContext('2d')!;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < this.predictions.length; i++) {
+      const pred = this.predictions[i];
+      const selected = i === this.selectedRegion;
+      const fill = selected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(0, 255, 180, 0.3)';
+      const stroke = selected ? '#ef4444' : '#00ffb4';
+      const points: { x: number; y: number }[] = pred.points ?? [];
+
+      if (points.length > 2) {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x * this.satScaleX + this.satCropX, points[0].y * this.satScaleY + this.satCropY);
+        for (let j = 1; j < points.length; j++) {
+          ctx.lineTo(points[j].x * this.satScaleX + this.satCropX, points[j].y * this.satScaleY + this.satCropY);
+        }
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = selected ? 3 : 2;
+        ctx.stroke();
+      } else {
+        const bx = (pred.x - pred.width / 2) * this.satScaleX + this.satCropX;
+        const by = (pred.y - pred.height / 2) * this.satScaleY + this.satCropY;
+        const bw = pred.width * this.satScaleX;
+        const bh = pred.height * this.satScaleY;
+        ctx.fillStyle = fill;
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = selected ? 3 : 2;
+        ctx.strokeRect(bx, by, bw, bh);
+      }
+
+      // Red delete-hint dot at top-right corner of selected region
+      if (selected) {
+        let dotX: number, dotY: number;
+        if (points.length > 2) {
+          const xs = points.map(p => p.x * this.satScaleX + this.satCropX);
+          const ys = points.map(p => p.y * this.satScaleY + this.satCropY);
+          dotX = Math.max(...xs);
+          dotY = Math.min(...ys);
+        } else {
+          dotX = (pred.x + pred.width / 2) * this.satScaleX + this.satCropX;
+          dotY = (pred.y - pred.height / 2) * this.satScaleY + this.satCropY;
+        }
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#ef4444';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('\u00d7', dotX, dotY + 0.5);
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'alphabetic';
+      }
+    }
   }
 
   private async captureAndDetect(): Promise<void> {
@@ -494,20 +642,21 @@ export class SatelliteWindowComponent
     const canvas = this.overlayCanvas.nativeElement;
     canvas.width = w;
     canvas.height = h;
-    const ctx = canvas.getContext('2d')!;
-    ctx.clearRect(0, 0, w, h);
 
     const outputs = data?.outputs?.[0];
-    const predictions = outputs?.predictions?.predictions ?? [];
+    const preds = outputs?.predictions?.predictions ?? [];
 
-    // Roboflow coordinates are relative to the cropped image we sent.
-    // Scale them to crop size, then offset to full-map position.
     const imgW = outputs?.predictions?.image?.width ?? cropW;
     const imgH = outputs?.predictions?.image?.height ?? cropH;
-    const scaleX = cropW / imgW;
-    const scaleY = cropH / imgH;
+    this.satScaleX = cropW / imgW;
+    this.satScaleY = cropH / imgH;
+    this.satCropX = cropX;
+    this.satCropY = cropY;
 
-    this.panelCount = predictions.length;
+    this.predictions = preds;
+    this.selectedRegion = -1;
+    this.panelCount = preds.length;
+
     if (this.panelCount === 0) {
       this.detectError = 'No solar panels detected in this image';
       this.detecting = false;
@@ -515,49 +664,7 @@ export class SatelliteWindowComponent
       return;
     }
 
-    for (const pred of predictions) {
-      const points: { x: number; y: number }[] = pred.points ?? [];
-
-      if (points.length > 2) {
-        // Draw filled polygon (offset from crop origin)
-        ctx.beginPath();
-        ctx.moveTo(points[0].x * scaleX + cropX, points[0].y * scaleY + cropY);
-        for (let i = 1; i < points.length; i++) {
-          ctx.lineTo(points[i].x * scaleX + cropX, points[i].y * scaleY + cropY);
-        }
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
-        ctx.fill();
-        ctx.strokeStyle = '#00ffb4';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      } else {
-        // Fallback: draw bounding box
-        const bx = (pred.x - pred.width / 2) * scaleX + cropX;
-        const by = (pred.y - pred.height / 2) * scaleY + cropY;
-        const bw = pred.width * scaleX;
-        const bh = pred.height * scaleY;
-        ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
-        ctx.fillRect(bx, by, bw, bh);
-        ctx.strokeStyle = '#00ffb4';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(bx, by, bw, bh);
-      }
-
-      // Confidence label
-      if (pred.confidence) {
-        const cx = (pred.x - pred.width / 2) * scaleX + cropX;
-        const cy = (pred.y - pred.height / 2) * scaleY + cropY - 4;
-        ctx.font = '11px Inter, system-ui, sans-serif';
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        const label = `${Math.round(pred.confidence * 100)}%`;
-        const tw = ctx.measureText(label).width;
-        ctx.fillRect(cx, cy - 12, tw + 6, 15);
-        ctx.fillStyle = '#00ffb4';
-        ctx.fillText(label, cx + 3, cy);
-      }
-    }
-
+    this.satRedraw();
     this.showOverlay = true;
     this.detecting = false;
     this.cdr.markForCheck();

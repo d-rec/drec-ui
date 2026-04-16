@@ -54,6 +54,11 @@
     opacity: 0.75;
   }
 
+  &.select-active {
+    pointer-events: auto;
+    cursor: grab;
+  }
+
   &.draw-active {
     pointer-events: auto;
     cursor: crosshair;
@@ -69,6 +74,7 @@
   gap: 6px;
   align-items: center;
   z-index: 600;
+  pointer-events: auto;
 }
 
 .detect-btn {
@@ -96,6 +102,14 @@
 
     &:hover {
       background: #475569;
+    }
+  }
+
+  &--delete {
+    background: #dc2626;
+
+    &:hover {
+      background: #b91c1c;
     }
   }
 

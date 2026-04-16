@@ -64,6 +64,14 @@
         background: #475569;
       }
     }
+
+    &--delete {
+      background: #dc2626;
+
+      &:hover {
+        background: #b91c1c;
+      }
+    }
   }
 
   &__detect-count {
@@ -128,6 +136,8 @@
 
     &.visible {
       display: block;
+      pointer-events: auto;
+      cursor: crosshair;
     }
   }
 

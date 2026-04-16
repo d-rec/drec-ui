@@ -7,6 +7,7 @@ import {
   OnDestroy,
   ViewChild,
   ElementRef,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AssetService } from '../asset.service';
@@ -46,11 +47,18 @@ export class PictureWindowComponent implements OnInit, OnDestroy {
   showDetectConfirm = false;
   detectConfirmMsg = '';
 
+  // Region selection state
+  predictions: any[] = [];
+  selectedRegion: number = -1;
+  private scaleX = 1;
+  private scaleY = 1;
+
   private currentUrl: string | null = null;
 
   constructor(
     readonly svc: AssetService,
     private licensesService: OrgApiLicensesService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -162,10 +170,148 @@ export class PictureWindowComponent implements OnInit, OnDestroy {
     this.panelCount = 0;
     this.detectDone = false;
     this.detectError = '';
+    this.predictions = [];
+    this.selectedRegion = -1;
     if (this.overlayCanvas?.nativeElement) {
       const canvas = this.overlayCanvas.nativeElement;
       const ctx = canvas.getContext('2d');
       ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  onCanvasClick(event: MouseEvent): void {
+    if (!this.predictions.length) return;
+    const canvas = this.overlayCanvas.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const cssToCanvasX = canvas.width / rect.width;
+    const cssToCanvasY = canvas.height / rect.height;
+    const x = (event.clientX - rect.left) * cssToCanvasX;
+    const y = (event.clientY - rect.top) * cssToCanvasY;
+
+    for (let i = this.predictions.length - 1; i >= 0; i--) {
+      if (this.hitTest(this.predictions[i], x, y)) {
+        if (this.selectedRegion === i) {
+          this.predictions = this.predictions.filter((_: any, j: number) => j !== i);
+          this.selectedRegion = -1;
+          this.panelCount = this.predictions.length;
+          const ctx = canvas.getContext('2d')!;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          if (this.panelCount === 0) {
+            this.showOverlay = false;
+          } else {
+            this.redraw();
+          }
+        } else {
+          this.selectedRegion = i;
+          this.redraw();
+        }
+        this.cdr.detectChanges();
+        return;
+      }
+    }
+    if (this.selectedRegion >= 0) {
+      this.selectedRegion = -1;
+      this.redraw();
+      this.cdr.detectChanges();
+    }
+  }
+
+  deleteSelected(): void {
+    if (this.selectedRegion < 0 || this.selectedRegion >= this.predictions.length) return;
+    this.predictions.splice(this.selectedRegion, 1);
+    this.selectedRegion = -1;
+    this.panelCount = this.predictions.length;
+    this.redraw();
+  }
+
+  private hitTest(pred: any, mx: number, my: number): boolean {
+    const points: { x: number; y: number }[] = pred.points ?? [];
+    if (points.length > 2) {
+      // Point-in-polygon (ray-casting)
+      const scaled = points.map(p => ({ x: p.x * this.scaleX, y: p.y * this.scaleY }));
+      let inside = false;
+      for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
+        const xi = scaled[i].x, yi = scaled[i].y;
+        const xj = scaled[j].x, yj = scaled[j].y;
+        if (((yi > my) !== (yj > my)) && (mx < (xj - xi) * (my - yi) / (yj - yi) + xi)) {
+          inside = !inside;
+        }
+      }
+      return inside;
+    }
+    // Bounding box fallback
+    const bx = (pred.x - pred.width / 2) * this.scaleX;
+    const by = (pred.y - pred.height / 2) * this.scaleY;
+    const bw = pred.width * this.scaleX;
+    const bh = pred.height * this.scaleY;
+    return mx >= bx && mx <= bx + bw && my >= by && my <= by + bh;
+  }
+
+  private redraw(): void {
+    const canvas = this.overlayCanvas.nativeElement;
+    const ctx = canvas.getContext('2d')!;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < this.predictions.length; i++) {
+      const pred = this.predictions[i];
+      const selected = i === this.selectedRegion;
+      const fill = selected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(0, 255, 180, 0.3)';
+      const stroke = selected ? '#ef4444' : '#00ffb4';
+      const points: { x: number; y: number }[] = pred.points ?? [];
+
+      if (points.length > 2) {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x * this.scaleX, points[0].y * this.scaleY);
+        for (let j = 1; j < points.length; j++) {
+          ctx.lineTo(points[j].x * this.scaleX, points[j].y * this.scaleY);
+        }
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = selected ? 3 : 2;
+        ctx.stroke();
+      } else {
+        const bx = (pred.x - pred.width / 2) * this.scaleX;
+        const by = (pred.y - pred.height / 2) * this.scaleY;
+        const bw = pred.width * this.scaleX;
+        const bh = pred.height * this.scaleY;
+        ctx.fillStyle = fill;
+        ctx.fillRect(bx, by, bw, bh);
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = selected ? 3 : 2;
+        ctx.strokeRect(bx, by, bw, bh);
+      }
+
+      // Red delete-hint dot at top-right corner of selected region
+      if (selected) {
+        let dotX: number, dotY: number;
+        if (points.length > 2) {
+          // Find top-right of bounding box
+          const xs = points.map(p => p.x * this.scaleX);
+          const ys = points.map(p => p.y * this.scaleY);
+          dotX = Math.max(...xs);
+          dotY = Math.min(...ys);
+        } else {
+          dotX = (pred.x + pred.width / 2) * this.scaleX;
+          dotY = (pred.y - pred.height / 2) * this.scaleY;
+        }
+        ctx.beginPath();
+        ctx.arc(dotX, dotY, 8, 0, Math.PI * 2);
+        ctx.fillStyle = '#ef4444';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        // "x" inside the dot
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('\u00d7', dotX, dotY + 0.5);
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'alphabetic';
+      }
     }
   }
 
@@ -245,64 +391,26 @@ export class PictureWindowComponent implements OnInit, OnDestroy {
     const canvas = this.overlayCanvas.nativeElement;
     canvas.width = w;
     canvas.height = h;
-    const ctx = canvas.getContext('2d')!;
-    ctx.clearRect(0, 0, w, h);
 
     const outputs = data?.outputs?.[0];
-    const predictions = outputs?.predictions?.predictions ?? [];
+    const preds = outputs?.predictions?.predictions ?? [];
 
     const imgW = outputs?.predictions?.image?.width ?? img.naturalWidth;
     const imgH = outputs?.predictions?.image?.height ?? img.naturalHeight;
-    const scaleX = w / imgW;
-    const scaleY = h / imgH;
+    this.scaleX = w / imgW;
+    this.scaleY = h / imgH;
 
-    this.panelCount = predictions.length;
+    this.predictions = preds;
+    this.selectedRegion = -1;
+    this.panelCount = preds.length;
+
     if (this.panelCount === 0) {
       this.detectError = 'No solar panels detected in this image';
       this.detecting = false;
       return;
     }
 
-    for (const pred of predictions) {
-      const points: { x: number; y: number }[] = pred.points ?? [];
-
-      if (points.length > 2) {
-        ctx.beginPath();
-        ctx.moveTo(points[0].x * scaleX, points[0].y * scaleY);
-        for (let i = 1; i < points.length; i++) {
-          ctx.lineTo(points[i].x * scaleX, points[i].y * scaleY);
-        }
-        ctx.closePath();
-        ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
-        ctx.fill();
-        ctx.strokeStyle = '#00ffb4';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      } else {
-        const bx = (pred.x - pred.width / 2) * scaleX;
-        const by = (pred.y - pred.height / 2) * scaleY;
-        const bw = pred.width * scaleX;
-        const bh = pred.height * scaleY;
-        ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
-        ctx.fillRect(bx, by, bw, bh);
-        ctx.strokeStyle = '#00ffb4';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(bx, by, bw, bh);
-      }
-
-      if (pred.confidence) {
-        const cx = (pred.x - pred.width / 2) * scaleX;
-        const cy = (pred.y - pred.height / 2) * scaleY - 4;
-        ctx.font = '11px Inter, system-ui, sans-serif';
-        ctx.fillStyle = 'rgba(0,0,0,0.7)';
-        const label = `${Math.round(pred.confidence * 100)}%`;
-        const tw = ctx.measureText(label).width;
-        ctx.fillRect(cx, cy - 12, tw + 6, 15);
-        ctx.fillStyle = '#00ffb4';
-        ctx.fillText(label, cx + 3, cy);
-      }
-    }
-
+    this.redraw();
     this.showOverlay = true;
     this.detectDone = true;
     this.detecting = false;
