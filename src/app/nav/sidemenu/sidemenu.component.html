@@ -26,7 +26,7 @@
           class="mdc-button"
           [attr.test-id]="'account-setting-header'"
         >
-          Account Settings
+          Settings
         </mat-expansion-panel-header>
 
         <mat-nav-list class="p-0">
@@ -39,35 +39,6 @@
           >
             <span>Profile</span>
           </a>
-        </mat-nav-list>
-      </mat-expansion-panel>
-      <!--1st  -->
-      <mat-expansion-panel [class.mat-elevation-z0]="true"
-        [expanded]="isExpanded('organization')"
-        (opened)="setExpanded('organization', true)"
-        (closed)="setExpanded('organization', false)">
-        <mat-expansion-panel-header class="mdc-button" test-id="organization">
-          Organization
-        </mat-expansion-panel-header>
-        <mat-nav-list class="p-0">
-          <a
-            mat-button
-            class="menu-button inside-menu-button"
-            routerLinkActive="active"
-            routerLink="/organization/my/information"
-          >
-            <span>My Organizations</span>
-          </a>
-          <a
-            mat-button
-            class="menu-button inside-menu-button"
-            routerLinkActive="active"
-            [routerLink]="adduserorg_url"
-            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'Registrant'"
-            test-id="add-organization"
-          >
-            <span>Invite User</span>
-          </a>
           <a
             mat-button
             class="menu-button inside-menu-button"
@@ -75,9 +46,8 @@
             routerLink="/admin/All_organization"
             *ngIf="loginuser.role === 'Admin' || loginuser.role === 'Registrant'"
           >
-            <span>All Organizations</span>
+            <span>Organizations</span>
           </a>
-
           <a
             mat-button
             class="menu-button inside-menu-button certified-metarides"
@@ -85,9 +55,8 @@
             routerLink="{{ Alluserurl }}"
             test-id="all-users"
           >
-            <span>All Users</span>
+            <span>Users</span>
           </a>
-
           <a
             mat-button
             class="menu-button max-height-content inside-menu-button"
@@ -96,7 +65,7 @@
             *ngIf="loginuser.role === 'Admin'"
             test-id="all-market-intermediaries"
           >
-            <span>All Registrants</span>
+            <span>Registrants</span>
           </a>
           <a
             mat-button
@@ -120,7 +89,7 @@
               loginuser?.role === 'SubBuyer'
             "
           >
-            <span> Licenses</span>
+            <span>Licenses</span>
           </a>
           <a
             mat-button

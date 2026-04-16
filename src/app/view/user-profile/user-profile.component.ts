@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AdminService, UserService } from '../../auth/services';
+import { AdminService, UserService, OrganizationService } from '../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
@@ -27,6 +27,10 @@ export class UserProfileComponent {
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   fieldRequired: string = 'This field is required';
   usertoken: any;
+  orgName = '';
+  orgType = '';
+  orgStatus = '';
+
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -34,6 +38,7 @@ export class UserProfileComponent {
     private toastrService: ToastrService,
     private activatedRoute: ActivatedRoute,
     private userService: UserService,
+    private orgService: OrganizationService,
     private dialog: MatDialog,
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
@@ -42,6 +47,11 @@ export class UserProfileComponent {
       this.firstName = this.userinfo.firstName;
       this.lastName = this.userinfo.lastName;
       this.email = this.userinfo.email;
+    });
+    this.orgService.getOrganizationInformation().subscribe((data: any) => {
+      this.orgName = data.name;
+      this.orgType = data.organizationType;
+      this.orgStatus = data.status;
     });
   }
   ngOnInit() {

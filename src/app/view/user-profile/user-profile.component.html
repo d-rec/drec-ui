@@ -47,6 +47,29 @@
 
   <hr />
 
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <mat-form-field appearance="outline">
+        <mat-label>Organization Name</mat-label>
+        <input matInput readonly [value]="orgName" />
+      </mat-form-field>
+    </div>
+    <div class="col-md-3">
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <input matInput readonly [value]="orgType" />
+      </mat-form-field>
+    </div>
+    <div class="col-md-3">
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <input matInput readonly [value]="orgStatus" />
+      </mat-form-field>
+    </div>
+  </div>
+
+  <hr />
+
   <div class="d-flex justify-content-between align-items-center">
     <h3 class="fw-bold mb-0">Security Setting</h3>
     <button
