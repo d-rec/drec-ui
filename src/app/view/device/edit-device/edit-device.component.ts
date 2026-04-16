@@ -108,6 +108,55 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   existingDocs: { [type: string]: { url: string; name: string }[] } = {};
   brokenDocs: { [type: string]: boolean } = {};
 
+  // Evident-compliant upload checklists — upload is gated until all items are ticked
+  static readonly DOC_CHECKLISTS: Record<string, string[]> = {
+    FORM_SF_02: [
+      'The SF-02 has been fully completed, signed, and dated.',
+      'The official name of the facility matches the name provided on the Registry and other supporting documents.',
+      'The capacity (in MW) matches the installed Alternating Current (AC) capacity shown on the Single Line Diagram (SLD) and supporting documents.',
+      'The effective date of registration matches the date inputted on the Registry. It must not be before the effective date of registration set out by the Residual Mix Deadline.',
+      'The number of generating units (generators) is provided and matches the amount in the supporting SLD.',
+      'The serial numbers of the facility\'s meters are provided.',
+    ],
+    SF_02C: [], // radio selection handled separately
+    METERING_EVIDENCE: [
+      'The facility name and/or meter serial number(s) are highlighted and match the details provided in the form SF-02.',
+      'The units of measurement (kWh/MWh) are highlighted.',
+      'The production period dates are highlighted.',
+      'The eligible production figure is highlighted.',
+      'Proof that the data has been verified by an independent third-party has been provided.',
+    ],
+    SINGLE_LINE_DIAGRAM: [
+      'The facility name is visible.',
+      'The generating units (generators) are highlighted.',
+      'The capacity is annotated on each generator in MW/kW.',
+      'The metering point(s) are highlighted.',
+      'The document has been signed or stamped by the facility owner or engineer.',
+    ],
+    PROJECT_PHOTOS: [
+      'The external photos show the facility and surrounding geography.',
+    ],
+  };
+  docChecklists = EditDeviceComponent.DOC_CHECKLISTS;
+  checklistState: { [docType: string]: boolean[] } = {};
+  sf02cType: 'declaration' | 'ownership' | null = null;
+
+  initChecklists(): void {
+    for (const [docType, items] of Object.entries(EditDeviceComponent.DOC_CHECKLISTS)) {
+      this.checklistState[docType] = new Array(items.length).fill(false);
+    }
+  }
+
+  allChecked(docType: string): boolean {
+    const items = EditDeviceComponent.DOC_CHECKLISTS[docType];
+    if (!items?.length) return true;
+    return this.checklistState[docType]?.every(Boolean) ?? false;
+  }
+
+  sf02cReady(): boolean {
+    return this.sf02cType !== null;
+  }
+
   existingDocLabel(type: string): string {
     const docs = this.existingDocs[type];
     if (!docs?.length) return '';
@@ -171,6 +220,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.date = new Date();
+    this.initChecklists();
     this.updateDeviceForm = this.fb.group({
       serialNumber: [null, [Validators.pattern(/^[a-zA-Z0-9_;-]+$/)]],
       siteName: [null],
