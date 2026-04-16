@@ -724,7 +724,12 @@ export class MapComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Draw marker pane (pins — DivIcon SVGs) on top of tiles
+    // Draw overlay canvas (detected panels / drawn rectangle)
+    if (this.showOverlay && this.overlayCanvas) {
+      outCtx.drawImage(this.overlayCanvas.nativeElement, 0, 0);
+    }
+
+    // Draw marker pane (pins — DivIcon SVGs) on top of overlay
     const markerPane = mapEl.querySelector('.leaflet-marker-pane') as HTMLElement;
     if (markerPane) {
       const svgs = Array.from(markerPane.querySelectorAll('svg'));
@@ -748,11 +753,6 @@ export class MapComponent implements OnInit, OnDestroy {
         } catch { /* skip */ }
         URL.revokeObjectURL(url);
       }
-    }
-
-    // Draw overlay canvas (detected panels / drawn rectangle) on top
-    if (this.showOverlay && this.overlayCanvas) {
-      outCtx.drawImage(this.overlayCanvas.nativeElement, 0, 0);
     }
 
     outCanvas.toBlob((blob) => {
