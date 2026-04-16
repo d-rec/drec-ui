@@ -53,6 +53,12 @@
   &.visible {
     opacity: 0.75;
   }
+
+  &.draw-active {
+    pointer-events: auto;
+    cursor: crosshair;
+    opacity: 1;
+  }
 }
 
 .detect-toolbar {
@@ -91,6 +97,19 @@
     &:hover {
       background: #475569;
     }
+  }
+
+  &--active {
+    background: #0ea5e9;
+
+    &:hover:not(:disabled) {
+      background: #0284c7;
+    }
+  }
+
+  &--camera {
+    font-size: 14px;
+    padding: 4px 10px;
   }
 }
 

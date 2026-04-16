@@ -16,6 +16,7 @@ export class LicensesComponent implements OnInit {
   licensesForm: FormGroup;
   roboflowCredits = 3;
   deeplCredits = 3;
+  isAdmin = false;
 
   constructor(
     private licensesService: OrgApiLicensesService,
@@ -24,11 +25,14 @@ export class LicensesComponent implements OnInit {
   ) {
     this.licensesForm = this.fb.group({
       roboflowApiKey: [''],
+      roboflowWorkflowUrl: [''],
       deeplApiKey: [''],
     });
   }
 
   ngOnInit(): void {
+    const user = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
+    this.isAdmin = user?.role === 'Admin';
     this.loadSettings();
   }
 
@@ -38,6 +42,7 @@ export class LicensesComponent implements OnInit {
         if (data) {
           this.licensesForm.patchValue({
             roboflowApiKey: data.roboflowApiKey || '',
+            roboflowWorkflowUrl: data.roboflowWorkflowUrl || '',
             deeplApiKey: data.deeplApiKey || '',
           });
           this.roboflowCredits = data.roboflowCreditsRemaining;
@@ -55,6 +60,9 @@ export class LicensesComponent implements OnInit {
     const payload: any = {};
     if (formValue.roboflowApiKey !== undefined) {
       payload.roboflowApiKey = formValue.roboflowApiKey || null;
+    }
+    if (formValue.roboflowWorkflowUrl !== undefined) {
+      payload.roboflowWorkflowUrl = formValue.roboflowWorkflowUrl || null;
     }
     if (formValue.deeplApiKey !== undefined) {
       payload.deeplApiKey = formValue.deeplApiKey || null;

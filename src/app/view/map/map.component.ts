@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { environment } from '../../../environments/environment';
@@ -99,7 +99,16 @@ export class MapComponent implements OnInit, OnDestroy {
   panelCount = 0;
   detectError = '';
 
-  constructor(private http: HttpClient) {}
+  // Rectangle draw state
+  drawMode = false;
+  drawnRect: { x: number; y: number; w: number; h: number } | null = null;
+  private rectStart: { x: number; y: number } | null = null;
+  private rectDragging = false;
+
+  // Screenshot capture
+  @Output() screenshotTaken = new EventEmitter<File>();
+
+  constructor(private http: HttpClient, private zone: NgZone) {}
 
   ngOnInit(): void {
     this.options.layers = [this.satellite ? this.createSatelliteLayer() : this.createTileLayer()];
@@ -266,6 +275,8 @@ export class MapComponent implements OnInit, OnDestroy {
     this.showOverlay = false;
     this.panelCount = 0;
     this.detectError = '';
+    this.drawnRect = null;
+    this.drawMode = false;
     if (this.overlayCanvas) {
       const canvas = this.overlayCanvas.nativeElement;
       const ctx = canvas.getContext('2d');
@@ -437,6 +448,133 @@ export class MapComponent implements OnInit, OnDestroy {
 
     this.showOverlay = true;
     this.detecting = false;
+  }
+
+  // --- Rectangle draw ---
+
+  toggleDrawMode(): void {
+    this.drawMode = !this.drawMode;
+    if (!this.drawMode) return;
+    // Show the overlay canvas so the drawn rect is visible
+    this.showOverlay = true;
+  }
+
+  onCanvasMouseDown(event: MouseEvent): void {
+    if (!this.drawMode) return;
+    const canvas = this.overlayCanvas.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    this.rectStart = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    this.rectDragging = true;
+  }
+
+  onCanvasMouseMove(event: MouseEvent): void {
+    if (!this.rectDragging || !this.rectStart) return;
+    const canvas = this.overlayCanvas.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const dr = {
+      x: Math.min(this.rectStart.x, x),
+      y: Math.min(this.rectStart.y, y),
+      w: Math.abs(x - this.rectStart.x),
+      h: Math.abs(y - this.rectStart.y),
+    };
+    this.redrawOverlay(dr);
+  }
+
+  onCanvasMouseUp(event: MouseEvent): void {
+    if (!this.rectDragging || !this.rectStart) return;
+    const canvas = this.overlayCanvas.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    this.drawnRect = {
+      x: Math.min(this.rectStart.x, x),
+      y: Math.min(this.rectStart.y, y),
+      w: Math.abs(x - this.rectStart.x),
+      h: Math.abs(y - this.rectStart.y),
+    };
+    this.rectDragging = false;
+    this.rectStart = null;
+    this.drawMode = false;
+    this.redrawOverlay(this.drawnRect);
+  }
+
+  private redrawOverlay(tempRect?: { x: number; y: number; w: number; h: number }): void {
+    const canvas = this.overlayCanvas.nativeElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const drawRect = (r: { x: number; y: number; w: number; h: number }) => {
+      ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
+      ctx.fillRect(r.x, r.y, r.w, r.h);
+      ctx.strokeStyle = '#00ffb4';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(r.x, r.y, r.w, r.h);
+    };
+
+    // Re-draw the committed rect if we're just previewing a new one
+    if (this.drawnRect && tempRect !== this.drawnRect) {
+      drawRect(this.drawnRect);
+    }
+    if (tempRect) {
+      drawRect(tempRect);
+    }
+  }
+
+  // --- Screenshot capture ---
+
+  async captureScreenshot(): Promise<void> {
+    const name = window.prompt('Screenshot name:');
+    if (!name) return;
+
+    const mapEl = this.map.getContainer();
+    const w = mapEl.offsetWidth;
+    const h = mapEl.offsetHeight;
+
+    const outCanvas = document.createElement('canvas');
+    outCanvas.width = w;
+    outCanvas.height = h;
+    const outCtx = outCanvas.getContext('2d')!;
+
+    // Draw satellite tiles
+    const mapRect = mapEl.getBoundingClientRect();
+    const tilePane = mapEl.querySelector('.leaflet-tile-pane') as HTMLElement;
+    if (tilePane) {
+      const imgs = Array.from(tilePane.querySelectorAll('img'));
+      for (const img of imgs) {
+        const r = img.getBoundingClientRect();
+        try {
+          outCtx.drawImage(img, r.left - mapRect.left, r.top - mapRect.top, r.width, r.height);
+        } catch {
+          // CORS fallback: re-fetch as blob
+          const src = img.getAttribute('src');
+          if (!src) continue;
+          try {
+            const resp = await fetch(src);
+            const blob = await resp.blob();
+            const bmp = await createImageBitmap(blob);
+            outCtx.drawImage(bmp, r.left - mapRect.left, r.top - mapRect.top, r.width, r.height);
+            bmp.close();
+          } catch { /* skip */ }
+        }
+      }
+    }
+
+    // Draw overlay canvas (detected panels / drawn rectangle) on top
+    if (this.showOverlay && this.overlayCanvas) {
+      outCtx.drawImage(this.overlayCanvas.nativeElement, 0, 0);
+    }
+
+    outCanvas.toBlob((blob) => {
+      if (!blob) return;
+      const filename = name.replace(/[^a-zA-Z0-9_\- ]/g, '') + '.png';
+      const file = new File([blob], filename, { type: 'image/png' });
+      this.zone.run(() => this.screenshotTaken.emit(file));
+    }, 'image/png');
   }
 
   private pinOverlay: HTMLElement | null = null;

@@ -113,6 +113,7 @@
             routerLinkActive="active"
             routerLink="/settings/licenses"
             *ngIf="
+              loginuser?.role === 'Admin' ||
               loginuser?.role === 'Registrant' ||
               loginuser?.role === 'SiteOperator' ||
               loginuser?.role === 'Buyer' ||

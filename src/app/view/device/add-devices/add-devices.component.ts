@@ -978,6 +978,41 @@ export class AddDevicesComponent implements OnDestroy {
     this.coordsDirty = false;
   }
 
+  onScreenshotFromMap(file: File, deviceIndex: number): void {
+    if (!this.files[deviceIndex]) {
+      this.files[deviceIndex] = this.requiredFileTypes.reduce(
+        (acc, docType) => {
+          acc[docType] = [];
+          return acc;
+        },
+        {} as DeviceFiles,
+      );
+    }
+    if (!this.files[deviceIndex][DocumentType.SCREENSHOTS]) {
+      this.files[deviceIndex][DocumentType.SCREENSHOTS] = [];
+    }
+    this.files[deviceIndex][DocumentType.SCREENSHOTS].push(file);
+
+    const fileControl = this.deviceForms.at(deviceIndex).get('SCREENSHOTS');
+    if (fileControl) {
+      fileControl.setValue(file);
+      fileControl.markAsDirty();
+    }
+
+    // Generate preview so the file is viewable
+    if (!this.filePreviews[deviceIndex]) {
+      this.filePreviews[deviceIndex] = {};
+    }
+    const objectUrl = URL.createObjectURL(file);
+    this.filePreviews[deviceIndex][DocumentType.SCREENSHOTS] = {
+      url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
+      type: 'image',
+      name: file.name,
+    };
+
+    this.toastrService.success(`Screenshot "${file.name}" added`, 'Screenshot');
+  }
+
   updateMapMarkers(latitude: any, longitude: any) {
     if (latitude && longitude) {
       const markers = [

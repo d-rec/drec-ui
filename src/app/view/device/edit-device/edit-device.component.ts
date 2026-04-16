@@ -691,6 +691,23 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       });
   }
 
+  onScreenshotFromMap(file: File): void {
+    if (!this.files[DocumentType.SCREENSHOTS]) {
+      this.files[DocumentType.SCREENSHOTS] = [];
+    }
+    this.files[DocumentType.SCREENSHOTS].push(file);
+
+    // Generate preview so the file is viewable
+    const objectUrl = URL.createObjectURL(file);
+    this.filePreviews[DocumentType.SCREENSHOTS] = {
+      url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
+      type: 'image',
+      name: file.name,
+    };
+
+    this.toastrService.success(`Screenshot "${file.name}" added`, 'Screenshot');
+  }
+
   updateMapMarkers(latitude: any, longitude: any) {
     if (latitude && longitude) {
       const markers = [

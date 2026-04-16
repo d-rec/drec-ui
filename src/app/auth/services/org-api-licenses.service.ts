@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 
 export interface LicenseSettings {
   roboflowApiKey: string | null;
+  roboflowWorkflowUrl: string | null;
   deeplApiKey: string | null;
   roboflowCreditsRemaining: number;
   deeplCreditsRemaining: number;
@@ -31,6 +32,7 @@ export class OrgApiLicensesService {
 
   saveSettings(data: {
     roboflowApiKey?: string;
+    roboflowWorkflowUrl?: string;
     deeplApiKey?: string;
   }): Observable<any> {
     return this.httpClient.post<any>(this.url + 'org-api-licenses', data);

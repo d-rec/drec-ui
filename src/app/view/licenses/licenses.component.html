@@ -20,7 +20,7 @@
               Purchase a Roboflow license &rarr;
             </a>
           </p>
-          <div class="credits-display mb-2">
+          <div class="credits-display mb-2" *ngIf="!isAdmin">
             <span
               class="badge"
               [ngClass]="roboflowCredits > 0 ? 'bg-success' : 'bg-danger'"
@@ -28,12 +28,20 @@
               {{ roboflowCredits }} of 3 free credits remaining
             </span>
           </div>
+          <div class="col-md-6 d-flex flex-column mb-2">
+            <label class="form-label text-capitalize">Roboflow Workflow URL</label>
+            <input
+              type="text"
+              formControlName="roboflowWorkflowUrl"
+              placeholder="https://serverless.roboflow.com/..."
+            />
+          </div>
           <div class="col-md-6 d-flex flex-column">
             <label class="form-label text-capitalize">Roboflow API Key</label>
             <input
               type="text"
               formControlName="roboflowApiKey"
-              placeholder="Enter your Roboflow API key (optional)"
+              placeholder="Enter your Roboflow API key"
             />
           </div>
         </div>
@@ -52,7 +60,7 @@
               Purchase a DeepL API license &rarr;
             </a>
           </p>
-          <div class="credits-display mb-2">
+          <div class="credits-display mb-2" *ngIf="!isAdmin">
             <span
               class="badge"
               [ngClass]="deeplCredits > 0 ? 'bg-success' : 'bg-danger'"
@@ -65,7 +73,7 @@
             <input
               type="text"
               formControlName="deeplApiKey"
-              placeholder="Enter your DeepL API key (optional)"
+              placeholder="Enter your DeepL API key"
             />
           </div>
         </div>
