@@ -18,7 +18,7 @@ import { ChatMessage, ChatService } from '../chat.service';
 })
 export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
-  @ViewChild('messageInput') messageInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('messageInput') messageInput?: ElementRef<HTMLTextAreaElement>;
 
   messages: ChatMessage[] = [];
   draft = '';
@@ -129,10 +129,29 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
+  onInputKeydown(event: KeyboardEvent): void {
+    // Enter alone sends; Shift+Enter inserts a newline (default textarea behavior).
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      this.send();
+    }
+  }
+
+  autoResize(el: EventTarget | null): void {
+    const ta = el as HTMLTextAreaElement | null;
+    if (!ta) return;
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 140) + 'px';
+  }
+
   send(): void {
     const text = this.draft.trim();
     if (!text || !this.partnerEmail) return;
     this.draft = '';
+    // Collapse the textarea back to single-line after sending
+    if (this.messageInput?.nativeElement) {
+      this.messageInput.nativeElement.style.height = 'auto';
+    }
 
     // Optimistic: show message immediately
     const optimistic: ChatMessage = {

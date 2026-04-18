@@ -52,13 +52,15 @@
     </div>
 
     <div class="input-bar" *ngIf="!(chatService.readOnly$ | async)">
-      <input
+      <textarea
         #messageInput
         [(ngModel)]="draft"
-        (keydown.enter)="send()"
-        placeholder="Type a message..."
+        (keydown)="onInputKeydown($event)"
+        (input)="autoResize($event.target)"
+        placeholder="Type a message… (Shift+Enter for new line)"
         class="message-input"
-      />
+        rows="1"
+      ></textarea>
       <button class="send-btn send-btn--svg" (click)="send()" [disabled]="!draft.trim()">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>

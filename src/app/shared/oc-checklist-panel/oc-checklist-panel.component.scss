@@ -6,39 +6,36 @@
   z-index: 900;
   display: flex;
   align-items: flex-start;
-  pointer-events: none;
   font-family: inherit;
   color: #1e293b;
 }
 
 .ocp__tab {
-  pointer-events: auto;
   flex-shrink: 0;
   align-self: flex-start;
-  margin-top: 16px;
+  margin-top: 60px;
+  width: 18px;
+  height: 40px;
   background: #0f766e;
   color: #fff;
   border: none;
-  border-radius: 6px 0 0 6px;
-  padding: 10px 6px;
-  font-size: 12px;
-  font-weight: 600;
+  border-radius: 4px 0 0 4px;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 40px;
   cursor: pointer;
-  box-shadow: -2px 2px 6px rgba(0, 0, 0, 0.15);
-  writing-mode: horizontal-tb;
+  box-shadow: -1px 1px 4px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
     background: #115e59;
   }
 }
 
-.ocp--collapsed .ocp__tab {
-  padding: 12px 8px;
-  letter-spacing: 0.04em;
-}
-
 .ocp__panel {
-  pointer-events: auto;
   width: 340px;
   max-height: 100%;
   background: #fff;
@@ -110,13 +107,11 @@
 .ocp__row {
   padding: 0;
   border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: flex-start;
 
   &:last-child {
     border-bottom: none;
-  }
-
-  &--hinted {
-    cursor: help;
   }
 }
 
@@ -130,6 +125,8 @@
   line-height: 1.35;
   margin: 0;
   transition: background 0.1s;
+  flex: 1;
+  min-width: 0;
 
   &:hover {
     background: #f8fafc;
@@ -154,6 +151,33 @@
 .ocp__item {
   flex: 1;
   word-break: break-word;
+
+  &--hinted {
+    border-bottom: 1px dotted #94a3b8;
+    cursor: help;
+  }
+}
+
+.ocp__help {
+  flex-shrink: 0;
+  align-self: center;
+  width: 16px;
+  height: 16px;
+  margin: 0 8px 0 2px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  cursor: help;
+  user-select: none;
+
+  &:hover {
+    background: #0f766e;
+    color: #fff;
+  }
 }
 
 .ocp__row--checked {

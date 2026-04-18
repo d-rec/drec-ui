@@ -34,7 +34,7 @@
           <ng-container
             *ngFor="let section of filteredSections; trackBy: trackSection"
           >
-            <h3 class="di__heading">{{ section.heading }}</h3>
+            <h3 *ngIf="section.heading" class="di__heading">{{ section.heading }}</h3>
             <p
               *ngFor="let f of section.fields; trackBy: trackField"
               class="di__field"

@@ -3,9 +3,10 @@
     type="button"
     class="ocp__tab"
     (click)="toggleCollapsed()"
-    [title]="collapsed ? 'Show registration checklist' : 'Hide checklist'"
+    [matTooltip]="collapsed ? 'Show registration checklist' : 'Hide checklist'"
+    matTooltipPosition="left"
   >
-    <span class="ocp__tab-label">{{ collapsed ? '› Checklist' : '‹' }}</span>
+    <span class="ocp__tab-label" aria-hidden="true">{{ collapsed ? '‹' : '›' }}</span>
   </button>
 
   <div class="ocp__panel" *ngIf="!collapsed">
@@ -26,18 +27,33 @@
         *ngFor="let r of rows; trackBy: trackRow"
         class="ocp__row"
         [class.ocp__row--checked]="checked.has(r.n)"
-        [class.ocp__row--hinted]="r.hint"
-        [attr.title]="r.hint || null"
       >
-        <label class="ocp__label">
+        <label
+          class="ocp__label"
+          [matTooltip]="r.hint"
+          [matTooltipDisabled]="!r.hint"
+          matTooltipPosition="left"
+          matTooltipShowDelay="200"
+        >
           <input
             type="checkbox"
             [checked]="checked.has(r.n)"
             (change)="toggleRow(r.n)"
           />
           <span class="ocp__num">{{ r.n }}</span>
-          <span class="ocp__item">{{ r.item }}</span>
+          <span
+            class="ocp__item"
+            [class.ocp__item--hinted]="r.hint"
+          >{{ r.item }}</span>
         </label>
+        <span
+          *ngIf="r.compare"
+          class="ocp__help"
+          [matTooltip]="r.compare"
+          matTooltipPosition="left"
+          matTooltipShowDelay="200"
+          aria-label="Compare against"
+        >?</span>
       </li>
     </ul>
   </div>
