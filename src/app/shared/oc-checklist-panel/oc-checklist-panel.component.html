@@ -30,8 +30,8 @@
       >
         <label
           class="ocp__label"
-          [matTooltip]="r.hint"
-          [matTooltipDisabled]="!r.hint"
+          [matTooltip]="combinedHint(r)"
+          [matTooltipDisabled]="!r.hint && !r.compare"
           matTooltipPosition="left"
           matTooltipShowDelay="200"
         >
@@ -43,17 +43,9 @@
           <span class="ocp__num">{{ r.n }}</span>
           <span
             class="ocp__item"
-            [class.ocp__item--hinted]="r.hint"
+            [class.ocp__item--hinted]="r.hint || r.compare"
           >{{ r.item }}</span>
         </label>
-        <span
-          *ngIf="r.compare"
-          class="ocp__help"
-          [matTooltip]="r.compare"
-          matTooltipPosition="left"
-          matTooltipShowDelay="200"
-          aria-label="Compare against"
-        >?</span>
       </li>
     </ul>
   </div>

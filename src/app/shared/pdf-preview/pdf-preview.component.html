@@ -2,11 +2,13 @@
   <!-- Left: document preview -->
   <div class="pdf-preview__left">
     <div *ngIf="previewType === 'image'" class="pdf-preview__img-wrap">
-      <img #detectImg [src]="previewUrl" crossorigin="anonymous"
-        style="max-width: 100%; max-height: 100%; display: block; margin: 0 auto; object-fit: contain;" />
-      <canvas #detectCanvas class="pdf-preview__detect-overlay"
-        [class.visible]="showDetectOverlay"
-        (click)="onDetectCanvasClick($event)"></canvas>
+      <div class="pdf-preview__img-stage" appImageZoomPan [resetKey]="previewUrl" title="Scroll to zoom, drag to pan, double-click to reset">
+        <img #detectImg [src]="previewUrl" crossorigin="anonymous"
+          style="max-width: 100%; max-height: 100%; display: block; margin: 0 auto; object-fit: contain;" />
+        <canvas #detectCanvas class="pdf-preview__detect-overlay"
+          [class.visible]="showDetectOverlay"
+          (click)="onDetectCanvasClick($event)"></canvas>
+      </div>
       <div class="pdf-preview__detect-toolbar">
         <button class="pdf-preview__detect-btn" (click)="detectPanels()" [disabled]="detecting">
           {{ detecting ? 'Scanning...' : showDetectOverlay ? 'Re-scan' : 'Detect Panels' }}

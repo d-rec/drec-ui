@@ -231,6 +231,7 @@
       </div>
       <app-map
         #mapComponent
+        [selectedExternalId]="selectedExternalId"
         (markerClicked)="onMarkerClick($event)"
       ></app-map>
       <hr />

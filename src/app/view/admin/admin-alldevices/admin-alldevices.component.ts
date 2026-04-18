@@ -94,6 +94,7 @@ export class AdminAlldevicesComponent {
   hideMap: boolean = false;
   hideFilterDevices: boolean = true;
   showResetMapFilter: boolean = false;
+  selectedExternalId: string | null = null;
   constructor(
     private authService: AuthbaseService,
     private deviceService: DeviceService,
@@ -327,6 +328,7 @@ export class AdminAlldevicesComponent {
   }
   clearSearch() {
     this.searchText = '';
+    this.selectedExternalId = null;
     if (this.dataSource) {
       this.dataSource.filter = '';
     }
@@ -489,6 +491,7 @@ export class AdminAlldevicesComponent {
 
   onMarkerClick(event: { externalId: string }) {
     this.showResetMapFilter = true;
+    this.selectedExternalId = event.externalId;
     this.dataSource.filter = event.externalId.trim().toLowerCase();
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
@@ -497,6 +500,7 @@ export class AdminAlldevicesComponent {
   }
 
   resetMapFilter() {
+    this.selectedExternalId = null;
     this.dataSource.filter = '';
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();

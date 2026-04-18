@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, NgZone } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { environment } from '../../../environments/environment';
@@ -64,13 +64,14 @@ export function satellitePreview(lat: number, lng: number, zoom: number = 19): S
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
-export class MapComponent implements OnInit, OnDestroy {
+export class MapComponent implements OnInit, OnChanges, OnDestroy {
   @Input() markers: MapMarker[] = [];
   @Input() zoom: number = 2;
   @Input() satellite = false;
   @Input() scrollWheelZoom = false;
   @Input() satPreviewEnabled = true;
   @Input() centerPin = false;
+  @Input() selectedExternalId: string | null = null;
   @Output() markerClicked = new EventEmitter();
   @Output() centerChanged = new EventEmitter<{ lat: number; lng: number }>();
   @Output() mapDragging = new EventEmitter<boolean>();
@@ -197,10 +198,31 @@ export class MapComponent implements OnInit, OnDestroy {
     this.tileObserver.observe(tilePane, { childList: true, subtree: true });
   }
 
-  ngOnChanges(): void {
-    if (this.isMapInitialized) {
-      this.update();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.isMapInitialized) return;
+    // When only the selection changed, swap icons in place — don't re-fit
+    // bounds or we'd undo any user pan/zoom.
+    const onlySelectionChanged =
+      !!changes['selectedExternalId'] &&
+      !changes['markers'] &&
+      !changes['zoom'] &&
+      !changes['satellite'];
+    if (onlySelectionChanged && !this.centerPin) {
+      this.refreshMarkerHighlight();
+      return;
     }
+    this.update();
+  }
+
+  private refreshMarkerHighlight(): void {
+    this.markerGroup.eachLayer((layer) => {
+      const marker = layer as L.Marker;
+      const id = marker.options.title || '';
+      const isSelected =
+        !!this.selectedExternalId && id === this.selectedExternalId;
+      marker.setIcon(mapPinIcon(undefined, isSelected));
+      marker.setZIndexOffset(isSelected ? 1000 : 0);
+    });
   }
 
   private centerPinInitialized = false;
@@ -825,9 +847,12 @@ export class MapComponent implements OnInit, OnDestroy {
         return;
       }
 
+      const isSelected =
+        !!this.selectedExternalId && externalId === this.selectedExternalId;
       const marker = L.marker([latitude, longitude], {
         title: externalId,
-        icon: mapPinIcon(),
+        icon: mapPinIcon(undefined, isSelected),
+        zIndexOffset: isSelected ? 1000 : 0,
       });
 
       const label = siteName || externalId || '';

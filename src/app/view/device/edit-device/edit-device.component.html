@@ -622,31 +622,19 @@
               </div>
 
               <div class="col-md-4 mb-3">
-                <label>(46/47) SF-02C Owner's Declaration or Proof of Ownership
+                <label>(46) SF-02C (I-REC declaration form)
                   <span class="badge-{{getDocRequirement('SF_02C')}}">{{getDocRequirement('SF_02C')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('SF_02C')">{{getDocHint('SF_02C')}}</small>
-                <p class="checklist-intro">Select the type of file(s) you are providing:</p>
-                <div class="doc-checklist">
-                  <label class="checklist-item checklist-item--radio">
-                    <input type="radio" name="sf02cType" [value]="'declaration'" [(ngModel)]="sf02cType" [ngModelOptions]="{standalone: true}" />
-                    <span>Owner's Declaration letter (SF-02C)</span>
-                  </label>
-                  <label class="checklist-item checklist-item--radio">
-                    <input type="radio" name="sf02cType" [value]="'ownership'" [(ngModel)]="sf02cType" [ngModelOptions]="{standalone: true}" />
-                    <span>Proof of Ownership</span>
-                  </label>
-                </div>
-                <div class="d-flex justify-content-between align-items-center doc-box" [class.doc-box--disabled]="!sf02cReady()">
-                  <input type="file" #ownershipFileInput (change)="onFileChange($event, DocumentType.SF_02C)"
+                <div class="d-flex justify-content-between align-items-center doc-box">
+                  <input type="file" #sf02cFileInput (change)="onFileChange($event, DocumentType.SF_02C)"
                     style="display: none" />
-                  <button type="button" (click)="ownershipFileInput.click()" class="btn btn-primary" [disabled]="!sf02cReady()">
+                  <button type="button" (click)="sf02cFileInput.click()" class="btn btn-primary">
                     <mat-icon>attach_file</mat-icon>
                   </button>
                   <span class="file-name" [class.file-name--missing]="!files['SF_02C']?.length && brokenDocs['SF_02C']">
                     {{ files['SF_02C']?.[0]?.name || existingDocLabel('SF_02C') }}
                   </span>
-                  <span *ngIf="!sf02cReady() && !files['SF_02C']?.length" class="checklist-gate">Review and tick all requirements above to enable the file uploader.</span>
                   <span *ngIf="!files['SF_02C']?.length && brokenDocs['SF_02C']"
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
@@ -654,6 +642,32 @@
                   <button *ngIf="filePreviews['SF_02C']" type="button"
                     class="badge bg-success text-white px-3 py-2 preview-btn"
                     (click)="openPreview('SF_02C')">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label>(47) Owner's Declaration / Proof of Ownership
+                  <span class="badge-{{getDocRequirement('SF_02C_OWNERS_DECLARATION')}}">{{getDocRequirement('SF_02C_OWNERS_DECLARATION')}}</span>
+                </label>
+                <small class="doc-hint" *ngIf="getDocHint('SF_02C_OWNERS_DECLARATION')">{{getDocHint('SF_02C_OWNERS_DECLARATION')}}</small>
+                <div class="d-flex justify-content-between align-items-center doc-box">
+                  <input type="file" #ownersDeclarationFileInput (change)="onFileChange($event, DocumentType.SF_02C_OWNERS_DECLARATION)"
+                    style="display: none" />
+                  <button type="button" (click)="ownersDeclarationFileInput.click()" class="btn btn-primary">
+                    <mat-icon>attach_file</mat-icon>
+                  </button>
+                  <span class="file-name" [class.file-name--missing]="!files['SF_02C_OWNERS_DECLARATION']?.length && brokenDocs['SF_02C_OWNERS_DECLARATION']">
+                    {{ files['SF_02C_OWNERS_DECLARATION']?.[0]?.name || existingDocLabel('SF_02C_OWNERS_DECLARATION') }}
+                  </span>
+                  <span *ngIf="!files['SF_02C_OWNERS_DECLARATION']?.length && brokenDocs['SF_02C_OWNERS_DECLARATION']"
+                    class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
+                  </span>
+                  <button *ngIf="filePreviews['SF_02C_OWNERS_DECLARATION']" type="button"
+                    class="badge bg-success text-white px-3 py-2 preview-btn"
+                    (click)="openPreview('SF_02C_OWNERS_DECLARATION')">
                     <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                   </button>
                 </div>
@@ -830,8 +844,10 @@
                   <button type="button" (click)="otherDocsFileInput.click()" class="btn btn-primary">
                     <mat-icon>attach_file</mat-icon>
                   </button>
-                  <span class="file-name" [class.text-muted]="!files['OTHER_DOCUMENTS']?.length">
-                    {{ files['OTHER_DOCUMENTS']?.[0]?.name || '' }}
+                  <span class="file-name" [class.text-muted]="!files['OTHER_DOCUMENTS']?.length && !existingDocs['OTHER_DOCUMENTS']?.length">
+                    {{ (files['OTHER_DOCUMENTS']?.length || 0) > 1
+                      ? files['OTHER_DOCUMENTS'].length + ' files selected'
+                      : (files['OTHER_DOCUMENTS']?.[0]?.name || existingDocLabel('OTHER_DOCUMENTS')) }}
                   </span>
                 </div>
               </div>

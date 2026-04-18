@@ -38,7 +38,7 @@
         <span class="picw__detect-error" *ngIf="detectError">{{ detectError }}</span>
       </div>
       <div class="picw__image-area" [class.picw__image-area--with-text]="ocrText">
-        <div class="picw__image-wrap">
+        <div class="picw__image-wrap" appImageZoomPan [resetKey]="url" title="Scroll to zoom, drag to pan, double-click to reset">
           <img #imgEl class="picw__img" [src]="url" alt="Device picture" crossorigin="anonymous" />
           <canvas #overlayCanvas class="picw__overlay" [class.visible]="showOverlay" (click)="onCanvasClick($event)"></canvas>
         </div>

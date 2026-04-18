@@ -101,6 +101,7 @@ export class AlldevicesComponent {
   hideMap: boolean = false;
   hideFilterDevices: boolean = true;
   showResetMapFilter = false;
+  selectedExternalId: string | null = null;
   deviceChats = new Set<string>();
   selection = new SelectionModel<any>(true, []);
   bulkDeleting: boolean = false;
@@ -249,6 +250,7 @@ export class AlldevicesComponent {
 
   clearSearch() {
     this.searchText = '';
+    this.selectedExternalId = null;
     this.refreshFilter();
   }
 
@@ -614,6 +616,7 @@ export class AlldevicesComponent {
 
   onMarkerClick(event: { externalId: string }) {
     this.showResetMapFilter = true;
+    this.selectedExternalId = event.externalId;
     this.searchText = event.externalId;
     // Clear status filters so the single device is always visible regardless of its status
     this.reviewStatusFilters.clear();
@@ -644,6 +647,7 @@ export class AlldevicesComponent {
 
   resetMapFilter() {
     this.searchText = '';
+    this.selectedExternalId = null;
     this.reviewStatusFilters = new Set(['pending']);
     this.refreshFilter();
     if (this.dataSource.paginator) {

@@ -139,6 +139,10 @@ export class OcChecklistPanelComponent implements OnInit, OnChanges, AfterViewIn
 
   trackRow = (_: number, r: OcRow) => r.n;
 
+  combinedHint(r: OcRow): string {
+    return [r.hint, r.compare].filter(Boolean).join(' — ');
+  }
+
   private persist(): void {
     if (!this.storageKey) return;
     try {

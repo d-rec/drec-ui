@@ -18,11 +18,12 @@ import { HttpClient } from '@angular/common/http';
 import { retry, timer } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { OrgApiLicensesService } from '../../auth/services/org-api-licenses.service';
+import { ImageZoomPanDirective } from '../directives/image-zoom-pan.directive';
 
 @Component({
   standalone: true,
   selector: 'app-pdf-preview',
-  imports: [CommonModule, FormsModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [CommonModule, FormsModule, MatIconModule, MatProgressSpinnerModule, ImageZoomPanDirective],
   templateUrl: './pdf-preview.component.html',
   styleUrls: ['./pdf-preview.component.scss'],
 })

@@ -151,7 +151,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   sectionOpen: Record<
     string,
     Record<
-      'codProof' | 'sld' | 'sf02' | 'sf02c' | 'meteringEvidence' | 'pictures' | 'screenshots',
+      'codProof' | 'sld' | 'sf02' | 'sf02c' | 'sf02cOwnersDeclaration' | 'meteringEvidence' | 'pictures' | 'screenshots' | 'otherDocuments',
       boolean
     >
   > = {};
@@ -444,9 +444,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
             sld: true,
             sf02: true,
             sf02c: true,
+            sf02cOwnersDeclaration: true,
             meteringEvidence: true,
             pictures: true,
             screenshots: true,
+            otherDocuments: true,
           };
         }
         this.cdr.detectChanges();
@@ -561,9 +563,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           a.sldUrl,
           a.sf02Url,
           a.sf02cUrl,
+          a.sf02cOwnersDeclarationUrl,
           ...a.meteringEvidenceUrls,
           ...a.pictureUrls,
           ...a.screenshotUrls,
+          ...a.otherDocumentUrls,
         ]
           .filter((u): u is string => !!u)
           .map((u) => this.fileName(u));
@@ -639,9 +643,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         sld: true,
         sf02: true,
         sf02c: true,
+        sf02cOwnersDeclaration: true,
         meteringEvidence: true,
         pictures: true,
         screenshots: true,
+        otherDocuments: true,
       };
     }
     this.svc.select(id);
@@ -654,9 +660,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       | 'sld'
       | 'sf02'
       | 'sf02c'
+      | 'sf02cOwnersDeclaration'
       | 'meteringEvidence'
       | 'pictures'
-      | 'screenshots',
+      | 'screenshots'
+      | 'otherDocuments',
   ): void {
     if (!this.sectionOpen[id]) {
       this.sectionOpen[id] = {
@@ -664,9 +672,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         sld: true,
         sf02: true,
         sf02c: true,
+        sf02cOwnersDeclaration: true,
         meteringEvidence: true,
         pictures: true,
         screenshots: true,
+        otherDocuments: true,
       };
     }
     this.sectionOpen = {
@@ -685,9 +695,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       | 'sld'
       | 'sf02'
       | 'sf02c'
+      | 'sf02cOwnersDeclaration'
       | 'meteringEvidence'
       | 'pictures'
-      | 'screenshots',
+      | 'screenshots'
+      | 'otherDocuments',
   ): boolean {
     return this.sectionOpen[id]?.[section] ?? true;
   }
@@ -849,6 +861,26 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.requestDelete(asset, 'sf02c', 'sf02cUrl');
   }
 
+  onSf02cOwnersDeclarationChange(asset: Asset, event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.uploadAndRefresh(asset, 'SF_02C_OWNERS_DECLARATION', file);
+  }
+
+  clearSf02cOwnersDeclaration(asset: Asset): void {
+    this.requestDelete(asset, 'sf02cOwnersDeclaration', 'sf02cOwnersDeclarationUrl');
+  }
+
+  onOtherDocumentAdd(asset: Asset, event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.uploadAndRefresh(asset, 'OTHER_DOCUMENTS', file);
+  }
+
+  clearOtherDocument(asset: Asset, idx: number): void {
+    this.requestDelete(asset, `otherDoc:${idx}`, 'otherDocumentUrls', idx);
+  }
+
   onMeteringEvidenceChange(asset: Asset, event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
@@ -983,10 +1015,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       if (a.sldUrl) urls.push(a.sldUrl);
       if (a.sf02Url) urls.push(a.sf02Url);
       if (a.sf02cUrl) urls.push(a.sf02cUrl);
+      if (a.sf02cOwnersDeclarationUrl) urls.push(a.sf02cOwnersDeclarationUrl);
       if (a.codProofUrl) urls.push(a.codProofUrl);
       for (const u of a.meteringEvidenceUrls) urls.push(u);
       for (const u of a.pictureUrls) urls.push(u);
       for (const u of a.screenshotUrls) urls.push(u);
+      for (const u of a.otherDocumentUrls) urls.push(u);
     }
     for (const url of urls) {
       if (this.brokenUrls.has(url)) continue;
@@ -1607,11 +1641,13 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       sld: 'SLD',
       sf02: 'SF-02',
       sf02c: 'SF-02C',
+      sf02cOwnersDeclaration: "Owner's Declaration",
       codProof: 'COD Proof',
       meteringEvidence: 'Metering Evidence',
     };
     const parts = key.split(':');
     if (parts[1] === 'pic') return `Picture #${parseInt(parts[2], 10) + 1}`;
+    if (parts[1] === 'otherDoc') return `Other Document #${parseInt(parts[2], 10) + 1}`;
     return labels[parts[1]] || parts[1];
   }
 
@@ -1911,10 +1947,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         'SLD': a.sldUrl ? 'Yes' : '',
         'SF-02': a.sf02Url ? 'Yes' : '',
         'SF-02C': a.sf02cUrl ? 'Yes' : '',
+        "Owner's Declaration": a.sf02cOwnersDeclarationUrl ? 'Yes' : '',
         'COD Proof': a.codProofUrl ? 'Yes' : '',
         'Metering Evidence': a.meteringEvidenceUrls.length || '',
         'Pictures': a.pictureUrls.length || '',
         'Screenshots': a.screenshotUrls.length || '',
+        'Other Documents': a.otherDocumentUrls.length || '',
       }));
       const ws = XLSX.utils.json_to_sheet(rows);
       // Auto-width columns

@@ -156,6 +156,21 @@
             <span *ngIf="!item.sf02cUrl" class="missing-tag">missing</span>
           </div>
 
+          <!-- ── Owner's Declaration / Proof of Ownership ─────────────────────── -->
+          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.sf02cOwnersDeclarationUrl" (dblclick)="item.sf02cOwnersDeclarationUrl && openFile(item.sf02cOwnersDeclarationUrl, $event)" (keydown.enter)="item.sf02cOwnersDeclarationUrl && openFile(item.sf02cOwnersDeclarationUrl, $event)" tabindex="0">
+            <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02cOwnersDeclaration']" [class.review-check--disabled]="!item.sf02cOwnersDeclarationUrl" role="checkbox" [attr.tabindex]="item.sf02cOwnersDeclarationUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02cOwnersDeclaration']" [attr.aria-disabled]="!item.sf02cOwnersDeclarationUrl" (click)="item.sf02cOwnersDeclarationUrl && toggleReviewed(item.id + ':sf02cOwnersDeclaration', $event)" (keydown.enter)="item.sf02cOwnersDeclarationUrl && toggleReviewed(item.id + ':sf02cOwnersDeclaration', $event)" title="Mark as reviewed">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02cOwnersDeclaration']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="doc-label" title="Owner's Declaration / Proof of Ownership">Owner's Declaration</span>
+            <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SF_02C_OWNERS_DECLARATION', item.operatingConfiguration, !!item.sf02cOwnersDeclarationUrl) }}" [title]="getDocHint('SF_02C_OWNERS_DECLARATION', item.operatingConfiguration) || ''">{{ getReqStatus('SF_02C_OWNERS_DECLARATION', item.operatingConfiguration, !!item.sf02cOwnersDeclarationUrl) }}</span>
+            <ng-container *ngIf="item.sf02cOwnersDeclarationUrl">
+              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
+              <span class="file-name" [innerHTML]="hl(fileName(item.sf02cOwnersDeclarationUrl!), result.searchTerm)"></span>
+              <span *ngIf="isBroken(item.sf02cOwnersDeclarationUrl)" class="missing-tag">(missing)</span>
+            </ng-container>
+            <span *ngIf="!item.sf02cOwnersDeclarationUrl" class="missing-tag">missing</span>
+          </div>
+
           <!-- ── COD Proof ────────────────────────────────────────────────────── -->
           <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.codProofUrl" (dblclick)="item.codProofUrl && openFile(item.codProofUrl, $event)" (keydown.enter)="item.codProofUrl && openFile(item.codProofUrl, $event)" tabindex="0">
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':codProof']" [class.review-check--disabled]="!item.codProofUrl" role="checkbox" [attr.tabindex]="item.codProofUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':codProof']" [attr.aria-disabled]="!item.codProofUrl" (click)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" (keydown.enter)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" title="Mark as reviewed">
@@ -240,6 +255,29 @@
               <span class="file-name" [innerHTML]="hl(fileName(url), result.searchTerm)"></span>
             </div>
             <div *ngIf="!item.screenshotUrls.length" class="dr-row dr-row--empty">No screenshots</div>
+          </ng-container>
+
+          <!-- ── Other Documents section ─────────────────────────────────────── -->
+          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'otherDocuments')" (keydown.enter)="toggleSection(item.id, 'otherDocuments')">
+            <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'otherDocuments')">&#8250;</span>
+            <span class="section-label">Other Documents</span>
+            <span *ngIf="item.otherDocumentUrls.length" class="section-count">({{ item.otherDocumentUrls.length }})</span>
+          </div>
+          <ng-container *ngIf="isSectionOpen(item.id, 'otherDocuments')">
+            <div
+              *ngFor="let url of item.otherDocumentUrls; let i = index; trackBy: trackByIndex"
+              class="dr-row dr-row--file"
+              (dblclick)="openFile(url, $event)"
+              (keydown.enter)="openFile(url, $event)"
+            >
+              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':otherDoc:' + i]" [class.review-check--done]="reviewed[item.id + ':otherDoc:' + i]" (click)="toggleReviewed(item.id + ':otherDoc:' + i, $event)" (keydown.enter)="toggleReviewed(item.id + ':otherDoc:' + i, $event)" title="Mark as reviewed">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':otherDoc:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+              <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
+              <span class="file-name" [innerHTML]="hl(fileName(url), result.searchTerm)"></span>
+              <span *ngIf="isBroken(url)" class="missing-tag">(missing)</span>
+            </div>
+            <div *ngIf="!item.otherDocumentUrls.length" class="dr-row dr-row--empty">None</div>
           </ng-container>
 
         </div><!-- /.expanded-block -->

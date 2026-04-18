@@ -250,7 +250,7 @@
         </form>
         <hr />
       </div>
-      <app-map [scrollWheelZoom]="true" [satPreviewEnabled]="satPreviewEnabled" (markerClicked)="onMarkerClick($event)"></app-map>
+      <app-map [scrollWheelZoom]="true" [satPreviewEnabled]="satPreviewEnabled" [selectedExternalId]="selectedExternalId" (markerClicked)="onMarkerClick($event)"></app-map>
       <hr />
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
         <mat-form-field appearance="outline" subscriptSizing="dynamic" style="width: 25%; text-align: left">

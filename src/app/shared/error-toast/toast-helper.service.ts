@@ -8,6 +8,7 @@ export class ToastHelperService {
 
   error(message: string, title?: string, override?: Partial<IndividualConfig>) {
     return this.toastr.error(message, title, {
+      timeOut: 30000,
       ...override,
       toastComponent: ErrorToastComponent,
     });
