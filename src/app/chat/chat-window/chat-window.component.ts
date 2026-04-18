@@ -262,8 +262,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onContextMenu(event: MouseEvent): void {
-    // Only show context menu when in device-reviews context (siteName is set)
+    // Only show custom context menu when in device-reviews context (siteName is set)
     if (!this.chatService.siteName$.value) return;
+    // If the user has text selected, let the browser's native menu show (Copy, etc.)
+    if (!window.getSelection()?.isCollapsed) return;
     event.preventDefault();
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     this.contextMenuX = event.clientX - rect.left;
