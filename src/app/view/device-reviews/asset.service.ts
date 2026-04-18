@@ -23,6 +23,12 @@ export class AssetService {
   readonly viewPdfUrl$ = new BehaviorSubject<string | null>(null);
   /** When non-null, the PDF window should show SLD capacity compare for this device. */
   readonly sldDeviceId$ = new BehaviorSubject<number | null>(null);
+  /** When non-null, the device-info floating window should load & show this device. */
+  readonly viewDeviceInfoId$ = new BehaviorSubject<number | null>(null);
+
+  viewDeviceInfo(deviceId: number | null): void {
+    this.viewDeviceInfoId$.next(deviceId);
+  }
   readonly flyTo$ = new ReplaySubject<{ lat: number; lng: number }>(1);
   readonly loading$ = new BehaviorSubject<boolean>(false);
   readonly error$ = new BehaviorSubject<string | null>(null);

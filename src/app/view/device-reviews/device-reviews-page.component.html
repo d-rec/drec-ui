@@ -1,5 +1,5 @@
-<div class="ds-page">
-  <ng-container *ngIf="canReview; else chatListView">
+<ng-container *ngIf="canReview; else chatListView">
+  <div class="ds-page">
     <div class="ds-tabs">
       <button class="ds-tab" [class.ds-tab--active]="activeTab === 'reviews'" (click)="activeTab = 'reviews'">Device Reviews</button>
       <button class="ds-tab" [class.ds-tab--active]="activeTab === 'map'" (click)="activeTab = 'map'">World Map</button>
@@ -7,14 +7,17 @@
     <div class="ds-content">
       <app-ds-documents-window *ngIf="activeTab === 'reviews'"></app-ds-documents-window>
       <app-ds-map-window       *ngIf="activeTab === 'map'" (onPinClick)="onMapPinClick($event)"></app-ds-map-window>
-      <app-ds-satellite-window *ngIf="showSatellite" [zIndex]="z.satellite" (bringToFront)="bringToFront('satellite')" (close)="showSatellite=false"></app-ds-satellite-window>
-      <app-ds-picture-window   [zIndex]="z.picture"   (bringToFront)="bringToFront('picture')"></app-ds-picture-window>
-      <app-ds-pdf-window       [zIndex]="z.pdf"       (bringToFront)="bringToFront('pdf')"></app-ds-pdf-window>
     </div>
-  </ng-container>
-  <ng-template #chatListView>
+  </div>
+  <app-ds-satellite-window   *ngIf="showSatellite" [zIndex]="z.satellite"  (bringToFront)="bringToFront('satellite')" (close)="showSatellite=false"></app-ds-satellite-window>
+  <app-ds-device-info-window [zIndex]="z.deviceInfo" (bringToFront)="bringToFront('deviceInfo')"></app-ds-device-info-window>
+  <app-ds-picture-window     [zIndex]="z.picture"    (bringToFront)="bringToFront('picture')"></app-ds-picture-window>
+  <app-ds-pdf-window         [zIndex]="z.pdf"        (bringToFront)="bringToFront('pdf')"></app-ds-pdf-window>
+</ng-container>
+<ng-template #chatListView>
+  <div class="ds-page">
     <div class="ds-content">
       <app-ds-chat-list></app-ds-chat-list>
     </div>
-  </ng-template>
-</div>
+  </div>
+</ng-template>

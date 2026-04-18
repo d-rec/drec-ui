@@ -25,7 +25,6 @@ import {
   getEvidenceRequirements,
   getHint,
 } from '../../../utils/evidence-requirements';
-import { satellitePreview, SatellitePreview } from '../../map/map.component';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -169,10 +168,6 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   detailForm!: FormGroup;
   editingId: string | null = null;
   editingSiteName: string | null = null;
-  showDeviceInfoModal = false;
-  deviceInfo: any = null;
-  deviceInfoLoading = false;
-  deviceInfoSatPreview: SatellitePreview | null = null;
   showApproveModal = false;
   showApprovedInfoModal = false;
   showUnreviewedWarning = false;
@@ -1242,38 +1237,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.showApprovedInfoModal = false;
   }
 
-  copyDeviceInfo(): void {
-    const el = document.querySelector('.device-info-modal__body');
-    if (!el) return;
-    navigator.clipboard.writeText(el.textContent?.trim() || '').then(() => {
-      this.toastr.success('Copied to clipboard');
-    });
-  }
-
   openDeviceInfo(): void {
     if (!this.editingId) return;
     const deviceId = parseInt(this.editingId, 10);
     if (isNaN(deviceId)) return;
-    this.deviceInfo = null;
-    this.deviceInfoSatPreview = null;
-    this.deviceInfoLoading = true;
-    this.showDeviceInfoModal = true;
-    this.http.get<any>(`${environment.API_URL}device/${deviceId}`).subscribe({
-      next: (data) => {
-        this.deviceInfo = data;
-        this.deviceInfoLoading = false;
-        const lat = parseFloat(data.latitude);
-        const lng = parseFloat(data.longitude);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          this.deviceInfoSatPreview = satellitePreview(lat, lng, 19);
-        }
-      },
-      error: (err) => {
-        this.deviceInfoLoading = false;
-        const msg = err?.error?.message || err?.statusText || err?.message || 'Unknown error';
-        this.toastr.error(`Failed to load device details: ${msg}`);
-      },
-    });
+    this.svc.viewDeviceInfo(deviceId);
   }
 
   screenDuplicates(): void {

@@ -4,9 +4,12 @@ import {
   Output,
   EventEmitter,
   OnInit,
+  AfterViewInit,
+  OnDestroy,
   ChangeDetectionStrategy,
   HostListener,
   ChangeDetectorRef,
+  ElementRef,
 } from '@angular/core';
 
 @Component({
@@ -16,7 +19,7 @@ import {
   styleUrls: ['./floating-window.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FloatingWindowComponent implements OnInit {
+export class FloatingWindowComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() title = '';
   @Input() initX = 20;
   @Input() initY = 20;
@@ -41,13 +44,33 @@ export class FloatingWindowComponent implements OnInit {
   private resizeStartW = 0;
   private resizeStartH = 0;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private elementRef: ElementRef<HTMLElement>,
+  ) {}
 
   ngOnInit(): void {
     this.x = this.initX;
     this.y = Math.max(0, this.initY);
     this.width = this.initWidth;
     this.height = this.initHeight;
+  }
+
+  /**
+   * Move the host element to document.body so the window escapes every
+   * ancestor stacking context (e.g. mat-sidenav-container's z-index:0).
+   * Without this, the window z-index can't beat the app header/sidenav.
+   */
+  ngAfterViewInit(): void {
+    const host = this.elementRef.nativeElement;
+    if (host.parentNode !== document.body) {
+      document.body.appendChild(host);
+    }
+  }
+
+  ngOnDestroy(): void {
+    const host = this.elementRef.nativeElement;
+    host.parentNode?.removeChild(host);
   }
 
   onTitlebarMousedown(event: MouseEvent): void {

@@ -9,7 +9,7 @@ import { AssetService } from './asset.service';
   styleUrls: ['./device-reviews-page.component.scss'],
 })
 export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
-  z = { map: 200, satellite: 150, documents: 300, picture: 400, pdf: 450 };
+  z = { map: 200, satellite: 150, documents: 300, deviceInfo: 350, picture: 400, pdf: 450 };
   activeTab: 'reviews' | 'map' = 'reviews';
   showSatellite = false;
   isAdmin = false;
@@ -45,7 +45,7 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
     this.svc.expand(assetId);
   }
 
-  bringToFront(win: 'map' | 'satellite' | 'documents' | 'picture' | 'pdf'): void {
+  bringToFront(win: 'map' | 'satellite' | 'documents' | 'deviceInfo' | 'picture' | 'pdf'): void {
     const max = Math.max(...Object.values(this.z));
     this.z = { ...this.z, [win]: max + 1 };
   }

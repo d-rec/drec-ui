@@ -1,0 +1,100 @@
+<ng-container *ngIf="(svc.viewDeviceInfoId$ | async) !== null">
+  <app-ds-floating-window
+    title="Device Details"
+    [initX]="80"
+    [initY]="60"
+    [initWidth]="360"
+    [initHeight]="640"
+    [zIndex]="zIndex"
+    (bringToFront)="bringToFront.emit()"
+    (close)="close()"
+  >
+    <div class="di">
+      <div class="di__search">
+        <input
+          type="search"
+          class="di__search-input"
+          placeholder="Search fields..."
+          [(ngModel)]="search"
+          (keydown.escape)="search = ''"
+        />
+        <button
+          *ngIf="search"
+          type="button"
+          class="di__search-clear"
+          (click)="search = ''"
+          title="Clear"
+        >&times;</button>
+      </div>
+
+      <div class="di__body">
+        <div *ngIf="loading" class="di__loading">Loading…</div>
+
+        <ng-container *ngIf="deviceInfo && !loading">
+          <ng-container
+            *ngFor="let section of filteredSections; trackBy: trackSection"
+          >
+            <h3 class="di__heading">{{ section.heading }}</h3>
+            <p
+              *ngFor="let f of section.fields; trackBy: trackField"
+              class="di__field"
+            >
+              <b>{{ f.label }}</b>: {{ f.value || '—' }}
+            </p>
+
+            <div
+              *ngIf="section.showSatPreview && satPreview && !search"
+              class="di__sat"
+            >
+              <div
+                class="di__sat-wrap"
+                [style.left.px]="satPreview.offsetX"
+                [style.top.px]="satPreview.offsetY"
+              >
+                <img
+                  *ngFor="let t of satPreview.tiles"
+                  [src]="t.url"
+                  width="256"
+                  height="256"
+                  [style.position]="'absolute'"
+                  [style.left.px]="t.left"
+                  [style.top.px]="t.top"
+                  alt=""
+                />
+              </div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="30"
+                viewBox="0 0 24 36"
+                class="di__sat-pin"
+              >
+                <path
+                  d="M12 0C5.373 0 0 5.373 0 12c0 8.25 12 24 12 24S24 20.25 24 12C24 5.373 18.627 0 12 0z"
+                  fill="#e53e3e"
+                  stroke="#fff"
+                  stroke-width="1.5"
+                />
+                <circle cx="12" cy="12" r="5" fill="#fff" fill-opacity="0.85" />
+              </svg>
+            </div>
+          </ng-container>
+
+          <p
+            *ngIf="search && filteredSections.length === 0"
+            class="di__empty"
+          >
+            No fields match "{{ search }}".
+          </p>
+        </ng-container>
+      </div>
+
+      <div class="di__footer">
+        <button type="button" class="di__btn" (click)="copyVisible()">Copy</button>
+        <button type="button" class="di__btn di__btn--primary" (click)="close()">
+          Close
+        </button>
+      </div>
+    </div>
+  </app-ds-floating-window>
+</ng-container>
