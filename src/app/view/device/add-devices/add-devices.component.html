@@ -57,7 +57,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label test-id="project-name">(1) Site Name <span class="fn">(1)</span></mat-label>
+                      <mat-label test-id="project-name">(1) Site Name</mat-label>
                       <input matInput autocomplete="off" formControlName="siteName" />
                     </mat-form-field>
                     <div *ngIf="siteNameExists[i]" class="text-danger" style="font-size:11px;margin-top:-4px">
@@ -75,7 +75,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline" class="w-100" test-id="data-source">
-                      <mat-label>Data Source <span class="fn">(26)</span></mat-label>
+                      <mat-label>Data Source</mat-label>
                       <mat-select formControlName="dataSource">
                         <mat-option [value]="DataSourceTypes.Inverter" test-id="data-source-options">Inverter</mat-option>
                         <mat-option [value]="DataSourceTypes.DataLogger">Data Logger</mat-option>
@@ -86,7 +86,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('dataSource')?.value === DataSourceTypes.Other">
                     <mat-form-field appearance="outline" class="w-100">
-                      <mat-label>Other Data Source <span class="fn">(26)</span></mat-label>
+                      <mat-label>Other Data Source</mat-label>
                       <input matInput placeholder="Specify Other Data Source" formControlName="otherDataSource" />
                     </mat-form-field>
                   </div>
@@ -105,27 +105,27 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="address">(2) Address <span class="fn">(10)</span></mat-label>
+                      <mat-label class="text-capitalize" test-id="address">(2) Address</mat-label>
                       <input autocomplete="off" matInput formControlName="address" />
                       <mat-error>Address is required</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">(3) State/Province/County <span class="fn">(11)</span></mat-label>
+                      <mat-label class="text-capitalize">(3) State/Province/County</mat-label>
                       <input matInput formControlName="stateProvince" autocomplete="off" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">(4) Postcode (Zip Code) <span class="fn">(12)</span></mat-label>
+                      <mat-label class="text-capitalize">(4) Postcode (Zip Code)</mat-label>
                       <input matInput type="string" formControlName="postcode" test-id="postcode" />
                       <mat-error>Please enter the valid postcode</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="select-country">(5) Select country <span class="fn">(9)</span>
+                      <mat-label class="text-capitalize" test-id="select-country">(5) Select country
                       </mat-label>
                       <input type="text" matInput formControlName="countryCodename" [matAutocomplete]="auto" />
                       <mat-autocomplete #auto="matAutocomplete">
@@ -141,7 +141,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline" [class.coord-adjusting]="mapAdjusting">
-                      <mat-label class="text-capitalize" test-id="latitude">(6) Latitude <span class="fn">(14)</span></mat-label>
+                      <mat-label class="text-capitalize" test-id="latitude">(6) Latitude</mat-label>
                       <input matInput formControlName="latitude"
                         matTooltip="Must provide at least six digits after the decimal; must land exactly on a solar panel"
                         matTooltipPosition="above" />
@@ -150,7 +150,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline" [class.coord-adjusting]="mapAdjusting">
-                      <mat-label class="text-capitalize" test-id="longitude">(7) Longitude <span class="fn">(15)</span></mat-label>
+                      <mat-label class="text-capitalize" test-id="longitude">(7) Longitude</mat-label>
                       <input matInput formControlName="longitude"
                         matTooltip="Must provide at least six digits after the decimal; must land exactly on a solar panel"
                         matTooltipPosition="above" />
@@ -179,7 +179,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">(8) Device Description <span class="fn">(5)</span></mat-label>
+                      <mat-label class="text-capitalize">(8) Device Description</mat-label>
                       <mat-select formControlName="deviceDescription" test-id="device-description">
                         <mat-option *ngFor="let code of devicedescription" [value]="code">
                           {{ code }}
@@ -189,14 +189,14 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label test-id="acCapacity">(9) AC Capacity (V) <span class="fn">(6)</span></mat-label>
+                      <mat-label test-id="acCapacity">(9) AC Capacity (V)</mat-label>
                       <input matInput type="number" formControlName="acCapacity" [min]="0" autocomplete="off" />
                       <mat-error>AC Capacity is required</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">(10) Commissioning Date <span class="fn">(7)</span></mat-label>
+                      <mat-label class="text-capitalize">(10) Commissioning Date</mat-label>
                       <input matInput [matDatepicker]="commPicker" placeholder="Choose a date"
                         formControlName="commissioningDate" [max]="maxDate" test-id="commissioning-date" />
                       <mat-datepicker-toggle matSuffix [for]="commPicker"></mat-datepicker-toggle>
@@ -206,7 +206,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="device-type">Device Type Code <span class="fn">(29)</span></mat-label>
+                      <mat-label class="text-capitalize" test-id="device-type">Device Type Code</mat-label>
                       <mat-select formControlName="deviceTypeCode">
                         <mat-option *ngFor="let code of devicetypelist" [value]="code.code" test-id="type-code-option">
                           {{ code.name }}
@@ -217,7 +217,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label test-id="capacity">Capacity(kW) <span class="fn">(6)</span></mat-label>
+                      <mat-label test-id="capacity">Capacity(kW)</mat-label>
                       <input matInput type="number" formControlName="capacity" [min]="1" autocomplete="off" />
                       <mat-error>Capacity is required</mat-error>
                     </mat-form-field>
@@ -232,7 +232,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="showinput[i]">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">Energy Storage Capacity <span class="fn">(6)</span></mat-label>
+                      <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
                       <input matInput autocomplete="off" type="number" formControlName="energyStorageCapacity"
                         test-id="energy-storage" />
                     </mat-form-field>
@@ -260,7 +260,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(11) Requested Eff. Reg. Date <span class="fn">(8)</span></mat-label>
+                      <mat-label>(11) Requested Eff. Reg. Date</mat-label>
                       <input matInput [matDatepicker]="regDatePicker" formControlName="requestedEffectiveRegDate"
                         matTooltip="Please provide the date from which you would like to begin issuing D-RECs for this facility; default is COD."
                         matTooltipPosition="above" />
@@ -270,7 +270,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(12) Default Account Code <span class="fn">(2)</span></mat-label>
+                      <mat-label>(12) Default Account Code</mat-label>
                       <input matInput formControlName="defaultAccountCode"
                         placeholder="Evident trade account code"
                         matTooltip="Please provide the Evident trade account code you would like this facility to issue into"
@@ -279,7 +279,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(13) Number of generating units <span class="fn">(33)</span></mat-label>
+                      <mat-label>(13) Number of generating units</mat-label>
                       <input matInput formControlName="generatingUnitCount" type="number" min="1"
                         matTooltip="Please provide the number of devices that output useable electricity at this facility (typically the inverters)"
                         matTooltipPosition="above" />
@@ -287,7 +287,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(14) Meter / Measurement ID(s) <span class="fn">(32)</span></mat-label>
+                      <mat-label>(14) Meter / Measurement ID(s)</mat-label>
                       <input matInput formControlName="meterIds"
                         placeholder="e.g. MTR-001, MTR-002"
                         matTooltip="Please provide the serial numbers for all devices from which metering evidence will be shared (e.g. inverters, smart meter, etc.)."
@@ -296,7 +296,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(15) Is this facility grid-connected? <span class="fn">(58)</span></mat-label>
+                      <mat-label>(15) Is this facility grid-connected?</mat-label>
                       <mat-select formControlName="isGridConnected">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -306,7 +306,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('isGridConnected')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>(16) Exports to grid? <span class="fn">(59)</span></mat-label>
+                      <mat-label>(16) Exports to grid?</mat-label>
                       <mat-select formControlName="gridExportType">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="No (zero-export)">No (zero-export)</mat-option>
@@ -317,7 +317,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(17) Network owner <span class="fn">(35)</span></mat-label>
+                      <mat-label>(17) Network owner</mat-label>
                       <input matInput formControlName="networkOwner"
                         matTooltip="If the facility is grid-connected, please provide the name of the utility or distribution network"
                         matTooltipPosition="above" />
@@ -325,7 +325,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(18) Interconnection voltage <span class="fn">(36)</span></mat-label>
+                      <mat-label>(18) Interconnection voltage</mat-label>
                       <input matInput formControlName="interconnectionVoltage"
                         matTooltip="If the facility is grid-connected, please provide the interconnection voltage"
                         matTooltipPosition="above" />
@@ -333,7 +333,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('isGridConnected')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>(19) Network meter installed? <span class="fn">(61)</span></mat-label>
+                      <mat-label>(19) Network meter installed?</mat-label>
                       <mat-select formControlName="hasNetworkMeter">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -343,7 +343,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasNetworkMeter')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>(20) Meter reads shareable via document? <span class="fn">(62)</span></mat-label>
+                      <mat-label>(20) Meter reads shareable via document?</mat-label>
                       <mat-select formControlName="meterReadsShareable"
                         matTooltip='If "yes", this must be provided as sample metering evidence'
                         matTooltipPosition="above">
@@ -355,13 +355,13 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(21) Non-meter import details <span class="fn">(47)</span></mat-label>
+                      <mat-label>(21) Non-meter import details</mat-label>
                       <input matInput formControlName="nonMeterImportDetails" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(22) Source Access Mode <span class="fn">(63)</span></mat-label>
+                      <mat-label>(22) Source Access Mode</mat-label>
                       <mat-select formControlName="sourceAccessMode"
                         matTooltip="Will require paragraph explaining what each mode means"
                         matTooltipPosition="above">
@@ -374,7 +374,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Operating Configuration <span class="fn">(60)</span></mat-label>
+                      <mat-label>Operating Configuration</mat-label>
                       <mat-select formControlName="operatingConfiguration" panelClass="wide-panel"
                         (selectionChange)="onOperatingConfigChange($event.value, i)">
                         <mat-option *ngFor="let oc of operatingConfigurations" [value]="oc">
@@ -384,7 +384,7 @@
                     </mat-form-field>
                   </div>
                   <div class="col-md-3 d-flex flex-column">
-                    <span>Grid Inter-connection: <span class="fn">(55)</span></span>
+                    <span>Grid Inter-connection:</span>
                     <mat-radio-group formControlName="gridInterconnection" test-id="grid-interconnection">
                       <mat-radio-button [value]="true">Yes</mat-radio-button>
                       <mat-radio-button [value]="false">No</mat-radio-button>
@@ -399,7 +399,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(23) Captive consumer present? <span class="fn">(43)</span></mat-label>
+                      <mat-label>(23) Captive consumer present?</mat-label>
                       <mat-select formControlName="hasCaptiveConsumer">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -409,7 +409,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(24) Auxiliary energy sources? <span class="fn">(45)</span></mat-label>
+                      <mat-label>(24) Auxiliary energy sources?</mat-label>
                       <mat-select formControlName="hasAuxiliaryEnergySources"
                         matTooltip="(typically a backup generator or battery)"
                         matTooltipPosition="above">
@@ -421,7 +421,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasAuxiliaryEnergySources')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>(25) Auxiliary source details <span class="fn">(46)</span></mat-label>
+                      <mat-label>(25) Auxiliary source details</mat-label>
                       <input matInput formControlName="auxiliaryEnergySourceDetails"
                         matTooltip="Describe the number of units, capacity per unit, and fuel source (e.g. 1 x 250kVA diesel generator)"
                         matTooltipPosition="above" />
@@ -429,7 +429,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(27) PV System Owner <span class="fn">(77)</span></mat-label>
+                      <mat-label>(27) PV System Owner</mat-label>
                       <input matInput formControlName="pvSystemOwner"
                         matTooltip='Please provide the legal name of the PV System Owner. This must match the "Proof of Ownership" documentation shared.'
                         matTooltipPosition="above" />
@@ -437,7 +437,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(28) Off-taker Name <span class="fn">(76)</span></mat-label>
+                      <mat-label>(28) Off-taker Name</mat-label>
                       <input matInput formControlName="offTakerName"
                         matTooltip="Please provide the legal name of the electricity off-taker"
                         matTooltipPosition="above" />
@@ -445,7 +445,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">(29) off Taker <span class="fn">(71)</span></mat-label>
+                      <mat-label class="text-capitalize">(29) off Taker</mat-label>
                       <mat-select formControlName="offTaker" test-id="off-taker">
                         <mat-option *ngFor="let code of offtaker" [value]="code">
                           {{ code }}
@@ -455,7 +455,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(30) Off-taker same company as PV owner? <span class="fn">(81)</span></mat-label>
+                      <mat-label>(30) Off-taker same company as PV owner?</mat-label>
                       <mat-select formControlName="offTakerSameCompanyAsOwner">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -465,14 +465,14 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(31) Other EAC scheme registration <span class="fn">(48)</span></mat-label>
+                      <mat-label>(31) Other EAC scheme registration</mat-label>
                       <input matInput formControlName="otherEacSchemeRegistration"
                         placeholder="Registration ID or 'None'" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(32) Public (government) funding? <span class="fn">(50)</span></mat-label>
+                      <mat-label>(32) Public (government) funding?</mat-label>
                       <mat-select formControlName="hasPublicFunding">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -482,7 +482,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasPublicFunding')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>(33) Public funding end date <span class="fn">(51)</span></mat-label>
+                      <mat-label>(33) Public funding end date</mat-label>
                       <input matInput [matDatepicker]="fundEnd" formControlName="publicFundingEndDate" />
                       <mat-datepicker-toggle matSuffix [for]="fundEnd"></mat-datepicker-toggle>
                       <mat-datepicker #fundEnd></mat-datepicker>
@@ -490,7 +490,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(34) Subsidy or incentive received? <span class="fn">(78)</span></mat-label>
+                      <mat-label>(34) Subsidy or incentive received?</mat-label>
                       <mat-select formControlName="hasSubsidy">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -500,7 +500,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasSubsidy')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>(35) Subsidy types <span class="fn">(79)</span></mat-label>
+                      <mat-label>(35) Subsidy types</mat-label>
                       <mat-select formControlName="subsidyTypes" multiple>
                         <mat-option value="Net Metering">Net Metering</mat-option>
                         <mat-option value="Feed In Tariff">Feed In Tariff</mat-option>
@@ -518,7 +518,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasSubsidy')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>(36) Subsidies claim env. attributes? <span class="fn">(80)</span></mat-label>
+                      <mat-label>(36) Subsidies claim env. attributes?</mat-label>
                       <mat-select formControlName="subsidyClaimsEacs">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -528,7 +528,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Public Funding Type <span class="fn">(§1.5)</span></mat-label>
+                      <mat-label>Public Funding Type</mat-label>
                       <mat-select formControlName="publicFundingType">
                         <mat-option [value]="null">-- Not specified --</mat-option>
                         <mat-option *ngFor="let pf of publicFundingTypes" [value]="pf">
@@ -546,7 +546,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(37) Labelling Scheme <span class="fn">(§1.5)</span></mat-label>
+                      <mat-label>(37) Labelling Scheme</mat-label>
                       <input matInput formControlName="labellingSchemeAccreditation"
                         placeholder="Scheme name or 'None'"
                         matTooltip="Please choose any other labels for which this site qualifies"
@@ -555,7 +555,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="SDGBenefits">(38) SDG Benefits <span class="fn">(73)</span></mat-label>
+                      <mat-label class="text-capitalize" test-id="SDGBenefits">(38) SDG Benefits</mat-label>
                       <mat-select formControlName="SDGBenefits" multiple
                         matTooltip="Please choose all applicable UN Sustainable Development Goals that this facility is promoting"
                         matTooltipPosition="above">
@@ -566,7 +566,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">(39) impact Story <span class="fn">(72)</span></mat-label>
+                      <mat-label class="text-capitalize">(39) impact Story</mat-label>
                       <textarea matInput formControlName="impactStory" test-id="impact-story" rows="3" autocomplete="off"
                         matTooltip="Describe the social, environmental, or economic impact of this device. For example: number of households served, displacement of diesel generators, improvement in local air quality, support for livelihoods, or contribution to community electrification goals."
                         matTooltipPosition="above"></textarea>
@@ -574,7 +574,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(40) Additional Information <span class="fn">(54)</span></mat-label>
+                      <mat-label>(40) Additional Information</mat-label>
                       <input matInput formControlName="additionalInfo"
                         matTooltip="Please provide any additional information that may be relevant to this facility's registration on Evident"
                         matTooltipPosition="above" />
@@ -582,19 +582,19 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>(41) Signatory name <span class="fn">(56)</span></mat-label>
+                      <mat-label>(41) Signatory name</mat-label>
                       <input matInput formControlName="signatoryName" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">Quality Labels <span class="fn">(9)</span></mat-label>
+                      <mat-label class="text-capitalize">Quality Labels</mat-label>
                       <input matInput formControlName="qualityLabels" test-id="quality" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Registration Type <span class="fn">(§1.1)</span></mat-label>
+                      <mat-label>Registration Type</mat-label>
                       <mat-select formControlName="registrationType">
                         <mat-option *ngFor="let rt of registrationTypes" [value]="rt">
                           {{ rt }}
@@ -604,7 +604,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Volume Evidence Type <span class="fn">(§1.3)</span></mat-label>
+                      <mat-label>Volume Evidence Type</mat-label>
                       <mat-select formControlName="volumeEvidenceType">
                         <mat-option *ngFor="let ve of volumeEvidenceTypes" [value]="ve">
                           {{ ve }}
@@ -614,13 +614,13 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Verification Agent <span class="fn">(§1.6)</span></mat-label>
+                      <mat-label>Verification Agent</mat-label>
                       <input matInput formControlName="verificationAgentName" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Off-Grid Circumstances <span class="fn">(§1.3)</span></mat-label>
+                      <mat-label>Off-Grid Circumstances</mat-label>
                       <input matInput formControlName="offGridCircumstances" />
                     </mat-form-field>
                   </div>
@@ -735,7 +735,7 @@
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C') === 'required' && !deviceForms.at(i).get('SF_02C')?.value">
-                    <label>(46) SF-02C (I-REC declaration form)
+                    <label>(46) SF-02c (Owner's Declaration letter)
                       <span class="badge-{{getDocRequirement('SF_02C')}}">{{getDocRequirement('SF_02C')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('SF_02C')">{{getDocHint('SF_02C')}}</small>
@@ -762,7 +762,7 @@
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C_OWNERS_DECLARATION') === 'required' && !deviceForms.at(i).get('SF_02C_OWNERS_DECLARATION')?.value">
-                    <label>(47) Owner's Declaration / Proof of Ownership
+                    <label>(47) Proof of Ownership
                       <span class="badge-{{getDocRequirement('SF_02C_OWNERS_DECLARATION')}}">{{getDocRequirement('SF_02C_OWNERS_DECLARATION')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('SF_02C_OWNERS_DECLARATION')">{{getDocHint('SF_02C_OWNERS_DECLARATION')}}</small>
