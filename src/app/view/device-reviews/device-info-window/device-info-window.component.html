@@ -38,6 +38,8 @@
             <p
               *ngFor="let f of section.fields; trackBy: trackField"
               class="di__field"
+              [attr.title]="f.hint || null"
+              [class.di__field--hinted]="f.hint"
             >
               <b>{{ f.label }}</b>: {{ f.value || '—' }}
             </p>

@@ -17,7 +17,7 @@ export interface Asset {
   codProofUrl: string | null;
   sf02Url: string | null;
   sf02cUrl: string | null;
-  meteringEvidenceUrl: string | null;
+  meteringEvidenceUrls: string[];
   pictureUrls: string[];
   screenshotUrls: string[];
   lat: number | null;

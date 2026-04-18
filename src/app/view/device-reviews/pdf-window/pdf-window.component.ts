@@ -24,6 +24,7 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
   safeUrl: SafeResourceUrl | null = null;
   currentUrl: string | null = null;
   fileName = 'Document Viewer';
+  previewType: 'pdf' | 'excel' = 'pdf';
   sldDeviceId: number | null = null;
   private sub!: Subscription;
   private sldSub!: Subscription;
@@ -55,7 +56,14 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
 
       if (url) {
         this.bringToFront.emit();
-        this.fetchAndDisplay(url);
+        this.previewType = /\.(xlsx|xls)(\?|$)/i.test(url) ? 'excel' : 'pdf';
+        if (this.previewType === 'excel') {
+          // Excel is parsed client-side by pdf-preview via ocrSource — skip the PDF blob fetch.
+          this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+          this.cdr.detectChanges();
+        } else {
+          this.fetchAndDisplay(url);
+        }
       }
     });
   }

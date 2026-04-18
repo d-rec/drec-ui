@@ -85,6 +85,14 @@
   }
 }
 
+.di__field--hinted {
+  cursor: help;
+
+  b {
+    border-bottom: 1px dotted #94a3b8;
+  }
+}
+
 .di__empty {
   margin: 16px 4px;
   color: #64748b;

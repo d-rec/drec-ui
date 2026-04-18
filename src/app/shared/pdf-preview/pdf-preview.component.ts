@@ -29,12 +29,18 @@ import { OrgApiLicensesService } from '../../auth/services/org-api-licenses.serv
 export class PdfPreviewComponent implements OnChanges {
   /** Sanitized URL for the iframe/img src. */
   @Input() previewUrl: SafeResourceUrl | null = null;
-  /** Whether the preview is a PDF or an image. */
-  @Input() previewType: 'pdf' | 'image' = 'pdf';
-  /** Either a File (add/edit-device) or a raw URL string (device-reviews). Triggers OCR automatically. */
+  /** Whether the preview is a PDF, an image, or an Excel spreadsheet. */
+  @Input() previewType: 'pdf' | 'image' | 'excel' = 'pdf';
+  /** Either a File (add/edit-device) or a raw URL string (device-reviews). Triggers OCR (or Excel parsing) automatically. */
   @Input() ocrSource: File | string | null = null;
   /** When set, shows SLD capacity compare panel for this device. */
   @Input() sldDeviceId: number | null = null;
+
+  // Excel preview state (client-side SheetJS render)
+  excelSheets: { name: string; html: string }[] = [];
+  excelActiveIdx = 0;
+  excelLoading = false;
+  excelError = '';
 
   // SLD compare state
   sldResult: {
@@ -87,6 +93,53 @@ export class PdfPreviewComponent implements OnChanges {
     if (changes['sldDeviceId'] && this.sldDeviceId) {
       this.fetchSldCompare();
     }
+    if ((changes['ocrSource'] || changes['previewType']) && this.previewType === 'excel') {
+      this.loadExcel();
+    }
+  }
+
+  setExcelSheet(idx: number): void {
+    this.excelActiveIdx = idx;
+    this.cdr.markForCheck?.();
+    this.cdr.detectChanges();
+  }
+
+  private async loadExcel(): Promise<void> {
+    if (!this.ocrSource) return;
+    this.excelSheets = [];
+    this.excelActiveIdx = 0;
+    this.excelError = '';
+    this.excelLoading = true;
+    this.cdr.detectChanges();
+
+    try {
+      let arrayBuffer: ArrayBuffer;
+      if (this.ocrSource instanceof File) {
+        arrayBuffer = await this.ocrSource.arrayBuffer();
+      } else {
+        const resp = await fetch(this.ocrSource as string);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        arrayBuffer = await resp.arrayBuffer();
+      }
+
+      const XLSX: any = await import('xlsx' as any);
+      const wb = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+      this.excelSheets = wb.SheetNames.map((name: string) => {
+        const sheet = wb.Sheets[name];
+        const html: string = XLSX.utils.sheet_to_html(sheet, { editable: false });
+        return { name, html };
+      });
+      if (this.excelSheets.length === 0) {
+        this.excelError = 'No sheets found in this workbook.';
+      }
+    } catch (err: any) {
+      console.error('Excel preview failed:', err);
+      this.excelError =
+        'Could not render this spreadsheet — try downloading it instead.';
+    }
+
+    this.excelLoading = false;
+    this.cdr.detectChanges();
   }
 
   fetchSldCompare(): void {

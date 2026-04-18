@@ -1,3 +1,4 @@
+<app-oc-checklist-panel storageKey="oc-checklist-new-device"></app-oc-checklist-panel>
 <div class="body-bg">
   <mat-card>
     <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center overlay">
@@ -54,7 +55,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label test-id="project-name">Site Name <span class="fn">(1)</span></mat-label>
+                      <mat-label test-id="project-name">(1) Site Name <span class="fn">(1)</span></mat-label>
                       <input matInput autocomplete="off" formControlName="siteName" />
                     </mat-form-field>
                     <div *ngIf="siteNameExists[i]" class="text-danger" style="font-size:11px;margin-top:-4px">
@@ -119,7 +120,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label test-id="acCapacity">AC Capacity (V) <span class="fn">(6)</span></mat-label>
+                      <mat-label test-id="acCapacity">(9) AC Capacity (V) <span class="fn">(6)</span></mat-label>
                       <input matInput type="number" formControlName="acCapacity" [min]="0" autocomplete="off" />
                       <mat-error>AC Capacity is required</mat-error>
                     </mat-form-field>
@@ -141,7 +142,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">Commissioning Date <span class="fn">(7)</span></mat-label>
+                      <mat-label class="text-capitalize">(10) Commissioning Date <span class="fn">(7)</span></mat-label>
                       <input matInput [matDatepicker]="commPicker" placeholder="Choose a date"
                         formControlName="commissioningDate" [max]="maxDate" test-id="commissioning-date" />
                       <mat-datepicker-toggle matSuffix [for]="commPicker"></mat-datepicker-toggle>
@@ -156,28 +157,28 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="address">Address <span class="fn">(10)</span></mat-label>
+                      <mat-label class="text-capitalize" test-id="address">(2) Address <span class="fn">(10)</span></mat-label>
                       <input autocomplete="off" matInput formControlName="address" />
                       <mat-error>Address is required</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">State/Province/County <span class="fn">(11)</span></mat-label>
+                      <mat-label class="text-capitalize">(3) State/Province/County <span class="fn">(11)</span></mat-label>
                       <input matInput formControlName="stateProvince" autocomplete="off" />
                     </mat-form-field>
                   </div>
 
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">Postcode (Zip Code) <span class="fn">(12)</span></mat-label>
+                      <mat-label class="text-capitalize">(4) Postcode (Zip Code) <span class="fn">(12)</span></mat-label>
                       <input matInput type="string" formControlName="postcode" test-id="postcode" />
                       <mat-error>Please enter the valid postcode</mat-error>
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="select-country">Select country <span class="fn">(9)</span>
+                      <mat-label class="text-capitalize" test-id="select-country">(5) Select country <span class="fn">(9)</span>
                       </mat-label>
                       <input type="text" matInput formControlName="countryCodename" [matAutocomplete]="auto" />
                       <mat-autocomplete #auto="matAutocomplete">
@@ -193,16 +194,20 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline" [class.coord-adjusting]="mapAdjusting">
-                      <mat-label class="text-capitalize" test-id="latitude">Latitude <span class="fn">(14)</span></mat-label>
-                      <input matInput formControlName="latitude" />
+                      <mat-label class="text-capitalize" test-id="latitude">(6) Latitude <span class="fn">(14)</span></mat-label>
+                      <input matInput formControlName="latitude"
+                        matTooltip="Must provide at least six digits after the decimal; must land exactly on a solar panel"
+                        matTooltipPosition="above" />
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
                   </div>
 
                   <div class="col-md-3">
                     <mat-form-field appearance="outline" [class.coord-adjusting]="mapAdjusting">
-                      <mat-label class="text-capitalize" test-id="longitude">Longitude <span class="fn">(15)</span></mat-label>
-                      <input matInput formControlName="longitude" />
+                      <mat-label class="text-capitalize" test-id="longitude">(7) Longitude <span class="fn">(15)</span></mat-label>
+                      <input matInput formControlName="longitude"
+                        matTooltip="Must provide at least six digits after the decimal; must land exactly on a solar panel"
+                        matTooltipPosition="above" />
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
                   </div>
@@ -227,9 +232,11 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize" test-id="SDGBenefits">SDG Benefits <span class="fn">(73)</span></mat-label>
+                      <mat-label class="text-capitalize" test-id="SDGBenefits">(38) SDG Benefits <span class="fn">(73)</span></mat-label>
 
-                      <mat-select formControlName="SDGBenefits" multiple>
+                      <mat-select formControlName="SDGBenefits" multiple
+                        matTooltip="Please choose all applicable UN Sustainable Development Goals that this facility is promoting"
+                        matTooltipPosition="above">
                         <mat-option *ngFor="let sdgb of sdgblist" [value]="sdgb.name" test-id="SDGBenefits-option">{{
                           sdgb.value }}</mat-option>
                       </mat-select>
@@ -238,7 +245,7 @@
 
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">Device Description <span class="fn">(5)</span></mat-label>
+                      <mat-label class="text-capitalize">(8) Device Description <span class="fn">(5)</span></mat-label>
 
                       <mat-select formControlName="deviceDescription" test-id="device-description">
                         <mat-option *ngFor="let code of devicedescription" [value]="code">
@@ -279,7 +286,7 @@
                 <div class="row" *ngIf="addmoredetals[i]">
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">off Taker <span class="fn">(71)</span></mat-label>
+                      <mat-label class="text-capitalize">(29) off Taker <span class="fn">(71)</span></mat-label>
 
                       <mat-select formControlName="offTaker" test-id="off-taker">
                         <mat-option *ngFor="let code of offtaker" [value]="code">
@@ -290,7 +297,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">impact Story <span class="fn">(72)</span></mat-label>
+                      <mat-label class="text-capitalize">(39) impact Story <span class="fn">(72)</span></mat-label>
                       <textarea matInput formControlName="impactStory" test-id="impact-story" rows="3" autocomplete="off"
                         matTooltip="Describe the social, environmental, or economic impact of this device. For example: number of households served, displacement of diesel generators, improvement in local air quality, support for livelihoods, or contribution to community electrification goals."
                         matTooltipPosition="above"></textarea>
@@ -311,8 +318,10 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Source Access Mode <span class="fn">(63)</span></mat-label>
-                      <mat-select formControlName="sourceAccessMode">
+                      <mat-label>(22) Source Access Mode <span class="fn">(63)</span></mat-label>
+                      <mat-select formControlName="sourceAccessMode"
+                        matTooltip="Will require paragraph explaining what each mode means"
+                        matTooltipPosition="above">
                         <mat-option [value]="null">-- Not specified --</mat-option>
                         <mat-option *ngFor="let sam of sourceAccessModes" [value]="sam">
                           {{ sam }}
@@ -322,15 +331,19 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Default Account Code <span class="fn">(2)</span></mat-label>
+                      <mat-label>(12) Default Account Code <span class="fn">(2)</span></mat-label>
                       <input matInput formControlName="defaultAccountCode"
-                        placeholder="Evident trade account code" />
+                        placeholder="Evident trade account code"
+                        matTooltip="Please provide the Evident trade account code you would like this facility to issue into"
+                        matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Requested Eff. Reg. Date <span class="fn">(8)</span></mat-label>
-                      <input matInput [matDatepicker]="regDatePicker" formControlName="requestedEffectiveRegDate" />
+                      <mat-label>(11) Requested Eff. Reg. Date <span class="fn">(8)</span></mat-label>
+                      <input matInput [matDatepicker]="regDatePicker" formControlName="requestedEffectiveRegDate"
+                        matTooltip="Please provide the date from which you would like to begin issuing D-RECs for this facility; default is COD."
+                        matTooltipPosition="above" />
                       <mat-datepicker-toggle matSuffix [for]="regDatePicker"></mat-datepicker-toggle>
                       <mat-datepicker #regDatePicker></mat-datepicker>
                     </mat-form-field>
@@ -374,27 +387,35 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Meter / Measurement ID(s) <span class="fn">(32)</span></mat-label>
+                      <mat-label>(14) Meter / Measurement ID(s) <span class="fn">(32)</span></mat-label>
                       <input matInput formControlName="meterIds"
-                        placeholder="e.g. MTR-001, MTR-002" />
+                        placeholder="e.g. MTR-001, MTR-002"
+                        matTooltip="Please provide the serial numbers for all devices from which metering evidence will be shared (e.g. inverters, smart meter, etc.)."
+                        matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Number of generating units <span class="fn">(33)</span></mat-label>
-                      <input matInput formControlName="generatingUnitCount" type="number" min="1" />
+                      <mat-label>(13) Number of generating units <span class="fn">(33)</span></mat-label>
+                      <input matInput formControlName="generatingUnitCount" type="number" min="1"
+                        matTooltip="Please provide the number of devices that output useable electricity at this facility (typically the inverters)"
+                        matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Network owner <span class="fn">(35)</span></mat-label>
-                      <input matInput formControlName="networkOwner" />
+                      <mat-label>(17) Network owner <span class="fn">(35)</span></mat-label>
+                      <input matInput formControlName="networkOwner"
+                        matTooltip="If the facility is grid-connected, please provide the name of the utility or distribution network"
+                        matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Interconnection voltage <span class="fn">(36)</span></mat-label>
-                      <input matInput formControlName="interconnectionVoltage" />
+                      <mat-label>(18) Interconnection voltage <span class="fn">(36)</span></mat-label>
+                      <input matInput formControlName="interconnectionVoltage"
+                        matTooltip="If the facility is grid-connected, please provide the interconnection voltage"
+                        matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
                 </div>
@@ -405,19 +426,23 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>PV System Owner <span class="fn">(77)</span></mat-label>
-                      <input matInput formControlName="pvSystemOwner" />
+                      <mat-label>(27) PV System Owner <span class="fn">(77)</span></mat-label>
+                      <input matInput formControlName="pvSystemOwner"
+                        matTooltip='Please provide the legal name of the PV System Owner. This must match the "Proof of Ownership" documentation shared.'
+                        matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Off-taker Name <span class="fn">(76)</span></mat-label>
-                      <input matInput formControlName="offTakerName" />
+                      <mat-label>(28) Off-taker Name <span class="fn">(76)</span></mat-label>
+                      <input matInput formControlName="offTakerName"
+                        matTooltip="Please provide the legal name of the electricity off-taker"
+                        matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Off-taker same company as PV owner? <span class="fn">(81)</span></mat-label>
+                      <mat-label>(30) Off-taker same company as PV owner? <span class="fn">(81)</span></mat-label>
                       <mat-select formControlName="offTakerSameCompanyAsOwner">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -427,7 +452,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Subsidy or incentive received? <span class="fn">(78)</span></mat-label>
+                      <mat-label>(34) Subsidy or incentive received? <span class="fn">(78)</span></mat-label>
                       <mat-select formControlName="hasSubsidy">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -437,7 +462,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasSubsidy')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>Subsidy types <span class="fn">(79)</span></mat-label>
+                      <mat-label>(35) Subsidy types <span class="fn">(79)</span></mat-label>
                       <mat-select formControlName="subsidyTypes" multiple>
                         <mat-option value="Net Metering">Net Metering</mat-option>
                         <mat-option value="Feed In Tariff">Feed In Tariff</mat-option>
@@ -455,7 +480,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasSubsidy')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>Subsidies claim env. attributes? <span class="fn">(80)</span></mat-label>
+                      <mat-label>(36) Subsidies claim env. attributes? <span class="fn">(80)</span></mat-label>
                       <mat-select formControlName="subsidyClaimsEacs">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -465,7 +490,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Public (government) funding? <span class="fn">(50)</span></mat-label>
+                      <mat-label>(32) Public (government) funding? <span class="fn">(50)</span></mat-label>
                       <mat-select formControlName="hasPublicFunding">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -475,7 +500,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasPublicFunding')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>Public funding end date <span class="fn">(51)</span></mat-label>
+                      <mat-label>(33) Public funding end date <span class="fn">(51)</span></mat-label>
                       <input matInput [matDatepicker]="fundEnd" formControlName="publicFundingEndDate" />
                       <mat-datepicker-toggle matSuffix [for]="fundEnd"></mat-datepicker-toggle>
                       <mat-datepicker #fundEnd></mat-datepicker>
@@ -489,7 +514,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Captive consumer present? <span class="fn">(43)</span></mat-label>
+                      <mat-label>(23) Captive consumer present? <span class="fn">(43)</span></mat-label>
                       <mat-select formControlName="hasCaptiveConsumer">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -499,8 +524,10 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Auxiliary energy sources? <span class="fn">(45)</span></mat-label>
-                      <mat-select formControlName="hasAuxiliaryEnergySources">
+                      <mat-label>(24) Auxiliary energy sources? <span class="fn">(45)</span></mat-label>
+                      <mat-select formControlName="hasAuxiliaryEnergySources"
+                        matTooltip="(typically a backup generator or battery)"
+                        matTooltipPosition="above">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
                         <mat-option value="No">No</mat-option>
@@ -509,34 +536,40 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasAuxiliaryEnergySources')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>Auxiliary source details <span class="fn">(46)</span></mat-label>
-                      <input matInput formControlName="auxiliaryEnergySourceDetails" />
+                      <mat-label>(25) Auxiliary source details <span class="fn">(46)</span></mat-label>
+                      <input matInput formControlName="auxiliaryEnergySourceDetails"
+                        matTooltip="Describe the number of units, capacity per unit, and fuel source (e.g. 1 x 250kVA diesel generator)"
+                        matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Non-meter import details <span class="fn">(47)</span></mat-label>
+                      <mat-label>(21) Non-meter import details <span class="fn">(47)</span></mat-label>
                       <input matInput formControlName="nonMeterImportDetails" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Other EAC scheme registration <span class="fn">(48)</span></mat-label>
+                      <mat-label>(31) Other EAC scheme registration <span class="fn">(48)</span></mat-label>
                       <input matInput formControlName="otherEacSchemeRegistration"
                         placeholder="Registration ID or 'None'" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Additional Information <span class="fn">(54)</span></mat-label>
-                      <input matInput formControlName="additionalInfo" />
+                      <mat-label>(40) Additional Information <span class="fn">(54)</span></mat-label>
+                      <input matInput formControlName="additionalInfo"
+                        matTooltip="Please provide any additional information that may be relevant to this facility's registration on Evident"
+                        matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Labelling Scheme <span class="fn">(§1.5)</span></mat-label>
+                      <mat-label>(37) Labelling Scheme <span class="fn">(§1.5)</span></mat-label>
                       <input matInput formControlName="labellingSchemeAccreditation"
-                        placeholder="Scheme name or 'None'" />
+                        placeholder="Scheme name or 'None'"
+                        matTooltip="Please choose any other labels for which this site qualifies"
+                        matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
@@ -558,7 +591,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Is this facility grid-connected? <span class="fn">(58)</span></mat-label>
+                      <mat-label>(15) Is this facility grid-connected? <span class="fn">(58)</span></mat-label>
                       <mat-select formControlName="isGridConnected">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -568,7 +601,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('isGridConnected')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>Exports to grid? <span class="fn">(59)</span></mat-label>
+                      <mat-label>(16) Exports to grid? <span class="fn">(59)</span></mat-label>
                       <mat-select formControlName="gridExportType">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="No (zero-export)">No (zero-export)</mat-option>
@@ -579,7 +612,7 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('isGridConnected')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>Network meter installed? <span class="fn">(61)</span></mat-label>
+                      <mat-label>(19) Network meter installed? <span class="fn">(61)</span></mat-label>
                       <mat-select formControlName="hasNetworkMeter">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
@@ -589,8 +622,10 @@
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasNetworkMeter')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
-                      <mat-label>Meter reads shareable via document? <span class="fn">(62)</span></mat-label>
-                      <mat-select formControlName="meterReadsShareable">
+                      <mat-label>(20) Meter reads shareable via document? <span class="fn">(62)</span></mat-label>
+                      <mat-select formControlName="meterReadsShareable"
+                        matTooltip='If "yes", this must be provided as sample metering evidence'
+                        matTooltipPosition="above">
                         <mat-option [value]="null">--</mat-option>
                         <mat-option value="Yes">Yes</mat-option>
                         <mat-option value="No">No</mat-option>
@@ -599,7 +634,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label>Signatory name <span class="fn">(56)</span></mat-label>
+                      <mat-label>(41) Signatory name <span class="fn">(56)</span></mat-label>
                       <input matInput formControlName="signatoryName" />
                     </mat-form-field>
                   </div>
@@ -655,7 +690,7 @@
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C') === 'required' && !deviceForms.at(i).get('SF_02C')?.value">
-                    <label>SF-02C Owner's Declaration or Proof of Ownership
+                    <label>(46/47) SF-02C Owner's Declaration or Proof of Ownership
                       <span class="badge-{{getDocRequirement('SF_02C')}}">{{getDocRequirement('SF_02C')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('SF_02C')">{{getDocHint('SF_02C')}}</small>
@@ -682,20 +717,22 @@
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('METERING_EVIDENCE') === 'required' && !deviceForms.at(i).get('METERING_EVIDENCE')?.value">
-                    <label>Metering Evidence
+                    <label title="Please provide a sample of the metering evidence you will rely on for I-REC issuance (e.g. RMS screenshots, Excel spreadsheets)">(49) Metering Evidence
                       <span class="badge-{{getDocRequirement('METERING_EVIDENCE')}}">{{getDocRequirement('METERING_EVIDENCE')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('METERING_EVIDENCE')">{{getDocHint('METERING_EVIDENCE')}}</small>
                     <div class="d-flex justify-content-between align-items-center doc-box">
-                      <input type="file" #meteringFileInput
+                      <input type="file" #meteringFileInput multiple
                         (change)="onFileChange($event, i, DocumentType.METERING_EVIDENCE)" style="display: none"
                         test-id="attach-file" />
                       <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
                       <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('METERING_EVIDENCE')?.value">
-                        {{ deviceForms.at(i).get('METERING_EVIDENCE')?.value ?
-                        deviceForms.at(i).get('METERING_EVIDENCE')?.value.name : '' }}
+                        {{ (files[i]?.['METERING_EVIDENCE']?.length || 0) > 1
+                          ? files[i]['METERING_EVIDENCE'].length + ' files selected'
+                          : (deviceForms.at(i).get('METERING_EVIDENCE')?.value ?
+                             deviceForms.at(i).get('METERING_EVIDENCE')?.value.name : '') }}
                       </span>
                       <button *ngIf="filePreviews[i]?.['METERING_EVIDENCE']" type="button"
                         class="badge bg-success text-white px-3 py-2 preview-btn"
@@ -710,7 +747,7 @@
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SINGLE_LINE_DIAGRAM') === 'required' && !deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
-                    <label>Single Line Diagram
+                    <label>(45) Single Line Diagram
                       <span class="badge-{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}">{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('SINGLE_LINE_DIAGRAM')">{{getDocHint('SINGLE_LINE_DIAGRAM')}}</small>
@@ -738,7 +775,7 @@
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="(files[i]?.['PROJECT_PHOTOS']?.length || 0) < 3">
-                    <label>Project Photos (min. 3)
+                    <label title="Please provide at least three photos that show the entire installation plus enough surrounding topography to match with a satellite image.">(43) Project Photos (min. 3)
                       <span class="badge-{{getDocRequirement('PROJECT_PHOTOS')}}">{{getDocRequirement('PROJECT_PHOTOS')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('PROJECT_PHOTOS')">{{getDocHint('PROJECT_PHOTOS')}}</small>
@@ -794,7 +831,7 @@
                   </div>
 
                   <div class="col-md-4 mb-3">
-                    <label title="Commercial Operation Date">COD Proof
+                    <label title="Please provide an official document (such as a handover letter to the offtaker or a commissioning certificate from the utility) that confirms the commissioning date">(48) COD Proof
                       <span class="badge-{{getDocRequirement('COD_PROOF')}}">{{getDocRequirement('COD_PROOF')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('COD_PROOF')">{{getDocHint('COD_PROOF')}}</small>
@@ -822,7 +859,7 @@
                   </div>
 
                   <div class="col-md-4 mb-3">
-                    <label>Other Documents
+                    <label title="Please provide any other documents that may be relevant to this facility's registration on Evident (e.g. No RPO letter for facilities in India)">(50) Other Documents
                       <span class="badge-optional">Optional</span>
                     </label>
                     <div class="d-flex justify-content-between align-items-center doc-box">
@@ -906,7 +943,7 @@
   <div mat-dialog-content class="preview-dialog-content">
     <app-pdf-preview
       [previewUrl]="previewData!.url"
-      [previewType]="previewData!.type === 'pdf' ? 'pdf' : 'image'"
+      [previewType]="previewData!.type === 'pdf' ? 'pdf' : previewData!.type === 'excel' ? 'excel' : 'image'"
       [ocrSource]="currentPreviewFile">
     </app-pdf-preview>
   </div>

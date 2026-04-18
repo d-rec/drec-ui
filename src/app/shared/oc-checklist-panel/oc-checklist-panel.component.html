@@ -1,0 +1,44 @@
+<div class="ocp" [class.ocp--collapsed]="collapsed">
+  <button
+    type="button"
+    class="ocp__tab"
+    (click)="toggleCollapsed()"
+    [title]="collapsed ? 'Show registration checklist' : 'Hide checklist'"
+  >
+    <span class="ocp__tab-label">{{ collapsed ? '› Checklist' : '‹' }}</span>
+  </button>
+
+  <div class="ocp__panel" *ngIf="!collapsed">
+    <div class="ocp__head">
+      <span class="ocp__title">Registration Checklist</span>
+      <span class="ocp__count">{{ checked.size }}/{{ rows.length }}</span>
+      <button
+        type="button"
+        class="ocp__clear"
+        (click)="clearAll()"
+        [disabled]="checked.size === 0"
+        title="Uncheck all"
+      >Clear</button>
+    </div>
+
+    <ul class="ocp__list">
+      <li
+        *ngFor="let r of rows; trackBy: trackRow"
+        class="ocp__row"
+        [class.ocp__row--checked]="checked.has(r.n)"
+        [class.ocp__row--hinted]="r.hint"
+        [attr.title]="r.hint || null"
+      >
+        <label class="ocp__label">
+          <input
+            type="checkbox"
+            [checked]="checked.has(r.n)"
+            (change)="toggleRow(r.n)"
+          />
+          <span class="ocp__num">{{ r.n }}</span>
+          <span class="ocp__item">{{ r.item }}</span>
+        </label>
+      </li>
+    </ul>
+  </div>
+</div>

@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { AssetService } from './asset.service';
 
 @Component({
@@ -15,9 +16,16 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
   isAdmin = false;
   canReview = false;
 
+  /** Per-device storage key so the reviewer's checkbox state is remembered per device. */
+  checklistStorageKey$: Observable<string | null>;
+
   private sub!: Subscription;
 
-  constructor(private svc: AssetService) {}
+  constructor(private svc: AssetService) {
+    this.checklistStorageKey$ = this.svc.viewDeviceInfoId$.pipe(
+      map((id) => (id != null ? `oc-checklist-device-${id}` : null)),
+    );
+  }
 
   ngOnInit(): void {
     const loginUser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');

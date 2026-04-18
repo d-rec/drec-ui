@@ -104,7 +104,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   // Document upload support
   DocumentType = DocumentType;
   files: { [key: string]: File[] } = {};
-  filePreviews: { [key: string]: { url: SafeResourceUrl; type: 'image' | 'pdf' | 'other'; name: string } } = {};
+  filePreviews: { [key: string]: { url: SafeResourceUrl; type: 'image' | 'pdf' | 'excel' | 'other'; name: string } } = {};
   existingDocs: { [type: string]: { url: string; name: string }[] } = {};
   brokenDocs: { [type: string]: boolean } = {};
 
@@ -490,9 +490,10 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
               const ext = doc.name.split('.').pop()?.toLowerCase() || '';
               const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext);
               const isPdf = ext === 'pdf';
+              const isExcel = ext === 'xlsx' || ext === 'xls';
               this.filePreviews[type] = {
                 url: this.sanitizer.bypassSecurityTrustResourceUrl(doc.url),
-                type: isImage ? 'image' : isPdf ? 'pdf' : 'other',
+                type: isImage ? 'image' : isPdf ? 'pdf' : isExcel ? 'excel' : 'other',
                 name: doc.name,
               };
             }
@@ -518,10 +519,11 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     const file = input.files[0];
     const isImage = file.type.startsWith('image/');
     const isPdf = file.type === 'application/pdf';
+    const isExcel = /\.(xlsx|xls)$/i.test(file.name);
     const objectUrl = URL.createObjectURL(file);
     this.filePreviews[fileType] = {
       url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
-      type: isImage ? 'image' : isPdf ? 'pdf' : 'other',
+      type: isImage ? 'image' : isPdf ? 'pdf' : isExcel ? 'excel' : 'other',
       name: file.name,
     };
   }

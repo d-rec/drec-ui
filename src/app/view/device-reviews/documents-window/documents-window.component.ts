@@ -561,7 +561,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           a.sldUrl,
           a.sf02Url,
           a.sf02cUrl,
-          a.meteringEvidenceUrl,
+          ...a.meteringEvidenceUrls,
           ...a.pictureUrls,
           ...a.screenshotUrls,
         ]
@@ -855,8 +855,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.uploadAndRefresh(asset, 'METERING_EVIDENCE', file);
   }
 
-  clearMeteringEvidence(asset: Asset): void {
-    this.requestDelete(asset, 'meteringEvidence', 'meteringEvidenceUrl');
+  clearMeteringEvidence(asset: Asset, idx: number): void {
+    this.requestDelete(asset, `meteringEvidence:${idx}`, 'meteringEvidenceUrls', idx);
   }
 
   onPictureAdd(asset: Asset, event: Event): void {
@@ -984,7 +984,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       if (a.sf02Url) urls.push(a.sf02Url);
       if (a.sf02cUrl) urls.push(a.sf02cUrl);
       if (a.codProofUrl) urls.push(a.codProofUrl);
-      if (a.meteringEvidenceUrl) urls.push(a.meteringEvidenceUrl);
+      for (const u of a.meteringEvidenceUrls) urls.push(u);
       for (const u of a.pictureUrls) urls.push(u);
       for (const u of a.screenshotUrls) urls.push(u);
     }
@@ -1912,7 +1912,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         'SF-02': a.sf02Url ? 'Yes' : '',
         'SF-02C': a.sf02cUrl ? 'Yes' : '',
         'COD Proof': a.codProofUrl ? 'Yes' : '',
-        'Metering Evidence': a.meteringEvidenceUrl ? 'Yes' : '',
+        'Metering Evidence': a.meteringEvidenceUrls.length || '',
         'Pictures': a.pictureUrls.length || '',
         'Screenshots': a.screenshotUrls.length || '',
       }));

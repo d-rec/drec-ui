@@ -28,6 +28,24 @@
     <iframe *ngIf="previewType === 'pdf'" [src]="previewUrl"
       title="Document preview"
       style="width: 100%; height: 100%; border: none;"></iframe>
+    <div *ngIf="previewType === 'excel'" class="pdf-preview__xlsx">
+      <div *ngIf="excelSheets.length > 1" class="pdf-preview__xlsx-tabs">
+        <button
+          *ngFor="let s of excelSheets; let i = index"
+          type="button"
+          class="pdf-preview__xlsx-tab"
+          [class.pdf-preview__xlsx-tab--active]="i === excelActiveIdx"
+          (click)="setExcelSheet(i)"
+        >{{ s.name }}</button>
+      </div>
+      <div *ngIf="excelLoading" class="pdf-preview__xlsx-empty">Parsing spreadsheet…</div>
+      <div *ngIf="excelError && !excelLoading" class="pdf-preview__xlsx-empty">{{ excelError }}</div>
+      <div
+        *ngIf="!excelLoading && !excelError && excelSheets[excelActiveIdx]"
+        class="pdf-preview__xlsx-body"
+        [innerHTML]="excelSheets[excelActiveIdx].html"
+      ></div>
+    </div>
   </div>
   <!-- Right: OCR + translation -->
   <div class="pdf-preview__right">

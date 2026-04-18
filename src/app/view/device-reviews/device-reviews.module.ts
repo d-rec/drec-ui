@@ -20,6 +20,7 @@ import { AssetService } from './asset.service';
 import { AdminGuard } from '../../guards/admin.guard';
 import { PdfPreviewComponent } from '../../shared/pdf-preview/pdf-preview.component';
 import { SatellitePreviewComponent } from '../../shared/satellite-preview/satellite-preview.component';
+import { OcChecklistPanelComponent } from '../../shared/oc-checklist-panel/oc-checklist-panel.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import { SatellitePreviewComponent } from '../../shared/satellite-preview/satell
     LeafletModule,
     PdfPreviewComponent,
     SatellitePreviewComponent,
+    OcChecklistPanelComponent,
     RouterModule.forChild([
       {
         path: '',

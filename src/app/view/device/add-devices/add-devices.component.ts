@@ -165,7 +165,7 @@ export class AddDevicesComponent implements OnDestroy {
     [index: number]: {
       [key: string]: {
         url: SafeResourceUrl;
-        type: 'image' | 'pdf' | 'other';
+        type: 'image' | 'pdf' | 'excel' | 'other';
         name: string;
       };
     };
@@ -690,7 +690,7 @@ export class AddDevicesComponent implements OnDestroy {
       );
     }
 
-    const multiTypes: string[] = ['PROJECT_PHOTOS', 'SCREENSHOTS'];
+    const multiTypes: string[] = ['PROJECT_PHOTOS', 'SCREENSHOTS', 'METERING_EVIDENCE'];
     if (multiTypes.includes(fileType)) {
       this.files[deviceIndex][fileType] = [
         ...(this.files[deviceIndex][fileType] || []),
@@ -713,10 +713,11 @@ export class AddDevicesComponent implements OnDestroy {
     }
     const isImage = file.type.startsWith('image/');
     const isPdf = file.type === 'application/pdf';
+    const isExcel = /\.(xlsx|xls)$/i.test(file.name);
     const objectUrl = URL.createObjectURL(file);
     this.filePreviews[deviceIndex][fileType] = {
       url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
-      type: isImage ? 'image' : isPdf ? 'pdf' : 'other',
+      type: isImage ? 'image' : isPdf ? 'pdf' : isExcel ? 'excel' : 'other',
       name: file.name,
     };
 
