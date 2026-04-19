@@ -223,8 +223,6 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
           { label: 'Ownership Status', value: fmt(d.ownershipStatus || 'unverified') },
           { label: 'Public Funding Type', value: fmt(d.publicFundingType), hideIfEmpty: true },
           { label: 'Off-Grid Circumstances', value: fmt(d.offGridCircumstances), hideIfEmpty: true },
-          { label: 'Energy Storage', value: fmt(d.energyStorage) },
-          { label: 'Energy Storage Capacity', value: fmt(d.energyStorageCapacity) },
           { label: 'Version', value: fmt(d.version) },
           { label: 'Yield Value', value: fmt(d.yieldValue) },
           { label: 'Meter Read Type', value: fmt(d.meterReadtype) },

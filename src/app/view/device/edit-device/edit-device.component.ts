@@ -66,7 +66,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   public sdgblist: any;
   id: number;
   externalid: any;
-  showinput: boolean = true;
   serialNumber: any;
   status: any;
   siteName: any;
@@ -93,8 +92,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   impactStory: any;
   showerror: boolean = false;
   deviceDescription: any;
-  energyStorage: boolean = true;
-  energyStorageCapacity: any;
   stateProvince: any;
   postcode: any;
   frommydevice: boolean = false;
@@ -247,8 +244,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       impactStory: [null],
       images: [null],
       deviceDescription: [null],
-      energyStorage: [],
-      energyStorageCapacity: [null],
       stateProvince: [null],
       qualityLabels: [null],
       SDGBenefits: [new FormControl([])],
@@ -289,7 +284,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       offGridCircumstances: [null],
       sf02EvidenceMode: ['self'],
     });
-    this.showinput = true;
     this.addmoredetals = false;
     this.showaddmore = true;
     this.shownomore = false;
@@ -395,18 +389,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     this.showaddmore = true;
     this.shownomore = false;
   }
-  showenergycapacity_input(event: any) {
-    if (event) {
-      this.showinput = true;
-    } else {
-      this.showinput = false;
-    }
-  }
-  onEnergyStorageCapacityChange(value: any) {
-    const num = Number(value);
-    this.energyStorage = !!num && num > 0;
-    this.updateDeviceForm.get('energyStorage')?.setValue(this.energyStorage, { emitEvent: false });
-  }
   getDeviceinfo() {
     this.deviceService
       .getDeviceInfoBYexternalId(this.externalid)
@@ -442,13 +424,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.sourceAccessMode = data.sourceAccessMode || null;
         this.evidenceReqs = getEvidenceRequirements(this.operatingConfiguration);
         this.deviceDescription = data.deviceDescription;
-        if (data.energyStorage != null) {
-          this.energyStorage = data.energyStorage;
-        } else {
-          this.energyStorage = false;
-        }
-
-        this.energyStorageCapacity = data.energyStorageCapacity;
         this.stateProvince = data.stateProvince;
         this.organizationId = data.organizationId;
         this.updateDeviceForm.patchValue({

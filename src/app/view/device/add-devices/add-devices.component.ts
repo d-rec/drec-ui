@@ -206,7 +206,6 @@ export class AddDevicesComponent implements OnDestroy {
   ngOnInit() {
     this.loadData();
     this.initializeForm();
-    this.showinput[0] = true;
     this.addmoredetals[0] = false;
     this.showaddmore[0] = true;
     this.showerror[0] = false;
@@ -327,8 +326,6 @@ export class AddDevicesComponent implements OnDestroy {
       data: [null],
       images: [null],
       deviceDescription: [null],
-      energyStorage: [true],
-      energyStorageCapacity: [null],
       stateProvince: [null],
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
@@ -470,8 +467,6 @@ export class AddDevicesComponent implements OnDestroy {
       impactStory: [null],
       images: [null],
       deviceDescription: [null],
-      energyStorage: true,
-      energyStorageCapacity: [null],
       stateOrProvince: [null],
       qualityLabels: [null],
       SDGBenefits: [[new FormControl([])]],
@@ -523,7 +518,6 @@ export class AddDevicesComponent implements OnDestroy {
 
     this.deviceForms.push(device);
     this.showaddmore[this.deviceForms.length - 1] = true;
-    this.showinput[this.deviceForms.length - 1] = true;
 
     const index = this.deviceForms.length - 1;
     this.filteredCountryList[index] = this.getCountryCodeControl(
@@ -632,15 +626,6 @@ export class AddDevicesComponent implements OnDestroy {
     this.addmoredetals[i] = false;
     this.showaddmore[i] = true;
     this.shownomore[i] = false;
-  }
-
-  showinput: any[] = [];
-  showenergycapacity_input(i: number, event: any) {
-    if (event) {
-      this.showinput[i] = true;
-    } else {
-      this.showinput[i] = false;
-    }
   }
 
   deleteDevice(i: number) {

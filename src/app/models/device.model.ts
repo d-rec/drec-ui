@@ -29,8 +29,6 @@ export interface Device {
   images?: string[];
   groupId?: number | null;
   deviceDescription?: string;
-  energyStorage?: boolean;
-  energyStorageCapacity?: number;
   SDGBenefits?: string[];
   qualityLabels?: string;
   meterReadtype?: string;

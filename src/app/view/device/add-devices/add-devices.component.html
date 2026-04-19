@@ -222,21 +222,6 @@
                       <mat-error>Capacity is required</mat-error>
                     </mat-form-field>
                   </div>
-                  <div class="col-md-3 d-flex flex-column">
-                    <span>Energy Storage:</span>
-                    <mat-radio-group formControlName="energyStorage"
-                      (ngModelChange)="showenergycapacity_input(i, $event)" test-id="energy-storage">
-                      <mat-radio-button [value]="true">Yes</mat-radio-button>
-                      <mat-radio-button [value]="false">No</mat-radio-button>
-                    </mat-radio-group>
-                  </div>
-                  <div class="col-md-3" *ngIf="showinput[i]">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">Energy Storage Capacity</mat-label>
-                      <input matInput autocomplete="off" type="number" formControlName="energyStorageCapacity"
-                        test-id="energy-storage" />
-                    </mat-form-field>
-                  </div>
                   <div class="col-md-3">
                     <button
                       class="btn btn-outline-danger d-block w-100 text-capitalize cursor-pointer"
