@@ -251,7 +251,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       defaultAccountCode: [null],
       requestedEffectiveRegDate: [null],
       signatoryName: [null],
-      isGridConnected: [null],
       gridExportType: [null],
       hasNetworkMeter: [null],
       meterReadsShareable: [null],

@@ -88,7 +88,7 @@
 
         <h3 class="section-heading">Evidence Pathway & Signature</h3>
         <p *ngIf="device_details.signatoryName"><b>Signatory Name</b>: {{ device_details.signatoryName }}</p>
-        <p *ngIf="device_details.isGridConnected"><b>Grid Connected</b>: {{ device_details.isGridConnected }}</p>
+        <p *ngIf="device_details.gridInterconnection != null"><b>Grid Connected</b>: {{ device_details.gridInterconnection ? 'Yes' : 'No' }}</p>
         <p *ngIf="device_details.gridExportType"><b>Grid Export Type</b>: {{ device_details.gridExportType }}</p>
         <p *ngIf="device_details.hasNetworkMeter"><b>Network Meter</b>: {{ device_details.hasNetworkMeter }}</p>
         <p *ngIf="device_details.meterReadsShareable"><b>Meter Reads Shareable</b>: {{ device_details.meterReadsShareable }}</p>

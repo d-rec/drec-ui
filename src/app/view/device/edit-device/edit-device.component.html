@@ -183,14 +183,14 @@
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
                   <mat-label>(15) Is this facility grid-connected?</mat-label>
-                  <mat-select formControlName="isGridConnected">
+                  <mat-select formControlName="gridInterconnection">
                     <mat-option [value]="null">--</mat-option>
-                    <mat-option value="Yes">Yes</mat-option>
-                    <mat-option value="No">No</mat-option>
+                    <mat-option [value]="true">Yes</mat-option>
+                    <mat-option [value]="false">No</mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>
-              <div class="col-md-3" *ngIf="updateDeviceForm.get('isGridConnected')?.value === 'Yes'">
+              <div class="col-md-3" *ngIf="updateDeviceForm.get('gridInterconnection')?.value === true">
                 <mat-form-field appearance="outline">
                   <mat-label>(16) Does this facility export to the grid?</mat-label>
                   <mat-select formControlName="gridExportType">
@@ -217,7 +217,7 @@
                     matTooltipPosition="above" />
                 </mat-form-field>
               </div>
-              <div class="col-md-3" *ngIf="updateDeviceForm.get('isGridConnected')?.value === 'Yes'">
+              <div class="col-md-3" *ngIf="updateDeviceForm.get('gridInterconnection')?.value === true">
                 <mat-form-field appearance="outline">
                   <mat-label>(19) Network meter installed?</mat-label>
                   <mat-select formControlName="hasNetworkMeter">

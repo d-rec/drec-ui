@@ -40,7 +40,6 @@ export interface Device {
   requestedEffectiveRegDate?: string;
   // Signature & evidence pathway (rows 55-56, 58-59, 61-62)
   signatoryName?: string;
-  isGridConnected?: 'Yes' | 'No';
   gridExportType?: string;
   hasNetworkMeter?: 'Yes' | 'No';
   meterReadsShareable?: 'Yes' | 'No';

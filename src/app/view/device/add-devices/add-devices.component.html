@@ -275,14 +275,14 @@
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label>(15) Is this facility grid-connected?</mat-label>
-                      <mat-select formControlName="isGridConnected">
+                      <mat-select formControlName="gridInterconnection" test-id="grid-interconnection">
                         <mat-option [value]="null">--</mat-option>
-                        <mat-option value="Yes">Yes</mat-option>
-                        <mat-option value="No">No</mat-option>
+                        <mat-option [value]="true">Yes</mat-option>
+                        <mat-option [value]="false">No</mat-option>
                       </mat-select>
                     </mat-form-field>
                   </div>
-                  <div class="col-md-3" *ngIf="deviceForms.at(i).get('isGridConnected')?.value === 'Yes'">
+                  <div class="col-md-3" *ngIf="deviceForms.at(i).get('gridInterconnection')?.value === true">
                     <mat-form-field appearance="outline">
                       <mat-label>(16) Exports to grid?</mat-label>
                       <mat-select formControlName="gridExportType">
@@ -309,7 +309,7 @@
                         matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
-                  <div class="col-md-3" *ngIf="deviceForms.at(i).get('isGridConnected')?.value === 'Yes'">
+                  <div class="col-md-3" *ngIf="deviceForms.at(i).get('gridInterconnection')?.value === true">
                     <mat-form-field appearance="outline">
                       <mat-label>(19) Network meter installed?</mat-label>
                       <mat-select formControlName="hasNetworkMeter">
@@ -360,13 +360,6 @@
                         </mat-option>
                       </mat-select>
                     </mat-form-field>
-                  </div>
-                  <div class="col-md-3 d-flex flex-column">
-                    <span>Grid Inter-connection:</span>
-                    <mat-radio-group formControlName="gridInterconnection" test-id="grid-interconnection">
-                      <mat-radio-button [value]="true">Yes</mat-radio-button>
-                      <mat-radio-button [value]="false">No</mat-radio-button>
-                    </mat-radio-group>
                   </div>
                 </div>
 
