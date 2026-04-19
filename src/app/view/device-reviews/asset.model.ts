@@ -26,7 +26,6 @@ export interface Asset {
   long: number | null;
   siteName: string;
   capacity: number | null;
-  acCapacity: number | null;
   countryCode: string;
   submitterEmail: string;
   submitterName: string;

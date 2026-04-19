@@ -37,7 +37,6 @@
         <p><b>Fuel Code</b>: {{ device_details.fuelname }}</p>
         <p><b>Device Type Code</b>: {{ device_details.devicetypename }}</p>
         <p><b>Capacity</b>: {{ device_details.capacity }}</p>
-        <p *ngIf="device_details.acCapacity"><b>AC Capacity</b>: {{ device_details.acCapacity }}</p>
         <p><b>Commissioning Date</b>: {{ device_details.commissioningDate | date: 'dd MMM y hh:mm' }}</p>
         <p><b>OnBoarding Date</b>: {{ device_details.createdAt | date: 'dd MMM y hh:mm' }}</p>
         <p *ngIf="device_details.operatingConfiguration"><b>Operating Configuration</b>: {{ device_details.operatingConfiguration }}</p>

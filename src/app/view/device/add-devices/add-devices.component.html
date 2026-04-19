@@ -189,13 +189,6 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label test-id="acCapacity">(9) AC Capacity (V)</mat-label>
-                      <input matInput type="number" formControlName="acCapacity" [min]="0" autocomplete="off" />
-                      <mat-error>AC Capacity is required</mat-error>
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize">(10) Commissioning Date</mat-label>
                       <input matInput [matDatepicker]="commPicker" placeholder="Choose a date"
                         formControlName="commissioningDate" [max]="maxDate" test-id="commissioning-date" />
@@ -217,7 +210,7 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label test-id="capacity">Capacity(kW)</mat-label>
+                      <mat-label test-id="capacity">(9) Total AC Capacity (kW)</mat-label>
                       <input matInput type="number" formControlName="capacity" [min]="1" autocomplete="off" />
                       <mat-error>Capacity is required</mat-error>
                     </mat-form-field>

@@ -168,7 +168,6 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
         heading: '',
         fields: [
           { label: '(8) Device Description', value: fmt(d.deviceDescription), hideIfEmpty: true },
-          { label: '(9) AC Capacity', value: fmt(d.acCapacity), hideIfEmpty: true },
           { label: '(10) Commissioning Date', value: fmtDate(d.commissioningDate) },
           { label: '(11) Requested Effective Reg. Date', value: fmt(d.requestedEffectiveRegDate), hideIfEmpty: true, hint: 'Please provide the date from which you would like to begin issuing D-RECs for this facility; default is COD.' },
           { label: '(12) Default Account Code', value: fmt(d.defaultAccountCode), hideIfEmpty: true, hint: 'Please provide the Evident trade account code you would like this facility to issue into' },
