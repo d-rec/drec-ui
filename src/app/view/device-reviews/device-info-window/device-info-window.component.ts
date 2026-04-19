@@ -226,7 +226,6 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
           { label: 'Version', value: fmt(d.version) },
           { label: 'Yield Value', value: fmt(d.yieldValue) },
           { label: 'Meter Read Type', value: fmt(d.meterReadtype) },
-          { label: 'Quality Labels', value: fmt(d.qualityLabels), hideIfEmpty: true },
         ],
       },
       {

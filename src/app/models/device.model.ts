@@ -30,7 +30,6 @@ export interface Device {
   groupId?: number | null;
   deviceDescription?: string;
   SDGBenefits?: string[];
-  qualityLabels?: string;
   meterReadtype?: string;
   createdAt?: Date;
   version?: string;

@@ -573,12 +573,6 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">Quality Labels</mat-label>
-                      <input matInput formControlName="qualityLabels" test-id="quality" />
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
                       <mat-label>Registration Type</mat-label>
                       <mat-select formControlName="registrationType">
                         <mat-option *ngFor="let rt of registrationTypes" [value]="rt">

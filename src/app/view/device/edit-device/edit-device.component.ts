@@ -78,7 +78,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   capacity: any;
   SDGBenefits: any = [];
   commissioningDate: any;
-  qualityLabels: any;
   offTaker: any;
   gridInterconnection: any;
   operatingConfiguration: any;
@@ -245,7 +244,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       images: [null],
       deviceDescription: [null],
       stateProvince: [null],
-      qualityLabels: [null],
       SDGBenefits: [new FormControl([])],
       version: ['1.0'],
       organizationId: [null],
@@ -417,7 +415,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.SDGBenefits = data.SDGBenefits;
         this.commissioningDate = data.commissioningDate;
         this.offTaker = data.offTaker;
-        this.qualityLabels = data.qualityLabels;
         this.impactStory = data.impactStory;
         this.gridInterconnection = data.gridInterconnection;
         this.operatingConfiguration = data.operatingConfiguration || null;
