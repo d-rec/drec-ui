@@ -341,7 +341,6 @@ export class AddDevicesComponent implements OnDestroy {
       nonMeterImportDetails: [null],
       otherEacSchemeRegistration: [null],
       additionalInfo: [null],
-      meterIds: [null],
       generatingUnitCount: [null],
       networkOwner: [null],
       interconnectionVoltage: [null],
@@ -479,7 +478,6 @@ export class AddDevicesComponent implements OnDestroy {
       nonMeterImportDetails: [null],
       otherEacSchemeRegistration: [null],
       additionalInfo: [null],
-      meterIds: [null],
       generatingUnitCount: [null],
       networkOwner: [null],
       interconnectionVoltage: [null],
@@ -562,13 +560,13 @@ export class AddDevicesComponent implements OnDestroy {
     const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
     switch (dataSource) {
       case DataSourceTypes.Inverter:
-        return 'Inverter Serial Number(s) ⁽³⁰⁾';
+        return '(14) Inverter Serial / Meter ID(s)';
       case DataSourceTypes.DataLogger:
-        return 'Data Logger Serial Number(s) ⁽³⁰⁾';
+        return '(14) Data Logger Serial / Meter ID(s)';
       case DataSourceTypes.Other:
-        return 'Other Id ⁽³⁰⁾';
+        return '(14) Other Id / Meter ID(s)';
       default:
-        return 'Serial Number(s) ⁽³⁰⁾';
+        return '(14) Serial / Meter ID(s)';
     }
   }
   private setupdataSourceBrandWatcher(deviceGroup: FormGroup) {

@@ -51,7 +51,6 @@ export interface Device {
   otherEacSchemeRegistration?: string;
   additionalInfo?: string;
   // Facility technical (Evident checklist rows 32, 33, 35, 36)
-  meterIds?: string[];
   generatingUnitCount?: number;
   networkOwner?: string;
   interconnectionVoltage?: string;

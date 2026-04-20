@@ -260,7 +260,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       nonMeterImportDetails: [null],
       otherEacSchemeRegistration: [null],
       additionalInfo: [null],
-      meterIds: [null],
       generatingUnitCount: [null],
       networkOwner: [null],
       interconnectionVoltage: [null],

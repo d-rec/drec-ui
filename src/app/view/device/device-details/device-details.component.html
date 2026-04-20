@@ -26,7 +26,7 @@
       <div class="report" #reportContent>
         <h3 class="section-heading">General</h3>
         <p><b>Site Name</b>: {{ device_details.siteName }}</p>
-        <p><b>Serial Number(s)</b>: {{ device_details.serialNumber }}</p>
+        <p><b>Serial / Meter ID(s) ⁽¹⁴⁾</b>: {{ device_details.serialNumber }}</p>
         <p *ngIf="device_details.defaultAccountCode"><b>Default Account Code</b>: {{ device_details.defaultAccountCode }}</p>
         <p *ngIf="device_details.requestedEffectiveRegDate"><b>Requested Effective Reg. Date</b>: {{ device_details.requestedEffectiveRegDate }}</p>
         <p *ngIf="device_details.registrationType"><b>Registration Type</b>: {{ device_details.registrationType }}</p>
@@ -43,7 +43,6 @@
         <p *ngIf="device_details.sourceAccessMode"><b>Source Access Mode</b>: {{ device_details.sourceAccessMode }}</p>
 
         <h3 class="section-heading">Facility Technical</h3>
-        <p *ngIf="device_details.meterIds"><b>Meter / Measurement ID(s)</b>: {{ device_details.meterIds }}</p>
         <p *ngIf="device_details.generatingUnitCount"><b>Number of Generating Units</b>: {{ device_details.generatingUnitCount }}</p>
         <p *ngIf="device_details.networkOwner"><b>Network Owner</b>: {{ device_details.networkOwner }}</p>
         <p *ngIf="device_details.interconnectionVoltage"><b>Interconnection Voltage</b>: {{ device_details.interconnectionVoltage }}</p>
