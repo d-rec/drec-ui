@@ -65,13 +65,35 @@
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <mat-form-field appearance="outline" class="w-100" test-id="serial-number">
-                      <mat-label>{{ getSerialNumberLabel(i) }}</mat-label>
-                      <input matInput formControlName="serialNumber" />
-                      <mat-error>
-                        Serial number(s) must contain only letters, numbers, underscores, hyphens, or semicolons.
-                      </mat-error>
-                    </mat-form-field>
+                    <div class="serial-list" test-id="serial-number">
+                      <div class="serial-list__row" *ngFor="let s of getSerialNumbers(i); let j = index; trackBy: trackByIndex">
+                        <mat-form-field appearance="outline" class="w-100 serial-list__field">
+                          <mat-label>{{ j === 0 ? getSerialNumberLabel(i) : 'Additional ID' }}</mat-label>
+                          <input matInput
+                            [ngModel]="s"
+                            (ngModelChange)="setSerialNumber(i, j, $event)"
+                            [ngModelOptions]="{standalone: true}" />
+                        </mat-form-field>
+                        <button *ngIf="getSerialNumbers(i).length > 1"
+                          type="button"
+                          mat-icon-button
+                          class="serial-list__remove"
+                          (click)="removeSerialNumber(i, j)"
+                          title="Remove">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                      <button type="button"
+                        mat-stroked-button
+                        class="serial-list__add"
+                        (click)="addSerialNumber(i)">
+                        <mat-icon>add</mat-icon> Add ID
+                      </button>
+                      <div *ngIf="deviceForms.at(i).get('serialNumber')?.invalid && deviceForms.at(i).get('serialNumber')?.touched"
+                        class="serial-list__error">
+                        Each ID must contain only letters, numbers, underscores, or hyphens.
+                      </div>
+                    </div>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline" class="w-100" test-id="data-source">
@@ -655,6 +677,12 @@
                         (click)="openPreview(i, 'PROJECT_PHOTOS')">
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
+                      <button *ngIf="files[i]?.['PROJECT_PHOTOS']?.length" type="button"
+                        class="badge bg-primary text-white px-3 py-2 preview-btn"
+                        (click)="openRenameDialog(i, 'PROJECT_PHOTOS')"
+                        title="Name each file">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">edit</mat-icon>
+                      </button>
                       <span *ngIf="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value"
                         class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
@@ -795,6 +823,12 @@
                         (click)="openPreview(i, 'METERING_EVIDENCE')">
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
+                      <button *ngIf="files[i]?.['METERING_EVIDENCE']?.length" type="button"
+                        class="badge bg-primary text-white px-3 py-2 preview-btn"
+                        (click)="openRenameDialog(i, 'METERING_EVIDENCE')"
+                        title="Name each file">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">edit</mat-icon>
+                      </button>
                       <span *ngIf="!deviceForms.at(i).get('METERING_EVIDENCE')?.value"
                         class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
@@ -844,6 +878,12 @@
                         class="badge bg-success text-white px-3 py-2 preview-btn"
                         (click)="openPreview(i, 'SCREENSHOTS')">
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
+                      </button>
+                      <button *ngIf="files[i]?.['SCREENSHOTS']?.length" type="button"
+                        class="badge bg-primary text-white px-3 py-2 preview-btn"
+                        (click)="openRenameDialog(i, 'SCREENSHOTS')"
+                        title="Name each file">
+                        <mat-icon style="font-size:18px;height:18px;width:18px">edit</mat-icon>
                       </button>
                     </div>
                   </div>
@@ -917,6 +957,59 @@
       [previewType]="previewData!.type === 'pdf' ? 'pdf' : previewData!.type === 'excel' ? 'excel' : 'image'"
       [ocrSource]="currentPreviewFile">
     </app-pdf-preview>
+  </div>
+</ng-template>
+
+<ng-template #renameDialog>
+  <h2 mat-dialog-title class="d-flex justify-content-between align-items-center mb-0">
+    <span>Name files — {{ renameDialogType }}</span>
+    <button mat-icon-button (click)="renameDialogRef?.close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </h2>
+  <div mat-dialog-content>
+    <p class="text-muted" style="font-size:12px">
+      Give each file a descriptive label. Leave blank to fall back to the original filename. Labels are saved when you submit the device.
+    </p>
+    <div class="doc-rename-grid" *ngIf="renameDialogFiles.length">
+      <div class="doc-rename-card" *ngFor="let r of renameDialogFiles; let i = index">
+        <div class="doc-rename-card__preview" (click)="openRenamePreview(r)" title="Click to enlarge, zoom and pan">
+          <img *ngIf="r.type === 'image'; else filePlaceholder" [src]="r.url" [alt]="r.name" />
+          <ng-template #filePlaceholder>
+            <mat-icon class="doc-rename-card__filetype-icon">{{ r.type === 'pdf' ? 'picture_as_pdf' : 'insert_drive_file' }}</mat-icon>
+            <span class="doc-rename-card__ext">{{ fileExtension(r.name) }}</span>
+          </ng-template>
+          <span class="doc-rename-card__zoom-hint">
+            <mat-icon>zoom_in</mat-icon>
+          </span>
+        </div>
+        <div class="doc-rename-card__meta">
+          <div class="doc-rename-card__filename" [title]="r.name">{{ r.name }}</div>
+          <input type="text" class="doc-rename-card__label"
+            placeholder="e.g. Inverter 1, north view…"
+            [(ngModel)]="r.label"
+            [ngModelOptions]="{standalone: true}" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-end">
+    <button mat-button class="btn btn-primary" (click)="renameDialogRef?.close()">Done</button>
+  </div>
+</ng-template>
+
+<ng-template #imageFullView>
+  <div class="image-full-view">
+    <div class="image-full-view__bar">
+      <span class="image-full-view__name">{{ imageFullViewName }}</span>
+      <span class="image-full-view__hint">Scroll to zoom · drag to pan · double-click to reset</span>
+      <button mat-icon-button (click)="imageFullViewRef?.close()" class="image-full-view__close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="image-full-view__stage" appImageZoomPan [resetKey]="imageFullViewUrl">
+      <img [src]="imageFullViewUrl" [alt]="imageFullViewName" />
+    </div>
   </div>
 </ng-template>
 

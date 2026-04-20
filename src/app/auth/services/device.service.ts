@@ -118,9 +118,35 @@ export class DeviceService {
   getDeviceInfoBYexternalId(externalid: string): Observable<any> {
     return this.httpClient.get(this.url + 'device/externalId/' + externalid);
   }
-  getDocuments(deviceId: number): Observable<{ type: string; url: string; id: number }[]> {
-    return this.httpClient.get<{ type: string; url: string; id: number }[]>(
-      this.url + 'device/' + deviceId + '/documents',
+  getDocuments(
+    deviceId: number,
+  ): Observable<
+    {
+      type: string;
+      url: string;
+      id: number;
+      label: string | null;
+      originalFilename: string | null;
+    }[]
+  > {
+    return this.httpClient.get<
+      {
+        type: string;
+        url: string;
+        id: number;
+        label: string | null;
+        originalFilename: string | null;
+      }[]
+    >(this.url + 'device/' + deviceId + '/documents');
+  }
+
+  updateDocumentLabel(
+    documentId: number,
+    label: string | null,
+  ): Observable<{ id: number; label: string | null }> {
+    return this.httpClient.patch<{ id: number; label: string | null }>(
+      this.url + 'document-uploads/' + documentId,
+      { label },
     );
   }
   public create(data: FormData): Observable<any> {

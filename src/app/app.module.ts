@@ -112,7 +112,7 @@ import { ErrorToastComponent } from './shared/error-toast/error-toast.component'
     MarkdownModule.forRoot(),
     ToastrModule.forRoot({
       closeButton: true,
-      timeOut: 10000,
+      timeOut: 5000,
       progressBar: true,
       toastComponent: ErrorToastComponent,
     }),

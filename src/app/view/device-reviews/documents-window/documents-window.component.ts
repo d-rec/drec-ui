@@ -953,6 +953,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Display label for a multi-file row (pic/ss/me). Prefer user-set label → original filename → URL-derived name. */
+  fileDisplayName(asset: Asset, docKey: string, url: string): string {
+    const meta = asset.docMeta?.[docKey];
+    if (meta?.label && meta.label.trim() !== '') return meta.label;
+    if (meta?.originalFilename && meta.originalFilename.trim() !== '') return meta.originalFilename;
+    return this.fileName(url);
+  }
+
   fileName(url: string): string {
     try {
       const withoutQuery = url.split('?')[0];

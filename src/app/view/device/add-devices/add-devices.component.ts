@@ -80,6 +80,11 @@ export class AddDevicesComponent implements OnDestroy {
   @ViewChild('popupDialog') popupDialog = {} as TemplateRef<any>;
   @ViewChild('previewDialog') previewDialogTemplate = {} as TemplateRef<any>;
   @ViewChild('errorDialog') errorDialogTemplate = {} as TemplateRef<any>;
+  @ViewChild('renameDialog') renameDialogTemplate = {} as TemplateRef<any>;
+  @ViewChild('imageFullView') imageFullViewTemplate = {} as TemplateRef<any>;
+  imageFullViewUrl: any = null;
+  imageFullViewName: string = '';
+  imageFullViewRef: any = null;
   previewDialogRef: any;
   previewData: { url: any; type: string; name: string } | null = null;
   currentPreviewFile: File | null = null;
@@ -162,6 +167,17 @@ export class AddDevicesComponent implements OnDestroy {
   files: {
     [index: number]: DeviceFiles;
   } = {};
+  // Per-file labels staged locally. Keyed by device index → file type → position in files array.
+  fileLabels: {
+    [index: number]: { [fileType: string]: string[] };
+  } = {};
+  // Per-device list of serial/meter IDs, joined with ';' into the serialNumber form control on change.
+  serialNumberLists: { [index: number]: string[] } = {};
+  // Object URLs created for staged previews in the rename dialog — revoked on dialog close.
+  renameObjectUrls: string[] = [];
+  renameDialogDeviceIndex: number = 0;
+  renameDialogType: string = '';
+  renameDialogRef: any = null;
   filePreviews: {
     [index: number]: {
       [key: string]: {
@@ -385,6 +401,7 @@ export class AddDevicesComponent implements OnDestroy {
     });
 
     this.deviceForms.push(device);
+    this.serialNumberLists[this.deviceForms.length - 1] = [''];
     this.setupDataSourceWatcher(device);
   }
 
@@ -510,6 +527,7 @@ export class AddDevicesComponent implements OnDestroy {
 
     this.deviceForms.push(device);
     this.showaddmore[this.deviceForms.length - 1] = true;
+    this.serialNumberLists[this.deviceForms.length - 1] = [''];
 
     const index = this.deviceForms.length - 1;
     this.filteredCountryList[index] = this.getCountryCodeControl(
@@ -622,6 +640,57 @@ export class AddDevicesComponent implements OnDestroy {
 
   deleteDevice(i: number) {
     this.deviceForms.removeAt(i);
+    // Shift serialNumberLists indices down so they stay aligned with the FormArray.
+    const shifted: { [index: number]: string[] } = {};
+    const entries = Object.entries(this.serialNumberLists);
+    for (const [k, v] of entries) {
+      const n = Number(k);
+      if (n === i) continue;
+      shifted[n > i ? n - 1 : n] = v;
+    }
+    this.serialNumberLists = shifted;
+  }
+
+  getSerialNumbers(deviceIndex: number): string[] {
+    if (!this.serialNumberLists[deviceIndex]) {
+      this.serialNumberLists[deviceIndex] = [''];
+    }
+    return this.serialNumberLists[deviceIndex];
+  }
+
+  private syncSerialNumberControl(deviceIndex: number): void {
+    const joined = (this.serialNumberLists[deviceIndex] || [])
+      .map((v) => (v || '').trim())
+      .filter((v) => v !== '')
+      .join(';');
+    const ctrl = this.deviceForms.at(deviceIndex).get('serialNumber');
+    if (!ctrl) return;
+    ctrl.setValue(joined === '' ? null : joined);
+    ctrl.markAsDirty();
+  }
+
+  setSerialNumber(deviceIndex: number, rowIndex: number, value: string): void {
+    const list = this.getSerialNumbers(deviceIndex);
+    list[rowIndex] = value;
+    this.syncSerialNumberControl(deviceIndex);
+  }
+
+  addSerialNumber(deviceIndex: number): void {
+    this.getSerialNumbers(deviceIndex).push('');
+  }
+
+  removeSerialNumber(deviceIndex: number, rowIndex: number): void {
+    const list = this.getSerialNumbers(deviceIndex);
+    if (list.length <= 1) {
+      list[0] = '';
+    } else {
+      list.splice(rowIndex, 1);
+    }
+    this.syncSerialNumberControl(deviceIndex);
+  }
+
+  trackByIndex(i: number) {
+    return i;
   }
 
   getCountryCodeControl(index: number): FormControl {
@@ -672,6 +741,7 @@ export class AddDevicesComponent implements OnDestroy {
     }
 
     const multiTypes: string[] = ['PROJECT_PHOTOS', 'SCREENSHOTS', 'METERING_EVIDENCE', 'OTHER_DOCUMENTS'];
+    const prevLen = (this.files[deviceIndex][fileType] || []).length;
     if (multiTypes.includes(fileType)) {
       this.files[deviceIndex][fileType] = [
         ...(this.files[deviceIndex][fileType] || []),
@@ -679,6 +749,16 @@ export class AddDevicesComponent implements OnDestroy {
       ];
     } else {
       this.files[deviceIndex][fileType] = Array.from(files);
+    }
+    // Keep fileLabels aligned with files[] length per type.
+    if (!this.fileLabels[deviceIndex]) this.fileLabels[deviceIndex] = {};
+    const newLen = this.files[deviceIndex][fileType].length;
+    if (multiTypes.includes(fileType)) {
+      const existing = this.fileLabels[deviceIndex][fileType] || [];
+      const appended = Array(newLen - prevLen).fill('');
+      this.fileLabels[deviceIndex][fileType] = [...existing, ...appended];
+    } else {
+      this.fileLabels[deviceIndex][fileType] = Array(newLen).fill('');
     }
 
     const fileControl = this.deviceForms.at(deviceIndex).get(fileType);
@@ -716,6 +796,116 @@ export class AddDevicesComponent implements OnDestroy {
       maxWidth: '1400px',
       height: '90vh',
       panelClass: 'file-preview-dialog',
+    });
+  }
+
+  renameableTypes: string[] = ['PROJECT_PHOTOS', 'SCREENSHOTS', 'METERING_EVIDENCE'];
+
+  renameDialogFiles: { file: File; url: string; name: string; type: 'image' | 'pdf' | 'excel' | 'other'; label: string }[] = [];
+
+  openRenameDialog(deviceIndex: number, fileType: string): void {
+    const files = this.files[deviceIndex]?.[fileType as keyof DeviceFiles] || [];
+    if (!files.length) return;
+    // Revoke any URLs from a prior opening before creating new ones.
+    for (const u of this.renameObjectUrls) URL.revokeObjectURL(u);
+    this.renameObjectUrls = [];
+    if (!this.fileLabels[deviceIndex]) this.fileLabels[deviceIndex] = {};
+    if (!this.fileLabels[deviceIndex][fileType]) {
+      this.fileLabels[deviceIndex][fileType] = Array(files.length).fill('');
+    }
+    this.renameDialogDeviceIndex = deviceIndex;
+    this.renameDialogType = fileType;
+    this.renameDialogFiles = files.map((f, i) => {
+      const url = URL.createObjectURL(f);
+      this.renameObjectUrls.push(url);
+      const ext = (f.name.split('.').pop() || '').toLowerCase();
+      const type: 'image' | 'pdf' | 'excel' | 'other' =
+        ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext) ? 'image'
+        : ext === 'pdf' ? 'pdf'
+        : ext === 'xlsx' || ext === 'xls' ? 'excel'
+        : 'other';
+      return {
+        file: f,
+        url,
+        name: f.name,
+        type,
+        label: this.fileLabels[deviceIndex][fileType][i] ?? '',
+      };
+    });
+    this.renameDialogRef = this.dialog.open(this.renameDialogTemplate, {
+      width: '1200px',
+      maxWidth: '95vw',
+      maxHeight: '92vh',
+    });
+    this.renameDialogRef.afterClosed().subscribe(() => {
+      // Flush any edited labels back to the canonical store.
+      const labels = this.renameDialogFiles.map((r) => r.label || '');
+      this.fileLabels[this.renameDialogDeviceIndex][this.renameDialogType] = labels;
+      for (const u of this.renameObjectUrls) URL.revokeObjectURL(u);
+      this.renameObjectUrls = [];
+      this.renameDialogFiles = [];
+    });
+  }
+
+  fileExtension(name: string): string {
+    return (name.split('.').pop() || '').toUpperCase();
+  }
+
+  openRenamePreview(r: { url: string; name: string; type: 'image' | 'pdf' | 'excel' | 'other'; file: File }): void {
+    if (r.type === 'image') {
+      this.imageFullViewUrl = r.url;
+      this.imageFullViewName = r.name;
+      this.imageFullViewRef = this.dialog.open(this.imageFullViewTemplate, {
+        width: '100vw',
+        maxWidth: '100vw',
+        height: '100vh',
+        panelClass: 'image-full-view-dialog',
+      });
+      return;
+    }
+    this.previewData = {
+      url: this.sanitizer.bypassSecurityTrustResourceUrl(r.url),
+      type: r.type,
+      name: r.name,
+    };
+    this.currentPreviewFile = r.file;
+    this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
+      width: '95vw',
+      maxWidth: '1400px',
+      height: '90vh',
+      panelClass: 'file-preview-dialog',
+    });
+  }
+
+  /** Fetch documents for the freshly-created device and PATCH labels for any we staged. */
+  private persistStagedLabels(deviceId: number, deviceIndex: number): void {
+    const labelsByType = this.fileLabels[deviceIndex];
+    if (!labelsByType) return;
+    // Only the three user-facing categories support rename. Skip the call if nothing is set.
+    const hasAny = this.renameableTypes.some((t) =>
+      (labelsByType[t] || []).some((l) => l && l.trim() !== ''),
+    );
+    if (!hasAny) return;
+    this.deviceService.getDocuments(deviceId).subscribe({
+      next: (docs) => {
+        for (const type of this.renameableTypes) {
+          const files = this.files[deviceIndex]?.[type as keyof DeviceFiles] || [];
+          const labels = labelsByType[type] || [];
+          for (let i = 0; i < files.length; i++) {
+            const label = (labels[i] || '').trim();
+            if (!label) continue;
+            const match = docs.find(
+              (d) => d.type === type && d.originalFilename === files[i].name && !d.label,
+            );
+            if (!match) continue;
+            this.deviceService.updateDocumentLabel(match.id, label).subscribe({
+              error: (err) =>
+                console.warn(`Failed to save label for ${files[i].name}`, err?.message),
+            });
+          }
+        }
+      },
+      error: (err) => console.warn('Failed to fetch documents for labeling', err?.message),
     });
   }
 
@@ -840,6 +1030,11 @@ export class AddDevicesComponent implements OnDestroy {
             'Added Successfully !!',
             'Device! ' + element.serialNumber,
           );
+
+          // Persist any per-file labels the registrant set in the rename dialog.
+          if (result?.id) {
+            this.persistStagedLabels(result.id, index);
+          }
 
           // Auto-generate SF-02 registration form when self-declaration mode is selected
           if (sf02Mode === 'self' && result?.id) {

@@ -49,6 +49,13 @@ type FileType =
 export class EditDeviceComponent implements OnInit, OnDestroy {
   @ViewChild('errorDialog') errorDialogTemplate = {} as TemplateRef<any>;
   @ViewChild('previewDialog') previewDialogTemplate = {} as TemplateRef<any>;
+  @ViewChild('renameDialog') renameDialogTemplate = {} as TemplateRef<any>;
+  @ViewChild('imageFullView') imageFullViewTemplate = {} as TemplateRef<any>;
+  renameDialogType: string = '';
+  renameDialogRef: any = null;
+  imageFullViewUrl: any = null;
+  imageFullViewName: string = '';
+  imageFullViewRef: any = null;
   previewDialogRef: any;
   previewData: { url: any; type: string; name: string } | null = null;
   currentPreviewFile: File | null = null;
@@ -102,7 +109,20 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   DocumentType = DocumentType;
   files: { [key: string]: File[] } = {};
   filePreviews: { [key: string]: { url: SafeResourceUrl; type: 'image' | 'pdf' | 'excel' | 'other'; name: string } } = {};
-  existingDocs: { [type: string]: { url: string; name: string }[] } = {};
+  existingDocs: {
+    [type: string]: {
+      url: string;
+      name: string;
+      id: number;
+      label: string | null;
+    }[];
+  } = {};
+  // Which doc categories support per-file rename (registrant-facing).
+  renameableDocTypes: string[] = [
+    DocumentType.PROJECT_PHOTOS,
+    DocumentType.SCREENSHOTS,
+    DocumentType.METERING_EVIDENCE,
+  ];
   brokenDocs: { [type: string]: boolean } = {};
 
   // Evident-compliant upload checklists — upload is gated until all items are ticked
@@ -157,8 +177,31 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   existingDocLabel(type: string): string {
     const docs = this.existingDocs[type];
     if (!docs?.length) return '';
-    if (docs.length === 1) return docs[0].name;
+    if (docs.length === 1) return docs[0].label || docs[0].name;
     return docs.length + ' files uploaded';
+  }
+
+  saveDocumentLabel(
+    type: string,
+    index: number,
+    nextLabel: string,
+  ): void {
+    const docs = this.existingDocs[type];
+    const entry = docs?.[index];
+    if (!entry) return;
+    const trimmed = nextLabel.trim();
+    const normalized = trimmed === '' ? null : trimmed;
+    if (normalized === entry.label) return;
+    this.deviceService.updateDocumentLabel(entry.id, normalized).subscribe({
+      next: () => {
+        entry.label = normalized;
+        this.toastrService.success('Label saved');
+      },
+      error: (err) => {
+        const msg = err?.error?.message || err?.message || 'Failed to save label';
+        this.toastrService.error(msg);
+      },
+    });
   }
   fileTypes: FileType[] = [
     DocumentType.FORM_SF_02,
@@ -443,7 +486,12 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
             name = name.replace(/-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, '');
             // Strip upload timestamp+index suffix (e.g. _1752226304295_1.pdf → .pdf)
             name = name.replace(/_\d{10,}_\d+\./, '.');
-            this.existingDocs[doc.type].push({ url: doc.url, name });
+            this.existingDocs[doc.type].push({
+              url: doc.url,
+              name: doc.originalFilename || name,
+              id: doc.id,
+              label: doc.label,
+            });
           }
           // Check each document URL for 404s (GET + abort, since HEAD may be blocked by CORS)
           this.brokenDocs = {};
@@ -505,6 +553,60 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     if (!preview) return;
     this.previewData = preview;
     this.currentPreviewFile = this.files[fileType]?.[0] ?? null;
+    this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
+      width: '95vw',
+      maxWidth: '1400px',
+      height: '90vh',
+      panelClass: 'file-preview-dialog',
+    });
+  }
+
+  openRenameDialog(docType: string): void {
+    if (!this.existingDocs[docType]?.length) return;
+    this.renameDialogType = docType;
+    this.renameDialogRef = this.dialog.open(this.renameDialogTemplate, {
+      width: '1200px',
+      maxWidth: '95vw',
+      maxHeight: '92vh',
+    });
+  }
+
+  isImageFile(name: string): boolean {
+    const ext = (name.split('.').pop() || '').toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext);
+  }
+
+  isPdfFile(name: string): boolean {
+    return (name.split('.').pop() || '').toLowerCase() === 'pdf';
+  }
+
+  fileExtension(name: string): string {
+    return (name.split('.').pop() || '').toUpperCase();
+  }
+
+  openRenamePreview(d: { url: string; name: string }): void {
+    if (this.isImageFile(d.name)) {
+      this.imageFullViewUrl = d.url;
+      this.imageFullViewName = d.name;
+      this.imageFullViewRef = this.dialog.open(this.imageFullViewTemplate, {
+        width: '100vw',
+        maxWidth: '100vw',
+        height: '100vh',
+        panelClass: 'image-full-view-dialog',
+      });
+      return;
+    }
+    const ext = (d.name.split('.').pop() || '').toLowerCase();
+    const type: 'image' | 'pdf' | 'excel' | 'other' =
+      this.isPdfFile(d.name) ? 'pdf'
+      : ext === 'xlsx' || ext === 'xls' ? 'excel'
+      : 'other';
+    this.previewData = {
+      url: this.sanitizer.bypassSecurityTrustResourceUrl(d.url),
+      type,
+      name: d.name,
+    };
+    this.currentPreviewFile = null;
     this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
       width: '95vw',
       maxWidth: '1400px',

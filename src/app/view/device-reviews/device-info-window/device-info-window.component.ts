@@ -10,11 +10,12 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { AssetService } from '../asset.service';
 import { satellitePreview, SatellitePreview } from '../../map/map.component';
 import { environment } from '../../../../environments/environment';
+import { CountryNamePipe } from '../country-name.pipe';
 
 interface Field {
   label: string;
@@ -37,7 +38,7 @@ interface Section {
   selector: 'app-ds-device-info-window',
   templateUrl: './device-info-window.component.html',
   styleUrls: ['./device-info-window.component.scss'],
-  providers: [DatePipe],
+  providers: [DatePipe, CountryNamePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
@@ -45,6 +46,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   @Output() bringToFront = new EventEmitter<void>();
 
   deviceInfo: any = null;
+  documents: { type: string; url: string; id: number }[] = [];
   loading = false;
   satPreview: SatellitePreview | null = null;
   search = '';
@@ -56,6 +58,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
     public svc: AssetService,
     private toastr: ToastrService,
     private datePipe: DatePipe,
+    private countryNamePipe: CountryNamePipe,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -63,6 +66,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
     this.sub = this.svc.viewDeviceInfoId$.subscribe((id) => {
       if (id == null) {
         this.deviceInfo = null;
+        this.documents = [];
         this.satPreview = null;
         this.loading = false;
         this.search = '';
@@ -83,16 +87,23 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
 
   private load(deviceId: number): void {
     this.deviceInfo = null;
+    this.documents = [];
     this.satPreview = null;
     this.loading = true;
     this.bringToFront.emit();
     this.cdr.markForCheck();
-    this.http.get<any>(`${environment.API_URL}device/${deviceId}`).subscribe({
-      next: (data) => {
-        this.deviceInfo = data;
+    forkJoin({
+      device: this.http.get<any>(`${environment.API_URL}device/${deviceId}`),
+      documents: this.http.get<{ type: string; url: string; id: number }[]>(
+        `${environment.API_URL}device/${deviceId}/documents`,
+      ),
+    }).subscribe({
+      next: ({ device, documents }) => {
+        this.deviceInfo = device;
+        this.documents = documents ?? [];
         this.loading = false;
-        const lat = parseFloat(data.latitude);
-        const lng = parseFloat(data.longitude);
+        const lat = parseFloat(device.latitude);
+        const lng = parseFloat(device.longitude);
         if (!isNaN(lat) && !isNaN(lng)) {
           this.satPreview = satellitePreview(lat, lng, 19);
         }
@@ -149,6 +160,12 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
       v ? this.datePipe.transform(v, 'dd MMM y') || '' : '';
     const fmtArr = (v: any): string =>
       Array.isArray(v) && v.length ? v.join(', ') : '';
+    const docCount = (type: string): number =>
+      this.documents.filter((doc) => doc.type === type).length;
+    const fmtDocs = (type: string): string => {
+      const n = docCount(type);
+      return n === 0 ? '—' : n === 1 ? '1 file' : `${n} files`;
+    };
 
     return [
       {
@@ -157,9 +174,9 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
         fields: [
           { label: '(1) Site Name', value: fmt(d.siteName) },
           { label: '(2) Address', value: fmt(d.address) },
-          { label: '(3) State/Province/County', value: fmt(d.stateProvince), hideIfEmpty: true },
-          { label: '(4) Postcode (Zip Code)', value: fmt(d.postcode), hideIfEmpty: true },
-          { label: '(5) Country', value: fmt(d.countryCode) },
+          { label: '(3) State/Province/County', value: fmt(d.stateProvince) || '—' },
+          { label: '(4) Postcode (Zip Code)', value: fmt(d.postcode) || '—' },
+          { label: '(5) Country', value: this.countryNamePipe.transform(d.countryCode) || fmt(d.countryCode) },
           { label: '(6) Latitude', value: fmt(d.latitude), hint: 'Must provide at least six digits after the decimal; must land exactly on a solar panel' },
           { label: '(7) Longitude', value: fmt(d.longitude), hint: 'Must provide at least six digits after the decimal; must land exactly on a solar panel' },
         ],
@@ -168,6 +185,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
         heading: '',
         fields: [
           { label: '(8) Device Description', value: fmt(d.deviceDescription), hideIfEmpty: true },
+          { label: '(9) Capacity', value: fmt(d.capacity) },
           { label: '(10) Commissioning Date', value: fmtDate(d.commissioningDate) },
           { label: '(11) Requested Effective Reg. Date', value: fmt(d.requestedEffectiveRegDate), hideIfEmpty: true, hint: 'Please provide the date from which you would like to begin issuing D-RECs for this facility; default is COD.' },
           { label: '(12) Default Account Code', value: fmt(d.defaultAccountCode), hideIfEmpty: true, hint: 'Please provide the Evident trade account code you would like this facility to issue into' },
@@ -203,6 +221,18 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
         ],
       },
       {
+        heading: 'Documents',
+        fields: [
+          { label: '(43) Project Photos', value: fmtDocs('PROJECT_PHOTOS'), hint: 'At least three photos showing the full installation and surrounding topography' },
+          { label: '(45) Single Line Diagram', value: fmtDocs('SINGLE_LINE_DIAGRAM') },
+          { label: '(46) SF-02c (Owner\'s Declaration)', value: fmtDocs('SF_02C') },
+          { label: '(47) Proof of Ownership', value: fmtDocs('SF_02C_OWNERS_DECLARATION') },
+          { label: '(48) COD Proof', value: fmtDocs('COD_PROOF'), hint: 'Handover letter or commissioning certificate confirming the commissioning date' },
+          { label: '(49) Metering Evidence', value: fmtDocs('METERING_EVIDENCE'), hint: 'Sample metering evidence relied on for I-REC issuance' },
+          { label: '(50) Other Documents', value: fmtDocs('OTHER_DOCUMENTS'), hint: 'e.g. No RPO letter for facilities in India' },
+        ],
+      },
+      {
         heading: 'Other',
         fields: [
           { label: 'Registration Type', value: fmt(d.registrationType), hideIfEmpty: true },
@@ -213,7 +243,6 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
           { label: 'Data Source', value: fmt(d.dataSource), hideIfEmpty: true },
           { label: 'Other Data Source', value: fmt(d.otherDataSource), hideIfEmpty: true },
           { label: 'Data Source Brand', value: fmt(d.dataSourceBrand), hideIfEmpty: true },
-          { label: 'Capacity', value: fmt(d.capacity) },
           { label: 'OnBoarding Date', value: fmtDate(d.createdAt) },
           { label: 'Operating Configuration', value: fmt(d.operatingConfiguration), hideIfEmpty: true },
           { label: 'Timezone', value: fmt(d.timezone) },

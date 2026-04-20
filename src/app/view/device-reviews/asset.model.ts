@@ -8,6 +8,8 @@ export type AssetStatus =
 export interface DocMeta {
   docId: number;
   reviewed: boolean;
+  label?: string | null;
+  originalFilename?: string | null;
 }
 
 export interface Asset {

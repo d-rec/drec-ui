@@ -204,7 +204,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':me:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(url), result.searchTerm)"></span>
+              <span class="file-name" [innerHTML]="hl(fileDisplayName(item, 'me:' + i, url), result.searchTerm)"></span>
               <span *ngIf="isBroken(url)" class="missing-tag">(missing)</span>
             </div>
             <div *ngIf="!item.meteringEvidenceUrls.length" class="dr-row dr-row--empty"><span class="missing-tag">missing</span></div>
@@ -228,7 +228,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':pic:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <img [src]="url" class="thumb" width="28" height="28" alt="" />
-              <span class="file-name" [innerHTML]="hl(fileName(url), result.searchTerm)"></span>
+              <span class="file-name" [innerHTML]="hl(fileDisplayName(item, 'pic:' + i, url), result.searchTerm)"></span>
             </div>
             <div *ngIf="!item.pictureUrls.length" class="dr-row dr-row--empty"><span class="missing-tag">missing — at least 3 required</span></div>
             <div *ngIf="item.pictureUrls.length > 0 && item.pictureUrls.length < 3" class="dr-row dr-row--empty"><span class="missing-tag">only {{ item.pictureUrls.length }} photo(s) — at least 3 required</span></div>
@@ -252,7 +252,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':ss:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <img [src]="url" class="thumb" width="28" height="28" alt="" />
-              <span class="file-name" [innerHTML]="hl(fileName(url), result.searchTerm)"></span>
+              <span class="file-name" [innerHTML]="hl(fileDisplayName(item, 'ss:' + i, url), result.searchTerm)"></span>
             </div>
             <div *ngIf="!item.screenshotUrls.length" class="dr-row dr-row--empty">No screenshots</div>
           </ng-container>
@@ -341,7 +341,7 @@
                   <option value="legacy">Legacy</option>
                 </select>
               </div>
-              <div class="field field--auto" style="display:flex;align-items:flex-end;margin-left:auto">
+              <div class="field field--auto" style="display:flex;align-items:flex-end">
                 <button type="button" class="btn btn--details" (click)="openDeviceInfo()">Details</button>
               </div>
             </div>

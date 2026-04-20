@@ -468,6 +468,12 @@
                     (click)="openPreview('PROJECT_PHOTOS')">
                     <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                   </button>
+                  <button *ngIf="existingDocs['PROJECT_PHOTOS']?.length" type="button"
+                    class="badge bg-primary text-white px-3 py-2 preview-btn"
+                    (click)="openRenameDialog('PROJECT_PHOTOS')"
+                    title="Rename uploaded files">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">edit</mat-icon>
+                  </button>
                 </div>
               </div>
 
@@ -616,6 +622,12 @@
                     (click)="openPreview('METERING_EVIDENCE')">
                     <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                   </button>
+                  <button *ngIf="existingDocs['METERING_EVIDENCE']?.length" type="button"
+                    class="badge bg-primary text-white px-3 py-2 preview-btn"
+                    (click)="openRenameDialog('METERING_EVIDENCE')"
+                    title="Rename uploaded files">
+                    <mat-icon style="font-size:18px;height:18px;width:18px">edit</mat-icon>
+                  </button>
                 </div>
               </div>
 
@@ -669,6 +681,59 @@
       [previewType]="previewData!.type === 'pdf' ? 'pdf' : previewData!.type === 'excel' ? 'excel' : 'image'"
       [ocrSource]="currentPreviewFile">
     </app-pdf-preview>
+  </div>
+</ng-template>
+
+<ng-template #renameDialog>
+  <h2 mat-dialog-title class="d-flex justify-content-between align-items-center mb-0">
+    <span>Rename files — {{ renameDialogType }}</span>
+    <button mat-icon-button (click)="renameDialogRef?.close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </h2>
+  <div mat-dialog-content>
+    <p class="text-muted" style="font-size:12px">
+      Give each file a descriptive label so reviewers can tell them apart. Leave blank to fall back to the original filename.
+    </p>
+    <div class="doc-rename-grid" *ngIf="existingDocs[renameDialogType]?.length">
+      <div class="doc-rename-card" *ngFor="let d of existingDocs[renameDialogType]; let i = index">
+        <div class="doc-rename-card__preview" (click)="openRenamePreview(d)" title="Click to enlarge, zoom and pan">
+          <img *ngIf="isImageFile(d.name); else filePlaceholder" [src]="d.url" [alt]="d.name" />
+          <ng-template #filePlaceholder>
+            <mat-icon class="doc-rename-card__filetype-icon">{{ isPdfFile(d.name) ? 'picture_as_pdf' : 'insert_drive_file' }}</mat-icon>
+            <span class="doc-rename-card__ext">{{ fileExtension(d.name) }}</span>
+          </ng-template>
+          <span class="doc-rename-card__zoom-hint">
+            <mat-icon>zoom_in</mat-icon>
+          </span>
+        </div>
+        <div class="doc-rename-card__meta">
+          <div class="doc-rename-card__filename" [title]="d.name">{{ d.name }}</div>
+          <input type="text" class="doc-rename-card__label"
+            placeholder="e.g. Inverter 1, north view…"
+            [value]="d.label || ''"
+            (blur)="saveDocumentLabel(renameDialogType, i, $any($event.target).value)" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-end">
+    <button mat-button class="btn btn-primary" (click)="renameDialogRef?.close()">Done</button>
+  </div>
+</ng-template>
+
+<ng-template #imageFullView>
+  <div class="image-full-view">
+    <div class="image-full-view__bar">
+      <span class="image-full-view__name">{{ imageFullViewName }}</span>
+      <span class="image-full-view__hint">Scroll to zoom · drag to pan · double-click to reset</span>
+      <button mat-icon-button (click)="imageFullViewRef?.close()" class="image-full-view__close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="image-full-view__stage" appImageZoomPan [resetKey]="imageFullViewUrl">
+      <img [src]="imageFullViewUrl" [alt]="imageFullViewName" />
+    </div>
   </div>
 </ng-template>
 
