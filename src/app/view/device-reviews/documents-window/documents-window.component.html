@@ -357,7 +357,6 @@
             </div>
           <div class="detail-actions">
             <button type="button" class="btn btn--autoscreen" (click)="runAutoScreen()" title="Run all verification checks (VA layer)">Auto-Screen</button>
-            <span class="detail-actions__sep"></span>
             <button type="button" class="btn btn--screen" (click)="screenDuplicates()" title="Screen for duplicates across all organizations">Screen</button>
             <button type="button" class="btn btn--verify" (click)="verifySourceAccess()" title="Verify source-access mode requirements (§3.3)">Verify</button>
             <button type="button" class="btn btn--ceiling" (click)="checkCeiling()" title="Irradiance-based production ceiling check (§3.6)">Ceiling</button>
@@ -785,13 +784,20 @@
     </div>
   </div>
 
-  <!-- ── Auto-Screen Report modal (VA layer) ──────────────────────── -->
-  <div class="modal-backdrop" *ngIf="showAutoScreenModal" role="dialog" aria-modal="true" (click)="showAutoScreenModal = false" (keydown.escape)="showAutoScreenModal = false">
-    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
-      <button type="button" class="modal-close" (click)="showAutoScreenModal = false" aria-label="Close">&times;</button>
+  <!-- ── Auto-Screen Report floating window (VA layer) ─────────────── -->
+  <app-ds-floating-window
+    *ngIf="showAutoScreenModal"
+    title="Auto-Screen Report"
+    [initX]="120"
+    [initY]="80"
+    [initWidth]="560"
+    [initHeight]="600"
+    [zIndex]="zIndex + 10"
+    (bringToFront)="bringToFront.emit()"
+    (close)="showAutoScreenModal = false"
+  >
+    <div class="autoscreen-window">
       <ng-container *ngIf="autoScreenResult">
-        <p class="modal-msg" style="font-weight: 600;">Auto-Screen Report</p>
-
         <div class="screen-overall" [ngClass]="{
           'screen-overall--pass': autoScreenResult.overallStatus === 'pass',
           'screen-overall--warn': autoScreenResult.overallStatus === 'warn',
@@ -824,11 +830,11 @@
         <p style="color: #dc2626; font-weight: 600; margin: 0 0 8px;">Internal Error — Auto-screen failed</p>
         <p *ngIf="autoScreenError" style="color: #64748b; font-size: 12px; margin: 0; white-space: pre-wrap; background: #fef2f2; padding: 10px 12px; border-radius: 4px; border-left: 3px solid #dc2626;">{{ autoScreenError }}</p>
       </div>
-      <div class="modal-actions">
-        <button class="btn btn--save" (click)="showAutoScreenModal = false">OK</button>
+      <div class="autoscreen-window__actions" *ngIf="autoScreenResult">
+        <button type="button" class="btn btn--cancel" (click)="copyAutoScreenReport()">{{ autoScreenCopied ? 'Copied ✓' : 'Copy to clipboard' }}</button>
       </div>
     </div>
-  </div>
+  </app-ds-floating-window>
 
   <!-- ── SF-02 Preview / Confirmation modal ────────────────────────── -->
   <div class="modal-backdrop" *ngIf="showSf02Preview" role="dialog" aria-modal="true" (click)="cancelSf02Generation()" (keydown.escape)="cancelSf02Generation()">

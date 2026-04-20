@@ -1464,6 +1464,43 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.runAutoScreen();
   }
 
+  autoScreenCopied = false;
+
+  copyAutoScreenReport(): void {
+    if (!this.autoScreenResult) return;
+    const r = this.autoScreenResult;
+    const lines: string[] = [];
+    lines.push(`Auto-Screen Report`);
+    lines.push(`Overall: ${r.overallStatus.toUpperCase()}`);
+    lines.push(`Generated: ${new Date(r.timestamp).toLocaleString()}`);
+    lines.push('');
+    for (const s of r.sections) {
+      const label = s.status === 'skip' ? 'ERROR' : s.status.toUpperCase();
+      lines.push(`[${label}] ${s.name}`);
+      for (const f of s.flags || []) lines.push(`  - ${f}`);
+    }
+    const text = lines.join('\n');
+    const done = () => {
+      this.autoScreenCopied = true;
+      setTimeout(() => (this.autoScreenCopied = false), 1500);
+    };
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => this.fallbackCopy(text, done));
+    } else {
+      this.fallbackCopy(text, done);
+    }
+  }
+
+  private fallbackCopy(text: string, done: () => void): void {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); done(); } finally { document.body.removeChild(ta); }
+  }
+
   runAutoScreen(): void {
     if (!this.editingId) return;
     const deviceId = parseInt(this.editingId, 10);

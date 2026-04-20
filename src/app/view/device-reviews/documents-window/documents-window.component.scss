@@ -791,6 +791,19 @@ $legacy:   #a0845c;
   overflow-y: auto;
 }
 
+.autoscreen-window {
+  padding: 4px 16px 12px;
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 12px;
+    margin-top: 8px;
+    border-top: 1px solid #e2e8f0;
+  }
+}
+
 // ── COD Preview table ──────────────────────────────────────────────────────────
 .cod-preview-table {
   width: 100%;
