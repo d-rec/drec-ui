@@ -142,13 +142,16 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     if (this.centerPin) {
       this.map.doubleClickZoom.disable();
 
-      // Use a real Leaflet marker pinned to map center — immune to zoom drift
-      this.centerPinMarker = L.marker(this.map.getCenter(), { icon: mapPinIcon(), interactive: false, zIndexOffset: 1000 }).addTo(this.map);
+      // Don't place the center pin until the user interacts with the map or
+      // real coordinates are supplied via inputs — otherwise a stray pin
+      // shows at the default map view (Sahara) before the user has done
+      // anything meaningful.
 
       let dragging = false;
       this.map.on('movestart', () => {
         dragging = true;
         this.mapDragging.emit(true);
+        this.ensureCenterPin();
       });
       this.map.on('move', () => {
         const c = this.map.getCenter();
@@ -231,8 +234,20 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   recenter(lat: number, lng: number): void {
     if (this.map) {
       this.map.setView([lat, lng], this.map.getZoom(), { animate: true });
+      this.ensureCenterPin([lat, lng]);
       this.centerPinMarker?.setLatLng([lat, lng]);
     }
+  }
+
+  /** Lazily create the center pin marker the first time it's needed. */
+  private ensureCenterPin(latLng?: L.LatLngExpression): void {
+    if (this.centerPinMarker || !this.map) return;
+    const pos = latLng ?? this.map.getCenter();
+    this.centerPinMarker = L.marker(pos, {
+      icon: mapPinIcon(),
+      interactive: false,
+      zIndexOffset: 1000,
+    }).addTo(this.map);
   }
 
   update(): void {
@@ -243,6 +258,8 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         const m = this.markers[0];
         if (!isNaN(m.latitude) && !isNaN(m.longitude)) {
           this.map.setView([m.latitude, m.longitude], this.zoom, { animate: false });
+          this.ensureCenterPin([m.latitude, m.longitude]);
+          this.centerPinMarker?.setLatLng([m.latitude, m.longitude]);
           this.centerPinInitialized = true;
         }
       }

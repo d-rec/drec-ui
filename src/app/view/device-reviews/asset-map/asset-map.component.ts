@@ -11,8 +11,10 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
 import { Asset } from '../asset.model';
+import { AssetService } from '../asset.service';
 import { SatellitePreviewComponent } from '../../../shared/satellite-preview/satellite-preview.component';
 import { mapPinIcon } from '../../../shared/map-pin';
 
@@ -38,6 +40,9 @@ const STATUS_COLOR: Record<string, string> = {
         width: 100%;
         height: 100%;
       }
+      :host ::ng-deep .map-pin-highlighted {
+        z-index: 100000 !important;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,8 +56,10 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private markers: L.Marker[] = [];
   private resizeObserver: ResizeObserver | null = null;
   private pinOverlay: HTMLElement | null = null;
+  private selectedId: string | null = null;
+  private selectedSub: Subscription | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private assetService: AssetService) {}
 
   ngAfterViewInit(): void {
     this.map = L.map(this.mapEl.nativeElement, {
@@ -71,6 +78,12 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
     ).addTo(this.map);
     this.updateMarkers();
 
+    this.selectedSub = this.assetService.selectedId$.subscribe((id) => {
+      this.selectedId = id;
+      if (this.map) this.updateMarkers();
+      if (id) this.panToSelected(id);
+    });
+
     this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());
     this.resizeObserver.observe(this.mapEl.nativeElement);
   }
@@ -80,6 +93,7 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.selectedSub?.unsubscribe();
     this.resizeObserver?.disconnect();
     this.removePinOverlay();
     this.map?.remove();
@@ -95,8 +109,12 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
       const lat = asset.lat;
       const lng = asset.long;
       const id = asset.id;
+      const highlighted = id === this.selectedId;
 
-      const marker = L.marker([lat, lng], { icon: mapPinIcon(color) })
+      const marker = L.marker([lat, lng], {
+        icon: mapPinIcon(color, highlighted),
+        zIndexOffset: highlighted ? 100000 : 0,
+      })
         .on('mouseover', () => {
           this.removePinOverlay();
           this.pinOverlay = SatellitePreviewComponent.createOverlay(
@@ -117,6 +135,15 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
         .addTo(this.map!);
       this.markers.push(marker);
     }
+  }
+
+  private panToSelected(id: string): void {
+    const asset = this.assets.find((a) => a.id === id);
+    if (!asset || asset.lat === null || asset.long === null || !this.map) return;
+    const currentZoom = this.map.getZoom();
+    this.map.flyTo([asset.lat, asset.long], Math.max(currentZoom, 8), {
+      duration: 0.6,
+    });
   }
 
   private removePinOverlay(): void {

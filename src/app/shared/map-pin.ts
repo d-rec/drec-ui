@@ -8,7 +8,7 @@ import * as L from 'leaflet';
  */
 export function mapPinIcon(color = '#e53e3e', highlighted = false): L.DivIcon {
   if (highlighted) {
-    const fill = '#f59e0b';
+    const fill = '#dc2626';
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="36" height="54" viewBox="0 0 24 36">
         <defs>

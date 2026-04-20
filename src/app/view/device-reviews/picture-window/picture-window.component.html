@@ -1,21 +1,20 @@
-<ng-container *ngIf="url$ | async as url">
-  <app-ds-floating-window
-    title="Picture"
-    [initX]="200" [initY]="100"
-    [initWidth]="600" [initHeight]="480"
-    [zIndex]="zIndex"
-    (bringToFront)="bringToFront.emit()"
-    (close)="close()"
-  >
+<app-ds-floating-window
+  title="Picture"
+  [initX]="initX" [initY]="initY"
+  [initWidth]="600" [initHeight]="480"
+  [zIndex]="zIndex"
+  (bringToFront)="bringToFront.emit()"
+  (close)="close()"
+>
     <div class="picw">
-      <!-- Screenshot toolbar: OCR -->
-      <div class="picw__toolbar" *ngIf="isScreenshot">
+      <!-- OCR toolbar: for screenshots & metering evidence (text extraction) -->
+      <div class="picw__toolbar" *ngIf="enableOcr">
         <button class="picw__ocr-btn" (click)="runOcr()" [disabled]="ocrRunning">
           {{ ocrRunning ? 'Reading... ' + ocrProgress + '%' : 'OCR' }}
         </button>
       </div>
       <!-- Photo toolbar: Detect Panels -->
-      <div class="picw__toolbar" *ngIf="!isScreenshot">
+      <div class="picw__toolbar" *ngIf="!enableOcr">
         <button class="picw__detect-btn" (click)="detectPanels()" [disabled]="detecting">
           {{ detecting ? 'Scanning...' : showOverlay ? 'Re-scan' : '⚡ Detect Panels' }}
         </button>
@@ -64,6 +63,5 @@
           </div>
         </div>
       </div>
-    </div>
-  </app-ds-floating-window>
-</ng-container>
+  </div>
+</app-ds-floating-window>

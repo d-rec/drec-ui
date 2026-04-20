@@ -687,7 +687,7 @@
 <ng-template #renameDialog>
   <h2 mat-dialog-title class="d-flex justify-content-between align-items-center mb-0">
     <span>Rename files — {{ renameDialogType }}</span>
-    <button mat-icon-button (click)="renameDialogRef?.close()">
+    <button mat-icon-button (click)="cancelRenameDialog()">
       <mat-icon>close</mat-icon>
     </button>
   </h2>
@@ -711,14 +711,15 @@
           <div class="doc-rename-card__filename" [title]="d.name">{{ d.name }}</div>
           <input type="text" class="doc-rename-card__label"
             placeholder="e.g. Inverter 1, north view…"
-            [value]="d.label || ''"
-            (blur)="saveDocumentLabel(renameDialogType, i, $any($event.target).value)" />
+            [(ngModel)]="renameDialogDraft[i]"
+            [ngModelOptions]="{standalone: true}" />
         </div>
       </div>
     </div>
   </div>
-  <div mat-dialog-actions class="d-flex justify-content-end">
-    <button mat-button class="btn btn-primary" (click)="renameDialogRef?.close()">Done</button>
+  <div mat-dialog-actions class="d-flex justify-content-end" style="gap:8px">
+    <button mat-button class="btn btn-outline-secondary" (click)="cancelRenameDialog()">Cancel</button>
+    <button mat-button class="btn btn-primary" (click)="saveRenameDialog()">Save</button>
   </div>
 </ng-template>
 

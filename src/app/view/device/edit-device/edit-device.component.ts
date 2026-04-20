@@ -53,6 +53,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   @ViewChild('imageFullView') imageFullViewTemplate = {} as TemplateRef<any>;
   renameDialogType: string = '';
   renameDialogRef: any = null;
+  renameDialogDraft: string[] = [];
   imageFullViewUrl: any = null;
   imageFullViewName: string = '';
   imageFullViewRef: any = null;
@@ -181,27 +182,48 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     return docs.length + ' files uploaded';
   }
 
-  saveDocumentLabel(
-    type: string,
-    index: number,
-    nextLabel: string,
-  ): void {
-    const docs = this.existingDocs[type];
-    const entry = docs?.[index];
-    if (!entry) return;
-    const trimmed = nextLabel.trim();
-    const normalized = trimmed === '' ? null : trimmed;
-    if (normalized === entry.label) return;
-    this.deviceService.updateDocumentLabel(entry.id, normalized).subscribe({
-      next: () => {
-        entry.label = normalized;
-        this.toastrService.success('Label saved');
-      },
-      error: (err) => {
-        const msg = err?.error?.message || err?.message || 'Failed to save label';
-        this.toastrService.error(msg);
-      },
-    });
+  saveRenameDialog(): void {
+    const docs = this.existingDocs[this.renameDialogType] || [];
+    const changed: { entry: typeof docs[number]; normalized: string | null }[] = [];
+    for (let i = 0; i < docs.length; i++) {
+      const trimmed = (this.renameDialogDraft[i] ?? '').trim();
+      const normalized = trimmed === '' ? null : trimmed;
+      if (normalized !== (docs[i].label ?? null)) {
+        changed.push({ entry: docs[i], normalized });
+      }
+    }
+    if (changed.length === 0) {
+      this.renameDialogRef?.close();
+      return;
+    }
+    let remaining = changed.length;
+    let failed = 0;
+    for (const { entry, normalized } of changed) {
+      this.deviceService.updateDocumentLabel(entry.id, normalized).subscribe({
+        next: () => {
+          entry.label = normalized;
+          remaining--;
+          if (remaining === 0 && failed === 0) {
+            this.toastrService.success(`Saved ${changed.length} label(s)`);
+            this.renameDialogRef?.close();
+          } else if (remaining === 0) {
+            this.toastrService.warning(`Saved with ${failed} failure(s)`);
+            this.renameDialogRef?.close();
+          }
+        },
+        error: (err) => {
+          failed++;
+          remaining--;
+          const msg = err?.error?.message || err?.message || 'Failed';
+          this.toastrService.error(`${entry.name}: ${msg}`);
+          if (remaining === 0) this.renameDialogRef?.close();
+        },
+      });
+    }
+  }
+
+  cancelRenameDialog(): void {
+    this.renameDialogRef?.close();
   }
   fileTypes: FileType[] = [
     DocumentType.FORM_SF_02,
@@ -562,12 +584,15 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   }
 
   openRenameDialog(docType: string): void {
-    if (!this.existingDocs[docType]?.length) return;
+    const docs = this.existingDocs[docType];
+    if (!docs?.length) return;
     this.renameDialogType = docType;
+    this.renameDialogDraft = docs.map((d) => d.label ?? '');
     this.renameDialogRef = this.dialog.open(this.renameDialogTemplate, {
       width: '1200px',
       maxWidth: '95vw',
       maxHeight: '92vh',
+      disableClose: true,
     });
   }
 

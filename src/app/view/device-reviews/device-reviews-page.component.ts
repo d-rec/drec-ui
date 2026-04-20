@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { AssetService } from './asset.service';
+import { AssetService, OpenPicture } from './asset.service';
 
 @Component({
   standalone: false,
@@ -18,6 +18,7 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
 
   /** Per-device storage key so the reviewer's checkbox state is remembered per device. */
   checklistStorageKey$: Observable<string | null>;
+  openPictures$: Observable<OpenPicture[]>;
 
   private sub!: Subscription;
 
@@ -25,7 +26,10 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
     this.checklistStorageKey$ = this.svc.viewDeviceInfoId$.pipe(
       map((id) => (id != null ? `oc-checklist-device-${id}` : null)),
     );
+    this.openPictures$ = this.svc.openPictures$;
   }
+
+  trackPictureId = (_: number, p: OpenPicture) => p.id;
 
   ngOnInit(): void {
     const loginUser = JSON.parse(sessionStorage.getItem('loginuser') || '{}');

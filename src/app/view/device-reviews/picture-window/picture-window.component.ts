@@ -4,13 +4,11 @@ import {
   Output,
   EventEmitter,
   OnInit,
-  OnDestroy,
   ViewChild,
   ElementRef,
   ChangeDetectorRef,
 } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { AssetService } from '../asset.service';
+import { AssetService, OpenPicture } from '../asset.service';
 import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.service';
 import Tesseract from 'tesseract.js';
 
@@ -20,17 +18,25 @@ import Tesseract from 'tesseract.js';
   templateUrl: './picture-window.component.html',
   styleUrls: ['./picture-window.component.scss'],
 })
-export class PictureWindowComponent implements OnInit, OnDestroy {
+export class PictureWindowComponent implements OnInit {
+  @Input() pic!: OpenPicture;
   @Input() zIndex = 400;
+  @Input() initX = 200;
+  @Input() initY = 100;
   @Output() bringToFront = new EventEmitter<void>();
 
   @ViewChild('imgEl') imgEl!: ElementRef<HTMLImageElement>;
   @ViewChild('overlayCanvas') overlayCanvas!: ElementRef<HTMLCanvasElement>;
 
-  readonly url$ = this.svc.viewPictureUrl$;
-  private sub!: Subscription;
-
-  isScreenshot = false;
+  get url(): string {
+    return this.pic.url;
+  }
+  get enableOcr(): boolean {
+    return this.pic.enableOcr;
+  }
+  private get currentUrl(): string {
+    return this.pic.url;
+  }
 
   // OCR state
   ocrText: string | null = null;
@@ -53,8 +59,6 @@ export class PictureWindowComponent implements OnInit, OnDestroy {
   private scaleX = 1;
   private scaleY = 1;
 
-  private currentUrl: string | null = null;
-
   constructor(
     readonly svc: AssetService,
     private licensesService: OrgApiLicensesService,
@@ -62,24 +66,11 @@ export class PictureWindowComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.sub = this.svc.viewPictureUrl$.subscribe((url) => {
-      if (url) this.bringToFront.emit();
-      this.currentUrl = url;
-      this.isScreenshot = this.svc.viewPictureIsScreenshot$.value;
-      // Reset state when picture changes
-      this.ocrText = null;
-      this.ocrRunning = false;
-      this.ocrProgress = 0;
-      this.clearOverlay();
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.sub.unsubscribe();
+    this.bringToFront.emit();
   }
 
   close(): void {
-    this.svc.viewPicture(null);
+    this.svc.closePicture(this.pic.id);
   }
 
   // ── OCR ──────────────────────────────────────────────────────────────

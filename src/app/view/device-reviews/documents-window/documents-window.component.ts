@@ -779,7 +779,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   // ── File handling ─────────────────────────────────────────────────────────────
 
-  async openFile(url: string, event: Event, isSld = false): Promise<void> {
+  async openFile(url: string, event: Event, isSld = false, enableOcr = false): Promise<void> {
     event.stopPropagation();
     if (!url || this.isBroken(url)) {
       alert('File is missing\n\n' + url);
@@ -788,7 +788,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     const freshUrl = await this.svc.refreshUrl(url);
     if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
       this.svc.sldDeviceId$.next(null);
-      this.svc.viewPicture(freshUrl);
+      this.svc.viewPicture(freshUrl, enableOcr);
     } else {
       this.svc.sldDeviceId$.next(
         isSld && this.editingId ? parseInt(this.editingId, 10) : null,

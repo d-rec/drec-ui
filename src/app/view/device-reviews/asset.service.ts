@@ -13,13 +13,19 @@ import {
 import { Asset } from './asset.model';
 import { environment } from '../../../environments/environment';
 
+export interface OpenPicture {
+  id: string;
+  url: string;
+  /** When true, the picture window shows the OCR toolbar instead of Detect Panels. */
+  enableOcr: boolean;
+}
+
 @Injectable()
 export class AssetService {
   readonly assets$ = new BehaviorSubject<Asset[]>([]);
   readonly selectedId$ = new BehaviorSubject<string | null>(null);
   readonly expandId$ = new BehaviorSubject<string | null>(null);
-  readonly viewPictureUrl$ = new BehaviorSubject<string | null>(null);
-  readonly viewPictureIsScreenshot$ = new BehaviorSubject<boolean>(false);
+  readonly openPictures$ = new BehaviorSubject<OpenPicture[]>([]);
   readonly viewPdfUrl$ = new BehaviorSubject<string | null>(null);
   /** When non-null, the PDF window should show SLD capacity compare for this device. */
   readonly sldDeviceId$ = new BehaviorSubject<number | null>(null);
@@ -39,9 +45,22 @@ export class AssetService {
     this.flyTo$.next({ lat, lng });
   }
 
-  viewPicture(url: string | null, isScreenshot = false): void {
-    this.viewPictureIsScreenshot$.next(isScreenshot);
-    this.viewPictureUrl$.next(url);
+  viewPicture(url: string | null, enableOcr = false): void {
+    if (url === null) {
+      this.openPictures$.next([]);
+      return;
+    }
+    const current = this.openPictures$.value;
+    // If the same URL is already open, bring nothing new — prevents accidental dupes on double-click.
+    if (current.some((p) => p.url === url)) return;
+    const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+    this.openPictures$.next([...current, { id, url, enableOcr }]);
+  }
+
+  closePicture(id: string): void {
+    this.openPictures$.next(
+      this.openPictures$.value.filter((p) => p.id !== id),
+    );
   }
 
   viewPdf(url: string | null): void {

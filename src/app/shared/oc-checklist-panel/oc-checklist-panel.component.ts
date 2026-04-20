@@ -26,7 +26,7 @@ const OC_ROWS: OcRow[] = [
   { n: 2, item: 'Address', hint: 'Street address of the facility', compare: '' },
   { n: 3, item: 'State/Province', hint: 'State, province, or county of the facility', compare: '' },
   { n: 4, item: 'Postcode', hint: 'Postal / ZIP code of the facility', compare: '' },
-  { n: 5, item: 'Country', hint: 'Country where the facility is located', compare: 'Cross check with: coordinates' },
+  { n: 5, item: 'Country', hint: 'Country where the facility is located', compare: 'Cross check with: geospatial coordinates' },
   { n: 6, item: 'Latitude', hint: 'Must provide at least six digits after the decimal; must land exactly on a solar panel', compare: 'Cross check with: site photos' },
   { n: 7, item: 'Longitude', hint: 'Must provide at least six digits after the decimal; must land exactly on a solar panel', compare: 'Cross check with: site photos' },
   { n: 8, item: 'Installation Type', hint: 'Rooftop, Ground Mount, or Floating', compare: 'Cross check with: site photos' },

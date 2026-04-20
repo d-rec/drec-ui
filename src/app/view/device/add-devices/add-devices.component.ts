@@ -836,15 +836,24 @@ export class AddDevicesComponent implements OnDestroy {
       width: '1200px',
       maxWidth: '95vw',
       maxHeight: '92vh',
+      disableClose: true,
     });
     this.renameDialogRef.afterClosed().subscribe(() => {
-      // Flush any edited labels back to the canonical store.
-      const labels = this.renameDialogFiles.map((r) => r.label || '');
-      this.fileLabels[this.renameDialogDeviceIndex][this.renameDialogType] = labels;
+      // Release object URLs and clear dialog-local state. Label commit happens in saveRenameDialog().
       for (const u of this.renameObjectUrls) URL.revokeObjectURL(u);
       this.renameObjectUrls = [];
       this.renameDialogFiles = [];
     });
+  }
+
+  saveRenameDialog(): void {
+    const labels = this.renameDialogFiles.map((r) => r.label || '');
+    this.fileLabels[this.renameDialogDeviceIndex][this.renameDialogType] = labels;
+    this.renameDialogRef?.close();
+  }
+
+  cancelRenameDialog(): void {
+    this.renameDialogRef?.close();
   }
 
   fileExtension(name: string): string {
