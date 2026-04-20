@@ -65,37 +65,6 @@
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <div class="serial-list" test-id="serial-number">
-                      <div class="serial-list__row" *ngFor="let s of getSerialNumbers(i); let j = index; trackBy: trackByIndex">
-                        <mat-form-field appearance="outline" class="w-100 serial-list__field">
-                          <mat-label>{{ j === 0 ? getSerialNumberLabel(i) : 'Additional ID' }}</mat-label>
-                          <input matInput
-                            [ngModel]="s"
-                            (ngModelChange)="setSerialNumber(i, j, $event)"
-                            [ngModelOptions]="{standalone: true}" />
-                        </mat-form-field>
-                        <button *ngIf="getSerialNumbers(i).length > 1"
-                          type="button"
-                          mat-icon-button
-                          class="serial-list__remove"
-                          (click)="removeSerialNumber(i, j)"
-                          title="Remove">
-                          <mat-icon>close</mat-icon>
-                        </button>
-                      </div>
-                      <button type="button"
-                        mat-stroked-button
-                        class="serial-list__add"
-                        (click)="addSerialNumber(i)">
-                        <mat-icon>add</mat-icon> Add ID
-                      </button>
-                      <div *ngIf="deviceForms.at(i).get('serialNumber')?.invalid && deviceForms.at(i).get('serialNumber')?.touched"
-                        class="serial-list__error">
-                        Each ID must contain only letters, numbers, underscores, or hyphens.
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
                     <mat-form-field appearance="outline" class="w-100" test-id="data-source">
                       <mat-label>Data Source</mat-label>
                       <mat-select formControlName="dataSource">
@@ -284,6 +253,37 @@
                         matTooltip="Please provide the number of devices that output useable electricity at this facility (typically the inverters)"
                         matTooltipPosition="above" />
                     </mat-form-field>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="serial-list" test-id="serial-number">
+                      <div class="serial-list__row" *ngFor="let s of getSerialNumbers(i); let j = index; trackBy: trackByIndex">
+                        <mat-form-field appearance="outline" class="w-100 serial-list__field">
+                          <mat-label>{{ j === 0 ? getSerialNumberLabel(i) : 'Additional ID' }}</mat-label>
+                          <input matInput
+                            [ngModel]="s"
+                            (ngModelChange)="setSerialNumber(i, j, $event)"
+                            [ngModelOptions]="{standalone: true}" />
+                        </mat-form-field>
+                        <button *ngIf="getSerialNumbers(i).length > 1"
+                          type="button"
+                          mat-icon-button
+                          class="serial-list__remove"
+                          (click)="removeSerialNumber(i, j)"
+                          title="Remove">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+                      <button type="button"
+                        mat-stroked-button
+                        class="serial-list__add"
+                        (click)="addSerialNumber(i)">
+                        <mat-icon>add</mat-icon> Add ID
+                      </button>
+                      <div *ngIf="deviceForms.at(i).get('serialNumber')?.invalid && deviceForms.at(i).get('serialNumber')?.touched"
+                        class="serial-list__error">
+                        Each ID must contain only letters, numbers, underscores, or hyphens.
+                      </div>
+                    </div>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
