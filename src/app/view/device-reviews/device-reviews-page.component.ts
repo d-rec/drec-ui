@@ -29,6 +29,7 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
   /** Per-device storage key so the reviewer's checkbox state is remembered per device. */
   checklistStorageKey$: Observable<string | null>;
   openPictures$: Observable<OpenPicture[]>;
+  reviewDeviceId$: Observable<number | null>;
 
   private sub!: Subscription;
 
@@ -37,6 +38,7 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
       map((id) => (id != null ? `oc-checklist-device-${id}` : null)),
     );
     this.openPictures$ = this.svc.openPictures$;
+    this.reviewDeviceId$ = this.svc.reviewDeviceId$;
   }
 
   trackPictureId = (_: number, p: OpenPicture) => p.id;

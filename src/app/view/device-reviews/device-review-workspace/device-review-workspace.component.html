@@ -1,0 +1,56 @@
+<div class="drw">
+  <div class="drw__topbar">
+    <button type="button" class="drw__back" (click)="back()" (mousedown)="back()">
+      <span aria-hidden="true">&#8592;</span> Back to list
+    </button>
+    <span class="drw__title" *ngIf="device">
+      {{ device.siteName || '(no site name)' }}
+      <span class="drw__title-id">· #{{ deviceId }} · {{ device.serialNumber || '(no serial)' }}</span>
+    </span>
+    <span class="drw__loading" *ngIf="loading">Loading…</span>
+  </div>
+
+  <div class="drw__body">
+    <div class="drw__viewer">
+      <ng-container *ngIf="activeDoc; else noDoc">
+        <iframe
+          *ngIf="isPdf(activeDoc) || !isImage(activeDoc)"
+          [src]="activeDocSafeUrl"
+          class="drw__viewer-frame"
+          title="Document viewer"
+        ></iframe>
+        <div *ngIf="isImage(activeDoc)" class="drw__viewer-img-wrap">
+          <img [src]="activeDoc.url" class="drw__viewer-img" alt="Document" />
+        </div>
+      </ng-container>
+      <ng-template #noDoc>
+        <div class="drw__viewer-empty">
+          <p *ngIf="!loading && documents.length === 0">No documents uploaded for this device.</p>
+          <p *ngIf="!loading && documents.length > 0">Select a document from the right-hand list to preview.</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <div class="drw__docs">
+      <h3 class="drw__docs-heading">Documents</h3>
+      <ng-container *ngFor="let row of docRows">
+        <div class="drw__docs-group">
+          <div class="drw__docs-group-label">
+            ({{ row.oc }}) {{ row.label }}
+          </div>
+          <div *ngIf="docsOf(row.type).length === 0" class="drw__docs-empty">—</div>
+          <button
+            *ngFor="let d of docsOf(row.type)"
+            type="button"
+            class="drw__docs-item"
+            [class.drw__docs-item--active]="activeDoc?.id === d.id"
+            (click)="selectDoc(d)"
+            (mousedown)="selectDoc(d)"
+          >
+            <span class="drw__docs-item-name">{{ d.label }}</span>
+          </button>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

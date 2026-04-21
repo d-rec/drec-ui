@@ -1,5 +1,6 @@
 <ng-container *ngIf="canReview; else chatListView">
-  <div class="ds-page">
+  <app-ds-device-review-workspace *ngIf="(reviewDeviceId$ | async) !== null"></app-ds-device-review-workspace>
+  <div class="ds-page" *ngIf="(reviewDeviceId$ | async) === null">
     <div class="ds-tabs">
       <button class="ds-tab" [class.ds-tab--active]="activeTab === 'reviews'" (click)="activeTab = 'reviews'">Device Reviews</button>
       <button class="ds-tab" [class.ds-tab--active]="activeTab === 'map'" (click)="activeTab = 'map'">World Map</button>

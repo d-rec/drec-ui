@@ -1284,6 +1284,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.svc.viewDeviceInfo(deviceId);
   }
 
+  openReview(assetId: string, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const deviceId = parseInt(assetId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.openForReview(deviceId);
+  }
+
   screenDuplicates(): void {
     if (!this.editingId) return;
     const deviceId = parseInt(this.editingId, 10);
