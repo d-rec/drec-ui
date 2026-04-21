@@ -606,13 +606,13 @@
                   <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary" [disabled]="!allChecked('METERING_EVIDENCE')">
                     <mat-icon>attach_file</mat-icon>
                   </button>
-                  <span class="file-name" [class.file-name--missing]="!files['METERING_EVIDENCE']?.length && brokenDocs['METERING_EVIDENCE']">
-                    {{ (files['METERING_EVIDENCE']?.length || 0) > 1
+                  <span class="file-name" [class.file-name--missing]="!files['METERING_EVIDENCE'].length && brokenDocs['METERING_EVIDENCE']">
+                    {{ (files['METERING_EVIDENCE'].length || 0) > 1
                         ? files['METERING_EVIDENCE'].length + ' files selected'
-                        : (files['METERING_EVIDENCE']?.[0]?.name || existingDocLabel('METERING_EVIDENCE')) }}
+                        : (files['METERING_EVIDENCE'][0]?.name || existingDocLabel('METERING_EVIDENCE')) }}
                   </span>
-                  <span *ngIf="!allChecked('METERING_EVIDENCE') && !files['METERING_EVIDENCE']?.length" class="checklist-gate">Review and tick all requirements above to enable the file uploader.</span>
-                  <span *ngIf="!files['METERING_EVIDENCE']?.length && brokenDocs['METERING_EVIDENCE']"
+                  <span *ngIf="!allChecked('METERING_EVIDENCE') && !files['METERING_EVIDENCE'].length" class="checklist-gate">Review and tick all requirements above to enable the file uploader.</span>
+                  <span *ngIf="!files['METERING_EVIDENCE'].length && brokenDocs['METERING_EVIDENCE']"
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
@@ -641,10 +641,10 @@
                   <button type="button" (click)="otherDocsFileInput.click()" class="btn btn-primary">
                     <mat-icon>attach_file</mat-icon>
                   </button>
-                  <span class="file-name" [class.text-muted]="!files['OTHER_DOCUMENTS']?.length && !existingDocs['OTHER_DOCUMENTS']?.length">
-                    {{ (files['OTHER_DOCUMENTS']?.length || 0) > 1
+                  <span class="file-name" [class.text-muted]="!files['OTHER_DOCUMENTS'].length && !existingDocs['OTHER_DOCUMENTS']?.length">
+                    {{ (files['OTHER_DOCUMENTS'].length || 0) > 1
                       ? files['OTHER_DOCUMENTS'].length + ' files selected'
-                      : (files['OTHER_DOCUMENTS']?.[0]?.name || existingDocLabel('OTHER_DOCUMENTS')) }}
+                      : (files['OTHER_DOCUMENTS'][0]?.name || existingDocLabel('OTHER_DOCUMENTS')) }}
                   </span>
                 </div>
               </div>

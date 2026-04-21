@@ -108,7 +108,7 @@
         <p><b>Evident Device ID</b>: {{ device_details.evidentDeviceId }}</p>
         <p><b>Evident Status</b>: {{ device_details.evidentStatus }}</p>
 
-        <h3 class="section-heading">Documents</h3>
+        <h3 class="section-heading">Documents <span style="font-weight:400;color:#64748b;font-size:12px;">({{ documents.length }} file{{ documents.length === 1 ? '' : 's' }} loaded)</span></h3>
         <ng-container *ngFor="let row of [
           {label: 'Project Photos', oc: '⁽⁴³⁾', type: 'PROJECT_PHOTOS'},
           {label: 'Single Line Diagram', oc: '⁽⁴⁵⁾', type: 'SINGLE_LINE_DIAGRAM'},
