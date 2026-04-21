@@ -237,7 +237,7 @@
           <!-- ── Screenshots section ─────────────────────────────────────────── -->
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'screenshots')" (keydown.enter)="toggleSection(item.id, 'screenshots')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'screenshots')">&#8250;</span>
-            <span class="section-label">Screenshots</span>
+            <span class="section-label">Screenshots <span class="fn">(49)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}" [title]="getDocHint('SCREENSHOTS', item.operatingConfiguration) || ''">{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}</span>
             <span *ngIf="item.screenshotUrls.length" class="section-count">({{ item.screenshotUrls.length }})</span>
           </div>
@@ -260,7 +260,7 @@
           <!-- ── Other Documents section ─────────────────────────────────────── -->
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'otherDocuments')" (keydown.enter)="toggleSection(item.id, 'otherDocuments')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'otherDocuments')">&#8250;</span>
-            <span class="section-label">Other Documents</span>
+            <span class="section-label">Other Documents <span class="fn">(50)</span></span>
             <span *ngIf="item.otherDocumentUrls.length" class="section-count">({{ item.otherDocumentUrls.length }})</span>
           </div>
           <ng-container *ngIf="isSectionOpen(item.id, 'otherDocuments')">
