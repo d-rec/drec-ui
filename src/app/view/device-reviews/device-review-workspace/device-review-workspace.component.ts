@@ -4,7 +4,6 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
-  HostBinding,
   OnDestroy,
   OnInit,
 } from '@angular/core';
@@ -49,10 +48,8 @@ export class DeviceReviewWorkspaceComponent implements OnInit, AfterViewInit, On
   loading = false;
   docRows = DOC_ROWS;
   /** Shared with every other floating window via AssetService — so a satellite-
-   * window triggered from the workspace can come above it, and vice versa.
-   * Bound to the :host element so it actually competes with document.body
-   * siblings (child z-index doesn't escape a parent stacking context). */
-  @HostBinding('style.z-index') zIndex = 10000;
+   * window triggered from the workspace can come above it, and vice versa. */
+  zIndex = 0;
 
   activeDoc: DocRow | null = null;
   activeDocSafeUrl: SafeResourceUrl | null = null;

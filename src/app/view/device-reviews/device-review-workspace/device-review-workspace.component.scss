@@ -1,11 +1,6 @@
 :host {
   position: fixed;
   inset: 0;
-  /* Fallback z-index above app-shell navbar. Actual live value comes from
-     the zIndex binding below (updated via the shared counter) — but we need
-     SOMETHING here because :host z-index (not .drw's) is what compares
-     against siblings in document.body. */
-  z-index: 10000;
 }
 
 .drw {
