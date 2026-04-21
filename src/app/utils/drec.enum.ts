@@ -135,3 +135,24 @@ export enum SelectionType {
   Checkbox = 'checkbox',
   Radio = 'radio',
 }
+
+// OC#37 — Other Labelling Scheme (RR Checklist col J enum)
+export const LABELLING_SCHEMES: string[] = [
+  'The D-REC Label',
+  'C:Pesa Verification Label',
+  'EO100tm Responsible Energy Standard',
+  'European Guarantee of Origin',
+  'Hydropower Sustainability Standard',
+  'Use with matched attributes for electricity',
+  'Use with matched attributes for NFC and electricity',
+  'Use with matched attributes for NFC',
+  'Low-Carbon Hydro',
+  'New Zealand New Generation',
+  'New Zealand New Generation - Contract Backed',
+  'Peace REC',
+  'REC Brazil',
+  'T-RECs Verification Solar Rooftop Scheme',
+  'T-RECs C&I Verification Service',
+  'T-RECs Resi Verification Service',
+  'South African REC',
+];

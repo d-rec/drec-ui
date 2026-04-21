@@ -16,7 +16,7 @@ import { map, startWith } from 'rxjs/operators';
 import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MapComponent } from '../../map/map.component';
-import { DocumentType, OperatingConfiguration, PublicFundingType, RegistrationType, SourceAccessMode, VolumeEvidenceType } from '../../../utils/drec.enum';
+import { DocumentType, LABELLING_SCHEMES, OperatingConfiguration, PublicFundingType, RegistrationType, SourceAccessMode, VolumeEvidenceType } from '../../../utils/drec.enum';
 import {
   getEvidenceRequirements,
   getHint,
@@ -92,6 +92,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   operatingConfigurations = Object.values(OperatingConfiguration);
   sourceAccessMode: any;
   sourceAccessModes = Object.values(SourceAccessMode);
+  labellingSchemes = LABELLING_SCHEMES;
   registrationTypes = Object.values(RegistrationType);
   volumeEvidenceTypes = Object.values(VolumeEvidenceType);
   publicFundingTypes = Object.values(PublicFundingType);
@@ -340,7 +341,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       registrationType: [null],
       volumeEvidenceType: [null],
       publicFundingType: [null],
-      labellingSchemeAccreditation: [null],
+      labellingSchemeAccreditation: [[] as string[]],
       verificationAgentName: [null],
       offGridCircumstances: [null],
       sf02EvidenceMode: ['self'],
@@ -486,8 +487,17 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.deviceDescription = data.deviceDescription;
         this.stateProvince = data.stateProvince;
         this.organizationId = data.organizationId;
+        // OC#37 storage is a '; '-joined string on the backend; the UI form uses an array
+        const labellingSchemeArr: string[] = data.labellingSchemeAccreditation
+          ? String(data.labellingSchemeAccreditation)
+              .split(/\s*;\s*/)
+              .map((s: string) => s.trim())
+              .filter(Boolean)
+          : [];
+
         this.updateDeviceForm.patchValue({
           serialNumber: data.serialNumber,
+          labellingSchemeAccreditation: labellingSchemeArr,
         });
         this.initSerialNumber = data.serialNumber;
 
@@ -667,6 +677,12 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     if (formValue.longitude) {
       const [intLng, decLng] = String(formValue.longitude).split('.');
       formValue.longitude = decLng ? `${intLng}.${decLng.slice(0, 20)}` : intLng;
+    }
+
+    // OC#37 is a multi-select in the UI but stored as a '; '-joined string
+    if (Array.isArray(formValue.labellingSchemeAccreditation)) {
+      formValue.labellingSchemeAccreditation =
+        formValue.labellingSchemeAccreditation.join('; ') || null;
     }
 
     // Check if any files were selected

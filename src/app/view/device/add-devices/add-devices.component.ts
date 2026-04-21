@@ -42,6 +42,7 @@ import {
   RegistrationType,
   VolumeEvidenceType,
   PublicFundingType,
+  LABELLING_SCHEMES,
 } from '../../../utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
 import {
@@ -92,6 +93,7 @@ export class AddDevicesComponent implements OnDestroy {
   DocumentType = DocumentType;
   operatingConfigurations = Object.values(OperatingConfiguration);
   sourceAccessModes = Object.values(SourceAccessMode);
+  labellingSchemes = LABELLING_SCHEMES;
   registrationTypes = Object.values(RegistrationType);
   volumeEvidenceTypes = Object.values(VolumeEvidenceType);
   publicFundingTypes = Object.values(PublicFundingType);
@@ -372,7 +374,7 @@ export class AddDevicesComponent implements OnDestroy {
       registrationType: [null],
       volumeEvidenceType: [null],
       publicFundingType: [null],
-      labellingSchemeAccreditation: [null],
+      labellingSchemeAccreditation: [['The D-REC Label']],
       verificationAgentName: [null],
       offGridCircumstances: [null],
       FORM_SF_02: [null],
@@ -510,7 +512,7 @@ export class AddDevicesComponent implements OnDestroy {
       registrationType: [null],
       volumeEvidenceType: [null],
       publicFundingType: [null],
-      labellingSchemeAccreditation: [null],
+      labellingSchemeAccreditation: [['The D-REC Label']],
       verificationAgentName: [null],
       offGridCircumstances: [null],
       FORM_SF_02: [null],
@@ -946,6 +948,12 @@ export class AddDevicesComponent implements OnDestroy {
       if (element.longitude) {
         const [intLng, decLng] = String(element.longitude).split('.');
         element.longitude = decLng ? `${intLng}.${decLng.slice(0, 20)}` : intLng;
+      }
+
+      // OC#37 is a multi-select in the UI but stored as a '; '-joined string
+      if (Array.isArray(element.labellingSchemeAccreditation)) {
+        element.labellingSchemeAccreditation =
+          element.labellingSchemeAccreditation.join('; ') || null;
       }
 
       formData.append('deviceToRegister', JSON.stringify(element));

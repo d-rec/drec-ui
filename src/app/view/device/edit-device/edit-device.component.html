@@ -339,7 +339,7 @@
               </div>
               <div class="col-md-3" *ngIf="updateDeviceForm.get('hasPublicFunding')?.value === 'Yes'">
                 <mat-form-field appearance="outline">
-                  <mat-label>(33) Public funding end date</mat-label>
+                  <mat-label>(33) If public (government) funding has been received when did/will it finish?</mat-label>
                   <input matInput [matDatepicker]="fundEnd" formControlName="publicFundingEndDate" />
                   <mat-datepicker-toggle matSuffix [for]="fundEnd"></mat-datepicker-toggle>
                   <mat-datepicker #fundEnd></mat-datepicker>
@@ -387,10 +387,11 @@
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
                   <mat-label>(37) Labelling Scheme</mat-label>
-                  <input matInput formControlName="labellingSchemeAccreditation"
-                    placeholder="Scheme name or 'None'"
+                  <mat-select formControlName="labellingSchemeAccreditation" multiple
                     matTooltip="Please choose any other labels for which this site qualifies"
-                    matTooltipPosition="above" />
+                    matTooltipPosition="above">
+                    <mat-option *ngFor="let scheme of labellingSchemes" [value]="scheme">{{ scheme }}</mat-option>
+                  </mat-select>
                 </mat-form-field>
               </div>
               <div class="col-md-3">
