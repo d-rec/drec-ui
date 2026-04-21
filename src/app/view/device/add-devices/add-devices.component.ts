@@ -570,18 +570,11 @@ export class AddDevicesComponent implements OnDestroy {
     });
   }
 
-  getSerialNumberLabel(index: number): string {
-    const dataSource = this.deviceForms.at(index).get('dataSource')?.value;
-    switch (dataSource) {
-      case DataSourceTypes.Inverter:
-        return '(14) Inverter Serial / Meter ID(s)';
-      case DataSourceTypes.DataLogger:
-        return '(14) Data Logger Serial / Meter ID(s)';
-      case DataSourceTypes.Other:
-        return '(14) Other Id / Meter ID(s)';
-      default:
-        return '(14) Serial / Meter ID(s)';
-    }
+  getSerialNumberLabel(_index: number): string {
+    // Checklist col F exact language (OC#14). Data source context is carried by
+    // the separate dataSource dropdown and the per-row sub-labels ("smart meter",
+    // "inverter 1", etc.) in the mini-table — no need to fold it into the OC label.
+    return '(14) Meter or Measurement ID(s)';
   }
   private setupdataSourceBrandWatcher(deviceGroup: FormGroup) {
     const dataSource = deviceGroup.get('dataSource');
