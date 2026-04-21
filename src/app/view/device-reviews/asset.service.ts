@@ -47,8 +47,16 @@ export class AssetService {
     this.flyTo$.next({ lat, lng });
   }
 
-  /** Monotonic counter for per-picture zOrder. Starts well above any static window z. */
-  private pictureZCounter = 1000;
+  /**
+   * Shared monotonic counter for every floating window's z-order. Single source
+   * so the last-touched window — picture, pdf, info, satellite, anything —
+   * always sits on top of every other one regardless of type.
+   */
+  private zCounter = 500;
+  nextZOrder(): number {
+    this.zCounter += 1;
+    return this.zCounter;
+  }
 
   viewPicture(url: string | null, enableOcr = false): void {
     if (url === null) {
@@ -59,25 +67,22 @@ export class AssetService {
     // If the same URL is already open, bring that picture to the front rather than duplicating.
     const existing = current.find((p) => p.url === url);
     if (existing) {
-      this.pictureZCounter += 1;
       this.openPictures$.next(
-        current.map((p) => (p.id === existing.id ? { ...p, zOrder: this.pictureZCounter } : p)),
+        current.map((p) => (p.id === existing.id ? { ...p, zOrder: this.nextZOrder() } : p)),
       );
       return;
     }
-    this.pictureZCounter += 1;
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-    this.openPictures$.next([...current, { id, url, enableOcr, zOrder: this.pictureZCounter }]);
+    this.openPictures$.next([...current, { id, url, enableOcr, zOrder: this.nextZOrder() }]);
   }
 
-  /** Promote a specific picture to the top of the picture stack. */
+  /** Promote a specific picture to the top of ALL floating windows. */
   bringPictureToFront(id: string): void {
     const current = this.openPictures$.value;
     const hit = current.find((p) => p.id === id);
     if (!hit) return;
-    this.pictureZCounter += 1;
     this.openPictures$.next(
-      current.map((p) => (p.id === id ? { ...p, zOrder: this.pictureZCounter } : p)),
+      current.map((p) => (p.id === id ? { ...p, zOrder: this.nextZOrder() } : p)),
     );
   }
 

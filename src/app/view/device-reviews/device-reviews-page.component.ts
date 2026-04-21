@@ -11,7 +11,9 @@ import { AssetService, OpenPicture } from './asset.service';
 })
 export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
   // Non-picture windows use a flat key→z map so each bringToFront bumps only
-  // the key that was interacted with (last-click-wins).
+  // the key that was interacted with (last-click-wins). Counter is owned by
+  // AssetService so pictures and non-pictures share the same monotonic sequence
+  // — no window type can out-rank another just by having a higher base value.
   windowZ: { [key: string]: number } = {
     map: 200,
     satellite: 250,
@@ -19,7 +21,6 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
     deviceInfo: 350,
     pdf: 400,
   };
-  private zCounter = 500;
   activeTab: 'reviews' | 'map' = 'reviews';
   showSatellite = false;
   isAdmin = false;
@@ -71,8 +72,7 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
   }
 
   bringToFront(key: string): void {
-    this.zCounter += 1;
-    this.windowZ = { ...this.windowZ, [key]: this.zCounter };
+    this.windowZ = { ...this.windowZ, [key]: this.svc.nextZOrder() };
   }
 
   bringPictureToFront(id: string): void {
