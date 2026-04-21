@@ -502,3 +502,59 @@
   border-radius: 0 !important;
   overflow: hidden !important;
 }
+
+.serial-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 28px;
+    align-items: center;
+    gap: 2px;
+
+    &:only-child {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  &__field {
+    min-width: 0;
+    width: 100%;
+  }
+
+  &__remove {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    color: #64748b;
+
+    mat-icon {
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+    }
+
+    &:hover {
+      color: #dc2626;
+    }
+  }
+
+  &__add {
+    align-self: flex-start;
+    font-size: 11px;
+    padding: 0 10px;
+    min-height: 26px;
+    line-height: 1.2;
+    margin-top: 2px;
+
+    mat-icon {
+      font-size: 14px;
+      height: 14px;
+      width: 14px;
+      margin-right: 2px;
+    }
+  }
+}
