@@ -33,17 +33,8 @@ export class AssetService {
   readonly sldDeviceId$ = new BehaviorSubject<number | null>(null);
   /** When non-null, the device-info floating window should load & show this device. */
   readonly viewDeviceInfoId$ = new BehaviorSubject<number | null>(null);
-  /** When non-null, the page switches from list-mode to single-device workspace. */
-  readonly reviewDeviceId$ = new BehaviorSubject<number | null>(null);
 
   viewDeviceInfo(deviceId: number | null): void {
-    this.viewDeviceInfoId$.next(deviceId);
-  }
-
-  /** Open the dedicated single-device review workspace. Pass null to exit. */
-  openForReview(deviceId: number | null): void {
-    this.reviewDeviceId$.next(deviceId);
-    // Mirror to viewDeviceInfoId$ so the existing floating info-window surfaces the fields.
     this.viewDeviceInfoId$.next(deviceId);
   }
   readonly flyTo$ = new ReplaySubject<{ lat: number; lng: number }>(1);
