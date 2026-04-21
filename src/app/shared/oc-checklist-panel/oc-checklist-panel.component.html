@@ -28,11 +28,30 @@
       >Clear</button>
     </div>
 
+    <div class="ocp__search">
+      <input
+        type="search"
+        class="ocp__search-input"
+        placeholder="Search item or cross-check (e.g. RMS)…"
+        [value]="filter"
+        (input)="onFilterInput($event)"
+      />
+      <button
+        type="button"
+        class="ocp__search-clear"
+        *ngIf="filter"
+        (click)="clearFilter()"
+        title="Clear search"
+      >×</button>
+      <span class="ocp__search-count" *ngIf="filter">{{ matchCount() }} match{{ matchCount() === 1 ? '' : 'es' }}</span>
+    </div>
+
     <ul class="ocp__list">
       <ng-container *ngFor="let r of visibleRows; trackBy: trackRow">
         <li
           class="ocp__row"
           [class.ocp__row--checked]="isRowComplete(r)"
+          [class.ocp__row--match]="isMatch(r)"
         >
           <label
             class="ocp__label"
@@ -47,16 +66,23 @@
               (change)="toggleRow(r.n.toString())"
             />
             <span class="ocp__num">{{ r.n }}</span>
-            <span
-              class="ocp__item"
-              [class.ocp__item--hinted]="r.compare"
-            >{{ r.item }}</span>
+            <span class="ocp__item-wrap">
+              <span
+                class="ocp__item"
+                [class.ocp__item--hinted]="r.compare"
+              >{{ r.item }}</span>
+              <span
+                *ngIf="filter && r.compare && isMatch(r)"
+                class="ocp__compare-inline"
+              >{{ r.compare }}</span>
+            </span>
           </label>
         </li>
         <li
           *ngFor="let s of r.subItems; let i = index; trackBy: trackSub"
           class="ocp__row ocp__row--sub"
           [class.ocp__row--checked]="checked.has(r.n + '.' + i)"
+          [class.ocp__row--match]="isSubMatch(s)"
         >
           <label class="ocp__label ocp__label--sub">
             <input

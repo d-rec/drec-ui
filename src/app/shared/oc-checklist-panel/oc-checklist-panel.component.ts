@@ -237,6 +237,8 @@ export class OcChecklistPanelComponent
   checked = new Set<string>();
   /** When true, hide rows that have neither a cross-check nor sub-items. */
   hideNoCrosscheck = this.loadHidePref();
+  /** Free-text filter matching item name, cross-check hint, and sub-item labels. */
+  filter = '';
   private static readonly HIDE_PREF_KEY = 'oc-checklist:hide-no-crosscheck';
 
   constructor(
@@ -291,6 +293,41 @@ export class OcChecklistPanelComponent
     return this.rows.filter(
       (r) => r.compare || (r.subItems && r.subItems.length > 0),
     );
+  }
+
+  private get filterQuery(): string {
+    return this.filter.trim().toLowerCase();
+  }
+
+  isMatch(r: OcRow): boolean {
+    const q = this.filterQuery;
+    if (!q) return false;
+    return (
+      r.item.toLowerCase().includes(q) ||
+      r.compare.toLowerCase().includes(q) ||
+      (r.subItems?.some((s) => s.toLowerCase().includes(q)) ?? false)
+    );
+  }
+
+  isSubMatch(s: string): boolean {
+    const q = this.filterQuery;
+    return !!q && s.toLowerCase().includes(q);
+  }
+
+  matchCount(): number {
+    const q = this.filterQuery;
+    if (!q) return 0;
+    return this.visibleRows.filter((r) => this.isMatch(r)).length;
+  }
+
+  onFilterInput(ev: Event): void {
+    this.filter = (ev.target as HTMLInputElement).value;
+    this.cdr.markForCheck();
+  }
+
+  clearFilter(): void {
+    this.filter = '';
+    this.cdr.markForCheck();
   }
 
   toggleHideNoCrosscheck(): void {
