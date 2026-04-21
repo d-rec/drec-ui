@@ -9,17 +9,17 @@
       <app-ds-map-window       *ngIf="activeTab === 'map'" (onPinClick)="onMapPinClick($event)"></app-ds-map-window>
     </div>
   </div>
-  <app-ds-satellite-window   *ngIf="showSatellite" [zIndex]="z.satellite"  (bringToFront)="bringToFront('satellite')" (close)="showSatellite=false"></app-ds-satellite-window>
-  <app-ds-device-info-window [zIndex]="z.deviceInfo" (bringToFront)="bringToFront('deviceInfo')"></app-ds-device-info-window>
+  <app-ds-satellite-window   *ngIf="showSatellite" [zIndex]="zFor('satellite')"  (bringToFront)="bringToFront('satellite')" (close)="showSatellite=false"></app-ds-satellite-window>
+  <app-ds-device-info-window [zIndex]="zFor('deviceInfo')" (bringToFront)="bringToFront('deviceInfo')"></app-ds-device-info-window>
   <app-ds-picture-window
     *ngFor="let p of (openPictures$ | async) || []; let idx = index; trackBy: trackPictureId"
     [pic]="p"
     [initX]="200 + idx * 40"
     [initY]="100 + idx * 40"
-    [zIndex]="z.picture + idx"
-    (bringToFront)="bringToFront('picture')"
+    [zIndex]="zFor('picture:' + p.id)"
+    (bringToFront)="bringToFront('picture:' + p.id)"
   ></app-ds-picture-window>
-  <app-ds-pdf-window         [zIndex]="z.pdf"        (bringToFront)="bringToFront('pdf')"></app-ds-pdf-window>
+  <app-ds-pdf-window         [zIndex]="zFor('pdf')"        (bringToFront)="bringToFront('pdf')"></app-ds-pdf-window>
   <app-oc-checklist-panel    [storageKey]="checklistStorageKey$ | async"></app-oc-checklist-panel>
 </ng-container>
 <ng-template #chatListView>

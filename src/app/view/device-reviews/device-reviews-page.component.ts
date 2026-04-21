@@ -10,7 +10,20 @@ import { AssetService, OpenPicture } from './asset.service';
   styleUrls: ['./device-reviews-page.component.scss'],
 })
 export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
-  z = { map: 200, satellite: 150, documents: 300, deviceInfo: 350, picture: 400, pdf: 450 };
+  /**
+   * Per-window z-index map. Every window (including each picture by id) has
+   * its own entry; bringToFront(key) bumps that entry to the next top value,
+   * keeping all other windows at their previous positions. Initial values
+   * just set a sensible default stacking before any interaction.
+   */
+  windowZ: { [key: string]: number } = {
+    map: 200,
+    satellite: 250,
+    documents: 300,
+    deviceInfo: 350,
+    pdf: 400,
+  };
+  private zCounter = 500;
   activeTab: 'reviews' | 'map' = 'reviews';
   showSatellite = false;
   isAdmin = false;
@@ -48,6 +61,11 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Get the z-index for a named window (or a picture by id). */
+  zFor(key: string): number {
+    return this.windowZ[key] ?? 200;
+  }
+
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
   }
@@ -57,8 +75,8 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
     this.svc.expand(assetId);
   }
 
-  bringToFront(win: 'map' | 'satellite' | 'documents' | 'deviceInfo' | 'picture' | 'pdf'): void {
-    const max = Math.max(...Object.values(this.z));
-    this.z = { ...this.z, [win]: max + 1 };
+  bringToFront(key: string): void {
+    this.zCounter += 1;
+    this.windowZ = { ...this.windowZ, [key]: this.zCounter };
   }
 }
