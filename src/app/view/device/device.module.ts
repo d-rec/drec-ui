@@ -11,7 +11,6 @@ import { DeviceDetailsComponent } from './device-details/device-details.componen
 import { MapModule } from '../map/map.module';
 import { PdfPreviewComponent } from '../../shared/pdf-preview/pdf-preview.component';
 import { SatellitePreviewComponent } from '../../shared/satellite-preview/satellite-preview.component';
-import { OcChecklistPanelComponent } from '../../shared/oc-checklist-panel/oc-checklist-panel.component';
 import { ImageZoomPanDirective } from '../../shared/directives/image-zoom-pan.directive';
 @NgModule({
   declarations: [
@@ -30,7 +29,6 @@ import { ImageZoomPanDirective } from '../../shared/directives/image-zoom-pan.di
     MapModule,
     PdfPreviewComponent,
     SatellitePreviewComponent,
-    OcChecklistPanelComponent,
     ImageZoomPanDirective,
   ],
 })

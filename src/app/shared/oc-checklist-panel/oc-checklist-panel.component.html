@@ -30,8 +30,8 @@
       >
         <label
           class="ocp__label"
-          [matTooltip]="combinedHint(r)"
-          [matTooltipDisabled]="!r.hint && !r.compare"
+          [matTooltip]="r.compare"
+          [matTooltipDisabled]="!r.compare"
           matTooltipPosition="left"
           matTooltipShowDelay="200"
         >
@@ -43,7 +43,7 @@
           <span class="ocp__num">{{ r.n }}</span>
           <span
             class="ocp__item"
-            [class.ocp__item--hinted]="r.hint || r.compare"
+            [class.ocp__item--hinted]="r.compare"
           >{{ r.item }}</span>
         </label>
       </li>

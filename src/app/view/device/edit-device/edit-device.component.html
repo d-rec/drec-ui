@@ -239,9 +239,7 @@
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
                   <mat-label>(22) Source Access Mode</mat-label>
-                  <mat-select formControlName="sourceAccessMode" [(ngModel)]="sourceAccessMode"
-                    matTooltip="Will require paragraph explaining what each mode means"
-                    matTooltipPosition="above">
+                  <mat-select formControlName="sourceAccessMode" [(ngModel)]="sourceAccessMode">
                     <mat-option [value]="null">-- Not specified --</mat-option>
                     <mat-option *ngFor="let sam of sourceAccessModes" [value]="sam">
                       {{ sam }}
@@ -512,7 +510,7 @@
               </div>
 
               <div class="col-md-4 mb-3">
-                <label>(46) SF-02c (Owner's Declaration letter)
+                <label title="Please provide a signed copy of the attached template on your organization's letterhead. It must match this format, language, and site details exactly, and must include contact information for the person signing.">(46) SF-02c (Owner's Declaration letter)
                   <span class="badge-{{getDocRequirement('SF_02C')}}">{{getDocRequirement('SF_02C')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('SF_02C')">{{getDocHint('SF_02C')}}</small>
@@ -538,7 +536,7 @@
               </div>
 
               <div class="col-md-4 mb-3">
-                <label>(47) Proof of Ownership
+                <label title="Please provide a copy of the contract with the PV system owner such as a PPA or lease agreement that clarifies who owns the facility and who has the legal right to trade the environmental attributes.">(47) Proof of Ownership
                   <span class="badge-{{getDocRequirement('SF_02C_OWNERS_DECLARATION')}}">{{getDocRequirement('SF_02C_OWNERS_DECLARATION')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('SF_02C_OWNERS_DECLARATION')">{{getDocHint('SF_02C_OWNERS_DECLARATION')}}</small>
