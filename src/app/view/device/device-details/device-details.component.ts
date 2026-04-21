@@ -1,7 +1,8 @@
 import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { DeviceService } from '../../../auth/services/device.service';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import {
@@ -63,13 +64,19 @@ export class DeviceDetailsComponent {
   getdeviceinfo() {
     forkJoin({
       device: this.deviceService.GetDevicesInfo(this.id),
-      documents: this.deviceService.getDocuments(this.id),
+      documents: this.deviceService.getDocuments(this.id).pipe(
+        catchError((err) => {
+          console.error('[device-details] getDocuments failed', err);
+          return of([] as typeof this.documents);
+        }),
+      ),
     }).subscribe({
       next: ({ device, documents }) => {
         if (device) {
           this.loading = false;
           this.device_details = device;
           this.documents = documents ?? [];
+          console.debug('[device-details] documents loaded:', this.documents);
           this.name = this.device_details.externalId;
 
           this.device_details['fuelname'] = this.fuellist.find(
