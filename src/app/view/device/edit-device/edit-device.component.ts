@@ -199,6 +199,12 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     // push a trailing ';' so split yields an extra empty entry.
     const cur = this.updateDeviceForm.get('serialNumber')?.value ?? '';
     this.updateDeviceForm.get('serialNumber')?.setValue(cur + (cur ? ';' : ''), { emitEvent: false });
+    // Move focus to the newly-added input after Angular renders it
+    setTimeout(() => {
+      const list = document.querySelector('.serial-list');
+      const inputs = list?.querySelectorAll<HTMLInputElement>('input');
+      if (inputs && inputs.length) inputs[inputs.length - 1].focus();
+    }, 0);
   }
 
   removeSerialNumber(index: number): void {

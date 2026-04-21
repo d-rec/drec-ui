@@ -663,6 +663,13 @@ export class AddDevicesComponent implements OnDestroy {
 
   addSerialNumber(deviceIndex: number): void {
     this.getSerialNumbers(deviceIndex).push('');
+    // Move focus to the newly-added input after Angular renders it
+    setTimeout(() => {
+      const lists = document.querySelectorAll('.serial-list');
+      const list = lists[deviceIndex];
+      const inputs = list?.querySelectorAll<HTMLInputElement>('input');
+      if (inputs && inputs.length) inputs[inputs.length - 1].focus();
+    }, 0);
   }
 
   removeSerialNumber(deviceIndex: number, rowIndex: number): void {
