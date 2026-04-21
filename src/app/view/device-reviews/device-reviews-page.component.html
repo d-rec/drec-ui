@@ -21,7 +21,7 @@
     (bringToFront)="bringPictureToFront(p.id)"
   ></app-ds-picture-window>
   <app-ds-pdf-window         [zIndex]="zFor('pdf')"        (bringToFront)="bringToFront('pdf')"></app-ds-pdf-window>
-  <app-oc-checklist-panel    [storageKey]="checklistStorageKey$ | async"></app-oc-checklist-panel>
+  <app-oc-checklist-panel *ngIf="(reviewDeviceId$ | async) === null"    [storageKey]="checklistStorageKey$ | async"></app-oc-checklist-panel>
 </ng-container>
 <ng-template #chatListView>
   <div class="ds-page">
