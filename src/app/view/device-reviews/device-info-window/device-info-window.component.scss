@@ -6,6 +6,13 @@
   color: #1e293b;
 }
 
+:host ::ng-deep mark.search-highlight {
+  background: #fef08a;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
 .di__search {
   position: relative;
   padding: 6px 8px;

@@ -142,23 +142,13 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   }
 
   get filteredSections(): Section[] {
-    const q = this.search.trim().toLowerCase();
-    const match = (f: Field) =>
-      !q ||
-      f.label.toLowerCase().includes(q) ||
-      f.value.toLowerCase().includes(q);
-
-    const sections = this.buildSections();
-    return sections
-      .map((sec) => ({
-        ...sec,
-        fields: sec.fields.filter((f) => !(f.hideIfEmpty && !f.value) && match(f)),
-      }))
-      .filter((sec) => {
-        if (sec.fields.length > 0) return true;
-        // keep Location section visible (for sat preview) if heading matches and no search
-        return false;
-      });
+    // Search does NOT filter rows — every field stays visible. The template
+    // uses highlightText() to mark hits in the labels/values. Rows with
+    // hideIfEmpty:true are still collapsed when their value is blank.
+    return this.buildSections().map((sec) => ({
+      ...sec,
+      fields: sec.fields.filter((f) => !(f.hideIfEmpty && !f.value)),
+    }));
   }
 
   private buildSections(): Section[] {
