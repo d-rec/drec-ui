@@ -18,6 +18,8 @@ export interface OpenPicture {
   url: string;
   /** When true, the picture window shows the OCR toolbar instead of Detect Panels. */
   enableOcr: boolean;
+  /** Monotonic stacking order — bumped on open and on bringPictureToFront(). */
+  zOrder: number;
 }
 
 @Injectable()
@@ -45,16 +47,38 @@ export class AssetService {
     this.flyTo$.next({ lat, lng });
   }
 
+  /** Monotonic counter for per-picture zOrder. Starts well above any static window z. */
+  private pictureZCounter = 1000;
+
   viewPicture(url: string | null, enableOcr = false): void {
     if (url === null) {
       this.openPictures$.next([]);
       return;
     }
     const current = this.openPictures$.value;
-    // If the same URL is already open, bring nothing new — prevents accidental dupes on double-click.
-    if (current.some((p) => p.url === url)) return;
+    // If the same URL is already open, bring that picture to the front rather than duplicating.
+    const existing = current.find((p) => p.url === url);
+    if (existing) {
+      this.pictureZCounter += 1;
+      this.openPictures$.next(
+        current.map((p) => (p.id === existing.id ? { ...p, zOrder: this.pictureZCounter } : p)),
+      );
+      return;
+    }
+    this.pictureZCounter += 1;
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-    this.openPictures$.next([...current, { id, url, enableOcr }]);
+    this.openPictures$.next([...current, { id, url, enableOcr, zOrder: this.pictureZCounter }]);
+  }
+
+  /** Promote a specific picture to the top of the picture stack. */
+  bringPictureToFront(id: string): void {
+    const current = this.openPictures$.value;
+    const hit = current.find((p) => p.id === id);
+    if (!hit) return;
+    this.pictureZCounter += 1;
+    this.openPictures$.next(
+      current.map((p) => (p.id === id ? { ...p, zOrder: this.pictureZCounter } : p)),
+    );
   }
 
   closePicture(id: string): void {
