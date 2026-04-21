@@ -27,6 +27,7 @@ export class DeviceDetailsComponent {
   countrylist: CountryInfo[] = [];
   fuellist: fulecodeType[] = [];
   devicetypelist: devicecodeType[] = [];
+  documents: { type: string; url: string; id: number }[] = [];
   loading: boolean = true;
   value = 0;
   viewoptionfrom: string;
@@ -54,11 +55,15 @@ export class DeviceDetailsComponent {
     });
   }
   getdeviceinfo() {
-    this.deviceService.GetDevicesInfo(this.id).subscribe({
-      next: (data: Device) => {
-        if (data) {
+    forkJoin({
+      device: this.deviceService.GetDevicesInfo(this.id),
+      documents: this.deviceService.getDocuments(this.id),
+    }).subscribe({
+      next: ({ device, documents }) => {
+        if (device) {
           this.loading = false;
-          this.device_details = data;
+          this.device_details = device;
+          this.documents = documents ?? [];
           this.name = this.device_details.externalId;
 
           this.device_details['fuelname'] = this.fuellist.find(
@@ -88,6 +93,11 @@ export class DeviceDetailsComponent {
         console.error('GetDevicesInfo failed', err);
       },
     });
+  }
+
+  docCount(type: string): string {
+    const n = this.documents.filter((d) => d.type === type).length;
+    return n === 0 ? '—' : n === 1 ? '1 file' : `${n} files`;
   }
 
   copyToClipboard() {

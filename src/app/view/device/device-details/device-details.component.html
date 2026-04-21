@@ -107,6 +107,15 @@
         <p *ngIf="device_details.reviewStatus"><b>Review Status</b>: {{ device_details.reviewStatus }}</p>
         <p><b>Evident Device ID</b>: {{ device_details.evidentDeviceId }}</p>
         <p><b>Evident Status</b>: {{ device_details.evidentStatus }}</p>
+
+        <h3 class="section-heading">Documents</h3>
+        <p><b>Project Photos ⁽⁴³⁾</b>: {{ docCount('PROJECT_PHOTOS') }}</p>
+        <p><b>Single Line Diagram ⁽⁴⁵⁾</b>: {{ docCount('SINGLE_LINE_DIAGRAM') }}</p>
+        <p><b>SF-02c (Owner's Declaration) ⁽⁴⁶⁾</b>: {{ docCount('SF_02C') }}</p>
+        <p><b>Proof of Ownership ⁽⁴⁷⁾</b>: {{ docCount('SF_02C_OWNERS_DECLARATION') }}</p>
+        <p><b>COD Proof ⁽⁴⁸⁾</b>: {{ docCount('COD_PROOF') }}</p>
+        <p><b>Metering Evidence ⁽⁴⁹⁾</b>: {{ docCount('METERING_EVIDENCE') }}</p>
+        <p><b>Other Documents ⁽⁵⁰⁾</b>: {{ docCount('OTHER_DOCUMENTS') }}</p>
       </div>
     </ng-template>
   </mat-dialog-content>
