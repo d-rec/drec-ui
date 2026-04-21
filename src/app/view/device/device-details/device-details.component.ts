@@ -123,6 +123,13 @@ export class DeviceDetailsComponent {
     return d.label || d.originalFilename || `File ${d.id}`;
   }
 
+  fileExt(source: string | null | undefined): string {
+    if (!source) return '';
+    const path = source.split('?')[0];
+    const m = path.match(/\.([a-z0-9]{1,6})$/i);
+    return m ? m[1].toLowerCase() : '';
+  }
+
   splitSerials(joined: string | null | undefined): string[] {
     if (!joined) return [];
     return String(joined)

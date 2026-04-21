@@ -28,6 +28,8 @@ interface Field {
   links?: { url: string; text: string }[];
   /** when present, render as indented sub-rows below the label */
   items?: string[];
+  /** when true AND links is populated, render as a #/Filename/Type table */
+  tabular?: boolean;
 }
 
 interface Section {
@@ -419,6 +421,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
             label: '(49) Metering Evidence',
             value: fmtDocs('METERING_EVIDENCE'),
             links: linksFor('METERING_EVIDENCE'),
+            tabular: true,
             hint: 'Sample metering evidence relied on for I-REC issuance',
           },
           {
@@ -472,4 +475,11 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
 
   trackSection = (_: number, s: Section) => s.heading;
   trackField = (_: number, f: Field) => f.label;
+
+  linkExt(l: { url: string; text: string }): string {
+    const src = l.text || l.url || '';
+    const path = src.split('?')[0];
+    const m = path.match(/\.([a-z0-9]{1,6})$/i);
+    return m ? m[1].toLowerCase() : '';
+  }
 }

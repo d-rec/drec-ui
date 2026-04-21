@@ -1078,6 +1078,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     return this.fileName(url);
   }
 
+  fileExt(url: string): string {
+    const path = (url || '').split('?')[0];
+    const m = path.match(/\.([a-z0-9]{1,6})$/i);
+    return m ? m[1].toLowerCase() : '';
+  }
+
   fileName(url: string): string {
     try {
       const withoutQuery = url.split('?')[0];
