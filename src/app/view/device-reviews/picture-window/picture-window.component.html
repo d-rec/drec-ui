@@ -7,6 +7,15 @@
   (close)="close()"
 >
     <div class="picw">
+      <div *ngIf="enableOcr" class="picw__toolbar">
+        <button
+          type="button"
+          class="picw__ocr-btn"
+          (click)="runOcr()"
+          (mousedown)="runOcr()"
+          [disabled]="ocrRunning"
+        >{{ ocrRunning ? 'Extracting… ' + ocrProgress + '%' : (ocrText ? 'Re-run OCR' : 'Extract Text (OCR)') }}</button>
+      </div>
       <!-- Panel detection is reserved for the live satellite view; regular
            uploaded pictures show the image only (zoom/pan). -->
       <div class="picw__image-area">
