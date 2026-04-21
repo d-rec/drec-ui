@@ -12,16 +12,12 @@
 
   <div class="drw__body">
     <div class="drw__viewer">
-      <ng-container *ngIf="activeDoc; else noDoc">
-        <iframe
-          *ngIf="isPdf(activeDoc) || !isImage(activeDoc)"
-          [src]="activeDocSafeUrl"
-          class="drw__viewer-frame"
-          title="Document viewer"
-        ></iframe>
-        <div *ngIf="isImage(activeDoc)" class="drw__viewer-img-wrap">
-          <img [src]="activeDoc.url" class="drw__viewer-img" alt="Document" />
-        </div>
+      <ng-container *ngIf="activeDoc && activeDocSafeUrl; else noDoc">
+        <app-pdf-preview
+          [previewUrl]="activeDocSafeUrl"
+          [previewType]="previewTypeFor(activeDoc)"
+          [ocrSource]="activeDoc.url"
+        ></app-pdf-preview>
       </ng-container>
       <ng-template #noDoc>
         <div class="drw__viewer-empty">
