@@ -62,10 +62,8 @@ export class AssetService {
    * Shared monotonic counter for every floating window's z-order. Single source
    * so the last-touched window — picture, pdf, info, satellite, anything —
    * always sits on top of every other one regardless of type.
-   * Floor starts at 10000 so floating windows (and the review workspace, which
-   * uses this counter too) beat the app-shell navbar/sidenav z-indexes.
    */
-  private zCounter = 10000;
+  private zCounter = 500;
   nextZOrder(): number {
     this.zCounter += 1;
     return this.zCounter;
