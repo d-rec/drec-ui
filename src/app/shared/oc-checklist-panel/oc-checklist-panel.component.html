@@ -12,7 +12,7 @@
   <div class="ocp__panel" *ngIf="!collapsed">
     <div class="ocp__head">
       <span class="ocp__title">Registration Checklist</span>
-      <span class="ocp__count">{{ checked.size }}/{{ rows.length }}</span>
+      <span class="ocp__count">{{ checkedLeaves() }}/{{ totalLeaves() }}</span>
       <button
         type="button"
         class="ocp__clear"
@@ -23,30 +23,46 @@
     </div>
 
     <ul class="ocp__list">
-      <li
-        *ngFor="let r of rows; trackBy: trackRow"
-        class="ocp__row"
-        [class.ocp__row--checked]="checked.has(r.n)"
-      >
-        <label
-          class="ocp__label"
-          [matTooltip]="r.compare"
-          [matTooltipDisabled]="!r.compare"
-          matTooltipPosition="left"
-          matTooltipShowDelay="200"
+      <ng-container *ngFor="let r of rows; trackBy: trackRow">
+        <li
+          class="ocp__row"
+          [class.ocp__row--checked]="isRowComplete(r)"
         >
-          <input
-            type="checkbox"
-            [checked]="checked.has(r.n)"
-            (change)="toggleRow(r.n)"
-          />
-          <span class="ocp__num">{{ r.n }}</span>
-          <span
-            class="ocp__item"
-            [class.ocp__item--hinted]="r.compare"
-          >{{ r.item }}</span>
-        </label>
-      </li>
+          <label
+            class="ocp__label"
+            [matTooltip]="r.compare"
+            [matTooltipDisabled]="!r.compare || !!r.subItems"
+            matTooltipPosition="left"
+            matTooltipShowDelay="200"
+          >
+            <input
+              type="checkbox"
+              [checked]="isRowComplete(r)"
+              (change)="toggleRow(r.n.toString())"
+            />
+            <span class="ocp__num">{{ r.n }}</span>
+            <span
+              class="ocp__item"
+              [class.ocp__item--hinted]="r.compare"
+            >{{ r.item }}</span>
+          </label>
+        </li>
+        <li
+          *ngFor="let s of r.subItems; let i = index; trackBy: trackSub"
+          class="ocp__row ocp__row--sub"
+          [class.ocp__row--checked]="checked.has(r.n + '.' + i)"
+        >
+          <label class="ocp__label ocp__label--sub">
+            <input
+              type="checkbox"
+              [checked]="checked.has(r.n + '.' + i)"
+              (change)="toggleRow(r.n + '.' + i)"
+            />
+            <span class="ocp__sub-bullet">↳</span>
+            <span class="ocp__item">{{ s }}</span>
+          </label>
+        </li>
+      </ng-container>
     </ul>
   </div>
 </div>

@@ -18,6 +18,8 @@ interface OcRow {
   item: string;
   /** "Cross check with …" — what a reviewer should compare this field against. Empty string = no cross-check necessary. */
   compare: string;
+  /** Optional sub-checklist. Each string becomes its own checkable child row. */
+  subItems?: string[];
 }
 
 const OC_ROWS: OcRow[] = [
@@ -65,7 +67,21 @@ const OC_ROWS: OcRow[] = [
   { n: 42, item: 'Signature', compare: '' },
   { n: 43, item: 'Site photos', compare: 'Cross check with: coordinates, SLD' },
   { n: 44, item: 'Facility boundary', compare: 'Cross check with: site photos, capacity' },
-  { n: 45, item: 'Single Line Diagram (SLD)', compare: 'Cross check with: site name, total AC capacity, metering point, all serial numbers, grid connection, load, auxiliary/standby energy sources, signature/stamp of facility owner or engineer' },
+  {
+    n: 45,
+    item: 'Single Line Diagram (SLD)',
+    compare: 'Cross check with each item below',
+    subItems: [
+      'site name',
+      'total AC capacity',
+      'metering point',
+      'all serial numbers',
+      'grid connection',
+      'load',
+      'auxiliary/standby energy sources',
+      'signature/stamp of facility owner or engineer',
+    ],
+  },
   { n: 46, item: "Owner's Declaration Letter", compare: 'Cross check with: template language, PV system owner, site name, site address, coordinates, total AC capacity, commissioning date' },
   { n: 47, item: 'Proof of Ownership and Rights to Transact', compare: 'Cross check with: PV system owner, Offtaker, OD letter, RE attributes' },
   { n: 48, item: 'Proof of Commissioning Date', compare: 'Cross check with: COD, site name, first day of generation data' },
@@ -87,7 +103,8 @@ export class OcChecklistPanelComponent implements OnInit, OnChanges, AfterViewIn
 
   rows = OC_ROWS;
   collapsed = false;
-  checked = new Set<number>();
+  /** Checked item keys — top-level OC# as its numeric string (e.g. "45"), sub-items as "45.0", "45.1", … */
+  checked = new Set<string>();
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -123,9 +140,9 @@ export class OcChecklistPanelComponent implements OnInit, OnChanges, AfterViewIn
     this.cdr.markForCheck();
   }
 
-  toggleRow(n: number): void {
-    if (this.checked.has(n)) this.checked.delete(n);
-    else this.checked.add(n);
+  toggleRow(key: string): void {
+    if (this.checked.has(key)) this.checked.delete(key);
+    else this.checked.add(key);
     this.persist();
     this.cdr.markForCheck();
   }
@@ -136,14 +153,40 @@ export class OcChecklistPanelComponent implements OnInit, OnChanges, AfterViewIn
     this.cdr.markForCheck();
   }
 
+  /** Parent row visual state: checked if explicitly ticked, OR all sub-items ticked. */
+  isRowComplete(r: OcRow): boolean {
+    if (r.subItems && r.subItems.length > 0) {
+      return r.subItems.every((_, i) => this.checked.has(`${r.n}.${i}`));
+    }
+    return this.checked.has(String(r.n));
+  }
+
+  /** Total leaf-level count for the "X/Y" header. Sub-items count individually. */
+  totalLeaves(): number {
+    return this.rows.reduce(
+      (acc, r) => acc + (r.subItems?.length ? r.subItems.length : 1),
+      0,
+    );
+  }
+
+  checkedLeaves(): number {
+    return this.rows.reduce((acc, r) => {
+      if (r.subItems?.length) {
+        return acc + r.subItems.filter((_, i) => this.checked.has(`${r.n}.${i}`)).length;
+      }
+      return acc + (this.checked.has(String(r.n)) ? 1 : 0);
+    }, 0);
+  }
+
   trackRow = (_: number, r: OcRow) => r.n;
+  trackSub = (i: number) => i;
 
   private persist(): void {
     if (!this.storageKey) return;
     try {
       localStorage.setItem(
         this.storageKey,
-        JSON.stringify([...this.checked].sort((a, b) => a - b)),
+        JSON.stringify([...this.checked].sort()),
       );
     } catch {
       /* quota/unavailable — ignore */
@@ -160,7 +203,10 @@ export class OcChecklistPanelComponent implements OnInit, OnChanges, AfterViewIn
       this.checked = new Set();
       if (!raw) return;
       const arr = JSON.parse(raw);
-      if (Array.isArray(arr)) this.checked = new Set(arr.filter((x) => typeof x === 'number'));
+      if (Array.isArray(arr)) {
+        // Coerce any legacy numeric entries to strings so new keys ("45.0") work too
+        this.checked = new Set(arr.map((x) => String(x)));
+      }
     } catch {
       /* parse error — ignore */
     }
