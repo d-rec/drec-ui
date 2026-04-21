@@ -132,19 +132,11 @@ export class DeviceDetailsComponent {
     event.preventDefault();
     event.stopPropagation();
     const cached = this.documents.find((d) => d.id === docId);
-    console.log('[device-details] openDocLink', { docId, doc: cached });
-    if (!cached) {
-      this.toastrService.warning(`Doc id=${docId} not in the cached list — try reopening the dialog`);
+    if (!cached?.url) {
+      this.toastrService.warning('Signed URL unavailable — try reopening the dialog');
       return;
     }
-    if (!cached.url) {
-      this.toastrService.warning(`The S3 signed URL for doc id=${docId} is empty — backend couldn't sign (file may be missing in storage).`);
-      return;
-    }
-    const win = window.open(cached.url, '_blank', 'noopener');
-    if (!win) {
-      this.toastrService.warning('Browser blocked the new tab — enable popups for this site');
-    }
+    window.open(cached.url, '_blank', 'noopener');
   }
 
   copyToClipboard() {

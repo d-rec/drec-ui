@@ -96,12 +96,13 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   }
 
   openLink(url: string, event: MouseEvent): void {
-    alert('[device-info-window] openLink fired, url=' + (url || '(empty)'));
     event.preventDefault();
     event.stopPropagation();
-    if (!url) return;
-    const isImage = /\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url);
-    if (isImage) {
+    if (!url) {
+      this.toastr.warning('Empty signed URL — backend could not sign (file missing in storage?)');
+      return;
+    }
+    if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
       this.svc.sldDeviceId$.next(null);
       this.svc.viewPicture(url);
     } else {

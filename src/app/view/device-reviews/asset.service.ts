@@ -46,19 +46,15 @@ export class AssetService {
   }
 
   viewPicture(url: string | null, enableOcr = false): void {
-    console.log('[AssetService] viewPicture', { url, current: this.openPictures$.value.length });
     if (url === null) {
       this.openPictures$.next([]);
       return;
     }
     const current = this.openPictures$.value;
-    if (current.some((p) => p.url === url)) {
-      console.log('[AssetService] viewPicture — URL already open, skipping');
-      return;
-    }
+    // If the same URL is already open, bring nothing new — prevents accidental dupes on double-click.
+    if (current.some((p) => p.url === url)) return;
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
     this.openPictures$.next([...current, { id, url, enableOcr }]);
-    console.log('[AssetService] viewPicture — pushed, now', this.openPictures$.value.length, 'open');
   }
 
   closePicture(id: string): void {
@@ -68,7 +64,6 @@ export class AssetService {
   }
 
   viewPdf(url: string | null): void {
-    console.log('[AssetService] viewPdf', { url });
     this.viewPdfUrl$.next(url);
   }
 
