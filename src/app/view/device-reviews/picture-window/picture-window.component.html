@@ -7,39 +7,11 @@
   (close)="close()"
 >
     <div class="picw">
-      <!-- OCR toolbar: for screenshots & metering evidence (text extraction) -->
-      <div class="picw__toolbar" *ngIf="enableOcr">
-        <button class="picw__ocr-btn" (click)="runOcr()" [disabled]="ocrRunning">
-          {{ ocrRunning ? 'Reading... ' + ocrProgress + '%' : 'OCR' }}
-        </button>
-      </div>
-      <!-- Photo toolbar: Detect Panels -->
-      <div class="picw__toolbar" *ngIf="!enableOcr">
-        <button class="picw__detect-btn" (click)="detectPanels()" [disabled]="detecting">
-          {{ detecting ? 'Scanning...' : showOverlay ? 'Re-scan' : '⚡ Detect Panels' }}
-        </button>
-        <button class="picw__detect-btn picw__detect-btn--clear" *ngIf="showOverlay" (click)="clearOverlay()">
-          Clear
-        </button>
-        <button
-          class="picw__detect-btn picw__detect-btn--delete"
-          *ngIf="selectedRegion >= 0"
-          (click)="deleteSelected()"
-        >
-          ✕ Remove Region
-        </button>
-        <span class="picw__detect-count" *ngIf="detectDone && panelCount > 0">
-          {{ panelCount }} region{{ panelCount === 1 ? '' : 's' }} found
-        </span>
-        <span class="picw__detect-none" *ngIf="detectDone && panelCount === 0">
-          No panels detected
-        </span>
-        <span class="picw__detect-error" *ngIf="detectError">{{ detectError }}</span>
-      </div>
-      <div class="picw__image-area" [class.picw__image-area--with-text]="ocrText">
+      <!-- Panel detection is reserved for the live satellite view; regular
+           uploaded pictures show the image only (zoom/pan). -->
+      <div class="picw__image-area">
         <div class="picw__image-wrap" appImageZoomPan [resetKey]="url" title="Scroll to zoom, drag to pan, double-click to reset">
           <img #imgEl class="picw__img" [src]="url" alt="Device picture" crossorigin="anonymous" />
-          <canvas #overlayCanvas class="picw__overlay" [class.visible]="showOverlay" (click)="onCanvasClick($event)"></canvas>
         </div>
       </div>
       <div *ngIf="ocrRunning" class="picw__progress">
