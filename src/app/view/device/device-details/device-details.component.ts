@@ -1,7 +1,7 @@
 import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, firstValueFrom } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DeviceService } from '../../../auth/services/device.service';
 import { AuthbaseService } from '../../../auth/authbase.service';
@@ -119,6 +119,26 @@ export class DeviceDetailsComponent {
   splitSerials(joined: string | null | undefined): string[] {
     if (!joined) return [];
     return String(joined).split(/\s*;\s*/).filter(Boolean);
+  }
+
+  /**
+   * Refresh the S3-signed document URL on click so an expired TTL doesn't
+   * fail silently. The backend re-issues a URL for the same doc id; we then
+   * open it in a new tab.
+   */
+  async openDocLink(docId: number, event: MouseEvent): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+    try {
+      const refreshed = await firstValueFrom(this.deviceService.getDocuments(this.id));
+      const hit = refreshed.find((d) => d.id === docId);
+      const url = hit?.url || this.documents.find((d) => d.id === docId)?.url;
+      if (url) window.open(url, '_blank', 'noopener');
+    } catch {
+      // Fallback to the cached URL even if refresh fails
+      const cached = this.documents.find((d) => d.id === docId);
+      if (cached?.url) window.open(cached.url, '_blank', 'noopener');
+    }
   }
 
   copyToClipboard() {

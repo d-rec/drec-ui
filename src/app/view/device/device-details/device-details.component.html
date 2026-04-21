@@ -128,7 +128,7 @@
             <b>{{ row.label }} {{ row.oc }}</b>:
             <ng-container *ngIf="docsOf(row.type).length; else noDocs">
               <ng-container *ngFor="let d of docsOf(row.type); let last = last">
-                <a [href]="d.url" target="_blank" rel="noopener">{{ docLinkLabel(d) }}</a><span *ngIf="!last">, </span>
+                <a href="#" (click)="openDocLink(d.id, $event)">{{ docLinkLabel(d) }}</a><span *ngIf="!last">, </span>
               </ng-container>
             </ng-container>
             <ng-template #noDocs>—</ng-template>

@@ -95,6 +95,22 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
     this.svc.viewDeviceInfo(null);
   }
 
+  async openLink(url: string, event: MouseEvent): Promise<void> {
+    // Route document links through the in-app viewers (picture-window /
+    // pdf-window) the way documents-window does, so expired signed URLs get
+    // refreshed and images open in a floating panel instead of a browser tab.
+    event.preventDefault();
+    event.stopPropagation();
+    if (!url) return;
+    const freshUrl = await this.svc.refreshUrl(url);
+    if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
+      this.svc.sldDeviceId$.next(null);
+      this.svc.viewPicture(freshUrl);
+    } else {
+      this.svc.viewPdf(freshUrl);
+    }
+  }
+
   private load(deviceId: number): void {
     this.deviceInfo = null;
     this.documents = [];
