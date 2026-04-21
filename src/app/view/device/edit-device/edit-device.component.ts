@@ -36,7 +36,6 @@ type FileType =
   | DocumentType.METERING_EVIDENCE
   | DocumentType.SINGLE_LINE_DIAGRAM
   | DocumentType.PROJECT_PHOTOS
-  | DocumentType.SCREENSHOTS
   | DocumentType.COD_PROOF
   | DocumentType.OTHER_DOCUMENTS;
 
@@ -122,7 +121,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   // Which doc categories support per-file rename (registrant-facing).
   renameableDocTypes: string[] = [
     DocumentType.PROJECT_PHOTOS,
-    DocumentType.SCREENSHOTS,
     DocumentType.METERING_EVIDENCE,
   ];
   brokenDocs: { [type: string]: boolean } = {};
@@ -233,7 +231,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     DocumentType.METERING_EVIDENCE,
     DocumentType.SINGLE_LINE_DIAGRAM,
     DocumentType.PROJECT_PHOTOS,
-    DocumentType.SCREENSHOTS,
     DocumentType.COD_PROOF,
     DocumentType.OTHER_DOCUMENTS,
   ];
@@ -863,20 +860,21 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   }
 
   onScreenshotFromMap(file: File): void {
-    if (!this.files[DocumentType.SCREENSHOTS]) {
-      this.files[DocumentType.SCREENSHOTS] = [];
+    // Phase 1c: map captures are saved as METERING_EVIDENCE (SCREENSHOTS merged in)
+    if (!this.files[DocumentType.METERING_EVIDENCE]) {
+      this.files[DocumentType.METERING_EVIDENCE] = [];
     }
-    this.files[DocumentType.SCREENSHOTS].push(file);
+    this.files[DocumentType.METERING_EVIDENCE].push(file);
 
     // Generate preview so the file is viewable
     const objectUrl = URL.createObjectURL(file);
-    this.filePreviews[DocumentType.SCREENSHOTS] = {
+    this.filePreviews[DocumentType.METERING_EVIDENCE] = {
       url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
       type: 'image',
       name: file.name,
     };
 
-    this.toastrService.success(`Screenshot "${file.name}" added`, 'Screenshot');
+    this.toastrService.success(`Map capture "${file.name}" added as metering evidence`, 'Captured');
   }
 
   updateMapMarkers(latitude: any, longitude: any) {

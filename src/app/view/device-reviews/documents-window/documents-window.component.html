@@ -234,29 +234,6 @@
             <div *ngIf="item.pictureUrls.length > 0 && item.pictureUrls.length < 3" class="dr-row dr-row--empty"><span class="missing-tag">only {{ item.pictureUrls.length }} photo(s) — at least 3 required</span></div>
           </ng-container>
 
-          <!-- ── Screenshots section ─────────────────────────────────────────── -->
-          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'screenshots')" (keydown.enter)="toggleSection(item.id, 'screenshots')">
-            <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'screenshots')">&#8250;</span>
-            <span class="section-label">Screenshots <span class="fn">(49)</span></span>
-            <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}" [title]="getDocHint('SCREENSHOTS', item.operatingConfiguration) || ''">{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}</span>
-            <span *ngIf="item.screenshotUrls.length" class="section-count">({{ item.screenshotUrls.length }})</span>
-          </div>
-          <ng-container *ngIf="isSectionOpen(item.id, 'screenshots')">
-            <div
-              *ngFor="let url of item.screenshotUrls; let i = index; trackBy: trackByIndex"
-              class="dr-row dr-row--file"
-              (dblclick)="openPicture(url, $event)"
-              (keydown.enter)="openPicture(url, $event)"
-            >
-              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':ss:' + i]" [class.review-check--done]="reviewed[item.id + ':ss:' + i]" (click)="toggleReviewed(item.id + ':ss:' + i, $event)" (keydown.enter)="toggleReviewed(item.id + ':ss:' + i, $event)" title="Mark as reviewed">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':ss:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
-              <img [src]="url" class="thumb" width="28" height="28" alt="" />
-              <span class="file-name" [innerHTML]="hl(fileDisplayName(item, 'ss:' + i, url), result.searchTerm)"></span>
-            </div>
-            <div *ngIf="!item.screenshotUrls.length" class="dr-row dr-row--empty">No screenshots</div>
-          </ng-container>
-
           <!-- ── Other Documents section ─────────────────────────────────────── -->
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'otherDocuments')" (keydown.enter)="toggleSection(item.id, 'otherDocuments')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'otherDocuments')">&#8250;</span>

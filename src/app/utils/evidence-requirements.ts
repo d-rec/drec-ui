@@ -13,7 +13,6 @@ export interface EvidenceRequirements {
   METERING_EVIDENCE: RequirementLevel;
   SINGLE_LINE_DIAGRAM: RequirementLevel;
   PROJECT_PHOTOS: RequirementLevel;
-  SCREENSHOTS: RequirementLevel;
   COD_PROOF: RequirementLevel;
 }
 
@@ -24,7 +23,6 @@ const DEFAULT_REQUIREMENTS: EvidenceRequirements = {
   METERING_EVIDENCE: 'required',
   SINGLE_LINE_DIAGRAM: 'required',
   PROJECT_PHOTOS: 'required',
-  SCREENSHOTS: 'optional',
   COD_PROOF: 'required',
 };
 
@@ -56,7 +54,6 @@ export const EVIDENCE_REQUIREMENTS: Record<string, EvidenceRequirements> = {
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
-    SCREENSHOTS: 'recommended',
     COD_PROOF: 'required',
   },
   [OperatingConfiguration.GridPermittedExport]: {
@@ -66,7 +63,6 @@ export const EVIDENCE_REQUIREMENTS: Record<string, EvidenceRequirements> = {
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
-    SCREENSHOTS: 'recommended',
     COD_PROOF: 'required',
   },
   [OperatingConfiguration.GridFullExport]: {
@@ -76,7 +72,6 @@ export const EVIDENCE_REQUIREMENTS: Record<string, EvidenceRequirements> = {
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
-    SCREENSHOTS: 'recommended',
     COD_PROOF: 'required',
   },
   [OperatingConfiguration.OffGrid]: {
@@ -86,7 +81,6 @@ export const EVIDENCE_REQUIREMENTS: Record<string, EvidenceRequirements> = {
     METERING_EVIDENCE: 'recommended',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
-    SCREENSHOTS: 'recommended',
     COD_PROOF: 'required',
   },
   [OperatingConfiguration.DualModeHybrid]: {
@@ -96,7 +90,6 @@ export const EVIDENCE_REQUIREMENTS: Record<string, EvidenceRequirements> = {
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
-    SCREENSHOTS: 'required',
     COD_PROOF: 'required',
   },
 };
@@ -113,25 +106,20 @@ export const EVIDENCE_HINTS: Record<string, Record<string, string>> = {
   [OperatingConfiguration.GridNoExport]: {
     SINGLE_LINE_DIAGRAM: 'Must show no-export configuration',
     METERING_EVIDENCE: 'Must confirm no export channel exists',
-    SCREENSHOTS: 'Inverter/EMS zero-export settings recommended',
   },
   [OperatingConfiguration.GridPermittedExport]: {
     METERING_EVIDENCE: 'Import/export meter channels required',
     SF_02C: 'Include contractual/regulatory records permitting export',
-    SCREENSHOTS: 'Inverter/EMS/RMS export data recommended',
   },
   [OperatingConfiguration.GridFullExport]: {
     METERING_EVIDENCE: 'Export meter data required',
     SF_02C: 'Utility/offtaker records and open-access docs required',
-    SCREENSHOTS: 'Monitoring and commercial records recommended',
   },
   [OperatingConfiguration.OffGrid]: {
     SINGLE_LINE_DIAGRAM: 'Must show standalone/islanded operation',
     METERING_EVIDENCE: 'Monitoring setup recommended if available',
-    SCREENSHOTS: 'Operator/project records recommended',
   },
   [OperatingConfiguration.DualModeHybrid]: {
-    SCREENSHOTS: 'Both grid-connected and off-grid evidence required',
     METERING_EVIDENCE: 'Evidence for both operating modes required',
   },
 };

@@ -65,7 +65,6 @@ export type DeviceFiles = {
   [DocumentType.METERING_EVIDENCE]: File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: File[];
   [DocumentType.PROJECT_PHOTOS]: File[];
-  [DocumentType.SCREENSHOTS]: File[];
   [DocumentType.COD_PROOF]: File[];
   [DocumentType.OTHER_DOCUMENTS]: File[];
 };
@@ -377,7 +376,6 @@ export class AddDevicesComponent implements OnDestroy {
       METERING_EVIDENCE: [null],
       SINGLE_LINE_DIAGRAM: [null],
       PROJECT_PHOTOS: [null],
-      SCREENSHOTS: [null],
       COD_PROOF: [null],
       OTHER_DOCUMENTS: [null],
       sf02EvidenceMode: ['self'],
@@ -515,7 +513,6 @@ export class AddDevicesComponent implements OnDestroy {
       METERING_EVIDENCE: [null],
       SINGLE_LINE_DIAGRAM: [null],
       PROJECT_PHOTOS: [null],
-      SCREENSHOTS: [null],
       COD_PROOF: [null],
       OTHER_DOCUMENTS: [null],
       sf02EvidenceMode: ['self'],
@@ -725,7 +722,7 @@ export class AddDevicesComponent implements OnDestroy {
       );
     }
 
-    const multiTypes: string[] = ['PROJECT_PHOTOS', 'SCREENSHOTS', 'METERING_EVIDENCE', 'OTHER_DOCUMENTS'];
+    const multiTypes: string[] = ['PROJECT_PHOTOS', 'METERING_EVIDENCE', 'OTHER_DOCUMENTS'];
     const prevLen = (this.files[deviceIndex][fileType] || []).length;
     if (multiTypes.includes(fileType)) {
       this.files[deviceIndex][fileType] = [
@@ -784,7 +781,7 @@ export class AddDevicesComponent implements OnDestroy {
     });
   }
 
-  renameableTypes: string[] = ['PROJECT_PHOTOS', 'SCREENSHOTS', 'METERING_EVIDENCE'];
+  renameableTypes: string[] = ['PROJECT_PHOTOS', 'METERING_EVIDENCE'];
 
   renameDialogFiles: { file: File; url: string; name: string; type: 'image' | 'pdf' | 'excel' | 'other'; label: string }[] = [];
 
@@ -984,7 +981,6 @@ export class AddDevicesComponent implements OnDestroy {
         DocumentType.METERING_EVIDENCE,
         DocumentType.SINGLE_LINE_DIAGRAM,
         DocumentType.PROJECT_PHOTOS,
-        DocumentType.SCREENSHOTS,
         DocumentType.COD_PROOF,
         DocumentType.OTHER_DOCUMENTS,
       ];
@@ -1181,12 +1177,13 @@ export class AddDevicesComponent implements OnDestroy {
         {} as DeviceFiles,
       );
     }
-    if (!this.files[deviceIndex][DocumentType.SCREENSHOTS]) {
-      this.files[deviceIndex][DocumentType.SCREENSHOTS] = [];
+    // Phase 1c: map captures are saved as METERING_EVIDENCE (SCREENSHOTS merged in)
+    if (!this.files[deviceIndex][DocumentType.METERING_EVIDENCE]) {
+      this.files[deviceIndex][DocumentType.METERING_EVIDENCE] = [];
     }
-    this.files[deviceIndex][DocumentType.SCREENSHOTS].push(file);
+    this.files[deviceIndex][DocumentType.METERING_EVIDENCE].push(file);
 
-    const fileControl = this.deviceForms.at(deviceIndex).get('SCREENSHOTS');
+    const fileControl = this.deviceForms.at(deviceIndex).get('METERING_EVIDENCE');
     if (fileControl) {
       fileControl.setValue(file);
       fileControl.markAsDirty();
@@ -1197,13 +1194,13 @@ export class AddDevicesComponent implements OnDestroy {
       this.filePreviews[deviceIndex] = {};
     }
     const objectUrl = URL.createObjectURL(file);
-    this.filePreviews[deviceIndex][DocumentType.SCREENSHOTS] = {
+    this.filePreviews[deviceIndex][DocumentType.METERING_EVIDENCE] = {
       url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
       type: 'image',
       name: file.name,
     };
 
-    this.toastrService.success(`Screenshot "${file.name}" added`, 'Screenshot');
+    this.toastrService.success(`Map capture "${file.name}" added as metering evidence`, 'Captured');
   }
 
   updateMapMarkers(latitude: any, longitude: any) {
