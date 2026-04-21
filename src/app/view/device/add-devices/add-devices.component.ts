@@ -721,7 +721,7 @@ export class AddDevicesComponent implements OnDestroy {
     );
 
     this.allDocumentsUploaded = allDocsUploaded;
-    this.formValid = this.myform.valid && allDocsUploaded;
+    this.formValid = this.myform.valid;
   }
 
   onFileChange(event: Event, deviceIndex: number, fileType: FileType) {

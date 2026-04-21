@@ -899,7 +899,11 @@
           <div class="col-12 d-flex justify-content-end align-items-center gap-3">
             <span *ngIf="!formValid && !isSubmitting" class="text-danger small">
               <mat-icon style="font-size:16px;vertical-align:middle">error_outline</mat-icon>
-              {{ !myform.valid ? 'Please fill in all required fields.' : 'Please upload all required documents.' }}
+              Please fill in all required fields.
+            </span>
+            <span *ngIf="formValid && !allDocumentsUploaded && !isSubmitting" class="text-warning small">
+              <mat-icon style="font-size:16px;vertical-align:middle">warning_amber</mat-icon>
+              Some required documents are missing — you can still submit and upload them later.
             </span>
             <button type="button" class="btn btn-outline-secondary text-capitalize px-4"
               routerLink="/device/MyList">
