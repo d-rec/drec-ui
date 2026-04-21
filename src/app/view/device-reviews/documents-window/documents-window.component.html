@@ -82,6 +82,10 @@
           (mouseleave)="hideSatPreview()"
         >
           <input type="checkbox" class="bulk-check" [checked]="!!checked[item.id]" (click)="toggleCheck(item.id, $event)" />
+          <button type="button" class="review-open-btn"
+            title="Open full-screen review workspace"
+            (click)="openReview(item.id, $event)"
+            (mousedown)="openReview(item.id, $event)">Review ▸</button>
           <span class="chevron" role="button" tabindex="0" [class.chevron--open]="expanded[item.id]" (click)="toggleDevice(item.id); $event.stopPropagation()" (keydown.enter)="toggleDevice(item.id); $event.stopPropagation()">&#8250;</span>
           <span class="col-serial">
             <span [innerHTML]="hl(item.siteName, result.searchTerm)"></span>
@@ -106,10 +110,6 @@
           <span class="col-cod" [class.col-cod--ready]="item.sf02Ready" [class.col-cod--not]="!item.sf02Ready" [title]="item.sf02Ready ? 'Ready to generate SF-02' : 'Missing required fields'">
             {{ item.sf02Ready ? '✓' : '✗' }}
           </span>
-          <button type="button" class="review-open-btn"
-            title="Open full-screen review workspace"
-            (click)="openReview(item.id, $event)"
-            (mousedown)="openReview(item.id, $event)">Review ▸</button>
         </div>
 
         <!-- Expanded sections -->
