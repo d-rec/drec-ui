@@ -304,7 +304,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       images: [null],
       deviceDescription: [null],
       stateProvince: [null],
-      SDGBenefits: [new FormControl([])],
+      SDGBenefits: [[]],
       version: ['1.0'],
       organizationId: [null],
       postcode: [null, [postcodeValidator()]],
@@ -677,6 +677,16 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     if (Array.isArray(formValue.labellingSchemeAccreditation)) {
       formValue.labellingSchemeAccreditation =
         formValue.labellingSchemeAccreditation.join('; ') || null;
+    }
+
+    // Partial-update support: strip null/undefined/''/NaN keys so the
+    // backend's skipMissingProperties skips them (IsOptional alone only
+    // covers null/undefined — a null → Transform → NaN still fails IsNumber).
+    for (const k of Object.keys(formValue)) {
+      const v = (formValue as any)[k];
+      if (v === null || v === undefined || v === '' || (typeof v === 'number' && isNaN(v))) {
+        delete (formValue as any)[k];
+      }
     }
 
     // Check if any files were selected
