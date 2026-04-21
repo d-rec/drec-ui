@@ -1,9 +1,7 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  ElementRef,
   OnDestroy,
   OnInit,
 } from '@angular/core';
@@ -41,7 +39,7 @@ const DOC_ROWS: { label: string; oc: string; type: string }[] = [
   styleUrls: ['./device-review-workspace.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeviceReviewWorkspaceComponent implements OnInit, AfterViewInit, OnDestroy {
+export class DeviceReviewWorkspaceComponent implements OnInit, OnDestroy {
   deviceId: number | null = null;
   device: any = null;
   documents: DocRow[] = [];
@@ -59,18 +57,7 @@ export class DeviceReviewWorkspaceComponent implements OnInit, AfterViewInit, On
     private sanitizer: DomSanitizer,
     private toastr: ToastrService,
     private cdr: ChangeDetectorRef,
-    private host: ElementRef<HTMLElement>,
   ) {}
-
-  ngAfterViewInit(): void {
-    // Portal to document.body so the workspace can cover the entire viewport —
-    // mat-sidenav-container caps descendant z-index at 0 per the stacking-context
-    // trap, so position:fixed doesn't escape unless we move the host out.
-    const el = this.host.nativeElement;
-    if (el.parentNode !== document.body) {
-      document.body.appendChild(el);
-    }
-  }
 
   ngOnInit(): void {
     this.sub = this.svc.reviewDeviceId$
@@ -122,8 +109,6 @@ export class DeviceReviewWorkspaceComponent implements OnInit, AfterViewInit, On
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
-    const el = this.host.nativeElement;
-    el.parentNode?.removeChild(el);
   }
 
   docsOf(type: string): DocRow[] {
