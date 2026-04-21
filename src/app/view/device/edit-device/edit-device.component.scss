@@ -506,13 +506,13 @@
 .serial-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 12px;
 
   &__row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 28px;
     align-items: center;
-    gap: 2px;
+    gap: 4px;
 
     &:only-child {
       grid-template-columns: minmax(0, 1fr);
