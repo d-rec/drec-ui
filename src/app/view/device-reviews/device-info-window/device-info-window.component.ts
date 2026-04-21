@@ -96,13 +96,16 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   }
 
   openLink(url: string, event: MouseEvent): void {
-    // Route document links through the in-app viewers (picture-window /
-    // pdf-window) the way documents-window does. Synchronous dispatch — if
-    // refreshUrl is needed later we can fire it from inside viewPdf/viewPicture.
     event.preventDefault();
     event.stopPropagation();
-    if (!url) return;
-    if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
+    console.log('[device-info-window] openLink', { url, hasUrl: !!url });
+    if (!url) {
+      this.toastr.warning('Empty signed URL — backend could not sign (file missing in storage?)');
+      return;
+    }
+    const isImage = /\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url);
+    this.toastr.info(`Opening ${isImage ? 'picture' : 'PDF'} viewer…`);
+    if (isImage) {
       this.svc.sldDeviceId$.next(null);
       this.svc.viewPicture(url);
     } else {
