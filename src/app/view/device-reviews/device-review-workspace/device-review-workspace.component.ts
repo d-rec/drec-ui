@@ -174,16 +174,6 @@ export class DeviceReviewWorkspaceComponent implements OnInit, AfterViewInit, On
     return /\.pdf(\?|$)/i.test(d.url);
   }
 
-  isExcel(d: DocRow): boolean {
-    return /\.(xlsx?|csv)(\?|$)/i.test(d.url);
-  }
-
-  previewTypeFor(d: DocRow): 'pdf' | 'image' | 'excel' {
-    if (this.isImage(d)) return 'image';
-    if (this.isExcel(d)) return 'excel';
-    return 'pdf';
-  }
-
   back(): void {
     this.svc.openForReview(null);
   }
