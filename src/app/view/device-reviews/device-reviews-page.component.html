@@ -16,8 +16,8 @@
     [pic]="p"
     [initX]="200 + idx * 40"
     [initY]="100 + idx * 40"
-    [zIndex]="p.zOrder"
-    (bringToFront)="bringPictureToFront(p.id)"
+    [zIndex]="zFor('picture:' + p.id)"
+    (bringToFront)="bringToFront('picture:' + p.id)"
   ></app-ds-picture-window>
   <app-ds-pdf-window         [zIndex]="zFor('pdf')"        (bringToFront)="bringToFront('pdf')"></app-ds-pdf-window>
   <app-oc-checklist-panel    [storageKey]="checklistStorageKey$ | async"></app-oc-checklist-panel>
