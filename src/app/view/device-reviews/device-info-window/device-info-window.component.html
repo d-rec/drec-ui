@@ -40,20 +40,30 @@
                 ({{ documents.length }} file{{ documents.length === 1 ? '' : 's' }} loaded)
               </span>
             </h3>
-            <p
-              *ngFor="let f of section.fields; trackBy: trackField"
-              class="di__field"
-              [attr.title]="f.hint || null"
-              [class.di__field--hinted]="f.hint"
-            >
-              <b>{{ f.label }}</b>:
-              <ng-container *ngIf="f.links && f.links.length; else plainValue">
-                <ng-container *ngFor="let l of f.links; let last = last">
-                  <a [href]="l.url" target="_blank" rel="noopener">{{ l.text }}</a><span *ngIf="!last">, </span>
+            <ng-container *ngFor="let f of section.fields; trackBy: trackField">
+              <p
+                class="di__field"
+                [attr.title]="f.hint || null"
+                [class.di__field--hinted]="f.hint"
+              >
+                <b>{{ f.label }}</b>:
+                <ng-container *ngIf="f.links && f.links.length; else maybeItems">
+                  <ng-container *ngFor="let l of f.links; let last = last">
+                    <a [href]="l.url" target="_blank" rel="noopener">{{ l.text }}</a><span *ngIf="!last">, </span>
+                  </ng-container>
                 </ng-container>
-              </ng-container>
-              <ng-template #plainValue>{{ f.value || '—' }}</ng-template>
-            </p>
+                <ng-template #maybeItems>
+                  <span *ngIf="!f.items || f.items.length === 0">{{ f.value || '—' }}</span>
+                </ng-template>
+              </p>
+              <p
+                *ngFor="let it of f.items; let i = index"
+                class="di__field di__field--sub"
+              >
+                <span class="di__sub-bullet">↳</span>
+                <span>{{ i + 1 }}. {{ it }}</span>
+              </p>
+            </ng-container>
 
             <div
               *ngIf="section.showSatPreview && satPreview && !search"

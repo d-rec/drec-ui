@@ -26,6 +26,8 @@ interface Field {
   hint?: string;
   /** when present, render as clickable links (opens each in a new tab) */
   links?: { url: string; text: string }[];
+  /** when present, render as indented sub-rows below the label */
+  items?: string[];
 }
 
 interface Section {
@@ -207,13 +209,10 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
           { label: '(13) Number of Generating Units', value: fmt(d.generatingUnitCount), hint: 'Please provide the number of devices that output useable electricity at this facility (typically the inverters)' },
           {
             label: '(14) Meter or Measurement ID(s)',
-            value: d.serialNumber
-              ? String(d.serialNumber)
-                  .split(/\s*;\s*/)
-                  .filter(Boolean)
-                  .map((s: string, i: number) => `${i + 1}. ${s}`)
-                  .join('  ·  ')
-              : '',
+            value: '',
+            items: d.serialNumber
+              ? String(d.serialNumber).split(/\s*;\s*/).filter(Boolean)
+              : [],
             hint: 'Serial numbers for all devices from which metering evidence will be shared (e.g. inverters, smart meter, etc.).',
           },
           { label: '(15) Grid Connected', value: d.gridInterconnection == null ? '—' : d.gridInterconnection ? 'Yes' : 'No' },
