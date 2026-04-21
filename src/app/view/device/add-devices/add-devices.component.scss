@@ -568,14 +568,20 @@ input.example-right-align {
   gap: 2px;
 
   &__row {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 28px;
     align-items: center;
     gap: 2px;
+
+    // Single-ID rows (no × button) let the input span both columns
+    &:only-child {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   &__field {
-    flex: 1;
     min-width: 0;
+    width: 100%;
   }
 
   &__remove {
