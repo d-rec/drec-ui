@@ -11,13 +11,34 @@
   min-height: 0;
   display: flex;
   overflow: hidden;
-  gap: 16px;
 
   &__left {
     flex: 1;
     min-width: 0;
     height: 100%;
     overflow: hidden;
+  }
+
+  &__vdivider {
+    flex: 0 0 8px;
+    cursor: col-resize;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+
+    &:hover,
+    &:active {
+      background: #e2e8f0;
+    }
+
+    &-grip {
+      width: 2px;
+      height: 48px;
+      background: #94a3b8;
+      border-radius: 1px;
+    }
   }
 
   &__img-wrap {

@@ -78,14 +78,27 @@ export class PdfPreviewComponent implements OnChanges {
   translating = false;
   detectedLang = '';
   translationSearch = '';
+  leftWidthPct = this.loadLeftWidthPct();
   private dragStartY = 0;
   private dragStartHeight = 0;
+
+  private static readonly LEFT_WIDTH_STORAGE_KEY = 'pdf-preview:leftWidthPct';
 
   constructor(
     private http: HttpClient,
     private licensesService: OrgApiLicensesService,
     private cdr: ChangeDetectorRef,
+    private host: ElementRef<HTMLElement>,
   ) {}
+
+  private loadLeftWidthPct(): number {
+    try {
+      const raw = localStorage.getItem(PdfPreviewComponent.LEFT_WIDTH_STORAGE_KEY);
+      const n = raw ? parseFloat(raw) : NaN;
+      if (!isNaN(n) && n >= 20 && n <= 80) return n;
+    } catch { /* noop */ }
+    return 50;
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['ocrSource']) {
@@ -208,6 +221,29 @@ export class PdfPreviewComponent implements OnChanges {
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }
+
+  onVerticalDragStart(event: MouseEvent): void {
+    event.preventDefault();
+    const container = this.host.nativeElement.querySelector('.pdf-preview') as HTMLElement | null;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const onMove = (e: MouseEvent) => {
+      const pct = ((e.clientX - rect.left) / rect.width) * 100;
+      this.leftWidthPct = Math.min(80, Math.max(20, pct));
+    };
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      try {
+        localStorage.setItem(
+          PdfPreviewComponent.LEFT_WIDTH_STORAGE_KEY,
+          String(this.leftWidthPct),
+        );
+      } catch { /* noop */ }
     };
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
