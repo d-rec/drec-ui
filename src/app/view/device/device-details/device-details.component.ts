@@ -1,7 +1,7 @@
 import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { forkJoin, of, firstValueFrom } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DeviceService } from '../../../auth/services/device.service';
 import { AuthbaseService } from '../../../auth/authbase.service';
@@ -122,22 +122,28 @@ export class DeviceDetailsComponent {
   }
 
   /**
-   * Refresh the S3-signed document URL on click so an expired TTL doesn't
-   * fail silently. The backend re-issues a URL for the same doc id; we then
-   * open it in a new tab.
+   * Open the document in a new tab. window.open is called synchronously inside
+   * the user-gesture handler so popup blockers don't swallow it; the signed
+   * URL cached at dialog-open time is used directly (15-min TTL is plenty for
+   * normal review flows — if a URL does expire, the new tab shows an S3 403
+   * and the reviewer just re-opens the dialog).
    */
-  async openDocLink(docId: number, event: MouseEvent): Promise<void> {
+  openDocLink(docId: number, event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
-    try {
-      const refreshed = await firstValueFrom(this.deviceService.getDocuments(this.id));
-      const hit = refreshed.find((d) => d.id === docId);
-      const url = hit?.url || this.documents.find((d) => d.id === docId)?.url;
-      if (url) window.open(url, '_blank', 'noopener');
-    } catch {
-      // Fallback to the cached URL even if refresh fails
-      const cached = this.documents.find((d) => d.id === docId);
-      if (cached?.url) window.open(cached.url, '_blank', 'noopener');
+    const cached = this.documents.find((d) => d.id === docId);
+    console.log('[device-details] openDocLink', { docId, doc: cached });
+    if (!cached) {
+      this.toastrService.warning(`Doc id=${docId} not in the cached list — try reopening the dialog`);
+      return;
+    }
+    if (!cached.url) {
+      this.toastrService.warning(`The S3 signed URL for doc id=${docId} is empty — backend couldn't sign (file may be missing in storage).`);
+      return;
+    }
+    const win = window.open(cached.url, '_blank', 'noopener');
+    if (!win) {
+      this.toastrService.warning('Browser blocked the new tab — enable popups for this site');
     }
   }
 
