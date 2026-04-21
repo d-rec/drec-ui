@@ -1143,6 +1143,21 @@ export class AddDevicesComponent implements OnDestroy {
     this.mapCenterUpdating = false;
   }
 
+  onCoordPaste(event: ClipboardEvent, deviceIndex: number): void {
+    const text = event.clipboardData?.getData('text') ?? '';
+    const parts = text.split(/\t+/).map((s) => s.trim()).filter(Boolean);
+    if (parts.length !== 2) return;
+    if (isNaN(parseFloat(parts[0])) || isNaN(parseFloat(parts[1]))) return;
+    event.preventDefault();
+    const group = this.deviceForms.at(deviceIndex);
+    group.get('latitude')?.setValue(parts[0]);
+    group.get('longitude')?.setValue(parts[1]);
+    const lat = parseFloat(parts[0]);
+    const lng = parseFloat(parts[1]);
+    this.mapComponent?.recenter(lat, lng);
+    this.satelliteMapComponent?.recenter(lat, lng);
+  }
+
   cancelCoordChange(): void {
     if (!this.savedCoords) return;
     const group = this.deviceForms.at(this.coordDeviceIndex);

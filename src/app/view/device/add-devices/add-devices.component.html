@@ -133,7 +133,8 @@
                     <mat-form-field appearance="outline" [class.coord-adjusting]="mapAdjusting">
                       <mat-label class="text-capitalize" test-id="latitude">(6) Latitude</mat-label>
                       <input matInput formControlName="latitude"
-                        matTooltip="Must provide at least six digits after the decimal; must land exactly on a solar panel"
+                        (paste)="onCoordPaste($event, i)"
+                        matTooltip="Paste lat and long together from Excel (tab-separated), or type the latitude. Must provide at least six digits after the decimal; must land exactly on a solar panel."
                         matTooltipPosition="above" />
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
@@ -142,6 +143,7 @@
                     <mat-form-field appearance="outline" [class.coord-adjusting]="mapAdjusting">
                       <mat-label class="text-capitalize" test-id="longitude">(7) Longitude</mat-label>
                       <input matInput formControlName="longitude"
+                        (paste)="onCoordPaste($event, i)"
                         matTooltip="Must provide at least six digits after the decimal; must land exactly on a solar panel"
                         matTooltipPosition="above" />
                       <mat-error>please enter the valid value</mat-error>
