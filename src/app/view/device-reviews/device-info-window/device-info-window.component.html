@@ -1,7 +1,3 @@
-<ng-container *ngIf="inline; else floating">
-  <ng-container *ngTemplateOutlet="content"></ng-container>
-</ng-container>
-<ng-template #floating>
 <ng-container *ngIf="(svc.viewDeviceInfoId$ | async) !== null">
   <app-ds-floating-window
     title="Device Details"
@@ -13,12 +9,6 @@
     (bringToFront)="bringToFront.emit()"
     (close)="close()"
   >
-    <ng-container *ngTemplateOutlet="content"></ng-container>
-  </app-ds-floating-window>
-</ng-container>
-</ng-template>
-
-<ng-template #content>
     <div class="di">
       <div class="di__search">
         <input
@@ -118,9 +108,10 @@
 
       <div class="di__footer">
         <button type="button" class="di__btn" (click)="copyVisible()">Copy</button>
-        <button *ngIf="!inline" type="button" class="di__btn di__btn--primary" (click)="close()">
+        <button type="button" class="di__btn di__btn--primary" (click)="close()">
           Close
         </button>
       </div>
     </div>
-</ng-template>
+  </app-ds-floating-window>
+</ng-container>

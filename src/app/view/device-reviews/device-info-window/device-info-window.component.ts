@@ -47,9 +47,6 @@ interface Section {
 })
 export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   @Input() zIndex = 350;
-  /** When true, render inline (no floating-window wrapper) and use deviceIdInput instead of subscribing to viewDeviceInfoId$. */
-  @Input() inline = false;
-  @Input() deviceIdInput: number | null = null;
   @Output() bringToFront = new EventEmitter<void>();
 
   deviceInfo: any = null;
@@ -76,10 +73,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const source$ = this.inline
-      ? this.svc.reviewDeviceId$
-      : this.svc.viewDeviceInfoId$;
-    this.sub = source$.subscribe((id) => {
+    this.sub = this.svc.viewDeviceInfoId$.subscribe((id) => {
       if (id == null) {
         this.deviceInfo = null;
         this.documents = [];
