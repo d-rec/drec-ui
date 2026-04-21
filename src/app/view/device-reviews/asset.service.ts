@@ -43,8 +43,10 @@ export class AssetService {
   /** Open the dedicated single-device review workspace. Pass null to exit. */
   openForReview(deviceId: number | null): void {
     this.reviewDeviceId$.next(deviceId);
-    // Mirror to viewDeviceInfoId$ so the existing floating info-window surfaces the fields.
-    this.viewDeviceInfoId$.next(deviceId);
+    // Close the floating info-window if it was open — the workspace renders fields inline.
+    if (deviceId != null && this.viewDeviceInfoId$.value != null) {
+      this.viewDeviceInfoId$.next(null);
+    }
   }
   readonly flyTo$ = new ReplaySubject<{ lat: number; lng: number }>(1);
   readonly loading$ = new BehaviorSubject<boolean>(false);
