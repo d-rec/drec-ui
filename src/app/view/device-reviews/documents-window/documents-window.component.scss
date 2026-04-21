@@ -791,6 +791,12 @@ $legacy:   #a0845c;
   overflow-y: auto;
 }
 
+.report-window {
+  padding: 10px 16px 12px;
+  overflow-y: auto;
+  flex: 1;
+}
+
 .autoscreen-window {
   padding: 4px 16px 12px;
 

@@ -414,8 +414,16 @@
   </div>
 
   <!-- ── Duplicate screening results modal ───────────────────────────── -->
-  <div class="modal-backdrop" *ngIf="showDuplicatesModal" role="dialog" aria-modal="true" (click)="showDuplicatesModal = false" (keydown.escape)="showDuplicatesModal = false">
-    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+  <app-ds-floating-window
+    *ngIf="showDuplicatesModal"
+    title="Potential Duplicates"
+    [initX]="140" [initY]="80"
+    [initWidth]="600" [initHeight]="420"
+    [zIndex]="zIndex + 10"
+    (bringToFront)="bringToFront.emit()"
+    (close)="showDuplicatesModal = false"
+  >
+    <div class="report-window">
       <p class="modal-msg" *ngIf="duplicateResults.length === 0">No potential duplicates found.</p>
       <div *ngIf="duplicateResults.length > 0">
         <p class="modal-msg" style="color: #dc2626; font-weight: 600;">{{ duplicateResults.length }} potential duplicate(s) found:</p>
@@ -434,15 +442,20 @@
           </tbody>
         </table>
       </div>
-      <div class="modal-actions">
-        <button class="btn btn--save" (click)="showDuplicatesModal = false">OK</button>
-      </div>
     </div>
-  </div>
+  </app-ds-floating-window>
 
-  <!-- ── Source-access mode verification modal (§3.3) ─────────────── -->
-  <div class="modal-backdrop" *ngIf="showSourceVerifyModal" role="dialog" aria-modal="true" (click)="showSourceVerifyModal = false" (keydown.escape)="showSourceVerifyModal = false">
-    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+  <!-- ── Source-access mode verification (floating report §3.3) ──── -->
+  <app-ds-floating-window
+    *ngIf="showSourceVerifyModal"
+    title="Source-Access Verification"
+    [initX]="160" [initY]="100"
+    [initWidth]="600" [initHeight]="520"
+    [zIndex]="zIndex + 10"
+    (bringToFront)="bringToFront.emit()"
+    (close)="showSourceVerifyModal = false"
+  >
+    <div class="report-window">
       <ng-container *ngIf="sourceVerifyResult">
         <p class="modal-msg" *ngIf="!sourceVerifyResult.mode" style="color: #64748b;">
           No source-access mode set for this device. Set it before running verification.
@@ -483,15 +496,20 @@
         <p class="modal-msg">Verification request failed.</p>
         <p class="modal-msg" *ngIf="sourceVerifyError" style="font-size: 12px; margin-top: 4px; color: #64748b;">{{ sourceVerifyError }}</p>
       </div>
-      <div class="modal-actions">
-        <button class="btn btn--save" (click)="showSourceVerifyModal = false">OK</button>
-      </div>
     </div>
-  </div>
+  </app-ds-floating-window>
 
-  <!-- ── Production ceiling check modal (§3.6) ───────────────────────── -->
-  <div class="modal-backdrop" *ngIf="showCeilingModal" role="dialog" aria-modal="true" (click)="showCeilingModal = false" (keydown.escape)="showCeilingModal = false">
-    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+  <!-- ── Production ceiling check (floating report §3.6) ──────────── -->
+  <app-ds-floating-window
+    *ngIf="showCeilingModal"
+    title="Production Ceiling"
+    [initX]="180" [initY]="120"
+    [initWidth]="600" [initHeight]="520"
+    [zIndex]="zIndex + 10"
+    (bringToFront)="bringToFront.emit()"
+    (close)="showCeilingModal = false"
+  >
+    <div class="report-window">
       <ng-container *ngIf="ceilingResult">
         <p class="modal-msg" style="font-weight: 600;">Production Ceiling Check</p>
 
@@ -535,15 +553,20 @@
         <p class="modal-msg">Ceiling check failed.</p>
         <p class="modal-msg" *ngIf="ceilingError" style="font-size: 12px; margin-top: 4px; color: #64748b;">{{ ceilingError }}</p>
       </div>
-      <div class="modal-actions">
-        <button class="btn btn--save" (click)="showCeilingModal = false">OK</button>
-      </div>
     </div>
-  </div>
+  </app-ds-floating-window>
 
-  <!-- ── Historical consistency review modal (§3.7) ───────────────── -->
-  <div class="modal-backdrop" *ngIf="showConsistencyModal" role="dialog" aria-modal="true" (click)="showConsistencyModal = false" (keydown.escape)="showConsistencyModal = false">
-    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+  <!-- ── Historical consistency (floating report §3.7) ───────────── -->
+  <app-ds-floating-window
+    *ngIf="showConsistencyModal"
+    title="Historical Consistency"
+    [initX]="200" [initY]="140"
+    [initWidth]="600" [initHeight]="560"
+    [zIndex]="zIndex + 10"
+    (bringToFront)="bringToFront.emit()"
+    (close)="showConsistencyModal = false"
+  >
+    <div class="report-window">
       <ng-container *ngIf="consistencyResult">
         <p class="modal-msg" style="font-weight: 600;">Historical Consistency Review</p>
 
@@ -597,16 +620,20 @@
         </div>
       </ng-container>
       <p class="modal-msg" *ngIf="!consistencyResult" style="color: #dc2626;">Consistency review failed.</p>
-      <div class="modal-actions">
-        <button class="btn btn--save" (click)="showConsistencyModal = false">OK</button>
-      </div>
     </div>
-  </div>
+  </app-ds-floating-window>
 
-  <!-- ── Cross-source verification modal (§3.10) ──────────────────── -->
-  <div class="modal-backdrop" *ngIf="showCrossSourceModal" role="dialog" aria-modal="true" (click)="showCrossSourceModal = false" (keydown.escape)="showCrossSourceModal = false">
-    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
-      <p class="modal-msg" style="font-weight: 600;">Cross-Source Verification (§3.10)</p>
+  <!-- ── Cross-source verification (floating report §3.10) ──────── -->
+  <app-ds-floating-window
+    *ngIf="showCrossSourceModal"
+    title="Cross-Source Verification"
+    [initX]="220" [initY]="160"
+    [initWidth]="640" [initHeight]="560"
+    [zIndex]="zIndex + 10"
+    (bringToFront)="bringToFront.emit()"
+    (close)="showCrossSourceModal = false"
+  >
+    <div class="report-window">
       <ng-container *ngIf="crossSourceResult">
         <div *ngIf="crossSourceResult.monthsCompared === 0" class="verify-section">
           <p class="verify-heading" style="color:#64748b;">No data available for cross-source comparison (no meter readings or missing location/capacity).</p>
@@ -656,16 +683,20 @@
       <div *ngIf="!crossSourceResult" class="verify-section">
         <p class="verify-heading" style="color:#dc2626;">Failed to run cross-source verification.</p>
       </div>
-      <div class="modal-actions">
-        <button class="btn btn--save" (click)="showCrossSourceModal = false">OK</button>
-      </div>
     </div>
-  </div>
+  </app-ds-floating-window>
 
-  <!-- ── Compensating controls modal (§3.9) ────────────────────────── -->
-  <div class="modal-backdrop" *ngIf="showControlsModal" role="dialog" aria-modal="true" (click)="showControlsModal = false" (keydown.escape)="showControlsModal = false">
-    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
-      <p class="modal-msg" style="font-weight: 600;">Compensating Controls (§3.9)</p>
+  <!-- ── Compensating controls (floating report §3.9) ────────────── -->
+  <app-ds-floating-window
+    *ngIf="showControlsModal"
+    title="Compensating Controls"
+    [initX]="240" [initY]="180"
+    [initWidth]="560" [initHeight]="480"
+    [zIndex]="zIndex + 10"
+    (bringToFront)="bringToFront.emit()"
+    (close)="showControlsModal = false"
+  >
+    <div class="report-window">
       <ng-container *ngIf="controlsResult">
         <div *ngIf="!controlsResult.isMode4" class="verify-section">
           <p class="verify-heading" style="color:#64748b;">This device is not Mode 4 — compensating controls do not apply.</p>
@@ -688,15 +719,20 @@
       <div *ngIf="!controlsResult" class="verify-section">
         <p class="verify-heading" style="color:#dc2626;">Failed to evaluate compensating controls.</p>
       </div>
-      <div class="modal-actions">
-        <button class="btn btn--save" (click)="showControlsModal = false">OK</button>
-      </div>
     </div>
-  </div>
+  </app-ds-floating-window>
 
-  <!-- ── Audit trail modal (§3.8) ─────────────────────────────────── -->
-  <div class="modal-backdrop" *ngIf="showAuditModal" role="dialog" aria-modal="true" (click)="showAuditModal = false" (keydown.escape)="showAuditModal = false">
-    <div class="modal-box modal-box--audit" role="document" (click)="$event.stopPropagation()">
+  <!-- ── Audit trail (floating report §3.8) ──────────────────────── -->
+  <app-ds-floating-window
+    *ngIf="showAuditModal"
+    title="Audit Trail"
+    [initX]="260" [initY]="200"
+    [initWidth]="720" [initHeight]="600"
+    [zIndex]="zIndex + 10"
+    (bringToFront)="bringToFront.emit()"
+    (close)="showAuditModal = false"
+  >
+    <div class="report-window">
       <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
         <p class="modal-msg" style="font-weight: 600; margin: 0;">Audit Trail</p>
         <input *ngIf="auditTrail.length > 0" type="text" placeholder="Search..."
@@ -723,14 +759,21 @@
       <div class="modal-actions">
         <button class="btn btn--save" (click)="copyAuditTrail()">{{ auditCopyLabel }}</button>
         <button class="btn btn--save" (click)="exportAuditCsv()">⤓ CSV</button>
-        <button class="btn btn--save" (click)="showAuditModal = false">OK</button>
       </div>
     </div>
-  </div>
+  </app-ds-floating-window>
 
-  <!-- ── Photo GPS verification modal (VA layer) ──────────────────── -->
-  <div class="modal-backdrop" *ngIf="showPhotoGpsModal" role="dialog" aria-modal="true" (click)="showPhotoGpsModal = false" (keydown.escape)="showPhotoGpsModal = false">
-    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
+  <!-- ── Photo GPS verification (floating report) ──────────────────── -->
+  <app-ds-floating-window
+    *ngIf="showPhotoGpsModal"
+    title="Photo GPS Verification"
+    [initX]="280" [initY]="220"
+    [initWidth]="560" [initHeight]="600"
+    [zIndex]="zIndex + 10"
+    (bringToFront)="bringToFront.emit()"
+    (close)="showPhotoGpsModal = false"
+  >
+    <div class="report-window">
       <ng-container *ngIf="photoGpsResult">
         <p class="modal-msg" style="font-weight: 600;">Photo GPS Verification</p>
         <div class="verify-section">
@@ -778,11 +821,8 @@
         </div>
       </ng-container>
       <p class="modal-msg" *ngIf="!photoGpsResult" style="color: #dc2626;">Photo GPS check failed.</p>
-      <div class="modal-actions">
-        <button class="btn btn--save" (click)="showPhotoGpsModal = false">OK</button>
-      </div>
     </div>
-  </div>
+  </app-ds-floating-window>
 
   <!-- ── Auto-Screen Report floating window (VA layer) ─────────────── -->
   <app-ds-floating-window
@@ -881,9 +921,17 @@
     </div>
   </div>
 
-  <!-- ── SLD Capacity Compare modal (VA layer) ────────────────────── -->
-  <div class="modal-backdrop" *ngIf="showSldModal" role="dialog" aria-modal="true" (click)="showSldModal = false" (keydown.escape)="showSldModal = false">
-    <div class="modal-box" role="document" (click)="$event.stopPropagation()">
+  <!-- ── SLD Capacity Compare (floating report VA layer) ────────── -->
+  <app-ds-floating-window
+    *ngIf="showSldModal"
+    title="SLD Capacity Compare"
+    [initX]="300" [initY]="240"
+    [initWidth]="520" [initHeight]="440"
+    [zIndex]="zIndex + 10"
+    (bringToFront)="bringToFront.emit()"
+    (close)="showSldModal = false"
+  >
+    <div class="report-window">
       <ng-container *ngIf="sldResult">
         <p class="modal-msg" style="font-weight: 600;">SLD Capacity Compare</p>
 
@@ -916,14 +964,9 @@
           <p class="verify-check__desc">Open the SLD document and enter the stated capacity above.</p>
         </div>
       </ng-container>
-      <button type="button" class="modal-close" (click)="showSldModal = false" aria-label="Close">&times;</button>
       <p class="modal-msg" *ngIf="!sldResult" style="color: #dc2626;">SLD comparison failed.</p>
-      <div class="modal-actions">
-        <button class="btn btn--cancel" (click)="showSldModal = false">Cancel</button>
-        <button class="btn btn--save" (click)="showSldModal = false">OK</button>
-      </div>
     </div>
-  </div>
+  </app-ds-floating-window>
 
   <app-sat-preview
     *ngIf="satPreview"
