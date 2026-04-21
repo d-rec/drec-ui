@@ -42,7 +42,7 @@
         <h3 class="section-heading">Technical Details</h3>
         <p><b>Fuel Code</b>: {{ device_details.fuelname }}</p>
         <p><b>Device Type Code</b>: {{ device_details.devicetypename }}</p>
-        <p><b>Capacity ⁽⁹⁾</b>: {{ device_details.capacity }}</p>
+        <p><b>Capacity ⁽⁹⁾</b>: {{ device_details.capacity }} kW</p>
         <p><b>Commissioning Date ⁽¹⁰⁾</b>: {{ device_details.commissioningDate | date: 'dd MMM y hh:mm' }}</p>
         <p><b>OnBoarding Date</b>: {{ device_details.createdAt | date: 'dd MMM y hh:mm' }}</p>
         <p *ngIf="device_details.dataSource"><b>Data Source</b>: {{ device_details.dataSource }}</p>
