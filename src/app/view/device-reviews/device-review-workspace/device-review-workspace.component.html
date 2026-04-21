@@ -1,4 +1,4 @@
-<div class="drw" [style.zIndex]="zIndex">
+<div class="drw">
   <div class="drw__topbar">
     <button type="button" class="drw__back" (click)="back()" (mousedown)="back()">
       <span aria-hidden="true">&#8592;</span> Back to list
@@ -7,11 +7,6 @@
       {{ device.siteName || '(no site name)' }}
       <span class="drw__title-id">· #{{ deviceId }} · {{ device.serialNumber || '(no serial)' }}</span>
     </span>
-    <button type="button" class="drw__tool-btn"
-      *ngIf="device?.latitude && device?.longitude"
-      title="Zap to the device's declared coordinates on live satellite imagery"
-      (click)="zapToSatellite()"
-      (mousedown)="zapToSatellite()">⚡ Zap to satellite</button>
     <span class="drw__loading" *ngIf="loading">Loading…</span>
   </div>
 

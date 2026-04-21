@@ -47,9 +47,6 @@ export class DeviceReviewWorkspaceComponent implements OnInit, AfterViewInit, On
   documents: DocRow[] = [];
   loading = false;
   docRows = DOC_ROWS;
-  /** Shared with every other floating window via AssetService — so a satellite-
-   * window triggered from the workspace can come above it, and vice versa. */
-  zIndex = 0;
 
   activeDoc: DocRow | null = null;
   activeDocSafeUrl: SafeResourceUrl | null = null;
@@ -74,11 +71,6 @@ export class DeviceReviewWorkspaceComponent implements OnInit, AfterViewInit, On
     if (el.parentNode !== document.body) {
       document.body.appendChild(el);
     }
-    // Take the next available z via the shared counter so other floating
-    // windows (satellite triggered from within the workspace, pdf, picture)
-    // can come ABOVE us by bumping their own key afterward.
-    this.zIndex = this.svc.nextZOrder();
-    this.cdr.markForCheck();
   }
 
   ngOnInit(): void {
@@ -194,16 +186,6 @@ export class DeviceReviewWorkspaceComponent implements OnInit, AfterViewInit, On
 
   back(): void {
     this.svc.openForReview(null);
-  }
-
-  zapToSatellite(): void {
-    if (!this.device) return;
-    const lat = parseFloat(this.device.latitude);
-    const lng = parseFloat(this.device.longitude);
-    if (isNaN(lat) || isNaN(lng)) return;
-    // svc.flyTo is Leaflet-native terminology (the map pans/zooms); the
-    // user-facing label is "Zap to satellite" per 2026-04-21 request.
-    this.svc.flyTo(lat, lng);
   }
 
   private reset(): void {
