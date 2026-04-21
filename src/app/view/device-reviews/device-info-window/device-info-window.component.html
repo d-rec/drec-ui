@@ -41,7 +41,13 @@
               [attr.title]="f.hint || null"
               [class.di__field--hinted]="f.hint"
             >
-              <b>{{ f.label }}</b>: {{ f.value || '—' }}
+              <b>{{ f.label }}</b>:
+              <ng-container *ngIf="f.links && f.links.length; else plainValue">
+                <ng-container *ngFor="let l of f.links; let last = last">
+                  <a [href]="l.url" target="_blank" rel="noopener">{{ l.text }}</a><span *ngIf="!last">, </span>
+                </ng-container>
+              </ng-container>
+              <ng-template #plainValue>{{ f.value || '—' }}</ng-template>
             </p>
 
             <div

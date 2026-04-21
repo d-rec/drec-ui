@@ -24,6 +24,8 @@ interface Field {
   hideIfEmpty?: boolean;
   /** mouseover hint (from Operating Checklist tooltips) */
   hint?: string;
+  /** when present, render as clickable links (opens each in a new tab) */
+  links?: { url: string; text: string }[];
 }
 
 interface Section {
@@ -46,7 +48,13 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   @Output() bringToFront = new EventEmitter<void>();
 
   deviceInfo: any = null;
-  documents: { type: string; url: string; id: number }[] = [];
+  documents: {
+    type: string;
+    url: string;
+    id: number;
+    label?: string | null;
+    originalFilename?: string | null;
+  }[] = [];
   loading = false;
   satPreview: SatellitePreview | null = null;
   search = '';
@@ -166,6 +174,13 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
       const n = docCount(type);
       return n === 0 ? '—' : n === 1 ? '1 file' : `${n} files`;
     };
+    const linksFor = (type: string) =>
+      this.documents
+        .filter((d) => d.type === type)
+        .map((d) => ({
+          url: d.url,
+          text: d.label || d.originalFilename || `File ${d.id}`,
+        }));
 
     return [
       {
@@ -223,13 +238,13 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
       {
         heading: 'Documents',
         fields: [
-          { label: '(43) Project Photos', value: fmtDocs('PROJECT_PHOTOS'), hint: 'At least three photos showing the full installation and surrounding topography' },
-          { label: '(45) Single Line Diagram', value: fmtDocs('SINGLE_LINE_DIAGRAM') },
-          { label: '(46) SF-02c (Owner\'s Declaration)', value: fmtDocs('SF_02C') },
-          { label: '(47) Proof of Ownership', value: fmtDocs('SF_02C_OWNERS_DECLARATION') },
-          { label: '(48) COD Proof', value: fmtDocs('COD_PROOF'), hint: 'Handover letter or commissioning certificate confirming the commissioning date' },
-          { label: '(49) Metering Evidence', value: fmtDocs('METERING_EVIDENCE'), hint: 'Sample metering evidence relied on for I-REC issuance' },
-          { label: '(50) Other Documents', value: fmtDocs('OTHER_DOCUMENTS'), hint: 'e.g. No RPO letter for facilities in India' },
+          { label: '(43) Project Photos', value: fmtDocs('PROJECT_PHOTOS'), links: linksFor('PROJECT_PHOTOS'), hint: 'At least three photos showing the full installation and surrounding topography' },
+          { label: '(45) Single Line Diagram', value: fmtDocs('SINGLE_LINE_DIAGRAM'), links: linksFor('SINGLE_LINE_DIAGRAM') },
+          { label: '(46) SF-02c (Owner\'s Declaration)', value: fmtDocs('SF_02C'), links: linksFor('SF_02C') },
+          { label: '(47) Proof of Ownership', value: fmtDocs('SF_02C_OWNERS_DECLARATION'), links: linksFor('SF_02C_OWNERS_DECLARATION') },
+          { label: '(48) COD Proof', value: fmtDocs('COD_PROOF'), links: linksFor('COD_PROOF'), hint: 'Handover letter or commissioning certificate confirming the commissioning date' },
+          { label: '(49) Metering Evidence', value: fmtDocs('METERING_EVIDENCE'), links: linksFor('METERING_EVIDENCE'), hint: 'Sample metering evidence relied on for I-REC issuance' },
+          { label: '(50) Other Documents', value: fmtDocs('OTHER_DOCUMENTS'), links: linksFor('OTHER_DOCUMENTS'), hint: 'e.g. No RPO letter for facilities in India' },
         ],
       },
       {
