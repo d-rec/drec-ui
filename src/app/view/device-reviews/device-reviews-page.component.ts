@@ -13,8 +13,9 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
   /**
    * Per-window z-index map. Every window (including each picture by id) has
    * its own entry; bringToFront(key) bumps that entry to the next top value,
-   * keeping all other windows at their previous positions. Initial values
-   * just set a sensible default stacking before any interaction.
+   * keeping all other windows at their previous positions. Any unknown key
+   * (e.g. a freshly-opened picture) gets the next top value on first read so
+   * newly-opened windows always sit on top.
    */
   windowZ: { [key: string]: number } = {
     map: 200,
@@ -61,9 +62,9 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Get the z-index for a named window (or a picture by id). */
+  /** Get the z-index for a named window. Unknown keys fall back above 500. */
   zFor(key: string): number {
-    return this.windowZ[key] ?? 200;
+    return this.windowZ[key] ?? 500;
   }
 
   ngOnDestroy(): void {
@@ -78,5 +79,9 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
   bringToFront(key: string): void {
     this.zCounter += 1;
     this.windowZ = { ...this.windowZ, [key]: this.zCounter };
+  }
+
+  bringPictureToFront(id: string): void {
+    this.svc.bringPictureToFront(id);
   }
 }
