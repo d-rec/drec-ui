@@ -1,7 +1,6 @@
 :host {
   position: fixed;
   inset: 0;
-  z-index: 9000;
 }
 
 .drw {
@@ -45,6 +44,20 @@
   font-weight: 400;
   color: #64748b;
   margin-left: 6px;
+}
+
+.drw__tool-btn {
+  margin-left: auto;
+  background: #0f766e;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: #115e59; }
 }
 
 .drw__loading {
