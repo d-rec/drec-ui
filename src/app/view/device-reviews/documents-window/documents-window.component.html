@@ -116,7 +116,7 @@
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sld']" [class.review-check--disabled]="!item.sldUrl" role="checkbox" [attr.tabindex]="item.sldUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sld']" [attr.aria-disabled]="!item.sldUrl" (click)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" (keydown.enter)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sld']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <span class="doc-label">SLD <span class="fn">(64)</span></span>
+            <span class="doc-label">SLD <span class="fn">(45)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}" [title]="getDocHint('SINGLE_LINE_DIAGRAM', item.operatingConfiguration) || ''">{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}</span>
             <ng-container *ngIf="item.sldUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -131,7 +131,7 @@
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02']" [class.review-check--disabled]="!item.sf02Url" role="checkbox" [attr.tabindex]="item.sf02Url ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02']" [attr.aria-disabled]="!item.sf02Url" (click)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" (keydown.enter)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <span class="doc-label">SF-02 <span class="fn">(55)</span></span>
+            <span class="doc-label">SF-02</span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}" [title]="getDocHint('FORM_SF_02', item.operatingConfiguration) || ''">{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}</span>
             <ng-container *ngIf="item.sf02Url">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -146,7 +146,7 @@
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02c']" [class.review-check--disabled]="!item.sf02cUrl" role="checkbox" [attr.tabindex]="item.sf02cUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02c']" [attr.aria-disabled]="!item.sf02cUrl" (click)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" (keydown.enter)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02c']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <span class="doc-label">SF-02C <span class="fn">(56)</span></span>
+            <span class="doc-label">SF-02C <span class="fn">(46)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}" [title]="getDocHint('SF_02C', item.operatingConfiguration) || ''">{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}</span>
             <ng-container *ngIf="item.sf02cUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -161,7 +161,7 @@
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02cOwnersDeclaration']" [class.review-check--disabled]="!item.sf02cOwnersDeclarationUrl" role="checkbox" [attr.tabindex]="item.sf02cOwnersDeclarationUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02cOwnersDeclaration']" [attr.aria-disabled]="!item.sf02cOwnersDeclarationUrl" (click)="item.sf02cOwnersDeclarationUrl && toggleReviewed(item.id + ':sf02cOwnersDeclaration', $event)" (keydown.enter)="item.sf02cOwnersDeclarationUrl && toggleReviewed(item.id + ':sf02cOwnersDeclaration', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02cOwnersDeclaration']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <span class="doc-label" title="Owner's Declaration / Proof of Ownership">Owner's Declaration</span>
+            <span class="doc-label" title="Owner's Declaration / Proof of Ownership">Owner's Declaration <span class="fn">(47)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SF_02C_OWNERS_DECLARATION', item.operatingConfiguration, !!item.sf02cOwnersDeclarationUrl) }}" [title]="getDocHint('SF_02C_OWNERS_DECLARATION', item.operatingConfiguration) || ''">{{ getReqStatus('SF_02C_OWNERS_DECLARATION', item.operatingConfiguration, !!item.sf02cOwnersDeclarationUrl) }}</span>
             <ng-container *ngIf="item.sf02cOwnersDeclarationUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -176,7 +176,7 @@
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':codProof']" [class.review-check--disabled]="!item.codProofUrl" role="checkbox" [attr.tabindex]="item.codProofUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':codProof']" [attr.aria-disabled]="!item.codProofUrl" (click)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" (keydown.enter)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':codProof']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
-            <span class="doc-label" title="Commercial Operation Date">COD Proof <span class="fn">(63)</span></span>
+            <span class="doc-label" title="Commercial Operation Date">COD Proof <span class="fn">(48)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}" [title]="getDocHint('COD_PROOF', item.operatingConfiguration) || ''">{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}</span>
             <ng-container *ngIf="item.codProofUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -189,7 +189,7 @@
           <!-- ── Metering Evidence section ────────────────────────────────────── -->
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'meteringEvidence')" (keydown.enter)="toggleSection(item.id, 'meteringEvidence')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'meteringEvidence')">&#8250;</span>
-            <span class="section-label">Metering Evidence <span class="fn">(58)</span></span>
+            <span class="section-label">Metering Evidence <span class="fn">(49)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('METERING_EVIDENCE', item.operatingConfiguration, item.meteringEvidenceUrls.length > 0) }}" [title]="getDocHint('METERING_EVIDENCE', item.operatingConfiguration) || ''">{{ getReqStatus('METERING_EVIDENCE', item.operatingConfiguration, item.meteringEvidenceUrls.length > 0) }}</span>
             <span *ngIf="item.meteringEvidenceUrls.length" class="section-count">({{ item.meteringEvidenceUrls.length }})</span>
           </div>
@@ -213,7 +213,7 @@
           <!-- ── Pictures section ──────────────────────────────────────────── -->
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'pictures')" (keydown.enter)="toggleSection(item.id, 'pictures')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'pictures')">&#8250;</span>
-            <span class="section-label">Pictures <span class="fn">(65)</span></span>
+            <span class="section-label">Pictures <span class="fn">(43)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length >= 3) }}">{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length >= 3) }}</span>
             <span *ngIf="item.pictureUrls.length" class="section-count">({{ item.pictureUrls.length }})</span>
           </div>
@@ -237,7 +237,7 @@
           <!-- ── Screenshots section ─────────────────────────────────────────── -->
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'screenshots')" (keydown.enter)="toggleSection(item.id, 'screenshots')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'screenshots')">&#8250;</span>
-            <span class="section-label">Screenshots <span class="fn">(66)</span></span>
+            <span class="section-label">Screenshots</span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}" [title]="getDocHint('SCREENSHOTS', item.operatingConfiguration) || ''">{{ getReqStatus('SCREENSHOTS', item.operatingConfiguration, item.screenshotUrls.length > 0) }}</span>
             <span *ngIf="item.screenshotUrls.length" class="section-count">({{ item.screenshotUrls.length }})</span>
           </div>
@@ -295,32 +295,32 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
               </button>
               <div class="field field--narrow">
-                <label class="field__label">Latitude <span class="fn">(10)</span></label>
+                <label class="field__label">Latitude <span class="fn">(6)</span></label>
                 <input type="number" step="any" class="field__input" formControlName="lat" placeholder="e.g. 37.7749" />
               </div>
               <div class="field field--narrow">
-                <label class="field__label">Longitude <span class="fn">(10)</span></label>
+                <label class="field__label">Longitude <span class="fn">(7)</span></label>
                 <input type="number" step="any" class="field__input" formControlName="long" placeholder="e.g. -122.4194" />
               </div>
               <div class="field field--narrow">
-                <label class="field__label">Capacity <span class="fn">(31)</span></label>
+                <label class="field__label">Capacity <span class="fn">(9)</span></label>
                 <div class="field__input-group">
                   <input type="number" step="any" class="field__input" formControlName="capacity" readonly />
                   <span class="field__unit">kW</span>
                 </div>
               </div>
               <div class="field field--narrow">
-                <label class="field__label">Country <span class="fn">(9)</span></label>
+                <label class="field__label">Country <span class="fn">(5)</span></label>
                 <span class="field__input field__input--text">{{ detailForm.get('countryCode')?.value | countryName }}</span>
               </div>
               <div class="field field--auto">
-                <label class="field__label">Serial(s) <span class="fn">(30)</span></label>
+                <label class="field__label">Serial(s) <span class="fn">(14)</span></label>
                 <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('serial')?.value ?? '', searchTerm)"></span>
               </div>
             </div>
             <div class="top-row">
               <div class="field field--auto">
-                <label class="field__label">Registrant <span class="fn">(4)</span></label>
+                <label class="field__label">Registrant</label>
                 <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('submitterName')?.value || detailForm.get('submitterEmail')?.value || '—', searchTerm)"></span>
               </div>
               <div class="field field--narrow">
