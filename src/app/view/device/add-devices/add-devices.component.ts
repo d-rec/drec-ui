@@ -700,13 +700,8 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   checkDocumentsUploaded() {
-    if (Object.keys(this.files).length === 0) {
-      this.allDocumentsUploaded = false;
-      this.formValid = false;
-      return;
-    }
-
-    const allDocsUploaded = this.deviceForms.controls.every(
+    const noFiles = Object.keys(this.files).length === 0;
+    const allDocsUploaded = !noFiles && this.deviceForms.controls.every(
       (group, deviceIndex) => {
         if (!this.files[deviceIndex]) return false;
         return this.requiredFileTypes.every((fileType) => {
@@ -723,6 +718,7 @@ export class AddDevicesComponent implements OnDestroy {
     );
 
     this.allDocumentsUploaded = allDocsUploaded;
+    // Partial submit allowed: docs just influence the warning banner, not formValid
     this.formValid = this.myform.valid;
   }
 
