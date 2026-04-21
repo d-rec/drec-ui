@@ -49,7 +49,7 @@
                 <b [innerHTML]="f.label | highlight: search"></b>:
                 <ng-container *ngIf="f.links && f.links.length; else maybeItems">
                   <ng-container *ngFor="let l of f.links; let last = last">
-                    <a href="javascript:void(0)" (click)="openLink(l.url, $event)" [innerHTML]="l.text | highlight: search"></a><span *ngIf="!last">, </span>
+                    <a href="javascript:void(0)" (click)="openLink(l.url, $event)" (mousedown)="openLink(l.url, $event)" [innerHTML]="l.text | highlight: search"></a><span *ngIf="!last">, </span>
                   </ng-container>
                 </ng-container>
                 <ng-template #maybeItems>
