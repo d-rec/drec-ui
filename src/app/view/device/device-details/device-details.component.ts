@@ -76,7 +76,7 @@ export class DeviceDetailsComponent {
           this.loading = false;
           this.device_details = device;
           this.documents = documents ?? [];
-          console.debug('[device-details] documents loaded:', this.documents);
+          console.log('[device-details] documents loaded for id=' + this.id + ':', this.documents);
           this.name = this.device_details.externalId;
 
           this.device_details['fuelname'] = this.fuellist.find(
