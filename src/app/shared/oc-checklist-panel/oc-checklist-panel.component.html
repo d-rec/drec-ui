@@ -16,6 +16,12 @@
       <button
         type="button"
         class="ocp__clear"
+        (click)="toggleHideNoCrosscheck()"
+        [title]="hideNoCrosscheck ? 'Show all items' : 'Hide items without cross-checks'"
+      >{{ hideNoCrosscheck ? 'Show all' : 'Hide n/a' }}</button>
+      <button
+        type="button"
+        class="ocp__clear"
         (click)="clearAll()"
         [disabled]="checked.size === 0"
         title="Uncheck all"
@@ -23,7 +29,7 @@
     </div>
 
     <ul class="ocp__list">
-      <ng-container *ngFor="let r of rows; trackBy: trackRow">
+      <ng-container *ngFor="let r of visibleRows; trackBy: trackRow">
         <li
           class="ocp__row"
           [class.ocp__row--checked]="isRowComplete(r)"

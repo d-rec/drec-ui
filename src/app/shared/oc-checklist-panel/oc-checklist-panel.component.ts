@@ -105,6 +105,9 @@ export class OcChecklistPanelComponent implements OnInit, OnChanges, AfterViewIn
   collapsed = false;
   /** Checked item keys — top-level OC# as its numeric string (e.g. "45"), sub-items as "45.0", "45.1", … */
   checked = new Set<string>();
+  /** When true, hide rows that have neither a cross-check nor sub-items. */
+  hideNoCrosscheck = this.loadHidePref();
+  private static readonly HIDE_PREF_KEY = 'oc-checklist:hide-no-crosscheck';
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -151,6 +154,30 @@ export class OcChecklistPanelComponent implements OnInit, OnChanges, AfterViewIn
     this.checked.clear();
     this.persist();
     this.cdr.markForCheck();
+  }
+
+  get visibleRows(): OcRow[] {
+    if (!this.hideNoCrosscheck) return this.rows;
+    return this.rows.filter((r) => r.compare || (r.subItems && r.subItems.length > 0));
+  }
+
+  toggleHideNoCrosscheck(): void {
+    this.hideNoCrosscheck = !this.hideNoCrosscheck;
+    try {
+      localStorage.setItem(
+        OcChecklistPanelComponent.HIDE_PREF_KEY,
+        this.hideNoCrosscheck ? '1' : '0',
+      );
+    } catch { /* noop */ }
+    this.cdr.markForCheck();
+  }
+
+  private loadHidePref(): boolean {
+    try {
+      return localStorage.getItem(OcChecklistPanelComponent.HIDE_PREF_KEY) === '1';
+    } catch {
+      return false;
+    }
   }
 
   /** Parent row visual state: checked if explicitly ticked, OR all sub-items ticked. */
