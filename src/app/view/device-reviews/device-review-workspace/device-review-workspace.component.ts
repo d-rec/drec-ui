@@ -50,6 +50,7 @@ export class DeviceReviewWorkspaceComponent implements OnInit, AfterViewInit, On
 
   activeDoc: DocRow | null = null;
   activeDocSafeUrl: SafeResourceUrl | null = null;
+  private blobUrl: string | null = null;
 
   private sub!: Subscription;
 
@@ -122,6 +123,7 @@ export class DeviceReviewWorkspaceComponent implements OnInit, AfterViewInit, On
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
+    if (this.blobUrl) URL.revokeObjectURL(this.blobUrl);
     const el = this.host.nativeElement;
     el.parentNode?.removeChild(el);
   }
@@ -132,7 +134,35 @@ export class DeviceReviewWorkspaceComponent implements OnInit, AfterViewInit, On
 
   selectDoc(d: DocRow): void {
     this.activeDoc = d;
-    this.activeDocSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(d.url);
+    // Revoke previous blob URL so we don't leak memory
+    if (this.blobUrl) {
+      URL.revokeObjectURL(this.blobUrl);
+      this.blobUrl = null;
+    }
+    // Images: <img> renders regardless of Content-Disposition — use URL directly
+    // PDFs / anything else: S3 signs with Content-Disposition: attachment which
+    // makes iframes fire a download instead of rendering. Fetch as blob + force
+    // application/pdf MIME so the iframe shows inline. Same trick pdf-window uses.
+    if (this.isImage(d)) {
+      this.activeDocSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(d.url);
+      this.cdr.markForCheck();
+    } else {
+      this.activeDocSafeUrl = null;
+      this.cdr.markForCheck();
+      this.fetchAndDisplay(d.url);
+    }
+  }
+
+  private async fetchAndDisplay(url: string): Promise<void> {
+    try {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+      this.blobUrl = URL.createObjectURL(blob);
+      this.activeDocSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.blobUrl);
+    } catch {
+      this.activeDocSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
     this.cdr.markForCheck();
   }
 
