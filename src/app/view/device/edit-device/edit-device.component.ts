@@ -170,6 +170,46 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     return this.checklistState[docType]?.every(Boolean) ?? false;
   }
 
+  // OC#14 serial-list helpers. serialNumber is stored as a '; '-joined string;
+  // UI renders it as an editable mini-table and joins on change.
+  trackByIndex = (i: number) => i;
+
+  getSerialNumbers(): string[] {
+    const raw = this.updateDeviceForm?.get('serialNumber')?.value;
+    if (raw == null || raw === '') return [''];
+    const arr = String(raw).split(/\s*;\s*/);
+    return arr.length ? arr : [''];
+  }
+
+  setSerialNumber(index: number, value: string): void {
+    const arr = this.getSerialNumbers();
+    arr[index] = value;
+    const joined = arr.filter((s) => s !== '').join(';');
+    this.updateDeviceForm.get('serialNumber')?.setValue(joined || null, { emitEvent: false });
+    this.updateDeviceForm.get('serialNumber')?.markAsDirty();
+  }
+
+  addSerialNumber(): void {
+    const arr = this.getSerialNumbers();
+    arr.push('');
+    const joined = arr.filter((s) => s !== '').join(';');
+    this.updateDeviceForm.get('serialNumber')?.setValue(joined || null, { emitEvent: false });
+    // Force the *ngFor to see the new empty slot by re-reading through the
+    // form control value — since we don't push '', we need a sentinel:
+    // push a trailing ';' so split yields an extra empty entry.
+    const cur = this.updateDeviceForm.get('serialNumber')?.value ?? '';
+    this.updateDeviceForm.get('serialNumber')?.setValue(cur + (cur ? ';' : ''), { emitEvent: false });
+  }
+
+  removeSerialNumber(index: number): void {
+    const arr = this.getSerialNumbers();
+    if (arr.length <= 1) return;
+    arr.splice(index, 1);
+    const joined = arr.filter((s) => s !== '').join(';');
+    this.updateDeviceForm.get('serialNumber')?.setValue(joined || null, { emitEvent: false });
+    this.updateDeviceForm.get('serialNumber')?.markAsDirty();
+  }
+
   sf02cReady(): boolean {
     return this.sf02cType !== null;
   }

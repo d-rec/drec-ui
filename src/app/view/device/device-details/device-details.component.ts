@@ -116,6 +116,11 @@ export class DeviceDetailsComponent {
     return d.label || d.originalFilename || `File ${d.id}`;
   }
 
+  splitSerials(joined: string | null | undefined): string[] {
+    if (!joined) return [];
+    return String(joined).split(/\s*;\s*/).filter(Boolean);
+  }
+
   copyToClipboard() {
     const el = this.reportContent?.nativeElement;
     if (!el) return;

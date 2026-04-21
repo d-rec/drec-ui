@@ -172,6 +172,33 @@
                 </mat-form-field>
               </div>
               <div class="col-md-3">
+                <div class="serial-list" test-id="serial-number">
+                  <div class="serial-list__row" *ngFor="let s of getSerialNumbers(); let j = index; trackBy: trackByIndex">
+                    <mat-form-field appearance="outline" class="w-100 serial-list__field">
+                      <mat-label>{{ j === 0 ? '(14) Meter or Measurement ID(s)' : 'Additional ID' }}</mat-label>
+                      <input matInput
+                        [ngModel]="s"
+                        (ngModelChange)="setSerialNumber(j, $event)"
+                        [ngModelOptions]="{standalone: true}" />
+                    </mat-form-field>
+                    <button *ngIf="getSerialNumbers().length > 1"
+                      type="button"
+                      mat-icon-button
+                      class="serial-list__remove"
+                      (click)="removeSerialNumber(j)"
+                      title="Remove">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                  <button type="button"
+                    mat-stroked-button
+                    class="serial-list__add"
+                    (click)="addSerialNumber()">
+                    <mat-icon>add</mat-icon> Add ID
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-3">
                 <mat-form-field appearance="outline">
                   <mat-label>(15) Is this facility grid-connected?</mat-label>
                   <mat-select formControlName="gridInterconnection">

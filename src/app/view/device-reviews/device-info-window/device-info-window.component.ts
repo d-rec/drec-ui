@@ -205,7 +205,17 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
           { label: '(11) Requested Effective Reg. Date', value: fmt(d.requestedEffectiveRegDate), hint: 'Please provide the date from which you would like to begin issuing D-RECs for this facility; default is COD.' },
           { label: '(12) Default Account Code', value: fmt(d.defaultAccountCode), hint: 'Please provide the Evident trade account code you would like this facility to issue into' },
           { label: '(13) Number of Generating Units', value: fmt(d.generatingUnitCount), hint: 'Please provide the number of devices that output useable electricity at this facility (typically the inverters)' },
-          { label: '(14) Meter or Measurement ID(s)', value: fmt(d.serialNumber), hint: 'Serial numbers for all devices from which metering evidence will be shared (e.g. inverters, smart meter, etc.).' },
+          {
+            label: '(14) Meter or Measurement ID(s)',
+            value: d.serialNumber
+              ? String(d.serialNumber)
+                  .split(/\s*;\s*/)
+                  .filter(Boolean)
+                  .map((s: string, i: number) => `${i + 1}. ${s}`)
+                  .join('  ·  ')
+              : '',
+            hint: 'Serial numbers for all devices from which metering evidence will be shared (e.g. inverters, smart meter, etc.).',
+          },
           { label: '(15) Grid Connected', value: d.gridInterconnection == null ? '—' : d.gridInterconnection ? 'Yes' : 'No' },
           { label: '(16) Grid Export Type', value: fmt(d.gridExportType) },
           { label: '(17) Network Owner', value: fmt(d.networkOwner), hint: 'If the facility is grid-connected, please provide the name of the utility or distribution network' },

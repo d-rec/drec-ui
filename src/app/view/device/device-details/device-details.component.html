@@ -26,7 +26,13 @@
       <div class="report" #reportContent>
         <h3 class="section-heading">General</h3>
         <p><b>Site Name ⁽¹⁾</b>: {{ device_details.siteName }}</p>
-        <p><b>Meter or Measurement ID(s) ⁽¹⁴⁾</b>: {{ device_details.serialNumber }}</p>
+        <p *ngIf="device_details.serialNumber">
+          <b>Meter or Measurement ID(s) ⁽¹⁴⁾</b>:
+          <span *ngFor="let s of splitSerials(device_details.serialNumber); let i = index; let last = last">
+            {{ i + 1 }}. {{ s }}<span *ngIf="!last">&nbsp;&middot;&nbsp;</span>
+          </span>
+        </p>
+        <p *ngIf="!device_details.serialNumber"><b>Meter or Measurement ID(s) ⁽¹⁴⁾</b>: —</p>
         <p *ngIf="device_details.defaultAccountCode"><b>Default Account Code ⁽¹²⁾</b>: {{ device_details.defaultAccountCode }}</p>
         <p *ngIf="device_details.requestedEffectiveRegDate"><b>Requested Effective Reg. Date ⁽¹¹⁾</b>: {{ device_details.requestedEffectiveRegDate }}</p>
         <p *ngIf="device_details.registrationType"><b>Registration Type</b>: {{ device_details.registrationType }}</p>
