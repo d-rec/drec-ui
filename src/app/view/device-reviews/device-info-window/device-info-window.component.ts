@@ -217,6 +217,16 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
           { label: '(23) Captive Consumer', value: fmt(d.hasCaptiveConsumer) },
           { label: '(24) Auxiliary Energy Sources', value: fmt(d.hasAuxiliaryEnergySources), hint: '(typically a backup generator or battery)' },
           { label: '(25) Auxiliary Source Details', value: fmt(d.auxiliaryEnergySourceDetails), hint: 'Describe the number of units, capacity per unit, and fuel source (e.g. 1 x 250kVA diesel generator)' },
+          {
+            label: '(26) Submitter Status',
+            value:
+              d.pvSystemOwner && d.organization?.name
+                ? d.pvSystemOwner.trim().toLowerCase() === d.organization.name.trim().toLowerCase()
+                  ? 'Registrant IS the production-facility owner'
+                  : 'Registrant is NOT the production-facility owner'
+                : '—',
+            hint: 'Derived by comparing PV System Owner to the registrant organization name',
+          },
           { label: '(27) PV System Owner', value: fmt(d.pvSystemOwner), hint: 'Please provide the legal name of the PV System Owner. This must match the "Proof of Ownership" documentation shared.' },
           { label: '(28) Off-Taker Name', value: fmt(d.offTakerName), hint: 'Please provide the legal name of the electricity off-taker' },
           { label: '(29) Off Takers', value: fmt(d.offTaker) },
@@ -233,12 +243,20 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
           { label: '(39) Impact Story', value: fmt(d.impactStory), hint: 'Please provide a brief description of the social and/or environmental impact being created by this facility' },
           { label: '(40) Additional Info', value: fmt(d.additionalInfo), hint: 'Please provide any additional information that may be relevant to this facility\'s registration on Evident' },
           { label: '(41) Signatory Name', value: fmt(d.signatoryName) },
+          {
+            label: '(42) Signature',
+            value: d.eSignatureSignedAt
+              ? `Signed ${fmtDate(d.eSignatureSignedAt)}${d.eSignatureSignerEmail ? ' by ' + d.eSignatureSignerEmail : ''}`
+              : '—',
+            hint: 'Captured automatically on submission (e-signature log)',
+          },
         ],
       },
       {
         heading: 'Documents',
         fields: [
           { label: '(43) Project Photos', value: fmtDocs('PROJECT_PHOTOS'), links: linksFor('PROJECT_PHOTOS'), hint: 'At least three photos showing the full installation and surrounding topography' },
+          { label: '(44) Facility Boundary', value: fmtDocs('FACILITY_BOUNDARY'), links: linksFor('FACILITY_BOUNDARY'), hint: 'Satellite image with facility boundary outlined' },
           { label: '(45) Single Line Diagram', value: fmtDocs('SINGLE_LINE_DIAGRAM'), links: linksFor('SINGLE_LINE_DIAGRAM') },
           { label: '(46) SF-02c (Owner\'s Declaration)', value: fmtDocs('SF_02C'), links: linksFor('SF_02C') },
           { label: '(47) Proof of Ownership', value: fmtDocs('SF_02C_OWNERS_DECLARATION'), links: linksFor('SF_02C_OWNERS_DECLARATION') },
