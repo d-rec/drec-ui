@@ -109,13 +109,25 @@
         <p><b>Evident Status</b>: {{ device_details.evidentStatus }}</p>
 
         <h3 class="section-heading">Documents</h3>
-        <p><b>Project Photos ⁽⁴³⁾</b>: {{ docCount('PROJECT_PHOTOS') }}</p>
-        <p><b>Single Line Diagram ⁽⁴⁵⁾</b>: {{ docCount('SINGLE_LINE_DIAGRAM') }}</p>
-        <p><b>SF-02c (Owner's Declaration) ⁽⁴⁶⁾</b>: {{ docCount('SF_02C') }}</p>
-        <p><b>Proof of Ownership ⁽⁴⁷⁾</b>: {{ docCount('SF_02C_OWNERS_DECLARATION') }}</p>
-        <p><b>COD Proof ⁽⁴⁸⁾</b>: {{ docCount('COD_PROOF') }}</p>
-        <p><b>Metering Evidence ⁽⁴⁹⁾</b>: {{ docCount('METERING_EVIDENCE') }}</p>
-        <p><b>Other Documents ⁽⁵⁰⁾</b>: {{ docCount('OTHER_DOCUMENTS') }}</p>
+        <ng-container *ngFor="let row of [
+          {label: 'Project Photos', oc: '⁽⁴³⁾', type: 'PROJECT_PHOTOS'},
+          {label: 'Single Line Diagram', oc: '⁽⁴⁵⁾', type: 'SINGLE_LINE_DIAGRAM'},
+          {label: 'SF-02c (Owner\'s Declaration)', oc: '⁽⁴⁶⁾', type: 'SF_02C'},
+          {label: 'Proof of Ownership', oc: '⁽⁴⁷⁾', type: 'SF_02C_OWNERS_DECLARATION'},
+          {label: 'COD Proof', oc: '⁽⁴⁸⁾', type: 'COD_PROOF'},
+          {label: 'Metering Evidence', oc: '⁽⁴⁹⁾', type: 'METERING_EVIDENCE'},
+          {label: 'Other Documents', oc: '⁽⁵⁰⁾', type: 'OTHER_DOCUMENTS'}
+        ]">
+          <p>
+            <b>{{ row.label }} {{ row.oc }}</b>:
+            <ng-container *ngIf="docsOf(row.type).length; else noDocs">
+              <ng-container *ngFor="let d of docsOf(row.type); let last = last">
+                <a [href]="d.url" target="_blank" rel="noopener">{{ docLinkLabel(d) }}</a><span *ngIf="!last">, </span>
+              </ng-container>
+            </ng-container>
+            <ng-template #noDocs>—</ng-template>
+          </p>
+        </ng-container>
       </div>
     </ng-template>
   </mat-dialog-content>

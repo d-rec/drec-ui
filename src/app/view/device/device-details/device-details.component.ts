@@ -27,7 +27,13 @@ export class DeviceDetailsComponent {
   countrylist: CountryInfo[] = [];
   fuellist: fulecodeType[] = [];
   devicetypelist: devicecodeType[] = [];
-  documents: { type: string; url: string; id: number }[] = [];
+  documents: {
+    type: string;
+    url: string;
+    id: number;
+    label: string | null;
+    originalFilename: string | null;
+  }[] = [];
   loading: boolean = true;
   value = 0;
   viewoptionfrom: string;
@@ -95,9 +101,12 @@ export class DeviceDetailsComponent {
     });
   }
 
-  docCount(type: string): string {
-    const n = this.documents.filter((d) => d.type === type).length;
-    return n === 0 ? '—' : n === 1 ? '1 file' : `${n} files`;
+  docsOf(type: string) {
+    return this.documents.filter((d) => d.type === type);
+  }
+
+  docLinkLabel(d: { label: string | null; originalFilename: string | null; id: number }): string {
+    return d.label || d.originalFilename || `File ${d.id}`;
   }
 
   copyToClipboard() {
