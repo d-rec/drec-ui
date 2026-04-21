@@ -98,16 +98,20 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   openLink(url: string, event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
+    console.log('[openLink] fired', { url, pictures: (this.svc.openPictures$ as any).value?.length });
     if (!url) {
       this.toastr.warning('Empty signed URL — backend could not sign (file missing in storage?)');
       return;
     }
-    if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
+    const isImage = /\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url);
+    this.toastr.info(`Opening ${isImage ? 'picture' : 'PDF'} viewer…`);
+    if (isImage) {
       this.svc.sldDeviceId$.next(null);
       this.svc.viewPicture(url);
     } else {
       this.svc.viewPdf(url);
     }
+    console.log('[openLink] dispatched, pictures=', (this.svc.openPictures$ as any).value?.length);
   }
 
   private load(deviceId: number): void {
