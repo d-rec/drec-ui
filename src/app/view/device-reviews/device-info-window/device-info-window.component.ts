@@ -16,6 +16,7 @@ import { AssetService } from '../asset.service';
 import { satellitePreview, SatellitePreview } from '../../map/map.component';
 import { environment } from '../../../../environments/environment';
 import { CountryNamePipe } from '../country-name.pipe';
+import { extractExt } from '../../../utils/file-ext';
 
 interface Field {
   label: string;
@@ -477,9 +478,6 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   trackField = (_: number, f: Field) => f.label;
 
   linkExt(l: { url: string; text: string }): string {
-    const src = l.text || l.url || '';
-    const path = src.split('?')[0];
-    const m = path.match(/\.([a-z0-9]{1,6})$/i);
-    return m ? m[1].toLowerCase() : '';
+    return extractExt(l.text || l.url || '');
   }
 }

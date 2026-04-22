@@ -26,6 +26,7 @@ import {
   getHint,
 } from '../../../utils/evidence-requirements';
 import { environment } from '../../../../environments/environment';
+import { extractExt } from '../../../utils/file-ext';
 
 @Component({
   standalone: false,
@@ -1079,9 +1080,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   fileExt(url: string): string {
-    const path = (url || '').split('?')[0];
-    const m = path.match(/\.([a-z0-9]{1,6})$/i);
-    return m ? m[1].toLowerCase() : '';
+    return extractExt(url);
   }
 
   fileName(url: string): string {

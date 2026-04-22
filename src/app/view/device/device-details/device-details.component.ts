@@ -13,6 +13,7 @@ import {
 } from '../../../models';
 import { ToastrService } from 'ngx-toastr';
 import { satellitePreview, SatellitePreview } from '../../map/map.component';
+import { extractExt } from '../../../utils/file-ext';
 @Component({
   standalone: false,
   selector: 'app-device-details',
@@ -124,10 +125,7 @@ export class DeviceDetailsComponent {
   }
 
   fileExt(source: string | null | undefined): string {
-    if (!source) return '';
-    const path = source.split('?')[0];
-    const m = path.match(/\.([a-z0-9]{1,6})$/i);
-    return m ? m[1].toLowerCase() : '';
+    return extractExt(source);
   }
 
   splitSerials(joined: string | null | undefined): string[] {
