@@ -476,6 +476,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
 
   trackSection = (_: number, s: Section) => s.heading;
   trackField = (_: number, f: Field) => f.label;
+  trackLink = (_: number, l: { url: string }) => l.url;
 
   linkExt(l: { url: string; text: string }): string {
     return extractExt(l.text || l.url || '');

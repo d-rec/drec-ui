@@ -128,6 +128,8 @@ export class DeviceDetailsComponent {
     return extractExt(source);
   }
 
+  trackDocById = (_: number, d: { id: number }) => d.id;
+
   splitSerials(joined: string | null | undefined): string[] {
     if (!joined) return [];
     return String(joined)

@@ -24,7 +24,9 @@
           class="di__search-clear"
           (click)="search = ''"
           title="Clear"
-        >&times;</button>
+        >
+          &times;
+        </button>
       </div>
 
       <div class="di__body">
@@ -36,19 +38,31 @@
           >
             <h3 *ngIf="section.heading" class="di__heading">
               {{ section.heading }}
-              <span *ngIf="section.heading === 'Documents'" style="font-weight:400;color:#64748b;font-size:12px;">
-                ({{ documents.length }} file{{ documents.length === 1 ? '' : 's' }} loaded)
+              <span
+                *ngIf="section.heading === 'Documents'"
+                style="font-weight: 400; color: #64748b; font-size: 12px"
+              >
+                ({{ documents.length }} file{{
+                  documents.length === 1 ? '' : 's'
+                }}
+                loaded)
               </span>
             </h3>
             <ng-container *ngFor="let f of section.fields; trackBy: trackField">
-              <ng-container *ngIf="f.tabular && f.links && f.links.length; else nonTabular">
+              <ng-container
+                *ngIf="f.tabular && f.links && f.links.length; else nonTabular"
+              >
                 <div
                   class="di__field"
                   [attr.title]="f.hint || null"
                   [class.di__field--hinted]="f.hint"
                 >
                   <b [innerHTML]="f.label | highlight: search"></b>
-                  <span class="di__me-count"> ({{ f.links.length }} file{{ f.links.length === 1 ? '' : 's' }})</span>
+                  <span class="di__me-count">
+                    ({{ f.links.length }} file{{
+                      f.links.length === 1 ? '' : 's'
+                    }})</span
+                  >
                 </div>
                 <div class="di__me-table">
                   <div class="di__me-row di__me-row--header">
@@ -56,7 +70,10 @@
                     <span class="di__me-name">Filename</span>
                     <span class="di__me-type">Type</span>
                   </div>
-                  <div class="di__me-row" *ngFor="let l of f.links; let i = index">
+                  <div
+                    class="di__me-row"
+                    *ngFor="let l of f.links; let i = index; trackBy: trackLink"
+                  >
                     <span class="di__me-idx">{{ i + 1 }}</span>
                     <a
                       class="di__me-name"
@@ -76,13 +93,24 @@
                   [class.di__field--hinted]="f.hint"
                 >
                   <b [innerHTML]="f.label | highlight: search"></b>:
-                  <ng-container *ngIf="f.links && f.links.length; else maybeItems">
+                  <ng-container
+                    *ngIf="f.links && f.links.length; else maybeItems"
+                  >
                     <ng-container *ngFor="let l of f.links; let last = last">
-                      <a href="javascript:void(0)" (click)="openLink(l.url, $event)" (mousedown)="openLink(l.url, $event)" [innerHTML]="l.text | highlight: search"></a><span *ngIf="!last">, </span>
+                      <a
+                        href="javascript:void(0)"
+                        (click)="openLink(l.url, $event)"
+                        (mousedown)="openLink(l.url, $event)"
+                        [innerHTML]="l.text | highlight: search"
+                      ></a
+                      ><span *ngIf="!last">, </span>
                     </ng-container>
                   </ng-container>
                   <ng-template #maybeItems>
-                    <span *ngIf="!f.items || f.items.length === 0" [innerHTML]="(f.value || '—') | highlight: search"></span>
+                    <span
+                      *ngIf="!f.items || f.items.length === 0"
+                      [innerHTML]="f.value || '—' | highlight: search"
+                    ></span>
                   </ng-template>
                 </p>
                 <p
@@ -90,7 +118,9 @@
                   class="di__field di__field--sub"
                 >
                   <span class="di__sub-bullet">↳</span>
-                  <span [innerHTML]="(i + 1) + '. ' + it | highlight: search"></span>
+                  <span
+                    [innerHTML]="i + 1 + '. ' + it | highlight: search"
+                  ></span>
                 </p>
               </ng-template>
             </ng-container>
@@ -132,13 +162,18 @@
               </svg>
             </div>
           </ng-container>
-
         </ng-container>
       </div>
 
       <div class="di__footer">
-        <button type="button" class="di__btn" (click)="copyVisible()">Copy</button>
-        <button type="button" class="di__btn di__btn--primary" (click)="close()">
+        <button type="button" class="di__btn" (click)="copyVisible()">
+          Copy
+        </button>
+        <button
+          type="button"
+          class="di__btn di__btn--primary"
+          (click)="close()"
+        >
           Close
         </button>
       </div>

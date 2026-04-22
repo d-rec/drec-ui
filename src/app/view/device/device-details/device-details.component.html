@@ -319,7 +319,11 @@
               </div>
               <div
                 class="me-row"
-                *ngFor="let d of docsOf(row.type); let i = index"
+                *ngFor="
+                  let d of docsOf(row.type);
+                  let i = index;
+                  trackBy: trackDocById
+                "
               >
                 <span class="me-col-idx">{{ i + 1 }}</span>
                 <span class="me-col-name"
