@@ -25,9 +25,7 @@ export class OrgApiLicensesService {
   constructor(private httpClient: HttpClient) {}
 
   getSettings(): Observable<LicenseSettings> {
-    return this.httpClient.get<LicenseSettings>(
-      this.url + 'org-api-licenses',
-    );
+    return this.httpClient.get<LicenseSettings>(this.url + 'org-api-licenses');
   }
 
   saveSettings(data: {

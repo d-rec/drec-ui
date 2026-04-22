@@ -77,20 +77,40 @@ const STATUS_COLOR: Record<string, string> = {
             ✕ Remove Region
           </button>
           <span class="detect-count" *ngIf="panelCount > 0"
-            >{{ panelCount }} region{{ panelCount === 1 ? '' : 's' }}
+            >{{ panelCount }} region{{
+              panelCount === 1 ? '' : 's'
+            }}
             found</span
           >
-          <span class="detect-error" *ngIf="detectError">{{ detectError }}</span>
+          <span class="detect-error" *ngIf="detectError">{{
+            detectError
+          }}</span>
         </div>
         <div class="sat-date" *ngIf="satelliteDate">
           🛰 Latest imagery: {{ satelliteDate }}
         </div>
-        <div class="detect-confirm-backdrop" *ngIf="showDetectConfirm" (click)="cancelDetect()">
+        <div
+          class="detect-confirm-backdrop"
+          *ngIf="showDetectConfirm"
+          (click)="cancelDetect()"
+        >
           <div class="detect-confirm" (click)="$event.stopPropagation()">
             <p class="detect-confirm__msg">{{ detectConfirmMsg }}</p>
             <div class="detect-confirm__actions">
-              <button type="button" class="detect-confirm__btn detect-confirm__btn--cancel" (click)="cancelDetect()">Cancel</button>
-              <button type="button" class="detect-confirm__btn detect-confirm__btn--ok" (click)="confirmDetect()">OK</button>
+              <button
+                type="button"
+                class="detect-confirm__btn detect-confirm__btn--cancel"
+                (click)="cancelDetect()"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="detect-confirm__btn detect-confirm__btn--ok"
+                (click)="confirmDetect()"
+              >
+                OK
+              </button>
             </div>
           </div>
         </div>
@@ -438,7 +458,11 @@ export class SatelliteWindowComponent
   }
 
   deleteSelected(): void {
-    if (this.selectedRegion < 0 || this.selectedRegion >= this.predictions.length) return;
+    if (
+      this.selectedRegion < 0 ||
+      this.selectedRegion >= this.predictions.length
+    )
+      return;
     this.predictions.splice(this.selectedRegion, 1);
     this.selectedRegion = -1;
     this.panelCount = this.predictions.length;
@@ -449,15 +473,20 @@ export class SatelliteWindowComponent
   private satHitTest(pred: any, mx: number, my: number): boolean {
     const points: { x: number; y: number }[] = pred.points ?? [];
     if (points.length > 2) {
-      const scaled = points.map(p => ({
+      const scaled = points.map((p) => ({
         x: p.x * this.satScaleX + this.satCropX,
         y: p.y * this.satScaleY + this.satCropY,
       }));
       let inside = false;
       for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
-        const xi = scaled[i].x, yi = scaled[i].y;
-        const xj = scaled[j].x, yj = scaled[j].y;
-        if (((yi > my) !== (yj > my)) && (mx < (xj - xi) * (my - yi) / (yj - yi) + xi)) {
+        const xi = scaled[i].x,
+          yi = scaled[i].y;
+        const xj = scaled[j].x,
+          yj = scaled[j].y;
+        if (
+          yi > my !== yj > my &&
+          mx < ((xj - xi) * (my - yi)) / (yj - yi) + xi
+        ) {
           inside = !inside;
         }
       }
@@ -478,15 +507,23 @@ export class SatelliteWindowComponent
     for (let i = 0; i < this.predictions.length; i++) {
       const pred = this.predictions[i];
       const selected = i === this.selectedRegion;
-      const fill = selected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(0, 255, 180, 0.3)';
+      const fill = selected
+        ? 'rgba(239, 68, 68, 0.4)'
+        : 'rgba(0, 255, 180, 0.3)';
       const stroke = selected ? '#ef4444' : '#00ffb4';
       const points: { x: number; y: number }[] = pred.points ?? [];
 
       if (points.length > 2) {
         ctx.beginPath();
-        ctx.moveTo(points[0].x * this.satScaleX + this.satCropX, points[0].y * this.satScaleY + this.satCropY);
+        ctx.moveTo(
+          points[0].x * this.satScaleX + this.satCropX,
+          points[0].y * this.satScaleY + this.satCropY,
+        );
         for (let j = 1; j < points.length; j++) {
-          ctx.lineTo(points[j].x * this.satScaleX + this.satCropX, points[j].y * this.satScaleY + this.satCropY);
+          ctx.lineTo(
+            points[j].x * this.satScaleX + this.satCropX,
+            points[j].y * this.satScaleY + this.satCropY,
+          );
         }
         ctx.closePath();
         ctx.fillStyle = fill;
@@ -510,8 +547,8 @@ export class SatelliteWindowComponent
       if (selected) {
         let dotX: number, dotY: number;
         if (points.length > 2) {
-          const xs = points.map(p => p.x * this.satScaleX + this.satCropX);
-          const ys = points.map(p => p.y * this.satScaleY + this.satCropY);
+          const xs = points.map((p) => p.x * this.satScaleX + this.satCropX);
+          const ys = points.map((p) => p.y * this.satScaleY + this.satCropY);
           dotX = Math.max(...xs);
           dotY = Math.min(...ys);
         } else {
@@ -595,9 +632,17 @@ export class SatelliteWindowComponent
 
     // Verify canvas isn't blank
     const sample = srcCtx.getImageData(
-      Math.floor(w / 2), Math.floor(h / 2), 1, 1,
+      Math.floor(w / 2),
+      Math.floor(h / 2),
+      1,
+      1,
     ).data;
-    if (sample[0] === 0 && sample[1] === 0 && sample[2] === 0 && sample[3] === 0) {
+    if (
+      sample[0] === 0 &&
+      sample[1] === 0 &&
+      sample[2] === 0 &&
+      sample[3] === 0
+    ) {
       this.detecting = false;
       this.detectError = 'Could not capture map tiles (CORS)';
       this.cdr.markForCheck();
@@ -616,16 +661,26 @@ export class SatelliteWindowComponent
     const scale = Math.min(1, maxDim / Math.max(cropW, cropH));
     cropCanvas.width = Math.round(cropW * scale);
     cropCanvas.height = Math.round(cropH * scale);
-    cropCanvas.getContext('2d')!.drawImage(
-      srcCanvas, cropX, cropY, cropW, cropH,
-      0, 0, cropCanvas.width, cropCanvas.height,
-    );
+    cropCanvas
+      .getContext('2d')!
+      .drawImage(
+        srcCanvas,
+        cropX,
+        cropY,
+        cropW,
+        cropH,
+        0,
+        0,
+        cropCanvas.width,
+        cropCanvas.height,
+      );
 
     const base64 = cropCanvas.toDataURL('image/jpeg', 0.85).split(',')[1];
 
     // Call backend proxy (keeps Roboflow API key server-side)
     this.svc.detectPanels(base64).subscribe({
-      next: (data) => this.drawDetections(data, w, h, cropX, cropY, cropW, cropH),
+      next: (data) =>
+        this.drawDetections(data, w, h, cropX, cropY, cropW, cropH),
       error: (err) => {
         this.detectError =
           'Detection failed: ' + (err?.error?.message || err?.message || err);
@@ -636,8 +691,13 @@ export class SatelliteWindowComponent
   }
 
   private drawDetections(
-    data: any, w: number, h: number,
-    cropX: number, cropY: number, cropW: number, cropH: number,
+    data: any,
+    w: number,
+    h: number,
+    cropX: number,
+    cropY: number,
+    cropW: number,
+    cropH: number,
   ): void {
     const canvas = this.overlayCanvas.nativeElement;
     canvas.width = w;
@@ -689,10 +749,16 @@ export class SatelliteWindowComponent
         .on('mouseover', () => {
           this.removePinOverlay();
           this.pinOverlay = SatellitePreviewComponent.createOverlay(
-            asset.siteName, lat, lng, this.http,
+            asset.siteName,
+            lat,
+            lng,
+            this.http,
           );
           SatellitePreviewComponent.positionOverlay(
-            this.pinOverlay, this.map!, lat, lng,
+            this.pinOverlay,
+            this.map!,
+            lat,
+            lng,
           );
         })
         .on('mouseout', () => this.removePinOverlay())

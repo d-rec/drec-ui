@@ -98,8 +98,13 @@ export class AllUsersComponent {
       this.adminService.GetAllOrganization().subscribe((data) => {
         const seen = new Set<string>();
         this.orglist = data.organizations.filter(
-          (org: { api_user_id: string; organizationType: string; name: string }) => {
-            if (org.organizationType === 'Registrant' || seen.has(org.name)) return false;
+          (org: {
+            api_user_id: string;
+            organizationType: string;
+            name: string;
+          }) => {
+            if (org.organizationType === 'Registrant' || seen.has(org.name))
+              return false;
             seen.add(org.name);
             return true;
           },
@@ -166,11 +171,12 @@ export class AllUsersComponent {
       this.dataSource = new MatTableDataSource(this.allUsers);
       return;
     }
-    const filtered = this.allUsers.filter((u: any) =>
-      (u.firstName + ' ' + u.lastName).toLowerCase().includes(term) ||
-      u.email?.toLowerCase().includes(term) ||
-      u.organization?.name?.toLowerCase().includes(term) ||
-      u.role?.toLowerCase().includes(term),
+    const filtered = this.allUsers.filter(
+      (u: any) =>
+        (u.firstName + ' ' + u.lastName).toLowerCase().includes(term) ||
+        u.email?.toLowerCase().includes(term) ||
+        u.organization?.name?.toLowerCase().includes(term) ||
+        u.role?.toLowerCase().includes(term),
     );
     this.dataSource = new MatTableDataSource(filtered);
   }
@@ -199,21 +205,19 @@ export class AllUsersComponent {
     }
   }
   getadminAllUserList(page: number, limit: number) {
-    this.adminService
-      .GetAllUsers(page, limit)
-      .subscribe({
-        next: (data) => {
-          this.showlist = true;
-          this.showorguser = false;
-          this.loading = false;
-          this.allUsers = data.users;
-          this.dataSource = new MatTableDataSource(this.allUsers);
-        },
-        error: (err) => {
-          this.loading = false;
-          this.handleApiError(err);
-        },
-      });
+    this.adminService.GetAllUsers(page, limit).subscribe({
+      next: (data) => {
+        this.showlist = true;
+        this.showorguser = false;
+        this.loading = false;
+        this.allUsers = data.users;
+        this.dataSource = new MatTableDataSource(this.allUsers);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.handleApiError(err);
+      },
+    });
   }
   getOrganizationAllUser(page: number, limit: number) {
     this.orgService.getOrganizationUser(page, limit).subscribe({

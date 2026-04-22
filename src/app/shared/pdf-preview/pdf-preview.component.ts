@@ -23,7 +23,13 @@ import { ImageZoomPanDirective } from '../directives/image-zoom-pan.directive';
 @Component({
   standalone: true,
   selector: 'app-pdf-preview',
-  imports: [CommonModule, FormsModule, MatIconModule, MatProgressSpinnerModule, ImageZoomPanDirective],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    ImageZoomPanDirective,
+  ],
   templateUrl: './pdf-preview.component.html',
   styleUrls: ['./pdf-preview.component.scss'],
 })
@@ -93,10 +99,14 @@ export class PdfPreviewComponent implements OnChanges {
 
   private loadLeftWidthPct(): number {
     try {
-      const raw = localStorage.getItem(PdfPreviewComponent.LEFT_WIDTH_STORAGE_KEY);
+      const raw = localStorage.getItem(
+        PdfPreviewComponent.LEFT_WIDTH_STORAGE_KEY,
+      );
       const n = raw ? parseFloat(raw) : NaN;
       if (!isNaN(n) && n >= 20 && n <= 80) return n;
-    } catch { /* noop */ }
+    } catch {
+      /* noop */
+    }
     return 50;
   }
 
@@ -107,7 +117,10 @@ export class PdfPreviewComponent implements OnChanges {
     if (changes['sldDeviceId'] && this.sldDeviceId) {
       this.fetchSldCompare();
     }
-    if ((changes['ocrSource'] || changes['previewType']) && this.previewType === 'excel') {
+    if (
+      (changes['ocrSource'] || changes['previewType']) &&
+      this.previewType === 'excel'
+    ) {
       this.loadExcel();
     }
   }
@@ -140,7 +153,9 @@ export class PdfPreviewComponent implements OnChanges {
       const wb = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
       this.excelSheets = wb.SheetNames.map((name: string) => {
         const sheet = wb.Sheets[name];
-        const html: string = XLSX.utils.sheet_to_html(sheet, { editable: false });
+        const html: string = XLSX.utils.sheet_to_html(sheet, {
+          editable: false,
+        });
         return { name, html };
       });
       if (this.excelSheets.length === 0) {
@@ -161,7 +176,9 @@ export class PdfPreviewComponent implements OnChanges {
     this.sldLoading = true;
     this.sldSaved = false;
     this.http
-      .get<any>(`${environment.API_URL}device-reviews/${this.sldDeviceId}/sld-compare`)
+      .get<any>(
+        `${environment.API_URL}device-reviews/${this.sldDeviceId}/sld-compare`,
+      )
       .subscribe({
         next: (res) => {
           this.sldResult = res;
@@ -179,9 +196,12 @@ export class PdfPreviewComponent implements OnChanges {
     if (!this.sldDeviceId || this.sldInputKw == null) return;
     this.sldSaved = false;
     this.http
-      .patch<any>(`${environment.API_URL}device-reviews/${this.sldDeviceId}/sld-capacity`, {
-        sldCapacityKw: this.sldInputKw,
-      })
+      .patch<any>(
+        `${environment.API_URL}device-reviews/${this.sldDeviceId}/sld-capacity`,
+        {
+          sldCapacityKw: this.sldInputKw,
+        },
+      )
       .subscribe({
         next: () => {
           this.sldSaved = true;
@@ -228,7 +248,9 @@ export class PdfPreviewComponent implements OnChanges {
 
   onVerticalDragStart(event: MouseEvent): void {
     event.preventDefault();
-    const container = this.host.nativeElement.querySelector('.pdf-preview') as HTMLElement | null;
+    const container = this.host.nativeElement.querySelector(
+      '.pdf-preview',
+    ) as HTMLElement | null;
     if (!container) return;
     const rect = container.getBoundingClientRect();
     const onMove = (e: MouseEvent) => {
@@ -243,7 +265,9 @@ export class PdfPreviewComponent implements OnChanges {
           PdfPreviewComponent.LEFT_WIDTH_STORAGE_KEY,
           String(this.leftWidthPct),
         );
-      } catch { /* noop */ }
+      } catch {
+        /* noop */
+      }
     };
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
@@ -346,14 +370,14 @@ export class PdfPreviewComponent implements OnChanges {
         if (remaining <= 0) {
           alert(
             'DeepL credits exhausted.\n\n' +
-            'Please add your own DeepL API key in Organization > Licenses.',
+              'Please add your own DeepL API key in Organization > Licenses.',
           );
           return;
         }
         const ok = confirm(
           `You have ${remaining} free DeepL credit(s) remaining \u2014 proceed?\n\n` +
-          `This will use 1 credit. Once exhausted, you\u2019ll need to add ` +
-          `your own API key in Organization > Licenses.`,
+            `This will use 1 credit. Once exhausted, you\u2019ll need to add ` +
+            `your own API key in Organization > Licenses.`,
         );
         if (!ok) return;
       }
@@ -361,7 +385,7 @@ export class PdfPreviewComponent implements OnChanges {
       // Credits endpoint unavailable (dev mode) — show free tier warning
       const ok = confirm(
         'Translation uses the DeepL API free tier (500,000 characters/month). ' +
-        'Large documents consume quota quickly.\n\nProceed anyway?',
+          'Large documents consume quota quickly.\n\nProceed anyway?',
       );
       if (!ok) return;
     }
@@ -388,8 +412,7 @@ export class PdfPreviewComponent implements OnChanges {
         const t = data.translations?.[0];
         if (t) {
           if (!this.detectedLang)
-            this.detectedLang =
-              t.detected_source_language?.toLowerCase() || '';
+            this.detectedLang = t.detected_source_language?.toLowerCase() || '';
           this.translatedText += t.text;
         }
       }
@@ -453,19 +476,26 @@ export class PdfPreviewComponent implements OnChanges {
           return;
         }
         if (credits.roboflow.credits <= 0) {
-          this.detectError = 'Roboflow credits exhausted. Add your own API key in Organization > Licenses.';
+          this.detectError =
+            'Roboflow credits exhausted. Add your own API key in Organization > Licenses.';
           this.cdr.detectChanges();
           return;
         }
-        if (confirm(
-          `You have ${credits.roboflow.credits} free Roboflow credit(s) remaining — proceed?\n\n` +
-          `This will use 1 credit.`,
-        )) {
+        if (
+          confirm(
+            `You have ${credits.roboflow.credits} free Roboflow credit(s) remaining — proceed?\n\n` +
+              `This will use 1 credit.`,
+          )
+        ) {
           this.runDetection();
         }
       },
       error: () => {
-        if (confirm('Panel detection uses a limited number of free scans. Proceed anyway?')) {
+        if (
+          confirm(
+            'Panel detection uses a limited number of free scans. Proceed anyway?',
+          )
+        ) {
           this.runDetection();
         }
       },
@@ -481,7 +511,12 @@ export class PdfPreviewComponent implements OnChanges {
     this.detecting = false;
     if (this.detectCanvas?.nativeElement) {
       const ctx = this.detectCanvas.nativeElement.getContext('2d');
-      ctx?.clearRect(0, 0, this.detectCanvas.nativeElement.width, this.detectCanvas.nativeElement.height);
+      ctx?.clearRect(
+        0,
+        0,
+        this.detectCanvas.nativeElement.width,
+        this.detectCanvas.nativeElement.height,
+      );
     }
   }
 
@@ -508,7 +543,11 @@ export class PdfPreviewComponent implements OnChanges {
   }
 
   deleteSelectedRegion(): void {
-    if (this.selectedRegion < 0 || this.selectedRegion >= this.predictions.length) return;
+    if (
+      this.selectedRegion < 0 ||
+      this.selectedRegion >= this.predictions.length
+    )
+      return;
     this.predictions.splice(this.selectedRegion, 1);
     this.selectedRegion = -1;
     this.panelCount = this.predictions.length;
@@ -529,7 +568,10 @@ export class PdfPreviewComponent implements OnChanges {
 
     const canvas = document.createElement('canvas');
     const maxDim = 640;
-    const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+    const scale = Math.min(
+      1,
+      maxDim / Math.max(img.naturalWidth, img.naturalHeight),
+    );
     canvas.width = Math.round(img.naturalWidth * scale);
     canvas.height = Math.round(img.naturalHeight * scale);
     const ctx = canvas.getContext('2d')!;
@@ -554,7 +596,9 @@ export class PdfPreviewComponent implements OnChanges {
       const scale = Math.min(1, maxDim / Math.max(bmp.width, bmp.height));
       canvas.width = Math.round(bmp.width * scale);
       canvas.height = Math.round(bmp.height * scale);
-      canvas.getContext('2d')!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      canvas
+        .getContext('2d')!
+        .drawImage(bmp, 0, 0, canvas.width, canvas.height);
       bmp.close();
       const base64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
       this.sendDetection(base64);
@@ -566,19 +610,25 @@ export class PdfPreviewComponent implements OnChanges {
   }
 
   private sendDetection(base64: string): void {
-    this.http.post<any>(
-      `${environment.API_URL}device-reviews/detect-panels`,
-      { image: base64 },
-    ).pipe(
-      retry({ count: 2, delay: (_err: any, attempt: number) => timer(attempt * 3000) }),
-    ).subscribe({
-      next: (data) => this.handleDetections(data),
-      error: (err) => {
-        this.detectError = 'Detection failed: ' + (err?.error?.message || err?.message || err);
-        this.detecting = false;
-        this.cdr.detectChanges();
-      },
-    });
+    this.http
+      .post<any>(`${environment.API_URL}device-reviews/detect-panels`, {
+        image: base64,
+      })
+      .pipe(
+        retry({
+          count: 2,
+          delay: (_err: any, attempt: number) => timer(attempt * 3000),
+        }),
+      )
+      .subscribe({
+        next: (data) => this.handleDetections(data),
+        error: (err) => {
+          this.detectError =
+            'Detection failed: ' + (err?.error?.message || err?.message || err);
+          this.detecting = false;
+          this.cdr.detectChanges();
+        },
+      });
   }
 
   private handleDetections(data: any): void {
@@ -617,12 +667,20 @@ export class PdfPreviewComponent implements OnChanges {
   private detectHitTest(pred: any, mx: number, my: number): boolean {
     const points: { x: number; y: number }[] = pred.points ?? [];
     if (points.length > 2) {
-      const scaled = points.map((p: any) => ({ x: p.x * this.detScaleX, y: p.y * this.detScaleY }));
+      const scaled = points.map((p: any) => ({
+        x: p.x * this.detScaleX,
+        y: p.y * this.detScaleY,
+      }));
       let inside = false;
       for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
-        const xi = scaled[i].x, yi = scaled[i].y;
-        const xj = scaled[j].x, yj = scaled[j].y;
-        if (((yi > my) !== (yj > my)) && (mx < (xj - xi) * (my - yi) / (yj - yi) + xi)) {
+        const xi = scaled[i].x,
+          yi = scaled[i].y;
+        const xj = scaled[j].x,
+          yj = scaled[j].y;
+        if (
+          yi > my !== yj > my &&
+          mx < ((xj - xi) * (my - yi)) / (yj - yi) + xi
+        ) {
           inside = !inside;
         }
       }
@@ -643,7 +701,9 @@ export class PdfPreviewComponent implements OnChanges {
     for (let i = 0; i < this.predictions.length; i++) {
       const pred = this.predictions[i];
       const selected = i === this.selectedRegion;
-      const fill = selected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(0, 255, 180, 0.3)';
+      const fill = selected
+        ? 'rgba(239, 68, 68, 0.4)'
+        : 'rgba(0, 255, 180, 0.3)';
       const stroke = selected ? '#ef4444' : '#00ffb4';
       const points: { x: number; y: number }[] = pred.points ?? [];
 
@@ -651,7 +711,10 @@ export class PdfPreviewComponent implements OnChanges {
         ctx.beginPath();
         ctx.moveTo(points[0].x * this.detScaleX, points[0].y * this.detScaleY);
         for (let j = 1; j < points.length; j++) {
-          ctx.lineTo(points[j].x * this.detScaleX, points[j].y * this.detScaleY);
+          ctx.lineTo(
+            points[j].x * this.detScaleX,
+            points[j].y * this.detScaleY,
+          );
         }
         ctx.closePath();
         ctx.fillStyle = fill;

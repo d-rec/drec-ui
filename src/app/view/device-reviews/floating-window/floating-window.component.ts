@@ -19,7 +19,9 @@ import {
   styleUrls: ['./floating-window.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FloatingWindowComponent implements OnInit, AfterViewInit, OnDestroy {
+export class FloatingWindowComponent
+  implements OnInit, AfterViewInit, OnDestroy
+{
   @Input() title = '';
   @Input() initX = 20;
   @Input() initY = 20;
@@ -105,8 +107,14 @@ export class FloatingWindowComponent implements OnInit, AfterViewInit, OnDestroy
       if (this.x < -(this.width - 80)) this.x = -(this.width - 80);
       this.cdr.markForCheck();
     } else if (this.resizing) {
-      this.width = Math.max(260, this.resizeStartW + (event.clientX - this.resizeStartX));
-      this.height = Math.max(140, this.resizeStartH + (event.clientY - this.resizeStartY));
+      this.width = Math.max(
+        260,
+        this.resizeStartW + (event.clientX - this.resizeStartX),
+      );
+      this.height = Math.max(
+        140,
+        this.resizeStartH + (event.clientY - this.resizeStartY),
+      );
       this.cdr.markForCheck();
     }
   }

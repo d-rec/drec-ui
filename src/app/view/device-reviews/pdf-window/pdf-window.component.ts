@@ -50,8 +50,12 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
       this.safeUrl = null;
       this.currentUrl = url;
       this.fileName = url
-        ? decodeURIComponent(url.split('?')[0].split('/').pop() || 'Document Viewer')
-            .replace(/-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=\.[^.]+$)/i, '')
+        ? decodeURIComponent(
+            url.split('?')[0].split('/').pop() || 'Document Viewer',
+          ).replace(
+            /-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?=\.[^.]+$)/i,
+            '',
+          )
         : 'Document Viewer';
 
       if (url) {
@@ -75,7 +79,9 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
       // Force application/pdf MIME type to ensure iframe renders it
       const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
       this.blobUrl = URL.createObjectURL(blob);
-      this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.blobUrl);
+      this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+        this.blobUrl,
+      );
     } catch {
       this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
     }

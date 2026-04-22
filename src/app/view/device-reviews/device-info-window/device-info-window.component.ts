@@ -99,7 +99,9 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
     event.preventDefault();
     event.stopPropagation();
     if (!url) {
-      this.toastr.warning('Empty signed URL — backend could not sign (file missing in storage?)');
+      this.toastr.warning(
+        'Empty signed URL — backend could not sign (file missing in storage?)',
+      );
       return;
     }
     if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
@@ -137,7 +139,10 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.loading = false;
         const msg =
-          err?.error?.message || err?.statusText || err?.message || 'Unknown error';
+          err?.error?.message ||
+          err?.statusText ||
+          err?.message ||
+          'Unknown error';
         this.toastr.error(`Failed to load device details: ${msg}`);
         this.svc.viewDeviceInfo(null);
       },
@@ -196,11 +201,27 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
         fields: [
           { label: '(1) Site Name', value: fmt(d.siteName) },
           { label: '(2) Address', value: fmt(d.address) },
-          { label: '(3) State/Province/County', value: fmt(d.stateProvince) || '—' },
+          {
+            label: '(3) State/Province/County',
+            value: fmt(d.stateProvince) || '—',
+          },
           { label: '(4) Postcode (Zip Code)', value: fmt(d.postcode) || '—' },
-          { label: '(5) Country', value: this.countryNamePipe.transform(d.countryCode) || fmt(d.countryCode) },
-          { label: '(6) Latitude', value: fmt(d.latitude), hint: 'Must provide at least six digits after the decimal; must land exactly on a solar panel' },
-          { label: '(7) Longitude', value: fmt(d.longitude), hint: 'Must provide at least six digits after the decimal; must land exactly on a solar panel' },
+          {
+            label: '(5) Country',
+            value:
+              this.countryNamePipe.transform(d.countryCode) ||
+              fmt(d.countryCode),
+          },
+          {
+            label: '(6) Latitude',
+            value: fmt(d.latitude),
+            hint: 'Must provide at least six digits after the decimal; must land exactly on a solar panel',
+          },
+          {
+            label: '(7) Longitude',
+            value: fmt(d.longitude),
+            hint: 'Must provide at least six digits after the decimal; must land exactly on a solar panel',
+          },
         ],
       },
       {
@@ -208,54 +229,146 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
         fields: [
           { label: '(8) Device Description', value: fmt(d.deviceDescription) },
           { label: '(9) Capacity', value: fmt(d.capacity) },
-          { label: '(10) Commissioning Date', value: fmtDate(d.commissioningDate) },
-          { label: '(11) Requested Effective Reg. Date', value: fmt(d.requestedEffectiveRegDate), hint: 'Please provide the date from which you would like to begin issuing D-RECs for this facility; default is COD.' },
-          { label: '(12) Default Account Code', value: fmt(d.defaultAccountCode), hint: 'Please provide the Evident trade account code you would like this facility to issue into' },
-          { label: '(13) Number of Generating Units', value: fmt(d.generatingUnitCount), hint: 'Please provide the number of devices that output useable electricity at this facility (typically the inverters)' },
+          {
+            label: '(10) Commissioning Date',
+            value: fmtDate(d.commissioningDate),
+          },
+          {
+            label: '(11) Requested Effective Reg. Date',
+            value: fmt(d.requestedEffectiveRegDate),
+            hint: 'Please provide the date from which you would like to begin issuing D-RECs for this facility; default is COD.',
+          },
+          {
+            label: '(12) Default Account Code',
+            value: fmt(d.defaultAccountCode),
+            hint: 'Please provide the Evident trade account code you would like this facility to issue into',
+          },
+          {
+            label: '(13) Number of Generating Units',
+            value: fmt(d.generatingUnitCount),
+            hint: 'Please provide the number of devices that output useable electricity at this facility (typically the inverters)',
+          },
           {
             label: '(14) Meter or Measurement ID(s)',
             value: '',
             items: d.serialNumber
-              ? String(d.serialNumber).split(/\s*;\s*/).filter(Boolean)
+              ? String(d.serialNumber)
+                  .split(/\s*;\s*/)
+                  .filter(Boolean)
               : [],
             hint: 'Serial numbers for all devices from which metering evidence will be shared (e.g. inverters, smart meter, etc.).',
           },
-          { label: '(15) Grid Connected', value: d.gridInterconnection == null ? '—' : d.gridInterconnection ? 'Yes' : 'No' },
+          {
+            label: '(15) Grid Connected',
+            value:
+              d.gridInterconnection == null
+                ? '—'
+                : d.gridInterconnection
+                  ? 'Yes'
+                  : 'No',
+          },
           { label: '(16) Grid Export Type', value: fmt(d.gridExportType) },
-          { label: '(17) Network Owner', value: fmt(d.networkOwner), hint: 'If the facility is grid-connected, please provide the name of the utility or distribution network' },
-          { label: '(18) Interconnection Voltage', value: fmt(d.interconnectionVoltage), hint: 'If the facility is grid-connected, please provide the interconnection voltage' },
+          {
+            label: '(17) Network Owner',
+            value: fmt(d.networkOwner),
+            hint: 'If the facility is grid-connected, please provide the name of the utility or distribution network',
+          },
+          {
+            label: '(18) Interconnection Voltage',
+            value: fmt(d.interconnectionVoltage),
+            hint: 'If the facility is grid-connected, please provide the interconnection voltage',
+          },
           { label: '(19) Network Meter', value: fmt(d.hasNetworkMeter) },
-          { label: '(20) Meter Reads Shareable', value: fmt(d.meterReadsShareable), hint: 'If "yes", this must be provided as sample metering evidence' },
-          { label: '(21) Non-Meter Import Details', value: fmt(d.nonMeterImportDetails) },
-          { label: '(22) Source Access Mode', value: fmt(d.sourceAccessMode), hint: 'Will require paragraph explaining what each mode means' },
+          {
+            label: '(20) Meter Reads Shareable',
+            value: fmt(d.meterReadsShareable),
+            hint: 'If "yes", this must be provided as sample metering evidence',
+          },
+          {
+            label: '(21) Non-Meter Import Details',
+            value: fmt(d.nonMeterImportDetails),
+          },
+          {
+            label: '(22) Source Access Mode',
+            value: fmt(d.sourceAccessMode),
+            hint: 'Will require paragraph explaining what each mode means',
+          },
           { label: '(23) Captive Consumer', value: fmt(d.hasCaptiveConsumer) },
-          { label: '(24) Auxiliary Energy Sources', value: fmt(d.hasAuxiliaryEnergySources), hint: '(typically a backup generator or battery)' },
-          { label: '(25) Auxiliary Source Details', value: fmt(d.auxiliaryEnergySourceDetails), hint: 'Describe the number of units, capacity per unit, and fuel source (e.g. 1 x 250kVA diesel generator)' },
+          {
+            label: '(24) Auxiliary Energy Sources',
+            value: fmt(d.hasAuxiliaryEnergySources),
+            hint: '(typically a backup generator or battery)',
+          },
+          {
+            label: '(25) Auxiliary Source Details',
+            value: fmt(d.auxiliaryEnergySourceDetails),
+            hint: 'Describe the number of units, capacity per unit, and fuel source (e.g. 1 x 250kVA diesel generator)',
+          },
           {
             label: '(26) Submitter Status',
             value:
               d.pvSystemOwner && d.organization?.name
-                ? d.pvSystemOwner.trim().toLowerCase() === d.organization.name.trim().toLowerCase()
+                ? d.pvSystemOwner.trim().toLowerCase() ===
+                  d.organization.name.trim().toLowerCase()
                   ? 'Registrant IS the production-facility owner'
                   : 'Registrant is NOT the production-facility owner'
                 : '—',
             hint: 'Derived by comparing PV System Owner to the registrant organization name',
           },
-          { label: '(27) PV System Owner', value: fmt(d.pvSystemOwner), hint: 'Please provide the legal name of the PV System Owner. This must match the "Proof of Ownership" documentation shared.' },
-          { label: '(28) Off-Taker Name', value: fmt(d.offTakerName), hint: 'Please provide the legal name of the electricity off-taker' },
+          {
+            label: '(27) PV System Owner',
+            value: fmt(d.pvSystemOwner),
+            hint: 'Please provide the legal name of the PV System Owner. This must match the "Proof of Ownership" documentation shared.',
+          },
+          {
+            label: '(28) Off-Taker Name',
+            value: fmt(d.offTakerName),
+            hint: 'Please provide the legal name of the electricity off-taker',
+          },
           { label: '(29) Off Takers', value: fmt(d.offTaker) },
-          { label: '(30) Off-Taker Same as Owner', value: fmt(d.offTakerSameCompanyAsOwner) },
-          { label: '(31) Other EAC Scheme Registration', value: fmt(d.otherEacSchemeRegistration) },
+          {
+            label: '(30) Off-Taker Same as Owner',
+            value: fmt(d.offTakerSameCompanyAsOwner),
+          },
+          {
+            label: '(31) Other EAC Scheme Registration',
+            value: fmt(d.otherEacSchemeRegistration),
+          },
           { label: '(32) Public Funding', value: fmt(d.hasPublicFunding) },
-          { label: '(33) Public Funding End Date', value: fmt(d.publicFundingEndDate) },
+          {
+            label: '(33) Public Funding End Date',
+            value: fmt(d.publicFundingEndDate),
+          },
           { label: '(34) Subsidy Received', value: fmt(d.hasSubsidy) },
           { label: '(35) Subsidy Types', value: fmtArr(d.subsidyTypes) },
-          { label: '(35) Subsidy Other Details', value: fmt(d.subsidyOtherDetails) },
-          { label: '(36) Subsidy Claims EACs', value: fmt(d.subsidyClaimsEacs) },
-          { label: '(37) Labelling Scheme', value: fmt(d.labellingSchemeAccreditation), hint: 'Please choose any other labels for which this site qualifies' },
-          { label: '(38) SDG Benefits', value: fmt(d.SDGBenefits), hint: 'Please choose all applicable UN Sustainable Development Goals that this facility is promoting' },
-          { label: '(39) Impact Story', value: fmt(d.impactStory), hint: 'Please provide a brief description of the social and/or environmental impact being created by this facility' },
-          { label: '(40) Additional Info', value: fmt(d.additionalInfo), hint: 'Please provide any additional information that may be relevant to this facility\'s registration on Evident' },
+          {
+            label: '(35) Subsidy Other Details',
+            value: fmt(d.subsidyOtherDetails),
+          },
+          {
+            label: '(36) Subsidy Claims EACs',
+            value: fmt(d.subsidyClaimsEacs),
+          },
+          {
+            label: '(37) Labelling Scheme',
+            value: fmt(d.labellingSchemeAccreditation),
+            hint: 'Please choose any other labels for which this site qualifies',
+          },
+          {
+            label: '(38) SDG Benefits',
+            value: fmt(d.SDGBenefits),
+            hint: 'Please choose all applicable UN Sustainable Development Goals that this facility is promoting',
+          },
+          {
+            label: '(39) Impact Story',
+            value: fmt(d.impactStory),
+            hint: 'Please provide a brief description of the social and/or environmental impact being created by this facility',
+          },
+          {
+            label: '(40) Additional Info',
+            value: fmt(d.additionalInfo),
+            hint: "Please provide any additional information that may be relevant to this facility's registration on Evident",
+          },
           { label: '(41) Signatory Name', value: fmt(d.signatoryName) },
           {
             label: '(42) Signature',
@@ -269,14 +382,51 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
       {
         heading: 'Documents',
         fields: [
-          { label: '(43) Project Photos', value: fmtDocs('PROJECT_PHOTOS'), links: linksFor('PROJECT_PHOTOS'), hint: 'At least three photos showing the full installation and surrounding topography' },
-          { label: '(44) Facility Boundary', value: fmtDocs('FACILITY_BOUNDARY'), links: linksFor('FACILITY_BOUNDARY'), hint: 'Satellite image with facility boundary outlined' },
-          { label: '(45) Single Line Diagram', value: fmtDocs('SINGLE_LINE_DIAGRAM'), links: linksFor('SINGLE_LINE_DIAGRAM') },
-          { label: '(46) SF-02c (Owner\'s Declaration)', value: fmtDocs('SF_02C'), links: linksFor('SF_02C') },
-          { label: '(47) Proof of Ownership', value: fmtDocs('SF_02C_OWNERS_DECLARATION'), links: linksFor('SF_02C_OWNERS_DECLARATION') },
-          { label: '(48) COD Proof', value: fmtDocs('COD_PROOF'), links: linksFor('COD_PROOF'), hint: 'Handover letter or commissioning certificate confirming the commissioning date' },
-          { label: '(49) Metering Evidence', value: fmtDocs('METERING_EVIDENCE'), links: linksFor('METERING_EVIDENCE'), hint: 'Sample metering evidence relied on for I-REC issuance' },
-          { label: '(50) Other Documents', value: fmtDocs('OTHER_DOCUMENTS'), links: linksFor('OTHER_DOCUMENTS'), hint: 'e.g. No RPO letter for facilities in India' },
+          {
+            label: '(43) Project Photos',
+            value: fmtDocs('PROJECT_PHOTOS'),
+            links: linksFor('PROJECT_PHOTOS'),
+            hint: 'At least three photos showing the full installation and surrounding topography',
+          },
+          {
+            label: '(44) Facility Boundary',
+            value: fmtDocs('FACILITY_BOUNDARY'),
+            links: linksFor('FACILITY_BOUNDARY'),
+            hint: 'Satellite image with facility boundary outlined',
+          },
+          {
+            label: '(45) Single Line Diagram',
+            value: fmtDocs('SINGLE_LINE_DIAGRAM'),
+            links: linksFor('SINGLE_LINE_DIAGRAM'),
+          },
+          {
+            label: "(46) SF-02c (Owner's Declaration)",
+            value: fmtDocs('SF_02C'),
+            links: linksFor('SF_02C'),
+          },
+          {
+            label: '(47) Proof of Ownership',
+            value: fmtDocs('SF_02C_OWNERS_DECLARATION'),
+            links: linksFor('SF_02C_OWNERS_DECLARATION'),
+          },
+          {
+            label: '(48) COD Proof',
+            value: fmtDocs('COD_PROOF'),
+            links: linksFor('COD_PROOF'),
+            hint: 'Handover letter or commissioning certificate confirming the commissioning date',
+          },
+          {
+            label: '(49) Metering Evidence',
+            value: fmtDocs('METERING_EVIDENCE'),
+            links: linksFor('METERING_EVIDENCE'),
+            hint: 'Sample metering evidence relied on for I-REC issuance',
+          },
+          {
+            label: '(50) Other Documents',
+            value: fmtDocs('OTHER_DOCUMENTS'),
+            links: linksFor('OTHER_DOCUMENTS'),
+            hint: 'e.g. No RPO letter for facilities in India',
+          },
         ],
       },
       {
@@ -291,11 +441,20 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
           { label: 'Other Data Source', value: fmt(d.otherDataSource) },
           { label: 'Data Source Brand', value: fmt(d.dataSourceBrand) },
           { label: 'OnBoarding Date', value: fmtDate(d.createdAt) },
-          { label: 'Operating Configuration', value: fmt(d.operatingConfiguration) },
+          {
+            label: 'Operating Configuration',
+            value: fmt(d.operatingConfiguration),
+          },
           { label: 'Timezone', value: fmt(d.timezone) },
-          { label: 'Ownership Status', value: fmt(d.ownershipStatus || 'unverified') },
+          {
+            label: 'Ownership Status',
+            value: fmt(d.ownershipStatus || 'unverified'),
+          },
           { label: 'Public Funding Type', value: fmt(d.publicFundingType) },
-          { label: 'Off-Grid Circumstances', value: fmt(d.offGridCircumstances) },
+          {
+            label: 'Off-Grid Circumstances',
+            value: fmt(d.offGridCircumstances),
+          },
           { label: 'Version', value: fmt(d.version) },
           { label: 'Yield Value', value: fmt(d.yieldValue) },
           { label: 'Meter Read Type', value: fmt(d.meterReadtype) },

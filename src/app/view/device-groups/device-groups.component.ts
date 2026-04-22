@@ -498,14 +498,14 @@ export class DeviceGroups implements OnInit {
   updateReviewStatus(groupId: number, status: string): void {
     this.deviceGroupService.updateGroupReviewStatus(groupId, status).subscribe({
       next: () => {
-        this.toastrService.success(
-          `Group review ${status}`,
-          'Status Updated',
-        );
+        this.toastrService.success(`Group review ${status}`, 'Status Updated');
         this.DisplayList(this.p);
       },
       error: (err: any) => {
-        this.toastrService.error('Update failed', err.error?.message || 'Error');
+        this.toastrService.error(
+          'Update failed',
+          err.error?.message || 'Error',
+        );
       },
     });
   }

@@ -76,7 +76,10 @@ export class DeviceDetailsComponent {
           this.loading = false;
           this.device_details = device;
           this.documents = documents ?? [];
-          console.log('[device-details] documents loaded for id=' + this.id + ':', this.documents);
+          console.log(
+            '[device-details] documents loaded for id=' + this.id + ':',
+            this.documents,
+          );
           this.name = this.device_details.externalId;
 
           this.device_details['fuelname'] = this.fuellist.find(
@@ -112,13 +115,19 @@ export class DeviceDetailsComponent {
     return this.documents.filter((d) => d.type === type);
   }
 
-  docLinkLabel(d: { label: string | null; originalFilename: string | null; id: number }): string {
+  docLinkLabel(d: {
+    label: string | null;
+    originalFilename: string | null;
+    id: number;
+  }): string {
     return d.label || d.originalFilename || `File ${d.id}`;
   }
 
   splitSerials(joined: string | null | undefined): string[] {
     if (!joined) return [];
-    return String(joined).split(/\s*;\s*/).filter(Boolean);
+    return String(joined)
+      .split(/\s*;\s*/)
+      .filter(Boolean);
   }
 
   /**
@@ -133,7 +142,9 @@ export class DeviceDetailsComponent {
     event.stopPropagation();
     const cached = this.documents.find((d) => d.id === docId);
     if (!cached?.url) {
-      this.toastrService.warning('Signed URL unavailable — try reopening the dialog');
+      this.toastrService.warning(
+        'Signed URL unavailable — try reopening the dialog',
+      );
       return;
     }
     window.open(cached.url, '_blank', 'noopener');

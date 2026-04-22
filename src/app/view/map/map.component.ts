@@ -1,4 +1,16 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, NgZone } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild,
+  NgZone,
+} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
 import { environment } from '../../../environments/environment';
@@ -12,11 +24,17 @@ export interface MapMarker {
   siteName?: string;
 }
 
-export function satelliteTileUrl(lat: number, lng: number, zoom: number = 18): string {
+export function satelliteTileUrl(
+  lat: number,
+  lng: number,
+  zoom: number = 18,
+): string {
   const n = Math.pow(2, zoom);
-  const x = Math.floor((lng + 180) / 360 * n);
-  const latRad = lat * Math.PI / 180;
-  const y = Math.floor((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n);
+  const x = Math.floor(((lng + 180) / 360) * n);
+  const latRad = (lat * Math.PI) / 180;
+  const y = Math.floor(
+    ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * n,
+  );
   return `https://mt1.google.com/vt/lyrs=s&x=${x}&y=${y}&z=${zoom}`;
 }
 
@@ -27,11 +45,16 @@ export interface SatellitePreview {
 }
 
 /** Returns a 2x2 tile grid + offsets to render a 256px view centered on the coordinate. */
-export function satellitePreview(lat: number, lng: number, zoom: number = 19): SatellitePreview {
+export function satellitePreview(
+  lat: number,
+  lng: number,
+  zoom: number = 19,
+): SatellitePreview {
   const n = Math.pow(2, zoom);
-  const xFrac = (lng + 180) / 360 * n;
-  const latRad = lat * Math.PI / 180;
-  const yFrac = (1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2 * n;
+  const xFrac = ((lng + 180) / 360) * n;
+  const latRad = (lat * Math.PI) / 180;
+  const yFrac =
+    ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * n;
 
   const tileX = Math.floor(xFrac);
   const tileY = Math.floor(yFrac);
@@ -118,10 +141,15 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   // Screenshot capture
   @Output() screenshotTaken = new EventEmitter<File>();
 
-  constructor(private http: HttpClient, private zone: NgZone) {}
+  constructor(
+    private http: HttpClient,
+    private zone: NgZone,
+  ) {}
 
   ngOnInit(): void {
-    this.options.layers = [this.satellite ? this.createSatelliteLayer() : this.createTileLayer()];
+    this.options.layers = [
+      this.satellite ? this.createSatelliteLayer() : this.createTileLayer(),
+    ];
     this.options.scrollWheelZoom = this.scrollWheelZoom;
     if (this.centerPin) {
       this.options.zoomAnimation = false;
@@ -157,7 +185,10 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         const c = this.map.getCenter();
         this.centerPinMarker?.setLatLng(c);
         if (dragging) {
-          this.centerChanged.emit({ lat: +c.lat.toFixed(6), lng: +c.lng.toFixed(6) });
+          this.centerChanged.emit({
+            lat: +c.lat.toFixed(6),
+            lng: +c.lng.toFixed(6),
+          });
         }
       });
       this.map.on('moveend', () => {
@@ -184,7 +215,9 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     };
 
     // Fix existing tiles
-    tilePane.querySelectorAll('img').forEach((img) => fix(img as HTMLImageElement));
+    tilePane
+      .querySelectorAll('img')
+      .forEach((img) => fix(img as HTMLImageElement));
 
     // Watch for new tiles
     this.tileObserver = new MutationObserver((mutations) => {
@@ -193,7 +226,9 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
           if (node instanceof HTMLImageElement) {
             fix(node);
           } else if (node instanceof HTMLElement) {
-            node.querySelectorAll('img').forEach((img) => fix(img as HTMLImageElement));
+            node
+              .querySelectorAll('img')
+              .forEach((img) => fix(img as HTMLImageElement));
           }
         }
       }
@@ -257,7 +292,9 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       if (!this.centerPinInitialized && this.markers?.length) {
         const m = this.markers[0];
         if (!isNaN(m.latitude) && !isNaN(m.longitude)) {
-          this.map.setView([m.latitude, m.longitude], this.zoom, { animate: false });
+          this.map.setView([m.latitude, m.longitude], this.zoom, {
+            animate: false,
+          });
           this.ensureCenterPin([m.latitude, m.longitude]);
           this.centerPinMarker?.setLatLng([m.latitude, m.longitude]);
           this.centerPinInitialized = true;
@@ -392,9 +429,17 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
 
     // Verify canvas isn't blank
     const sample = srcCtx.getImageData(
-      Math.floor(w / 2), Math.floor(h / 2), 1, 1,
+      Math.floor(w / 2),
+      Math.floor(h / 2),
+      1,
+      1,
     ).data;
-    if (sample[0] === 0 && sample[1] === 0 && sample[2] === 0 && sample[3] === 0) {
+    if (
+      sample[0] === 0 &&
+      sample[1] === 0 &&
+      sample[2] === 0 &&
+      sample[3] === 0
+    ) {
       this.detecting = false;
       this.detectError = 'Could not capture map tiles (CORS)';
       return;
@@ -413,27 +458,43 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     cropCanvas.width = Math.round(cropW * scale);
     cropCanvas.height = Math.round(cropH * scale);
     const cropCtx = cropCanvas.getContext('2d')!;
-    cropCtx.drawImage(srcCanvas, cropX, cropY, cropW, cropH,
-      0, 0, cropCanvas.width, cropCanvas.height);
+    cropCtx.drawImage(
+      srcCanvas,
+      cropX,
+      cropY,
+      cropW,
+      cropH,
+      0,
+      0,
+      cropCanvas.width,
+      cropCanvas.height,
+    );
 
     const base64 = cropCanvas.toDataURL('image/jpeg', 0.85).split(',')[1];
 
-    this.http.post<any>(
-      `${environment.API_URL}device-reviews/detect-panels`,
-      { image: base64 },
-    ).subscribe({
-      next: (data) => this.drawDetections(data, w, h, cropX, cropY, cropW, cropH),
-      error: (err) => {
-        this.detectError =
-          'Detection failed: ' + (err?.error?.message || err?.message || err);
-        this.detecting = false;
-      },
-    });
+    this.http
+      .post<any>(`${environment.API_URL}device-reviews/detect-panels`, {
+        image: base64,
+      })
+      .subscribe({
+        next: (data) =>
+          this.drawDetections(data, w, h, cropX, cropY, cropW, cropH),
+        error: (err) => {
+          this.detectError =
+            'Detection failed: ' + (err?.error?.message || err?.message || err);
+          this.detecting = false;
+        },
+      });
   }
 
   private drawDetections(
-    data: any, w: number, h: number,
-    cropX: number, cropY: number, cropW: number, cropH: number,
+    data: any,
+    w: number,
+    h: number,
+    cropX: number,
+    cropY: number,
+    cropW: number,
+    cropH: number,
   ): void {
     const canvas = this.overlayCanvas.nativeElement;
     canvas.width = w;
@@ -478,7 +539,9 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       const dx = x - this.deleteBtn.x;
       const dy = y - this.deleteBtn.y;
       if (dx * dx + dy * dy <= this.deleteBtn.r * this.deleteBtn.r) {
-        this.predictions = this.predictions.filter((_: any, i: number) => i !== this.selectedRegion);
+        this.predictions = this.predictions.filter(
+          (_: any, i: number) => i !== this.selectedRegion,
+        );
         this.selectedRegion = -1;
         this.deleteBtn = null;
         this.panelCount = this.predictions.length;
@@ -526,12 +589,22 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
 
-    canvas.style.cursor = this.predictions.some((p: any) => this.regionHitTest(p, x, y)) ? 'default' : 'grab';
+    canvas.style.cursor = this.predictions.some((p: any) =>
+      this.regionHitTest(p, x, y),
+    )
+      ? 'default'
+      : 'grab';
   }
 
   deleteSelectedRegion(): void {
-    if (this.selectedRegion < 0 || this.selectedRegion >= this.predictions.length) return;
-    this.predictions = this.predictions.filter((_: any, i: number) => i !== this.selectedRegion);
+    if (
+      this.selectedRegion < 0 ||
+      this.selectedRegion >= this.predictions.length
+    )
+      return;
+    this.predictions = this.predictions.filter(
+      (_: any, i: number) => i !== this.selectedRegion,
+    );
     this.selectedRegion = -1;
     this.panelCount = this.predictions.length;
     const canvas = this.overlayCanvas.nativeElement;
@@ -553,9 +626,14 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       }));
       let inside = false;
       for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
-        const xi = scaled[i].x, yi = scaled[i].y;
-        const xj = scaled[j].x, yj = scaled[j].y;
-        if (((yi > my) !== (yj > my)) && (mx < (xj - xi) * (my - yi) / (yj - yi) + xi)) {
+        const xi = scaled[i].x,
+          yi = scaled[i].y;
+        const xj = scaled[j].x,
+          yj = scaled[j].y;
+        if (
+          yi > my !== yj > my &&
+          mx < ((xj - xi) * (my - yi)) / (yj - yi) + xi
+        ) {
           inside = !inside;
         }
       }
@@ -576,24 +654,42 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     // Re-draw any committed drawn rectangle
     if (this.drawnRect) {
       ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
-      ctx.fillRect(this.drawnRect.x, this.drawnRect.y, this.drawnRect.w, this.drawnRect.h);
+      ctx.fillRect(
+        this.drawnRect.x,
+        this.drawnRect.y,
+        this.drawnRect.w,
+        this.drawnRect.h,
+      );
       ctx.strokeStyle = '#00ffb4';
       ctx.lineWidth = 2;
-      ctx.strokeRect(this.drawnRect.x, this.drawnRect.y, this.drawnRect.w, this.drawnRect.h);
+      ctx.strokeRect(
+        this.drawnRect.x,
+        this.drawnRect.y,
+        this.drawnRect.w,
+        this.drawnRect.h,
+      );
     }
 
     for (let i = 0; i < this.predictions.length; i++) {
       const pred = this.predictions[i];
       const selected = i === this.selectedRegion;
-      const fill = selected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(0, 255, 180, 0.3)';
+      const fill = selected
+        ? 'rgba(239, 68, 68, 0.4)'
+        : 'rgba(0, 255, 180, 0.3)';
       const stroke = selected ? '#ef4444' : '#00ffb4';
       const points: { x: number; y: number }[] = pred.points ?? [];
 
       if (points.length > 2) {
         ctx.beginPath();
-        ctx.moveTo(points[0].x * this.detScaleX + this.detCropX, points[0].y * this.detScaleY + this.detCropY);
+        ctx.moveTo(
+          points[0].x * this.detScaleX + this.detCropX,
+          points[0].y * this.detScaleY + this.detCropY,
+        );
         for (let j = 1; j < points.length; j++) {
-          ctx.lineTo(points[j].x * this.detScaleX + this.detCropX, points[j].y * this.detScaleY + this.detCropY);
+          ctx.lineTo(
+            points[j].x * this.detScaleX + this.detCropX,
+            points[j].y * this.detScaleY + this.detCropY,
+          );
         }
         ctx.closePath();
         ctx.fillStyle = fill;
@@ -617,8 +713,12 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       if (selected) {
         let dotX: number, dotY: number;
         if (points.length > 2) {
-          const xs = points.map((p: any) => p.x * this.detScaleX + this.detCropX);
-          const ys = points.map((p: any) => p.y * this.detScaleY + this.detCropY);
+          const xs = points.map(
+            (p: any) => p.x * this.detScaleX + this.detCropX,
+          );
+          const ys = points.map(
+            (p: any) => p.y * this.detScaleY + this.detCropY,
+          );
           dotX = Math.max(...xs);
           dotY = Math.min(...ys);
         } else {
@@ -662,7 +762,10 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.drawMode) return;
     const canvas = this.overlayCanvas.nativeElement;
     const rect = canvas.getBoundingClientRect();
-    this.rectStart = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    this.rectStart = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
     this.rectDragging = true;
   }
 
@@ -699,7 +802,12 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     this.redrawOverlay(this.drawnRect);
   }
 
-  private redrawOverlay(tempRect?: { x: number; y: number; w: number; h: number }): void {
+  private redrawOverlay(tempRect?: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  }): void {
     const canvas = this.overlayCanvas.nativeElement;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -747,7 +855,13 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       for (const img of imgs) {
         const r = img.getBoundingClientRect();
         try {
-          outCtx.drawImage(img, r.left - mapRect.left, r.top - mapRect.top, r.width, r.height);
+          outCtx.drawImage(
+            img,
+            r.left - mapRect.left,
+            r.top - mapRect.top,
+            r.width,
+            r.height,
+          );
         } catch {
           // CORS fallback: re-fetch as blob
           const src = img.getAttribute('src');
@@ -756,9 +870,17 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
             const resp = await fetch(src);
             const blob = await resp.blob();
             const bmp = await createImageBitmap(blob);
-            outCtx.drawImage(bmp, r.left - mapRect.left, r.top - mapRect.top, r.width, r.height);
+            outCtx.drawImage(
+              bmp,
+              r.left - mapRect.left,
+              r.top - mapRect.top,
+              r.width,
+              r.height,
+            );
             bmp.close();
-          } catch { /* skip */ }
+          } catch {
+            /* skip */
+          }
         }
       }
     }
@@ -769,7 +891,9 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     // Draw marker pane (pins — DivIcon SVGs) on top of overlay
-    const markerPane = mapEl.querySelector('.leaflet-marker-pane') as HTMLElement;
+    const markerPane = mapEl.querySelector(
+      '.leaflet-marker-pane',
+    ) as HTMLElement;
     if (markerPane) {
       const svgs = Array.from(markerPane.querySelectorAll('svg'));
       for (const svg of svgs) {
@@ -777,7 +901,9 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         if (!parent) continue;
         const r = parent.getBoundingClientRect();
         const svgData = new XMLSerializer().serializeToString(svg);
-        const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const svgBlob = new Blob([svgData], {
+          type: 'image/svg+xml;charset=utf-8',
+        });
         const url = URL.createObjectURL(svgBlob);
         try {
           const img = new Image();
@@ -788,18 +914,30 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
             img.onerror = reject;
             img.src = url;
           });
-          outCtx.drawImage(img, r.left - mapRect.left, r.top - mapRect.top, r.width, r.height);
-        } catch { /* skip */ }
+          outCtx.drawImage(
+            img,
+            r.left - mapRect.left,
+            r.top - mapRect.top,
+            r.width,
+            r.height,
+          );
+        } catch {
+          /* skip */
+        }
         URL.revokeObjectURL(url);
       }
     }
 
-    outCanvas.toBlob((blob) => {
-      if (!blob) return;
-      const filename = name.replace(/[^a-zA-Z0-9_\- ]/g, '') + '.jpg';
-      const file = new File([blob], filename, { type: 'image/jpeg' });
-      this.zone.run(() => this.screenshotTaken.emit(file));
-    }, 'image/jpeg', 0.85);
+    outCanvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        const filename = name.replace(/[^a-zA-Z0-9_\- ]/g, '') + '.jpg';
+        const file = new File([blob], filename, { type: 'image/jpeg' });
+        this.zone.run(() => this.screenshotTaken.emit(file));
+      },
+      'image/jpeg',
+      0.85,
+    );
   }
 
   private pinOverlay: HTMLElement | null = null;
@@ -832,16 +970,13 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private createSatelliteLayer(): L.TileLayer {
-    return L.tileLayer(
-      'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-      {
-        minZoom: 3,
-        maxZoom: 21,
-        noWrap: true,
-        attribution: '&copy; Google',
-        crossOrigin: true,
-      } as any,
-    );
+    return L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+      minZoom: 3,
+      maxZoom: 21,
+      noWrap: true,
+      attribution: '&copy; Google',
+      crossOrigin: true,
+    } as any);
   }
 
   // --- Markers ---
@@ -878,10 +1013,16 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         if (!this.satPreviewEnabled) return;
         this.removePinOverlay();
         this.pinOverlay = SatellitePreviewComponent.createOverlay(
-          label, latitude, longitude, this.http,
+          label,
+          latitude,
+          longitude,
+          this.http,
         );
         SatellitePreviewComponent.positionOverlay(
-          this.pinOverlay, this.map!, latitude, longitude,
+          this.pinOverlay,
+          this.map!,
+          latitude,
+          longitude,
         );
       });
 

@@ -17,7 +17,11 @@ import {
   devicecodeType,
   CountryInfo,
 } from '../../../models';
-import { MapComponent, satellitePreview, SatellitePreview } from '../../map/map.component';
+import {
+  MapComponent,
+  satellitePreview,
+  SatellitePreview,
+} from '../../map/map.component';
 @Component({
   standalone: false,
   selector: 'app-admin-alldevices',
@@ -51,7 +55,13 @@ export class AdminAlldevicesComponent {
   dataSource: MatTableDataSource<any>;
   data: any;
   searchText: string = '';
-  satPreview: { lat: number; lng: number; label: string; x: number; y: number } | null = null;
+  satPreview: {
+    lat: number;
+    lng: number;
+    label: string;
+    x: number;
+    y: number;
+  } | null = null;
   loginuser: any;
   deviceurl: any;
   pageSize: number = 20;
@@ -535,7 +545,10 @@ export class AdminAlldevicesComponent {
     const gap = 16;
     const rightFits = event.clientX + gap + boxW < window.innerWidth;
     const x = rightFits ? event.clientX + gap : event.clientX - gap - boxW;
-    const y = Math.min(Math.max(event.clientY - boxH / 2, 4), window.innerHeight - boxH - 4);
+    const y = Math.min(
+      Math.max(event.clientY - boxH / 2, 4),
+      window.innerHeight - boxH - 4,
+    );
     return { x, y };
   }
 

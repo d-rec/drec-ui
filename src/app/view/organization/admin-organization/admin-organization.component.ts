@@ -14,7 +14,14 @@ import { getOrgTypeName } from '../../../utils/role-helper';
 })
 export class AdminOrganizationComponent {
   getOrgTypeName = getOrgTypeName;
-  displayedColumns = ['name', 'type', 'status', 'created', 'no of users', 'actions'];
+  displayedColumns = [
+    'name',
+    'type',
+    'status',
+    'created',
+    'no of users',
+    'actions',
+  ];
   @ViewChild(MatSort) sort: MatSort;
   dataSource: MatTableDataSource<any>;
   loginuser: any;
@@ -46,10 +53,11 @@ export class AdminOrganizationComponent {
       this.dataSource = new MatTableDataSource(this.allOrgs);
       return;
     }
-    const filtered = this.allOrgs.filter((org: any) =>
-      org.name?.toLowerCase().includes(term) ||
-      org.organizationType?.toLowerCase().includes(term) ||
-      org.status?.toLowerCase().includes(term),
+    const filtered = this.allOrgs.filter(
+      (org: any) =>
+        org.name?.toLowerCase().includes(term) ||
+        org.organizationType?.toLowerCase().includes(term) ||
+        org.status?.toLowerCase().includes(term),
     );
     this.dataSource = new MatTableDataSource(filtered);
   }
@@ -70,18 +78,16 @@ export class AdminOrganizationComponent {
       });
   }
   getRegistrantAllOrganization() {
-    this.orgService
-      .GetRegistrantAllOrganization(1, 10000)
-      .subscribe({
-        next: (data) => {
-          this.showlist = true;
-          this.allOrgs = data.organizations;
-          this.dataSource = new MatTableDataSource(this.allOrgs);
-          this.dataSource.sort = this.sort;
-        },
-        error: () => {
-          this.showlist = false;
-        },
-      });
+    this.orgService.GetRegistrantAllOrganization(1, 10000).subscribe({
+      next: (data) => {
+        this.showlist = true;
+        this.allOrgs = data.organizations;
+        this.dataSource = new MatTableDataSource(this.allOrgs);
+        this.dataSource.sort = this.sort;
+      },
+      error: () => {
+        this.showlist = false;
+      },
+    });
   }
 }

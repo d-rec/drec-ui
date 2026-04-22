@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -46,19 +52,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const email = this.chatService.getCurrentUserEmail();
     if (!email) return;
 
-    this.chatService.getUnreadDeviceNames(email).subscribe((names: string[]) => {
-      const devices = new Set(names);
-      this.chatService.unreadDevices$.next(devices);
+    this.chatService
+      .getUnreadDeviceNames(email)
+      .subscribe((names: string[]) => {
+        const devices = new Set(names);
+        this.chatService.unreadDevices$.next(devices);
 
-      if (devices.size === 0) return;
+        if (devices.size === 0) return;
 
-      if (devices.size === 1) {
-        this.openChatForDevice(Array.from(devices)[0]);
-      } else {
-        this.unreadDeviceNames = Array.from(devices);
-        this.showUnreadList = !this.showUnreadList;
-      }
-    });
+        if (devices.size === 1) {
+          this.openChatForDevice(Array.from(devices)[0]);
+        } else {
+          this.unreadDeviceNames = Array.from(devices);
+          this.showUnreadList = !this.showUnreadList;
+        }
+      });
   }
 
   openChatForDevice(deviceName: string): void {
@@ -66,17 +74,24 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const email = this.chatService.getCurrentUserEmail();
     if (!email) return;
 
-    this.chatService.getConversation(undefined, undefined, deviceName).subscribe({
-      next: (conv) => {
-        if (!conv) return;
-        // Only open if the current user is a participant
-        if (conv.participant1 !== email && conv.participant2 !== email) return;
-        const partner = conv.participant1 === email ? conv.participant2 : conv.participant1;
-        this.chatService.siteName$.next(deviceName);
-        this.chatService.openForDevice$.next({ submitterEmail: partner, siteName: deviceName });
-        this.chatService.isChatOpen$.next(true);
-      },
-    });
+    this.chatService
+      .getConversation(undefined, undefined, deviceName)
+      .subscribe({
+        next: (conv) => {
+          if (!conv) return;
+          // Only open if the current user is a participant
+          if (conv.participant1 !== email && conv.participant2 !== email)
+            return;
+          const partner =
+            conv.participant1 === email ? conv.participant2 : conv.participant1;
+          this.chatService.siteName$.next(deviceName);
+          this.chatService.openForDevice$.next({
+            submitterEmail: partner,
+            siteName: deviceName,
+          });
+          this.chatService.isChatOpen$.next(true);
+        },
+      });
   }
 
   ngOnDestroy(): void {

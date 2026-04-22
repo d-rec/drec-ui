@@ -200,7 +200,8 @@ export class AddBulkDeviceComponent implements OnInit {
           this.uploading = false;
           clearInterval(this.uploadTimer);
           const msg = err?.error?.message ?? err?.message ?? 'Unknown error';
-          this.lastError = err?.error?.statusCode === 403 ? 'You are Unauthorized' : msg;
+          this.lastError =
+            err?.error?.statusCode === 403 ? 'You are Unauthorized' : msg;
           this.toastrService.error(this.lastError!, 'Upload failed');
         },
       });
@@ -237,7 +238,10 @@ export class AddBulkDeviceComponent implements OnInit {
               );
               this.openPreview(job.id, job.organizationId);
             } else {
-              this.toastrService.error('Processing finished with errors', 'Failed');
+              this.toastrService.error(
+                'Processing finished with errors',
+                'Failed',
+              );
             }
           }
         });
@@ -280,30 +284,35 @@ export class AddBulkDeviceComponent implements OnInit {
     if (this.refreshing) return;
     this.showBulkUploadLogs = false;
     this.refreshing = true;
-    this.bulkUploadService
-      .getBulkUploads(BulkUploadType.Devices)
-      .subscribe({
-        next: (data) => {
-          this.refreshing = false;
-          this.data = data;
-          this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
-          this.dataSource.sort = this.sort;
-        },
-        error: (err) => {
-          this.refreshing = false;
-          this.toastrService.error(
-            err?.error?.message ?? err?.message ?? 'Failed to load jobs',
-            'Refresh failed',
-          );
-        },
-      });
+    this.bulkUploadService.getBulkUploads(BulkUploadType.Devices).subscribe({
+      next: (data) => {
+        this.refreshing = false;
+        this.data = data;
+        this.dataSource = new MatTableDataSource(this.data.bulkUploadJobs);
+        this.dataSource.sort = this.sort;
+      },
+      error: (err) => {
+        this.refreshing = false;
+        this.toastrService.error(
+          err?.error?.message ?? err?.message ?? 'Failed to load jobs',
+          'Refresh failed',
+        );
+      },
+    });
   }
   // Preview (two-stage bulk upload) state
   showPreview: boolean = false;
   previewBulkUploadId: string | null = null;
   previewRecords: any[] = [];
   previewDataSource: MatTableDataSource<any>;
-  previewColumns = ['row', 'siteName', 'serialNumber', 'capacity', 'countryCode', 'commissioningDate'];
+  previewColumns = [
+    'row',
+    'siteName',
+    'serialNumber',
+    'capacity',
+    'countryCode',
+    'commissioningDate',
+  ];
   previewBusy: boolean = false;
   previewTotalCsvRows: number = 0;
   previewSkippedRows: number = 0;
@@ -363,7 +372,8 @@ export class AddBulkDeviceComponent implements OnInit {
 
   discardPreview() {
     if (!this.previewBulkUploadId || this.previewBusy) return;
-    if (!confirm('Discard this upload? The parsed rows will be thrown away.')) return;
+    if (!confirm('Discard this upload? The parsed rows will be thrown away.'))
+      return;
     this.previewBusy = true;
     this.bulkUploadService
       .discardBulkUpload(this.previewBulkUploadId)

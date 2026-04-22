@@ -24,7 +24,13 @@ import {
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, Subscription, Subject } from 'rxjs';
-import { startWith, map, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import {
+  startWith,
+  map,
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+} from 'rxjs/operators';
 import {
   OrganizationInformation,
   fulecodeType,
@@ -383,13 +389,15 @@ export class AddDevicesComponent implements OnDestroy {
 
     device.get('latitude')?.valueChanges.subscribe((v: any) => {
       const stripped = typeof v === 'string' ? v.replace(/\s/g, '') : v;
-      if (stripped !== v) device.get('latitude')?.setValue(stripped, { emitEvent: false });
+      if (stripped !== v)
+        device.get('latitude')?.setValue(stripped, { emitEvent: false });
       const longitude = device.get('longitude')?.value;
       this.updateMapMarkers(stripped, longitude);
     });
     device.get('longitude')?.valueChanges.subscribe((v: any) => {
       const stripped = typeof v === 'string' ? v.replace(/\s/g, '') : v;
-      if (stripped !== v) device.get('longitude')?.setValue(stripped, { emitEvent: false });
+      if (stripped !== v)
+        device.get('longitude')?.setValue(stripped, { emitEvent: false });
       const latitude = device.get('latitude')?.value;
       this.updateMapMarkers(latitude, stripped);
     });
@@ -536,19 +544,22 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   private setupSiteNameWatcher(deviceGroup: FormGroup, index: number) {
-    deviceGroup.get('siteName')?.valueChanges.pipe(
-      debounceTime(400),
-      distinctUntilChanged(),
-      switchMap((name: string) => {
-        if (!name || name.trim().length < 2) {
-          this.siteNameExists[index] = false;
-          return [];
-        }
-        return this.deviceService.checkSiteName(name.trim());
-      }),
-    ).subscribe((res) => {
-      this.siteNameExists[index] = res?.exists ?? false;
-    });
+    deviceGroup
+      .get('siteName')
+      ?.valueChanges.pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        switchMap((name: string) => {
+          if (!name || name.trim().length < 2) {
+            this.siteNameExists[index] = false;
+            return [];
+          }
+          return this.deviceService.checkSiteName(name.trim());
+        }),
+      )
+      .subscribe((res) => {
+        this.siteNameExists[index] = res?.exists ?? false;
+      });
   }
 
   private setupDataSourceWatcher(deviceGroup: FormGroup) {
@@ -692,8 +703,9 @@ export class AddDevicesComponent implements OnDestroy {
 
   checkDocumentsUploaded() {
     const noFiles = Object.keys(this.files).length === 0;
-    const allDocsUploaded = !noFiles && this.deviceForms.controls.every(
-      (group, deviceIndex) => {
+    const allDocsUploaded =
+      !noFiles &&
+      this.deviceForms.controls.every((group, deviceIndex) => {
         if (!this.files[deviceIndex]) return false;
         return this.requiredFileTypes.every((fileType) => {
           // SF-02 not required when self-declaration mode is selected (platform generates it)
@@ -705,8 +717,7 @@ export class AddDevicesComponent implements OnDestroy {
           }
           return this.files[deviceIndex][fileType]?.length > 0;
         });
-      },
-    );
+      });
 
     this.allDocumentsUploaded = allDocsUploaded;
     // Partial submit allowed: docs just influence the warning banner, not formValid
@@ -729,7 +740,11 @@ export class AddDevicesComponent implements OnDestroy {
       );
     }
 
-    const multiTypes: string[] = ['PROJECT_PHOTOS', 'METERING_EVIDENCE', 'OTHER_DOCUMENTS'];
+    const multiTypes: string[] = [
+      'PROJECT_PHOTOS',
+      'METERING_EVIDENCE',
+      'OTHER_DOCUMENTS',
+    ];
     const prevLen = (this.files[deviceIndex][fileType] || []).length;
     if (multiTypes.includes(fileType)) {
       this.files[deviceIndex][fileType] = [
@@ -752,7 +767,9 @@ export class AddDevicesComponent implements OnDestroy {
 
     const fileControl = this.deviceForms.at(deviceIndex).get(fileType);
     if (fileControl) {
-      fileControl.setValue(this.files[deviceIndex][fileType][0] ?? input.files[0]);
+      fileControl.setValue(
+        this.files[deviceIndex][fileType][0] ?? input.files[0],
+      );
       fileControl.markAsDirty();
     }
 
@@ -790,10 +807,17 @@ export class AddDevicesComponent implements OnDestroy {
 
   renameableTypes: string[] = ['PROJECT_PHOTOS', 'METERING_EVIDENCE'];
 
-  renameDialogFiles: { file: File; url: string; name: string; type: 'image' | 'pdf' | 'excel' | 'other'; label: string }[] = [];
+  renameDialogFiles: {
+    file: File;
+    url: string;
+    name: string;
+    type: 'image' | 'pdf' | 'excel' | 'other';
+    label: string;
+  }[] = [];
 
   openRenameDialog(deviceIndex: number, fileType: string): void {
-    const files = this.files[deviceIndex]?.[fileType as keyof DeviceFiles] || [];
+    const files =
+      this.files[deviceIndex]?.[fileType as keyof DeviceFiles] || [];
     if (!files.length) return;
     // Revoke any URLs from a prior opening before creating new ones.
     for (const u of this.renameObjectUrls) URL.revokeObjectURL(u);
@@ -808,11 +832,21 @@ export class AddDevicesComponent implements OnDestroy {
       const url = URL.createObjectURL(f);
       this.renameObjectUrls.push(url);
       const ext = (f.name.split('.').pop() || '').toLowerCase();
-      const type: 'image' | 'pdf' | 'excel' | 'other' =
-        ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext) ? 'image'
-        : ext === 'pdf' ? 'pdf'
-        : ext === 'xlsx' || ext === 'xls' ? 'excel'
-        : 'other';
+      const type: 'image' | 'pdf' | 'excel' | 'other' = [
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'webp',
+        'bmp',
+        'svg',
+      ].includes(ext)
+        ? 'image'
+        : ext === 'pdf'
+          ? 'pdf'
+          : ext === 'xlsx' || ext === 'xls'
+            ? 'excel'
+            : 'other';
       return {
         file: f,
         url,
@@ -837,7 +871,8 @@ export class AddDevicesComponent implements OnDestroy {
 
   saveRenameDialog(): void {
     const labels = this.renameDialogFiles.map((r) => r.label || '');
-    this.fileLabels[this.renameDialogDeviceIndex][this.renameDialogType] = labels;
+    this.fileLabels[this.renameDialogDeviceIndex][this.renameDialogType] =
+      labels;
     this.renameDialogRef?.close();
   }
 
@@ -849,7 +884,12 @@ export class AddDevicesComponent implements OnDestroy {
     return (name.split('.').pop() || '').toUpperCase();
   }
 
-  openRenamePreview(r: { url: string; name: string; type: 'image' | 'pdf' | 'excel' | 'other'; file: File }): void {
+  openRenamePreview(r: {
+    url: string;
+    name: string;
+    type: 'image' | 'pdf' | 'excel' | 'other';
+    file: File;
+  }): void {
     if (r.type === 'image') {
       this.imageFullViewUrl = r.url;
       this.imageFullViewName = r.name;
@@ -887,23 +927,31 @@ export class AddDevicesComponent implements OnDestroy {
     this.deviceService.getDocuments(deviceId).subscribe({
       next: (docs) => {
         for (const type of this.renameableTypes) {
-          const files = this.files[deviceIndex]?.[type as keyof DeviceFiles] || [];
+          const files =
+            this.files[deviceIndex]?.[type as keyof DeviceFiles] || [];
           const labels = labelsByType[type] || [];
           for (let i = 0; i < files.length; i++) {
             const label = (labels[i] || '').trim();
             if (!label) continue;
             const match = docs.find(
-              (d) => d.type === type && d.originalFilename === files[i].name && !d.label,
+              (d) =>
+                d.type === type &&
+                d.originalFilename === files[i].name &&
+                !d.label,
             );
             if (!match) continue;
             this.deviceService.updateDocumentLabel(match.id, label).subscribe({
               error: (err) =>
-                console.warn(`Failed to save label for ${files[i].name}`, err?.message),
+                console.warn(
+                  `Failed to save label for ${files[i].name}`,
+                  err?.message,
+                ),
             });
           }
         }
       },
-      error: (err) => console.warn('Failed to fetch documents for labeling', err?.message),
+      error: (err) =>
+        console.warn('Failed to fetch documents for labeling', err?.message),
     });
   }
 
@@ -934,7 +982,9 @@ export class AddDevicesComponent implements OnDestroy {
       }
       if (element.longitude) {
         const [intLng, decLng] = String(element.longitude).split('.');
-        element.longitude = decLng ? `${intLng}.${decLng.slice(0, 20)}` : intLng;
+        element.longitude = decLng
+          ? `${intLng}.${decLng.slice(0, 20)}`
+          : intLng;
       }
 
       // OC#37 is a multi-select in the UI but stored as a '; '-joined string
@@ -1025,7 +1075,9 @@ export class AddDevicesComponent implements OnDestroy {
         return;
       }
 
-      const sf02Mode = this.deviceForms.at(index)?.get('sf02EvidenceMode')?.value;
+      const sf02Mode = this.deviceForms
+        .at(index)
+        ?.get('sf02EvidenceMode')?.value;
 
       this.deviceService.create(formData).subscribe({
         next: (result: any) => {
@@ -1041,13 +1093,20 @@ export class AddDevicesComponent implements OnDestroy {
 
           // Auto-generate SF-02 registration form when self-declaration mode is selected
           if (sf02Mode === 'self' && result?.id) {
-            this.http.post(
-              `${environment.API_URL}device-reviews/${result.id}/generate-sf02`,
-              {},
-            ).subscribe({
-              next: () => this.toastrService.info('SF-02 registration form generated', 'SF-02'),
-              error: (err) => console.warn('SF-02 generation failed:', err?.message),
-            });
+            this.http
+              .post(
+                `${environment.API_URL}device-reviews/${result.id}/generate-sf02`,
+                {},
+              )
+              .subscribe({
+                next: () =>
+                  this.toastrService.info(
+                    'SF-02 registration form generated',
+                    'SF-02',
+                  ),
+                error: (err) =>
+                  console.warn('SF-02 generation failed:', err?.message),
+              });
           }
 
           const idx = deviceArray.indexOf(element);
@@ -1115,7 +1174,10 @@ export class AddDevicesComponent implements OnDestroy {
   private savedCoords: { lat: string; lng: string } | null = null;
   private coordDeviceIndex = 0;
 
-  onMapCenterChanged(center: { lat: number; lng: number }, deviceIndex: number): void {
+  onMapCenterChanged(
+    center: { lat: number; lng: number },
+    deviceIndex: number,
+  ): void {
     if (this.mapCenterUpdating) return;
     this.mapCenterUpdating = true;
     const group = this.deviceForms.at(deviceIndex);
@@ -1139,7 +1201,10 @@ export class AddDevicesComponent implements OnDestroy {
 
   onCoordPaste(event: ClipboardEvent, deviceIndex: number): void {
     const text = event.clipboardData?.getData('text') ?? '';
-    const parts = text.split(/\t+/).map((s) => s.trim()).filter(Boolean);
+    const parts = text
+      .split(/\t+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
     if (parts.length !== 2) return;
     if (isNaN(parseFloat(parts[0])) || isNaN(parseFloat(parts[1]))) return;
     event.preventDefault();
@@ -1156,8 +1221,12 @@ export class AddDevicesComponent implements OnDestroy {
     if (!this.savedCoords) return;
     const group = this.deviceForms.at(this.coordDeviceIndex);
     if (group) {
-      group.get('latitude')?.setValue(this.savedCoords.lat, { emitEvent: false });
-      group.get('longitude')?.setValue(this.savedCoords.lng, { emitEvent: false });
+      group
+        .get('latitude')
+        ?.setValue(this.savedCoords.lat, { emitEvent: false });
+      group
+        .get('longitude')
+        ?.setValue(this.savedCoords.lng, { emitEvent: false });
       const lat = parseFloat(this.savedCoords.lat);
       const lng = parseFloat(this.savedCoords.lng);
       if (!isNaN(lat) && !isNaN(lng)) {
@@ -1190,7 +1259,9 @@ export class AddDevicesComponent implements OnDestroy {
     }
     this.files[deviceIndex][DocumentType.METERING_EVIDENCE].push(file);
 
-    const fileControl = this.deviceForms.at(deviceIndex).get('METERING_EVIDENCE');
+    const fileControl = this.deviceForms
+      .at(deviceIndex)
+      .get('METERING_EVIDENCE');
     if (fileControl) {
       fileControl.setValue(file);
       fileControl.markAsDirty();
@@ -1207,7 +1278,10 @@ export class AddDevicesComponent implements OnDestroy {
       name: file.name,
     };
 
-    this.toastrService.success(`Map capture "${file.name}" added as metering evidence`, 'Captured');
+    this.toastrService.success(
+      `Map capture "${file.name}" added as metering evidence`,
+      'Captured',
+    );
   }
 
   updateMapMarkers(latitude: any, longitude: any) {
@@ -1234,5 +1308,4 @@ export class AddDevicesComponent implements OnDestroy {
       }
     }
   }
-
 }

@@ -63,10 +63,20 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   sf02PreviewLoading = false;
   sf02PreviewItem: Asset | null = null;
   sf02PreviewFields: Array<{ label: string; value: string }> = [];
-  sf02PreviewDocs: Array<{ type: string; present: boolean; required: boolean }> = [];
+  sf02PreviewDocs: Array<{
+    type: string;
+    present: boolean;
+    required: boolean;
+  }> = [];
 
   satPreviewEnabled = false;
-  satPreview: { lat: number; lng: number; label: string; x: number; y: number } | null = null;
+  satPreview: {
+    lat: number;
+    lng: number;
+    label: string;
+    x: number;
+    y: number;
+  } | null = null;
 
   statusFilter: Record<AssetStatus, boolean> = this.loadStatusFilter();
   readonly statusFilter$ = new BehaviorSubject(this.statusFilter);
@@ -75,10 +85,20 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   private loadStatusFilter(): Record<AssetStatus, boolean> {
     try {
-      const saved = sessionStorage.getItem(DocumentsWindowComponent.STATUS_FILTER_KEY);
+      const saved = sessionStorage.getItem(
+        DocumentsWindowComponent.STATUS_FILTER_KEY,
+      );
       if (saved) return JSON.parse(saved);
-    } catch { /* ignore */ }
-    return { draft: true, pending: true, approved: false, rejected: false, legacy: false };
+    } catch {
+      /* ignore */
+    }
+    return {
+      draft: true,
+      pending: true,
+      approved: false,
+      rejected: false,
+      legacy: false,
+    };
   }
 
   private saveStatusFilter(): void {
@@ -92,15 +112,32 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   searchIndex = -1;
 
   // sort state
-  sortColumn: 'serial' | 'modifiedDate' | 'status' | 'siteName' | 'countryCode' | 'screenStatus' | 'docs' | 'sf02Ready' =
-    'siteName';
+  sortColumn:
+    | 'serial'
+    | 'modifiedDate'
+    | 'status'
+    | 'siteName'
+    | 'countryCode'
+    | 'screenStatus'
+    | 'docs'
+    | 'sf02Ready' = 'siteName';
   sortDir: 1 | -1 = 1;
   readonly sort$ = new BehaviorSubject<{ col: string; dir: number }>({
     col: 'siteName',
     dir: 1,
   });
 
-  sortBy(col: 'serial' | 'modifiedDate' | 'status' | 'siteName' | 'countryCode' | 'screenStatus' | 'docs' | 'sf02Ready'): void {
+  sortBy(
+    col:
+      | 'serial'
+      | 'modifiedDate'
+      | 'status'
+      | 'siteName'
+      | 'countryCode'
+      | 'screenStatus'
+      | 'docs'
+      | 'sf02Ready',
+  ): void {
     if (this.sortColumn === col) {
       this.sortDir = this.sortDir === 1 ? -1 : 1;
     } else {
@@ -126,11 +163,15 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         av = a.countryCode.toLowerCase();
         bv = b.countryCode.toLowerCase();
       } else if (this.sortColumn === 'screenStatus') {
-        const rank = (s: string | null) => s === 'fail' ? 0 : s === 'warn' ? 1 : s === 'pass' ? 2 : 3;
+        const rank = (s: string | null) =>
+          s === 'fail' ? 0 : s === 'warn' ? 1 : s === 'pass' ? 2 : 3;
         av = rank(a.lastScreenStatus);
         bv = rank(b.lastScreenStatus);
       } else if (this.sortColumn === 'docs') {
-        const docsOk = (x: Asset) => x.sldUrl && x.sf02Url && x.codProofUrl && x.pictureUrls.length >= 3 ? 1 : 0;
+        const docsOk = (x: Asset) =>
+          x.sldUrl && x.sf02Url && x.codProofUrl && x.pictureUrls.length >= 3
+            ? 1
+            : 0;
         av = docsOk(a);
         bv = docsOk(b);
       } else if (this.sortColumn === 'sf02Ready') {
@@ -151,7 +192,15 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   sectionOpen: Record<
     string,
     Record<
-      'codProof' | 'sld' | 'sf02' | 'sf02c' | 'sf02cOwnersDeclaration' | 'meteringEvidence' | 'pictures' | 'screenshots' | 'otherDocuments',
+      | 'codProof'
+      | 'sld'
+      | 'sf02'
+      | 'sf02c'
+      | 'sf02cOwnersDeclaration'
+      | 'meteringEvidence'
+      | 'pictures'
+      | 'screenshots'
+      | 'otherDocuments',
       boolean
     >
   > = {};
@@ -309,9 +358,19 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       withinThreshold: boolean | null;
     }>;
     thresholdMeters: number;
-    summary: { total: number; withGps: number; withinThreshold: number; flagged: number };
+    summary: {
+      total: number;
+      withGps: number;
+      withinThreshold: number;
+      flagged: number;
+    };
   } | null = null;
-  private pendingDelete: { asset: Asset; docKey: string; urlField: string; arrayIdx?: number } | null = null;
+  private pendingDelete: {
+    asset: Asset;
+    docKey: string;
+    urlField: string;
+    arrayIdx?: number;
+  } | null = null;
 
   // resizable detail panel
   detailHeight = 280;
@@ -428,7 +487,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           if (asset) this.patchForm(asset);
         }
         this.editingId = id;
-        this.editingSiteName = id ? this.svc.assets$.value.find((a) => a.id === id)?.siteName ?? null : null;
+        this.editingSiteName = id
+          ? this.svc.assets$.value.find((a) => a.id === id)?.siteName ?? null
+          : null;
         this.selId = id;
       }),
     );
@@ -478,10 +539,16 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     // Escape — close topmost modal, or close detail
     if (e.key === 'Escape') {
       if (this.closeTopModal()) return;
-      if (this.editingId) { this.cancelDetail(); return; }
+      if (this.editingId) {
+        this.cancelDetail();
+        return;
+      }
     }
     // Arrow keys — navigate list when no modal is open and not in an input
-    if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && !this.hasOpenModal()) {
+    if (
+      (e.key === 'ArrowUp' || e.key === 'ArrowDown') &&
+      !this.hasOpenModal()
+    ) {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       e.preventDefault();
@@ -490,20 +557,40 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   private hasOpenModal(): boolean {
-    return this.showApproveModal || this.showApprovedInfoModal || this.showDeleteModal
-      || this.showDuplicatesModal || this.showAuditModal || this.showConsistencyModal
-      || this.showCeilingModal || this.showCrossSourceModal || this.showControlsModal
-      || this.showSourceVerifyModal || this.showAutoScreenModal || this.showSldModal
-      || this.showPhotoGpsModal || this.showUnreviewedWarning;
+    return (
+      this.showApproveModal ||
+      this.showApprovedInfoModal ||
+      this.showDeleteModal ||
+      this.showDuplicatesModal ||
+      this.showAuditModal ||
+      this.showConsistencyModal ||
+      this.showCeilingModal ||
+      this.showCrossSourceModal ||
+      this.showControlsModal ||
+      this.showSourceVerifyModal ||
+      this.showAutoScreenModal ||
+      this.showSldModal ||
+      this.showPhotoGpsModal ||
+      this.showUnreviewedWarning
+    );
   }
 
   private closeTopModal(): boolean {
     const modals: (keyof this)[] = [
-      'showApproveModal', 'showApprovedInfoModal', 'showDeleteModal',
-      'showDuplicatesModal', 'showAuditModal', 'showConsistencyModal',
-      'showCeilingModal', 'showCrossSourceModal', 'showControlsModal',
-      'showSourceVerifyModal', 'showAutoScreenModal', 'showSldModal',
-      'showPhotoGpsModal', 'showUnreviewedWarning',
+      'showApproveModal',
+      'showApprovedInfoModal',
+      'showDeleteModal',
+      'showDuplicatesModal',
+      'showAuditModal',
+      'showConsistencyModal',
+      'showCeilingModal',
+      'showCrossSourceModal',
+      'showControlsModal',
+      'showSourceVerifyModal',
+      'showAutoScreenModal',
+      'showSldModal',
+      'showPhotoGpsModal',
+      'showUnreviewedWarning',
     ];
     for (const key of modals) {
       if (this[key]) {
@@ -516,7 +603,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   private navigateList(dir: number): void {
     const assets = this.sortAssets(
-      this.applyFilter(this.svc.assets$.value, this.searchTerm, this.statusFilter),
+      this.applyFilter(
+        this.svc.assets$.value,
+        this.searchTerm,
+        this.statusFilter,
+      ),
     );
     if (!assets.length) return;
     const idx = assets.findIndex((a) => a.id === this.editingId);
@@ -747,7 +838,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         this.svc.saveAsset(item);
         this.generatingSf02[item.id] = false;
         this.sf02PreviewItem = null;
-        this.snackBar.open('SF-02 registration form generated', '', { duration: 3000 });
+        this.snackBar.open('SF-02 registration form generated', '', {
+          duration: 3000,
+        });
         this.cdr.markForCheck();
       },
       error: (err) => {
@@ -763,7 +856,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   get sf02MissingRequired(): boolean {
-    return this.sf02PreviewDocs.some(d => !d.present && d.required);
+    return this.sf02PreviewDocs.some((d) => !d.present && d.required);
   }
 
   cancelSf02Generation(): void {
@@ -773,13 +866,18 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   generateSf02ForSelected(event: Event): void {
     if (!this.editingId) return;
-    const item = this.svc.assets$.value.find(a => a.id === this.editingId);
+    const item = this.svc.assets$.value.find((a) => a.id === this.editingId);
     if (item) this.generateSf02(item, event);
   }
 
   // ── File handling ─────────────────────────────────────────────────────────────
 
-  async openFile(url: string, event: Event, isSld = false, enableOcr = false): Promise<void> {
+  async openFile(
+    url: string,
+    event: Event,
+    isSld = false,
+    enableOcr = false,
+  ): Promise<void> {
     event.stopPropagation();
     if (!url || this.isBroken(url)) {
       alert('File is missing\n\n' + url);
@@ -815,7 +913,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Upload failed', err);
-        this.toast('Upload failed — ' + (err?.error?.message || err?.message || 'unknown error'), 5000);
+        this.toast(
+          'Upload failed — ' +
+            (err?.error?.message || err?.message || 'unknown error'),
+          5000,
+        );
       },
     });
   }
@@ -867,7 +969,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   clearSf02cOwnersDeclaration(asset: Asset): void {
-    this.requestDelete(asset, 'sf02cOwnersDeclaration', 'sf02cOwnersDeclarationUrl');
+    this.requestDelete(
+      asset,
+      'sf02cOwnersDeclaration',
+      'sf02cOwnersDeclarationUrl',
+    );
   }
 
   onOtherDocumentAdd(asset: Asset, event: Event): void {
@@ -887,7 +993,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   clearMeteringEvidence(asset: Asset, idx: number): void {
-    this.requestDelete(asset, `meteringEvidence:${idx}`, 'meteringEvidenceUrls', idx);
+    this.requestDelete(
+      asset,
+      `meteringEvidence:${idx}`,
+      'meteringEvidenceUrls',
+      idx,
+    );
   }
 
   onPictureAdd(asset: Asset, event: Event): void {
@@ -910,7 +1021,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.requestDelete(asset, `ss:${idx}`, 'screenshotUrls', idx);
   }
 
-  private requestDelete(asset: Asset, docKey: string, urlField: string, arrayIdx?: number): void {
+  private requestDelete(
+    asset: Asset,
+    docKey: string,
+    urlField: string,
+    arrayIdx?: number,
+  ): void {
     this.pendingDelete = { asset, docKey, urlField, arrayIdx };
     this.showDeleteModal = true;
   }
@@ -957,7 +1073,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   fileDisplayName(asset: Asset, docKey: string, url: string): string {
     const meta = asset.docMeta?.[docKey];
     if (meta?.label && meta.label.trim() !== '') return meta.label;
-    if (meta?.originalFilename && meta.originalFilename.trim() !== '') return meta.originalFilename;
+    if (meta?.originalFilename && meta.originalFilename.trim() !== '')
+      return meta.originalFilename;
     return this.fileName(url);
   }
 
@@ -989,28 +1106,127 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     }
   }
 
-  private readonly displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+  private readonly displayNames = new Intl.DisplayNames(['en'], {
+    type: 'region',
+  });
   private readonly alpha3to2: Record<string, string> = {
-    IND: 'IN', USA: 'US', GBR: 'GB', DEU: 'DE', FRA: 'FR', BRA: 'BR', CHN: 'CN', JPN: 'JP',
-    KEN: 'KE', NGA: 'NG', ZAF: 'ZA', AUS: 'AU', CAN: 'CA', MEX: 'MX', IDN: 'ID', PAK: 'PK',
-    BGD: 'BD', NPL: 'NP', LKA: 'LK', THA: 'TH', VNM: 'VN', PHL: 'PH', MYS: 'MY', SGP: 'SG',
-    ETH: 'ET', TZA: 'TZ', UGA: 'UG', RWA: 'RW', GHA: 'GH', SEN: 'SN', CMR: 'CM', MOZ: 'MZ',
-    MDG: 'MG', MWI: 'MW', ZMB: 'ZM', ZWE: 'ZW', NLD: 'NL', ESP: 'ES', ITA: 'IT', PRT: 'PT',
-    SWE: 'SE', NOR: 'NO', DNK: 'DK', FIN: 'FI', CHE: 'CH', AUT: 'AT', BEL: 'BE', POL: 'PL',
-    ROU: 'RO', HUN: 'HU', CZE: 'CZ', BGR: 'BG', HRV: 'HR', SRB: 'RS', TUR: 'TR', EGY: 'EG',
-    MAR: 'MA', TUN: 'TN', DZA: 'DZ', SAU: 'SA', ARE: 'AE', QAT: 'QA', KWT: 'KW', OMN: 'OM',
-    IRQ: 'IQ', IRN: 'IR', AFG: 'AF', COL: 'CO', PER: 'PE', CHL: 'CL', ARG: 'AR', BOL: 'BO',
-    PRY: 'PY', URY: 'UY', ECU: 'EC', VEN: 'VE', CRI: 'CR', PAN: 'PA', GTM: 'GT', HND: 'HN',
-    SLV: 'SV', NIC: 'NI', DOM: 'DO', HTI: 'HT', JAM: 'JM', NZL: 'NZ', FJI: 'FJ', PNG: 'PG',
-    SOM: 'SO', SSD: 'SS', SDN: 'SD', MLI: 'ML', NER: 'NE', BFA: 'BF', TCD: 'TD', CAF: 'CF',
-    COD: 'CD', COG: 'CG', AGO: 'AO', NAM: 'NA', BWA: 'BW', LSO: 'LS', SWZ: 'SZ',
+    IND: 'IN',
+    USA: 'US',
+    GBR: 'GB',
+    DEU: 'DE',
+    FRA: 'FR',
+    BRA: 'BR',
+    CHN: 'CN',
+    JPN: 'JP',
+    KEN: 'KE',
+    NGA: 'NG',
+    ZAF: 'ZA',
+    AUS: 'AU',
+    CAN: 'CA',
+    MEX: 'MX',
+    IDN: 'ID',
+    PAK: 'PK',
+    BGD: 'BD',
+    NPL: 'NP',
+    LKA: 'LK',
+    THA: 'TH',
+    VNM: 'VN',
+    PHL: 'PH',
+    MYS: 'MY',
+    SGP: 'SG',
+    ETH: 'ET',
+    TZA: 'TZ',
+    UGA: 'UG',
+    RWA: 'RW',
+    GHA: 'GH',
+    SEN: 'SN',
+    CMR: 'CM',
+    MOZ: 'MZ',
+    MDG: 'MG',
+    MWI: 'MW',
+    ZMB: 'ZM',
+    ZWE: 'ZW',
+    NLD: 'NL',
+    ESP: 'ES',
+    ITA: 'IT',
+    PRT: 'PT',
+    SWE: 'SE',
+    NOR: 'NO',
+    DNK: 'DK',
+    FIN: 'FI',
+    CHE: 'CH',
+    AUT: 'AT',
+    BEL: 'BE',
+    POL: 'PL',
+    ROU: 'RO',
+    HUN: 'HU',
+    CZE: 'CZ',
+    BGR: 'BG',
+    HRV: 'HR',
+    SRB: 'RS',
+    TUR: 'TR',
+    EGY: 'EG',
+    MAR: 'MA',
+    TUN: 'TN',
+    DZA: 'DZ',
+    SAU: 'SA',
+    ARE: 'AE',
+    QAT: 'QA',
+    KWT: 'KW',
+    OMN: 'OM',
+    IRQ: 'IQ',
+    IRN: 'IR',
+    AFG: 'AF',
+    COL: 'CO',
+    PER: 'PE',
+    CHL: 'CL',
+    ARG: 'AR',
+    BOL: 'BO',
+    PRY: 'PY',
+    URY: 'UY',
+    ECU: 'EC',
+    VEN: 'VE',
+    CRI: 'CR',
+    PAN: 'PA',
+    GTM: 'GT',
+    HND: 'HN',
+    SLV: 'SV',
+    NIC: 'NI',
+    DOM: 'DO',
+    HTI: 'HT',
+    JAM: 'JM',
+    NZL: 'NZ',
+    FJI: 'FJ',
+    PNG: 'PG',
+    SOM: 'SO',
+    SSD: 'SS',
+    SDN: 'SD',
+    MLI: 'ML',
+    NER: 'NE',
+    BFA: 'BF',
+    TCD: 'TD',
+    CAF: 'CF',
+    COD: 'CD',
+    COG: 'CG',
+    AGO: 'AO',
+    NAM: 'NA',
+    BWA: 'BW',
+    LSO: 'LS',
+    SWZ: 'SZ',
   };
 
   countryName(code: string): string {
     if (!code) return '';
-    const a2 = code.length === 3 ? this.alpha3to2[code.toUpperCase()] : code.toUpperCase();
+    const a2 =
+      code.length === 3
+        ? this.alpha3to2[code.toUpperCase()]
+        : code.toUpperCase();
     if (!a2) return code;
-    try { return this.displayNames.of(a2) ?? code; } catch { return code; }
+    try {
+      return this.displayNames.of(a2) ?? code;
+    } catch {
+      return code;
+    }
   }
 
   // ── URL validation ──────────────────────────────────────────────────────────
@@ -1059,7 +1275,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           ctx.drawImage(img, 0, 0, c.width, c.height);
           const data = ctx.getImageData(0, 0, c.width, c.height).data;
           // Check if every pixel is the same (solid color = likely placeholder)
-          const r0 = data[0], g0 = data[1], b0 = data[2];
+          const r0 = data[0],
+            g0 = data[1],
+            b0 = data[2];
           let allSame = true;
           for (let i = 4; i < data.length; i += 4) {
             if (data[i] !== r0 || data[i + 1] !== g0 || data[i + 2] !== b0) {
@@ -1103,7 +1321,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   /** Get requirement level for a document type based on the device's operating config. */
   getReqLevel(docType: string, config?: string | null): RequirementLevel | '' {
-    const c = config ?? this.detailForm?.get('operatingConfiguration')?.value ?? null;
+    const c =
+      config ?? this.detailForm?.get('operatingConfiguration')?.value ?? null;
     if (!c) return '';
     const reqs = getEvidenceRequirements(c);
     return (reqs as any)[docType] ?? 'required';
@@ -1114,7 +1333,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
    * and whether the document is present. Returns 'satisfied' if present, or the
    * requirement level if missing.
    */
-  getReqStatus(docType: string, config: string | null, hasDoc: boolean): string {
+  getReqStatus(
+    docType: string,
+    config: string | null,
+    hasDoc: boolean,
+  ): string {
     if (!config) return '';
     const level = this.getReqLevel(docType, config);
     if (!level) return '';
@@ -1124,7 +1347,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   /** Get config-specific hint for a document type. */
   getDocHint(docType: string, config?: string | null): string | null {
-    const c = config ?? this.detailForm?.get('operatingConfiguration')?.value ?? null;
+    const c =
+      config ?? this.detailForm?.get('operatingConfiguration')?.value ?? null;
     return getHint(c, docType);
   }
 
@@ -1212,9 +1436,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     }
 
     // Otherwise look up/create a conversation for the site
-    const asset = this.svc.assets$.value.find(
-      (a) => a.siteName === siteName,
-    );
+    const asset = this.svc.assets$.value.find((a) => a.siteName === siteName);
     const submitterEmail = asset?.submitterEmail || '';
 
     this.chatService.getConversation(undefined, undefined, siteName).subscribe({
@@ -1293,11 +1515,17 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         this.duplicateResults = res.duplicates || [];
         this.showDuplicatesModal = true;
         if (this.duplicateResults.length > 0) {
-          const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
+          const asset = this.svc.assets$.value.find(
+            (a) => a.id === this.editingId,
+          );
           if (asset) {
-            const matches = this.duplicateResults.map((d: any) => d.matchType).join(', ');
-            this.logChatEntry(asset.siteName,
-              `_Duplicate screening flagged ${this.duplicateResults.length} potential match(es): ${matches}. Please review and clarify._`);
+            const matches = this.duplicateResults
+              .map((d: any) => d.matchType)
+              .join(', ');
+            this.logChatEntry(
+              asset.siteName,
+              `_Duplicate screening flagged ${this.duplicateResults.length} potential match(es): ${matches}. Please review and clarify._`,
+            );
           }
         }
       },
@@ -1343,7 +1571,13 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     const text = this.auditTrail
       .map((e) => {
         const date = new Date(e.createdAt);
-        const ts = date.toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const ts = date.toLocaleString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
         let line = `${e.actionType}  ${e.performedBy}  ${ts}`;
         if (e.detail) line += `\n  ${e.detail}`;
         return line;
@@ -1359,8 +1593,19 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     const escape = (v: string) => `"${(v || '').replace(/"/g, '""')}"`;
     const header = 'Action,Performed By,Date,Detail';
     const rows = this.filteredAuditTrail.map((e: any) => {
-      const ts = new Date(e.createdAt).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      return [escape(e.actionType), escape(e.performedBy), escape(ts), escape(e.detail || '')].join(',');
+      const ts = new Date(e.createdAt).toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      return [
+        escape(e.actionType),
+        escape(e.performedBy),
+        escape(ts),
+        escape(e.detail || ''),
+      ].join(',');
     });
     const csv = [header, ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1403,10 +1648,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         this.ceilingError = null;
         this.showCeilingModal = true;
         if (res.yieldMismatch) {
-          const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
+          const asset = this.svc.assets$.value.find(
+            (a) => a.id === this.editingId,
+          );
           if (asset) {
-            this.logChatEntry(asset.siteName,
-              `_Production ceiling check: configured yield (${res.configuredYield} kWh/kW/yr) exceeds the location-based estimate (${res.irradiance?.yieldHigh} kWh/kW/yr). Please verify or correct the yield value._`);
+            this.logChatEntry(
+              asset.siteName,
+              `_Production ceiling check: configured yield (${res.configuredYield} kWh/kW/yr) exceeds the location-based estimate (${res.irradiance?.yieldHigh} kWh/kW/yr). Please verify or correct the yield value._`,
+            );
           }
         }
       },
@@ -1414,7 +1663,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         console.error('Production ceiling check failed:', err);
         this.ceilingResult = null;
         this.ceilingError =
-          err?.error?.message || err?.message || 'Unknown error — check the browser console for details.';
+          err?.error?.message ||
+          err?.message ||
+          'Unknown error — check the browser console for details.';
         this.showCeilingModal = true;
       },
     });
@@ -1434,7 +1685,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         console.error('Source-access verification failed:', err);
         this.sourceVerifyResult = null;
         this.sourceVerifyError =
-          err?.error?.message || err?.message || 'Unknown error — check the browser console for details.';
+          err?.error?.message ||
+          err?.message ||
+          'Unknown error — check the browser console for details.';
         this.showSourceVerifyModal = true;
       },
     });
@@ -1485,7 +1738,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       setTimeout(() => (this.autoScreenCopied = false), 1500);
     };
     if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(text).then(done).catch(() => this.fallbackCopy(text, done));
+      navigator.clipboard
+        .writeText(text)
+        .then(done)
+        .catch(() => this.fallbackCopy(text, done));
     } else {
       this.fallbackCopy(text, done);
     }
@@ -1498,7 +1754,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     ta.style.opacity = '0';
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand('copy'); done(); } finally { document.body.removeChild(ta); }
+    try {
+      document.execCommand('copy');
+      done();
+    } finally {
+      document.body.removeChild(ta);
+    }
   }
 
   runAutoScreen(): void {
@@ -1514,7 +1775,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         this.autoScreenResult = res;
         this.autoScreenLoading = false;
         // Update the badge on the asset list immediately
-        const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
+        const asset = this.svc.assets$.value.find(
+          (a) => a.id === this.editingId,
+        );
         if (asset) {
           asset.lastScreenStatus = res.overallStatus;
           asset.lastScreenedAt = res.timestamp;
@@ -1523,7 +1786,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       error: (err: any) => {
         console.error('Auto-screen failed:', err);
         this.autoScreenResult = null;
-        this.autoScreenError = err?.error?.message || err?.message || 'Unknown error — check the browser console for details.';
+        this.autoScreenError =
+          err?.error?.message ||
+          err?.message ||
+          'Unknown error — check the browser console for details.';
         this.autoScreenLoading = false;
       },
     });
@@ -1690,7 +1956,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     };
     const parts = key.split(':');
     if (parts[1] === 'pic') return `Picture #${parseInt(parts[2], 10) + 1}`;
-    if (parts[1] === 'otherDoc') return `Other Document #${parseInt(parts[2], 10) + 1}`;
+    if (parts[1] === 'otherDoc')
+      return `Other Document #${parseInt(parts[2], 10) + 1}`;
     return labels[parts[1]] || parts[1];
   }
 
@@ -1721,7 +1988,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     const gap = 16;
     const rightFits = event.clientX + gap + boxW < window.innerWidth;
     const x = rightFits ? event.clientX + gap : event.clientX - gap - boxW;
-    const y = Math.min(Math.max(event.clientY - boxH / 2, 4), window.innerHeight - boxH - 4);
+    const y = Math.min(
+      Math.max(event.clientY - boxH / 2, 4),
+      window.innerHeight - boxH - 4,
+    );
     return { x, y };
   }
 
@@ -1748,9 +2018,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     }
 
     // Look up the device to get submitter email for conversation creation
-    const asset = this.svc.assets$.value.find(
-      (a) => a.siteName === siteName,
-    );
+    const asset = this.svc.assets$.value.find((a) => a.siteName === siteName);
     const submitterEmail = asset?.submitterEmail || '';
 
     this.chatService.getConversation(undefined, undefined, siteName).subscribe({
@@ -1886,7 +2154,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   bulkSetStatus(status: string): void {
-    const ids = this.checkedIds.map((id) => parseInt(id, 10)).filter((n) => !isNaN(n));
+    const ids = this.checkedIds
+      .map((id) => parseInt(id, 10))
+      .filter((n) => !isNaN(n));
     if (!ids.length) return;
     if (!confirm(`Set ${ids.length} device(s) to "${status}"?`)) return;
     this.bulkBusy = true;
@@ -1894,7 +2164,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       next: () => {
         // Update local state
         const assets = this.svc.assets$.value.map((a) =>
-          this.checked[a.id] ? { ...a, status: status as AssetStatus, modifiedDate: new Date() } : a,
+          this.checked[a.id]
+            ? { ...a, status: status as AssetStatus, modifiedDate: new Date() }
+            : a,
         );
         this.svc.assets$.next(assets);
         this.checked = {};
@@ -1910,15 +2182,20 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   bulkScreen(): void {
-    const ids = this.checkedIds.map((id) => parseInt(id, 10)).filter((n) => !isNaN(n));
+    const ids = this.checkedIds
+      .map((id) => parseInt(id, 10))
+      .filter((n) => !isNaN(n));
     if (!ids.length) return;
-    if (!confirm(`Auto-screen ${ids.length} device(s)? This may take a while.`)) return;
+    if (!confirm(`Auto-screen ${ids.length} device(s)? This may take a while.`))
+      return;
     this.bulkBusy = true;
     this.svc.bulkAutoScreen(ids).subscribe({
       next: (results: any[]) => {
         // Update badges
         for (const r of results) {
-          const asset = this.svc.assets$.value.find((a) => a.id === String(r.deviceId));
+          const asset = this.svc.assets$.value.find(
+            (a) => a.id === String(r.deviceId),
+          );
           if (asset) {
             asset.lastScreenStatus = r.overallStatus ?? r.error ? 'fail' : null;
             asset.lastScreenedAt = r.timestamp ?? new Date().toISOString();
@@ -1927,7 +2204,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         this.checked = {};
         this.bulkBusy = false;
         this.cdr.markForCheck();
-        const passed = results.filter((r: any) => r.overallStatus === 'pass').length;
+        const passed = results.filter(
+          (r: any) => r.overallStatus === 'pass',
+        ).length;
         this.toast(`Screened ${results.length} device(s) — ${passed} passed`);
       },
       error: (err: any) => {
@@ -1939,20 +2218,30 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   screenAllUnscreened(): void {
-    if (!confirm('Auto-screen all unscreened pending devices (up to 50)? This may take a while.')) return;
+    if (
+      !confirm(
+        'Auto-screen all unscreened pending devices (up to 50)? This may take a while.',
+      )
+    )
+      return;
     this.bulkBusy = true;
     this.svc.bulkAutoScreen().subscribe({
       next: (results: any[]) => {
         for (const r of results) {
-          const asset = this.svc.assets$.value.find((a) => a.id === String(r.deviceId));
+          const asset = this.svc.assets$.value.find(
+            (a) => a.id === String(r.deviceId),
+          );
           if (asset) {
-            asset.lastScreenStatus = r.overallStatus ?? (r.error ? 'fail' : null);
+            asset.lastScreenStatus =
+              r.overallStatus ?? (r.error ? 'fail' : null);
             asset.lastScreenedAt = r.timestamp ?? new Date().toISOString();
           }
         }
         this.bulkBusy = false;
         this.cdr.markForCheck();
-        const passed = results.filter((r: any) => r.overallStatus === 'pass').length;
+        const passed = results.filter(
+          (r: any) => r.overallStatus === 'pass',
+        ).length;
         this.toast(`Screened ${results.length} device(s) — ${passed} passed`);
       },
       error: (err: any) => {
@@ -1966,39 +2255,54 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   exportExcel(): void {
     import('xlsx').then((XLSX) => {
       const assets = this.sortAssets(
-        this.applyFilter(this.svc.assets$.value, this.searchTerm, this.statusFilter),
+        this.applyFilter(
+          this.svc.assets$.value,
+          this.searchTerm,
+          this.statusFilter,
+        ),
       );
       const rows = assets.map((a) => ({
         'Site Name': a.siteName,
-        'Status': a.status,
+        Status: a.status,
         'Screen Result': a.lastScreenStatus || '',
-        'Screened At': a.lastScreenedAt ? new Date(a.lastScreenedAt).toLocaleDateString('en-GB') : '',
-        'Reviewer': a.reviewer || '',
-        'Submitter': a.submitterEmail || '',
-        'Country': a.countryCode || '',
+        'Screened At': a.lastScreenedAt
+          ? new Date(a.lastScreenedAt).toLocaleDateString('en-GB')
+          : '',
+        Reviewer: a.reviewer || '',
+        Submitter: a.submitterEmail || '',
+        Country: a.countryCode || '',
         'Capacity (kW)': a.capacity ?? '',
-        'Latitude': a.lat ?? '',
-        'Longitude': a.long ?? '',
-        'Date Added': a.dateAdded ? a.dateAdded.toLocaleDateString('en-GB') : '',
-        'Date Submitted': a.dateSubmitted ? a.dateSubmitted.toLocaleDateString('en-GB') : '',
-        'Modified': a.modifiedDate ? a.modifiedDate.toLocaleDateString('en-GB') : '',
-        'Config': a.operatingConfiguration || '',
-        'Pathway': a.evidencePathway || '',
-        'Notes': a.notes || '',
-        'SLD': a.sldUrl ? 'Yes' : '',
+        Latitude: a.lat ?? '',
+        Longitude: a.long ?? '',
+        'Date Added': a.dateAdded
+          ? a.dateAdded.toLocaleDateString('en-GB')
+          : '',
+        'Date Submitted': a.dateSubmitted
+          ? a.dateSubmitted.toLocaleDateString('en-GB')
+          : '',
+        Modified: a.modifiedDate
+          ? a.modifiedDate.toLocaleDateString('en-GB')
+          : '',
+        Config: a.operatingConfiguration || '',
+        Pathway: a.evidencePathway || '',
+        Notes: a.notes || '',
+        SLD: a.sldUrl ? 'Yes' : '',
         'SF-02': a.sf02Url ? 'Yes' : '',
         'SF-02C': a.sf02cUrl ? 'Yes' : '',
         "Owner's Declaration": a.sf02cOwnersDeclarationUrl ? 'Yes' : '',
         'COD Proof': a.codProofUrl ? 'Yes' : '',
         'Metering Evidence': a.meteringEvidenceUrls.length || '',
-        'Pictures': a.pictureUrls.length || '',
-        'Screenshots': a.screenshotUrls.length || '',
+        Pictures: a.pictureUrls.length || '',
+        Screenshots: a.screenshotUrls.length || '',
         'Other Documents': a.otherDocumentUrls.length || '',
       }));
       const ws = XLSX.utils.json_to_sheet(rows);
       // Auto-width columns
       const colWidths = Object.keys(rows[0] || {}).map((key) => ({
-        wch: Math.max(key.length, ...rows.map((r) => String((r as any)[key] ?? '').length)).valueOf(),
+        wch: Math.max(
+          key.length,
+          ...rows.map((r) => String((r as any)[key] ?? '').length),
+        ).valueOf(),
       }));
       ws['!cols'] = colWidths;
       const wb = XLSX.utils.book_new();

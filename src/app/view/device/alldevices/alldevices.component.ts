@@ -21,7 +21,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { DeviceDetailsComponent } from '../device-details/device-details.component';
 import { ToastrService } from 'ngx-toastr';
 import { fulecodeType, devicecodeType, CountryInfo } from '../../../models';
-import { MapComponent, satellitePreview, SatellitePreview } from '../../map/map.component';
+import {
+  MapComponent,
+  satellitePreview,
+  SatellitePreview,
+} from '../../map/map.component';
 import { ChatService } from '../../../chat/chat.service';
 import { environment } from '../../../../environments/environment';
 
@@ -58,7 +62,13 @@ export class AlldevicesComponent {
   dataSource: MatTableDataSource<any>;
   data: any;
   searchText: string = '';
-  satPreview: { lat: number; lng: number; label: string; x: number; y: number } | null = null;
+  satPreview: {
+    lat: number;
+    lng: number;
+    label: string;
+    x: number;
+    y: number;
+  } | null = null;
   satPreviewEnabled = false;
   loginuser: any;
   deviceurl: any;
@@ -168,9 +178,15 @@ export class AlldevicesComponent {
     });
 
     forkJoin({
-      fuel: this.authService.GetMethod('device/fuel-type').pipe(catchError(() => of([]))),
-      deviceType: this.authService.GetMethod('device/device-type').pipe(catchError(() => of([]))),
-      country: this.authService.GetMethod('countrycode/list').pipe(catchError(() => of([]))),
+      fuel: this.authService
+        .GetMethod('device/fuel-type')
+        .pipe(catchError(() => of([]))),
+      deviceType: this.authService
+        .GetMethod('device/device-type')
+        .pipe(catchError(() => of([]))),
+      country: this.authService
+        .GetMethod('countrycode/list')
+        .pipe(catchError(() => of([]))),
     }).subscribe(({ fuel, deviceType, country }) => {
       this.fuellist = fuel as any;
       this.fuellistLoaded = true;
@@ -400,7 +416,9 @@ export class AlldevicesComponent {
             );
           } else {
             this.toastrService.error(
-              err.error?.message || err.message || 'An unexpected error occurred',
+              err.error?.message ||
+                err.message ||
+                'An unexpected error occurred',
               'Error',
             );
           }
@@ -495,7 +513,9 @@ export class AlldevicesComponent {
       data: {
         title: 'Are you sure? This cannot be undone.',
         message:
-          'Are you sure you want to delete device ' + device.serialNumber + '? This action cannot be undone.',
+          'Are you sure you want to delete device ' +
+          device.serialNumber +
+          '? This action cannot be undone.',
       },
     });
     confirmDialog.afterClosed().subscribe((result) => {
@@ -547,8 +567,18 @@ export class AlldevicesComponent {
       this.bulkDeleting = true;
       const calls = rows.map((r) =>
         this.deviceService.RemoveDevice(r.id).pipe(
-          map((resp) => ({ ok: !!resp?.success, id: r.id, msg: resp?.message })),
-          catchError((err) => of({ ok: false, id: r.id, msg: err?.error?.message ?? err?.message ?? 'error' })),
+          map((resp) => ({
+            ok: !!resp?.success,
+            id: r.id,
+            msg: resp?.message,
+          })),
+          catchError((err) =>
+            of({
+              ok: false,
+              id: r.id,
+              msg: err?.error?.message ?? err?.message ?? 'error',
+            }),
+          ),
         ),
       );
       forkJoin(calls).subscribe((results) => {
@@ -556,7 +586,10 @@ export class AlldevicesComponent {
         const ok = results.filter((r: any) => r.ok).length;
         const failed = results.length - ok;
         if (ok > 0) {
-          this.toastrService.success(`Deleted ${ok} device${ok === 1 ? '' : 's'}`, 'Bulk delete');
+          this.toastrService.success(
+            `Deleted ${ok} device${ok === 1 ? '' : 's'}`,
+            'Bulk delete',
+          );
         }
         if (failed > 0) {
           this.toastrService.warning(
@@ -684,7 +717,10 @@ export class AlldevicesComponent {
     const gap = 16;
     const rightFits = event.clientX + gap + boxW < window.innerWidth;
     const x = rightFits ? event.clientX + gap : event.clientX - gap - boxW;
-    const y = Math.min(Math.max(event.clientY - boxH / 2, 4), window.innerHeight - boxH - 4);
+    const y = Math.min(
+      Math.max(event.clientY - boxH / 2, 4),
+      window.innerHeight - boxH - 4,
+    );
     return { x, y };
   }
 

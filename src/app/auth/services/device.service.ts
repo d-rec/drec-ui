@@ -118,9 +118,7 @@ export class DeviceService {
   getDeviceInfoBYexternalId(externalid: string): Observable<any> {
     return this.httpClient.get(this.url + 'device/externalId/' + externalid);
   }
-  getDocuments(
-    deviceId: number,
-  ): Observable<
+  getDocuments(deviceId: number): Observable<
     {
       type: string;
       url: string;

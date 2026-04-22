@@ -187,7 +187,10 @@ export class DocumentsUploadComponent {
           const user = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
           if (user.role === OrganizationType.Registrant) {
             this.authService
-              .RegistrantExportAccesskey('user/export-accesskey/', this.userApiId)
+              .RegistrantExportAccesskey(
+                'user/export-accesskey/',
+                this.userApiId,
+              )
               .subscribe({
                 next: (keydata: any) => {
                   this.downloadAccessKey(keydata);
