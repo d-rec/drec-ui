@@ -18,8 +18,7 @@
   <mat-dialog-content>
     <div *ngIf="loading; else content">
       <div class="spinner__loading">
-        <div>
-        </div>
+        <div></div>
       </div>
     </div>
     <ng-template #content>
@@ -28,107 +27,279 @@
         <p><b>Site Name ⁽¹⁾</b>: {{ device_details.siteName }}</p>
         <p *ngIf="device_details.serialNumber">
           <b>Meter or Measurement ID(s) ⁽¹⁴⁾</b>:
-          <span *ngFor="let s of splitSerials(device_details.serialNumber); let i = index; let last = last">
+          <span
+            *ngFor="
+              let s of splitSerials(device_details.serialNumber);
+              let i = index;
+              let last = last
+            "
+          >
             {{ i + 1 }}. {{ s }}<span *ngIf="!last">&nbsp;&middot;&nbsp;</span>
           </span>
         </p>
-        <p *ngIf="!device_details.serialNumber"><b>Meter or Measurement ID(s) ⁽¹⁴⁾</b>: —</p>
-        <p *ngIf="device_details.defaultAccountCode"><b>Default Account Code ⁽¹²⁾</b>: {{ device_details.defaultAccountCode }}</p>
-        <p *ngIf="device_details.requestedEffectiveRegDate"><b>Requested Effective Reg. Date ⁽¹¹⁾</b>: {{ device_details.requestedEffectiveRegDate }}</p>
-        <p *ngIf="device_details.registrationType"><b>Registration Type</b>: {{ device_details.registrationType }}</p>
-        <p *ngIf="device_details.volumeEvidenceType"><b>Volume Evidence Type</b>: {{ device_details.volumeEvidenceType }}</p>
-        <p *ngIf="device_details.verificationAgentName"><b>Verification Agent</b>: {{ device_details.verificationAgentName }}</p>
+        <p *ngIf="!device_details.serialNumber">
+          <b>Meter or Measurement ID(s) ⁽¹⁴⁾</b>: —
+        </p>
+        <p *ngIf="device_details.defaultAccountCode">
+          <b>Default Account Code ⁽¹²⁾</b>:
+          {{ device_details.defaultAccountCode }}
+        </p>
+        <p *ngIf="device_details.requestedEffectiveRegDate">
+          <b>Requested Effective Reg. Date ⁽¹¹⁾</b>:
+          {{ device_details.requestedEffectiveRegDate }}
+        </p>
+        <p *ngIf="device_details.registrationType">
+          <b>Registration Type</b>: {{ device_details.registrationType }}
+        </p>
+        <p *ngIf="device_details.volumeEvidenceType">
+          <b>Volume Evidence Type</b>: {{ device_details.volumeEvidenceType }}
+        </p>
+        <p *ngIf="device_details.verificationAgentName">
+          <b>Verification Agent</b>: {{ device_details.verificationAgentName }}
+        </p>
 
         <h3 class="section-heading">Technical Details</h3>
         <p><b>Fuel Code</b>: {{ device_details.fuelname }}</p>
         <p><b>Device Type Code</b>: {{ device_details.devicetypename }}</p>
-        <p><b>Capacity ⁽⁹⁾</b>: {{ device_details.capacity }}</p>
-        <p><b>Commissioning Date ⁽¹⁰⁾</b>: {{ device_details.commissioningDate | date: 'dd MMM y hh:mm' }}</p>
-        <p><b>OnBoarding Date</b>: {{ device_details.createdAt | date: 'dd MMM y hh:mm' }}</p>
-        <p *ngIf="device_details.dataSource"><b>Data Source</b>: {{ device_details.dataSource }}</p>
-        <p *ngIf="device_details.otherDataSource"><b>Other Data Source</b>: {{ device_details.otherDataSource }}</p>
-        <p *ngIf="device_details.dataSourceBrand"><b>Data Source Brand</b>: {{ device_details.dataSourceBrand }}</p>
-        <p *ngIf="device_details.operatingConfiguration"><b>Operating Configuration</b>: {{ device_details.operatingConfiguration }}</p>
-        <p *ngIf="device_details.sourceAccessMode"><b>Source Access Mode ⁽²²⁾</b>: {{ device_details.sourceAccessMode }}</p>
+        <p><b>Capacity ⁽⁹⁾</b>: {{ device_details.capacity }} kW</p>
+        <p>
+          <b>Commissioning Date ⁽¹⁰⁾</b>:
+          {{ device_details.commissioningDate | date: 'dd MMM y hh:mm' }}
+        </p>
+        <p>
+          <b>OnBoarding Date</b>:
+          {{ device_details.createdAt | date: 'dd MMM y hh:mm' }}
+        </p>
+        <p *ngIf="device_details.dataSource">
+          <b>Data Source</b>: {{ device_details.dataSource }}
+        </p>
+        <p *ngIf="device_details.otherDataSource">
+          <b>Other Data Source</b>: {{ device_details.otherDataSource }}
+        </p>
+        <p *ngIf="device_details.dataSourceBrand">
+          <b>Data Source Brand</b>: {{ device_details.dataSourceBrand }}
+        </p>
+        <p *ngIf="device_details.operatingConfiguration">
+          <b>Operating Configuration</b>:
+          {{ device_details.operatingConfiguration }}
+        </p>
+        <p *ngIf="device_details.sourceAccessMode">
+          <b>Source Access Mode ⁽²²⁾</b>: {{ device_details.sourceAccessMode }}
+        </p>
 
         <h3 class="section-heading">Facility Technical</h3>
-        <p *ngIf="device_details.generatingUnitCount"><b>Number of Generating Units ⁽¹³⁾</b>: {{ device_details.generatingUnitCount }}</p>
-        <p *ngIf="device_details.networkOwner"><b>Network Owner ⁽¹⁷⁾</b>: {{ device_details.networkOwner }}</p>
-        <p *ngIf="device_details.interconnectionVoltage"><b>Interconnection Voltage ⁽¹⁸⁾</b>: {{ device_details.interconnectionVoltage }}</p>
+        <p *ngIf="device_details.generatingUnitCount">
+          <b>Number of Generating Units ⁽¹³⁾</b>:
+          {{ device_details.generatingUnitCount }}
+        </p>
+        <p *ngIf="device_details.networkOwner">
+          <b>Network Owner ⁽¹⁷⁾</b>: {{ device_details.networkOwner }}
+        </p>
+        <p *ngIf="device_details.interconnectionVoltage">
+          <b>Interconnection Voltage ⁽¹⁸⁾</b>:
+          {{ device_details.interconnectionVoltage }}
+        </p>
 
         <h3 class="section-heading">Location</h3>
         <p><b>Address ⁽²⁾</b>: {{ device_details.address }}</p>
-        <p><b>State/Province/County ⁽³⁾</b>: {{ device_details.stateProvince || '—' }}</p>
-        <p><b>Postcode (Zip Code) ⁽⁴⁾</b>: {{ device_details.postcode || '—' }}</p>
+        <p>
+          <b>State/Province/County ⁽³⁾</b>:
+          {{ device_details.stateProvince || '—' }}
+        </p>
+        <p>
+          <b>Postcode (Zip Code) ⁽⁴⁾</b>: {{ device_details.postcode || '—' }}
+        </p>
         <p><b>Country ⁽⁵⁾</b>: {{ device_details.countryname || '—' }}</p>
         <p><b>Timezone</b>: {{ device_details.timezone }}</p>
         <p><b>Latitude ⁽⁶⁾</b>: {{ device_details.latitude }}</p>
         <p><b>Longitude ⁽⁷⁾</b>: {{ device_details.longitude }}</p>
-        <div *ngIf="satPreview"
-             style="width:256px;height:256px;overflow:hidden;position:relative;border-radius:4px;margin-top:8px;border:1px solid #cbd5e1">
-          <div [style.left.px]="satPreview.offsetX" [style.top.px]="satPreview.offsetY" style="position:absolute">
-            <img *ngFor="let t of satPreview.tiles" [src]="t.url" width="256" height="256"
-                 [style.position]="'absolute'" [style.left.px]="t.left" [style.top.px]="t.top" alt="" />
+        <div
+          *ngIf="satPreview"
+          style="
+            width: 256px;
+            height: 256px;
+            overflow: hidden;
+            position: relative;
+            border-radius: 4px;
+            margin-top: 8px;
+            border: 1px solid #cbd5e1;
+          "
+        >
+          <div
+            [style.left.px]="satPreview.offsetX"
+            [style.top.px]="satPreview.offsetY"
+            style="position: absolute"
+          >
+            <img
+              *ngFor="let t of satPreview.tiles"
+              [src]="t.url"
+              width="256"
+              height="256"
+              [style.position]="'absolute'"
+              [style.left.px]="t.left"
+              [style.top.px]="t.top"
+              alt=""
+            />
           </div>
         </div>
 
         <h3 class="section-heading">Ownership & Incentives</h3>
-        <p *ngIf="device_details.pvSystemOwner"><b>PV System Owner ⁽²⁷⁾</b>: {{ device_details.pvSystemOwner }}</p>
-        <p *ngIf="device_details.offTakerName"><b>Off-Taker Name ⁽²⁸⁾</b>: {{ device_details.offTakerName }}</p>
-        <p *ngIf="device_details.offTakerSameCompanyAsOwner"><b>Off-Taker Same as Owner ⁽³⁰⁾</b>: {{ device_details.offTakerSameCompanyAsOwner }}</p>
-        <p><b>Ownership Status</b>: {{ device_details.ownershipStatus || 'unverified' }}</p>
-        <p *ngIf="device_details.hasSubsidy"><b>Subsidy Received ⁽³⁴⁾</b>: {{ device_details.hasSubsidy }}</p>
-        <p *ngIf="device_details.subsidyTypes?.length"><b>Subsidy Types ⁽³⁵⁾</b>: {{ device_details.subsidyTypes.join(', ') }}</p>
-        <p *ngIf="device_details.subsidyOtherDetails"><b>Subsidy Other Details ⁽³⁵⁾</b>: {{ device_details.subsidyOtherDetails }}</p>
-        <p *ngIf="device_details.subsidyClaimsEacs"><b>Subsidy Claims EACs ⁽³⁶⁾</b>: {{ device_details.subsidyClaimsEacs }}</p>
-        <p *ngIf="device_details.hasPublicFunding"><b>Public Funding ⁽³²⁾</b>: {{ device_details.hasPublicFunding }}</p>
-        <p *ngIf="device_details.publicFundingEndDate"><b>Public Funding End Date ⁽³³⁾</b>: {{ device_details.publicFundingEndDate }}</p>
-        <p *ngIf="device_details.publicFundingType"><b>Public Funding Type</b>: {{ device_details.publicFundingType }}</p>
+        <p *ngIf="device_details.pvSystemOwner">
+          <b>PV System Owner ⁽²⁷⁾</b>: {{ device_details.pvSystemOwner }}
+        </p>
+        <p *ngIf="device_details.offTakerName">
+          <b>Off-Taker Name ⁽²⁸⁾</b>: {{ device_details.offTakerName }}
+        </p>
+        <p *ngIf="device_details.offTakerSameCompanyAsOwner">
+          <b>Off-Taker Same as Owner ⁽³⁰⁾</b>:
+          {{ device_details.offTakerSameCompanyAsOwner }}
+        </p>
+        <p>
+          <b>Ownership Status</b>:
+          {{ device_details.ownershipStatus || 'unverified' }}
+        </p>
+        <p *ngIf="device_details.hasSubsidy">
+          <b>Subsidy Received ⁽³⁴⁾</b>: {{ device_details.hasSubsidy }}
+        </p>
+        <p *ngIf="device_details.subsidyTypes?.length">
+          <b>Subsidy Types ⁽³⁵⁾</b>:
+          {{ device_details.subsidyTypes.join(', ') }}
+        </p>
+        <p *ngIf="device_details.subsidyOtherDetails">
+          <b>Subsidy Other Details ⁽³⁵⁾</b>:
+          {{ device_details.subsidyOtherDetails }}
+        </p>
+        <p *ngIf="device_details.subsidyClaimsEacs">
+          <b>Subsidy Claims EACs ⁽³⁶⁾</b>:
+          {{ device_details.subsidyClaimsEacs }}
+        </p>
+        <p *ngIf="device_details.hasPublicFunding">
+          <b>Public Funding ⁽³²⁾</b>: {{ device_details.hasPublicFunding }}
+        </p>
+        <p *ngIf="device_details.publicFundingEndDate">
+          <b>Public Funding End Date ⁽³³⁾</b>:
+          {{ device_details.publicFundingEndDate }}
+        </p>
+        <p *ngIf="device_details.publicFundingType">
+          <b>Public Funding Type</b>: {{ device_details.publicFundingType }}
+        </p>
 
         <h3 class="section-heading">Business Details</h3>
-        <p *ngIf="device_details.hasCaptiveConsumer"><b>Captive Consumer ⁽²³⁾</b>: {{ device_details.hasCaptiveConsumer }}</p>
-        <p *ngIf="device_details.hasAuxiliaryEnergySources"><b>Auxiliary Energy Sources ⁽²⁴⁾</b>: {{ device_details.hasAuxiliaryEnergySources }}</p>
-        <p *ngIf="device_details.auxiliaryEnergySourceDetails"><b>Auxiliary Source Details ⁽²⁵⁾</b>: {{ device_details.auxiliaryEnergySourceDetails }}</p>
-        <p *ngIf="device_details.nonMeterImportDetails"><b>Non-Meter Import Details ⁽²¹⁾</b>: {{ device_details.nonMeterImportDetails }}</p>
-        <p *ngIf="device_details.otherEacSchemeRegistration"><b>Other EAC Scheme Registration ⁽³¹⁾</b>: {{ device_details.otherEacSchemeRegistration }}</p>
-        <p *ngIf="device_details.additionalInfo"><b>Additional Info ⁽⁴⁰⁾</b>: {{ device_details.additionalInfo }}</p>
-        <p *ngIf="device_details.labellingSchemeAccreditation"><b>Labelling Scheme ⁽³⁷⁾</b>: {{ device_details.labellingSchemeAccreditation }}</p>
-        <p *ngIf="device_details.offGridCircumstances"><b>Off-Grid Circumstances</b>: {{ device_details.offGridCircumstances }}</p>
+        <p *ngIf="device_details.hasCaptiveConsumer">
+          <b>Captive Consumer ⁽²³⁾</b>: {{ device_details.hasCaptiveConsumer }}
+        </p>
+        <p *ngIf="device_details.hasAuxiliaryEnergySources">
+          <b>Auxiliary Energy Sources ⁽²⁴⁾</b>:
+          {{ device_details.hasAuxiliaryEnergySources }}
+        </p>
+        <p *ngIf="device_details.auxiliaryEnergySourceDetails">
+          <b>Auxiliary Source Details ⁽²⁵⁾</b>:
+          {{ device_details.auxiliaryEnergySourceDetails }}
+        </p>
+        <p *ngIf="device_details.nonMeterImportDetails">
+          <b>Non-Meter Import Details ⁽²¹⁾</b>:
+          {{ device_details.nonMeterImportDetails }}
+        </p>
+        <p *ngIf="device_details.otherEacSchemeRegistration">
+          <b>Other EAC Scheme Registration ⁽³¹⁾</b>:
+          {{ device_details.otherEacSchemeRegistration }}
+        </p>
+        <p *ngIf="device_details.additionalInfo">
+          <b>Additional Info ⁽⁴⁰⁾</b>: {{ device_details.additionalInfo }}
+        </p>
+        <p *ngIf="device_details.labellingSchemeAccreditation">
+          <b>Labelling Scheme ⁽³⁷⁾</b>:
+          {{ device_details.labellingSchemeAccreditation }}
+        </p>
+        <p *ngIf="device_details.offGridCircumstances">
+          <b>Off-Grid Circumstances</b>:
+          {{ device_details.offGridCircumstances }}
+        </p>
 
         <h3 class="section-heading">Evidence Pathway & Signature</h3>
-        <p *ngIf="device_details.signatoryName"><b>Signatory Name ⁽⁴¹⁾</b>: {{ device_details.signatoryName }}</p>
-        <p *ngIf="device_details.gridInterconnection != null"><b>Grid Connected ⁽¹⁵⁾</b>: {{ device_details.gridInterconnection ? 'Yes' : 'No' }}</p>
-        <p *ngIf="device_details.gridExportType"><b>Grid Export Type ⁽¹⁶⁾</b>: {{ device_details.gridExportType }}</p>
-        <p *ngIf="device_details.hasNetworkMeter"><b>Network Meter ⁽¹⁹⁾</b>: {{ device_details.hasNetworkMeter }}</p>
-        <p *ngIf="device_details.meterReadsShareable"><b>Meter Reads Shareable ⁽²⁰⁾</b>: {{ device_details.meterReadsShareable }}</p>
+        <p *ngIf="device_details.signatoryName">
+          <b>Signatory Name ⁽⁴¹⁾</b>: {{ device_details.signatoryName }}
+        </p>
+        <p *ngIf="device_details.gridInterconnection != null">
+          <b>Grid Connected ⁽¹⁵⁾</b>:
+          {{ device_details.gridInterconnection ? 'Yes' : 'No' }}
+        </p>
+        <p *ngIf="device_details.gridExportType">
+          <b>Grid Export Type ⁽¹⁶⁾</b>: {{ device_details.gridExportType }}
+        </p>
+        <p *ngIf="device_details.hasNetworkMeter">
+          <b>Network Meter ⁽¹⁹⁾</b>: {{ device_details.hasNetworkMeter }}
+        </p>
+        <p *ngIf="device_details.meterReadsShareable">
+          <b>Meter Reads Shareable ⁽²⁰⁾</b>:
+          {{ device_details.meterReadsShareable }}
+        </p>
 
         <h3 class="section-heading">Classification & Impact</h3>
         <p><b>Off Takers ⁽²⁹⁾</b>: {{ device_details.offTaker }}</p>
         <p><b>SDG Benefits ⁽³⁸⁾</b>: {{ device_details.SDGBenefits }}</p>
-        <p *ngIf="device_details.impactStory"><b>Impact Story ⁽³⁹⁾</b>: {{ device_details.impactStory }}</p>
+        <p *ngIf="device_details.impactStory">
+          <b>Impact Story ⁽³⁹⁾</b>: {{ device_details.impactStory }}
+        </p>
         <p><b>Version</b>: {{ device_details.version }}</p>
         <p><b>Yield Value</b>: {{ device_details.yieldValue }}</p>
         <p><b>Meter Read Type</b>: {{ device_details.meterReadtype }}</p>
-        <p><b>Device Description ⁽⁸⁾</b>: {{ device_details.deviceDescription }}</p>
-        <p *ngIf="device_details.reviewStatus"><b>Review Status</b>: {{ device_details.reviewStatus }}</p>
+        <p>
+          <b>Device Description ⁽⁸⁾</b>: {{ device_details.deviceDescription }}
+        </p>
+        <p *ngIf="device_details.reviewStatus">
+          <b>Review Status</b>: {{ device_details.reviewStatus }}
+        </p>
         <p><b>Evident Device ID</b>: {{ device_details.evidentDeviceId }}</p>
         <p><b>Evident Status</b>: {{ device_details.evidentStatus }}</p>
 
-        <h3 class="section-heading">Documents <span style="font-weight:400;color:#64748b;font-size:12px;">({{ documents.length }} file{{ documents.length === 1 ? '' : 's' }} loaded)</span></h3>
-        <ng-container *ngFor="let row of [
-          {label: 'Project Photos', oc: '⁽⁴³⁾', type: 'PROJECT_PHOTOS'},
-          {label: 'Single Line Diagram', oc: '⁽⁴⁵⁾', type: 'SINGLE_LINE_DIAGRAM'},
-          {label: 'SF-02c (Owner\'s Declaration)', oc: '⁽⁴⁶⁾', type: 'SF_02C'},
-          {label: 'Proof of Ownership', oc: '⁽⁴⁷⁾', type: 'SF_02C_OWNERS_DECLARATION'},
-          {label: 'COD Proof', oc: '⁽⁴⁸⁾', type: 'COD_PROOF'},
-          {label: 'Metering Evidence', oc: '⁽⁴⁹⁾', type: 'METERING_EVIDENCE'},
-          {label: 'Other Documents', oc: '⁽⁵⁰⁾', type: 'OTHER_DOCUMENTS'}
-        ]">
+        <h3 class="section-heading">
+          Documents
+          <span style="font-weight: 400; color: #64748b; font-size: 12px"
+            >({{ documents.length }} file{{
+              documents.length === 1 ? '' : 's'
+            }}
+            loaded)</span
+          >
+        </h3>
+        <ng-container
+          *ngFor="
+            let row of [
+              { label: 'Project Photos', oc: '⁽⁴³⁾', type: 'PROJECT_PHOTOS' },
+              {
+                label: 'Single Line Diagram',
+                oc: '⁽⁴⁵⁾',
+                type: 'SINGLE_LINE_DIAGRAM'
+              },
+              {
+                label: 'SF-02c (Owner\'s Declaration)',
+                oc: '⁽⁴⁶⁾',
+                type: 'SF_02C'
+              },
+              {
+                label: 'Proof of Ownership',
+                oc: '⁽⁴⁷⁾',
+                type: 'SF_02C_OWNERS_DECLARATION'
+              },
+              { label: 'COD Proof', oc: '⁽⁴⁸⁾', type: 'COD_PROOF' },
+              {
+                label: 'Metering Evidence',
+                oc: '⁽⁴⁹⁾',
+                type: 'METERING_EVIDENCE'
+              },
+              { label: 'Other Documents', oc: '⁽⁵⁰⁾', type: 'OTHER_DOCUMENTS' }
+            ]
+          "
+        >
           <p>
-            <b>{{ row.label }} {{ row.oc }}</b>:
+            <b>{{ row.label }} {{ row.oc }}</b
+            >:
             <ng-container *ngIf="docsOf(row.type).length; else noDocs">
               <ng-container *ngFor="let d of docsOf(row.type); let last = last">
-                <a href="#" (click)="openDocLink(d.id, $event)">{{ docLinkLabel(d) }}</a><span *ngIf="!last">, </span>
+                <a href="#" (click)="openDocLink(d.id, $event)">{{
+                  docLinkLabel(d)
+                }}</a
+                ><span *ngIf="!last">, </span>
               </ng-container>
             </ng-container>
             <ng-template #noDocs>—</ng-template>
@@ -137,12 +308,14 @@
       </div>
     </ng-template>
   </mat-dialog-content>
-  <hr style="margin:8px 0" *ngIf="!loading" />
+  <hr style="margin: 8px 0" *ngIf="!loading" />
   <mat-dialog-actions align="end" *ngIf="!loading">
     <button mat-button (click)="copyToClipboard()">
       <mat-icon class="me-1">content_copy</mat-icon> Copy
     </button>
     <button mat-button (click)="dialogRef.close(false)">Cancel</button>
-    <button mat-flat-button color="primary" (click)="dialogRef.close(false)">OK</button>
+    <button mat-flat-button color="primary" (click)="dialogRef.close(false)">
+      OK
+    </button>
   </mat-dialog-actions>
 </div>

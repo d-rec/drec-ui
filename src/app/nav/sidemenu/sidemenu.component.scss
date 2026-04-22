@@ -48,7 +48,8 @@ $white: #fff;
   align-items: center;
   justify-content: center;
 
-  &:hover, &:active {
+  &:hover,
+  &:active {
     background-color: $color-muted;
     opacity: 0.5;
   }
@@ -120,7 +121,7 @@ mat-nav-list {
     letter-spacing: 0.3px;
     font-weight: 400;
     margin-bottom: 0;
-    padding: 2px 4px;
+    padding: 2px 4px 2px 24px;
 
     &.active {
       border-radius: 4px;
@@ -166,7 +167,9 @@ mat-nav-list {
   }
 }
 
-::ng-deep .mat-expansion-panel-header.mat-expanded .mat-expansion-indicator::before {
+::ng-deep
+  .mat-expansion-panel-header.mat-expanded
+  .mat-expansion-indicator::before {
   transform: rotate(90deg);
 }
 

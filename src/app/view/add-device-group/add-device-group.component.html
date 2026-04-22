@@ -1,4 +1,4 @@
-<div class="body-bg add-device-group" >
+<div class="body-bg add-device-group">
   <mat-card>
     <mat-card-header
       class="d-flex justify-content-between mat-crd-hide align-items-center"
@@ -13,7 +13,9 @@
         <div class="example-container1 row">
           <div
             class="col-md-3"
-            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'Registrant'"
+            *ngIf="
+              loginuser.role === 'Admin' || loginuser.role === 'Registrant'
+            "
           >
             <mat-form-field appearance="outline">
               <mat-label class="text-capitalize">Organization</mat-label>
@@ -55,7 +57,7 @@
           </div>
           <div class="col-md-3">
             <mat-form-field appearance="outline">
-              <mat-label>Target Capacity(MWh)</mat-label>
+              <mat-label>Target Volume (MWh)</mat-label>
 
               <input
                 matInput
@@ -153,7 +155,7 @@
                 [touchUi]="false"
                 [enableMeridian]="false"
                 [disableMinute]="false"
-                [hideTime]="false" 
+                [hideTime]="false"
               >
               </ngx-mat-datetime-picker>
             </mat-form-field>
@@ -378,30 +380,32 @@
               </div>
             </form>
 
-            <div
-              class="content text-center thead-width"
-              *ngIf="!loading"
-            >
+            <div class="content text-center thead-width" *ngIf="!loading">
               <table mat-table [dataSource]="dataSource" matSort>
                 <ng-container matColumnDef="select" sticky>
                   <th>
                     <mat-header-cell *matHeaderCellDef>
-                      <ng-container *ngIf="selectionType === 'checkbox'; else radioHeader">
+                      <ng-container
+                        *ngIf="selectionType === 'checkbox'; else radioHeader"
+                      >
                         <mat-checkbox
                           color="primary"
                           (change)="$event ? masterToggle() : null"
                           [checked]="selection.hasValue() && isAllSelected()"
-                          [indeterminate]="selection.hasValue() && !isAllSelected()"
+                          [indeterminate]="
+                            selection.hasValue() && !isAllSelected()
+                          "
                         >
                         </mat-checkbox>
                       </ng-container>
-                      <ng-template #radioHeader>
-                      </ng-template>
+                      <ng-template #radioHeader> </ng-template>
                     </mat-header-cell>
                   </th>
                   <td>
                     <mat-cell *cdkCellDef="let row">
-                      <ng-container *ngIf="selectionType === 'checkbox'; else radioCell">
+                      <ng-container
+                        *ngIf="selectionType === 'checkbox'; else radioCell"
+                      >
                         <mat-checkbox
                           color="primary"
                           (click)="$event.stopPropagation()"
@@ -450,7 +454,7 @@
                     Serial Number
                   </th>
                   <td mat-cell *matCellDef="let element">
-                    {{ element.serialNumber}}
+                    {{ element.serialNumber }}
                   </td>
                 </ng-container>
                 <ng-container
@@ -575,8 +579,11 @@
     <mat-card-footer>
       <div class="example-container mb-3 me-2 row">
         <div class="col-12 d-flex justify-content-end align-items-center gap-3">
-          <span *ngIf="selection.selected.length > 0" class="capacity-indicator"
-            [class.over-cap]="getSelectedCapacity() > 250">
+          <span
+            *ngIf="selection.selected.length > 0"
+            class="capacity-indicator"
+            [class.over-cap]="getSelectedCapacity() > 250"
+          >
             Selected: {{ selection.selected.length }} device(s),
             {{ getSelectedCapacity() }} / 250 kW
           </span>
