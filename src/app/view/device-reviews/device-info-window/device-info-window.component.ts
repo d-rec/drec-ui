@@ -16,6 +16,7 @@ import { AssetService } from '../asset.service';
 import { satellitePreview, SatellitePreview } from '../../map/map.component';
 import { environment } from '../../../../environments/environment';
 import { CountryNamePipe } from '../country-name.pipe';
+import { extractExt } from '../../../utils/file-ext';
 
 interface Field {
   label: string;
@@ -28,6 +29,8 @@ interface Field {
   links?: { url: string; text: string }[];
   /** when present, render as indented sub-rows below the label */
   items?: string[];
+  /** when true AND links is populated, render as a #/Filename/Type table */
+  tabular?: boolean;
 }
 
 interface Section {
@@ -419,6 +422,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
             label: '(49) Metering Evidence',
             value: fmtDocs('METERING_EVIDENCE'),
             links: linksFor('METERING_EVIDENCE'),
+            tabular: true,
             hint: 'Sample metering evidence relied on for I-REC issuance',
           },
           {
@@ -472,4 +476,9 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
 
   trackSection = (_: number, s: Section) => s.heading;
   trackField = (_: number, f: Field) => f.label;
+  trackLink = (_: number, l: { url: string }) => l.url;
+
+  linkExt(l: { url: string; text: string }): string {
+    return extractExt(l.text || l.url || '');
+  }
 }

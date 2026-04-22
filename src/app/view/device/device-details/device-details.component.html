@@ -291,10 +291,10 @@
             ]
           "
         >
-          <p>
+          <p *ngIf="row.type !== 'METERING_EVIDENCE'">
             <b>{{ row.label }} {{ row.oc }}</b
             >:
-            <ng-container *ngIf="docsOf(row.type).length; else noDocs">
+            <ng-container *ngIf="docsOf(row.type).length; else noDocsInline">
               <ng-container *ngFor="let d of docsOf(row.type); let last = last">
                 <a href="#" (click)="openDocLink(d.id, $event)">{{
                   docLinkLabel(d)
@@ -302,8 +302,42 @@
                 ><span *ngIf="!last">, </span>
               </ng-container>
             </ng-container>
-            <ng-template #noDocs>—</ng-template>
+            <ng-template #noDocsInline>—</ng-template>
           </p>
+          <div *ngIf="row.type === 'METERING_EVIDENCE'" class="me-block">
+            <p class="me-title">
+              <b>{{ row.label }} {{ row.oc }}</b>
+            </p>
+            <div
+              *ngIf="docsOf(row.type).length; else noDocsTable"
+              class="me-table"
+            >
+              <div class="me-row me-row--header">
+                <span class="me-col-idx">#</span>
+                <span class="me-col-name">Filename</span>
+                <span class="me-col-type">Type</span>
+              </div>
+              <div
+                class="me-row"
+                *ngFor="
+                  let d of docsOf(row.type);
+                  let i = index;
+                  trackBy: trackDocById
+                "
+              >
+                <span class="me-col-idx">{{ i + 1 }}</span>
+                <span class="me-col-name"
+                  ><a href="#" (click)="openDocLink(d.id, $event)">{{
+                    docLinkLabel(d)
+                  }}</a></span
+                >
+                <span class="me-col-type">{{
+                  fileExt(d.url) || fileExt(d.originalFilename || '') || '—'
+                }}</span>
+              </div>
+            </div>
+            <ng-template #noDocsTable><p>—</p></ng-template>
+          </div>
         </ng-container>
       </div>
     </ng-template>

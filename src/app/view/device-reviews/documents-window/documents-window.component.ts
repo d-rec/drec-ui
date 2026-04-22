@@ -26,6 +26,7 @@ import {
   getHint,
 } from '../../../utils/evidence-requirements';
 import { environment } from '../../../../environments/environment';
+import { extractExt } from '../../../utils/file-ext';
 
 @Component({
   standalone: false,
@@ -1076,6 +1077,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     if (meta?.originalFilename && meta.originalFilename.trim() !== '')
       return meta.originalFilename;
     return this.fileName(url);
+  }
+
+  fileExt(url: string): string {
+    return extractExt(url);
   }
 
   fileName(url: string): string {
