@@ -9,7 +9,10 @@ const routes: Routes = [
   { path: 'acl_module', component: AclModulePermissionComponent },
   { path: 'user_role/list', component: UserpermissionComponent },
   { path: 'registrant_role/list', component: RegistrantPermissionComponent },
-  { path: 'registrant_role/list/:id', component: RegistrantPermissionComponent },
+  {
+    path: 'registrant_role/list/:id',
+    component: RegistrantPermissionComponent,
+  },
   { path: 'request/form', component: RegistrantPermissionFormComponent },
   { path: 'list', component: RegistrantPermissionComponent },
 ];

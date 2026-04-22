@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { WebhookService, Webhook } from '../../../auth/services/webhook.service';
+import {
+  WebhookService,
+  Webhook,
+} from '../../../auth/services/webhook.service';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -16,7 +19,10 @@ export class WebhooksComponent implements OnInit {
   showForm = false;
   editingId: number | null = null;
   formUrl = '';
-  formEvents: Record<string, boolean> = { 'message.new': true, 'conversation.created': true };
+  formEvents: Record<string, boolean> = {
+    'message.new': true,
+    'conversation.created': true,
+  };
   formActive = true;
   formSecret = '';
   createdSecret: string | null = null;
@@ -86,7 +92,11 @@ export class WebhooksComponent implements OnInit {
     }
 
     if (this.editingId) {
-      const payload: any = { url: this.formUrl, events, active: this.formActive };
+      const payload: any = {
+        url: this.formUrl,
+        events,
+        active: this.formActive,
+      };
       if (this.formSecret.trim()) payload.secret = this.formSecret;
       this.webhookService.update(this.editingId, payload).subscribe({
         next: () => {

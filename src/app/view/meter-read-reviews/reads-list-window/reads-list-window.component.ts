@@ -51,7 +51,12 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     rejected: false,
   };
 
-  sortField: 'siteName' | 'readCount' | 'latestReadDate' | 'totalKwh' | 'reviewStatus' = 'latestReadDate';
+  sortField:
+    | 'siteName'
+    | 'readCount'
+    | 'latestReadDate'
+    | 'totalKwh'
+    | 'reviewStatus' = 'latestReadDate';
   sortDir: 'asc' | 'desc' = 'desc';
 
   filteredDevices: FilteredRow[] = [];
@@ -63,7 +68,9 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
 
   get editingDevice(): MeterReadReviewDevice | null {
     if (this.editingId === null) return null;
-    return this.svc.devices$.value.find((d) => d.deviceId === this.editingId) ?? null;
+    return (
+      this.svc.devices$.value.find((d) => d.deviceId === this.editingId) ?? null
+    );
   }
 
   // Verification state
@@ -176,9 +183,15 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     }
     if (e.key === 'Escape') {
       if (this.closeTopModal()) return;
-      if (this.editingId !== null) { this.closeDetail(); return; }
+      if (this.editingId !== null) {
+        this.closeDetail();
+        return;
+      }
     }
-    if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && !this.hasOpenModal()) {
+    if (
+      (e.key === 'ArrowUp' || e.key === 'ArrowDown') &&
+      !this.hasOpenModal()
+    ) {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       e.preventDefault();
@@ -187,14 +200,22 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
   }
 
   private hasOpenModal(): boolean {
-    return this.showConsistencyModal || this.showCeilingModal
-      || this.showCrossSourceModal || this.showAuditModal || this.showGapModal;
+    return (
+      this.showConsistencyModal ||
+      this.showCeilingModal ||
+      this.showCrossSourceModal ||
+      this.showAuditModal ||
+      this.showGapModal
+    );
   }
 
   private closeTopModal(): boolean {
     const modals: (keyof this)[] = [
-      'showConsistencyModal', 'showCeilingModal',
-      'showCrossSourceModal', 'showAuditModal', 'showGapModal',
+      'showConsistencyModal',
+      'showCeilingModal',
+      'showCrossSourceModal',
+      'showAuditModal',
+      'showGapModal',
     ];
     for (const key of modals) {
       if (this[key]) {
@@ -207,8 +228,13 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
 
   private navigateList(dir: number): void {
     if (!this.filteredDevices.length) return;
-    const idx = this.filteredDevices.findIndex((r) => r.device.deviceId === this.editingId);
-    const next = Math.max(0, Math.min(this.filteredDevices.length - 1, idx + dir));
+    const idx = this.filteredDevices.findIndex(
+      (r) => r.device.deviceId === this.editingId,
+    );
+    const next = Math.max(
+      0,
+      Math.min(this.filteredDevices.length - 1, idx + dir),
+    );
     if (!this.confirmDiscard()) return;
     this.openDetail(this.filteredDevices[next].device.deviceId);
   }
@@ -255,11 +281,14 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
   }
 
   openDetail(deviceId: number): void {
-    if (this.editingId !== null && this.editingId !== deviceId && !this.confirmDiscard()) return;
+    if (
+      this.editingId !== null &&
+      this.editingId !== deviceId &&
+      !this.confirmDiscard()
+    )
+      return;
     this.editingId = deviceId;
-    const device = this.svc.devices$.value.find(
-      (d) => d.deviceId === deviceId,
-    );
+    const device = this.svc.devices$.value.find((d) => d.deviceId === deviceId);
     if (device) {
       this.detailForm.patchValue({
         reviewStatus: device.reviewStatus,
@@ -353,9 +382,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     const email = loginUser.email;
     if (!email) return;
 
-    const device = this.svc.devices$.value.find(
-      (d) => d.siteName === siteName,
-    );
+    const device = this.svc.devices$.value.find((d) => d.siteName === siteName);
     const submitter = device?.submitterEmail;
     if (!submitter) return;
 
@@ -439,16 +466,18 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     const reviewer = loginUser.firstName
       ? `${loginUser.firstName} ${loginUser.lastName || ''}`.trim()
       : loginUser.email || 'reviewer';
-    this.svc.flagMeterRead(device.deviceId, read.id, reason, reviewer).subscribe({
-      next: () => {
-        this.flaggedReads[read.id] = true;
-        this.toast(`Read #${read.id} flagged`);
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.toast(err?.error?.message || 'Flag failed', 5000);
-      },
-    });
+    this.svc
+      .flagMeterRead(device.deviceId, read.id, reason, reviewer)
+      .subscribe({
+        next: () => {
+          this.flaggedReads[read.id] = true;
+          this.toast(`Read #${read.id} flagged`);
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.toast(err?.error?.message || 'Flag failed', 5000);
+        },
+      });
   }
 
   checkGaps(): void {
@@ -520,8 +549,19 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     const escape = (v: string) => `"${(v || '').replace(/"/g, '""')}"`;
     const header = 'Action,Performed By,Date,Detail';
     const rows = this.filteredAuditTrail.map((e: any) => {
-      const ts = new Date(e.createdAt).toLocaleString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      return [escape(e.actionType), escape(e.performedBy), escape(ts), escape(e.detail || '')].join(',');
+      const ts = new Date(e.createdAt).toLocaleString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      return [
+        escape(e.actionType),
+        escape(e.performedBy),
+        escape(ts),
+        escape(e.detail || ''),
+      ].join(',');
     });
     const csv = [header, ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -558,7 +598,10 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     if (!d) return '—';
     const dt = new Date(d);
     const date = dt.toLocaleDateString('en-GB');
-    const time = dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    const time = dt.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
     return `${date} ${time}`;
   }
 
@@ -570,10 +613,7 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
   hl(text: string, term: string): string {
     if (!term || !text) return text || '';
     const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return text.replace(
-      new RegExp(`(${escaped})`, 'gi'),
-      '<mark>$1</mark>',
-    );
+    return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
   }
 
   // ── Bulk actions ──────────────────────────────────────────────────
@@ -582,7 +622,9 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
   bulkBusy = false;
 
   get checkedIds(): number[] {
-    return Object.keys(this.checked).filter((k) => this.checked[+k]).map(Number);
+    return Object.keys(this.checked)
+      .filter((k) => this.checked[+k])
+      .map(Number);
   }
 
   get checkedCount(): number {
@@ -596,14 +638,19 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
 
   toggleCheckAll(event: Event): void {
     event.stopPropagation();
-    const allChecked = this.filteredDevices.every((r) => this.checked[r.device.deviceId]);
+    const allChecked = this.filteredDevices.every(
+      (r) => this.checked[r.device.deviceId],
+    );
     for (const r of this.filteredDevices) {
       this.checked[r.device.deviceId] = !allChecked;
     }
   }
 
   isAllChecked(): boolean {
-    return this.filteredDevices.length > 0 && this.filteredDevices.every((r) => this.checked[r.device.deviceId]);
+    return (
+      this.filteredDevices.length > 0 &&
+      this.filteredDevices.every((r) => this.checked[r.device.deviceId])
+    );
   }
 
   bulkSetStatus(status: string): void {
@@ -618,7 +665,9 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     this.svc.bulkUpdateStatus(ids, status, reviewer).subscribe({
       next: () => {
         const devices = this.svc.devices$.value.map((d) =>
-          this.checked[d.deviceId] ? { ...d, reviewStatus: status as ReadReviewStatus, reviewer } : d,
+          this.checked[d.deviceId]
+            ? { ...d, reviewStatus: status as ReadReviewStatus, reviewer }
+            : d,
         );
         this.svc.devices$.next(devices);
         this.checked = {};

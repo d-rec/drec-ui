@@ -79,22 +79,20 @@ export class PasswordResetDialogComponent {
     if (this.resetpasswordform.invalid || this.submitting) return;
     this.submitting = true;
     const { oldPassword, newPassword } = this.resetpasswordform.value;
-    this.userService
-      .updateOwnPassword({ oldPassword, newPassword })
-      .subscribe({
-        next: () => {
-          this.submitting = false;
-          this.toastrService.success('Password updated', 'Successfully');
-          this.dialogRef.close(true);
-        },
-        error: (err) => {
-          this.submitting = false;
-          this.toastrService.error(
-            err?.error?.message ?? err?.message ?? 'Failed to update password',
-            'Error',
-          );
-        },
-      });
+    this.userService.updateOwnPassword({ oldPassword, newPassword }).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.toastrService.success('Password updated', 'Successfully');
+        this.dialogRef.close(true);
+      },
+      error: (err) => {
+        this.submitting = false;
+        this.toastrService.error(
+          err?.error?.message ?? err?.message ?? 'Failed to update password',
+          'Error',
+        );
+      },
+    });
   }
 
   cancel() {

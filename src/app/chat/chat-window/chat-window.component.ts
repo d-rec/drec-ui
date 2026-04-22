@@ -81,10 +81,13 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
           ) {
             incomingCount++;
             this.unreadUuids.add(msg.uuid);
-            this.boldTimers.set(msg.uuid, setTimeout(() => {
-              this.unreadUuids.delete(msg.uuid);
-              this.boldTimers.delete(msg.uuid);
-            }, 10000));
+            this.boldTimers.set(
+              msg.uuid,
+              setTimeout(() => {
+                this.unreadUuids.delete(msg.uuid);
+                this.boldTimers.delete(msg.uuid);
+              }, 10000),
+            );
           }
         }
       }
@@ -95,7 +98,9 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
       // Auto-mark conversation as read so the bell badge doesn't
       // count messages the reviewer is already looking at
       if (incomingCount > 0 && this.chatService.currentConversationId) {
-        this.chatService.markConversationRead(this.chatService.currentConversationId);
+        this.chatService.markConversationRead(
+          this.chatService.currentConversationId,
+        );
         this.playNotificationSound();
         this.flashHeader();
       }
@@ -328,7 +333,8 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private playNotificationSound(): void {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const ctx = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
@@ -339,7 +345,9 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
       osc.start();
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
       osc.stop(ctx.currentTime + 0.15);
-    } catch { /* audio not available */ }
+    } catch {
+      /* audio not available */
+    }
   }
 
   private flashHeader(): void {

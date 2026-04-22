@@ -62,12 +62,18 @@ export class BulkUploadService {
     return this.http.get(Url);
   }
 
-  getBulkUploadPreview(
-    bulkUploadId: string,
-  ): Observable<{ records: any[]; organizationId: number; totalCsvRows: number; skippedRows: number }> {
-    return this.http.get<{ records: any[]; organizationId: number; totalCsvRows: number; skippedRows: number }>(
-      `${this.baseUrl}/${bulkUploadId}/preview`,
-    );
+  getBulkUploadPreview(bulkUploadId: string): Observable<{
+    records: any[];
+    organizationId: number;
+    totalCsvRows: number;
+    skippedRows: number;
+  }> {
+    return this.http.get<{
+      records: any[];
+      organizationId: number;
+      totalCsvRows: number;
+      skippedRows: number;
+    }>(`${this.baseUrl}/${bulkUploadId}/preview`);
   }
 
   confirmBulkUpload(

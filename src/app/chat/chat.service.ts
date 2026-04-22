@@ -78,17 +78,13 @@ export class ChatService implements OnDestroy {
     });
   }
 
-  private getUnreadCount(
-    email: string,
-  ): Observable<{ count: number }> {
+  private getUnreadCount(email: string): Observable<{ count: number }> {
     return this.http.get<{ count: number }>(
       `${this.apiUrl}chat/unread-count/${encodeURIComponent(email)}`,
     );
   }
 
-  getUnreadDeviceNames(
-    email: string,
-  ): Observable<string[]> {
+  getUnreadDeviceNames(email: string): Observable<string[]> {
     return this.http.get<string[]>(
       `${this.apiUrl}chat/unread-devices/${encodeURIComponent(email)}`,
     );
@@ -98,10 +94,9 @@ export class ChatService implements OnDestroy {
     const email = this.getCurrentUserEmail();
     if (!email) return;
     this.http
-      .patch<any>(
-        `${this.apiUrl}chat/conversations/${conversationId}/read`,
-        { email },
-      )
+      .patch<any>(`${this.apiUrl}chat/conversations/${conversationId}/read`, {
+        email,
+      })
       .subscribe(() => this.fetchUnreadCount(email));
   }
 

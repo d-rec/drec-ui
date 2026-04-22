@@ -1,8 +1,4 @@
-export const UserStatus = [
-  'Pending',
-  'Active',
-  'Suspended',
-];
+export const UserStatus = ['Pending', 'Active', 'Suspended'];
 export enum UserEnumStatus {
   Pending = 'Pending',
   Active = 'Active',

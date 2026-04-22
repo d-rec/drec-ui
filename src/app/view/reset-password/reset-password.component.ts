@@ -122,10 +122,7 @@ export class ResetPasswordComponent {
       .subscribe({
         next: (data) => {
           this.submitting = false;
-          this.toastrService.success(
-            'Password set successfully!',
-            'Success',
-          );
+          this.toastrService.success('Password set successfully!', 'Success');
           this.router.navigate(['/login']);
         },
         error: (err) => {

@@ -70,8 +70,7 @@ export class ImageZoomPanDirective implements OnChanges, OnDestroy {
   }
 
   private apply(): void {
-    this.host.nativeElement.style.transform =
-      `translate(${this.tx}px, ${this.ty}px) scale(${this.scale})`;
+    this.host.nativeElement.style.transform = `translate(${this.tx}px, ${this.ty}px) scale(${this.scale})`;
   }
 
   @HostListener('wheel', ['$event'])
@@ -167,10 +166,16 @@ export class ImageZoomPanDirective implements OnChanges, OnDestroy {
       event.preventDefault();
       const dist = this.touchDist(event);
       const factor = dist / this.pinchStartDist;
-      const nextScale = this.clamp(this.pinchStartScale * factor, this.minScale, this.maxScale);
+      const nextScale = this.clamp(
+        this.pinchStartScale * factor,
+        this.minScale,
+        this.maxScale,
+      );
       const rect = this.host.nativeElement.getBoundingClientRect();
-      const cx = (event.touches[0].clientX + event.touches[1].clientX) / 2 - rect.left;
-      const cy = (event.touches[0].clientY + event.touches[1].clientY) / 2 - rect.top;
+      const cx =
+        (event.touches[0].clientX + event.touches[1].clientX) / 2 - rect.left;
+      const cy =
+        (event.touches[0].clientY + event.touches[1].clientY) / 2 - rect.top;
       this.setScaleAt(cx, cy, nextScale);
     } else if (event.touches.length === 1 && this.dragging) {
       event.preventDefault();

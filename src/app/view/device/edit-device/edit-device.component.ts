@@ -1,4 +1,10 @@
-import { Component, OnInit, OnDestroy, ViewChild, TemplateRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  TemplateRef,
+} from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -16,7 +22,15 @@ import { map, startWith } from 'rxjs/operators';
 import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
 import { MapComponent } from '../../map/map.component';
-import { DocumentType, LABELLING_SCHEMES, OperatingConfiguration, PublicFundingType, RegistrationType, SourceAccessMode, VolumeEvidenceType } from '../../../utils/drec.enum';
+import {
+  DocumentType,
+  LABELLING_SCHEMES,
+  OperatingConfiguration,
+  PublicFundingType,
+  RegistrationType,
+  SourceAccessMode,
+  VolumeEvidenceType,
+} from '../../../utils/drec.enum';
 import {
   getEvidenceRequirements,
   getHint,
@@ -109,7 +123,13 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   // Document upload support
   DocumentType = DocumentType;
   files: { [key: string]: File[] } = {};
-  filePreviews: { [key: string]: { url: SafeResourceUrl; type: 'image' | 'pdf' | 'excel' | 'other'; name: string } } = {};
+  filePreviews: {
+    [key: string]: {
+      url: SafeResourceUrl;
+      type: 'image' | 'pdf' | 'excel' | 'other';
+      name: string;
+    };
+  } = {};
   existingDocs: {
     [type: string]: {
       url: string;
@@ -133,7 +153,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       'The capacity (in MW) matches the installed Alternating Current (AC) capacity shown on the Single Line Diagram (SLD) and supporting documents.',
       'The effective date of registration matches the date inputted on the Registry. It must not be before the effective date of registration set out by the Residual Mix Deadline.',
       'The number of generating units (generators) is provided and matches the amount in the supporting SLD.',
-      'The serial numbers of the facility\'s meters are provided.',
+      "The serial numbers of the facility's meters are provided.",
     ],
     SF_02C: [], // radio selection handled separately
     METERING_EVIDENCE: [
@@ -159,7 +179,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   sf02cType: 'declaration' | 'ownership' | null = null;
 
   initChecklists(): void {
-    for (const [docType, items] of Object.entries(EditDeviceComponent.DOC_CHECKLISTS)) {
+    for (const [docType, items] of Object.entries(
+      EditDeviceComponent.DOC_CHECKLISTS,
+    )) {
       this.checklistState[docType] = new Array(items.length).fill(false);
     }
   }
@@ -185,7 +207,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     const arr = this.getSerialNumbers();
     arr[index] = value;
     const joined = arr.filter((s) => s !== '').join(';');
-    this.updateDeviceForm.get('serialNumber')?.setValue(joined || null, { emitEvent: false });
+    this.updateDeviceForm
+      .get('serialNumber')
+      ?.setValue(joined || null, { emitEvent: false });
     this.updateDeviceForm.get('serialNumber')?.markAsDirty();
   }
 
@@ -193,12 +217,16 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     const arr = this.getSerialNumbers();
     arr.push('');
     const joined = arr.filter((s) => s !== '').join(';');
-    this.updateDeviceForm.get('serialNumber')?.setValue(joined || null, { emitEvent: false });
+    this.updateDeviceForm
+      .get('serialNumber')
+      ?.setValue(joined || null, { emitEvent: false });
     // Force the *ngFor to see the new empty slot by re-reading through the
     // form control value — since we don't push '', we need a sentinel:
     // push a trailing ';' so split yields an extra empty entry.
     const cur = this.updateDeviceForm.get('serialNumber')?.value ?? '';
-    this.updateDeviceForm.get('serialNumber')?.setValue(cur + (cur ? ';' : ''), { emitEvent: false });
+    this.updateDeviceForm
+      .get('serialNumber')
+      ?.setValue(cur + (cur ? ';' : ''), { emitEvent: false });
     // Move focus to the newly-added input after Angular renders it
     setTimeout(() => {
       const list = document.querySelector('.serial-list');
@@ -212,7 +240,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     if (arr.length <= 1) return;
     arr.splice(index, 1);
     const joined = arr.filter((s) => s !== '').join(';');
-    this.updateDeviceForm.get('serialNumber')?.setValue(joined || null, { emitEvent: false });
+    this.updateDeviceForm
+      .get('serialNumber')
+      ?.setValue(joined || null, { emitEvent: false });
     this.updateDeviceForm.get('serialNumber')?.markAsDirty();
   }
 
@@ -229,7 +259,10 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
 
   saveRenameDialog(): void {
     const docs = this.existingDocs[this.renameDialogType] || [];
-    const changed: { entry: typeof docs[number]; normalized: string | null }[] = [];
+    const changed: {
+      entry: (typeof docs)[number];
+      normalized: string | null;
+    }[] = [];
     for (let i = 0; i < docs.length; i++) {
       const trimmed = (this.renameDialogDraft[i] ?? '').trim();
       const normalized = trimmed === '' ? null : trimmed;
@@ -387,22 +420,24 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     this.showaddmore = true;
     this.shownomore = false;
     this.updateDeviceForm.valueChanges.subscribe();
-    this.updateDeviceForm
-      .get('latitude')
-      ?.valueChanges.subscribe((v) => {
-        const stripped = typeof v === 'string' ? v.replace(/\s/g, '') : v;
-        if (stripped !== v) this.updateDeviceForm.get('latitude')?.setValue(stripped, { emitEvent: false });
-        const longitude = this.updateDeviceForm.get('longitude')?.value;
-        this.updateMapMarkers(stripped, longitude);
-      });
-    this.updateDeviceForm
-      .get('longitude')
-      ?.valueChanges.subscribe((v) => {
-        const stripped = typeof v === 'string' ? v.replace(/\s/g, '') : v;
-        if (stripped !== v) this.updateDeviceForm.get('longitude')?.setValue(stripped, { emitEvent: false });
-        const latitude = this.updateDeviceForm.get('latitude')?.value;
-        this.updateMapMarkers(latitude, stripped);
-      });
+    this.updateDeviceForm.get('latitude')?.valueChanges.subscribe((v) => {
+      const stripped = typeof v === 'string' ? v.replace(/\s/g, '') : v;
+      if (stripped !== v)
+        this.updateDeviceForm
+          .get('latitude')
+          ?.setValue(stripped, { emitEvent: false });
+      const longitude = this.updateDeviceForm.get('longitude')?.value;
+      this.updateMapMarkers(stripped, longitude);
+    });
+    this.updateDeviceForm.get('longitude')?.valueChanges.subscribe((v) => {
+      const stripped = typeof v === 'string' ? v.replace(/\s/g, '') : v;
+      if (stripped !== v)
+        this.updateDeviceForm
+          .get('longitude')
+          ?.setValue(stripped, { emitEvent: false });
+      const latitude = this.updateDeviceForm.get('latitude')?.value;
+      this.updateMapMarkers(latitude, stripped);
+    });
     forkJoin({
       countrylist: this.authService.GetMethod('countrycode/list'),
       sdgblist: this.authService.GetMethod('sdgbenefit/code'),
@@ -520,7 +555,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.gridInterconnection = data.gridInterconnection;
         this.operatingConfiguration = data.operatingConfiguration || null;
         this.sourceAccessMode = data.sourceAccessMode || null;
-        this.evidenceReqs = getEvidenceRequirements(this.operatingConfiguration);
+        this.evidenceReqs = getEvidenceRequirements(
+          this.operatingConfiguration,
+        );
         this.deviceDescription = data.deviceDescription;
         this.stateProvince = data.stateProvince;
         this.organizationId = data.organizationId;
@@ -549,10 +586,17 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
             let prev = '';
             while (name !== prev) {
               prev = name;
-              try { name = decodeURIComponent(name); } catch { break; }
+              try {
+                name = decodeURIComponent(name);
+              } catch {
+                break;
+              }
             }
             // Strip embedded UUIDs
-            name = name.replace(/-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, '');
+            name = name.replace(
+              /-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi,
+              '',
+            );
             // Strip upload timestamp+index suffix (e.g. _1752226304295_1.pdf → .pdf)
             name = name.replace(/_\d{10,}_\d+\./, '.');
             this.existingDocs[doc.type].push({
@@ -566,23 +610,48 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
           this.brokenDocs = {};
           for (const type of Object.keys(this.existingDocs)) {
             for (const doc of this.existingDocs[type]) {
-              if (!doc.url) { this.brokenDocs[type] = true; continue; }
+              if (!doc.url) {
+                this.brokenDocs[type] = true;
+                continue;
+              }
               const ctrl = new AbortController();
-              fetch(doc.url, { method: 'GET', mode: 'cors', signal: ctrl.signal }).then(
-                (res) => { ctrl.abort(); if (!res.ok) this.brokenDocs[type] = true; },
-                (err) => { if (err?.name !== 'AbortError') this.brokenDocs[type] = true; },
+              fetch(doc.url, {
+                method: 'GET',
+                mode: 'cors',
+                signal: ctrl.signal,
+              }).then(
+                (res) => {
+                  ctrl.abort();
+                  if (!res.ok) this.brokenDocs[type] = true;
+                },
+                (err) => {
+                  if (err?.name !== 'AbortError') this.brokenDocs[type] = true;
+                },
               );
             }
             // Pre-populate filePreviews for existing docs so View button shows
             if (!this.filePreviews[type] && this.existingDocs[type]?.length) {
               const doc = this.existingDocs[type][0];
               const ext = doc.name.split('.').pop()?.toLowerCase() || '';
-              const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext);
+              const isImage = [
+                'jpg',
+                'jpeg',
+                'png',
+                'gif',
+                'webp',
+                'bmp',
+              ].includes(ext);
               const isPdf = ext === 'pdf';
               const isExcel = ext === 'xlsx' || ext === 'xls';
               this.filePreviews[type] = {
                 url: this.sanitizer.bypassSecurityTrustResourceUrl(doc.url),
-                type: isImage ? 'image' : isPdf ? 'pdf' : isExcel ? 'excel' : 'other',
+                type: isImage
+                  ? 'image'
+                  : isPdf
+                    ? 'pdf'
+                    : isExcel
+                      ? 'excel'
+                      : 'other',
                 name: doc.name,
               };
             }
@@ -669,10 +738,11 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       return;
     }
     const ext = (d.name.split('.').pop() || '').toLowerCase();
-    const type: 'image' | 'pdf' | 'excel' | 'other' =
-      this.isPdfFile(d.name) ? 'pdf'
-      : ext === 'xlsx' || ext === 'xls' ? 'excel'
-      : 'other';
+    const type: 'image' | 'pdf' | 'excel' | 'other' = this.isPdfFile(d.name)
+      ? 'pdf'
+      : ext === 'xlsx' || ext === 'xls'
+        ? 'excel'
+        : 'other';
     this.previewData = {
       url: this.sanitizer.bypassSecurityTrustResourceUrl(d.url),
       type,
@@ -699,9 +769,13 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       this.organizationId ?? this.loginuser?.organizationId,
     );
     if (this.updateDeviceForm.controls['serialNumber'].value == null) {
-      this.updateDeviceForm.controls['serialNumber'].setValue(this.serialNumber);
+      this.updateDeviceForm.controls['serialNumber'].setValue(
+        this.serialNumber,
+      );
     }
-    this.updateDeviceForm.controls['countryCode'].setValue(selectedCountry?.alpha3);
+    this.updateDeviceForm.controls['countryCode'].setValue(
+      selectedCountry?.alpha3,
+    );
 
     // Capture the form value once — .value returns a new snapshot each call
     const formValue = this.updateDeviceForm.value;
@@ -713,7 +787,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     }
     if (formValue.longitude) {
       const [intLng, decLng] = String(formValue.longitude).split('.');
-      formValue.longitude = decLng ? `${intLng}.${decLng.slice(0, 20)}` : intLng;
+      formValue.longitude = decLng
+        ? `${intLng}.${decLng.slice(0, 20)}`
+        : intLng;
     }
 
     // OC#37 is a multi-select in the UI but stored as a '; '-joined string
@@ -727,15 +803,18 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     // covers null/undefined — a null → Transform → NaN still fails IsNumber).
     for (const k of Object.keys(formValue)) {
       const v = (formValue as any)[k];
-      if (v === null || v === undefined || v === '' || (typeof v === 'number' && isNaN(v))) {
+      if (
+        v === null ||
+        v === undefined ||
+        v === '' ||
+        (typeof v === 'number' && isNaN(v))
+      ) {
         delete (formValue as any)[k];
       }
     }
 
     // Check if any files were selected
-    const hasFiles = this.fileTypes.some(
-      (ft) => this.files[ft]?.length > 0,
-    );
+    const hasFiles = this.fileTypes.some((ft) => this.files[ft]?.length > 0);
 
     let payload: FormData | Record<string, any>;
 
@@ -779,7 +858,8 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       .update(
         this.externalid,
         payload,
-        this.updateDeviceForm.controls['serialNumber'].value !== this.initSerialNumber,
+        this.updateDeviceForm.controls['serialNumber'].value !==
+          this.initSerialNumber,
       )
       .subscribe({
         next: (data: any) => {
@@ -833,8 +913,12 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         lng: this.longitude,
       };
     }
-    this.updateDeviceForm.get('latitude')?.setValue(center.lat, { emitEvent: false });
-    this.updateDeviceForm.get('longitude')?.setValue(center.lng, { emitEvent: false });
+    this.updateDeviceForm
+      .get('latitude')
+      ?.setValue(center.lat, { emitEvent: false });
+    this.updateDeviceForm
+      .get('longitude')
+      ?.setValue(center.lng, { emitEvent: false });
     this.latitude = String(center.lat);
     this.longitude = String(center.lng);
     // Only mark dirty if coords actually changed from the original
@@ -848,8 +932,12 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     if (!this.savedCoords) return;
     this.latitude = this.savedCoords.lat;
     this.longitude = this.savedCoords.lng;
-    this.updateDeviceForm.get('latitude')?.setValue(this.savedCoords.lat, { emitEvent: false });
-    this.updateDeviceForm.get('longitude')?.setValue(this.savedCoords.lng, { emitEvent: false });
+    this.updateDeviceForm
+      .get('latitude')
+      ?.setValue(this.savedCoords.lat, { emitEvent: false });
+    this.updateDeviceForm
+      .get('longitude')
+      ?.setValue(this.savedCoords.lng, { emitEvent: false });
     const lat = parseFloat(this.savedCoords.lat);
     const lng = parseFloat(this.savedCoords.lng);
     if (!isNaN(lat) && !isNaN(lng)) {
@@ -869,9 +957,13 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       this.organizationId ?? this.loginuser?.organizationId,
     );
     if (this.updateDeviceForm.controls['serialNumber'].value == null) {
-      this.updateDeviceForm.controls['serialNumber'].setValue(this.serialNumber);
+      this.updateDeviceForm.controls['serialNumber'].setValue(
+        this.serialNumber,
+      );
     }
-    this.updateDeviceForm.controls['countryCode'].setValue(selectedCountry?.alpha3);
+    this.updateDeviceForm.controls['countryCode'].setValue(
+      selectedCountry?.alpha3,
+    );
 
     const formValue = { ...this.updateDeviceForm.value };
     if (formValue.latitude) {
@@ -880,29 +972,35 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     }
     if (formValue.longitude) {
       const [intLng, decLng] = String(formValue.longitude).split('.');
-      formValue.longitude = decLng ? `${intLng}.${decLng.slice(0, 20)}` : intLng;
+      formValue.longitude = decLng
+        ? `${intLng}.${decLng.slice(0, 20)}`
+        : intLng;
     }
 
-    this.deviceService
-      .update(this.externalid, formValue, false)
-      .subscribe({
-        next: () => {
-          this.toastrService.success('Coordinates saved');
-          this.savedCoords = null;
-          this.coordsDirty = false;
-          // Restore country display name so form still shows it correctly
-          if (selectedCountry) {
-            this.updateDeviceForm.controls['countryCode'].setValue(selectedCountry.country);
-          }
-        },
-        error: (err: any) => {
-          this.toastrService.error(err.error?.message || 'Failed to save coordinates');
-          // Restore country display name on error too
-          if (selectedCountry) {
-            this.updateDeviceForm.controls['countryCode'].setValue(selectedCountry.country);
-          }
-        },
-      });
+    this.deviceService.update(this.externalid, formValue, false).subscribe({
+      next: () => {
+        this.toastrService.success('Coordinates saved');
+        this.savedCoords = null;
+        this.coordsDirty = false;
+        // Restore country display name so form still shows it correctly
+        if (selectedCountry) {
+          this.updateDeviceForm.controls['countryCode'].setValue(
+            selectedCountry.country,
+          );
+        }
+      },
+      error: (err: any) => {
+        this.toastrService.error(
+          err.error?.message || 'Failed to save coordinates',
+        );
+        // Restore country display name on error too
+        if (selectedCountry) {
+          this.updateDeviceForm.controls['countryCode'].setValue(
+            selectedCountry.country,
+          );
+        }
+      },
+    });
   }
 
   onScreenshotFromMap(file: File): void {
@@ -920,7 +1018,10 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       name: file.name,
     };
 
-    this.toastrService.success(`Map capture "${file.name}" added as metering evidence`, 'Captured');
+    this.toastrService.success(
+      `Map capture "${file.name}" added as metering evidence`,
+      'Captured',
+    );
   }
 
   updateMapMarkers(latitude: any, longitude: any) {

@@ -124,7 +124,10 @@ export const EVIDENCE_HINTS: Record<string, Record<string, string>> = {
   },
 };
 
-export function getHint(config: string | null | undefined, docType: string): string | null {
+export function getHint(
+  config: string | null | undefined,
+  docType: string,
+): string | null {
   if (!config) return null;
   return EVIDENCE_HINTS[config]?.[docType] ?? null;
 }

@@ -106,8 +106,10 @@ export class PictureWindowComponent implements OnInit {
   highlightOcr(text: string, term: string): string {
     if (!term) return text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
     const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-    const termEscaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const termEscaped = term
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;');
     return escaped.replace(
       new RegExp(termEscaped, 'gi'),
       (m) => `<mark>${m}</mark>`,
@@ -182,7 +184,9 @@ export class PictureWindowComponent implements OnInit {
     for (let i = this.predictions.length - 1; i >= 0; i--) {
       if (this.hitTest(this.predictions[i], x, y)) {
         if (this.selectedRegion === i) {
-          this.predictions = this.predictions.filter((_: any, j: number) => j !== i);
+          this.predictions = this.predictions.filter(
+            (_: any, j: number) => j !== i,
+          );
           this.selectedRegion = -1;
           this.panelCount = this.predictions.length;
           const ctx = canvas.getContext('2d')!;
@@ -208,7 +212,11 @@ export class PictureWindowComponent implements OnInit {
   }
 
   deleteSelected(): void {
-    if (this.selectedRegion < 0 || this.selectedRegion >= this.predictions.length) return;
+    if (
+      this.selectedRegion < 0 ||
+      this.selectedRegion >= this.predictions.length
+    )
+      return;
     this.predictions.splice(this.selectedRegion, 1);
     this.selectedRegion = -1;
     this.panelCount = this.predictions.length;
@@ -219,12 +227,20 @@ export class PictureWindowComponent implements OnInit {
     const points: { x: number; y: number }[] = pred.points ?? [];
     if (points.length > 2) {
       // Point-in-polygon (ray-casting)
-      const scaled = points.map(p => ({ x: p.x * this.scaleX, y: p.y * this.scaleY }));
+      const scaled = points.map((p) => ({
+        x: p.x * this.scaleX,
+        y: p.y * this.scaleY,
+      }));
       let inside = false;
       for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
-        const xi = scaled[i].x, yi = scaled[i].y;
-        const xj = scaled[j].x, yj = scaled[j].y;
-        if (((yi > my) !== (yj > my)) && (mx < (xj - xi) * (my - yi) / (yj - yi) + xi)) {
+        const xi = scaled[i].x,
+          yi = scaled[i].y;
+        const xj = scaled[j].x,
+          yj = scaled[j].y;
+        if (
+          yi > my !== yj > my &&
+          mx < ((xj - xi) * (my - yi)) / (yj - yi) + xi
+        ) {
           inside = !inside;
         }
       }
@@ -246,7 +262,9 @@ export class PictureWindowComponent implements OnInit {
     for (let i = 0; i < this.predictions.length; i++) {
       const pred = this.predictions[i];
       const selected = i === this.selectedRegion;
-      const fill = selected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(0, 255, 180, 0.3)';
+      const fill = selected
+        ? 'rgba(239, 68, 68, 0.4)'
+        : 'rgba(0, 255, 180, 0.3)';
       const stroke = selected ? '#ef4444' : '#00ffb4';
       const points: { x: number; y: number }[] = pred.points ?? [];
 
@@ -279,8 +297,8 @@ export class PictureWindowComponent implements OnInit {
         let dotX: number, dotY: number;
         if (points.length > 2) {
           // Find top-right of bounding box
-          const xs = points.map(p => p.x * this.scaleX);
-          const ys = points.map(p => p.y * this.scaleY);
+          const xs = points.map((p) => p.x * this.scaleX);
+          const ys = points.map((p) => p.y * this.scaleY);
           dotX = Math.max(...xs);
           dotY = Math.min(...ys);
         } else {
@@ -316,7 +334,10 @@ export class PictureWindowComponent implements OnInit {
 
     const canvas = document.createElement('canvas');
     const maxDim = 640;
-    const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+    const scale = Math.min(
+      1,
+      maxDim / Math.max(img.naturalWidth, img.naturalHeight),
+    );
     canvas.width = Math.round(img.naturalWidth * scale);
     canvas.height = Math.round(img.naturalHeight * scale);
     const ctx = canvas.getContext('2d')!;
@@ -352,7 +373,9 @@ export class PictureWindowComponent implements OnInit {
       const scale = Math.min(1, maxDim / Math.max(bmp.width, bmp.height));
       canvas.width = Math.round(bmp.width * scale);
       canvas.height = Math.round(bmp.height * scale);
-      canvas.getContext('2d')!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+      canvas
+        .getContext('2d')!
+        .drawImage(bmp, 0, 0, canvas.width, canvas.height);
       bmp.close();
 
       const base64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];

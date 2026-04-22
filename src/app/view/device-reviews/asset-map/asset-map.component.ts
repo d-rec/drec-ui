@@ -59,7 +59,10 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
   private selectedId: string | null = null;
   private selectedSub: Subscription | null = null;
 
-  constructor(private http: HttpClient, private assetService: AssetService) {}
+  constructor(
+    private http: HttpClient,
+    private assetService: AssetService,
+  ) {}
 
   ngAfterViewInit(): void {
     this.map = L.map(this.mapEl.nativeElement, {
@@ -139,7 +142,8 @@ export class AssetMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 
   private panToSelected(id: string): void {
     const asset = this.assets.find((a) => a.id === id);
-    if (!asset || asset.lat === null || asset.long === null || !this.map) return;
+    if (!asset || asset.lat === null || asset.long === null || !this.map)
+      return;
     const currentZoom = this.map.getZoom();
     this.map.flyTo([asset.lat, asset.long], Math.max(currentZoom, 8), {
       duration: 0.6,

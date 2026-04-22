@@ -1,7 +1,10 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { SatellitePreview, satellitePreview } from '../../view/map/map.component';
+import {
+  SatellitePreview,
+  satellitePreview,
+} from '../../view/map/map.component';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -34,9 +37,7 @@ import { environment } from '../../../environments/environment';
           />
         </div>
       </div>
-      <div class="sat-preview__date" *ngIf="satDate">
-        \u{1F6F0} {{ satDate }}
-      </div>
+      <div class="sat-preview__date" *ngIf="satDate">🛰 {{ satDate }}</div>
     </div>
   `,
   styles: [
@@ -162,10 +163,11 @@ export class SatellitePreviewComponent implements OnChanges {
     document.body.appendChild(el);
 
     http
-      .get<{ date: string | null }>(
-        `${environment.API_URL}device-reviews/satellite-date`,
-        { params: { lat: lat.toString(), lng: lng.toString() } },
-      )
+      .get<{
+        date: string | null;
+      }>(`${environment.API_URL}device-reviews/satellite-date`, {
+        params: { lat: lat.toString(), lng: lng.toString() },
+      })
       .subscribe({
         next: (res) => {
           if (res.date) {
@@ -203,12 +205,9 @@ export class SatellitePreviewComponent implements OnChanges {
     const boxH = 310;
     const gap = 16;
     const rightFits = screenX + gap + boxW < window.innerWidth;
-    el.style.left =
-      (rightFits ? screenX + gap : screenX - gap - boxW) + 'px';
+    el.style.left = (rightFits ? screenX + gap : screenX - gap - boxW) + 'px';
     el.style.top =
-      Math.min(
-        Math.max(screenY - boxH / 2, 4),
-        window.innerHeight - boxH - 4,
-      ) + 'px';
+      Math.min(Math.max(screenY - boxH / 2, 4), window.innerHeight - boxH - 4) +
+      'px';
   }
 }

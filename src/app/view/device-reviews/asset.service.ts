@@ -68,12 +68,17 @@ export class AssetService {
     const existing = current.find((p) => p.url === url);
     if (existing) {
       this.openPictures$.next(
-        current.map((p) => (p.id === existing.id ? { ...p, zOrder: this.nextZOrder() } : p)),
+        current.map((p) =>
+          p.id === existing.id ? { ...p, zOrder: this.nextZOrder() } : p,
+        ),
       );
       return;
     }
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-    this.openPictures$.next([...current, { id, url, enableOcr, zOrder: this.nextZOrder() }]);
+    this.openPictures$.next([
+      ...current,
+      { id, url, enableOcr, zOrder: this.nextZOrder() },
+    ]);
   }
 
   /** Promote a specific picture to the top of ALL floating windows. */
@@ -82,7 +87,9 @@ export class AssetService {
     const hit = current.find((p) => p.id === id);
     if (!hit) return;
     this.openPictures$.next(
-      current.map((p) => (p.id === id ? { ...p, zOrder: this.nextZOrder() } : p)),
+      current.map((p) =>
+        p.id === id ? { ...p, zOrder: this.nextZOrder() } : p,
+      ),
     );
   }
 
@@ -291,12 +298,13 @@ export class AssetService {
   }
 
   detectPanels(imageBase64: string): Observable<any> {
-    return this.http.post<any>(
-      `${environment.API_URL}device-reviews/detect-panels`,
-      { image: imageBase64 },
-    ).pipe(
-      retry({ count: 2, delay: (err, attempt) => timer(attempt * 3000) }),
-    );
+    return this.http
+      .post<any>(`${environment.API_URL}device-reviews/detect-panels`, {
+        image: imageBase64,
+      })
+      .pipe(
+        retry({ count: 2, delay: (err, attempt) => timer(attempt * 3000) }),
+      );
   }
 
   /** Extract the S3 object key from a presigned URL. */

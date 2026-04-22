@@ -74,7 +74,10 @@ export class AddreadComponent implements OnInit {
   ) {
     this.loginuser = JSON.parse(sessionStorage.getItem('loginuser')!);
 
-    if (this.loginuser.role === 'Admin' || this.loginuser.role === 'Registrant') {
+    if (
+      this.loginuser.role === 'Admin' ||
+      this.loginuser.role === 'Registrant'
+    ) {
       this.showmeter_readformadmin = true;
     } else {
       this.showmeter_readformadmin = false;

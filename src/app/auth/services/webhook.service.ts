@@ -31,11 +31,23 @@ export class WebhookService {
     return this.http.get<Webhook>(`${this.apiUrl}/${id}`);
   }
 
-  create(data: { url: string; events: string[]; secret?: string }): Observable<Webhook> {
+  create(data: {
+    url: string;
+    events: string[];
+    secret?: string;
+  }): Observable<Webhook> {
     return this.http.post<Webhook>(this.apiUrl, data);
   }
 
-  update(id: number, data: Partial<{ url: string; events: string[]; secret: string; active: boolean }>): Observable<Webhook> {
+  update(
+    id: number,
+    data: Partial<{
+      url: string;
+      events: string[];
+      secret: string;
+      active: boolean;
+    }>,
+  ): Observable<Webhook> {
     return this.http.patch<Webhook>(`${this.apiUrl}/${id}`, data);
   }
 
@@ -44,6 +56,9 @@ export class WebhookService {
   }
 
   test(id: number): Observable<{ success: boolean }> {
-    return this.http.post<{ success: boolean }>(`${this.apiUrl}/${id}/test`, {});
+    return this.http.post<{ success: boolean }>(
+      `${this.apiUrl}/${id}/test`,
+      {},
+    );
   }
 }

@@ -27,7 +27,14 @@ const DEFAULT_WIDTH = 200;
   templateUrl: './sidemenu.component.html',
   styleUrls: ['./sidemenu.component.scss'],
   providers: [
-    { provide: MAT_EXPANSION_PANEL_DEFAULT_OPTIONS, useValue: { expandedHeight: '32px', collapsedHeight: '32px', togglePosition: 'before' } },
+    {
+      provide: MAT_EXPANSION_PANEL_DEFAULT_OPTIONS,
+      useValue: {
+        expandedHeight: '32px',
+        collapsedHeight: '32px',
+        togglePosition: 'before',
+      },
+    },
   ],
 })
 export class SidemenuComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -154,9 +161,10 @@ export class SidemenuComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       this.devcieurl = '/device/AllList';
       this.Alluserurl = './admin/All_users';
-      this.adduserorg_url = this.loginuser?.role === 'Admin'
-        ? '/admin/add_user'
-        : '/organization/user/invitation';
+      this.adduserorg_url =
+        this.loginuser?.role === 'Admin'
+          ? '/admin/add_user'
+          : '/organization/user/invitation';
     }
   }
 

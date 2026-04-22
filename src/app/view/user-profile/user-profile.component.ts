@@ -1,6 +1,10 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AdminService, UserService, OrganizationService } from '../../auth/services';
+import {
+  AdminService,
+  UserService,
+  OrganizationService,
+} from '../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
@@ -97,7 +101,7 @@ export class UserProfileComponent {
   onDeleteAccount() {
     const confirmed = window.confirm(
       'Are you sure you want to permanently delete your account?\n\n' +
-      'This action cannot be undone. All your data will be lost.',
+        'This action cannot be undone. All your data will be lost.',
     );
     if (!confirmed) return;
 

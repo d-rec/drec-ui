@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, Subject, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MeterReadReviewDevice, MeterReadEntry } from './meter-read-review.model';
+import {
+  MeterReadReviewDevice,
+  MeterReadEntry,
+} from './meter-read-review.model';
 
 @Injectable()
 export class MeterReadReviewService {
@@ -28,9 +31,9 @@ export class MeterReadReviewService {
     this.loading$.next(true);
     this.error$.next(null);
     this.http
-      .get<MeterReadReviewDevice[]>(
-        environment.API_URL + 'device-reviews/meter-reads',
-      )
+      .get<
+        MeterReadReviewDevice[]
+      >(environment.API_URL + 'device-reviews/meter-reads')
       .subscribe({
         next: (devices) => {
           const mapped = devices.map((d) => ({ ...d, reads: [] }));
@@ -62,7 +65,9 @@ export class MeterReadReviewService {
 
   loadReads(deviceId: number): Observable<MeterReadEntry[]> {
     return this.http
-      .get<any>(environment.API_URL + `device-reviews/meter-reads/${deviceId}/reads`)
+      .get<any>(
+        environment.API_URL + `device-reviews/meter-reads/${deviceId}/reads`,
+      )
       .pipe(
         map((data: any[]) =>
           data.map((r) => ({
@@ -95,17 +100,19 @@ export class MeterReadReviewService {
     status: string,
     reviewer?: string,
   ): Observable<Array<{ deviceId: number; status: string; error?: string }>> {
-    return this.http.patch<Array<{ deviceId: number; status: string; error?: string }>>(
-      environment.API_URL + 'device-reviews/meter-reads/bulk/status',
-      { deviceIds, status, reviewer },
-    );
+    return this.http.patch<
+      Array<{ deviceId: number; status: string; error?: string }>
+    >(environment.API_URL + 'device-reviews/meter-reads/bulk/status', {
+      deviceIds,
+      status,
+      reviewer,
+    });
   }
 
   // Reuse existing device-reviews verification endpoints
   reviewHistoricalConsistency(deviceId: number): Observable<any> {
     return this.http.get(
-      environment.API_URL +
-        `device-reviews/${deviceId}/historical-consistency`,
+      environment.API_URL + `device-reviews/${deviceId}/historical-consistency`,
     );
   }
 
@@ -121,7 +128,12 @@ export class MeterReadReviewService {
     );
   }
 
-  flagMeterRead(deviceId: number, readId: number, reason: string, reviewer?: string): Observable<{ logged: boolean }> {
+  flagMeterRead(
+    deviceId: number,
+    readId: number,
+    reason: string,
+    reviewer?: string,
+  ): Observable<{ logged: boolean }> {
     return this.http.post<{ logged: boolean }>(
       environment.API_URL + `device-reviews/meter-reads/${deviceId}/flag-read`,
       { readId, reason, reviewer },
@@ -130,7 +142,8 @@ export class MeterReadReviewService {
 
   gapAnalysis(deviceId: number): Observable<any> {
     return this.http.post(
-      environment.API_URL + `device-reviews/meter-reads/${deviceId}/gap-analysis`,
+      environment.API_URL +
+        `device-reviews/meter-reads/${deviceId}/gap-analysis`,
       {},
     );
   }
