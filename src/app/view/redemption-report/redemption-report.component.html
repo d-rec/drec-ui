@@ -8,12 +8,7 @@
     <hr />
     <mat-card-content>
       <div class="content">
-        <table
-          mat-table
-          [dataSource]="dataSource"
-          
-          matSort
-        >
+        <table mat-table [dataSource]="dataSource" matSort>
           <ng-container matColumnDef="certificateId">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>
               CertificateId
