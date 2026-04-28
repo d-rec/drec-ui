@@ -137,7 +137,7 @@ export const DOCUMENT_TYPE_LABELS: Partial<Record<DocumentType, string>> = {
   [DocumentType.SF_02C_OWNERS_DECLARATION]: "Owner's Declaration",
   [DocumentType.METERING_EVIDENCE]: 'Metering Evidence',
   [DocumentType.SINGLE_LINE_DIAGRAM]: 'Single Line Diagram',
-  [DocumentType.PROJECT_PHOTOS]: 'Project Photos',
+  [DocumentType.PROJECT_PHOTOS]: 'Site Photos',
   [DocumentType.COD_PROOF]: 'COD Proof',
   [DocumentType.FACILITY_BOUNDARY]: 'Facility Boundary',
   [DocumentType.OTHER_DOCUMENTS]: 'Other Document',

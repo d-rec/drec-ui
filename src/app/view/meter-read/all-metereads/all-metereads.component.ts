@@ -265,19 +265,9 @@ export class AllMetereadsComponent implements OnInit {
 
   onSelect(result: any): void {
     this.selectedResult = result;
-    if (this.loginuser.role === 'Admin') {
-      this.FilterForm.controls['serialNumber'].setValue(result.serialNumber);
-      this.serialNumber = result.id;
-    }
-    //else if (this.loginuser.role === 'Registrant') {
-
-    //   this.FilterForm.controls['serialNumber'].setValue(result.serialNumber);
-    //   this.serialNumber = result.id;
-    // }
-    else {
-      this.FilterForm.controls['serialNumber'].setValue(result.serialNumber);
-      this.serialNumber = result.serialNumber;
-    }
+    this.FilterForm.controls['serialNumber'].setValue(result.serialNumber);
+    // Always use externalId as the API identifier (globally unique)
+    this.serialNumber = result.externalId;
     const startDate: Date = new Date(
       new Date().setMonth(new Date().getMonth() - 1),
     );

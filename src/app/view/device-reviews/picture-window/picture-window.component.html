@@ -1,7 +1,7 @@
 <app-ds-floating-window
-  title="Picture"
+  title="Site Photo"
   [initX]="initX" [initY]="initY"
-  [initWidth]="600" [initHeight]="480"
+  [initWidth]="900" [initHeight]="700"
   [zIndex]="zIndex"
   (bringToFront)="bringToFront.emit()"
   (close)="close()"
@@ -26,7 +26,7 @@
           <button type="button" (click)="zoomPan?.zoomIn()" (mousedown)="$event.stopPropagation()" title="Zoom in">+</button>
           <button type="button" (click)="zoomPan?.zoomOut()" (mousedown)="$event.stopPropagation()" title="Zoom out">&minus;</button>
           <button type="button" (click)="zoomPan?.reset()" (mousedown)="$event.stopPropagation()" title="Reset">&#8634;</button>
-          <span class="picw__zoom-level">{{ zoomPan?.scale ? ((zoomPan.scale * 100) | number:'1.0-0') + '%' : '' }}</span>
+          <span class="picw__zoom-level">{{ zoomPan?.scale ? ((zoomPan!.scale * 100) | number:'1.0-0') + '%' : '' }}</span>
         </div>
       </div>
       <div *ngIf="ocrRunning" class="picw__progress">

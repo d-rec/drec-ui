@@ -468,7 +468,7 @@ export class AlldevicesComponent {
     }
   }
   UpdateDevice(row: any) {
-    this.router.navigate(['/device/edit/' + (row.serialNumber || row.externalId)], {
+    this.router.navigate(['/device/edit/' + row.externalId], {
       queryParams: { fromdevices: true },
     });
   }

@@ -322,17 +322,9 @@ export class AddreadComponent implements OnInit {
     );
     this.addreads.reset();
     this.readForm.controls['type'].setValue(null);
-    let deivceid;
-    if (this.loginuser.role === 'Admin') {
-      this.readForm.controls['serialNumber'].setValue(result.serialNumber);
-      deivceid = result.id;
-    } else if (this.loginuser.role === 'Registrant') {
-      this.readForm.controls['serialNumber'].setValue(result.serialNumber);
-      deivceid = result.id;
-    } else {
-      this.readForm.controls['serialNumber'].setValue(result.serialNumber);
-      deivceid = result.serialNumber;
-    }
+    this.readForm.controls['serialNumber'].setValue(result.serialNumber);
+    // Always use externalId as the API identifier (globally unique)
+    const deivceid = result.externalId;
     this.readService.Getlastread(deivceid).subscribe({
       next: (data) => {
         this.lastreaddate = data.enddate;
@@ -441,7 +433,8 @@ export class AddreadComponent implements OnInit {
   }
   onSubmit(): void {
     if (this.readForm.valid) {
-      const serialNumber = this.readForm.value.serialNumber;
+      // Use externalId (globally unique) for API calls, not serialNumber
+      const serialNumber = this.selectedResult?.externalId || this.readForm.value.serialNumber;
       const myobj: any = {};
       if (this.loginuser.role === 'Registrant') {
         myobj['organizationId'] = this.orgId;

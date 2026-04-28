@@ -369,6 +369,631 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       flagged: number;
     };
   } | null = null;
+
+  // ── Scan dialog state ──────────────────────────────────────────────────
+  get scanDialogX(): number {
+    const sidenavWidth = 200;
+    const dialogWidth = 720;
+    return sidenavWidth + Math.max(0, (window.innerWidth - sidenavWidth - dialogWidth) / 2);
+  }
+  get scanDialogY(): number {
+    const headerHeight = 42;
+    const dialogHeight = 620;
+    return headerHeight + Math.max(0, (window.innerHeight - headerHeight - dialogHeight) / 2);
+  }
+  showScanDialog = false;
+  scanRunning = false;
+  scanCancelled = false;
+  scanLog: Array<{
+    key: string;
+    label: string;
+    status: 'pending' | 'running' | 'pass' | 'warn' | 'fail' | 'error' | 'skipped';
+    detail?: string;
+    subItems?: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }>;
+    duration?: number;
+  }> = [];
+
+  readonly scanChecks: Array<{
+    key: string;
+    label: string;
+    description: string;
+    enabled: boolean;
+  }> = [
+    { key: 'autoScreen',   label: 'Auto-Screen',            description: 'Run all built-in verification checks (VA layer)',          enabled: true },
+    { key: 'duplicates',   label: 'Duplicate Screening',    description: 'Screen for duplicate devices across all organizations',    enabled: true },
+    { key: 'sourceAccess', label: 'Source Access Mode',      description: 'Verify source-access mode requirements (§3.3)',            enabled: true },
+    { key: 'ceiling',      label: 'Production Ceiling',     description: 'Irradiance-based production ceiling check (§3.6)',          enabled: true },
+    { key: 'crossSource',  label: 'Cross-Source Verification', description: 'Compare metered production against solar model (§3.10)', enabled: true },
+    { key: 'photoGps',     label: 'Photo GPS Location',     description: 'Verify photo EXIF GPS matches declared device location',    enabled: true },
+    { key: 'sldCapacity',  label: 'SLD Capacity Compare',   description: 'Compare single-line diagram capacity with registered kW',   enabled: true },
+    { key: 'controls',     label: 'Compensating Controls',  description: 'Evaluate compensating controls for Mode 4 (§3.9)',          enabled: true },
+    { key: 'consistency',  label: 'Historical Consistency',  description: 'Review historical meter read consistency and anomalies',    enabled: true },
+    { key: 'classify',     label: 'Document Classification', description: 'AI-classify all documents and check they match their slots', enabled: true },
+  ];
+
+  get scanHasEnabled(): boolean {
+    return this.scanChecks.some((c) => c.enabled);
+  }
+
+  openScanDialog(): void {
+    this.showScanDialog = true;
+    this.scanRunning = false;
+    this.scanCancelled = false;
+    this.scanLog = [];
+  }
+
+  cancelScan(): void {
+    if (this.scanRunning) {
+      this.scanCancelled = true;
+    } else {
+      this.showScanDialog = false;
+    }
+  }
+
+  closeScan(): void {
+    this.showScanDialog = false;
+  }
+
+  get scanProgress(): number {
+    if (this.scanLog.length === 0) return 0;
+    const done = this.scanLog.filter(
+      (e) => e.status !== 'pending' && e.status !== 'running',
+    ).length;
+    return Math.round((done / this.scanLog.length) * 100);
+  }
+
+  async startScan(): Promise<void> {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+
+    const enabled = this.scanChecks.filter((c) => c.enabled);
+    this.scanLog = enabled.map((c) => ({
+      key: c.key,
+      label: c.label,
+      status: 'pending' as const,
+    }));
+    this.scanRunning = true;
+    this.scanCancelled = false;
+    this.cdr.detectChanges();
+
+    for (const entry of this.scanLog) {
+      if (this.scanCancelled) {
+        entry.status = 'skipped';
+        entry.detail = 'Cancelled by user';
+        continue;
+      }
+
+      entry.status = 'running';
+      this.cdr.detectChanges();
+      // Scroll to bottom of log
+      setTimeout(() => {
+        const el = document.querySelector('.scan-log__body');
+        if (el) el.scrollTop = el.scrollHeight;
+      });
+
+      const t0 = performance.now();
+      try {
+        const result = await this.runSingleCheck(entry.key, deviceId);
+        entry.duration = Math.round(performance.now() - t0);
+        entry.status = result.status;
+        entry.detail = result.detail;
+        entry.subItems = result.subItems;
+      } catch (err: any) {
+        entry.duration = Math.round(performance.now() - t0);
+        entry.status = 'error';
+        const raw = err?.error?.message || err?.message || '';
+        entry.detail = /column|relation|syntax|query|SQL/i.test(raw)
+          ? 'Server error — please restart the API and try again'
+          : raw || 'Unexpected error';
+      }
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        const el = document.querySelector('.scan-log__body');
+        if (el) el.scrollTop = el.scrollHeight;
+      });
+    }
+
+    this.scanRunning = false;
+
+    // Update asset badge with auto-screen result if it ran
+    const autoEntry = this.scanLog.find((e) => e.key === 'autoScreen');
+    if (autoEntry && this.autoScreenResult) {
+      const asset = this.svc.assets$.value.find(
+        (a) => a.id === this.editingId,
+      );
+      if (asset) {
+        asset.lastScreenStatus = this.autoScreenResult.overallStatus;
+        asset.lastScreenedAt = this.autoScreenResult.timestamp;
+      }
+    }
+    this.cdr.detectChanges();
+  }
+
+  private runSingleCheck(
+    key: string,
+    deviceId: number,
+  ): Promise<{ status: 'pass' | 'warn' | 'fail'; detail: string; subItems?: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> }> {
+    return new Promise((resolve, reject) => {
+      switch (key) {
+        case 'autoScreen':
+          this.svc.autoScreen(deviceId).subscribe({
+            next: (res: any) => {
+              this.autoScreenResult = res;
+              const fails = res.sections.filter((s: any) => s.status === 'fail').length;
+              const warns = res.sections.filter((s: any) => s.status === 'warn').length;
+              const passes = res.sections.filter((s: any) => s.status === 'pass').length;
+              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              for (const s of (res.sections || [])) {
+                const flagList = (s.flags || []).join('; ');
+                subItems.push({
+                  label: s.name || s.key || 'Check',
+                  status: s.status === 'skip' ? 'info' : s.status,
+                  detail: flagList || s.detail || s.message || undefined,
+                });
+              }
+              resolve({
+                status: res.overallStatus,
+                detail: `${passes} pass, ${warns} warn, ${fails} fail out of ${res.sections.length} checks`,
+                subItems,
+              });
+            },
+            error: reject,
+          });
+          break;
+
+        case 'duplicates':
+          this.svc.screenForDuplicates(deviceId).subscribe({
+            next: (res: any) => {
+              this.duplicateResults = res.duplicates || [];
+              const n = this.duplicateResults.length;
+              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              for (const d of this.duplicateResults) {
+                subItems.push({
+                  label: d.siteName || `Device #${d.id}`,
+                  status: 'warn',
+                  detail: [
+                    `Match type: ${d.matchType || '?'}`,
+                    d.serialNumber ? `Serial: ${d.serialNumber}` : null,
+                    d.organizationId ? `Org ID: ${d.organizationId}` : null,
+                    d.externalId ? `ExtID: ${d.externalId}` : null,
+                  ].filter(Boolean).join(' | '),
+                });
+              }
+              if (n === 0) {
+                subItems.push({ label: 'Serial number', status: 'pass', detail: 'No matches across orgs' });
+                subItems.push({ label: 'Coordinates', status: 'pass', detail: 'No co-located devices' });
+                subItems.push({ label: 'Site name', status: 'pass', detail: 'No similar names found' });
+              }
+              resolve({
+                status: n > 0 ? 'warn' : 'pass',
+                detail: n > 0
+                  ? `${n} potential duplicate(s) found`
+                  : 'No duplicates found',
+                subItems,
+              });
+            },
+            error: reject,
+          });
+          break;
+
+        case 'sourceAccess':
+          this.svc.verifySourceAccessMode(deviceId).subscribe({
+            next: (res: any) => {
+              this.sourceVerifyResult = res;
+              this.sourceVerifyError = null;
+              const missing = (res.missingRequired || []).length;
+              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              subItems.push({ label: `Source Access Mode`, status: 'info', detail: `Mode ${res.mode || '?'}` });
+              if (res.presentRequired?.length) {
+                for (const item of res.presentRequired) {
+                  subItems.push({ label: item, status: 'pass', detail: 'Required — present' });
+                }
+              }
+              if (res.missingRequired?.length) {
+                for (const item of res.missingRequired) {
+                  subItems.push({ label: item, status: 'fail', detail: 'Required — MISSING' });
+                }
+              }
+              if (res.missingRecommended?.length) {
+                for (const item of res.missingRecommended) {
+                  subItems.push({ label: item, status: 'warn', detail: 'Recommended — missing' });
+                }
+              }
+              resolve({
+                status: missing > 0 ? 'fail' : (res.missingRecommended?.length > 0 ? 'warn' : 'pass'),
+                detail: missing > 0
+                  ? `${missing} required item(s) missing: ${res.missingRequired.join(', ')}`
+                  : res.missingRecommended?.length > 0
+                    ? `${res.missingRecommended.length} recommended item(s) missing`
+                    : `Mode ${res.mode || '?'} — all requirements satisfied`,
+                subItems,
+              });
+            },
+            error: reject,
+          });
+          break;
+
+        case 'ceiling':
+          this.svc.checkProductionCeiling(deviceId).subscribe({
+            next: (res: any) => {
+              this.ceilingResult = res;
+              this.ceilingError = null;
+              const exceeded = res.recentReadings?.filter((r: any) => r.exceedsCeiling).length || 0;
+              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              subItems.push({ label: 'Capacity', status: 'info', detail: `${res.capacityKw || '?'} kW` });
+              if (res.irradiance) {
+                subItems.push({ label: 'Irradiance estimate', status: 'pass', detail: `Yield range ${res.irradiance.yieldLow}–${res.irradiance.yieldHigh} kWh/kW/yr (lat ${res.irradiance.absLatitude}°)` });
+              } else {
+                subItems.push({ label: 'Irradiance estimate', status: 'warn', detail: 'No coordinates — cannot estimate' });
+              }
+              if (res.solarGsa) {
+                subItems.push({ label: 'Solar GSA (Global Solar Atlas)', status: 'pass', detail: `${res.solarGsa.annualKwh?.toFixed(0)} kWh/yr total | ${res.gsaYieldPerKw || (res.solarGsa.annualKwh / (res.capacityKw || 1)).toFixed(0)} kWh/kW/yr | v${res.solarGsa.version || '?'}` });
+              } else {
+                subItems.push({ label: 'Solar GSA (Global Solar Atlas)', status: 'warn', detail: 'Unavailable — missing coords, capacity, or pre-COD' });
+              }
+              subItems.push({ label: 'Configured yield', status: res.configuredYield ? 'info' : 'warn', detail: res.configuredYield ? `${res.configuredYield} kWh/kW/yr` : 'Not set — using fallback' });
+              const sources: string[] = [];
+              if (res.irradiance?.yieldHigh) sources.push('irradiance');
+              else if (res.gsaYieldPerKw || res.solarGsa) sources.push('Solar GSA');
+              else if (res.configuredYield) sources.push('configured');
+              else sources.push('default (1500)');
+              subItems.push({ label: 'Effective ceiling yield', status: 'info', detail: `${res.effectiveCeiling ?? '?'} kWh/kW/yr (source: ${sources[0]})` });
+              if (res.yieldMismatch) {
+                subItems.push({ label: 'Yield mismatch', status: 'fail', detail: `Configured ${res.configuredYield} exceeds location estimate ${res.irradiance?.yieldHigh} kWh/kW/yr` });
+              }
+              if (res.recentReadings?.length) {
+                for (const r of res.recentReadings) {
+                  const valueKwh = r.valueKwh ?? r.value;
+                  const ceilingKwh = r.ceilingKwh ?? r.ceiling;
+                  const period = r.periodHours ? `${r.periodHours}h` : '';
+                  const dateStr = r.endDate ? new Date(r.endDate).toLocaleDateString() : r.date || '?';
+                  subItems.push({
+                    label: dateStr,
+                    status: r.exceedsCeiling ? 'warn' : 'pass',
+                    detail: `${valueKwh?.toFixed(1)} kWh${period ? ' over ' + period : ''} (ceiling: ${ceilingKwh?.toFixed(1)} kWh)${r.exceedsCeiling ? ' — EXCEEDS' : ''}`,
+                  });
+                }
+              } else {
+                subItems.push({ label: 'Readings', status: 'info', detail: 'No recent meter readings found' });
+              }
+              resolve({
+                status: res.yieldMismatch ? 'fail' : exceeded > 0 ? 'warn' : 'pass',
+                detail: res.yieldMismatch
+                  ? `Yield mismatch: configured ${res.configuredYield} vs estimated ${res.irradiance?.yieldHigh} kWh/kW/yr`
+                  : exceeded > 0
+                    ? `${exceeded} reading(s) exceed the production ceiling`
+                    : `All ${res.recentReadings?.length || 0} readings within ceiling`,
+                subItems,
+              });
+            },
+            error: reject,
+          });
+          break;
+
+        case 'crossSource':
+          this.svc.crossSourceVerification(deviceId).subscribe({
+            next: (res: any) => {
+              this.crossSourceResult = res;
+              const flagCount = (res.flags || []).length;
+              const hasCritical = res.flags?.some((f: any) => f.severity === 'critical');
+              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              subItems.push({ label: 'Performance factor', status: res.performanceFactor > 1.2 || res.performanceFactor < 0.3 ? 'warn' : 'pass', detail: `${res.performanceFactor?.toFixed(3) || '?'}` });
+              subItems.push({ label: 'Correlation (R²)', status: res.rSquared != null && res.rSquared < 0.5 ? 'warn' : 'pass', detail: `${res.rSquared?.toFixed(4) || '?'}` });
+              subItems.push({ label: 'Simple ratio', status: 'info', detail: `${res.simpleRatio?.toFixed(3) || '?'}` });
+              subItems.push({ label: 'Period compared', status: 'info', detail: `${res.monthsCompared || 0} months` });
+              if (res.modelSource) {
+                subItems.push({ label: 'Model source', status: 'info', detail: res.modelSource });
+              }
+              // Show individual months with outlier ratios
+              for (const m of (res.months || [])) {
+                if (m.ratio > 1.5 || m.ratio < 0.3) {
+                  subItems.push({
+                    label: m.month,
+                    status: 'warn',
+                    detail: `Actual ${m.actualKwh?.toFixed(0)} kWh vs model ${m.modelKwh?.toFixed(0)} kWh (ratio ${m.ratio?.toFixed(2)})`,
+                  });
+                }
+              }
+              for (const flag of (res.flags || [])) {
+                subItems.push({
+                  label: flag.label || flag.type || flag.description || 'Flag',
+                  status: flag.severity === 'critical' ? 'fail' : 'warn',
+                  detail: flag.detail || flag.message || flag.description || undefined,
+                });
+              }
+              if (flagCount === 0) {
+                subItems.push({ label: 'Flags', status: 'pass', detail: 'No anomalies detected' });
+              }
+              resolve({
+                status: hasCritical ? 'fail' : flagCount > 0 ? 'warn' : 'pass',
+                detail: `PF=${res.performanceFactor?.toFixed(2) || '?'}, R²=${res.rSquared?.toFixed(3) || '?'}, ${res.monthsCompared || 0} months compared` +
+                  (flagCount > 0 ? `, ${flagCount} flag(s)` : ''),
+                subItems,
+              });
+            },
+            error: reject,
+          });
+          break;
+
+        case 'photoGps':
+          this.svc.verifyPhotoGps(deviceId).subscribe({
+            next: (res: any) => {
+              this.photoGpsResult = res;
+              const flagged = res.summary?.flagged || 0;
+              const withGps = res.summary?.withGps || 0;
+              const total = res.summary?.total || 0;
+              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              subItems.push({ label: 'Photos analyzed', status: 'info', detail: `${total} total, ${withGps} with GPS EXIF data` });
+              if (res.declaredLocation) {
+                subItems.push({ label: 'Declared location', status: 'info', detail: `${res.declaredLocation.lat?.toFixed(5)}, ${res.declaredLocation.lng?.toFixed(5)}` });
+              }
+              if (res.thresholdKm != null) {
+                subItems.push({ label: 'Distance threshold', status: 'info', detail: `${res.thresholdKm} km` });
+              }
+              for (const photo of (res.photos || [])) {
+                if (!photo.hasGps) {
+                  subItems.push({
+                    label: photo.filename || photo.fileName || 'Photo',
+                    status: 'warn',
+                    detail: 'No GPS EXIF data',
+                  });
+                } else if (photo.flagged || photo.withinThreshold === false) {
+                  subItems.push({
+                    label: photo.filename || photo.fileName || 'Photo',
+                    status: 'fail',
+                    detail: `GPS: ${photo.lat?.toFixed(5)}, ${photo.lng?.toFixed(5)} — ${(photo.distanceKm ?? (photo.distanceMeters / 1000))?.toFixed(2)} km from site — EXCEEDS threshold`,
+                  });
+                } else {
+                  subItems.push({
+                    label: photo.filename || photo.fileName || 'Photo',
+                    status: 'pass',
+                    detail: `GPS: ${photo.lat?.toFixed(5)}, ${photo.lng?.toFixed(5)} — ${(photo.distanceKm ?? (photo.distanceMeters / 1000))?.toFixed(2)} km (OK)`,
+                  });
+                }
+              }
+              resolve({
+                status: flagged > 0 ? 'warn' : withGps === 0 ? 'warn' : 'pass',
+                detail: withGps === 0
+                  ? `No GPS data found in any of ${total} photo(s)`
+                  : flagged > 0
+                    ? `${flagged} photo(s) flagged (${withGps}/${total} have GPS)`
+                    : `${withGps}/${total} photos have GPS, all within threshold`,
+                subItems,
+              });
+            },
+            error: reject,
+          });
+          break;
+
+        case 'sldCapacity':
+          this.svc.compareSldCapacity(deviceId).subscribe({
+            next: (res: any) => {
+              this.sldResult = res;
+              this.sldInputKw = res.sldCapacityKw;
+              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              subItems.push({ label: 'Registered capacity', status: 'info', detail: `${res.registeredCapacityKw ?? '?'} kW` });
+              subItems.push({ label: 'SLD capacity', status: 'info', detail: res.hasSld ? `${res.sldCapacityKw} kW` : 'Not recorded' });
+              if (res.hasSld) {
+                subItems.push({ label: 'Tolerance', status: 'info', detail: `${res.tolerancePercent}%` });
+                subItems.push({ label: 'Difference', status: res.match ? 'pass' : 'fail', detail: `${res.differencePercent?.toFixed(1)}%` });
+              }
+              resolve({
+                status: !res.hasSld ? 'warn' : res.match ? 'pass' : 'fail',
+                detail: !res.hasSld
+                  ? 'No SLD capacity value recorded'
+                  : res.match
+                    ? `SLD ${res.sldCapacityKw} kW matches registered ${res.registeredCapacityKw} kW (within ${res.tolerancePercent}%)`
+                    : `Mismatch: SLD ${res.sldCapacityKw} kW vs registered ${res.registeredCapacityKw} kW (${res.differencePercent?.toFixed(1)}% difference)`,
+                subItems,
+              });
+            },
+            error: reject,
+          });
+          break;
+
+        case 'controls':
+          this.svc.evaluateCompensatingControls(deviceId).subscribe({
+            next: (res: any) => {
+              this.controlsResult = res;
+              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              if (!res.isMode4) {
+                subItems.push({ label: 'Mode check', status: 'info', detail: `Device is Mode ${res.mode || '?'} — compensating controls only apply to Mode 4` });
+                resolve({ status: 'pass', detail: 'Not Mode 4 — compensating controls not applicable', subItems });
+              } else {
+                for (const c of (res.controls || [])) {
+                  subItems.push({
+                    label: c.name || c.key || 'Control',
+                    status: c.satisfied ? 'pass' : 'fail',
+                    detail: c.detail || c.reason || (c.satisfied ? 'Satisfied' : 'NOT satisfied'),
+                  });
+                }
+                const unsat = res.controls.filter((c: any) => !c.satisfied).length;
+                resolve({
+                  status: res.allSatisfied ? 'pass' : 'fail',
+                  detail: res.allSatisfied
+                    ? `All ${res.controls.length} controls satisfied`
+                    : `${unsat} of ${res.controls.length} controls not satisfied`,
+                  subItems,
+                });
+              }
+            },
+            error: reject,
+          });
+          break;
+
+        case 'consistency':
+          this.svc.reviewHistoricalConsistency(deviceId).subscribe({
+            next: (res: any) => {
+              this.consistencyResult = res;
+              this.consistencyError = null;
+              const anomalies = res.anomalies?.length || 0;
+              const critical = res.anomalies?.filter((a: any) => a.severity === 'critical').length || 0;
+              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              subItems.push({ label: 'Period', status: 'info', detail: `${res.periodMonths || '?'} months, ${res.totalReadings || 0} readings` });
+              if (res.avgMonthlyKwh != null) {
+                subItems.push({ label: 'Avg monthly production', status: 'info', detail: `${res.avgMonthlyKwh.toFixed(1)} kWh` });
+              }
+              if (res.stdDevKwh != null) {
+                subItems.push({ label: 'Std deviation', status: 'info', detail: `${res.stdDevKwh.toFixed(1)} kWh` });
+              }
+              for (const a of (res.anomalies || [])) {
+                subItems.push({
+                  label: a.type || a.label || 'Anomaly',
+                  status: a.severity === 'critical' ? 'fail' : 'warn',
+                  detail: a.detail || a.message || `${a.month || '?'}: ${a.value?.toFixed(1) || '?'} kWh`,
+                });
+              }
+              if (anomalies === 0) {
+                subItems.push({ label: 'Anomalies', status: 'pass', detail: 'None detected' });
+              }
+              resolve({
+                status: critical > 0 ? 'fail' : anomalies > 0 ? 'warn' : 'pass',
+                detail: anomalies === 0
+                  ? `${res.totalReadings} readings over ${res.periodMonths} months — no anomalies`
+                  : `${anomalies} anomaly/ies (${critical} critical) in ${res.totalReadings} readings`,
+                subItems,
+              });
+            },
+            error: reject,
+          });
+          break;
+
+        case 'classify':
+          this.runClassifyForScan(deviceId).then(resolve).catch(reject);
+          break;
+
+        case 'audit':
+          this.svc.getAuditTrail(deviceId).subscribe({
+            next: (res: any[]) => {
+              this.auditTrail = res;
+              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              const actionCounts: Record<string, number> = {};
+              for (const entry of res) {
+                const action = entry.actionType || 'unknown';
+                actionCounts[action] = (actionCounts[action] || 0) + 1;
+              }
+              for (const [action, count] of Object.entries(actionCounts)) {
+                subItems.push({ label: action, status: 'info', detail: `${count} occurrence(s)` });
+              }
+              if (res.length > 0) {
+                const latest = res[0];
+                subItems.push({ label: 'Latest entry', status: 'info', detail: `${latest.actionType} by ${latest.performedBy || '?'} on ${latest.createdAt ? new Date(latest.createdAt).toLocaleDateString() : '?'}` });
+              }
+              const warningEntries = res.filter((e: any) => e.detail?.includes('exceeds'));
+              if (warningEntries.length > 0) {
+                subItems.push({ label: 'Warning entries', status: 'warn', detail: `${warningEntries.length} entries contain "exceeds" flag` });
+              }
+              resolve({
+                status: warningEntries.length > 0 ? 'warn' : 'pass',
+                detail: `${res.length} audit entries retrieved`,
+                subItems,
+              });
+            },
+            error: reject,
+          });
+          break;
+
+        default:
+          resolve({ status: 'warn', detail: 'Unknown check' });
+      }
+    });
+  }
+
+  private async runClassifyForScan(
+    _deviceId: number,
+  ): Promise<{ status: 'pass' | 'warn' | 'fail'; detail: string; subItems?: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> }> {
+    const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
+    if (!asset)
+      return { status: 'warn', detail: 'No asset selected' };
+
+    this.classifyResults = [];
+    let total = 0;
+    let matchCount = 0;
+    let mismatchCount = 0;
+    let unknownCount = 0;
+
+    for (const slot of DocumentsWindowComponent.SLOT_MAP) {
+      const urls: string[] = [];
+      if (slot.multi) {
+        urls.push(...((asset[slot.urlKey] as string[]) || []));
+      } else {
+        const url = asset[slot.urlKey] as string | null;
+        if (url) urls.push(url);
+      }
+
+      for (const url of urls) {
+        if (this.scanCancelled) break;
+        total++;
+        const fname = this.fileName(url);
+        try {
+          const freshUrl = await this.svc.refreshUrl(url);
+          const resp = await fetch(freshUrl);
+          const blob = await resp.blob();
+          const mime =
+            blob.type && blob.type !== 'application/octet-stream'
+              ? blob.type
+              : this.guessMime(fname);
+          const file = new File([blob], fname, { type: mime });
+          const result = await this.classifier.classify(file).toPromise();
+          const classifiedType = result?.suggestedType ?? null;
+          const confidence = result
+            ? Math.round(result.confidence * 100)
+            : 0;
+          const typeLabel = classifiedType
+            ? DOCUMENT_TYPE_LABELS[classifiedType] || classifiedType
+            : 'Unknown';
+          const isMatch = classifiedType
+            ? classifiedType === slot.expectedType ||
+              (classifiedType === DocumentType.PROJECT_PHOTOS &&
+                /\.(jpe?g|png|gif|webp|bmp)$/i.test(fname) &&
+                (slot.expectedType === DocumentType.OTHER_DOCUMENTS ||
+                  slot.expectedType === DocumentType.PROJECT_PHOTOS))
+            : null;
+          if (isMatch === true) matchCount++;
+          else if (isMatch === false) mismatchCount++;
+          else unknownCount++;
+
+          this.classifyResults = [
+            ...this.classifyResults,
+            {
+              slot: slot.slot,
+              filename: fname,
+              url,
+              expectedType: slot.label,
+              classifiedType: typeLabel,
+              confidence,
+              match: isMatch,
+            },
+          ];
+        } catch {
+          unknownCount++;
+        }
+      }
+    }
+
+    const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+    for (const r of this.classifyResults) {
+      subItems.push({
+        label: r.filename,
+        status: r.match === true ? 'pass' : r.match === false ? 'warn' : 'info',
+        detail: `Slot: ${r.slot} | AI: ${r.classifiedType}${r.confidence ? ' (' + r.confidence + '%)' : ''}${r.match === true ? ' — match' : r.match === false ? ' — MISMATCH (expected ' + r.expectedType + ')' : ''}`,
+      });
+    }
+    if (total === 0) {
+      subItems.push({ label: 'No documents', status: 'info', detail: 'No uploaded documents to classify' });
+    }
+
+    return {
+      status: mismatchCount > 0 ? 'warn' : total === 0 ? 'warn' : 'pass',
+      detail:
+        total === 0
+          ? 'No documents to classify'
+          : `${total} docs: ${matchCount} match, ${mismatchCount} mismatch, ${unknownCount} unknown`,
+      subItems,
+    };
+  }
+
   private pendingDelete: {
     asset: Asset;
     docKey: string;
@@ -2326,6 +2951,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   showClassifyModal = false;
   classifyRunning = false;
+  classifyTotal = 0;
+  private classifyCancelled = false;
   classifyResults: Array<{
     slot: string;
     filename: string;
@@ -2382,7 +3009,18 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
     this.classifyResults = [];
     this.classifyRunning = true;
+    this.classifyCancelled = false;
     this.showClassifyModal = true;
+
+    // Count total documents for progress bar
+    this.classifyTotal = 0;
+    for (const slot of DocumentsWindowComponent.SLOT_MAP) {
+      if (slot.multi) {
+        this.classifyTotal += ((asset[slot.urlKey] as string[]) || []).length;
+      } else if (asset[slot.urlKey]) {
+        this.classifyTotal++;
+      }
+    }
     this.cdr.detectChanges();
 
     for (const slot of DocumentsWindowComponent.SLOT_MAP) {
@@ -2395,6 +3033,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       }
 
       for (const url of urls) {
+        if (this.classifyCancelled) break;
         const fname = this.fileName(url);
         try {
           const freshUrl = await this.svc.refreshUrl(url);
@@ -2447,10 +3086,22 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         }
         this.cdr.detectChanges();
       }
+      if (this.classifyCancelled) break;
     }
 
     this.classifyRunning = false;
     this.cdr.detectChanges();
+  }
+
+  cancelClassify(): void {
+    this.classifyCancelled = true;
+    this.classifyRunning = false;
+    this.showClassifyModal = false;
+    this.classifyResults = [];
+  }
+
+  acceptClassify(): void {
+    this.showClassifyModal = false;
   }
 
   private guessMime(filename: string): string {

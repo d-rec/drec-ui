@@ -631,7 +631,7 @@
                       <button type="button" class="magic-btn" (click)="magicFileInput.click()"
                         (mousedown)="$event.stopPropagation()"
                         [disabled]="magicRunning[i]">
-                        <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">auto_fix_high</mat-icon>
+                        <mat-icon style="font-size:20px;height:20px;width:20px;vertical-align:middle">auto_fix_high</mat-icon>
                         Auto-sort documents
                       </button>
                       <input type="file" #magicFileInput hidden multiple
@@ -732,7 +732,7 @@
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="(files[i]?.['PROJECT_PHOTOS']?.length || 0) < 3">
-                    <label title="Please provide at least three photos that show the entire installation plus enough surrounding topography to match with a satellite image.">(43) Project Photos (min. 3)
+                    <label title="Please provide at least three photos that show the entire installation plus enough surrounding topography to match with a satellite image.">(43) Site Photos (min. 3)
                       <span class="badge-{{getDocRequirement('PROJECT_PHOTOS')}}">{{getDocRequirement('PROJECT_PHOTOS')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('PROJECT_PHOTOS')">{{getDocHint('PROJECT_PHOTOS')}}</small>

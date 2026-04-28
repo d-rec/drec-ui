@@ -29,18 +29,7 @@
           <span class="badge badge--{{ s }}">{{ s | titlecase }}</span>
         </label>
       </div>
-      <!-- Bulk actions -->
-      <div class="bulk-actions" *ngIf="checkedCount > 0">
-        <span class="bulk-actions__count">{{ checkedCount }} selected</span>
-        <button class="bulk-btn bulk-btn--approve" (click)="bulkSetStatus('approved')" [disabled]="bulkBusy">✓ Approve</button>
-        <button class="bulk-btn bulk-btn--reject" (click)="bulkSetStatus('rejected')" [disabled]="bulkBusy">✗ Reject</button>
-        <button class="bulk-btn bulk-btn--pending" (click)="bulkSetStatus('pending')" [disabled]="bulkBusy">↩ Reopen</button>
-        <button class="bulk-btn bulk-btn--screen" (click)="bulkScreen()" [disabled]="bulkBusy">⚡ Screen</button>
-      </div>
-      <button class="bulk-btn bulk-btn--screen-all" (click)="screenAllUnscreened()" [disabled]="bulkBusy" title="Auto-screen all unscreened pending devices (up to 50)">⚡ Screen selected</button>
-      <span class="toolbar-sep"></span>
       <button class="bulk-btn" (click)="exportExcel()" title="Export filtered list to Excel">⤓ Excel</button>
-      <span *ngIf="bulkBusy" class="toolbar-status">Processing…</span>
       <label class="sat-toggle">
         <input type="checkbox" [(ngModel)]="satPreviewEnabled" />
         Satellite on hover
@@ -52,7 +41,6 @@
 
       <!-- Column headers -->
       <div class="dr-row dr-row--header">
-        <input type="checkbox" class="bulk-check" [checked]="isAllChecked()" (click)="toggleCheckAll($event)" title="Select all visible" />
         <span class="chevron-spacer"></span>
         <span class="col-serial  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='siteName'&&sortDir===1" [class.desc]="sortColumn==='siteName'&&sortDir===-1" (click)="sortBy('siteName')" (keydown.enter)="sortBy('siteName')">Site Name</span>
         <span class="col-country th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='countryCode'&&sortDir===1" [class.desc]="sortColumn==='countryCode'&&sortDir===-1" (click)="sortBy('countryCode')" (keydown.enter)="sortBy('countryCode')">Country</span>
@@ -81,7 +69,6 @@
           (mousemove)="moveSatPreview($event)"
           (mouseleave)="hideSatPreview()"
         >
-          <input type="checkbox" class="bulk-check" [checked]="!!checked[item.id]" (click)="toggleCheck(item.id, $event)" />
           <span class="chevron" role="button" tabindex="0" [class.chevron--open]="expanded[item.id]" (click)="toggleDevice(item.id); $event.stopPropagation()" (keydown.enter)="toggleDevice(item.id); $event.stopPropagation()">&#8250;</span>
           <span class="col-serial">
             <span [innerHTML]="hl(item.siteName, result.searchTerm)"></span>
@@ -112,7 +99,7 @@
         <div class="expanded-block" *ngIf="expanded[item.id]">
 
           <!-- ── SLD ─────────────────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.sldUrl" (dblclick)="item.sldUrl && openFile(item.sldUrl, $event, true)" (keydown.enter)="item.sldUrl && openFile(item.sldUrl, $event, true)" tabindex="0">
+          <div class="dr-row dr-row--doc" tabindex="0">
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sld']" [class.review-check--disabled]="!item.sldUrl" role="checkbox" [attr.tabindex]="item.sldUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sld']" [attr.aria-disabled]="!item.sldUrl" (click)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" (keydown.enter)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sld']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
@@ -120,14 +107,14 @@
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}" [title]="getDocHint('SINGLE_LINE_DIAGRAM', item.operatingConfiguration) || ''">{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}</span>
             <ng-container *ngIf="item.sldUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(item.sldUrl!), result.searchTerm)"></span>
+              <a class="file-name file-name--link" [innerHTML]="hl(fileName(item.sldUrl!), result.searchTerm)" (click)="openFile(item.sldUrl!, $event, true)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(item.sldUrl)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="!item.sldUrl" class="missing-tag">missing</span>
           </div>
 
           <!-- ── SF-02 ───────────────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.sf02Url" (dblclick)="item.sf02Url && openFile(item.sf02Url, $event)" (keydown.enter)="item.sf02Url && openFile(item.sf02Url, $event)" tabindex="0">
+          <div class="dr-row dr-row--doc" tabindex="0">
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02']" [class.review-check--disabled]="!item.sf02Url" role="checkbox" [attr.tabindex]="item.sf02Url ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02']" [attr.aria-disabled]="!item.sf02Url" (click)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" (keydown.enter)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
@@ -135,14 +122,14 @@
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}" [title]="getDocHint('FORM_SF_02', item.operatingConfiguration) || ''">{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}</span>
             <ng-container *ngIf="item.sf02Url">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(item.sf02Url!), result.searchTerm)"></span>
+              <a class="file-name file-name--link" [innerHTML]="hl(fileName(item.sf02Url!), result.searchTerm)" (click)="openFile(item.sf02Url!, $event)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(item.sf02Url)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="!item.sf02Url" class="missing-tag">missing</span>
           </div>
 
           <!-- ── SF-02C ──────────────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.sf02cUrl" (dblclick)="item.sf02cUrl && openFile(item.sf02cUrl, $event)" (keydown.enter)="item.sf02cUrl && openFile(item.sf02cUrl, $event)" tabindex="0">
+          <div class="dr-row dr-row--doc" tabindex="0">
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02c']" [class.review-check--disabled]="!item.sf02cUrl" role="checkbox" [attr.tabindex]="item.sf02cUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02c']" [attr.aria-disabled]="!item.sf02cUrl" (click)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" (keydown.enter)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02c']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
@@ -150,14 +137,14 @@
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}" [title]="getDocHint('SF_02C', item.operatingConfiguration) || ''">{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}</span>
             <ng-container *ngIf="item.sf02cUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(item.sf02cUrl!), result.searchTerm)"></span>
+              <a class="file-name file-name--link" [innerHTML]="hl(fileName(item.sf02cUrl!), result.searchTerm)" (click)="openFile(item.sf02cUrl!, $event)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(item.sf02cUrl)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="!item.sf02cUrl" class="missing-tag">missing</span>
           </div>
 
           <!-- ── Owner's Declaration / Proof of Ownership ─────────────────────── -->
-          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.sf02cOwnersDeclarationUrl" (dblclick)="item.sf02cOwnersDeclarationUrl && openFile(item.sf02cOwnersDeclarationUrl, $event)" (keydown.enter)="item.sf02cOwnersDeclarationUrl && openFile(item.sf02cOwnersDeclarationUrl, $event)" tabindex="0">
+          <div class="dr-row dr-row--doc" tabindex="0">
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02cOwnersDeclaration']" [class.review-check--disabled]="!item.sf02cOwnersDeclarationUrl" role="checkbox" [attr.tabindex]="item.sf02cOwnersDeclarationUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02cOwnersDeclaration']" [attr.aria-disabled]="!item.sf02cOwnersDeclarationUrl" (click)="item.sf02cOwnersDeclarationUrl && toggleReviewed(item.id + ':sf02cOwnersDeclaration', $event)" (keydown.enter)="item.sf02cOwnersDeclarationUrl && toggleReviewed(item.id + ':sf02cOwnersDeclaration', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02cOwnersDeclaration']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
@@ -165,14 +152,14 @@
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SF_02C_OWNERS_DECLARATION', item.operatingConfiguration, !!item.sf02cOwnersDeclarationUrl) }}" [title]="getDocHint('SF_02C_OWNERS_DECLARATION', item.operatingConfiguration) || ''">{{ getReqStatus('SF_02C_OWNERS_DECLARATION', item.operatingConfiguration, !!item.sf02cOwnersDeclarationUrl) }}</span>
             <ng-container *ngIf="item.sf02cOwnersDeclarationUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(item.sf02cOwnersDeclarationUrl!), result.searchTerm)"></span>
+              <a class="file-name file-name--link" [innerHTML]="hl(fileName(item.sf02cOwnersDeclarationUrl!), result.searchTerm)" (click)="openFile(item.sf02cOwnersDeclarationUrl!, $event)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(item.sf02cOwnersDeclarationUrl)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="!item.sf02cOwnersDeclarationUrl" class="missing-tag">missing</span>
           </div>
 
           <!-- ── COD Proof ────────────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--doc" [class.dr-row--clickable]="item.codProofUrl" (dblclick)="item.codProofUrl && openFile(item.codProofUrl, $event)" (keydown.enter)="item.codProofUrl && openFile(item.codProofUrl, $event)" tabindex="0">
+          <div class="dr-row dr-row--doc" tabindex="0">
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':codProof']" [class.review-check--disabled]="!item.codProofUrl" role="checkbox" [attr.tabindex]="item.codProofUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':codProof']" [attr.aria-disabled]="!item.codProofUrl" (click)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" (keydown.enter)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':codProof']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
@@ -180,7 +167,7 @@
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}" [title]="getDocHint('COD_PROOF', item.operatingConfiguration) || ''">{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}</span>
             <ng-container *ngIf="item.codProofUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(item.codProofUrl!), result.searchTerm)"></span>
+              <a class="file-name file-name--link" [innerHTML]="hl(fileName(item.codProofUrl!), result.searchTerm)" (click)="openFile(item.codProofUrl!, $event)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(item.codProofUrl)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="!item.codProofUrl" class="missing-tag">missing</span>
@@ -203,8 +190,6 @@
             <div
               *ngFor="let url of item.meteringEvidenceUrls; let i = index; trackBy: trackByIndex"
               class="dr-row dr-row--file dr-row--me-file"
-              (dblclick)="openFile(url, $event, false, true)"
-              (keydown.enter)="openFile(url, $event, false, true)"
             >
               <span class="review-check me-col-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':me:' + i]" [class.review-check--done]="reviewed[item.id + ':me:' + i]" (click)="toggleReviewed(item.id + ':me:' + i, $event)" (keydown.enter)="toggleReviewed(item.id + ':me:' + i, $event)" title="Mark as reviewed">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':me:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -212,7 +197,7 @@
               <span class="me-col-idx">{{ i + 1 }}</span>
               <span class="me-col-name">
                 <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-                <span class="file-name" [innerHTML]="hl(fileDisplayName(item, 'me:' + i, url), result.searchTerm)"></span>
+                <a class="file-name file-name--link" [innerHTML]="hl(fileDisplayName(item, 'me:' + i, url), result.searchTerm)" (click)="openFile(url, $event, false, true)" (mousedown)="$event.stopPropagation()"></a>
                 <span *ngIf="isBroken(url)" class="missing-tag">(missing)</span>
               </span>
               <span class="me-col-type">{{ fileExt(url) || '—' }}</span>
@@ -220,10 +205,10 @@
             <div *ngIf="!item.meteringEvidenceUrls.length" class="dr-row dr-row--empty"><span class="missing-tag">missing</span></div>
           </ng-container>
 
-          <!-- ── Pictures section ──────────────────────────────────────────── -->
+          <!-- ── Site Photos section ────────────────────────────────────────── -->
           <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'pictures')" (keydown.enter)="toggleSection(item.id, 'pictures')">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'pictures')">&#8250;</span>
-            <span class="section-label">Pictures <span class="fn">(43)</span></span>
+            <span class="section-label">Site Photos <span class="fn">(43)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length >= 3) }}">{{ getReqStatus('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length >= 3) }}</span>
             <span *ngIf="item.pictureUrls.length" class="section-count">({{ item.pictureUrls.length }})</span>
           </div>
@@ -231,14 +216,12 @@
             <div
               *ngFor="let url of item.pictureUrls; let i = index; trackBy: trackByIndex"
               class="dr-row dr-row--file"
-              (dblclick)="openFile(url, $event)"
-              (keydown.enter)="openFile(url, $event)"
             >
               <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':pic:' + i]" [class.review-check--done]="reviewed[item.id + ':pic:' + i]" (click)="toggleReviewed(item.id + ':pic:' + i, $event)" (keydown.enter)="toggleReviewed(item.id + ':pic:' + i, $event)" title="Mark as reviewed">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':pic:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <img [src]="url" class="thumb" width="28" height="28" alt="" />
-              <span class="file-name" [innerHTML]="hl(fileDisplayName(item, 'pic:' + i, url), result.searchTerm)"></span>
+              <a class="file-name file-name--link" [innerHTML]="hl(fileDisplayName(item, 'pic:' + i, url), result.searchTerm)" (click)="openFile(url, $event)" (mousedown)="$event.stopPropagation()"></a>
             </div>
             <div *ngIf="!item.pictureUrls.length" class="dr-row dr-row--empty"><span class="missing-tag">missing — at least 3 required</span></div>
             <div *ngIf="item.pictureUrls.length > 0 && item.pictureUrls.length < 3" class="dr-row dr-row--empty"><span class="missing-tag">only {{ item.pictureUrls.length }} photo(s) — at least 3 required</span></div>
@@ -254,14 +237,12 @@
             <div
               *ngFor="let url of item.otherDocumentUrls; let i = index; trackBy: trackByIndex"
               class="dr-row dr-row--file"
-              (dblclick)="openFile(url, $event)"
-              (keydown.enter)="openFile(url, $event)"
             >
               <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':otherDoc:' + i]" [class.review-check--done]="reviewed[item.id + ':otherDoc:' + i]" (click)="toggleReviewed(item.id + ':otherDoc:' + i, $event)" (keydown.enter)="toggleReviewed(item.id + ':otherDoc:' + i, $event)" title="Mark as reviewed">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':otherDoc:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <span class="file-name" [innerHTML]="hl(fileName(url), result.searchTerm)"></span>
+              <a class="file-name file-name--link" [innerHTML]="hl(fileName(url), result.searchTerm)" (click)="openFile(url, $event)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(url)" class="missing-tag">(missing)</span>
             </div>
             <div *ngIf="!item.otherDocumentUrls.length" class="dr-row dr-row--empty">None</div>
@@ -329,7 +310,7 @@
                 </select>
               </div>
               <div class="field field--auto" style="display:flex;align-items:flex-end">
-                <button type="button" class="btn btn--details" (click)="openDeviceInfo()">Details</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="openDeviceInfo()">Details</button>
               </div>
             </div>
             <div class="field field--full">
@@ -337,33 +318,25 @@
               <div class="notes-row">
                 <textarea class="field__input field__textarea" formControlName="notes" rows="2"></textarea>
                 <div class="notes-row__actions">
-                  <button type="submit" class="btn btn--save" [disabled]="detailForm.invalid || detailForm.get('status')?.value === 'approved'">Save</button>
-                  <button type="button" class="btn btn--cancel" (click)="cancelDetail()" [disabled]="detailForm.get('status')?.value === 'approved'">Cancel</button>
+                  <button type="submit" class="btn btn-outline-secondary btn-sm" [disabled]="detailForm.invalid || detailForm.get('status')?.value === 'approved'">Save</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelDetail()" [disabled]="detailForm.get('status')?.value === 'approved'">Cancel</button>
                 </div>
               </div>
             </div>
           <div class="detail-actions">
-            <button type="button" class="btn btn--autoscreen" (click)="runAutoScreen()" title="Run all verification checks (VA layer)">Auto-Screen</button>
-            <button type="button" class="btn btn--screen" (click)="screenDuplicates()" title="Screen for duplicates across all organizations">Screen</button>
-            <button type="button" class="btn btn--verify" (click)="verifySourceAccess()" title="Verify source-access mode requirements (§3.3)">Verify</button>
-            <button type="button" class="btn btn--ceiling" (click)="checkCeiling()" title="Irradiance-based production ceiling check (§3.6)">Ceiling</button>
-            <button type="button" class="btn btn--audit" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit</button>
-            <button type="button" class="btn btn--controls" (click)="evaluateControls()" title="Compensating controls for Mode 4 (§3.9)">Controls</button>
-            <button type="button" class="btn btn--photogps" (click)="checkPhotoGps()" title="Verify photo GPS vs declared location (VA layer)">Photo GPS</button>
-            <button type="button" class="btn btn--sld" (click)="openSldCompare($event)" title="Open SLD document with capacity compare panel (VA layer)">SLD kW</button>
-            <button type="button" class="btn btn--crosssrc" (click)="checkCrossSource()" title="Cross-source verification with Performance Factor (§3.10)">X-Source</button>
-            <button type="button" class="btn btn--classify" (click)="classifyDocuments()" [disabled]="classifyRunning" title="AI-classify all documents and check if they match their slots">Classify</button>
-            <button type="button" class="btn btn--cod" (click)="generateSf02ForSelected($event)" [disabled]="!editingId || generatingSf02[editingId!]" title="Generate SF-02 registration form from device data">
-              {{ editingId && generatingSf02[editingId!] ? 'Generating…' : '⚙ Generate SF-02' }}
+            <button type="button" class="btn btn-outline-primary btn-sm" (click)="openScanDialog()" title="Run verification checks on this device">Scan Device</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit Trail</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="generateSf02ForSelected($event)" [disabled]="!editingId || generatingSf02[editingId!]" title="Generate SF-02 registration form from device data">
+              {{ editingId && generatingSf02[editingId!] ? 'Generating…' : 'Generate SF-02' }}
             </button>
             <span class="detail-actions__sep"></span>
             <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
               <span class="unread-dot" *ngIf="editingSiteName && (chatService.unreadDevices$ | async)?.has(editingSiteName)">●</span>
             </button>
-            <button type="button" class="btn btn--approve" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
-            <button type="button" class="btn btn--reject"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Reject</button>
-            <button type="button" class="btn btn--archive" (click)="archiveDevice()" [disabled]="detailForm.get('status')?.value === 'pending' || detailForm.get('status')?.value === 'draft'">Archive</button>
+            <button type="button" class="btn btn-success btn-sm" (click)="requestApprove()" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Approve</button>
+            <button type="button" class="btn btn-danger btn-sm"  (click)="setStatus('rejected')" [disabled]="detailForm.get('status')?.value === 'approved' || detailForm.get('status')?.value === 'rejected'">Reject</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="archiveDevice()" [disabled]="detailForm.get('status')?.value === 'pending' || detailForm.get('status')?.value === 'draft'">Archive</button>
           </div>
         </form>
       </div>
@@ -374,8 +347,8 @@
     <div class="modal-box" role="document" (click)="$event.stopPropagation()">
       <p class="modal-msg">Not all documents have been reviewed &mdash; approve anyway?</p>
       <div class="modal-actions">
-        <button class="btn btn--cancel" (click)="cancelUnreviewedApprove()">Cancel</button>
-        <button class="btn btn--approve" (click)="confirmUnreviewedApprove()">Approve</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="cancelUnreviewedApprove()">Cancel</button>
+        <button class="btn btn-success btn-sm" (click)="confirmUnreviewedApprove()">Approve</button>
       </div>
     </div>
   </div>
@@ -385,7 +358,7 @@
     <div class="modal-box" role="document" (click)="$event.stopPropagation()">
       <p class="modal-msg">The device can now be grouped for submission to Evident.</p>
       <div class="modal-actions">
-        <button class="btn btn--save" (click)="dismissApprovedInfo()">OK</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="dismissApprovedInfo()">OK</button>
       </div>
     </div>
   </div>
@@ -395,8 +368,8 @@
     <div class="modal-box" role="document" (click)="$event.stopPropagation()">
       <p class="modal-msg">Delete this document? This will permanently remove it from storage.</p>
       <div class="modal-actions">
-        <button class="btn btn--cancel" (click)="cancelDelete()">Cancel</button>
-        <button class="btn btn--reject" (click)="confirmDelete()">Delete</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="cancelDelete()">Cancel</button>
+        <button class="btn btn-danger btn-sm" (click)="confirmDelete()">Delete</button>
       </div>
     </div>
   </div>
@@ -745,8 +718,8 @@
         </div>
       </div>
       <div class="modal-actions">
-        <button class="btn btn--save" (click)="copyAuditTrail()">{{ auditCopyLabel }}</button>
-        <button class="btn btn--save" (click)="exportAuditCsv()">⤓ CSV</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="copyAuditTrail()">{{ auditCopyLabel }}</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="exportAuditCsv()">⤓ CSV</button>
       </div>
     </div>
   </app-ds-floating-window>
@@ -859,7 +832,7 @@
         <p *ngIf="autoScreenError" style="color: #64748b; font-size: 12px; margin: 0; white-space: pre-wrap; background: #fef2f2; padding: 10px 12px; border-radius: 4px; border-left: 3px solid #dc2626;">{{ autoScreenError }}</p>
       </div>
       <div class="autoscreen-window__actions" *ngIf="autoScreenResult">
-        <button type="button" class="btn btn--cancel" (click)="copyAutoScreenReport()">{{ autoScreenCopied ? 'Copied ✓' : 'Copy to clipboard' }}</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="copyAutoScreenReport()">{{ autoScreenCopied ? 'Copied ✓' : 'Copy to clipboard' }}</button>
       </div>
     </div>
   </app-ds-floating-window>
@@ -902,8 +875,8 @@
       </p>
 
       <div class="modal-actions" style="margin-top: 20px;">
-        <button class="btn btn--cancel" (click)="cancelSf02Generation()">Cancel</button>
-        <button class="btn btn--save" (click)="confirmSf02Generation()"
+        <button class="btn btn-outline-secondary btn-sm" (click)="cancelSf02Generation()">Cancel</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="confirmSf02Generation()"
           [disabled]="sf02PreviewLoading || sf02MissingRequired">Generate SF-02</button>
       </div>
     </div>
@@ -933,7 +906,7 @@
           <div class="sld-input-row">
             <input type="number" class="sld-input" [(ngModel)]="sldInputKw"
                    [placeholder]="sldResult.sldCapacityKw != null ? sldResult.sldCapacityKw : 'Enter kW from SLD'" step="0.1" min="0">
-            <button class="btn btn--save" (click)="saveSldCapacity()" [disabled]="sldInputKw == null">Save</button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="saveSldCapacity()" [disabled]="sldInputKw == null">Save</button>
           </div>
         </div>
 
@@ -967,8 +940,12 @@
     (close)="showClassifyModal = false"
   >
     <div class="report-window">
-      <div *ngIf="classifyRunning" style="text-align:center; padding: 12px 0; color: #64748b;">
-        Classifying documents… ({{ classifyResults.length }} done)
+      <div *ngIf="classifyRunning" class="classify-progress">
+        <div class="classify-progress__bar">
+          <div class="classify-progress__fill"
+            [style.width.%]="classifyTotal ? (classifyResults.length / classifyTotal) * 100 : 0"></div>
+        </div>
+        <span class="classify-progress__count">{{ classifyResults.length }} / {{ classifyTotal }}</span>
       </div>
       <div *ngIf="!classifyRunning && classifyResults.length === 0" style="color: #64748b; padding: 12px 0;">
         No documents to classify.
@@ -985,10 +962,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let r of classifyResults"
+            <tr *ngFor="let r of classifyResults; let odd = odd"
                 [class.classify-match]="r.match === true"
                 [class.classify-mismatch]="r.match === false"
-                [class.classify-unknown]="r.match === null">
+                [class.classify-unknown]="r.match === null"
+                [class.classify-dimmed]="odd">
               <td>{{ r.slot }}</td>
               <td class="classify-table__file classify-table__link"
                   (click)="openClassifyFile(r.url, $event)"
@@ -1000,14 +978,113 @@
           </tbody>
         </table>
       </div>
-      <div *ngIf="!classifyRunning && classifyResults.length > 0" class="classify-footer">
-        <span style="font-size: 11px; color: #64748b;">
+      <div class="classify-footer">
+        <span *ngIf="!classifyRunning && classifyResults.length > 0" style="font-size: 11px; color: #64748b;">
           {{ classifyMatchCount }} match,
           {{ classifyMismatchCount }} mismatch,
           {{ classifyUnknownCount }} unknown
         </span>
-        <button type="button" class="classify-close-btn" (click)="showClassifyModal = false"
-          (mousedown)="$event.stopPropagation()">Close</button>
+        <span *ngIf="classifyRunning" style="font-size: 11px; color: #64748b;">Classifying…</span>
+        <span style="flex:1"></span>
+        <button type="button" class="btn btn-outline-secondary btn-sm"
+          (click)="cancelClassify()" (mousedown)="$event.stopPropagation()">Cancel</button>
+        <button type="button" class="btn btn-primary btn-sm"
+          (click)="acceptClassify()" (mousedown)="$event.stopPropagation()">OK</button>
+      </div>
+    </div>
+  </app-ds-floating-window>
+
+  <!-- ── Scan dialog ──────────────────────────────────────────────────── -->
+  <app-ds-floating-window
+    *ngIf="showScanDialog"
+    title="Device Scan"
+    [initWidth]="720"
+    [initHeight]="620"
+    [initX]="scanDialogX"
+    [initY]="scanDialogY"
+    [zIndex]="zIndex + 60"
+    (closed)="closeScan()"
+  >
+    <div class="scan-dialog">
+      <!-- Checklist (before running) -->
+      <div class="scan-checklist" *ngIf="!scanRunning && scanLog.length === 0">
+        <p class="scan-checklist__intro">Select which checks to run on this device:</p>
+        <div class="scan-checklist__item" *ngFor="let check of scanChecks; let i = index"
+             [class.scan-checklist__item--even]="i % 2 === 0">
+          <label class="scan-checklist__label">
+            <input type="checkbox" [(ngModel)]="check.enabled" />
+            <span class="scan-checklist__name">{{ check.label }}</span>
+            <span class="scan-checklist__desc">{{ check.description }}</span>
+          </label>
+        </div>
+        <div class="scan-checklist__footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeScan()"
+            (mousedown)="$event.stopPropagation()">Cancel</button>
+          <button type="button" class="btn btn-primary btn-sm" (click)="startScan()"
+            [disabled]="!scanHasEnabled"
+            (mousedown)="$event.stopPropagation()">Run Scan</button>
+        </div>
+      </div>
+
+      <!-- Progress log (during/after run) -->
+      <div class="scan-log" *ngIf="scanRunning || scanLog.length > 0">
+        <div class="scan-log__progress">
+          <div class="scan-log__bar">
+            <div class="scan-log__fill" [class.scan-log__fill--done]="!scanRunning" [style.width.%]="scanProgress"></div>
+          </div>
+          <span class="scan-log__pct">{{ scanProgress }}%</span>
+        </div>
+        <div class="scan-log__body">
+          <div class="scan-log__entry" *ngFor="let entry of scanLog"
+               [class.scan-log__entry--pass]="entry.status === 'pass'"
+               [class.scan-log__entry--warn]="entry.status === 'warn'"
+               [class.scan-log__entry--fail]="entry.status === 'fail'"
+               [class.scan-log__entry--error]="entry.status === 'error'"
+               [class.scan-log__entry--running]="entry.status === 'running'"
+               [class.scan-log__entry--skipped]="entry.status === 'skipped'"
+               [class.scan-log__entry--pending]="entry.status === 'pending'">
+            <span class="scan-log__icon">
+              <ng-container [ngSwitch]="entry.status">
+                <span *ngSwitchCase="'pass'">&#x2714;</span>
+                <span *ngSwitchCase="'warn'">&#x26A0;</span>
+                <span *ngSwitchCase="'fail'">&#x2718;</span>
+                <span *ngSwitchCase="'error'">&#x26D4;</span>
+                <span *ngSwitchCase="'running'" class="scan-log__spinner"></span>
+                <span *ngSwitchCase="'skipped'">&#x23ED;</span>
+                <span *ngSwitchDefault>&#x25CB;</span>
+              </ng-container>
+            </span>
+            <span class="scan-log__label">{{ entry.label }}</span>
+            <span class="scan-log__time" *ngIf="entry.duration != null">{{ entry.duration }}ms</span>
+            <div class="scan-log__detail" *ngIf="entry.detail">{{ entry.detail }}</div>
+            <div class="scan-log__subitems" *ngIf="entry.subItems?.length">
+              <div class="scan-log__subitem" *ngFor="let sub of entry.subItems"
+                   [class.scan-log__subitem--pass]="sub.status === 'pass'"
+                   [class.scan-log__subitem--warn]="sub.status === 'warn'"
+                   [class.scan-log__subitem--fail]="sub.status === 'fail'"
+                   [class.scan-log__subitem--info]="sub.status === 'info'">
+                <span class="scan-log__subicon">
+                  <ng-container [ngSwitch]="sub.status">
+                    <span *ngSwitchCase="'pass'">&#x2714;</span>
+                    <span *ngSwitchCase="'warn'">&#x26A0;</span>
+                    <span *ngSwitchCase="'fail'">&#x2718;</span>
+                    <span *ngSwitchDefault>&#x2022;</span>
+                  </ng-container>
+                </span>
+                <span class="scan-log__sublabel">{{ sub.label }}</span>
+                <span class="scan-log__subdetail" *ngIf="sub.detail">{{ sub.detail }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="scan-log__footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelScan()"
+            *ngIf="scanRunning"
+            (mousedown)="$event.stopPropagation()">Cancel</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeScan()"
+            *ngIf="!scanRunning"
+            (mousedown)="$event.stopPropagation()">Close</button>
+        </div>
       </div>
     </div>
   </app-ds-floating-window>

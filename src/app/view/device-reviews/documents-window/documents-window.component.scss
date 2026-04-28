@@ -497,6 +497,20 @@ $legacy:   #a0845c;
   text-overflow: ellipsis;
   color: $text;
   min-width: 0;
+
+  &--link {
+    color: $accent;
+    text-decoration: underline;
+    text-decoration-color: rgba($accent, 0.35);
+    text-underline-offset: 2px;
+    cursor: pointer;
+    display: inline;
+
+    &:hover {
+      color: darken($accent, 12%);
+      text-decoration-color: currentColor;
+    }
+  }
 }
 
 .thumb {
@@ -1674,4 +1688,245 @@ $legacy:   #a0845c;
       }
     }
   }
+}
+
+// ── Scan dialog ──────────────────────────────────────────────────────────
+.scan-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 14px;
+  font-size: 13px;
+  color: $text;
+}
+
+.scan-checklist {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  &__intro {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: $muted;
+  }
+
+  &__item {
+    padding: 8px 12px;
+    border-bottom: 1px solid $border;
+
+    &--even {
+      background: $bg-mid;
+    }
+  }
+
+  &__label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+    cursor: pointer;
+
+    input[type='checkbox'] {
+      margin: 0;
+      flex-shrink: 0;
+      transform: translateY(1px);
+    }
+  }
+
+  &__name {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &__desc {
+    color: $muted;
+    font-size: 12px;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 0 0;
+    margin-top: auto;
+    border-top: 1px solid $border;
+  }
+}
+
+// ── Scan progress log ────────────────────────────────────────────────────
+.scan-log {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  &__progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 0 10px;
+  }
+
+  &__bar {
+    flex: 1;
+    height: 10px;
+    background: $border;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s ease;
+    background: repeating-linear-gradient(
+      -45deg,
+      $accent,
+      $accent 6px,
+      lighten($accent, 18%) 6px,
+      lighten($accent, 18%) 12px
+    );
+    background-size: 17px 17px;
+    animation: scan-barber 0.6s linear infinite;
+  }
+
+  &__fill--done {
+    animation: none;
+    background: $approved;
+  }
+
+  @keyframes scan-barber {
+    0%   { background-position: 0 0; }
+    100% { background-position: 17px 0; }
+  }
+
+  &__pct {
+    font-size: 12px;
+    font-weight: 700;
+    color: $text;
+    min-width: 36px;
+    text-align: right;
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid $border;
+    border-radius: 6px;
+    background: $bg;
+  }
+
+  &__entry {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    gap: 0 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid $border;
+
+    &--pass  { --accent: #{$approved}; }
+    &--warn  { --accent: #{$pending}; }
+    &--fail  { --accent: #{$rejected}; }
+    &--error { --accent: #{$rejected}; }
+    &--running { --accent: #{$accent}; }
+    &--skipped { --accent: #{$muted}; }
+    &--pending { --accent: #{$border}; }
+  }
+
+  &__icon {
+    grid-row: 1;
+    grid-column: 1;
+    font-size: 14px;
+    color: var(--accent, $muted);
+    text-align: center;
+  }
+
+  &__spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid $border;
+    border-top-color: $accent;
+    border-radius: 50%;
+    animation: scan-spin 0.6s linear infinite;
+  }
+
+  &__label {
+    grid-row: 1;
+    grid-column: 2;
+    font-weight: 600;
+    color: var(--accent, $text);
+  }
+
+  &__time {
+    grid-row: 1;
+    grid-column: 3;
+    font-size: 11px;
+    color: $muted;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__detail {
+    grid-row: 2;
+    grid-column: 2 / 4;
+    font-size: 12px;
+    color: $muted;
+    padding-top: 2px;
+    line-height: 1.4;
+  }
+
+  &__subitems {
+    grid-row: 3;
+    grid-column: 1 / 4;
+    margin: 6px 0 2px 24px;
+    border-left: 2px solid $border;
+    padding-left: 10px;
+  }
+
+  &__subitem {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 2px 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: $muted;
+
+    &--pass  .scan-log__subicon { color: $approved; }
+    &--warn  .scan-log__subicon { color: $pending; }
+    &--fail  .scan-log__subicon { color: $rejected; }
+    &--info  .scan-log__subicon { color: $muted; }
+  }
+
+  &__subicon {
+    flex-shrink: 0;
+    font-size: 10px;
+    width: 14px;
+    text-align: center;
+  }
+
+  &__sublabel {
+    font-weight: 600;
+    color: $text;
+    white-space: nowrap;
+  }
+
+  &__subdetail {
+    color: $muted;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 0 0;
+    border-top: 1px solid $border;
+  }
+}
+
+@keyframes scan-spin {
+  to { transform: rotate(360deg); }
 }

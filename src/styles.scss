@@ -2,23 +2,41 @@
 @import '~@angular/material/prebuilt-themes/indigo-pink.css';
 @import '~leaflet/dist/leaflet.css';
 
-// --- Design Tokens ---
-$color-bg: #f8f9fb;
-$color-surface: #ffffff;
-$color-border: #e2e6ea;
-$color-header-bg: #1e293b;
-$color-header-text: #f1f5f9;
-$color-primary: #475569;
-$color-primary-dark: #334155;
-$color-primary-light: rgba(71, 85, 105, 0.08);
-$color-text: #1e293b;
-$color-muted: #64748b;
-$color-danger: #dc2626;
-$color-success: #16a34a;
-$color-warning: #d97706;
-$white: #fff;
-$danger: #dc2626;
-$color-row-alt: #e4eaf4; // blue-tinted alternating table rows
+// --- Design Tokens (soft light theme) ---
+$color-bg: #f0ece4;          // warm off-white
+$color-surface: #faf8f5;     // slightly warm white
+$color-border: #d5cfc5;      // warm grey border
+$color-header-bg: #3b3a36;   // dark warm grey header
+$color-header-text: #f0ece4;
+$color-primary: #5a6650;     // muted sage green
+$color-primary-dark: #4a5542;
+$color-primary-light: rgba(90, 102, 80, 0.08);
+$color-text: #3b3a36;        // dark warm grey text
+$color-muted: #8a8578;       // warm mid-grey
+$color-danger: #b5403a;
+$color-success: #5a8a5e;
+$color-warning: #c0923a;
+$white: #faf8f5;
+$danger: #b5403a;
+$color-row-alt: #ebe7df;     // warm alternating row
+
+// CSS custom properties (used by component SCSS via var())
+:root {
+  --color-bg: #{$color-bg};
+  --color-surface: #{$color-surface};
+  --color-border: #{$color-border};
+  --color-header-bg: #{$color-header-bg};
+  --color-header-text: #{$color-header-text};
+  --color-primary: #{$color-primary};
+  --color-primary-dark: #{$color-primary-dark};
+  --color-primary-light: #{$color-primary-light};
+  --color-text: #{$color-text};
+  --color-muted: #{$color-muted};
+  --color-danger: #{$color-danger};
+  --color-success: #{$color-success};
+  --color-warning: #{$color-warning};
+  --color-row-alt: #{$color-row-alt};
+}
 
 $font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 $font-mono: 'JetBrains Mono', 'Fira Code', monospace;
@@ -66,9 +84,56 @@ body {
   background: $color-bg;
 }
 
+// --- Custom form controls (no blue browser checkboxes) ---
 input[type="checkbox"],
 input[type="radio"] {
-  accent-color: #64748b;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid $color-border;
+  border-radius: 3px;
+  background: $color-surface;
+  cursor: pointer;
+  vertical-align: middle;
+  position: relative;
+  transition: all 150ms ease;
+
+  &:checked {
+    background: $color-primary;
+    border-color: $color-primary;
+  }
+  &:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 0px;
+    width: 6px;
+    height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  &:hover {
+    border-color: $color-muted;
+  }
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+input[type="radio"] {
+  border-radius: 50%;
+  &:checked::after {
+    border: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    transform: none;
+    left: 2px;
+    top: 2px;
+  }
 }
 
 .fn { font-size: 9px; color: #64748b; vertical-align: super; margin-left: 1px; }
@@ -112,7 +177,7 @@ input[type="radio"] {
 
 .drec-login {
   .mdc-text-field--filled:not(.mdc-text-field--disabled) {
-    background-color: #f7f7f7 !important;
+    background-color: $color-bg !important;
     border-radius: $radius-sm !important;
   }
 }
@@ -206,7 +271,7 @@ fieldset:disabled .btn.btn-primary {
 }
 
 .mat-drawer-inner-container {
-  background-color: $white !important;
+  background-color: $color-surface !important;
 }
 
 .mat-mdc-form-field-input-control.mat-mdc-form-field-input-control {
@@ -264,7 +329,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
 .mat-step-header.cdk-program-focused,
 .mat-step-header:hover:not([aria-disabled]),
 .mat-step-header:hover[aria-disabled='false'] {
-  background-color: white !important;
+  background-color: $color-surface !important;
 }
 
 .mdc-text-field--focused:not(.mdc-text-field--disabled) .mdc-floating-label {
@@ -299,7 +364,8 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
   color: $white;
 }
 .mdc-text-field--filled:not(.mdc-text-field--disabled) {
-  background-color: white !important;
+  background-color: $color-surface !important;
+  color: $color-text !important;
 }
 .filter-cont {
   .mdc-text-field {
@@ -510,7 +576,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
 // Login / Register layout
 .guest-layout {
   height: 100vh;
-  background: linear-gradient(144deg, #475569 0%, #1e293b 48%);
+  background: linear-gradient(144deg, #5a6650 0%, #3b3a36 48%);
   overflow: hidden;
 
   .mat-card {
@@ -576,7 +642,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
   .login-wrapper .mat-stroked-button {
     border: 1px solid currentColor;
     line-height: 42px;
-    background: $white;
+    background: $color-surface;
   }
 
   .login-wrapper .mat-form-field-appearance-legacy .mat-form-field-infix {
@@ -593,13 +659,13 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
     width: 100%;
     padding: 9px 20px;
     text-align: left;
-    border: 0;
+    border: 1px solid $color-border;
     outline: 0;
     border-radius: $radius-sm;
-    background-color: #fff;
+    background-color: $color-surface;
     font-size: 15px;
     font-weight: 300;
-    color: #8d8d8d;
+    color: $color-text;
     transition: all 0.3s ease;
     margin-bottom: 14px;
   }
@@ -608,9 +674,9 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
   .form-content input:focus,
   .form-content .dropdown-toggle.btn-default:hover,
   .form-content .dropdown-toggle.btn-default:focus {
-    border: 0;
-    background-color: #ebeff8;
-    color: #8d8d8d;
+    border-color: $color-muted;
+    background-color: $color-row-alt;
+    color: $color-text;
   }
 
   .bg-solar {
@@ -651,7 +717,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
 // Native <select> dropdown arrow
 select.field__select {
   appearance: auto;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23475569'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8578'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
   background-size: 10px 6px;
@@ -671,7 +737,7 @@ select.field__select {
       transform: translateY(-50%);
       width: 10px;
       height: 6px;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23475569'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8578'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-size: 10px 6px;
       pointer-events: none;
@@ -682,12 +748,12 @@ select.field__select {
 // --- Global alternating table row colours ---
 tr.mat-mdc-row:nth-child(odd),
 tr.mat-row:nth-child(odd) {
-  background-color: #e4eaf4 !important;
+  background-color: $color-row-alt !important;
 }
 
 tr.mat-mdc-row:nth-child(even),
 tr.mat-row:nth-child(even) {
-  background-color: #ffffff !important;
+  background-color: $color-surface !important;
 }
 
 // --- Resizable, draggable file-preview dialog ---
@@ -698,3 +764,108 @@ tr.mat-row:nth-child(even) {
   resize: both;
   overflow: auto;
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Dark theme overrides — Bootstrap + Angular Material surfaces
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Bootstrap overrides
+.navbar, .navbar-default, .navbar-light {
+  background-color: $color-header-bg !important;
+  border-color: $color-border !important;
+}
+.card, .modal-content, .dropdown-menu, .popover, .tooltip-inner {
+  background-color: $color-surface !important;
+  border-color: $color-border !important;
+  color: $color-text !important;
+}
+.dropdown-item {
+  color: $color-text !important;
+  &:hover, &:focus { background-color: $color-row-alt !important; }
+}
+.table, .table-striped, .table-bordered {
+  color: $color-text !important;
+  border-color: $color-border !important;
+  th, td { border-color: $color-border !important; }
+}
+.form-control, .form-select {
+  background-color: $color-surface !important;
+  border-color: $color-border !important;
+  color: $color-text !important;
+  &:focus {
+    border-color: $color-primary !important;
+    box-shadow: 0 0 0 2px $color-primary-light !important;
+  }
+  &::placeholder { color: $color-muted !important; }
+}
+.input-group-text {
+  background-color: $color-row-alt !important;
+  border-color: $color-border !important;
+  color: $color-muted !important;
+}
+.btn-outline-primary {
+  color: $color-primary !important;
+  border: 1px solid $color-primary !important;
+  background: transparent !important;
+  &:hover { background-color: $color-primary !important; color: #fff !important; }
+}
+.btn-outline-secondary {
+  color: $color-muted !important;
+  border-color: $color-border !important;
+  &:hover { background-color: $color-row-alt !important; color: $color-text !important; }
+}
+.btn-success {
+  background-color: $color-success !important;
+  border-color: $color-success !important;
+}
+.btn-danger {
+  background-color: $color-danger !important;
+  border-color: $color-danger !important;
+}
+.alert { border-color: $color-border !important; }
+.alert-info { background-color: rgba(90, 102, 80, 0.1) !important; color: $color-primary-dark !important; }
+.alert-warning { background-color: rgba(192, 146, 58, 0.1) !important; color: #8a6a20 !important; }
+.alert-danger { background-color: rgba(181, 64, 58, 0.1) !important; color: $color-danger !important; }
+.alert-success { background-color: rgba(90, 138, 94, 0.1) !important; color: $color-success !important; }
+
+a { color: $color-primary; }
+a:hover { color: $color-primary-dark; }
+.text-muted { color: $color-muted !important; }
+.text-dark { color: $color-text !important; }
+.bg-light { background-color: $color-row-alt !important; }
+.bg-white { background-color: $color-surface !important; }
+.border { border-color: $color-border !important; }
+hr { border-color: $color-border; }
+
+// Angular Material dark surfaces
+.mat-mdc-card, .mat-mdc-dialog-container .mat-mdc-dialog-surface {
+  background-color: $color-surface !important;
+  color: $color-text !important;
+}
+.mat-mdc-card { border: 1px solid $color-border !important; }
+.mat-toolbar { background-color: $color-header-bg !important; color: $color-header-text !important; }
+.mat-mdc-menu-panel { background-color: $color-surface !important; }
+.mat-mdc-menu-item { color: $color-text !important; }
+.mat-mdc-option { color: $color-text !important; background-color: $color-surface !important; }
+.mat-mdc-option:hover, .mat-mdc-option.mat-mdc-option-active { background-color: $color-row-alt !important; }
+.mat-mdc-select-panel { background-color: $color-surface !important; }
+.mat-mdc-paginator { background-color: $color-surface !important; color: $color-text !important; }
+.mat-mdc-tab-header { background-color: $color-surface !important; }
+.mat-mdc-tab-label-container { color: $color-muted !important; }
+.mat-expansion-panel { background-color: $color-surface !important; color: $color-text !important; }
+.mat-mdc-form-field-input-control { color: $color-text !important; }
+.mat-mdc-floating-label { color: $color-muted !important; }
+.mat-mdc-select-value-text { color: $color-text !important; }
+.mat-datepicker-content { background-color: $color-surface !important; color: $color-text !important; }
+.mat-calendar-body-cell-content { color: $color-text !important; }
+.mat-mdc-snack-bar-container { background-color: $color-row-alt !important; color: $color-text !important; }
+.mat-sidenav-container, .mat-sidenav-content, .mat-drawer-container, .mat-drawer-content {
+  background-color: $color-bg !important;
+  color: $color-text !important;
+}
+
+// Scrollbar
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: $color-bg; }
+::-webkit-scrollbar-thumb { background: $color-border; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: $color-muted; }

@@ -492,7 +492,7 @@
                     <button type="button" class="magic-btn" (click)="magicFileInput.click()"
                       (mousedown)="$event.stopPropagation()"
                       [disabled]="magicRunning">
-                      <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">auto_fix_high</mat-icon>
+                      <mat-icon style="font-size:20px;height:20px;width:20px;vertical-align:middle">auto_fix_high</mat-icon>
                       Auto-sort documents
                     </button>
                     <input type="file" #magicFileInput hidden multiple
@@ -551,7 +551,7 @@
               </div>
 
               <div class="col-md-4 mb-3">
-                <label title="Please provide at least three photos that show the entire installation plus enough surrounding topography to match with a satellite image.">(43) Project Photos
+                <label title="Please provide at least three photos that show the entire installation plus enough surrounding topography to match with a satellite image.">(43) Site Photos
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('PROJECT_PHOTOS')">{{getDocHint('PROJECT_PHOTOS')}}</small>
                 <p class="checklist-intro">Please provide clear project photos which clearly show the facility and confirms its location.</p>

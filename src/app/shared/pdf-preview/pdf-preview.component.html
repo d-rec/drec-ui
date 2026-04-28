@@ -1,6 +1,6 @@
 <div class="pdf-preview">
   <!-- Left: document preview -->
-  <div class="pdf-preview__left" [style.flex]="'0 0 ' + leftWidthPct + '%'">
+  <div class="pdf-preview__left" [style.flex]="(previewType === 'image' && !ocrText && !ocrLoading) ? '1 1 100%' : '0 0 ' + leftWidthPct + '%'">
     <div *ngIf="previewType === 'image'" class="pdf-preview__img-wrap">
       <div class="pdf-preview__img-stage" appImageZoomPan [resetKey]="previewUrl" title="Scroll to zoom, drag to pan, double-click to reset">
         <img #detectImg [src]="previewUrl" crossorigin="anonymous"
@@ -16,7 +16,10 @@
         <button type="button" (click)="zoomPan?.reset()" title="Reset zoom">
           <mat-icon>fit_screen</mat-icon>
         </button>
-        <span class="pdf-preview__zoom-level">{{ zoomPan?.scale ? (zoomPan.scale * 100 | number:'1.0-0') + '%' : '' }}</span>
+        <span class="pdf-preview__zoom-level">{{ zoomPan?.scale ? (zoomPan!.scale * 100 | number:'1.0-0') + '%' : '' }}</span>
+        <button *ngIf="!ocrText && !ocrLoading && ocrSource" type="button" (click)="startOcr()" title="Extract Text (OCR)" class="pdf-preview__zoom-ocr-btn">
+          <mat-icon>document_scanner</mat-icon> OCR
+        </button>
       </div>
     </div>
     <iframe *ngIf="previewType === 'pdf'" [src]="previewUrl"
@@ -42,13 +45,15 @@
     </div>
   </div>
   <!-- Vertical divider: drag to resize the left/right split -->
-  <div class="pdf-preview__vdivider" (mousedown)="onVerticalDragStart($event)" title="Drag to resize">
+  <div class="pdf-preview__vdivider" (mousedown)="onVerticalDragStart($event)" title="Drag to resize"
+    [hidden]="previewType === 'image' && !ocrText && !ocrLoading">
     <div class="pdf-preview__vdivider-grip"></div>
   </div>
   <!-- Right: OCR + translation -->
-  <div class="pdf-preview__right">
+  <div class="pdf-preview__right"
+    [hidden]="previewType === 'image' && !ocrText && !ocrLoading">
     <div class="pdf-preview__toolbar">
-      <h4 style="margin: 0; font-size: 14px; color: #64748b; white-space: nowrap;">
+      <h4 style="margin: 0; font-size: 14px; color: #64748b;">
         <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">text_snippet</mat-icon>
         Extracted Text (OCR)
       </h4>
@@ -72,7 +77,7 @@
       [style.flex]="(translatedText || translating) ? 'none' : '1'"
       [style.height.px]="(translatedText || translating) ? ocrPaneHeight : undefined"
       [innerHTML]="highlightText(ocrText, ocrSearch)"></pre>
-    <div *ngIf="!ocrLoading && !ocrText" style="padding: 16px; text-align: center;">
+    <div *ngIf="!ocrLoading && !ocrText" class="pdf-preview__ocr-start">
       <button type="button" class="pdf-preview__translate-btn" (click)="startOcr()" [disabled]="!ocrSource">
         <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">document_scanner</mat-icon>
         Extract Text (OCR)
