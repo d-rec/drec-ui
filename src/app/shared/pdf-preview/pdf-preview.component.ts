@@ -65,6 +65,7 @@ export class PdfPreviewComponent implements OnChanges {
   // Panel detection state
   @ViewChild('detectImg') detectImg!: ElementRef<HTMLImageElement>;
   @ViewChild('detectCanvas') detectCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild(ImageZoomPanDirective) zoomPan?: ImageZoomPanDirective;
   detecting = false;
   showDetectOverlay = false;
   panelCount = 0;
@@ -103,11 +104,11 @@ export class PdfPreviewComponent implements OnChanges {
         PdfPreviewComponent.LEFT_WIDTH_STORAGE_KEY,
       );
       const n = raw ? parseFloat(raw) : NaN;
-      if (!isNaN(n) && n >= 20 && n <= 80) return n;
+      if (!isNaN(n) && n >= 20 && n <= 90) return n;
     } catch {
       /* noop */
     }
-    return 50;
+    return 80;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -253,13 +254,17 @@ export class PdfPreviewComponent implements OnChanges {
     ) as HTMLElement | null;
     if (!container) return;
     const rect = container.getBoundingClientRect();
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
     const onMove = (e: MouseEvent) => {
       const pct = ((e.clientX - rect.left) / rect.width) * 100;
-      this.leftWidthPct = Math.min(80, Math.max(20, pct));
+      this.leftWidthPct = Math.min(90, Math.max(20, pct));
     };
-    const onUp = () => {
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
+    const cleanup = () => {
+      document.removeEventListener('mousemove', onMove, true);
+      document.removeEventListener('mouseup', cleanup, true);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
       try {
         localStorage.setItem(
           PdfPreviewComponent.LEFT_WIDTH_STORAGE_KEY,
@@ -269,8 +274,8 @@ export class PdfPreviewComponent implements OnChanges {
         /* noop */
       }
     };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    document.addEventListener('mousemove', onMove, true);
+    document.addEventListener('mouseup', cleanup, true);
   }
 
   private async runOcr(source: File | string): Promise<void> {
@@ -278,6 +283,7 @@ export class PdfPreviewComponent implements OnChanges {
     this.ocrProgress = 0;
     this.ocrPageInfo = '';
     this.ocrText = '';
+    this.leftWidthPct = 50;
     try {
       const Tesseract = await import('tesseract.js' as any);
       const createWorker =

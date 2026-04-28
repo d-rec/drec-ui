@@ -11,6 +11,7 @@ import {
 import { AssetService, OpenPicture } from '../asset.service';
 import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.service';
 import Tesseract from 'tesseract.js';
+import { ImageZoomPanDirective } from '../../../shared/directives/image-zoom-pan.directive';
 
 @Component({
   standalone: false,
@@ -27,6 +28,7 @@ export class PictureWindowComponent implements OnInit {
 
   @ViewChild('imgEl') imgEl!: ElementRef<HTMLImageElement>;
   @ViewChild('overlayCanvas') overlayCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild(ImageZoomPanDirective) zoomPan?: ImageZoomPanDirective;
 
   get url(): string {
     return this.pic.url;

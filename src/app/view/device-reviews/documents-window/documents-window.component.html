@@ -352,6 +352,7 @@
             <button type="button" class="btn btn--photogps" (click)="checkPhotoGps()" title="Verify photo GPS vs declared location (VA layer)">Photo GPS</button>
             <button type="button" class="btn btn--sld" (click)="openSldCompare($event)" title="Open SLD document with capacity compare panel (VA layer)">SLD kW</button>
             <button type="button" class="btn btn--crosssrc" (click)="checkCrossSource()" title="Cross-source verification with Performance Factor (§3.10)">X-Source</button>
+            <button type="button" class="btn btn--classify" (click)="classifyDocuments()" [disabled]="classifyRunning" title="AI-classify all documents and check if they match their slots">Classify</button>
             <button type="button" class="btn btn--cod" (click)="generateSf02ForSelected($event)" [disabled]="!editingId || generatingSf02[editingId!]" title="Generate SF-02 registration form from device data">
               {{ editingId && generatingSf02[editingId!] ? 'Generating…' : '⚙ Generate SF-02' }}
             </button>
@@ -952,6 +953,62 @@
         </div>
       </ng-container>
       <p class="modal-msg" *ngIf="!sldResult" style="color: #dc2626;">SLD comparison failed.</p>
+    </div>
+  </app-ds-floating-window>
+
+  <!-- ── Document Classification Report (floating window) ────────── -->
+  <app-ds-floating-window
+    *ngIf="showClassifyModal"
+    title="Document Classification"
+    [initX]="320" [initY]="260"
+    [initWidth]="640" [initHeight]="480"
+    [zIndex]="zIndex + 10"
+    (bringToFront)="bringToFront.emit()"
+    (close)="showClassifyModal = false"
+  >
+    <div class="report-window">
+      <div *ngIf="classifyRunning" style="text-align:center; padding: 12px 0; color: #64748b;">
+        Classifying documents… ({{ classifyResults.length }} done)
+      </div>
+      <div *ngIf="!classifyRunning && classifyResults.length === 0" style="color: #64748b; padding: 12px 0;">
+        No documents to classify.
+      </div>
+      <div class="classify-scroll" *ngIf="classifyResults.length > 0">
+        <table class="classify-table">
+          <thead>
+            <tr>
+              <th>Slot</th>
+              <th>File</th>
+              <th>AI says</th>
+              <th>Confidence</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of classifyResults"
+                [class.classify-match]="r.match === true"
+                [class.classify-mismatch]="r.match === false"
+                [class.classify-unknown]="r.match === null">
+              <td>{{ r.slot }}</td>
+              <td class="classify-table__file classify-table__link"
+                  (click)="openClassifyFile(r.url, $event)"
+                  (mousedown)="$event.stopPropagation()">{{ r.filename }}</td>
+              <td>{{ r.classifiedType }}</td>
+              <td>{{ r.confidence ? r.confidence + '%' : '—' }}</td>
+              <td class="classify-table__icon">{{ r.match === true ? '✓' : r.match === false ? '✗' : '?' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div *ngIf="!classifyRunning && classifyResults.length > 0" class="classify-footer">
+        <span style="font-size: 11px; color: #64748b;">
+          {{ classifyMatchCount }} match,
+          {{ classifyMismatchCount }} mismatch,
+          {{ classifyUnknownCount }} unknown
+        </span>
+        <button type="button" class="classify-close-btn" (click)="showClassifyModal = false"
+          (mousedown)="$event.stopPropagation()">Close</button>
+      </div>
     </div>
   </app-ds-floating-window>
 

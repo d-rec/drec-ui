@@ -5,6 +5,7 @@ import {
   EventEmitter,
   Output,
   OnDestroy,
+  NgZone,
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
@@ -63,6 +64,11 @@ import {
 } from '../../../utils/file-upload.helper';
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
 import { environment } from '../../../../environments/environment';
+import { DocumentClassifierService } from '../../../utils/document-classifier.service';
+import {
+  ClassificationResult,
+  DOCUMENT_TYPE_LABELS,
+} from '../../../utils/document-keywords';
 
 export type DeviceFiles = {
   [DocumentType.FORM_SF_02]: File[];
@@ -103,6 +109,29 @@ export class AddDevicesComponent implements OnDestroy {
   volumeEvidenceTypes = Object.values(VolumeEvidenceType);
   publicFundingTypes = Object.values(PublicFundingType);
   evidenceReqs: EvidenceRequirements = getEvidenceRequirements(null);
+
+  /** AI document classification suggestions per device/fileType. */
+  classificationSuggestions: {
+    [deviceIndex: number]: { [fileType: string]: ClassificationResult | null };
+  } = {};
+  classifying: { [deviceIndex: number]: { [fileType: string]: boolean } } = {};
+  DOCUMENT_TYPE_LABELS = DOCUMENT_TYPE_LABELS;
+
+  /** Magic auto-sort state. */
+  magicRunning: { [deviceIndex: number]: boolean } = {};
+  magicDone: { [deviceIndex: number]: number } = {};
+  magicTotal: { [deviceIndex: number]: number } = {};
+  magicLog: {
+    [deviceIndex: number]: Array<{
+      filename: string;
+      target: string;
+      confidence: number | null;
+      type: 'hit' | 'miss';
+      file?: File;
+    }>;
+  } = {};
+  private magicBackupFiles: { [deviceIndex: number]: any } = {};
+  private magicBackupPreviews: { [deviceIndex: number]: any } = {};
 
   /** Called when operating configuration changes. Updates evidence requirements. */
   onOperatingConfigChange(config: string | null, formIndex: number): void {
@@ -222,6 +251,8 @@ export class AddDevicesComponent implements OnDestroy {
     public dialog: MatDialog,
     private sanitizer: DomSanitizer,
     private http: HttpClient,
+    private documentClassifier: DocumentClassifierService,
+    private ngZone: NgZone,
   ) {
     this.user = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -724,6 +755,18 @@ export class AddDevicesComponent implements OnDestroy {
     this.formValid = this.myform.valid;
   }
 
+  /** Check if a file with the same name already exists in any slot for this device. */
+  private isDuplicate(deviceIndex: number, file: File): boolean {
+    const deviceFiles = this.files[deviceIndex];
+    if (!deviceFiles) return false;
+    for (const slot of Object.values(deviceFiles)) {
+      if (slot?.some((f: File) => f.name === file.name && f.size === file.size)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   onFileChange(event: Event, deviceIndex: number, fileType: FileType) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -745,14 +788,21 @@ export class AddDevicesComponent implements OnDestroy {
       'METERING_EVIDENCE',
       'OTHER_DOCUMENTS',
     ];
+    const newFiles = Array.from(files).filter((f) => !this.isDuplicate(deviceIndex, f));
+    if (newFiles.length < files.length) {
+      const skipped = files.length - newFiles.length;
+      this.toastrService.info(`${skipped} duplicate file(s) skipped`);
+    }
+    if (newFiles.length === 0) return;
+
     const prevLen = (this.files[deviceIndex][fileType] || []).length;
     if (multiTypes.includes(fileType)) {
       this.files[deviceIndex][fileType] = [
         ...(this.files[deviceIndex][fileType] || []),
-        ...Array.from(files),
+        ...newFiles,
       ];
     } else {
-      this.files[deviceIndex][fileType] = Array.from(files);
+      this.files[deviceIndex][fileType] = newFiles;
     }
     // Keep fileLabels aligned with files[] length per type.
     if (!this.fileLabels[deviceIndex]) this.fileLabels[deviceIndex] = {};
@@ -789,6 +839,258 @@ export class AddDevicesComponent implements OnDestroy {
     };
 
     this.checkDocumentsUploaded();
+
+    // Trigger background AI classification
+    this.classifyUploadedFile(input.files[0], deviceIndex, fileType);
+  }
+
+  /** Magic auto-sort: classify multiple files and dispatch them to slots. */
+  onMagicUpload(event: Event, deviceIndex: number): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const filesToProcess = Array.from(input.files);
+    input.value = ''; // reset so same files can be re-selected
+
+    this.magicRunning[deviceIndex] = true;
+    this.magicDone[deviceIndex] = 0;
+    this.magicTotal[deviceIndex] = filesToProcess.length;
+    this.magicLog[deviceIndex] = [];
+
+    // Backup current state for cancel
+    if (this.files[deviceIndex]) {
+      const backup: any = {};
+      for (const key of Object.keys(this.files[deviceIndex])) {
+        backup[key] = [...(this.files[deviceIndex] as any)[key]];
+      }
+      this.magicBackupFiles[deviceIndex] = backup;
+    } else {
+      this.magicBackupFiles[deviceIndex] = {} as any;
+    }
+    this.magicBackupPreviews[deviceIndex] = this.filePreviews[deviceIndex]
+      ? { ...this.filePreviews[deviceIndex] }
+      : ({} as any);
+
+    if (!this.files[deviceIndex]) {
+      this.files[deviceIndex] = this.requiredFileTypes.reduce(
+        (acc, docType) => {
+          acc[docType] = [];
+          return acc;
+        },
+        {} as DeviceFiles,
+      );
+    }
+
+    const processNext = (idx: number) => {
+      if (idx >= filesToProcess.length) {
+        this.ngZone.run(() => {
+          this.magicRunning[deviceIndex] = false;
+          this.checkDocumentsUploaded();
+        });
+        return;
+      }
+
+      const file = filesToProcess[idx];
+      if (this.isDuplicate(deviceIndex, file)) {
+        this.ngZone.run(() => {
+          this.magicLog[deviceIndex].push({
+            filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
+            target: 'Skipped (duplicate)',
+            confidence: null,
+            type: 'miss',
+          });
+          this.magicDone[deviceIndex] = idx + 1;
+        });
+        setTimeout(() => processNext(idx + 1));
+        return;
+      }
+      this.documentClassifier.classify(file).subscribe({
+        next: (result) => {
+          this.ngZone.run(() => {
+            const targetType = result?.suggestedType ?? DocumentType.OTHER_DOCUMENTS;
+            const label =
+              this.DOCUMENT_TYPE_LABELS[targetType] ?? 'Other Document';
+            const confidence = result
+              ? Math.round(result.confidence * 100)
+              : null;
+
+            // Place file in the target slot
+            const multiTypes = [
+              'PROJECT_PHOTOS',
+              'METERING_EVIDENCE',
+              'OTHER_DOCUMENTS',
+            ];
+            if (multiTypes.includes(targetType)) {
+              this.files[deviceIndex][targetType as FileType] = [
+                ...(this.files[deviceIndex][targetType as FileType] || []),
+                file,
+              ];
+            } else {
+              this.files[deviceIndex][targetType as FileType] = [file];
+            }
+
+            // Keep fileLabels aligned
+            if (!this.fileLabels[deviceIndex])
+              this.fileLabels[deviceIndex] = {};
+            const len =
+              this.files[deviceIndex][targetType as FileType].length;
+            this.fileLabels[deviceIndex][targetType] = Array(len).fill('');
+
+            // Set form control
+            const control = this.deviceForms
+              .at(deviceIndex)
+              .get(targetType);
+            if (control) {
+              control.setValue(
+                this.files[deviceIndex][targetType as FileType][0] ?? null,
+              );
+              control.markAsDirty();
+            }
+
+            // Generate preview
+            if (!this.filePreviews[deviceIndex])
+              this.filePreviews[deviceIndex] = {};
+            const isImage = file.type.startsWith('image/');
+            const isPdf = file.type === 'application/pdf';
+            const isExcel = /\.(xlsx|xls)$/i.test(file.name);
+            const objectUrl = URL.createObjectURL(file);
+            this.filePreviews[deviceIndex][targetType] = {
+              url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
+              type: isImage
+                ? 'image'
+                : isPdf
+                  ? 'pdf'
+                  : isExcel
+                    ? 'excel'
+                    : 'other',
+              name: file.name,
+            };
+
+            // Log entry
+            this.magicLog[deviceIndex].push({
+              filename: file.name.length > 40
+                ? file.name.substring(0, 37) + '...'
+                : file.name,
+              target: label,
+              confidence,
+              type: result && result.suggestedType !== DocumentType.OTHER_DOCUMENTS
+                ? 'hit'
+                : 'miss',
+              file,
+            });
+
+            this.magicDone[deviceIndex] = idx + 1;
+            processNext(idx + 1);
+          });
+        },
+        error: () => {
+          this.ngZone.run(() => {
+            this.magicLog[deviceIndex].push({
+              filename: file.name.length > 40
+                ? file.name.substring(0, 37) + '...'
+                : file.name,
+              target: 'Other Document',
+              confidence: null,
+              type: 'miss',
+              file,
+            });
+
+            // Put in OTHER_DOCUMENTS on error
+            this.files[deviceIndex][DocumentType.OTHER_DOCUMENTS] = [
+              ...(this.files[deviceIndex][DocumentType.OTHER_DOCUMENTS] ||
+                []),
+              file,
+            ];
+
+            this.magicDone[deviceIndex] = idx + 1;
+            processNext(idx + 1);
+          });
+        },
+      });
+    };
+
+    processNext(0);
+  }
+
+  /** Run AI classification on an uploaded file and store the suggestion. */
+  private classifyUploadedFile(
+    file: File,
+    deviceIndex: number,
+    currentType: string,
+  ): void {
+    if (!this.classifying[deviceIndex]) this.classifying[deviceIndex] = {};
+    if (!this.classificationSuggestions[deviceIndex])
+      this.classificationSuggestions[deviceIndex] = {};
+
+    this.classifying[deviceIndex][currentType] = true;
+    this.classificationSuggestions[deviceIndex][currentType] = null;
+
+    this.documentClassifier.classify(file).subscribe({
+      next: (result) => {
+        this.ngZone.run(() => {
+          this.classifying[deviceIndex][currentType] = false;
+          if (
+            result &&
+            result.suggestedType !== currentType &&
+            result.confidence >= 0.4
+          ) {
+            this.classificationSuggestions[deviceIndex][currentType] = result;
+          }
+        });
+      },
+      error: () => {
+        this.ngZone.run(() => {
+          this.classifying[deviceIndex][currentType] = false;
+        });
+      },
+    });
+  }
+
+  /** Accept an AI classification suggestion: move the file to the suggested slot. */
+  acceptClassification(deviceIndex: number, fromType: string): void {
+    const suggestion =
+      this.classificationSuggestions[deviceIndex]?.[fromType];
+    if (!suggestion) return;
+
+    const toType = suggestion.suggestedType as string as FileType;
+    const filesInSlot = this.files[deviceIndex]?.[fromType as FileType];
+    if (!filesInSlot?.length) return;
+
+    // Move file(s) to the suggested slot
+    if (!this.files[deviceIndex][toType]) {
+      this.files[deviceIndex][toType] = [];
+    }
+    this.files[deviceIndex][toType] = [
+      ...this.files[deviceIndex][toType],
+      ...filesInSlot,
+    ];
+    this.files[deviceIndex][fromType as FileType] = [];
+
+    // Move preview
+    if (this.filePreviews[deviceIndex]?.[fromType]) {
+      this.filePreviews[deviceIndex][toType] = this.filePreviews[deviceIndex][fromType];
+      delete this.filePreviews[deviceIndex][fromType];
+    }
+
+    // Update form controls
+    const fromControl = this.deviceForms.at(deviceIndex).get(fromType);
+    const toControl = this.deviceForms.at(deviceIndex).get(toType);
+    if (fromControl) fromControl.setValue(null);
+    if (toControl) {
+      toControl.setValue(this.files[deviceIndex][toType][0] ?? null);
+      toControl.markAsDirty();
+    }
+
+    // Clear suggestion
+    this.classificationSuggestions[deviceIndex][fromType] = null;
+    this.checkDocumentsUploaded();
+  }
+
+  /** Dismiss an AI classification suggestion. */
+  dismissClassification(deviceIndex: number, fileType: string): void {
+    if (this.classificationSuggestions[deviceIndex]) {
+      this.classificationSuggestions[deviceIndex][fileType] = null;
+    }
   }
 
   openPreview(deviceIndex: number, fileType: string) {
@@ -803,6 +1105,44 @@ export class AddDevicesComponent implements OnDestroy {
       height: '90vh',
       panelClass: 'file-preview-dialog',
     });
+  }
+
+  viewMagicFile(file: File, deviceIndex: number): void {
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    const isImage = file.type.startsWith('image/');
+    const isPdf = ext === 'pdf';
+    const isExcel = ext === 'xlsx' || ext === 'xls';
+    const objUrl = URL.createObjectURL(file);
+    this.previewData = {
+      url: this.sanitizer.bypassSecurityTrustResourceUrl(objUrl),
+      type: isImage ? 'image' : isPdf ? 'pdf' : isExcel ? 'excel' : 'other',
+      name: file.name,
+    };
+    this.currentPreviewFile = file;
+    this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
+      width: '95vw',
+      maxWidth: '1400px',
+      height: '90vh',
+      panelClass: 'file-preview-dialog',
+    });
+  }
+
+  acceptMagic(deviceIndex: number): void {
+    this.magicLog[deviceIndex] = [];
+    delete this.magicBackupFiles[deviceIndex];
+    delete this.magicBackupPreviews[deviceIndex];
+  }
+
+  cancelMagic(deviceIndex: number): void {
+    if (this.magicBackupFiles[deviceIndex]) {
+      this.files[deviceIndex] = this.magicBackupFiles[deviceIndex] as any;
+    }
+    if (this.magicBackupPreviews[deviceIndex]) {
+      this.filePreviews[deviceIndex] = this.magicBackupPreviews[deviceIndex] as any;
+    }
+    this.magicLog[deviceIndex] = [];
+    delete this.magicBackupFiles[deviceIndex];
+    delete this.magicBackupPreviews[deviceIndex];
   }
 
   renameableTypes: string[] = ['PROJECT_PHOTOS', 'METERING_EVIDENCE'];
@@ -1151,6 +1491,9 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   openPopupDialog() {
+    // Legal confirmation dialog removed — submit directly.
+    this.submitForm();
+    return;
     this.dialogRef = this.dialog.open(this.popupDialog, {
       width: '700px',
     });

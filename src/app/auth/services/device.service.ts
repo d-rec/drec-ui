@@ -147,6 +147,19 @@ export class DeviceService {
       { label },
     );
   }
+  getDocumentBlob(docId: number): Observable<Blob> {
+    return this.httpClient.get(
+      `${this.url}document-uploads/${docId}/url`,
+      { responseType: 'blob' },
+    );
+  }
+
+  deleteDocument(deviceId: number, docId: number): Observable<void> {
+    return this.httpClient.delete<void>(
+      `${this.url}device/${deviceId}/documents/${docId}`,
+    );
+  }
+
   public create(data: FormData): Observable<any> {
     return this.httpClient.post<any>(this.url + 'device', data);
   }

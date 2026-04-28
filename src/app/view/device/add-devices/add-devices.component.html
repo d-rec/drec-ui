@@ -607,15 +607,89 @@
                 </div>
 
                 <!-- ── Supporting Documents ─────────────────────────────── -->
+                <ng-template #classifyBadge let-idx="idx" let-docType="docType">
+                  <div class="classify-suggestion"
+                    *ngIf="classificationSuggestions[idx]?.[docType] as suggestion">
+                    <span class="classify-badge">
+                      AI suggests: <strong>{{ DOCUMENT_TYPE_LABELS[suggestion.suggestedType] }}</strong>
+                      ({{ (suggestion.confidence * 100) | number:'1.0-0' }}%)
+                    </span>
+                    <button type="button" class="classify-accept" (click)="acceptClassification(idx, docType)"
+                      (mousedown)="$event.stopPropagation()">Move</button>
+                    <button type="button" class="classify-dismiss" (click)="dismissClassification(idx, docType)"
+                      (mousedown)="$event.stopPropagation()">&times;</button>
+                  </div>
+                  <div class="classify-running" *ngIf="classifying[idx]?.[docType]">
+                    <small>Classifying...</small>
+                  </div>
+                </ng-template>
+
                 <div class="row">
-                  <div class="row">
-                    <h3>Supporting Documents</h3>
+                  <div class="col-12">
+                    <div class="magic-header">
+                      <h3>Supporting Documents</h3>
+                      <button type="button" class="magic-btn" (click)="magicFileInput.click()"
+                        (mousedown)="$event.stopPropagation()"
+                        [disabled]="magicRunning[i]">
+                        <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">auto_fix_high</mat-icon>
+                        Auto-sort documents
+                      </button>
+                      <input type="file" #magicFileInput hidden multiple
+                        accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff,.tif,.webp"
+                        (change)="onMagicUpload($event, i)">
+                    </div>
                     <p class="evidence-note" *ngIf="evidenceReqs">
                       Document requirements are based on the selected Operating Configuration.
                       <span class="badge-required">Required</span>
-                      <span class="badge-recommended">Recommended</span>
-                      <span class="badge-optional">Optional</span>
                     </p>
+                  </div>
+
+                  <!-- Magic auto-sort floating dialog -->
+                  <div class="magic-overlay" *ngIf="magicRunning[i] || magicLog[i]?.length">
+                    <div class="magic-dialog">
+                      <div class="magic-dialog__header">
+                        <mat-icon style="font-size:20px;height:20px;width:20px">auto_fix_high</mat-icon>
+                        <span>Auto-sorting documents</span>
+                        <button type="button" class="magic-dialog__close"
+                          (click)="magicRunning[i] = false; magicLog[i] = []"
+                          (mousedown)="$event.stopPropagation()">&times;</button>
+                      </div>
+                      <div class="magic-dialog__progress" *ngIf="magicRunning[i]">
+                        <div class="magic-dialog__bar">
+                          <div class="magic-dialog__fill"
+                            [style.width.%]="magicTotal[i] ? (magicDone[i] / magicTotal[i]) * 100 : 0"></div>
+                        </div>
+                        <span class="magic-dialog__count">{{ magicDone[i] }} / {{ magicTotal[i] }}</span>
+                      </div>
+                      <div class="magic-dialog__done" *ngIf="!magicRunning[i]">
+                        Sorted {{ magicLog[i]?.length }} files
+                      </div>
+                      <table class="magic-table" *ngIf="magicLog[i]?.length">
+                        <thead>
+                          <tr><th>File</th><th>Classified as</th><th>Confidence</th></tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let entry of magicLog[i]; let odd = odd"
+                            [class.magic-table__miss]="entry.type === 'miss'"
+                            [class.magic-table__dimmed]="odd">
+                            <td class="magic-table__file">
+                              <span *ngIf="entry.file" class="magic-table__link"
+                                (click)="viewMagicFile(entry.file, i)"
+                                (mousedown)="$event.stopPropagation()">{{ entry.filename }}</span>
+                              <span *ngIf="!entry.file">{{ entry.filename }}</span>
+                            </td>
+                            <td class="magic-table__target">{{ entry.target }}</td>
+                            <td class="magic-table__conf">{{ entry.confidence ? entry.confidence + '%' : '—' }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div class="magic-dialog__footer">
+                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                          (click)="cancelMagic(i)" (mousedown)="$event.stopPropagation()">Cancel</button>
+                        <button type="button" class="btn btn-primary btn-sm"
+                          (click)="acceptMagic(i)" (mousedown)="$event.stopPropagation()">OK</button>
+                      </div>
+                    </div>
                   </div>
 
                   <div class="col-md-4 mb-3">
@@ -649,6 +723,7 @@
                           <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                         </span>
                       </div>
+                      <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'FORM_SF_02' }"></ng-container>
                     </div>
                     <small *ngIf="deviceForms.at(i).get('sf02EvidenceMode')?.value === 'self'"
                            style="color:#64748b;font-style:italic">
@@ -690,6 +765,7 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
+                    <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'PROJECT_PHOTOS' }"></ng-container>
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SINGLE_LINE_DIAGRAM') === 'required' && !deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
@@ -718,6 +794,7 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
+                    <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C') === 'required' && !deviceForms.at(i).get('SF_02C')?.value">
@@ -745,6 +822,7 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
+                    <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SF_02C' }"></ng-container>
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C_OWNERS_DECLARATION') === 'required' && !deviceForms.at(i).get('SF_02C_OWNERS_DECLARATION')?.value">
@@ -772,6 +850,7 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
+                    <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SF_02C_OWNERS_DECLARATION' }"></ng-container>
                   </div>
 
                   <div class="col-md-4 mb-3">
@@ -800,6 +879,7 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
+                    <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'COD_PROOF' }"></ng-container>
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('METERING_EVIDENCE') === 'required' && !deviceForms.at(i).get('METERING_EVIDENCE')?.value">
@@ -836,12 +916,11 @@
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
+                    <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'METERING_EVIDENCE' }"></ng-container>
                   </div>
 
                   <div class="col-md-4 mb-3">
-                    <label title="Please provide any other documents that may be relevant to this facility's registration on Evident (e.g. No RPO letter for facilities in India)">(50) Other Documents
-                      <span class="badge-optional">Optional</span>
-                    </label>
+                    <label title="Please provide any other documents that may be relevant to this facility's registration on Evident (e.g. No RPO letter for facilities in India)">(50) Other Documents</label>
                     <div class="d-flex justify-content-between align-items-center doc-box">
                       <input type="file" #otherDocsFileInput
                         (change)="onFileChange($event, i, DocumentType.OTHER_DOCUMENTS)" style="display: none"
@@ -856,6 +935,7 @@
                              deviceForms.at(i).get('OTHER_DOCUMENTS')?.value.name : '') }}
                       </span>
                     </div>
+                    <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'OTHER_DOCUMENTS' }"></ng-container>
                   </div>
 
                 </div>
@@ -920,18 +1000,20 @@
 </ng-template>
 
 <ng-template #previewDialog>
-  <h2 mat-dialog-title class="d-flex justify-content-between align-items-center mb-0">
-    <span>{{ previewData?.name }}</span>
-    <button mat-icon-button (click)="previewDialogRef.close()">
-      <mat-icon>close</mat-icon>
-    </button>
-  </h2>
-  <div mat-dialog-content class="preview-dialog-content">
-    <app-pdf-preview
-      [previewUrl]="previewData!.url"
-      [previewType]="previewData!.type === 'pdf' ? 'pdf' : previewData!.type === 'excel' ? 'excel' : 'image'"
-      [ocrSource]="currentPreviewFile">
-    </app-pdf-preview>
+  <div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
+    <h2 mat-dialog-title cdkDragHandle class="d-flex justify-content-between align-items-center mb-0" style="cursor: move;">
+      <span>{{ previewData?.name }}</span>
+      <button mat-icon-button (click)="previewDialogRef.close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </h2>
+    <div mat-dialog-content class="preview-dialog-content">
+      <app-pdf-preview
+        [previewUrl]="previewData!.url"
+        [previewType]="previewData!.type === 'pdf' ? 'pdf' : previewData!.type === 'excel' ? 'excel' : 'image'"
+        [ocrSource]="currentPreviewFile">
+      </app-pdf-preview>
+    </div>
   </div>
 </ng-template>
 

@@ -99,6 +99,7 @@
   }
 
   &__image-area {
+    position: relative;
     flex: 1;
     min-height: 0;
     display: flex;
@@ -117,6 +118,40 @@
     max-width: 100%;
     max-height: 100%;
     cursor: grab;
+  }
+
+  &__zoom-toolbar {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: rgba(30, 41, 59, 0.8);
+    border-radius: 6px;
+    padding: 3px 8px;
+    z-index: 10;
+
+    button {
+      background: none;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 16px;
+      line-height: 1;
+      &:hover { background: rgba(255, 255, 255, 0.15); }
+    }
+  }
+
+  &__zoom-level {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 11px;
+    min-width: 36px;
+    text-align: center;
+    user-select: none;
   }
 
   &__img {

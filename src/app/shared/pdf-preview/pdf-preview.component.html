@@ -6,6 +6,18 @@
         <img #detectImg [src]="previewUrl" crossorigin="anonymous"
           style="max-width: 100%; max-height: 100%; display: block; margin: 0 auto; object-fit: contain;" />
       </div>
+      <div class="pdf-preview__zoom-toolbar">
+        <button type="button" (click)="zoomPan?.zoomIn()" title="Zoom in">
+          <mat-icon>zoom_in</mat-icon>
+        </button>
+        <button type="button" (click)="zoomPan?.zoomOut()" title="Zoom out">
+          <mat-icon>zoom_out</mat-icon>
+        </button>
+        <button type="button" (click)="zoomPan?.reset()" title="Reset zoom">
+          <mat-icon>fit_screen</mat-icon>
+        </button>
+        <span class="pdf-preview__zoom-level">{{ zoomPan?.scale ? (zoomPan.scale * 100 | number:'1.0-0') + '%' : '' }}</span>
+      </div>
     </div>
     <iframe *ngIf="previewType === 'pdf'" [src]="previewUrl"
       title="Document preview"

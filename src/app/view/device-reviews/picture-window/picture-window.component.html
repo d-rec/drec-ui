@@ -22,6 +22,12 @@
         <div class="picw__image-wrap" appImageZoomPan [resetKey]="url" title="Scroll to zoom, drag to pan, double-click to reset">
           <img #imgEl class="picw__img" [src]="url" alt="Device picture" crossorigin="anonymous" />
         </div>
+        <div class="picw__zoom-toolbar">
+          <button type="button" (click)="zoomPan?.zoomIn()" (mousedown)="$event.stopPropagation()" title="Zoom in">+</button>
+          <button type="button" (click)="zoomPan?.zoomOut()" (mousedown)="$event.stopPropagation()" title="Zoom out">&minus;</button>
+          <button type="button" (click)="zoomPan?.reset()" (mousedown)="$event.stopPropagation()" title="Reset">&#8634;</button>
+          <span class="picw__zoom-level">{{ zoomPan?.scale ? ((zoomPan.scale * 100) | number:'1.0-0') + '%' : '' }}</span>
+        </div>
       </div>
       <div *ngIf="ocrRunning" class="picw__progress">
         <div class="picw__progress-bar" [style.width.%]="ocrProgress"></div>

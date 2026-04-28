@@ -457,13 +457,101 @@
 
             <!-- ── Supporting Documents ─────────────────────────────── -->
             <div class="row">
+              <ng-template #classifyBadge let-docType="docType">
+                <div class="classify-suggestion"
+                  *ngIf="classificationSuggestions[docType] as suggestion">
+                  <span class="classify-badge">
+                    AI suggests: <strong>{{ DOCUMENT_TYPE_LABELS[suggestion.suggestedType] }}</strong>
+                    ({{ (suggestion.confidence * 100) | number:'1.0-0' }}%)
+                  </span>
+                  <button type="button" class="classify-accept" (click)="acceptClassification(docType)"
+                    (mousedown)="$event.stopPropagation()">Move</button>
+                  <button type="button" class="classify-dismiss" (click)="dismissClassification(docType)"
+                    (mousedown)="$event.stopPropagation()">&times;</button>
+                </div>
+                <div class="classify-running" *ngIf="classifying[docType]">
+                  <small>Classifying...</small>
+                </div>
+              </ng-template>
+
+              <ng-template #existingDocList let-docType="docType">
+                <ul class="existing-doc-list" *ngIf="existingDocs[docType]?.length">
+                  <li *ngFor="let doc of existingDocs[docType]; let i = index" class="existing-doc-item">
+                    <span class="existing-doc-link" (click)="viewExistingDoc(doc)" [title]="doc.label || doc.name">{{ doc.label || doc.name }}</span>
+                    <button type="button" class="existing-doc-delete" (click)="deleteExistingDoc(docType, i)" title="Delete">
+                      <mat-icon style="font-size:14px;height:14px;width:14px">close</mat-icon>
+                    </button>
+                  </li>
+                </ul>
+              </ng-template>
+
               <div class="row">
-                <h3>Supporting Documents</h3>
+                <div class="col-12">
+                  <div class="magic-header">
+                    <h3>Supporting Documents</h3>
+                    <button type="button" class="magic-btn" (click)="magicFileInput.click()"
+                      (mousedown)="$event.stopPropagation()"
+                      [disabled]="magicRunning">
+                      <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">auto_fix_high</mat-icon>
+                      Auto-sort documents
+                    </button>
+                    <input type="file" #magicFileInput hidden multiple
+                      accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff,.tif,.webp"
+                      (change)="onMagicUpload($event)">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Magic auto-sort floating dialog -->
+              <div class="magic-overlay" *ngIf="magicRunning || magicLog.length">
+                <div class="magic-dialog">
+                  <div class="magic-dialog__header">
+                    <mat-icon style="font-size:20px;height:20px;width:20px">auto_fix_high</mat-icon>
+                    <span>Auto-sorting documents</span>
+                    <button type="button" class="magic-dialog__close"
+                      (click)="magicRunning = false; magicLog = []"
+                      (mousedown)="$event.stopPropagation()">&times;</button>
+                  </div>
+                  <div class="magic-dialog__progress" *ngIf="magicRunning">
+                    <div class="magic-dialog__bar">
+                      <div class="magic-dialog__fill"
+                        [style.width.%]="magicTotal ? (magicDone / magicTotal) * 100 : 0"></div>
+                    </div>
+                    <span class="magic-dialog__count">{{ magicDone }} / {{ magicTotal }}</span>
+                  </div>
+                  <div class="magic-dialog__done" *ngIf="!magicRunning">
+                    Sorted {{ magicLog.length }} files
+                  </div>
+                  <table class="magic-table" *ngIf="magicLog.length">
+                    <thead>
+                      <tr><th>File</th><th>Classified as</th><th>Confidence</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let entry of magicLog; let odd = odd"
+                        [class.magic-table__miss]="entry.type === 'miss'"
+                        [class.magic-table__dimmed]="odd">
+                        <td class="magic-table__file">
+                          <span *ngIf="entry.file" class="magic-table__link"
+                            (click)="viewMagicFile(entry.file)"
+                            (mousedown)="$event.stopPropagation()">{{ entry.filename }}</span>
+                          <span *ngIf="!entry.file">{{ entry.filename }}</span>
+                        </td>
+                        <td class="magic-table__target">{{ entry.target }}</td>
+                        <td class="magic-table__conf">{{ entry.confidence ? entry.confidence + '%' : '—' }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="magic-dialog__footer">
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                      (click)="cancelMagic()" (mousedown)="$event.stopPropagation()">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm"
+                      (click)="acceptMagic()" (mousedown)="$event.stopPropagation()">OK</button>
+                  </div>
+                </div>
               </div>
 
               <div class="col-md-4 mb-3">
                 <label title="Please provide at least three photos that show the entire installation plus enough surrounding topography to match with a satellite image.">(43) Project Photos
-                  <span class="badge-{{getDocRequirement('PROJECT_PHOTOS')}}">{{getDocRequirement('PROJECT_PHOTOS')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('PROJECT_PHOTOS')">{{getDocHint('PROJECT_PHOTOS')}}</small>
                 <p class="checklist-intro">Please provide clear project photos which clearly show the facility and confirms its location.</p>
@@ -488,11 +576,6 @@
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
-                  <button *ngIf="filePreviews['PROJECT_PHOTOS']" type="button"
-                    class="badge bg-success text-white px-3 py-2 preview-btn"
-                    (click)="openPreview('PROJECT_PHOTOS')">
-                    <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
-                  </button>
                   <button *ngIf="existingDocs['PROJECT_PHOTOS']?.length" type="button"
                     class="badge bg-primary text-white px-3 py-2 preview-btn"
                     (click)="openRenameDialog('PROJECT_PHOTOS')"
@@ -500,11 +583,12 @@
                     <mat-icon style="font-size:18px;height:18px;width:18px">edit</mat-icon>
                   </button>
                 </div>
+                <ng-container *ngTemplateOutlet="classifyBadge; context: { docType: 'PROJECT_PHOTOS' }"></ng-container>
+                <ng-container *ngTemplateOutlet="existingDocList; context: { docType: 'PROJECT_PHOTOS' }"></ng-container>
               </div>
 
               <div class="col-md-4 mb-3">
                 <label>(45) Single Line Diagram
-                  <span class="badge-{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}">{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('SINGLE_LINE_DIAGRAM')">{{getDocHint('SINGLE_LINE_DIAGRAM')}}</small>
                 <p class="checklist-intro">Please provide an official Single Line Diagram (SLD) showing the electrical construction of the facility.</p>
@@ -527,17 +611,13 @@
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
-                  <button *ngIf="filePreviews['SINGLE_LINE_DIAGRAM']" type="button"
-                    class="badge bg-success text-white px-3 py-2 preview-btn"
-                    (click)="openPreview('SINGLE_LINE_DIAGRAM')">
-                    <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
-                  </button>
                 </div>
+                <ng-container *ngTemplateOutlet="classifyBadge; context: { docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
+                <ng-container *ngTemplateOutlet="existingDocList; context: { docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
               </div>
 
               <div class="col-md-4 mb-3">
                 <label title="Please provide a signed copy of the attached template on your organization's letterhead. It must match this format, language, and site details exactly, and must include contact information for the person signing.">(46) SF-02c (Owner's Declaration letter)
-                  <span class="badge-{{getDocRequirement('SF_02C')}}">{{getDocRequirement('SF_02C')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('SF_02C')">{{getDocHint('SF_02C')}}</small>
                 <div class="d-flex justify-content-between align-items-center doc-box">
@@ -553,17 +633,13 @@
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
-                  <button *ngIf="filePreviews['SF_02C']" type="button"
-                    class="badge bg-success text-white px-3 py-2 preview-btn"
-                    (click)="openPreview('SF_02C')">
-                    <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
-                  </button>
                 </div>
+                <ng-container *ngTemplateOutlet="classifyBadge; context: { docType: 'SF_02C' }"></ng-container>
+                <ng-container *ngTemplateOutlet="existingDocList; context: { docType: 'SF_02C' }"></ng-container>
               </div>
 
               <div class="col-md-4 mb-3">
                 <label title="Please provide a copy of the contract with the PV system owner such as a PPA or lease agreement that clarifies who owns the facility and who has the legal right to trade the environmental attributes.">(47) Proof of Ownership
-                  <span class="badge-{{getDocRequirement('SF_02C_OWNERS_DECLARATION')}}">{{getDocRequirement('SF_02C_OWNERS_DECLARATION')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('SF_02C_OWNERS_DECLARATION')">{{getDocHint('SF_02C_OWNERS_DECLARATION')}}</small>
                 <div class="d-flex justify-content-between align-items-center doc-box">
@@ -579,17 +655,13 @@
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
-                  <button *ngIf="filePreviews['SF_02C_OWNERS_DECLARATION']" type="button"
-                    class="badge bg-success text-white px-3 py-2 preview-btn"
-                    (click)="openPreview('SF_02C_OWNERS_DECLARATION')">
-                    <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
-                  </button>
                 </div>
+                <ng-container *ngTemplateOutlet="classifyBadge; context: { docType: 'SF_02C_OWNERS_DECLARATION' }"></ng-container>
+                <ng-container *ngTemplateOutlet="existingDocList; context: { docType: 'SF_02C_OWNERS_DECLARATION' }"></ng-container>
               </div>
 
               <div class="col-md-4 mb-3">
                 <label title="Please provide an official document (such as a handover letter to the offtaker or a commissioning certificate from the utility) that confirms the commissioning date">(48) COD Proof
-                  <span class="badge-{{getDocRequirement('COD_PROOF')}}">{{getDocRequirement('COD_PROOF')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('COD_PROOF')">{{getDocHint('COD_PROOF')}}</small>
                 <div class="d-flex justify-content-between align-items-center doc-box">
@@ -605,17 +677,13 @@
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
-                  <button *ngIf="filePreviews['COD_PROOF']" type="button"
-                    class="badge bg-success text-white px-3 py-2 preview-btn"
-                    (click)="openPreview('COD_PROOF')">
-                    <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
-                  </button>
                 </div>
+                <ng-container *ngTemplateOutlet="classifyBadge; context: { docType: 'COD_PROOF' }"></ng-container>
+                <ng-container *ngTemplateOutlet="existingDocList; context: { docType: 'COD_PROOF' }"></ng-container>
               </div>
 
               <div class="col-md-4 mb-3">
                 <label title="Please provide a sample of the metering evidence you will rely on for I-REC issuance">(49) Metering Evidence
-                  <span class="badge-{{getDocRequirement('METERING_EVIDENCE')}}">{{getDocRequirement('METERING_EVIDENCE')}}</span>
                 </label>
                 <small class="doc-hint" *ngIf="getDocHint('METERING_EVIDENCE')">{{getDocHint('METERING_EVIDENCE')}}</small>
                 <p class="checklist-intro">Please provide official metering evidence for this facility; accepted forms of metering are listed in the Evident IREC(E) Code.</p>
@@ -640,11 +708,6 @@
                     class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                     <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                   </span>
-                  <button *ngIf="filePreviews['METERING_EVIDENCE']" type="button"
-                    class="badge bg-success text-white px-3 py-2 preview-btn"
-                    (click)="openPreview('METERING_EVIDENCE')">
-                    <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
-                  </button>
                   <button *ngIf="existingDocs['METERING_EVIDENCE']?.length" type="button"
                     class="badge bg-primary text-white px-3 py-2 preview-btn"
                     (click)="openRenameDialog('METERING_EVIDENCE')"
@@ -652,12 +715,12 @@
                     <mat-icon style="font-size:18px;height:18px;width:18px">edit</mat-icon>
                   </button>
                 </div>
+                <ng-container *ngTemplateOutlet="classifyBadge; context: { docType: 'METERING_EVIDENCE' }"></ng-container>
+                <ng-container *ngTemplateOutlet="existingDocList; context: { docType: 'METERING_EVIDENCE' }"></ng-container>
               </div>
 
               <div class="col-md-4 mb-3">
-                <label title="Please provide any other documents that may be relevant to this facility's registration on Evident (e.g. No RPO letter for facilities in India)">(50) Other Documents
-                  <span class="badge-optional">Optional</span>
-                </label>
+                <label title="Please provide any other documents that may be relevant to this facility's registration on Evident (e.g. No RPO letter for facilities in India)">(50) Other Documents</label>
                 <div class="d-flex justify-content-between align-items-center doc-box">
                   <input type="file" #otherDocsFileInput
                     (change)="onFileChange($event, DocumentType.OTHER_DOCUMENTS)" style="display: none"
@@ -671,6 +734,8 @@
                       : (files['OTHER_DOCUMENTS']?.[0]?.name || existingDocLabel('OTHER_DOCUMENTS')) }}
                   </span>
                 </div>
+                <ng-container *ngTemplateOutlet="classifyBadge; context: { docType: 'OTHER_DOCUMENTS' }"></ng-container>
+                <ng-container *ngTemplateOutlet="existingDocList; context: { docType: 'OTHER_DOCUMENTS' }"></ng-container>
               </div>
             </div>
 
@@ -692,18 +757,20 @@
 </div>
 
 <ng-template #previewDialog>
-  <h2 mat-dialog-title class="d-flex justify-content-between align-items-center mb-0">
-    <span>{{ previewData?.name }}</span>
-    <button mat-icon-button (click)="previewDialogRef.close()">
-      <mat-icon>close</mat-icon>
-    </button>
-  </h2>
-  <div mat-dialog-content class="preview-dialog-content">
-    <app-pdf-preview
-      [previewUrl]="previewData!.url"
-      [previewType]="previewData!.type === 'pdf' ? 'pdf' : previewData!.type === 'excel' ? 'excel' : 'image'"
-      [ocrSource]="currentPreviewFile">
-    </app-pdf-preview>
+  <div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
+    <h2 mat-dialog-title cdkDragHandle class="d-flex justify-content-between align-items-center mb-0" style="cursor: move;">
+      <span>{{ previewData?.name }}</span>
+      <button mat-icon-button (click)="previewDialogRef.close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </h2>
+    <div mat-dialog-content class="preview-dialog-content">
+      <app-pdf-preview
+        [previewUrl]="previewData!.url"
+        [previewType]="previewData!.type === 'pdf' ? 'pdf' : previewData!.type === 'excel' ? 'excel' : 'image'"
+        [ocrSource]="currentPreviewFile">
+      </app-pdf-preview>
+    </div>
   </div>
 </ng-template>
 

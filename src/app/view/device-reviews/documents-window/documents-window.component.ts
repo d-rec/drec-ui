@@ -27,6 +27,9 @@ import {
 } from '../../../utils/evidence-requirements';
 import { environment } from '../../../../environments/environment';
 import { extractExt } from '../../../utils/file-ext';
+import { DocumentClassifierService } from '../../../utils/document-classifier.service';
+import { DocumentType } from '../../../utils/drec.enum';
+import { DOCUMENT_TYPE_LABELS } from '../../../utils/document-keywords';
 
 @Component({
   standalone: false,
@@ -413,6 +416,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private http: HttpClient,
     private toastr: ToastrService,
+    private classifier: DocumentClassifierService,
   ) {}
 
   trustUrl(url: string): SafeUrl {
@@ -2316,6 +2320,152 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       XLSX.writeFile(wb, `device-reviews-${date}.xlsx`);
       this.toast(`Exported ${rows.length} devices`);
     });
+  }
+
+  // ── Document Classification ──────────────────────────────────────────────────
+
+  showClassifyModal = false;
+  classifyRunning = false;
+  classifyResults: Array<{
+    slot: string;
+    filename: string;
+    url: string;
+    expectedType: string;
+    classifiedType: string;
+    confidence: number;
+    match: boolean | null; // null = could not classify
+  }> = [];
+
+  private static readonly SLOT_MAP: Array<{
+    slot: string;
+    label: string;
+    expectedType: DocumentType;
+    urlKey: keyof Asset;
+    multi: boolean;
+  }> = [
+    { slot: 'SLD', label: 'Single Line Diagram', expectedType: DocumentType.SINGLE_LINE_DIAGRAM, urlKey: 'sldUrl', multi: false },
+    { slot: 'SF-02', label: 'SF-02 Registration Form', expectedType: DocumentType.FORM_SF_02, urlKey: 'sf02Url', multi: false },
+    { slot: 'SF-02C', label: 'SF-02C Declaration', expectedType: DocumentType.SF_02C, urlKey: 'sf02cUrl', multi: false },
+    { slot: "Owner's Decl.", label: "Owner's Declaration", expectedType: DocumentType.SF_02C_OWNERS_DECLARATION, urlKey: 'sf02cOwnersDeclarationUrl', multi: false },
+    { slot: 'COD Proof', label: 'COD Proof', expectedType: DocumentType.COD_PROOF, urlKey: 'codProofUrl', multi: false },
+    { slot: 'Metering', label: 'Metering Evidence', expectedType: DocumentType.METERING_EVIDENCE, urlKey: 'meteringEvidenceUrls', multi: true },
+    { slot: 'Photos', label: 'Project Photos', expectedType: DocumentType.PROJECT_PHOTOS, urlKey: 'pictureUrls', multi: true },
+    { slot: 'Other', label: 'Other Documents', expectedType: DocumentType.OTHER_DOCUMENTS, urlKey: 'otherDocumentUrls', multi: true },
+  ];
+
+  get classifyMatchCount(): number {
+    return this.classifyResults.filter((r) => r.match === true).length;
+  }
+  get classifyMismatchCount(): number {
+    return this.classifyResults.filter((r) => r.match === false).length;
+  }
+  get classifyUnknownCount(): number {
+    return this.classifyResults.filter((r) => r.match === null).length;
+  }
+
+  async openClassifyFile(url: string, event: Event): Promise<void> {
+    event.stopPropagation();
+    if (!url || this.isBroken(url)) return;
+    const freshUrl = await this.svc.refreshUrl(url);
+    if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
+      this.svc.sldDeviceId$.next(null);
+      this.svc.viewPicture(freshUrl, false);
+    } else {
+      this.svc.sldDeviceId$.next(null);
+      this.svc.viewPdf(freshUrl);
+    }
+  }
+
+  async classifyDocuments(): Promise<void> {
+    const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
+    if (!asset) return;
+
+    this.classifyResults = [];
+    this.classifyRunning = true;
+    this.showClassifyModal = true;
+    this.cdr.detectChanges();
+
+    for (const slot of DocumentsWindowComponent.SLOT_MAP) {
+      const urls: string[] = [];
+      if (slot.multi) {
+        urls.push(...((asset[slot.urlKey] as string[]) || []));
+      } else {
+        const url = asset[slot.urlKey] as string | null;
+        if (url) urls.push(url);
+      }
+
+      for (const url of urls) {
+        const fname = this.fileName(url);
+        try {
+          const freshUrl = await this.svc.refreshUrl(url);
+          const resp = await fetch(freshUrl);
+          const blob = await resp.blob();
+          const mime = blob.type && blob.type !== 'application/octet-stream'
+            ? blob.type
+            : this.guessMime(fname);
+          const file = new File([blob], fname, { type: mime });
+
+          const result = await this.classifier.classify(file).toPromise();
+          const classifiedType = result?.suggestedType ?? null;
+          const confidence = result ? Math.round(result.confidence * 100) : 0;
+          const typeLabel = classifiedType
+            ? (DOCUMENT_TYPE_LABELS[classifiedType] || classifiedType)
+            : 'Unknown';
+
+          this.classifyResults = [
+            ...this.classifyResults,
+            {
+              slot: slot.slot,
+              filename: fname,
+              url,
+              expectedType: slot.label,
+              classifiedType: typeLabel,
+              confidence,
+              match: classifiedType
+                ? (classifiedType === slot.expectedType
+                  // Bitmap classified as Project Photos is fine in Other or Photos slot
+                  || (classifiedType === DocumentType.PROJECT_PHOTOS
+                    && /\.(jpe?g|png|gif|webp|bmp)$/i.test(fname)
+                    && (slot.expectedType === DocumentType.OTHER_DOCUMENTS
+                      || slot.expectedType === DocumentType.PROJECT_PHOTOS)))
+                : null,
+            },
+          ];
+        } catch (err) {
+          this.classifyResults = [
+            ...this.classifyResults,
+            {
+              slot: slot.slot,
+              filename: fname,
+              url,
+              expectedType: slot.label,
+              classifiedType: 'Error',
+              confidence: 0,
+              match: null,
+            },
+          ];
+        }
+        this.cdr.detectChanges();
+      }
+    }
+
+    this.classifyRunning = false;
+    this.cdr.detectChanges();
+  }
+
+  private guessMime(filename: string): string {
+    const ext = filename.split('.').pop()?.toLowerCase() ?? '';
+    const mimes: Record<string, string> = {
+      pdf: 'application/pdf',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      bmp: 'image/bmp',
+      webp: 'image/webp',
+      tif: 'image/tiff',
+      tiff: 'image/tiff',
+    };
+    return mimes[ext] || 'application/octet-stream';
   }
 
   private toast(message: string, duration = 2500): void {

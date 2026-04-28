@@ -689,3 +689,12 @@ tr.mat-mdc-row:nth-child(even),
 tr.mat-row:nth-child(even) {
   background-color: #ffffff !important;
 }
+
+// --- Resizable, draggable file-preview dialog ---
+.file-preview-dialog {
+  z-index: 10000 !important;
+}
+.file-preview-dialog .mat-mdc-dialog-surface {
+  resize: both;
+  overflow: auto;
+}

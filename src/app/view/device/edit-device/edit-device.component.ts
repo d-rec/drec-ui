@@ -4,6 +4,7 @@ import {
   OnDestroy,
   ViewChild,
   TemplateRef,
+  NgZone,
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatDialog } from '@angular/material/dialog';
@@ -21,6 +22,7 @@ import { forkJoin, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
+import { environment } from '../../../../environments/environment';
 import { MapComponent } from '../../map/map.component';
 import {
   DocumentType,
@@ -42,6 +44,11 @@ import {
   shortenFileName,
 } from '../../../utils/file-upload.helper';
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
+import { DocumentClassifierService } from '../../../utils/document-classifier.service';
+import {
+  ClassificationResult,
+  DOCUMENT_TYPE_LABELS,
+} from '../../../utils/document-keywords';
 
 type FileType =
   | DocumentType.FORM_SF_02
@@ -144,6 +151,25 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     DocumentType.METERING_EVIDENCE,
   ];
   brokenDocs: { [type: string]: boolean } = {};
+
+  /** AI document classification suggestions per fileType. */
+  classificationSuggestions: { [fileType: string]: ClassificationResult | null } = {};
+  classifying: { [fileType: string]: boolean } = {};
+  DOCUMENT_TYPE_LABELS = DOCUMENT_TYPE_LABELS;
+
+  /** Magic auto-sort state. */
+  magicRunning = false;
+  magicDone = 0;
+  magicTotal = 0;
+  magicLog: Array<{
+    filename: string;
+    target: string;
+    confidence: number | null;
+    type: 'hit' | 'miss';
+    file?: File;
+  }> = [];
+  private magicBackupFiles: { [key: string]: File[] } = {};
+  private magicBackupPreviews: typeof this.filePreviews = {};
 
   // Evident-compliant upload checklists — upload is gated until all items are ticked
   static readonly DOC_CHECKLISTS: Record<string, string[]> = {
@@ -257,6 +283,60 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     return docs.length + ' files uploaded';
   }
 
+  deleteExistingDoc(type: string, docIndex: number): void {
+    const doc = this.existingDocs[type]?.[docIndex];
+    if (!doc) return;
+    if (!confirm(`Delete "${doc.label || doc.name}"?`)) return;
+    this.deviceService.deleteDocument(this.id, doc.id).subscribe({
+      next: () => {
+        this.existingDocs[type].splice(docIndex, 1);
+        if (!this.existingDocs[type].length) {
+          delete this.existingDocs[type];
+          delete this.filePreviews[type];
+        }
+        this.toastrService.success('Document deleted');
+      },
+      error: (err) => {
+        this.toastrService.error(
+          err?.error?.message || 'Failed to delete document',
+        );
+      },
+    });
+  }
+
+  viewExistingDoc(doc: { url: string; name: string; id: number }): void {
+    const ext = doc.name.split('.').pop()?.toLowerCase() || '';
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext);
+    const isPdf = ext === 'pdf';
+    const isExcel = ext === 'xlsx' || ext === 'xls';
+    const mimeMap: Record<string, string> = {
+      pdf: 'application/pdf',
+      jpg: 'image/jpeg', jpeg: 'image/jpeg',
+      png: 'image/png', gif: 'image/gif', webp: 'image/webp',
+      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      xls: 'application/vnd.ms-excel',
+    };
+    this.deviceService.getDocumentBlob(doc.id).subscribe({
+      next: (blob: Blob) => {
+        const typed = new Blob([blob], { type: mimeMap[ext] || blob.type });
+        const objUrl = URL.createObjectURL(typed);
+        this.previewData = {
+          url: this.sanitizer.bypassSecurityTrustResourceUrl(objUrl),
+          type: isImage ? 'image' : isPdf ? 'pdf' : isExcel ? 'excel' : 'other',
+          name: doc.name,
+        };
+        this.currentPreviewFile = new File([typed], doc.name, { type: typed.type });
+        this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
+          width: '95vw',
+          maxWidth: '1400px',
+          height: '90vh',
+          panelClass: 'file-preview-dialog',
+        });
+      },
+      error: () => this.toastrService.error('Failed to load document'),
+    });
+  }
+
   saveRenameDialog(): void {
     const docs = this.existingDocs[this.renameDialogType] || [];
     const changed: {
@@ -345,6 +425,8 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private dialog: MatDialog,
     private sanitizer: DomSanitizer,
+    private documentClassifier: DocumentClassifierService,
+    private ngZone: NgZone,
   ) {
     this.activatedRoute.queryParams.subscribe((params) => {
       if (params['fromdevices'] != undefined) {
@@ -576,7 +658,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.initSerialNumber = data.serialNumber;
 
         // Load existing documents
-        this.deviceService.getDocuments(data.id).subscribe((docs) => {
+        this.deviceService.getDocuments(data.id).subscribe({
+          error: () => {},
+          next: (docs) => {
           this.existingDocs = {};
           for (const doc of docs) {
             if (!this.existingDocs[doc.type]) this.existingDocs[doc.type] = [];
@@ -656,7 +740,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
               };
             }
           }
-        });
+        }});
       });
   }
   ngOnDestroy() {
@@ -668,11 +752,27 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Check if a file with the same name already exists in any slot. */
+  private isDuplicate(file: File): boolean {
+    for (const slot of Object.values(this.files)) {
+      if (slot?.some((f: File) => f.name === file.name && f.size === file.size)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   onFileChange(event: Event, fileType: FileType) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
-    this.files[fileType] = Array.from(input.files);
+    const newFiles = Array.from(input.files).filter((f) => !this.isDuplicate(f));
+    if (newFiles.length < input.files.length) {
+      this.toastrService.info(`${input.files.length - newFiles.length} duplicate file(s) skipped`);
+    }
+    if (newFiles.length === 0) return;
+
+    this.files[fileType] = newFiles;
 
     const file = input.files[0];
     const isImage = file.type.startsWith('image/');
@@ -684,6 +784,196 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       type: isImage ? 'image' : isPdf ? 'pdf' : isExcel ? 'excel' : 'other',
       name: file.name,
     };
+
+    // Trigger background AI classification
+    this.classifyUploadedFile(file, fileType);
+  }
+
+  /** Magic auto-sort: classify multiple files and dispatch them to slots. */
+  onMagicUpload(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const filesToProcess = Array.from(input.files);
+    input.value = '';
+
+    this.magicRunning = true;
+    this.magicDone = 0;
+    this.magicTotal = filesToProcess.length;
+    this.magicLog = [];
+    this.magicBackupFiles = {};
+    for (const key of Object.keys(this.files)) {
+      this.magicBackupFiles[key] = [...this.files[key]];
+    }
+    this.magicBackupPreviews = { ...this.filePreviews };
+
+    const processNext = (idx: number) => {
+      if (idx >= filesToProcess.length) {
+        this.ngZone.run(() => {
+          this.magicRunning = false;
+        });
+        return;
+      }
+
+      const file = filesToProcess[idx];
+      if (this.isDuplicate(file)) {
+        this.ngZone.run(() => {
+          this.magicLog.push({
+            filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
+            target: 'Skipped (duplicate)',
+            confidence: null,
+            type: 'miss',
+          });
+          this.magicDone = idx + 1;
+        });
+        setTimeout(() => processNext(idx + 1));
+        return;
+      }
+      this.documentClassifier.classify(file).subscribe({
+        next: (result) => {
+          this.ngZone.run(() => {
+            const targetType = result?.suggestedType ?? DocumentType.OTHER_DOCUMENTS;
+            const label =
+              this.DOCUMENT_TYPE_LABELS[targetType] ?? 'Other Document';
+            const confidence = result
+              ? Math.round(result.confidence * 100)
+              : null;
+
+            const multiTypes = [
+              'PROJECT_PHOTOS',
+              'METERING_EVIDENCE',
+              'OTHER_DOCUMENTS',
+            ];
+            if (multiTypes.includes(targetType)) {
+              this.files[targetType] = [
+                ...(this.files[targetType] || []),
+                file,
+              ];
+            } else {
+              this.files[targetType] = [file];
+            }
+
+            // Generate preview
+            const isImage = file.type.startsWith('image/');
+            const isPdf = file.type === 'application/pdf';
+            const isExcel = /\.(xlsx|xls)$/i.test(file.name);
+            const objectUrl = URL.createObjectURL(file);
+            this.filePreviews[targetType] = {
+              url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
+              type: isImage
+                ? 'image'
+                : isPdf
+                  ? 'pdf'
+                  : isExcel
+                    ? 'excel'
+                    : 'other',
+              name: file.name,
+            };
+
+            this.magicLog.push({
+              filename: file.name.length > 40
+                ? file.name.substring(0, 37) + '...'
+                : file.name,
+              target: label,
+              confidence,
+              type: result && result.suggestedType !== DocumentType.OTHER_DOCUMENTS
+                ? 'hit'
+                : 'miss',
+              file,
+            });
+
+            this.magicDone = idx + 1;
+            processNext(idx + 1);
+          });
+        },
+        error: () => {
+          this.ngZone.run(() => {
+            this.files[DocumentType.OTHER_DOCUMENTS] = [
+              ...(this.files[DocumentType.OTHER_DOCUMENTS] || []),
+              file,
+            ];
+
+            this.magicLog.push({
+              filename: file.name.length > 40
+                ? file.name.substring(0, 37) + '...'
+                : file.name,
+              target: 'Other Document',
+              confidence: null,
+              type: 'miss',
+              file,
+            });
+
+            this.magicDone = idx + 1;
+            processNext(idx + 1);
+          });
+        },
+      });
+    };
+
+    processNext(0);
+  }
+
+  acceptMagic(): void {
+    this.magicLog = [];
+    this.magicBackupFiles = {};
+    this.magicBackupPreviews = {};
+  }
+
+  cancelMagic(): void {
+    this.files = this.magicBackupFiles;
+    this.filePreviews = this.magicBackupPreviews;
+    this.magicLog = [];
+    this.magicBackupFiles = {};
+    this.magicBackupPreviews = {};
+  }
+
+  private classifyUploadedFile(file: File, currentType: string): void {
+    this.classifying[currentType] = true;
+    this.classificationSuggestions[currentType] = null;
+
+    this.documentClassifier.classify(file).subscribe({
+      next: (result) => {
+        this.ngZone.run(() => {
+          this.classifying[currentType] = false;
+          if (
+            result &&
+            result.suggestedType !== currentType &&
+            result.confidence >= 0.4
+          ) {
+            this.classificationSuggestions[currentType] = result;
+          }
+        });
+      },
+      error: () => {
+        this.ngZone.run(() => {
+          this.classifying[currentType] = false;
+        });
+      },
+    });
+  }
+
+  acceptClassification(fromType: string): void {
+    const suggestion = this.classificationSuggestions[fromType];
+    if (!suggestion) return;
+
+    const toType = suggestion.suggestedType as string;
+    const filesInSlot = this.files[fromType];
+    if (!filesInSlot?.length) return;
+
+    if (!this.files[toType]) this.files[toType] = [];
+    this.files[toType] = [...this.files[toType], ...filesInSlot];
+    this.files[fromType] = [];
+
+    if (this.filePreviews[fromType]) {
+      this.filePreviews[toType] = this.filePreviews[fromType];
+      delete this.filePreviews[fromType];
+    }
+
+    this.classificationSuggestions[fromType] = null;
+  }
+
+  dismissClassification(fileType: string): void {
+    this.classificationSuggestions[fileType] = null;
   }
 
   openPreview(fileType: string) {
@@ -691,6 +981,26 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     if (!preview) return;
     this.previewData = preview;
     this.currentPreviewFile = this.files[fileType]?.[0] ?? null;
+    this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
+      width: '95vw',
+      maxWidth: '1400px',
+      height: '90vh',
+      panelClass: 'file-preview-dialog',
+    });
+  }
+
+  viewMagicFile(file: File): void {
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    const isImage = file.type.startsWith('image/');
+    const isPdf = ext === 'pdf';
+    const isExcel = ext === 'xlsx' || ext === 'xls';
+    const objUrl = URL.createObjectURL(file);
+    this.previewData = {
+      url: this.sanitizer.bypassSecurityTrustResourceUrl(objUrl),
+      type: isImage ? 'image' : isPdf ? 'pdf' : isExcel ? 'excel' : 'other',
+      name: file.name,
+    };
+    this.currentPreviewFile = file;
     this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
       width: '95vw',
       maxWidth: '1400px',

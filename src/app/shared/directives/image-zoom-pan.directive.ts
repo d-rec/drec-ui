@@ -28,7 +28,7 @@ export class ImageZoomPanDirective implements OnChanges, OnDestroy {
   @Input() minScale = 1;
   @Input() maxScale = 8;
 
-  private scale = 1;
+  scale = 1;
   private tx = 0;
   private ty = 0;
 
@@ -67,6 +67,16 @@ export class ImageZoomPanDirective implements OnChanges, OnDestroy {
     this.tx = 0;
     this.ty = 0;
     this.apply();
+  }
+
+  zoomIn(): void {
+    const rect = this.host.nativeElement.getBoundingClientRect();
+    this.zoomAt(rect.width / 2, rect.height / 2, 1.3);
+  }
+
+  zoomOut(): void {
+    const rect = this.host.nativeElement.getBoundingClientRect();
+    this.zoomAt(rect.width / 2, rect.height / 2, 1 / 1.3);
   }
 
   private apply(): void {
