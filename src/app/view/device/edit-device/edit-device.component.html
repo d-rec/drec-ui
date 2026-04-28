@@ -68,7 +68,7 @@
                   <mat-label class="text-capitalize">(6) Latitude</mat-label>
                   <input matInput placeholder="latitude" formControlName="latitude" [(ngModel)]="latitude"
                     matTooltip="Must provide at least six digits after the decimal; must land exactly on a solar panel"
-                    matTooltipPosition="above" />
+                    matTooltipPosition="above" (paste)="onCoordPaste($event, 'latitude')" />
                   <mat-error>please enter the valid value</mat-error>
                 </mat-form-field>
               </div>
@@ -77,7 +77,7 @@
                   <mat-label class="text-capitalize">(7) Longitude</mat-label>
                   <input matInput placeholder="longitude" formControlName="longitude" [(ngModel)]="longitude"
                     matTooltip="Must provide at least six digits after the decimal; must land exactly on a solar panel"
-                    matTooltipPosition="above" />
+                    matTooltipPosition="above" (paste)="onCoordPaste($event, 'longitude')" />
                   <mat-error>please enter the valid value</mat-error>
                 </mat-form-field>
               </div>

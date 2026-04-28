@@ -508,6 +508,11 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.updateDeviceForm
           .get('latitude')
           ?.setValue(stripped, { emitEvent: false });
+      // Manual text edit — dismiss the "Location adjusted via map" bar
+      if (!this.mapCenterUpdating) {
+        this.savedCoords = null;
+        this.coordsDirty = false;
+      }
       const longitude = this.updateDeviceForm.get('longitude')?.value;
       this.updateMapMarkers(stripped, longitude);
     });
@@ -517,6 +522,11 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.updateDeviceForm
           .get('longitude')
           ?.setValue(stripped, { emitEvent: false });
+      // Manual text edit — dismiss the "Location adjusted via map" bar
+      if (!this.mapCenterUpdating) {
+        this.savedCoords = null;
+        this.coordsDirty = false;
+      }
       const latitude = this.updateDeviceForm.get('latitude')?.value;
       this.updateMapMarkers(latitude, stripped);
     });
@@ -1208,6 +1218,18 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Handle tab-separated lat/long paste from spreadsheets (e.g. "1.23\t4.56"). */
+  onCoordPaste(event: ClipboardEvent, field: 'latitude' | 'longitude'): void {
+    const text = event.clipboardData?.getData('text') ?? '';
+    const parts = text.split(/\t/);
+    if (parts.length >= 2) {
+      event.preventDefault();
+      const [lat, lng] = field === 'latitude' ? parts : [parts[1], parts[0]];
+      this.updateDeviceForm.get('latitude')?.setValue(lat.trim());
+      this.updateDeviceForm.get('longitude')?.setValue(lng.trim());
+    }
+  }
+
   mapAdjusting = false;
   private mapCenterUpdating = false;
   private savedCoords: { lat: string; lng: string } | null = null;
@@ -1287,6 +1309,12 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         : intLng;
     }
 
+    // OC#37 is a multi-select in the UI but stored as a '; '-joined string
+    if (Array.isArray(formValue.labellingSchemeAccreditation)) {
+      formValue.labellingSchemeAccreditation =
+        formValue.labellingSchemeAccreditation.join('; ') || null;
+    }
+
     this.deviceService.update(this.externalid, formValue, false).subscribe({
       next: () => {
         this.toastrService.success('Coordinates saved');
@@ -1336,23 +1364,27 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
 
   updateMapMarkers(latitude: any, longitude: any) {
     if (latitude && longitude) {
-      const markers = [
-        {
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude),
-        },
-      ];
+      const lat = parseFloat(latitude);
+      const lng = parseFloat(longitude);
+      if (isNaN(lat) || isNaN(lng)) return;
+      const markers = [{ latitude: lat, longitude: lng }];
 
       if (this.mapComponent) {
         this.mapComponent.markers = [...markers];
         if (this.mapComponent.isMapInitialized) {
           this.mapComponent.update();
+          if (!this.mapCenterUpdating) {
+            this.mapComponent.recenter(lat, lng);
+          }
         }
       }
       if (this.satelliteMapComponent) {
         this.satelliteMapComponent.markers = [...markers];
         if (this.satelliteMapComponent.isMapInitialized) {
           this.satelliteMapComponent.update();
+          if (!this.mapCenterUpdating) {
+            this.satelliteMapComponent.recenter(lat, lng);
+          }
         }
       }
     }
