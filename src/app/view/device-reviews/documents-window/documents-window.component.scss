@@ -125,7 +125,7 @@ $legacy:   #a0845c;
 
 .icon-btn {
   background: $bg;
-  border: 1px solid $border;
+  border: 2px solid $border;
   border-radius: 4px;
   color: $muted;
   font-size: 14px;
@@ -189,7 +189,7 @@ $legacy:   #a0845c;
   border-radius: 4px;
   cursor: pointer;
   white-space: nowrap;
-  border: 1px solid darken($border, 8%);
+  border: 2px solid darken($border, 8%);
   background: #fff;
   color: $text;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
@@ -726,12 +726,12 @@ $legacy:   #a0845c;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  border: none;
+  border: 2px solid $border;
 
   &--save {
     background: #fff;
     color: $text;
-    border: 1px solid $border;
+    border: 2px solid $border;
     &:hover { background: $bg-mid; }
     &:disabled { opacity: 0.4; cursor: default; }
   }
@@ -739,14 +739,14 @@ $legacy:   #a0845c;
   &--cancel {
     background: $bg;
     color: $muted;
-    border: 1px solid $border;
+    border: 2px solid $border;
     &:hover { background: $bg-mid; }
   }
 
   &--archive {
     background: $bg;
     color: $muted;
-    border: 1px solid $border;
+    border: 2px solid $border;
     &:hover:not(:disabled) { background: $bg-mid; color: $text; }
     &:disabled { opacity: 0.35; cursor: default; }
   }
@@ -754,7 +754,7 @@ $legacy:   #a0845c;
   &--approve {
     background: $approved;
     color: #fff;
-    border: 1px solid #222;
+    border: 2px solid darken($approved, 10%);
     &:hover:not(:disabled) { background: darken($approved, 6%); }
     &:disabled { opacity: 0.35; cursor: default; }
   }
@@ -762,7 +762,7 @@ $legacy:   #a0845c;
   &--reject {
     background: $rejected;
     color: #fff;
-    border: 1px solid #222;
+    border: 2px solid darken($rejected, 10%);
     &:hover:not(:disabled) { background: darken($rejected, 6%); }
     &:disabled { opacity: 0.35; cursor: default; }
   }
@@ -770,7 +770,7 @@ $legacy:   #a0845c;
   &--screen {
     background: $bg;
     color: $text;
-    border: 1px solid $text;
+    border: 2px solid $text;
     &:hover { background: $bg-mid; }
   }
 }
@@ -999,7 +999,7 @@ $legacy:   #a0845c;
 .btn--audit {
   background: $bg;
   color: $text;
-  border: 1px solid $text;
+  border: 2px solid $text;
   &:hover { background: $bg-mid; }
 }
 
@@ -1064,7 +1064,7 @@ $legacy:   #a0845c;
 .btn--crosssrc {
   background: $bg;
   color: $text;
-  border: 1px solid $text;
+  border: 2px solid $text;
   &:hover { background: $bg-mid; }
 }
 
@@ -1162,7 +1162,7 @@ $legacy:   #a0845c;
 .btn--cod {
   background: $bg;
   color: $text;
-  border: 1px solid $text;
+  border: 2px solid $text;
   &:hover:not(:disabled) { background: $bg-mid; }
   &:disabled { color: #94a3b8; border-color: #cbd5e1; cursor: not-allowed; }
 }
@@ -1229,14 +1229,14 @@ $legacy:   #a0845c;
 .btn--controls {
   background: $bg;
   color: $text;
-  border: 1px solid $text;
+  border: 2px solid $text;
   &:hover { background: $bg-mid; }
 }
 
 .btn--sld {
   background: $bg;
   color: $text;
-  border: 1px solid $text;
+  border: 2px solid $text;
   &:hover { background: $bg-mid; }
 }
 
@@ -1259,14 +1259,14 @@ $legacy:   #a0845c;
 .btn--photogps {
   background: $bg;
   color: $text;
-  border: 1px solid $text;
+  border: 2px solid $text;
   &:hover { background: $bg-mid; }
 }
 
 .btn--autoscreen {
   background: $text;
   color: $bg;
-  border: 1px solid $text;
+  border: 2px solid $text;
   font-weight: 600;
   &:hover { background: lighten($text, 10%); }
 }
@@ -1398,7 +1398,7 @@ $legacy:   #a0845c;
 .btn--consistency {
   background: $bg;
   color: $text;
-  border: 1px solid $text;
+  border: 2px solid $text;
   &:hover { background: $bg-mid; }
 }
 
@@ -1434,7 +1434,7 @@ $legacy:   #a0845c;
 .btn--ceiling {
   background: $bg;
   color: $text;
-  border: 1px solid $text;
+  border: 2px solid $text;
   &:hover { background: $bg-mid; }
 }
 
@@ -1466,7 +1466,7 @@ $legacy:   #a0845c;
 .btn--verify {
   background: $bg;
   color: $text;
-  border: 1px solid $text;
+  border: 2px solid $text;
   &:hover { background: $bg-mid; }
 }
 

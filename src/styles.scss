@@ -185,7 +185,7 @@ input[type="radio"] {
 // Buttons
 .btn-primary {
   background-color: $color-primary !important;
-  border: 1px solid $color-primary !important;
+  border: 2px solid $color-primary !important;
   color: $white !important;
   font-weight: 600 !important;
   padding: 7px 16px;
@@ -208,7 +208,7 @@ input[type="radio"] {
   background-color: $color-text !important;
   color: $white !important;
   font-weight: 600;
-  border: 1px solid $color-text;
+  border: 2px solid $color-text;
   padding: 7px 16px;
   border-radius: $radius-sm;
   font-size: 13px;
@@ -219,7 +219,7 @@ input[type="radio"] {
   &:focus {
     box-shadow: $shadow-sm !important;
     background-color: $color-text !important;
-    border: 1px solid $color-text !important;
+    border: 2px solid $color-text !important;
     color: $white !important;
   }
 }
@@ -393,7 +393,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
 }
 .btn.btn-primary:disabled {
   background-color: rgba(71, 85, 105, 0.4) !important;
-  border: 1px solid rgba(71, 85, 105, 0.4) !important;
+  border: 2px solid rgba(71, 85, 105, 0.4) !important;
 }
 
 .value-fs {
@@ -805,22 +805,22 @@ tr.mat-row:nth-child(even) {
 }
 .btn-outline-primary {
   color: $color-primary !important;
-  border: 1px solid $color-primary !important;
+  border: 2px solid $color-primary !important;
   background: transparent !important;
   &:hover { background-color: $color-primary !important; color: #fff !important; }
 }
 .btn-outline-secondary {
   color: $color-muted !important;
-  border-color: $color-border !important;
+  border: 2px solid $color-border !important;
   &:hover { background-color: $color-row-alt !important; color: $color-text !important; }
 }
 .btn-success {
   background-color: $color-success !important;
-  border-color: $color-success !important;
+  border: 2px solid darken($color-success, 10%) !important;
 }
 .btn-danger {
   background-color: $color-danger !important;
-  border-color: $color-danger !important;
+  border: 2px solid darken($color-danger, 10%) !important;
 }
 .alert { border-color: $color-border !important; }
 .alert-info { background-color: rgba(90, 102, 80, 0.1) !important; color: $color-primary-dark !important; }

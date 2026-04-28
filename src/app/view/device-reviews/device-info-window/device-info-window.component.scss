@@ -102,10 +102,23 @@
     color: #334155;
     font-weight: 600;
   }
+
+  a {
+    color: #2563eb;
+    text-decoration: underline;
+    text-decoration-color: rgba(#2563eb, 0.35);
+    text-underline-offset: 2px;
+    cursor: pointer;
+
+    &:hover {
+      color: darken(#2563eb, 12%);
+      text-decoration-color: currentColor;
+    }
+  }
 }
 
 .di__field--hinted {
-  cursor: help;
+  cursor: default;
 
   b {
     border-bottom: 1px dotted #94a3b8;

@@ -429,6 +429,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
             label: '(50) Other Documents',
             value: fmtDocs('OTHER_DOCUMENTS'),
             links: linksFor('OTHER_DOCUMENTS'),
+            tabular: true,
             hint: 'e.g. No RPO letter for facilities in India',
           },
         ],
