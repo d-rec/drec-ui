@@ -22,6 +22,7 @@ import { AuthVerifiedGuard } from './guards/auth-verified.guard';
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
 import { DashboardComponent } from './view/dashboard/dashboard.component';
+import { ChartsComponent } from './view/charts/charts.component';
 import { GuestGuard } from './guards/guest.guard';
 import { AuthUnverifiedGuard } from './guards/auth-unverified.guard';
 import { EmailVerificationGuard } from './guards/verification/email-verified.guard';
@@ -112,6 +113,7 @@ const routes: Routes = [
     canActivate: [AuthVerifiedGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
+      { path: 'analytics', component: ChartsComponent },
       { path: 'tokens', component: CertificateDetailsComponent },
       { path: 'certificate', component: CertificateComponent },
       { path: 'device-groups', component: DeviceGroups },

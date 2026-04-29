@@ -1,0 +1,49 @@
+<div class="charts" *ngIf="!loading; else spinner">
+  <h2 class="charts__title">Analytics</h2>
+
+  <div class="charts__grid" *ngIf="devices.length; else noData">
+    <!-- Commissioning timeline -->
+    <div class="charts__card">
+      <h3 class="charts__card-title">Commissioning Timeline</h3>
+      <div #commissionTimeline class="charts__canvas"></div>
+    </div>
+
+    <!-- Capacity by country -->
+    <div class="charts__card">
+      <h3 class="charts__card-title">Installed Capacity by Country</h3>
+      <div #capacityBar class="charts__canvas"></div>
+    </div>
+
+    <!-- Top devices -->
+    <div class="charts__card">
+      <h3 class="charts__card-title">Top Devices by Capacity</h3>
+      <p class="charts__hint">Click a bar to view its meter reads</p>
+      <div #topDevices class="charts__canvas"></div>
+    </div>
+
+    <!-- Meter reads area chart -->
+    <div class="charts__card charts__card--wide">
+      <h3 class="charts__card-title">
+        Meter Reads
+        <span class="charts__device-name" *ngIf="selectedDevice">
+          — {{ selectedDevice.siteName }}
+        </span>
+      </h3>
+      <div *ngIf="!selectedDevice && !readsLoading" class="charts__placeholder">
+        Select a device from the "Top Devices" chart above to view its generation history
+      </div>
+      <div *ngIf="readsLoading" class="charts__placeholder">
+        Loading reads&hellip;
+      </div>
+      <div #readsArea class="charts__canvas" *ngIf="selectedDevice && !readsLoading"></div>
+    </div>
+  </div>
+</div>
+
+<ng-template #spinner>
+  <div class="charts__loading">Loading device data&hellip;</div>
+</ng-template>
+
+<ng-template #noData>
+  <div class="charts__empty">No devices found. Add some devices to see analytics here.</div>
+</ng-template>

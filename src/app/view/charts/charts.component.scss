@@ -1,0 +1,107 @@
+$color-primary: #0f766e;
+$color-text: #0f172a;
+$color-muted: #64748b;
+$color-border: #e2e8f0;
+$color-surface: #fff;
+$color-bg: #f8fafc;
+
+.charts {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  &__title {
+    font-size: 20px;
+    font-weight: 700;
+    color: $color-text;
+    margin: 0 0 20px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  &__card {
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+
+    &--wide {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0 0 14px;
+  }
+
+  &__device-name {
+    color: $color-primary;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  &__hint {
+    font-size: 11px;
+    color: $color-muted;
+    margin: -8px 0 10px;
+  }
+
+  &__canvas {
+    width: 100%;
+    min-height: 200px;
+
+    svg {
+      display: block;
+    }
+
+  }
+
+  &__placeholder {
+    padding: 48px 20px;
+    text-align: center;
+    color: $color-muted;
+    font-size: 13px;
+  }
+
+  &__loading,
+  &__empty {
+    padding: 80px 20px;
+    text-align: center;
+    color: $color-muted;
+    font-size: 14px;
+  }
+}
+
+::ng-deep .chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 16px;
+  margin-top: 14px;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: $color-text;
+  }
+
+  &__swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+}

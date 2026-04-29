@@ -48,6 +48,7 @@ import { DefaultLayoutComponent } from './layout/default/default-layout.componen
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
 import { DashboardComponent } from './view/dashboard/dashboard.component';
+import { ChartsComponent } from './view/charts/charts.component';
 import { ChangePhoneNumberComponent } from './view/change-phone-number/change-phone-number.component';
 import { EvidentSettingsComponent } from './view/evident-settings/evident-settings.component';
 import { LicensesComponent } from './view/licenses/licenses.component';
@@ -92,6 +93,7 @@ import { ErrorToastComponent } from './shared/error-toast/error-toast.component'
     AcceptTermsAndConditionsComponent,
     ResendConfirmEmailComponent,
     DashboardComponent,
+    ChartsComponent,
     ChangePhoneNumberComponent,
     EvidentSettingsComponent,
     LicensesComponent,
