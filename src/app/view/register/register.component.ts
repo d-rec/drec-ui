@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router } from '@angular/router';
-import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { ToastrService } from 'ngx-toastr';
 import { UserService } from '../../auth/services';
 import { EMAIL_REGEX } from '../../constants/index';
@@ -18,12 +17,6 @@ import { RoleModeService } from '../../auth/services/role-mode.service';
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss'],
-  providers: [
-    {
-      provide: STEPPER_GLOBAL_OPTIONS,
-      useValue: { showError: true },
-    },
-  ],
 })
 export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
@@ -210,10 +203,16 @@ export class RegisterComponent implements OnInit {
       },
       error: (error) => {
         console.error('Login error:', error);
-        this.toastrService.error(
-          `Error: ${error.error?.message || 'Unknown error'}, Check your credentials!`,
-          'Login Failed!',
-        );
+        if (error.status === 403 && error.error?.message) {
+          // Account pending approval — not a real error
+          this.toastrService.info(error.error.message, 'Registration successful');
+          this.router.navigate(['/login']);
+        } else {
+          this.toastrService.error(
+            error.error?.message || 'Login failed after registration',
+            'Login Failed',
+          );
+        }
       },
     });
   }
@@ -263,7 +262,7 @@ export class RegisterComponent implements OnInit {
         console.error('Registration error:', err);
         this.toastrService.error(
           err.error?.message || 'Registration failed',
-          'Error!',
+          'Registration',
         );
       },
     });
