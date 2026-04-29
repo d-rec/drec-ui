@@ -1,55 +1,19 @@
-$teal: #0f766e;
-$slate-900: #0f172a;
-$slate-700: #334155;
-$slate-500: #64748b;
-$slate-200: #e2e8f0;
-$slate-50: #f8fafc;
+@import '../../../../guest-card';
 
-.reg {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100%;
-  padding: 24px;
-}
+.reg             { @include guest-page; }
+.reg__card       { @include guest-card(620px); }
+.reg__header     { @include guest-header; }
+.reg__logo       { @include guest-logo; }
+.reg__title      { @include guest-title; }
+.reg__subtitle   { @include guest-subtitle; }
+.reg__form       { @include guest-form; }
+.reg__field      { @include guest-field; }
+.reg__eye        { @include guest-eye; }
+.reg__submit     { @include guest-submit; }
+.reg__link       { @include guest-link; }
+.reg__footer     { @include guest-footer; margin-top: 20px; }
 
-.reg__card {
-  width: 100%;
-  max-width: 620px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-  padding: 36px 40px 28px;
-}
-
-.reg__header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.reg__logo {
-  height: 40px;
-  margin-bottom: 16px;
-}
-
-.reg__title {
-  font-size: 22px;
-  font-weight: 700;
-  color: $slate-900;
-  margin: 0 0 4px;
-}
-
-.reg__subtitle {
-  font-size: 14px;
-  color: $slate-500;
-  margin: 0;
-}
-
-.reg__form {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.reg__field--full { width: 100%; }
 
 .reg__row {
   display: flex;
@@ -61,34 +25,6 @@ $slate-50: #f8fafc;
   }
 }
 
-.reg__field {
-  width: 100%;
-
-  ::ng-deep .mat-mdc-text-field-wrapper {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  ::ng-deep .mat-mdc-form-field-infix {
-    min-height: 40px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-}
-
-.reg__field--full {
-  width: 100%;
-}
-
-.reg__eye {
-  .mat-icon {
-    font-size: 18px;
-    height: 18px;
-    width: 18px;
-    color: $slate-500;
-  }
-}
-
 .reg__terms {
   display: flex;
   align-items: center;
@@ -96,7 +32,7 @@ $slate-50: #f8fafc;
   gap: 4px;
   margin: 4px 0 16px;
   font-size: 13px;
-  color: $slate-700;
+  color: $gc-slate-700;
 }
 
 .reg__terms-error {
@@ -104,51 +40,8 @@ $slate-50: #f8fafc;
   font-size: 12px;
 }
 
-.reg__link {
-  color: $teal;
-  text-decoration: none;
-  font-weight: 600;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.reg__submit {
-  width: 100%;
-  padding: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #fff;
-  background: $teal;
-  border: 2px solid $teal;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-
-  &:hover:not(:disabled) {
-    background: darken($teal, 8%);
-    border-color: darken($teal, 8%);
-  }
-
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-}
-
-.reg__footer {
-  text-align: center;
-  margin: 20px 0 0;
-  font-size: 13px;
-  color: $slate-500;
-}
-
-// Responsive: stack fields on narrow screens
 @media (max-width: 560px) {
-  .reg__card {
-    padding: 24px 20px 20px;
-  }
+  .reg__card { @include guest-card-responsive; }
 
   .reg__row {
     flex-direction: column;

@@ -1,0 +1,120 @@
+// Shared styles for guest pages (login, register, forgot-password, etc.)
+$gc-teal: #0f766e;
+$gc-slate-900: #0f172a;
+$gc-slate-700: #334155;
+$gc-slate-500: #64748b;
+
+@mixin guest-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 24px;
+}
+
+@mixin guest-card($max-width: 420px) {
+  width: 100%;
+  max-width: $max-width;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  padding: 36px 40px 28px;
+}
+
+@mixin guest-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+@mixin guest-logo {
+  height: 40px;
+  margin-bottom: 16px;
+}
+
+@mixin guest-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: $gc-slate-900;
+  margin: 0 0 4px;
+}
+
+@mixin guest-subtitle {
+  font-size: 14px;
+  color: $gc-slate-500;
+  margin: 0;
+}
+
+@mixin guest-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@mixin guest-field {
+  width: 100%;
+
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 40px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+
+@mixin guest-eye {
+  .mat-icon {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+    color: $gc-slate-500;
+  }
+}
+
+@mixin guest-submit {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: $gc-teal;
+  border: 2px solid $gc-teal;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover:not(:disabled) {
+    background: darken($gc-teal, 8%);
+    border-color: darken($gc-teal, 8%);
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+@mixin guest-link {
+  color: $gc-teal;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+@mixin guest-footer {
+  text-align: center;
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: $gc-slate-500;
+}
+
+@mixin guest-card-responsive {
+  padding: 24px 20px 20px;
+}

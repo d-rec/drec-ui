@@ -1,77 +1,17 @@
-$teal: #0f766e;
-$slate-900: #0f172a;
-$slate-700: #334155;
-$slate-500: #64748b;
+@import '../../../../guest-card';
 
-.lg {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100%;
-  padding: 24px;
-}
-
-.lg__card {
-  width: 100%;
-  max-width: 420px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
-  padding: 36px 40px 28px;
-}
-
-.lg__header {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.lg__logo {
-  height: 40px;
-  margin-bottom: 16px;
-}
-
-.lg__title {
-  font-size: 22px;
-  font-weight: 700;
-  color: $slate-900;
-  margin: 0 0 4px;
-}
-
-.lg__subtitle {
-  font-size: 14px;
-  color: $slate-500;
-  margin: 0;
-}
-
-.lg__form {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.lg__field {
-  width: 100%;
-
-  ::ng-deep .mat-mdc-text-field-wrapper {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  ::ng-deep .mat-mdc-form-field-infix {
-    min-height: 40px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-  }
-}
-
-.lg__eye {
-  .mat-icon {
-    font-size: 18px;
-    height: 18px;
-    width: 18px;
-    color: $slate-500;
-  }
-}
+.lg              { @include guest-page; }
+.lg__card        { @include guest-card(420px); }
+.lg__header      { @include guest-header; }
+.lg__logo        { @include guest-logo; }
+.lg__title       { @include guest-title; }
+.lg__subtitle    { @include guest-subtitle; }
+.lg__form        { @include guest-form; }
+.lg__field       { @include guest-field; }
+.lg__eye         { @include guest-eye; }
+.lg__submit      { @include guest-submit; }
+.lg__link        { @include guest-link; }
+.lg__footer      { @include guest-footer; }
 
 .lg__error {
   background: #fee2e2;
@@ -83,54 +23,11 @@ $slate-500: #64748b;
   margin-bottom: 8px;
 }
 
-.lg__submit {
-  width: 100%;
-  padding: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #fff;
-  background: $teal;
-  border: 2px solid $teal;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s;
-
-  &:hover:not(:disabled) {
-    background: darken($teal, 8%);
-    border-color: darken($teal, 8%);
-  }
-
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-}
-
 .lg__links {
   text-align: center;
   margin: 16px 0 0;
 }
 
-.lg__link {
-  color: $teal;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 13px;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.lg__footer {
-  text-align: center;
-  margin: 16px 0 0;
-  font-size: 13px;
-  color: $slate-500;
-}
-
 @media (max-width: 480px) {
-  .lg__card {
-    padding: 24px 20px 20px;
-  }
+  .lg__card { @include guest-card-responsive; }
 }
