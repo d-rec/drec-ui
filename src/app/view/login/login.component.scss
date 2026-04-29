@@ -1,4 +1,4 @@
-@import '../../../../guest-card';
+@import '../../../guest-card';
 
 .lg              { @include guest-page; }
 .lg__card        { @include guest-card(420px); }

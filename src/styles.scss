@@ -2,23 +2,23 @@
 @import '~@angular/material/prebuilt-themes/indigo-pink.css';
 @import '~leaflet/dist/leaflet.css';
 
-// --- Design Tokens (soft light theme) ---
-$color-bg: #f0ece4;          // warm off-white
-$color-surface: #faf8f5;     // slightly warm white
-$color-border: #d5cfc5;      // warm grey border
-$color-header-bg: #3b3a36;   // dark warm grey header
-$color-header-text: #f0ece4;
-$color-primary: #5a6650;     // muted sage green
-$color-primary-dark: #4a5542;
-$color-primary-light: rgba(90, 102, 80, 0.08);
-$color-text: #3b3a36;        // dark warm grey text
-$color-muted: #8a8578;       // warm mid-grey
-$color-danger: #b5403a;
-$color-success: #5a8a5e;
-$color-warning: #c0923a;
-$white: #faf8f5;
-$danger: #b5403a;
-$color-row-alt: #ebe7df;     // warm alternating row
+// --- Design Tokens (modern slate/teal) ---
+$color-bg: #f1f5f9;          // slate-100
+$color-surface: #ffffff;     // clean white
+$color-border: #e2e8f0;      // slate-200
+$color-header-bg: #0f172a;   // slate-900
+$color-header-text: #f8fafc;
+$color-primary: #0f766e;     // teal-700
+$color-primary-dark: #115e59;
+$color-primary-light: rgba(15, 118, 110, 0.08);
+$color-text: #1e293b;        // slate-800
+$color-muted: #64748b;       // slate-500
+$color-danger: #dc2626;
+$color-success: #16a34a;
+$color-warning: #d97706;
+$white: #ffffff;
+$danger: #dc2626;
+$color-row-alt: #f8fafc;     // slate-50
 
 // CSS custom properties (used by component SCSS via var())
 :root {
@@ -182,10 +182,11 @@ input[type="radio"] {
   }
 }
 
-// Buttons
+// Buttons — embossed style
 .btn-primary {
-  background-color: $color-primary !important;
-  border: 2px solid $color-primary !important;
+  background: linear-gradient(to bottom, lighten($color-primary, 6%), $color-primary) !important;
+  border: 1px solid darken($color-primary, 6%) !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15) !important;
   color: $white !important;
   font-weight: 600 !important;
   padding: 7px 16px;
@@ -195,36 +196,34 @@ input[type="radio"] {
 
   &:hover,
   &:active,
-  &:link,
   &:focus {
-    box-shadow: $shadow-sm !important;
-    background-color: $color-primary-dark !important;
-    border-color: $color-primary-dark !important;
+    background: linear-gradient(to bottom, $color-primary, darken($color-primary, 4%)) !important;
+    border-color: darken($color-primary, 8%) !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1) !important;
     color: $white !important;
   }
 }
 
 .btn-content-back {
-  background-color: $color-text !important;
+  background: linear-gradient(to bottom, lighten($color-muted, 8%), $color-muted) !important;
   color: $white !important;
   font-weight: 600;
-  border: 2px solid $color-text;
+  border: 1px solid darken($color-muted, 6%) !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.12) !important;
   padding: 7px 16px;
   border-radius: $radius-sm;
   font-size: 13px;
 
   &:hover,
   &:active,
-  &:link,
   &:focus {
-    box-shadow: $shadow-sm !important;
-    background-color: $color-text !important;
-    border: 2px solid $color-text !important;
+    background: linear-gradient(to bottom, $color-muted, darken($color-muted, 4%)) !important;
+    border-color: darken($color-muted, 8%) !important;
     color: $white !important;
   }
 }
 .btn-content-back.btn.btn-content-back:first-child:active {
-  background-color: $color-text !important;
+  background: $color-muted !important;
   color: $white !important;
 }
 
@@ -392,8 +391,9 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
   margin-top: 8px !important;
 }
 .btn.btn-primary:disabled {
-  background-color: rgba(71, 85, 105, 0.4) !important;
-  border: 2px solid rgba(71, 85, 105, 0.4) !important;
+  background: rgba(15, 118, 110, 0.35) !important;
+  border: 1px solid rgba(15, 118, 110, 0.25) !important;
+  box-shadow: none !important;
 }
 
 .value-fs {
@@ -576,7 +576,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
 // Login / Register layout
 .guest-layout {
   height: 100vh;
-  background: linear-gradient(144deg, #5a6650 0%, #3b3a36 48%);
+  background: linear-gradient(144deg, #0f766e 0%, #0f172a 48%);
   overflow: hidden;
 
   .mat-card {
@@ -805,22 +805,27 @@ tr.mat-row:nth-child(even) {
 }
 .btn-outline-primary {
   color: $color-primary !important;
-  border: 2px solid $color-primary !important;
-  background: transparent !important;
-  &:hover { background-color: $color-primary !important; color: #fff !important; }
+  border: 1px solid $color-primary !important;
+  background: linear-gradient(to bottom, #fff, $color-row-alt) !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 #fff !important;
+  &:hover { background: linear-gradient(to bottom, lighten($color-primary, 6%), $color-primary) !important; color: #fff !important; box-shadow: 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15) !important; }
 }
 .btn-outline-secondary {
   color: $color-muted !important;
-  border: 2px solid $color-border !important;
-  &:hover { background-color: $color-row-alt !important; color: $color-text !important; }
+  border: 1px solid $color-border !important;
+  background: linear-gradient(to bottom, #fff, $color-row-alt) !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 #fff !important;
+  &:hover { background: linear-gradient(to bottom, $color-row-alt, darken($color-row-alt, 3%)) !important; color: $color-text !important; }
 }
 .btn-success {
-  background-color: $color-success !important;
-  border: 2px solid darken($color-success, 10%) !important;
+  background: linear-gradient(to bottom, lighten($color-success, 6%), $color-success) !important;
+  border: 1px solid darken($color-success, 8%) !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15) !important;
 }
 .btn-danger {
-  background-color: $color-danger !important;
-  border: 2px solid darken($color-danger, 10%) !important;
+  background: linear-gradient(to bottom, lighten($color-danger, 6%), $color-danger) !important;
+  border: 1px solid darken($color-danger, 8%) !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15) !important;
 }
 .alert { border-color: $color-border !important; }
 .alert-info { background-color: rgba(90, 102, 80, 0.1) !important; color: $color-primary-dark !important; }
