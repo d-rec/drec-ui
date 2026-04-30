@@ -190,7 +190,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
         .attr('rx', 2)
         .attr('fill', color(type))
         .attr('y', height).attr('height', 0)
-        .transition().duration(600).delay((_d, i) => i * 40)
+        .transition().duration(600).delay((_d: any, i: any) => i * 40)
         .attr('y', (d: any) => {
           let cumulative = 0;
           for (let j = 0; j <= ti; j++) cumulative += d[types[j]];
@@ -213,7 +213,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .style('font-size', '10px').style('font-weight', '600').style('fill', '#0f766e')
       .style('opacity', 0)
       .text((d: any) => d._total)
-      .transition().duration(400).delay((_d, i) => 400 + i * 40).style('opacity', 1);
+      .transition().duration(400).delay((_d: any, i: any) => 400 + i * 40).style('opacity', 1);
 
     // Legend
     if (types.length > 1) {
@@ -277,7 +277,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .attr('width', x.bandwidth())
       .attr('y', height).attr('height', 0).attr('rx', 4)
       .attr('fill', 'url(#barGrad)')
-      .transition().duration(600).delay((_d, i) => i * 60)
+      .transition().duration(600).delay((_d: any, i: any) => i * 60)
       .attr('y', (d: any) => y(d.value))
       .attr('height', (d: any) => height - y(d.value));
 
@@ -288,7 +288,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .style('font-size', '10px').style('font-weight', '600').style('fill', '#0f766e')
       .style('opacity', 0)
       .text((d: any) => d.value >= 1000 ? `${(d.value / 1000).toFixed(1)}MW` : `${d.value}kW`)
-      .transition().duration(400).delay((_d, i) => 400 + i * 60).style('opacity', 1);
+      .transition().duration(400).delay((_d: any, i: any) => 400 + i * 60).style('opacity', 1);
   }
 
   // ── Top devices horizontal bar ───────────────────────────
@@ -327,11 +327,11 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
     svg.selectAll('.bar').data(data).enter().append('rect')
       .attr('x', 0).attr('y', (d: any) => y(d.siteName)!)
       .attr('height', y.bandwidth()).attr('rx', 3)
-      .attr('fill', (_d, i) => this.colors[i % this.colors.length])
+      .attr('fill', (_d: any, i: any) => this.colors[i % this.colors.length])
       .attr('width', 0)
       .style('cursor', 'pointer')
       .on('click', (_ev: any, d: any) => this.selectDevice(d))
-      .transition().duration(600).delay((_d, i) => i * 50)
+      .transition().duration(600).delay((_d: any, i: any) => i * 50)
       .attr('width', (d: any) => x(d.capacity));
 
     svg.selectAll('.val').data(data).enter().append('text')
@@ -341,7 +341,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .style('font-size', '10px').style('font-weight', '600').style('fill', '#64748b')
       .style('opacity', 0)
       .text((d: any) => `${d.capacity} kW`)
-      .transition().duration(400).delay((_d, i) => 400 + i * 50).style('opacity', 1);
+      .transition().duration(400).delay((_d: any, i: any) => 400 + i * 50).style('opacity', 1);
   }
 
   // ── Meter reads area chart ───────────────────────────────
