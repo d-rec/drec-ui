@@ -57,6 +57,7 @@ import { AddIssuerComponent } from './view/add-issuer/add-issuer.component';
 import { SingleDevicePathwayComponent } from './view/single-device-pathway/single-device-pathway.component';
 import { ChatModule } from './chat/chat.module';
 import { ErrorToastComponent } from './shared/error-toast/error-toast.component';
+import { WorldGlobeComponent } from './view/login/world-globe/world-globe.component';
 
 @NgModule({
   declarations: [
@@ -100,6 +101,7 @@ import { ErrorToastComponent } from './shared/error-toast/error-toast.component'
     AllIssuersComponent,
     AddIssuerComponent,
     SingleDevicePathwayComponent,
+    WorldGlobeComponent,
   ],
   imports: [
     BrowserModule,

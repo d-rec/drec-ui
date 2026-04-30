@@ -1,2 +1,7 @@
-// Colors
-
+// Override the guest-layout gradient on the login route — the world-globe fills
+// the viewport behind the card, so the gradient shouldn't peek through.
+:host {
+  ::ng-deep .guest-layout {
+    background: #0b1220;
+  }
+}
