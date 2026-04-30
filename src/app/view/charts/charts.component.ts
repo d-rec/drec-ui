@@ -135,12 +135,12 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!el) return;
     select(el).selectAll('*').remove();
 
-    const withYear = this.devices.filter((d) => d.commissioningYear > 2000);
+    const withYear = this.devices.filter((d: any) => d.commissioningYear > 2000);
     if (!withYear.length) return;
 
     // Group by year then device type
-    const types = Array.from(new Set(withYear.map((d) => d.deviceTypeCode))).sort();
-    const byYear = rollup(withYear, (v) => v.length, (d) => d.commissioningYear, (d) => d.deviceTypeCode);
+    const types = Array.from(new Set(withYear.map((d: any) => d.deviceTypeCode))).sort();
+    const byYear = rollup(withYear, (v: any) => v.length, (d: any) => d.commissioningYear, (d: any) => d.deviceTypeCode);
     const years = Array.from(byYear.keys()).sort();
     const data = years.map((year) => {
       const row: any = { year: String(year) };
@@ -162,24 +162,24 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const x = scaleBand().domain(data.map((d) => d.year)).range([0, width]).padding(0.25);
+    const x = scaleBand().domain(data.map((d: any) => d.year)).range([0, width]).padding(0.25);
     const yMax = max(data, (d: any) => d._total) || 1;
     const y = scaleLinear().domain([0, yMax]).nice().range([height, 0]);
     const color = scaleOrdinal<string>().domain(types).range(this.colors);
 
     svg.append('g').attr('class', 'grid')
       .call(axisLeft(y).ticks(5).tickSize(-width).tickFormat(() => ''))
-      .call((g) => g.select('.domain').remove())
-      .call((g) => g.selectAll('.tick line').attr('stroke', '#e2e8f0'));
+      .call((g: any) => g.select('.domain').remove())
+      .call((g: any) => g.selectAll('.tick line').attr('stroke', '#e2e8f0'));
 
     svg.append('g').attr('transform', `translate(0,${height})`)
       .call(axisBottom(x))
-      .call((g) => g.select('.domain').attr('stroke', '#e2e8f0'))
+      .call((g: any) => g.select('.domain').attr('stroke', '#e2e8f0'))
       .selectAll('text').style('font-size', '10px').style('fill', '#64748b')
       .attr('transform', 'rotate(-45)').attr('text-anchor', 'end');
 
-    svg.append('g').call(axisLeft(y).ticks(5).tickFormat((d) => String(d)))
-      .call((g) => g.select('.domain').remove())
+    svg.append('g').call(axisLeft(y).ticks(5).tickFormat((d: any) => String(d)))
+      .call((g: any) => g.select('.domain').remove())
       .selectAll('text').style('font-size', '10px').style('fill', '#64748b');
 
     // Stacked bars
@@ -232,7 +232,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!el) return;
     select(el).selectAll('*').remove();
 
-    const grouped = rollup(this.devices, (v) => sum(v, (d) => d.capacity), (d) => d.countryCode);
+    const grouped = rollup(this.devices, (v: any) => sum(v, (d: any) => d.capacity), (d: any) => d.countryCode);
     const data = Array.from(grouped, ([key, value]) => ({ key, value }))
       .sort((a, b) => b.value - a.value);
     if (!data.length) return;
@@ -249,21 +249,21 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const x = scaleBand().domain(data.map((d) => d.key)).range([0, width]).padding(0.3);
-    const y = scaleLinear().domain([0, max(data, (d) => d.value)!]).nice().range([height, 0]);
+    const x = scaleBand().domain(data.map((d: any) => d.key)).range([0, width]).padding(0.3);
+    const y = scaleLinear().domain([0, max(data, (d: any) => d.value)!]).nice().range([height, 0]);
 
     svg.append('g').attr('class', 'grid')
       .call(axisLeft(y).ticks(5).tickSize(-width).tickFormat(() => ''))
-      .call((g) => g.select('.domain').remove())
-      .call((g) => g.selectAll('.tick line').attr('stroke', '#e2e8f0'));
+      .call((g: any) => g.select('.domain').remove())
+      .call((g: any) => g.selectAll('.tick line').attr('stroke', '#e2e8f0'));
 
     svg.append('g').attr('transform', `translate(0,${height})`)
       .call(axisBottom(x))
-      .call((g) => g.select('.domain').attr('stroke', '#e2e8f0'))
+      .call((g: any) => g.select('.domain').attr('stroke', '#e2e8f0'))
       .selectAll('text').style('font-size', '11px').style('fill', '#64748b');
 
     svg.append('g').call(axisLeft(y).ticks(5))
-      .call((g) => g.select('.domain').remove())
+      .call((g: any) => g.select('.domain').remove())
       .selectAll('text').style('font-size', '11px').style('fill', '#64748b');
 
     const defs = svg.append('defs');
@@ -273,21 +273,21 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
     grad.append('stop').attr('offset', '100%').attr('stop-color', '#0f766e');
 
     svg.selectAll('.bar').data(data).enter().append('rect')
-      .attr('x', (d) => x(d.key)!)
+      .attr('x', (d: any) => x(d.key)!)
       .attr('width', x.bandwidth())
       .attr('y', height).attr('height', 0).attr('rx', 4)
       .attr('fill', 'url(#barGrad)')
       .transition().duration(600).delay((_d, i) => i * 60)
-      .attr('y', (d) => y(d.value))
-      .attr('height', (d) => height - y(d.value));
+      .attr('y', (d: any) => y(d.value))
+      .attr('height', (d: any) => height - y(d.value));
 
     svg.selectAll('.label').data(data).enter().append('text')
-      .attr('x', (d) => x(d.key)! + x.bandwidth() / 2)
-      .attr('y', (d) => y(d.value) - 4)
+      .attr('x', (d: any) => x(d.key)! + x.bandwidth() / 2)
+      .attr('y', (d: any) => y(d.value) - 4)
       .attr('text-anchor', 'middle')
       .style('font-size', '10px').style('font-weight', '600').style('fill', '#0f766e')
       .style('opacity', 0)
-      .text((d) => d.value >= 1000 ? `${(d.value / 1000).toFixed(1)}MW` : `${d.value}kW`)
+      .text((d: any) => d.value >= 1000 ? `${(d.value / 1000).toFixed(1)}MW` : `${d.value}kW`)
       .transition().duration(400).delay((_d, i) => 400 + i * 60).style('opacity', 1);
   }
 
@@ -314,33 +314,33 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const x = scaleLinear().domain([0, max(data, (d) => d.capacity)!]).nice().range([0, width]);
-    const y = scaleBand().domain(data.map((d) => d.siteName)).range([0, height]).padding(0.15);
+    const x = scaleLinear().domain([0, max(data, (d: any) => d.capacity)!]).nice().range([0, width]);
+    const y = scaleBand().domain(data.map((d: any) => d.siteName)).range([0, height]).padding(0.15);
 
     svg.selectAll('.name').data(data).enter().append('text')
       .attr('x', -6)
-      .attr('y', (d) => y(d.siteName)! + y.bandwidth() / 2)
+      .attr('y', (d: any) => y(d.siteName)! + y.bandwidth() / 2)
       .attr('dy', '0.35em').attr('text-anchor', 'end')
       .style('font-size', '11px').style('fill', '#334155')
-      .text((d) => d.siteName.length > 16 ? d.siteName.slice(0, 15) + '\u2026' : d.siteName);
+      .text((d: any) => d.siteName.length > 16 ? d.siteName.slice(0, 15) + '\u2026' : d.siteName);
 
     svg.selectAll('.bar').data(data).enter().append('rect')
-      .attr('x', 0).attr('y', (d) => y(d.siteName)!)
+      .attr('x', 0).attr('y', (d: any) => y(d.siteName)!)
       .attr('height', y.bandwidth()).attr('rx', 3)
       .attr('fill', (_d, i) => this.colors[i % this.colors.length])
       .attr('width', 0)
       .style('cursor', 'pointer')
       .on('click', (_ev: any, d: any) => this.selectDevice(d))
       .transition().duration(600).delay((_d, i) => i * 50)
-      .attr('width', (d) => x(d.capacity));
+      .attr('width', (d: any) => x(d.capacity));
 
     svg.selectAll('.val').data(data).enter().append('text')
-      .attr('x', (d) => x(d.capacity) + 4)
-      .attr('y', (d) => y(d.siteName)! + y.bandwidth() / 2)
+      .attr('x', (d: any) => x(d.capacity) + 4)
+      .attr('y', (d: any) => y(d.siteName)! + y.bandwidth() / 2)
       .attr('dy', '0.35em')
       .style('font-size', '10px').style('font-weight', '600').style('fill', '#64748b')
       .style('opacity', 0)
-      .text((d) => `${d.capacity} kW`)
+      .text((d: any) => `${d.capacity} kW`)
       .transition().duration(400).delay((_d, i) => 400 + i * 50).style('opacity', 1);
   }
 
@@ -362,7 +362,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
         date: new Date(r.startDate ?? r.timestamp ?? r.datetime),
         value: +(r.value ?? r.reads?.[0]?.value ?? 0) / 1000,
       }))
-      .filter((r) => !isNaN(r.date.getTime()) && r.value > 0)
+      .filter((r: any) => !isNaN(r.date.getTime()) && r.value > 0)
       .sort((a, b) => a.date.getTime() - b.date.getTime());
 
     if (!parsed.length) {
@@ -384,8 +384,8 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    const x = scaleTime().domain(extent(parsed, (d) => d.date) as [Date, Date]).range([0, width]);
-    const y = scaleLinear().domain([0, max(parsed, (d) => d.value)!]).nice().range([height, 0]);
+    const x = scaleTime().domain(extent(parsed, (d: any) => d.date) as [Date, Date]).range([0, width]);
+    const y = scaleLinear().domain([0, max(parsed, (d: any) => d.value)!]).nice().range([height, 0]);
 
     const defs = svg.append('defs');
     const grad = defs.append('linearGradient').attr('id', 'areaGrad')
@@ -395,16 +395,16 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     svg.append('g').attr('class', 'grid')
       .call(axisLeft(y).ticks(5).tickSize(-width).tickFormat(() => ''))
-      .call((g) => g.select('.domain').remove())
-      .call((g) => g.selectAll('.tick line').attr('stroke', '#e2e8f0'));
+      .call((g: any) => g.select('.domain').remove())
+      .call((g: any) => g.selectAll('.tick line').attr('stroke', '#e2e8f0'));
 
     svg.append('g').attr('transform', `translate(0,${height})`)
-      .call(axisBottom(x).ticks(6).tickFormat((d) => timeFormat('%b %d')(d as Date)))
-      .call((g) => g.select('.domain').attr('stroke', '#e2e8f0'))
+      .call(axisBottom(x).ticks(6).tickFormat((d: any) => timeFormat('%b %d')(d as Date)))
+      .call((g: any) => g.select('.domain').attr('stroke', '#e2e8f0'))
       .selectAll('text').style('font-size', '10px').style('fill', '#64748b');
 
     svg.append('g').call(axisLeft(y).ticks(5))
-      .call((g) => g.select('.domain').remove())
+      .call((g: any) => g.select('.domain').remove())
       .selectAll('text').style('font-size', '10px').style('fill', '#64748b');
 
     svg.append('text').attr('transform', 'rotate(-90)')
@@ -412,12 +412,12 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .style('font-size', '10px').style('fill', '#64748b').text('kWh');
 
     const areaGen = d3area<any>()
-      .x((d) => x(d.date)).y0(height).y1((d) => y(d.value)).curve(curveMonotoneX);
+      .x((d: any) => x(d.date)).y0(height).y1((d: any) => y(d.value)).curve(curveMonotoneX);
 
     svg.append('path').datum(parsed).attr('fill', 'url(#areaGrad)').attr('d', areaGen);
 
     const lineGen = d3line<any>()
-      .x((d) => x(d.date)).y((d) => y(d.value)).curve(curveMonotoneX);
+      .x((d: any) => x(d.date)).y((d: any) => y(d.value)).curve(curveMonotoneX);
 
     const path = svg.append('path').datum(parsed)
       .attr('fill', 'none').attr('stroke', '#0f766e').attr('stroke-width', 2).attr('d', lineGen);
@@ -430,7 +430,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .attr('stroke-dashoffset', 0);
 
     svg.selectAll('.dot').data(parsed).enter().append('circle')
-      .attr('cx', (d) => x(d.date)).attr('cy', (d) => y(d.value))
+      .attr('cx', (d: any) => x(d.date)).attr('cy', (d: any) => y(d.value))
       .attr('r', parsed.length > 50 ? 0 : 3)
       .attr('fill', '#0f766e').attr('stroke', '#fff').attr('stroke-width', 1.5)
       .style('opacity', 0)
