@@ -28,6 +28,8 @@ interface FeaturedSite {
   lat: number;
   lon: number;
   name?: string;
+  /** If true, this site gets a label/leader but never a satellite cutaway. */
+  labelOnly?: boolean;
 }
 
 @Component({
@@ -313,10 +315,10 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
       },
     );
 
-    // Greedy non-overlap label thinning: pick at most one label per ~80px
+    // Greedy non-overlap label thinning: pick at most one label per ~20px
     // screen-space neighborhood so a tight cluster of featured sites doesn't
     // produce a wall of overlapping leader lines.
-    const minLabelDist = 80;
+    const minLabelDist = 20;
     const labeledIdx = new Set<number>();
     const placed: { x: number; y: number }[] = [];
     for (const r of renders) {
@@ -389,6 +391,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const center: [number, number] = [-this.rotation[0], -this.rotation[1]];
     const eligible = this.featured
       .map((s: FeaturedSite) => {
+        if (s.labelOnly) return null;
         if (geoDistance([s.lon, s.lat], center) >= Math.PI / 2 - 0.25) {
           return null;
         }
