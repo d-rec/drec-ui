@@ -60,8 +60,14 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
 
   private cutawayActive = false;
   private cutawayStartMs = 0;
-  private cutawayPos: [number, number] | null = null;
+  private cutawaySite: FeaturedSite | null = null;
   private cutawayMaxR = 70;
+
+  // Card-shaped screen-space exclusion. Cutaways only land outside this rect
+  // so they aren't hidden behind the centered login form.
+  private cardWidth = 420;
+  private cardHeight = 520;
+  private cardPadding = 24;
 
   constructor(
     private http: HttpClient,
@@ -179,11 +185,9 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const dt = now - this.lastFrameMs;
     this.lastFrameMs = now;
 
-    if (!this.cutawayActive) {
-      this.rotation[0] =
-        (this.rotation[0] - (this.rotationSpeed * dt) / 1000) % 360;
-      this.projection.rotate(this.rotation);
-    }
+    this.rotation[0] =
+      (this.rotation[0] - (this.rotationSpeed * dt) / 1000) % 360;
+    this.projection.rotate(this.rotation);
     this.draw(now);
   }
 
@@ -259,22 +263,27 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
       return;
     }
     const center: [number, number] = [-this.rotation[0], -this.rotation[1]];
-    const visible = this.featured.filter(
-      (s: FeaturedSite) =>
-        geoDistance([s.lon, s.lat], center) < Math.PI / 2 - 0.25,
-    );
-    if (!visible.length) {
-      this.scheduleCutaway(2000);
+    const eligible = this.featured
+      .map((s: FeaturedSite) => {
+        if (geoDistance([s.lon, s.lat], center) >= Math.PI / 2 - 0.25) {
+          return null;
+        }
+        const p = this.projection([s.lon, s.lat]);
+        if (!p || !this.outsideCardRect(p)) return null;
+        return { site: s, p };
+      })
+      .filter(
+        (x: { site: FeaturedSite; p: [number, number] } | null) => x !== null,
+      ) as { site: FeaturedSite; p: [number, number] }[];
+    if (!eligible.length) {
+      this.scheduleCutaway(1500);
       return;
     }
-    const site = visible[Math.floor(Math.random() * visible.length)];
-    const p = this.projection([site.lon, site.lat]);
-    if (!p) {
-      this.scheduleCutaway(2000);
-      return;
-    }
+    const pick = eligible[Math.floor(Math.random() * eligible.length)];
+    const site = pick.site;
+    const p = pick.p;
 
-    const url = this.tileUrl(site.lat, site.lon, 16);
+    const tiles = this.cutawayTileGrid(site.lat, site.lon, 18);
     const svg = select(this.svgRef.nativeElement);
     const defs = svg.select('defs');
     defs.selectAll('#cutaway-clip').remove();
@@ -291,17 +300,22 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const cutaway = svg.select('g.cutaway');
     cutaway.selectAll('*').remove();
 
-    const r = this.cutawayMaxR;
-    cutaway
-      .append('image')
-      .attr('class', 'cutaway-img')
-      .attr('href', url)
-      .attr('x', p[0] - r)
-      .attr('y', p[1] - r)
-      .attr('width', r * 2)
-      .attr('height', r * 2)
-      .attr('clip-path', 'url(#cutaway-clip)')
-      .attr('opacity', 0.85);
+    // 2×2 tile grid, positioned so the actual lat/lon lands at (p[0], p[1])
+    // — so the cutaway center is the panel, not just the tile that contains it.
+    for (const t of tiles) {
+      cutaway
+        .append('image')
+        .attr('class', 'cutaway-img')
+        .attr('href', t.url)
+        .attr('data-dx', t.dx)
+        .attr('data-dy', t.dy)
+        .attr('x', p[0] - this.cutawayCompX + t.dx * 256)
+        .attr('y', p[1] - this.cutawayCompY + t.dy * 256)
+        .attr('width', 256)
+        .attr('height', 256)
+        .attr('clip-path', 'url(#cutaway-clip)')
+        .attr('opacity', 0.9);
+    }
     cutaway
       .append('circle')
       .attr('class', 'cutaway-ring')
@@ -311,7 +325,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
 
     this.cutawayActive = true;
     this.cutawayStartMs = performance.now();
-    this.cutawayPos = p;
+    this.cutawaySite = site;
   }
 
   private drawCutaway(now: number) {
@@ -320,10 +334,28 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const hold = 2400;
     const outDur = 800;
     const total = inDur + hold + outDur;
-    if (elapsed >= total) {
+    if (elapsed >= total || !this.cutawaySite) {
       this.endCutaway();
       return;
     }
+
+    // Track the site as the globe rotates: re-project each frame.
+    const center: [number, number] = [-this.rotation[0], -this.rotation[1]];
+    const offHemisphere =
+      geoDistance(
+        [this.cutawaySite.lon, this.cutawaySite.lat],
+        center,
+      ) >= Math.PI / 2 - 0.05;
+    if (offHemisphere) {
+      this.endCutaway();
+      return;
+    }
+    const p = this.projection([this.cutawaySite.lon, this.cutawaySite.lat]);
+    if (!p) {
+      this.endCutaway();
+      return;
+    }
+
     let r = 0;
     if (elapsed < inDur) r = (elapsed / inDur) * this.cutawayMaxR;
     else if (elapsed < inDur + hold) r = this.cutawayMaxR;
@@ -332,17 +364,83 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const svg = select(this.svgRef.nativeElement);
     svg
       .select<SVGCircleElement>('defs circle.cutaway-clip-circle')
+      .attr('cx', p[0])
+      .attr('cy', p[1])
       .attr('r', r);
-    svg.select<SVGCircleElement>('circle.cutaway-ring').attr('r', r);
+    const compX = this.cutawayCompX;
+    const compY = this.cutawayCompY;
+    svg
+      .selectAll<SVGImageElement, unknown>('image.cutaway-img')
+      .attr('x', function () {
+        const dx = +(this.getAttribute('data-dx') || 0);
+        return p[0] - compX + dx * 256;
+      })
+      .attr('y', function () {
+        const dy = +(this.getAttribute('data-dy') || 0);
+        return p[1] - compY + dy * 256;
+      });
+    svg
+      .select<SVGCircleElement>('circle.cutaway-ring')
+      .attr('cx', p[0])
+      .attr('cy', p[1])
+      .attr('r', r);
   }
 
   private endCutaway() {
     this.cutawayActive = false;
-    this.cutawayPos = null;
+    this.cutawaySite = null;
     const svg = select(this.svgRef.nativeElement);
     svg.select('g.cutaway').selectAll('*').remove();
     svg.select('defs').selectAll('#cutaway-clip').remove();
     this.scheduleCutaway(7000);
+  }
+
+  // Composite-image pixel coords of the cutaway-site lat/lon, set by
+  // cutawayTileGrid() and used to keep the imagery centered on the coord
+  // as the globe rotates.
+  private cutawayCompX = 0;
+  private cutawayCompY = 0;
+
+  private cutawayTileGrid(
+    lat: number,
+    lon: number,
+    zoom: number,
+  ): { url: string; dx: number; dy: number }[] {
+    const n = Math.pow(2, zoom);
+    const xFrac = ((lon + 180) / 360) * n;
+    const latRad = (lat * Math.PI) / 180;
+    const yFrac =
+      ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) *
+      n;
+    const tileX = Math.floor(xFrac);
+    const tileY = Math.floor(yFrac);
+    const pxX = (xFrac - tileX) * 256;
+    const pxY = (yFrac - tileY) * 256;
+    // Pick the 2×2 grid such that the coord is in the central 256×256 region —
+    // guarantees the 70px-radius cutaway is fully covered by imagery.
+    const startTileX = pxX < 128 ? tileX - 1 : tileX;
+    const startTileY = pxY < 128 ? tileY - 1 : tileY;
+    this.cutawayCompX = (tileX - startTileX) * 256 + pxX;
+    this.cutawayCompY = (tileY - startTileY) * 256 + pxY;
+    const out: { url: string; dx: number; dy: number }[] = [];
+    for (let dy = 0; dy < 2; dy++) {
+      for (let dx = 0; dx < 2; dx++) {
+        out.push({
+          url: `https://mt1.google.com/vt/lyrs=s&x=${startTileX + dx}&y=${startTileY + dy}&z=${zoom}`,
+          dx,
+          dy,
+        });
+      }
+    }
+    return out;
+  }
+
+  private outsideCardRect(p: [number, number]): boolean {
+    const halfW = this.cardWidth / 2 + this.cutawayMaxR + this.cardPadding;
+    const halfH = this.cardHeight / 2 + this.cutawayMaxR + this.cardPadding;
+    const cx = this.width / 2;
+    const cy = this.height / 2;
+    return Math.abs(p[0] - cx) > halfW || Math.abs(p[1] - cy) > halfH;
   }
 
   private tileUrl(lat: number, lon: number, zoom: number): string {
