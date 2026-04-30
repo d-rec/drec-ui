@@ -28,6 +28,15 @@
   margin: 16px 0 0;
 }
 
+.lg__version {
+  text-align: center;
+  margin: 12px 0 0;
+  font-size: 11px;
+  opacity: 0.55;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.02em;
+}
+
 @media (max-width: 480px) {
   .lg__card { @include guest-card-responsive; }
 }

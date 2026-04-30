@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { decodeJwtToken, storeUserSession } from '../../utils/token-utils';
 import { RoleModeService } from '../../auth/services/role-mode.service';
+import { VersionService, AppVersion } from '../../auth/services/version.service';
 
 @Component({
   standalone: false,
@@ -31,6 +32,7 @@ export class LoginComponent implements OnInit {
   loggingIn: boolean = false;
   loginElapsed: number = 0;
   private loginTimer: any = null;
+  versionLine: string = '';
 
   @Output() submitEM = new EventEmitter();
 
@@ -42,10 +44,29 @@ export class LoginComponent implements OnInit {
     private inviteservice: InvitationService,
     private activatedRoute: ActivatedRoute,
     private roleModeService: RoleModeService,
+    private versionService: VersionService,
   ) {}
 
   ngOnInit() {
     this.selectedOption = 'Form1';
+    this.versionService.get().subscribe((v) => {
+      this.versionLine = this.formatVersion(v);
+    });
+  }
+
+  private formatVersion(v: AppVersion | null): string {
+    if (!v || v.buildTime === 'unknown') return '';
+    const sha = v.sha && v.sha !== 'unknown' ? v.sha.slice(0, 8) : '';
+    const ts = this.formatBuildTime(v.buildTime);
+    if (!ts) return '';
+    return sha ? `Last deployed: ${ts} · ${sha}` : `Last deployed: ${ts}`;
+  }
+
+  private formatBuildTime(iso: string): string {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} UTC`;
   }
 
   /**

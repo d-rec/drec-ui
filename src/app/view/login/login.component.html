@@ -35,5 +35,7 @@
     <p class="lg__footer">
       Don't have an account? <a routerLink="/register" class="lg__link" test-id="register">Register</a>
     </p>
+
+    <p *ngIf="versionLine" class="lg__version">{{ versionLine }}</p>
   </div>
 </div>
