@@ -32,6 +32,7 @@ export class AdminAlldevicesComponent {
   title = 'matDialog';
   dataFromDialog: any;
   displayedColumns = [
+    'rowIndex',
     'siteName',
     'organization',
     'developerExternalId',
@@ -43,6 +44,7 @@ export class AdminAlldevicesComponent {
     'IREC_ID',
     'actions',
   ];
+  satPreviewEnabled = true;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   private _sort: MatSort;
   @ViewChild(MatSort) set sort(s: MatSort) {
@@ -520,6 +522,7 @@ export class AdminAlldevicesComponent {
   }
 
   showSatPreview(event: MouseEvent, row: any) {
+    if (!this.satPreviewEnabled) return;
     const lat = parseFloat(row.latitude);
     const lng = parseFloat(row.longitude);
     if (isNaN(lat) || isNaN(lng)) return;

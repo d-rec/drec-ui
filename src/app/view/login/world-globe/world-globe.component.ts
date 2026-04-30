@@ -313,6 +313,22 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
       },
     );
 
+    // Greedy non-overlap label thinning: pick at most one label per ~80px
+    // screen-space neighborhood so a tight cluster of featured sites doesn't
+    // produce a wall of overlapping leader lines.
+    const minLabelDist = 80;
+    const labeledIdx = new Set<number>();
+    const placed: { x: number; y: number }[] = [];
+    for (const r of renders) {
+      if (!r.visible || !r.site.name) continue;
+      const tooClose = placed.some(
+        (q) => Math.hypot(q.x - r.labelX, q.y - r.labelY) < minLabelDist,
+      );
+      if (tooClose) continue;
+      labeledIdx.add(r.idx);
+      placed.push({ x: r.labelX, y: r.labelY });
+    }
+
     const dotSel = svg
       .select('g.featured-dots')
       .selectAll<SVGCircleElement, Render>('circle')
@@ -340,9 +356,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
       .attr('y1', (d: any) => d.p[1])
       .attr('x2', (d: any) => d.labelX - d.ux * 4)
       .attr('y2', (d: any) => d.labelY - d.uy * 4)
-      .attr('display', (d: any) =>
-        d.visible && d.site.name ? null : 'none',
-      );
+      .attr('display', (d: any) => (labeledIdx.has(d.idx) ? null : 'none'));
 
     const labelSel = svg
       .select('g.featured-labels')
@@ -357,10 +371,8 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
       .attr('y', (d: any) => d.labelY)
       .attr('text-anchor', (d: any) => d.anchor)
       .attr('dominant-baseline', 'middle')
-      .text((d: any) => (d.visible && d.site.name ? d.site.name : ''))
-      .attr('display', (d: any) =>
-        d.visible && d.site.name ? null : 'none',
-      );
+      .text((d: any) => (labeledIdx.has(d.idx) ? d.site.name : ''))
+      .attr('display', (d: any) => (labeledIdx.has(d.idx) ? null : 'none'));
   }
 
   private scheduleCutaway(delayMs: number) {
@@ -395,7 +407,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const site = pick.site;
     const p = pick.p;
 
-    const tiles = this.cutawayTileGrid(site.lat, site.lon, 17);
+    const tiles = this.cutawayTileGrid(site.lat, site.lon, 19);
     const svg = select(this.svgRef.nativeElement);
     const defs = svg.select('defs');
     defs.selectAll('#cutaway-clip').remove();
@@ -548,11 +560,12 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
   }
 
   private outsideCardRect(p: [number, number]): boolean {
+    // Only enforce horizontal exclusion. Vertical exclusion was too aggressive
+    // when featured sites cluster at one latitude (e.g. OMC at ~27°N projects
+    // to a fixed y above card center, never escaping the vertical band).
     const halfW = this.cardWidth / 2 + this.cutawayMaxR + this.cardPadding;
-    const halfH = this.cardHeight / 2 + this.cutawayMaxR + this.cardPadding;
     const cx = this.width / 2;
-    const cy = this.height / 2;
-    return Math.abs(p[0] - cx) > halfW || Math.abs(p[1] - cy) > halfH;
+    return Math.abs(p[0] - cx) > halfW;
   }
 
   private tileUrl(lat: number, lon: number, zoom: number): string {
