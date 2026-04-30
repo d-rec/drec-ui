@@ -345,11 +345,14 @@ export class AdminAlldevicesComponent {
       this.dataSource.filter = '';
     }
   }
-  getDeviceListData(page: number) {
-    this.deviceurl = 'device?limit=10000&';
+  getDeviceListData(_page: number | null) {
+    // Pass null pagenumber so the API skips skip/take and returns the full
+    // list. The all-devices admin table is searchable + sortable client-side
+    // and the prod DB is small enough (~2k rows) to render in one fetch.
+    this.deviceurl = 'device?';
 
     this.deviceService
-      .GetMyDevices(this.deviceurl, this.FilterForm.value, page)
+      .GetMyDevices(this.deviceurl, this.FilterForm.value, undefined)
       .subscribe({
         next: (data) => {
           this.showlist = true;
