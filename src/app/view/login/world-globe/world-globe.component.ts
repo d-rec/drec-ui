@@ -27,7 +27,7 @@ interface SiteDot {
 interface FeaturedSite {
   lat: number;
   lon: number;
-  label?: string;
+  name?: string;
 }
 
 @Component({
@@ -169,6 +169,9 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     svg.append('path').attr('class', 'graticule');
     svg.append('g').attr('class', 'countries');
     svg.append('g').attr('class', 'dots');
+    svg.append('g').attr('class', 'featured-leaders');
+    svg.append('g').attr('class', 'featured-dots');
+    svg.append('g').attr('class', 'featured-labels');
     svg.append('g').attr('class', 'cutaway');
   }
 
@@ -246,9 +249,118 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     });
     dotSel.exit().remove();
 
+    this.drawFeaturedAnnotations();
+
     if (this.cutawayActive) {
       this.drawCutaway(now);
     }
+  }
+
+  private drawFeaturedAnnotations() {
+    if (!this.featured.length) return;
+    const svg = select(this.svgRef.nativeElement);
+    const center: [number, number] = [-this.rotation[0], -this.rotation[1]];
+    const cx = this.width / 2;
+    const cy = this.height / 2;
+    const globeR = this.projection.scale();
+    const margin = 80;
+
+    interface Render {
+      idx: number;
+      site: FeaturedSite;
+      p: [number, number];
+      labelX: number;
+      labelY: number;
+      ux: number;
+      uy: number;
+      visible: boolean;
+      anchor: 'start' | 'end' | 'middle';
+    }
+
+    const renders: Render[] = this.featured.map(
+      (s: FeaturedSite, idx: number) => {
+        const onHemisphere =
+          geoDistance([s.lon, s.lat], center) < Math.PI / 2 - 0.05;
+        const p = onHemisphere
+          ? this.projection([s.lon, s.lat])
+          : null;
+        if (!p) {
+          return {
+            idx,
+            site: s,
+            p: [0, 0] as [number, number],
+            labelX: 0,
+            labelY: 0,
+            ux: 0,
+            uy: 0,
+            visible: false,
+            anchor: 'middle' as const,
+          };
+        }
+        const dx = p[0] - cx;
+        const dy = p[1] - cy;
+        const len = Math.hypot(dx, dy);
+        const ux = len > 1 ? dx / len : 0;
+        const uy = len > 1 ? dy / len : -1;
+        const labelDist = globeR + 26;
+        let labelX = cx + ux * labelDist;
+        let labelY = cy + uy * labelDist;
+        labelX = Math.max(margin, Math.min(this.width - margin, labelX));
+        labelY = Math.max(20, Math.min(this.height - 20, labelY));
+        const anchor: 'start' | 'end' | 'middle' =
+          ux > 0.08 ? 'start' : ux < -0.08 ? 'end' : 'middle';
+        return { idx, site: s, p, labelX, labelY, ux, uy, visible: true, anchor };
+      },
+    );
+
+    const dotSel = svg
+      .select('g.featured-dots')
+      .selectAll<SVGCircleElement, Render>('circle')
+      .data(renders, (d: any) => d.idx);
+    dotSel
+      .enter()
+      .append('circle')
+      .attr('class', 'featured-dot')
+      .merge(dotSel as any)
+      .attr('cx', (d: any) => d.p[0])
+      .attr('cy', (d: any) => d.p[1])
+      .attr('r', 2.6)
+      .attr('display', (d: any) => (d.visible ? null : 'none'));
+
+    const leaderSel = svg
+      .select('g.featured-leaders')
+      .selectAll<SVGLineElement, Render>('line')
+      .data(renders, (d: any) => d.idx);
+    leaderSel
+      .enter()
+      .append('line')
+      .attr('class', 'leader-line')
+      .merge(leaderSel as any)
+      .attr('x1', (d: any) => d.p[0])
+      .attr('y1', (d: any) => d.p[1])
+      .attr('x2', (d: any) => d.labelX - d.ux * 4)
+      .attr('y2', (d: any) => d.labelY - d.uy * 4)
+      .attr('display', (d: any) =>
+        d.visible && d.site.name ? null : 'none',
+      );
+
+    const labelSel = svg
+      .select('g.featured-labels')
+      .selectAll<SVGTextElement, Render>('text')
+      .data(renders, (d: any) => d.idx);
+    labelSel
+      .enter()
+      .append('text')
+      .attr('class', 'label-text')
+      .merge(labelSel as any)
+      .attr('x', (d: any) => d.labelX)
+      .attr('y', (d: any) => d.labelY)
+      .attr('text-anchor', (d: any) => d.anchor)
+      .attr('dominant-baseline', 'middle')
+      .text((d: any) => (d.visible && d.site.name ? d.site.name : ''))
+      .attr('display', (d: any) =>
+        d.visible && d.site.name ? null : 'none',
+      );
   }
 
   private scheduleCutaway(delayMs: number) {
@@ -283,7 +395,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const site = pick.site;
     const p = pick.p;
 
-    const tiles = this.cutawayTileGrid(site.lat, site.lon, 18);
+    const tiles = this.cutawayTileGrid(site.lat, site.lon, 17);
     const svg = select(this.svgRef.nativeElement);
     const defs = svg.select('defs');
     defs.selectAll('#cutaway-clip').remove();

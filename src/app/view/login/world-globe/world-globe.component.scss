@@ -34,6 +34,29 @@ svg {
     fill: #14b8a6;
     pointer-events: none;
   }
+  .featured-dot {
+    fill: #5eead4;
+    stroke: rgba(0, 0, 0, 0.5);
+    stroke-width: 0.4;
+    filter: drop-shadow(0 0 2px rgba(94, 234, 212, 0.8));
+  }
+  .leader-line {
+    stroke: #14b8a6;
+    stroke-width: 0.6;
+    stroke-opacity: 0.5;
+    pointer-events: none;
+  }
+  .label-text {
+    fill: #cbd5e1;
+    font-size: 10px;
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: 0.02em;
+    pointer-events: none;
+    paint-order: stroke;
+    stroke: #0b1220;
+    stroke-width: 2px;
+    stroke-opacity: 0.85;
+  }
   .cutaway-img {
     filter: saturate(0.7) brightness(0.85);
   }
