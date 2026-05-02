@@ -4,6 +4,11 @@
     "secure": true,
     "changeOrigin": true
   },
+  "/api/stats": {
+    "target": "https://stage-api.drecs.org",
+    "secure": true,
+    "changeOrigin": true
+  },
   "/api/": {
     "target": "http://localhost:3040",
     "secure": false

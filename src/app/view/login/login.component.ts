@@ -1,5 +1,6 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { AuthbaseService } from '../../auth/authbase.service';
 import { UserService, InvitationService } from '../../auth/services';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,6 +8,14 @@ import { ToastrService } from 'ngx-toastr';
 import { decodeJwtToken, storeUserSession } from '../../utils/token-utils';
 import { RoleModeService } from '../../auth/services/role-mode.service';
 import { VersionService, AppVersion } from '../../auth/services/version.service';
+import { environment } from '../../../environments/environment';
+
+interface PlatformStats {
+  gwhCommitted: number;
+  countries: number;
+  devices: number;
+  sites: number;
+}
 
 @Component({
   standalone: false,
@@ -33,6 +42,7 @@ export class LoginComponent implements OnInit {
   loginElapsed: number = 0;
   private loginTimer: any = null;
   versionLine: string = '';
+  platformStats: PlatformStats | null = null;
 
   @Output() submitEM = new EventEmitter();
 
@@ -45,6 +55,7 @@ export class LoginComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private roleModeService: RoleModeService,
     private versionService: VersionService,
+    private http: HttpClient,
   ) {}
 
   ngOnInit() {
@@ -52,6 +63,14 @@ export class LoginComponent implements OnInit {
     this.versionService.get().subscribe((v) => {
       this.versionLine = this.formatVersion(v);
     });
+    this.http
+      .get<PlatformStats>(`${environment.API_URL}stats`)
+      .subscribe({
+        next: (s) => (this.platformStats = s),
+        error: () => {
+          // Silent fail — login still works without stats overlay.
+        },
+      });
   }
 
   private formatVersion(v: AppVersion | null): string {

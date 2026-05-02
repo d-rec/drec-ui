@@ -14,6 +14,49 @@
 .lg__link        { @include guest-link; }
 .lg__footer      { @include guest-footer; }
 
+.lg__stats {
+  position: fixed;
+  top: 32px;
+  left: 32px;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: #cbd5e1;
+  opacity: 0.45;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.lg__stat-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  line-height: 1.1;
+}
+
+.lg__stat-value {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.lg__stat-unit {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.lg__stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .lg__stats { display: none; }
+}
+
 .lg__error {
   background: #fee2e2;
   color: #991b1b;
