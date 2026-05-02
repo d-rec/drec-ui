@@ -148,7 +148,7 @@ const STATUS_COLOR: Record<string, string> = {
         padding: 5px 12px;
         border: none;
         border-radius: 6px;
-        background: #0f766e;
+        background: #0F607F;
         color: #fff;
         font-size: 12px;
         font-weight: 600;
@@ -243,7 +243,7 @@ const STATUS_COLOR: Record<string, string> = {
         background: #cbd5e1;
       }
       .detect-confirm__btn--ok {
-        background: #0f766e;
+        background: #0F607F;
         color: #fff;
       }
       .detect-confirm__btn--ok:hover {

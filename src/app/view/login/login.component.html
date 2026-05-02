@@ -2,29 +2,21 @@
   <app-world-globe class="lg__globe"></app-world-globe>
   <div class="lg__stats" *ngIf="platformStats">
     <div class="lg__stat">
-      <div class="lg__stat-figure">
-        <span class="lg__stat-value">{{ platformStats.gwhCommitted | number }}</span>
-        <span class="lg__stat-unit">GWh</span>
-      </div>
-      <div class="lg__stat-label">Committed for Purchase</div>
+      <span class="lg__stat-value">{{ platformStats.gwhCommitted | number }}</span>
+      <span class="lg__stat-unit">GWh</span>
+      <span class="lg__stat-label">Committed for Purchase</span>
     </div>
     <div class="lg__stat">
-      <div class="lg__stat-figure">
-        <span class="lg__stat-value">{{ platformStats.countries }}</span>
-      </div>
-      <div class="lg__stat-label">Countries</div>
+      <span class="lg__stat-value">{{ platformStats.countries }}</span>
+      <span class="lg__stat-label">Countries</span>
     </div>
     <div class="lg__stat">
-      <div class="lg__stat-figure">
-        <span class="lg__stat-value">{{ platformStats.devices | number }}</span>
-      </div>
-      <div class="lg__stat-label">Devices</div>
+      <span class="lg__stat-value">{{ platformStats.devices | number }}</span>
+      <span class="lg__stat-label">Devices</span>
     </div>
     <div class="lg__stat">
-      <div class="lg__stat-figure">
-        <span class="lg__stat-value">{{ platformStats.sites | number }}</span>
-      </div>
-      <div class="lg__stat-label">Project Sites</div>
+      <span class="lg__stat-value">{{ platformStats.sites | number }}</span>
+      <span class="lg__stat-label">Project Sites</span>
     </div>
   </div>
   <div class="lg__card">

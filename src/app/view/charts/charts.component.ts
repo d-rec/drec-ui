@@ -51,7 +51,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
   private resizeObserver!: ResizeObserver;
 
   private colors = [
-    '#0f766e', '#0ea5e9', '#8b5cf6', '#f59e0b', '#ef4444',
+    '#0F607F', '#0ea5e9', '#8b5cf6', '#f59e0b', '#ef4444',
     '#10b981', '#6366f1', '#ec4899', '#14b8a6', '#f97316',
   ];
 
@@ -210,7 +210,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .attr('x', (d: any) => x(d.year)! + x.bandwidth() / 2)
       .attr('y', (d: any) => y(d._total) - 4)
       .attr('text-anchor', 'middle')
-      .style('font-size', '10px').style('font-weight', '600').style('fill', '#0f766e')
+      .style('font-size', '10px').style('font-weight', '600').style('fill', '#0F607F')
       .style('opacity', 0)
       .text((d: any) => d._total)
       .transition().duration(400).delay((_d: any, i: any) => 400 + i * 40).style('opacity', 1);
@@ -270,7 +270,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
     const grad = defs.append('linearGradient').attr('id', 'barGrad')
       .attr('x1', '0').attr('y1', '0').attr('x2', '0').attr('y2', '1');
     grad.append('stop').attr('offset', '0%').attr('stop-color', '#14b8a6');
-    grad.append('stop').attr('offset', '100%').attr('stop-color', '#0f766e');
+    grad.append('stop').attr('offset', '100%').attr('stop-color', '#0F607F');
 
     svg.selectAll('.bar').data(data).enter().append('rect')
       .attr('x', (d: any) => x(d.key)!)
@@ -285,7 +285,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .attr('x', (d: any) => x(d.key)! + x.bandwidth() / 2)
       .attr('y', (d: any) => y(d.value) - 4)
       .attr('text-anchor', 'middle')
-      .style('font-size', '10px').style('font-weight', '600').style('fill', '#0f766e')
+      .style('font-size', '10px').style('font-weight', '600').style('fill', '#0F607F')
       .style('opacity', 0)
       .text((d: any) => d.value >= 1000 ? `${(d.value / 1000).toFixed(1)}MW` : `${d.value}kW`)
       .transition().duration(400).delay((_d: any, i: any) => 400 + i * 60).style('opacity', 1);
@@ -390,8 +390,8 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
     const defs = svg.append('defs');
     const grad = defs.append('linearGradient').attr('id', 'areaGrad')
       .attr('x1', '0').attr('y1', '0').attr('x2', '0').attr('y2', '1');
-    grad.append('stop').attr('offset', '0%').attr('stop-color', '#0f766e').attr('stop-opacity', 0.3);
-    grad.append('stop').attr('offset', '100%').attr('stop-color', '#0f766e').attr('stop-opacity', 0.02);
+    grad.append('stop').attr('offset', '0%').attr('stop-color', '#0F607F').attr('stop-opacity', 0.3);
+    grad.append('stop').attr('offset', '100%').attr('stop-color', '#0F607F').attr('stop-opacity', 0.02);
 
     svg.append('g').attr('class', 'grid')
       .call(axisLeft(y).ticks(5).tickSize(-width).tickFormat(() => ''))
@@ -420,7 +420,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
       .x((d: any) => x(d.date)).y((d: any) => y(d.value)).curve(curveMonotoneX);
 
     const path = svg.append('path').datum(parsed)
-      .attr('fill', 'none').attr('stroke', '#0f766e').attr('stroke-width', 2).attr('d', lineGen);
+      .attr('fill', 'none').attr('stroke', '#0F607F').attr('stroke-width', 2).attr('d', lineGen);
 
     const totalLength = (path.node() as SVGPathElement).getTotalLength();
     path
@@ -432,7 +432,7 @@ export class ChartsComponent implements OnInit, AfterViewInit, OnDestroy {
     svg.selectAll('.dot').data(parsed).enter().append('circle')
       .attr('cx', (d: any) => x(d.date)).attr('cy', (d: any) => y(d.value))
       .attr('r', parsed.length > 50 ? 0 : 3)
-      .attr('fill', '#0f766e').attr('stroke', '#fff').attr('stroke-width', 1.5)
+      .attr('fill', '#0F607F').attr('stroke', '#fff').attr('stroke-width', 1.5)
       .style('opacity', 0)
       .transition().duration(400).delay(1000).style('opacity', 1);
   }

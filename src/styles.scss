@@ -8,7 +8,7 @@ $color-surface: #ffffff;     // clean white
 $color-border: #e2e8f0;      // slate-200
 $color-header-bg: #0f172a;   // slate-900
 $color-header-text: #f8fafc;
-$color-primary: #0f766e;     // teal-700
+$color-primary: #0F607F;     // teal-700
 $color-primary-dark: #115e59;
 $color-primary-light: rgba(15, 118, 110, 0.08);
 $color-text: #1e293b;        // slate-800
@@ -576,7 +576,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
 // Login / Register layout
 .guest-layout {
   height: 100vh;
-  background: linear-gradient(144deg, #0f766e 0%, #0f172a 48%);
+  background: linear-gradient(144deg, #0F607F 0%, #0f172a 48%);
   overflow: hidden;
 
   .mat-card {
