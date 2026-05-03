@@ -29,6 +29,20 @@
   text-transform: lowercase;
 }
 
+.lg__stats-title {
+  font-size: 22px;
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  margin-bottom: 6px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+
+  .brand {
+    text-transform: none;
+  }
+}
+
 .lg__stat {
   display: flex;
   align-items: baseline;

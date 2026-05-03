@@ -1,6 +1,7 @@
 <div class="lg">
   <app-world-globe class="lg__globe"></app-world-globe>
   <div class="lg__stats" *ngIf="platformStats">
+    <div class="lg__stats-title"><span class="brand">D-REC</span> in Numbers</div>
     <div class="lg__stat">
       <span class="lg__stat-value">{{ platformStats.gwhCommitted | number }}</span>
       <span class="lg__stat-unit">GWh</span>
