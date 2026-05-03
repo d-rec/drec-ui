@@ -76,6 +76,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
   private cutawayActive = false;
   private cutawayStartMs = 0;
   private cutawaySite: FeaturedSite | null = null;
+  private lastCutawaySite: FeaturedSite | null = null;
   private cutawayMaxR = 70;
 
   // Card-shaped screen-space exclusion. Cutaways only land outside this rect
@@ -489,9 +490,16 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
       this.scheduleCutaway(500);
       return;
     }
-    const pick = eligible[Math.floor(Math.random() * eligible.length)];
+    // Don't repeat the immediately-previous site if alternatives exist —
+    // back-to-back identical cutaways look broken even when they're tight.
+    const pickPool =
+      eligible.length > 1
+        ? eligible.filter((x) => x.site !== this.lastCutawaySite)
+        : eligible;
+    const pick = pickPool[Math.floor(Math.random() * pickPool.length)];
     const site = pick.site;
     const p = pick.p;
+    this.lastCutawaySite = site;
 
     const tiles = this.cutawayTileGrid(site.lat, site.lon, 19);
     const svg = select(this.svgRef.nativeElement);
