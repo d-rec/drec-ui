@@ -490,12 +490,14 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
       this.scheduleCutaway(500);
       return;
     }
-    // Don't repeat the immediately-previous site if alternatives exist —
-    // back-to-back identical cutaways look broken even when they're tight.
-    const pickPool =
-      eligible.length > 1
-        ? eligible.filter((x) => x.site !== this.lastCutawaySite)
-        : eligible;
+    // Never show the same site twice in a row — back-to-back identical
+    // cutaways look broken. If the only eligible site is the previous one,
+    // wait for rotation to bring a new candidate into view.
+    const pickPool = eligible.filter((x) => x.site !== this.lastCutawaySite);
+    if (!pickPool.length) {
+      this.scheduleCutaway(750);
+      return;
+    }
     const pick = pickPool[Math.floor(Math.random() * pickPool.length)];
     const site = pick.site;
     const p = pick.p;
