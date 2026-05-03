@@ -403,14 +403,14 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
         (x: { site: FeaturedSite; p: [number, number] } | null) => x !== null,
       ) as { site: FeaturedSite; p: [number, number] }[];
     if (!eligible.length) {
-      this.scheduleCutaway(1500);
+      this.scheduleCutaway(750);
       return;
     }
     const pick = eligible[Math.floor(Math.random() * eligible.length)];
     const site = pick.site;
     const p = pick.p;
 
-    const tiles = this.cutawayTileGrid(site.lat, site.lon, 18);
+    const tiles = this.cutawayTileGrid(site.lat, site.lon, 19);
     const svg = select(this.svgRef.nativeElement);
     const defs = svg.select('defs');
     defs.selectAll('#cutaway-clip').remove();
@@ -519,7 +519,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const svg = select(this.svgRef.nativeElement);
     svg.select('g.cutaway').selectAll('*').remove();
     svg.select('defs').selectAll('#cutaway-clip').remove();
-    this.scheduleCutaway(3000);
+    this.scheduleCutaway(1500);
   }
 
   // Composite-image pixel coords of the cutaway-site lat/lon, set by
