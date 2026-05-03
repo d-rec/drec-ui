@@ -50,8 +50,21 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
   private width = 800;
   private height = 800;
   private rotation: [number, number, number] = [-20, -10, 0];
-  private rotationSpeed = 6; // deg/sec → ~60s/rev
+  private rotationSpeed = 6; // deg/sec → ~60s/rev (auto-rotate steady state)
   private lastFrameMs = 0;
+
+  // Velocity in deg/sec applied to rotation[0]. Steady-state auto-rotate is
+  // -rotationSpeed; user-drag releases inject a different value, then it
+  // exponentially decays back toward the steady state for smooth resume.
+  private velocity = -6;
+  private dragging = false;
+  private dragBaseRotation = 0;
+  private dragBaseX = 0;
+  private dragSamples: { ms: number; x: number }[] = [];
+  private boundMouseMove?: (e: MouseEvent) => void;
+  private boundMouseUp?: () => void;
+  private boundTouchMove?: (e: TouchEvent) => void;
+  private boundTouchEnd?: () => void;
 
   private projection = geoOrthographic();
   private pathGen = geoPath(this.projection);
@@ -84,6 +97,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
       this.measure();
     });
     this.resizeObserver.observe(this.host.nativeElement);
+    this.attachDragHandlers();
   }
 
   ngOnDestroy() {
@@ -91,6 +105,66 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     if (this.animTimer) this.animTimer.stop();
     if (this.cutawayTimeout) clearTimeout(this.cutawayTimeout);
     if (this.resizeObserver) this.resizeObserver.disconnect();
+    if (this.boundMouseMove) document.removeEventListener('mousemove', this.boundMouseMove);
+    if (this.boundMouseUp) document.removeEventListener('mouseup', this.boundMouseUp);
+    if (this.boundTouchMove) document.removeEventListener('touchmove', this.boundTouchMove);
+    if (this.boundTouchEnd) document.removeEventListener('touchend', this.boundTouchEnd);
+  }
+
+  private attachDragHandlers() {
+    const svg = this.svgRef.nativeElement;
+    const onDown = (clientX: number) => {
+      this.dragging = true;
+      this.dragBaseRotation = this.rotation[0];
+      this.dragBaseX = clientX;
+      this.dragSamples = [{ ms: performance.now(), x: clientX }];
+      svg.classList.add('dragging');
+    };
+    const onMove = (clientX: number) => {
+      if (!this.dragging) return;
+      const globeR = this.projection.scale();
+      const degPerPx = 90 / globeR; // a drag of one globe-radius ≈ 90° rotation
+      this.rotation[0] = this.dragBaseRotation + (clientX - this.dragBaseX) * degPerPx;
+      this.dragSamples.push({ ms: performance.now(), x: clientX });
+      const cutoff = performance.now() - 100;
+      this.dragSamples = this.dragSamples.filter((s) => s.ms >= cutoff);
+    };
+    const onUp = () => {
+      if (!this.dragging) return;
+      this.dragging = false;
+      svg.classList.remove('dragging');
+      // Compute release velocity from the last 100ms of drag samples.
+      // Below a small threshold treat as a tap and let auto-rotate resume.
+      if (this.dragSamples.length >= 2) {
+        const first = this.dragSamples[0];
+        const last = this.dragSamples[this.dragSamples.length - 1];
+        const dtMs = last.ms - first.ms;
+        if (dtMs > 16) {
+          const pxPerSec = ((last.x - first.x) / dtMs) * 1000;
+          const globeR = this.projection.scale();
+          const degPerPx = 90 / globeR;
+          this.velocity = pxPerSec * degPerPx;
+        }
+      }
+    };
+    svg.addEventListener('mousedown', (e: MouseEvent) => {
+      e.preventDefault();
+      onDown(e.clientX);
+    });
+    this.boundMouseMove = (e: MouseEvent) => onMove(e.clientX);
+    this.boundMouseUp = () => onUp();
+    document.addEventListener('mousemove', this.boundMouseMove);
+    document.addEventListener('mouseup', this.boundMouseUp);
+    svg.addEventListener('touchstart', (e: TouchEvent) => {
+      if (e.touches.length === 0) return;
+      onDown(e.touches[0].clientX);
+    }, { passive: true });
+    this.boundTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) onMove(e.touches[0].clientX);
+    };
+    this.boundTouchEnd = () => onUp();
+    document.addEventListener('touchmove', this.boundTouchMove, { passive: true });
+    document.addEventListener('touchend', this.boundTouchEnd);
   }
 
   private measure() {
@@ -190,8 +264,17 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const dt = now - this.lastFrameMs;
     this.lastFrameMs = now;
 
-    this.rotation[0] =
-      (this.rotation[0] - (this.rotationSpeed * dt) / 1000) % 360;
+    if (!this.dragging) {
+      // Velocity decays exponentially toward the auto-rotate steady state
+      // (-rotationSpeed). Halflife ≈ 0.7s, so a hard fling stays visible for
+      // a few seconds before merging seamlessly back into auto-rotate.
+      const target = -this.rotationSpeed;
+      const decay = Math.exp(-1.0 * (dt / 1000));
+      this.velocity = target + (this.velocity - target) * decay;
+      this.rotation[0] = (this.rotation[0] + (this.velocity * dt) / 1000) % 360;
+    }
+    // While dragging, rotation[0] is set directly by the move handler.
+
     this.projection.rotate(this.rotation);
     this.draw(now);
   }

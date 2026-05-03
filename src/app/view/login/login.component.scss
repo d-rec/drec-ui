@@ -1,7 +1,7 @@
 @import '../../../guest-card';
 
 .lg              { @include guest-page; position: relative; }
-.lg__globe       { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.lg__globe       { position: fixed; inset: 0; z-index: 0; }
 .lg__card        { @include guest-card(420px); position: relative; z-index: 1; }
 .lg__header      { @include guest-header; }
 .lg__logo        { @include guest-logo; }
