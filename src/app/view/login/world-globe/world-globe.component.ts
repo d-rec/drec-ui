@@ -457,9 +457,9 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
 
   private drawCutaway(now: number) {
     const elapsed = now - this.cutawayStartMs;
-    const inDur = 800;
-    const hold = 2400;
-    const outDur = 800;
+    const inDur = 600;
+    const hold = 1800;
+    const outDur = 600;
     const total = inDur + hold + outDur;
     if (elapsed >= total || !this.cutawaySite) {
       this.endCutaway();
@@ -519,7 +519,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const svg = select(this.svgRef.nativeElement);
     svg.select('g.cutaway').selectAll('*').remove();
     svg.select('defs').selectAll('#cutaway-clip').remove();
-    this.scheduleCutaway(7000);
+    this.scheduleCutaway(3000);
   }
 
   // Composite-image pixel coords of the cutaway-site lat/lon, set by
