@@ -410,7 +410,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const site = pick.site;
     const p = pick.p;
 
-    const tiles = this.cutawayTileGrid(site.lat, site.lon, 20);
+    const tiles = this.cutawayTileGrid(site.lat, site.lon, 19);
     const svg = select(this.svgRef.nativeElement);
     const defs = svg.select('defs');
     defs.selectAll('#cutaway-clip').remove();
