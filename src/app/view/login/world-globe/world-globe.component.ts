@@ -403,7 +403,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
         (x: { site: FeaturedSite; p: [number, number] } | null) => x !== null,
       ) as { site: FeaturedSite; p: [number, number] }[];
     if (!eligible.length) {
-      this.scheduleCutaway(750);
+      this.scheduleCutaway(500);
       return;
     }
     const pick = eligible[Math.floor(Math.random() * eligible.length)];
@@ -457,9 +457,9 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
 
   private drawCutaway(now: number) {
     const elapsed = now - this.cutawayStartMs;
-    const inDur = 600;
-    const hold = 1800;
-    const outDur = 600;
+    const inDur = 500;
+    const hold = 1500;
+    const outDur = 500;
     const total = inDur + hold + outDur;
     if (elapsed >= total || !this.cutawaySite) {
       this.endCutaway();
@@ -519,7 +519,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const svg = select(this.svgRef.nativeElement);
     svg.select('g.cutaway').selectAll('*').remove();
     svg.select('defs').selectAll('#cutaway-clip').remove();
-    this.scheduleCutaway(1500);
+    this.scheduleCutaway(500);
   }
 
   // Composite-image pixel coords of the cutaway-site lat/lon, set by
