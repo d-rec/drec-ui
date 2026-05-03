@@ -602,7 +602,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const svg = select(this.svgRef.nativeElement);
     svg.select('g.cutaway').selectAll('*').remove();
     svg.select('defs').selectAll('#cutaway-clip').remove();
-    this.scheduleCutaway(500);
+    this.scheduleCutaway(1500);
   }
 
   // Composite-image pixel coords of the cutaway-site lat/lon, set by
