@@ -28,7 +28,6 @@ import {
   DocumentType,
   LABELLING_SCHEMES,
   OperatingConfiguration,
-  PublicFundingType,
   RegistrationType,
   SourceAccessMode,
   VolumeEvidenceType,
@@ -115,7 +114,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   labellingSchemes = LABELLING_SCHEMES;
   registrationTypes = Object.values(RegistrationType);
   volumeEvidenceTypes = Object.values(VolumeEvidenceType);
-  publicFundingTypes = Object.values(PublicFundingType);
   evidenceReqs: EvidenceRequirements = getEvidenceRequirements(null);
   impactStory: any;
   showerror: boolean = false;
@@ -492,7 +490,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       publicFundingEndDate: [null],
       registrationType: [null],
       volumeEvidenceType: [null],
-      publicFundingType: [null],
       labellingSchemeAccreditation: [[] as string[]],
       verificationAgentName: [null],
       offGridCircumstances: [null],

@@ -180,10 +180,6 @@
           <b>Public Funding End Date ⁽³³⁾</b>:
           {{ device_details.publicFundingEndDate }}
         </p>
-        <p *ngIf="device_details.publicFundingType">
-          <b>Public Funding Type</b>: {{ device_details.publicFundingType }}
-        </p>
-
         <h3 class="section-heading">Business Details</h3>
         <p *ngIf="device_details.hasCaptiveConsumer">
           <b>Captive Consumer ⁽²³⁾</b>: {{ device_details.hasCaptiveConsumer }}

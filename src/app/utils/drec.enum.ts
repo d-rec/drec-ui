@@ -77,12 +77,6 @@ export enum VolumeEvidenceType {
   Other = 'Other',
 }
 
-export enum PublicFundingType {
-  No = 'No',
-  Investment = 'Investment',
-  Production = 'Production',
-}
-
 export enum GroupReviewStatus {
   Pending = 'pending',
   Approved = 'approved',

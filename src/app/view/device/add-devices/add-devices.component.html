@@ -511,17 +511,6 @@
                       </mat-select>
                     </mat-form-field>
                   </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label>Public Funding Type</mat-label>
-                      <mat-select formControlName="publicFundingType">
-                        <mat-option [value]="null">-- Not specified --</mat-option>
-                        <mat-option *ngFor="let pf of publicFundingTypes" [value]="pf">
-                          {{ pf }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
                 </div>
 
                 <!-- ── Methodology & Declarations (more details) ─────────── -->

@@ -69,7 +69,6 @@ export interface Device {
   // SF-02 gaps
   registrationType?: string;
   volumeEvidenceType?: string;
-  publicFundingType?: string;
   labellingSchemeAccreditation?: string;
   verificationAgentName?: string;
   offGridCircumstances?: string;

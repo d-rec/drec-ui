@@ -48,7 +48,6 @@ import {
   SourceAccessMode,
   RegistrationType,
   VolumeEvidenceType,
-  PublicFundingType,
   LABELLING_SCHEMES,
 } from '../../../utils/drec.enum';
 import { MapComponent } from '../../map/map.component';
@@ -107,7 +106,6 @@ export class AddDevicesComponent implements OnDestroy {
   labellingSchemes = LABELLING_SCHEMES;
   registrationTypes = Object.values(RegistrationType);
   volumeEvidenceTypes = Object.values(VolumeEvidenceType);
-  publicFundingTypes = Object.values(PublicFundingType);
   evidenceReqs: EvidenceRequirements = getEvidenceRequirements(null);
 
   /** AI document classification suggestions per device/fileType. */
@@ -403,7 +401,6 @@ export class AddDevicesComponent implements OnDestroy {
       publicFundingEndDate: [null],
       registrationType: [null],
       volumeEvidenceType: [null],
-      publicFundingType: [null],
       labellingSchemeAccreditation: [['The D-REC Label']],
       verificationAgentName: [null],
       offGridCircumstances: [null],
@@ -542,7 +539,6 @@ export class AddDevicesComponent implements OnDestroy {
       publicFundingEndDate: [null],
       registrationType: [null],
       volumeEvidenceType: [null],
-      publicFundingType: [null],
       labellingSchemeAccreditation: [['The D-REC Label']],
       verificationAgentName: [null],
       offGridCircumstances: [null],

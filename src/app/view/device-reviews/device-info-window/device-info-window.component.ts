@@ -455,7 +455,6 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
             label: 'Ownership Status',
             value: fmt(d.ownershipStatus || 'unverified'),
           },
-          { label: 'Public Funding Type', value: fmt(d.publicFundingType) },
           {
             label: 'Off-Grid Circumstances',
             value: fmt(d.offGridCircumstances),
