@@ -18,9 +18,11 @@ RUN npm install --legacy-peer-deps
 RUN npm run build -- --configuration=$BUILD_ENVIRONMENT
 
 # Stamp version.json into the served assets so the sign-in page can show
-# "Last deployed: <build_time> · <sha>". Read at runtime via /version.json.
-RUN printf '{"buildTime":"%s","sha":"%s","environment":"%s"}\n' \
-    "${build_time:-unknown}" "${git_sha:-unknown}" "${build_environment:-unknown}" \
+# "Last deployed: <build_time> · v<version> · <sha>". Read at runtime via
+# /version.json. version is sourced from package.json.
+RUN VERSION=$(node -p "require('./package.json').version") && \
+    printf '{"buildTime":"%s","sha":"%s","environment":"%s","version":"%s"}\n' \
+    "${build_time:-unknown}" "${git_sha:-unknown}" "${build_environment:-unknown}" "$VERSION" \
     > /dist/src/app/dist/origin-drec-angular-ui/version.json
 
 FROM nginx:alpine AS nginx

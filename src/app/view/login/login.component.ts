@@ -75,10 +75,12 @@ export class LoginComponent implements OnInit {
 
   private formatVersion(v: AppVersion | null): string {
     if (!v || v.buildTime === 'unknown') return '';
-    const sha = v.sha && v.sha !== 'unknown' ? v.sha.slice(0, 8) : '';
     const ts = this.formatBuildTime(v.buildTime);
     if (!ts) return '';
-    return sha ? `Last deployed: ${ts} · ${sha}` : `Last deployed: ${ts}`;
+    const ver = v.version && v.version !== 'unknown' ? `v${v.version}` : '';
+    const sha = v.sha && v.sha !== 'unknown' ? v.sha.slice(0, 8) : '';
+    const parts = [ts, ver, sha].filter(Boolean);
+    return `Last deployed: ${parts.join(' · ')}`;
   }
 
   private formatBuildTime(iso: string): string {

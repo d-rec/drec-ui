@@ -7,6 +7,7 @@ export interface AppVersion {
   buildTime: string;
   sha: string;
   environment: string;
+  version?: string;
 }
 
 @Injectable({ providedIn: 'root' })
