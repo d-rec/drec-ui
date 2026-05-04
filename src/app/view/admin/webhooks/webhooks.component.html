@@ -1,7 +1,12 @@
 <div class="webhooks-page">
   <div class="webhooks-header">
     <h2>Chat Webhooks</h2>
-    <button mat-raised-button color="primary" (click)="openAddForm()" *ngIf="!showForm">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="openAddForm()"
+      *ngIf="!showForm"
+    >
       <mat-icon>add</mat-icon> Add Webhook
     </button>
   </div>
@@ -12,22 +17,37 @@
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Webhook URL</mat-label>
-      <input matInput [(ngModel)]="formUrl" placeholder="https://example.com/webhook" />
+      <input
+        matInput
+        [(ngModel)]="formUrl"
+        placeholder="https://example.com/webhook"
+      />
     </mat-form-field>
 
     <div class="events-section">
       <label class="events-label">Events:</label>
-      <mat-checkbox *ngFor="let ev of availableEvents" [(ngModel)]="formEvents[ev]" class="event-checkbox">
+      <mat-checkbox
+        color="primary"
+        *ngFor="let ev of availableEvents"
+        [(ngModel)]="formEvents[ev]"
+        class="event-checkbox"
+      >
         {{ ev }}
       </mat-checkbox>
     </div>
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Secret (leave blank to auto-generate)</mat-label>
-      <input matInput [(ngModel)]="formSecret" placeholder="Auto-generated if empty" />
+      <input
+        matInput
+        [(ngModel)]="formSecret"
+        placeholder="Auto-generated if empty"
+      />
     </mat-form-field>
 
-    <mat-checkbox *ngIf="editingId" [(ngModel)]="formActive">Active</mat-checkbox>
+    <mat-checkbox color="primary" *ngIf="editingId" [(ngModel)]="formActive"
+      >Active</mat-checkbox
+    >
 
     <div class="form-actions">
       <button mat-button (click)="cancelForm()">Cancel</button>
@@ -53,7 +73,12 @@
   <div *ngIf="loading" class="loading">Loading...</div>
 
   <!-- Webhooks table -->
-  <table mat-table [dataSource]="webhooks" class="webhooks-table" *ngIf="!loading && webhooks.length > 0">
+  <table
+    mat-table
+    [dataSource]="webhooks"
+    class="webhooks-table"
+    *ngIf="!loading && webhooks.length > 0"
+  >
     <ng-container matColumnDef="user">
       <th mat-header-cell *matHeaderCellDef>User</th>
       <td mat-cell *matCellDef="let wh" class="user-cell">
@@ -76,19 +101,26 @@
 
     <ng-container matColumnDef="secret">
       <th mat-header-cell *matHeaderCellDef>Secret</th>
-      <td mat-cell *matCellDef="let wh"><code>{{ wh.secret }}</code></td>
+      <td mat-cell *matCellDef="let wh">
+        <code>{{ wh.secret }}</code>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="active">
       <th mat-header-cell *matHeaderCellDef>Active</th>
       <td mat-cell *matCellDef="let wh">
-        <mat-slide-toggle [checked]="wh.active" (change)="toggleActive(wh)"></mat-slide-toggle>
+        <mat-slide-toggle
+          [checked]="wh.active"
+          (change)="toggleActive(wh)"
+        ></mat-slide-toggle>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="created">
       <th mat-header-cell *matHeaderCellDef>Created</th>
-      <td mat-cell *matCellDef="let wh">{{ wh.createdAt | date: 'mediumDate' }}</td>
+      <td mat-cell *matCellDef="let wh">
+        {{ wh.createdAt | date: 'mediumDate' }}
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -100,17 +132,50 @@
         <button mat-icon-button title="Edit" (click)="openEditForm(wh)">
           <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button title="Delete" (click)="deleteWebhook(wh)" class="delete-btn">
+        <button
+          mat-icon-button
+          title="Delete"
+          (click)="deleteWebhook(wh)"
+          class="delete-btn"
+        >
           <mat-icon>delete</mat-icon>
         </button>
       </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="['user', 'url', 'events', 'secret', 'active', 'created', 'actions']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['user', 'url', 'events', 'secret', 'active', 'created', 'actions']"></tr>
+    <tr
+      mat-header-row
+      *matHeaderRowDef="[
+        'user',
+        'url',
+        'events',
+        'secret',
+        'active',
+        'created',
+        'actions'
+      ]"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="
+        let row;
+        columns: [
+          'user',
+          'url',
+          'events',
+          'secret',
+          'active',
+          'created',
+          'actions'
+        ]
+      "
+    ></tr>
   </table>
 
-  <div *ngIf="!loading && webhooks.length === 0 && !showForm" class="no-webhooks">
+  <div
+    *ngIf="!loading && webhooks.length === 0 && !showForm"
+    class="no-webhooks"
+  >
     No webhooks configured yet.
   </div>
 </div>

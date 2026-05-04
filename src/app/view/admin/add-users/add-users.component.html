@@ -12,155 +12,100 @@
     <hr class="mt-0 pt-0" />
 
     <mat-card-content class="mat-body-cont text-center">
-      <mat-stepper>
-        <mat-step label="User Info">
-          <form [formGroup]="registerForm" class="px-3 example-form">
-            <!-- <ng-template matStepLabel></ng-template> -->
-            <ng-template matStepContent>
-              <br />
-              <div class="example-container1 row">
-                <div class="col-md-4">
-                  <mat-form-field appearance="outline" class="mt-0">
-                    <mat-label class="mat-labels-cont">First Name </mat-label>
-                    <input
-                      autofocus
-                      type="text"
-                      matInput
-                      formControlName="firstName"
-                      test-id="first-name"
-                    />
-                    <mat-hint class="password-desc text-wrap"
-                      >Legal representative's first name.</mat-hint
-                    >
-                    <mat-error
-                      class="pb-1"
-                      *ngIf="checkValidation('firstName')"
-                    >
-                      {{ fieldRequired }}
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-                <div class="col-md-4">
-                  <mat-form-field appearance="outline" class="mt-0">
-                    <mat-label class="mat-labels-cont">Last Name</mat-label>
-                    <input
-                      autofocus
-                      type="text"
-                      matInput
-                      formControlName="lastName"
-                      test-id="last-name"
-                    />
-                    <mat-hint class="password-desc text-wrap"
-                      >Legal representative's last name.</mat-hint
-                    >
-                    <mat-error class="pb-1" *ngIf="checkValidation('lastName')">
-                      {{ fieldRequired }}
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-                <div class="col-md-4">
-                  <mat-form-field appearance="outline" class="mt-0">
-                    <mat-label class="mat-labels-cont">Email </mat-label>
-                    <input
-                      autofocus
-                      type="email"
-                      matInput
-                      formControlName="email"
-                      test-id="email"
-                    />
-                    <mat-error class="pb-3" *ngIf="checkValidation('email')">
-                      {{ emaiErrors() }}
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-                <div class="col-md-4">
-                  <mat-form-field appearance="outline" class="mt-2">
-                    <mat-label class="mat-labels-cont text-capitalize"
-                      >Role</mat-label
-                    >
-                    <mat-select formControlName="role">
-                      <mat-option value="Reviewer">Reviewer</mat-option>
-                      <mat-option value="SeniorReviewer"
-                        >Senior Reviewer</mat-option
-                      >
-                    </mat-select>
-                    <mat-error class="pb-1" *ngIf="checkValidation('role')">
-                      {{ fieldRequired }}
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-              </div>
-              <div class="d-flex justify-content-end align-items-center mt-2">
-                <mat-checkbox
-                  formControlName="emailNotification"
-                  color="primary"
-                  class="me-3"
-                  >Email notification</mat-checkbox
-                >
-                <button
-                  mat-raised-button
-                  class="btn-dark btn btn-block me-2"
-                  routerLink="/admin/All_Users"
-                >
-                  Cancel
-                </button>
-                <button
-                  mat-raised-button
-                  class="btn-primary btn btn-block"
-                  [disabled]="registerForm.invalid"
-                  (click)="onSubmit()"
-                  test-id="submit-organization"
-                >
-                  Submit
-                </button>
-              </div>
-            </ng-template>
-          </form>
-        </mat-step>
-        <!-- <mat-step label="Security Info">
-                    <form [formGroup]="registerForm" class="px-3 example-form">
-                        <ng-template matStepContent>
-                            <br>
-                           
-                            
-                        </ng-template>
-                    </form>
-                </mat-step> -->
-        <!-- <mat-step label="Secret Key">
-                <form [formGroup]="registerForm" class="px-3 example-form">
-                    <ng-template matStepLabel></ng-template>
-                    <mat-form-field class="mb-5 mt-0 pt-0">
-                        <mat-icon matPrefix>person_outline</mat-icon>
-                        <input autofocus type="text" matInput placeholder="Secret Key *"
-                            formControlName="secretKey">
-                        <mat-hint class="secret-desc">Secret key should be of 6 characters length and combination should include only
-                            A-Z upper case and 0-9 numbers.</mat-hint>
-                        <mat-error class="" *ngIf="checkValidation('secretKey')">
-                            {{ getErrorsecretKey() }}
-                        </mat-error>
-                        <br>
-                    </mat-form-field>
-                    <div class="d-flex">
-                        <button mat-button matStepperPrevious class="btn-primary btn btn-content-back me-2 btn-block">Back</button>
-
-                        <button mat-raised-button matStepperNext class="btn-primary btn ms-2 btn-block"
-                           [disabled]="registerForm.invalid" (click)="onSubmit(registerForm)">Submit</button>
-
-                    </div>
-
-                    
-                    <button [disabled]="registerForm.invalid" class="btn-primary btn btn-block">Submit</button>
-                </form>
-            </mat-step> -->
-
-        <!-- Icon overrides. -->
-        <!-- <ng-template matStepperIcon="phone">
-                <mat-icon>done</mat-icon>
-            </ng-template>
-            <ng-template matStepperIcon="chat">
-                <mat-icon>done</mat-icon>
-            </ng-template> -->
-      </mat-stepper>
+      <form [formGroup]="registerForm" class="px-3 example-form">
+        <br />
+        <div class="example-container1 row">
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="mt-0">
+              <mat-label class="mat-labels-cont">First Name </mat-label>
+              <input
+                autofocus
+                type="text"
+                matInput
+                formControlName="firstName"
+                test-id="first-name"
+              />
+              <mat-hint class="password-desc text-wrap"
+                >Legal representative's first name.</mat-hint
+              >
+              <mat-error class="pb-1" *ngIf="checkValidation('firstName')">
+                {{ fieldRequired }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="mt-0">
+              <mat-label class="mat-labels-cont">Last Name</mat-label>
+              <input
+                autofocus
+                type="text"
+                matInput
+                formControlName="lastName"
+                test-id="last-name"
+              />
+              <mat-hint class="password-desc text-wrap"
+                >Legal representative's last name.</mat-hint
+              >
+              <mat-error class="pb-1" *ngIf="checkValidation('lastName')">
+                {{ fieldRequired }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="mt-0">
+              <mat-label class="mat-labels-cont">Email </mat-label>
+              <input
+                autofocus
+                type="email"
+                matInput
+                formControlName="email"
+                test-id="email"
+              />
+              <mat-error class="pb-3" *ngIf="checkValidation('email')">
+                {{ emaiErrors() }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field appearance="outline" class="mt-2">
+              <mat-label class="mat-labels-cont text-capitalize"
+                >Role</mat-label
+              >
+              <mat-select formControlName="role">
+                <mat-option value="Reviewer">Reviewer</mat-option>
+                <mat-option value="SeniorReviewer">Senior Reviewer</mat-option>
+              </mat-select>
+              <mat-error class="pb-1" *ngIf="checkValidation('role')">
+                {{ fieldRequired }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="d-flex justify-content-end align-items-center mt-2">
+          <mat-checkbox
+            formControlName="emailNotification"
+            color="primary"
+            class="me-3"
+            >Email notification</mat-checkbox
+          >
+          <button
+            mat-raised-button
+            class="btn-dark btn btn-block me-2"
+            routerLink="/admin/All_Users"
+          >
+            Cancel
+          </button>
+          <button
+            mat-raised-button
+            class="btn-primary btn btn-block"
+            [disabled]="registerForm.invalid"
+            (click)="onSubmit()"
+            test-id="submit-organization"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
     </mat-card-content>
     <mat-card-footer></mat-card-footer>
   </mat-card>
