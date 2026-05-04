@@ -44,17 +44,22 @@
         <span class="rw__doc-title">{{ doc.name }}</span>
         <span class="rw__filename">{{ doc.filename }}</span>
         <div class="rw__spacer"></div>
-        <button class="rw__tool-btn" title="Zoom in">⊕</button>
-        <button class="rw__tool-btn" title="Zoom out">⊖</button>
-        <button class="rw__tool-btn" title="Fit to page">⛶</button>
-        <button class="rw__tool-btn" title="Pan">✥</button>
+        <button class="rw__tool-btn dimmed" disabled
+                title="Zoom in — wired in Phase 2 once the preview pane renders the real PDF/image">⊕</button>
+        <button class="rw__tool-btn dimmed" disabled
+                title="Zoom out — wired in Phase 2 once the preview pane renders the real PDF/image">⊖</button>
+        <button class="rw__tool-btn dimmed" disabled
+                title="Fit to page — wired in Phase 2 once the preview pane renders the real PDF/image">⛶</button>
+        <button class="rw__tool-btn dimmed" disabled
+                title="Pan — wired in Phase 2 once the preview pane renders the real PDF/image">✥</button>
         <span class="rw__tool-divider"></span>
         <button class="rw__tool-btn dimmed"
                 disabled
-                title="Wired to client-side tesseract.js once Phase 2 swaps the doc-stub for real pdf-preview / picture-window">
+                title="OCR via client-side tesseract.js — wired in Phase 2 alongside real image rendering">
           📄 OCR
         </button>
-        <button class="rw__tool-btn" title="Translate selection">🌐 Translate</button>
+        <button class="rw__tool-btn dimmed" disabled
+                title="Translate selection — out of scope until Phase 2 lands real selectable text">🌐 Translate</button>
         <button class="rw__tool-btn"
                 [disabled]="!doc.isFacilityBoundary"
                 [class.dimmed]="!doc.isFacilityBoundary"
@@ -63,7 +68,8 @@
           🛰️ Detect panels
         </button>
         <span class="rw__tool-divider"></span>
-        <button class="rw__tool-btn" title="Download">↓</button>
+        <button class="rw__tool-btn dimmed" disabled
+                title="Download — wired in Phase 2 once the doc carries a real signed URL">↓</button>
       </div>
 
       <div class="rw__preview-body">

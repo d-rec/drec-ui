@@ -26,6 +26,8 @@ interface DocItem {
   isFacilityBoundary: boolean;
   ocrText?: string;
   chips: ChipMapping[];
+  /** Signed URL from the API. Empty for docs that don't exist on this device. */
+  url?: string;
 }
 
 type OcStatus = 'confirmed' | 'pending' | 'discrepancy';
