@@ -25,11 +25,11 @@ export class AllUsersComponent {
   getOrgTypeName = getOrgTypeName;
   FilterForm: FormGroup;
   displayedColumns = [
-    'organization',
     'name',
     'email',
     'type',
     'status',
+    'organization',
     'lastUsed',
     'actions',
   ];
