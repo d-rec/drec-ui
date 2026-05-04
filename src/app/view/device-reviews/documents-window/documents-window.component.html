@@ -223,7 +223,7 @@
               <img [src]="url" class="thumb" width="28" height="28" alt="" />
               <a class="file-name file-name--link" [innerHTML]="hl(fileDisplayName(item, 'pic:' + i, url), result.searchTerm)" (click)="openFile(url, $event)" (mousedown)="$event.stopPropagation()"></a>
             </div>
-            <div *ngIf="!item.pictureUrls.length" class="dr-row dr-row--empty"><span class="missing-tag">missing — at least 3 required</span></div>
+            <div *ngIf="showMissingTag('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length >= 3)" class="dr-row dr-row--empty"><span class="missing-tag">missing — at least 3 required</span></div>
             <div *ngIf="item.pictureUrls.length > 0 && item.pictureUrls.length < 3" class="dr-row dr-row--empty"><span class="missing-tag">only {{ item.pictureUrls.length }} photo(s) — at least 3 required</span></div>
           </ng-container>
 
