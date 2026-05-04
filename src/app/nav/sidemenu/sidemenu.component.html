@@ -472,6 +472,9 @@
         class="menu-button"
         routerLinkActive="active"
         routerLink="/tokens"
+        *ngIf="
+          loginuser?.role !== 'Reviewer' && loginuser?.role !== 'SeniorReviewer'
+        "
       >
         <span test-id="all-certificates">D-REC Tokens</span>
       </button>
