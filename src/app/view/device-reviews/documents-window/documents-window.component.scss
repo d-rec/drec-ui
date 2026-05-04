@@ -349,6 +349,14 @@ $legacy:   #a0845c;
 }
 
 .col-serial   { flex: 1; min-width: 0; user-select: text; cursor: text; display: flex; align-items: center; gap: 6px; }
+.site-name-link {
+  color: #0F607F;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  &:hover { text-decoration: underline; }
+  &:focus-visible { outline: 2px solid #0F607F; outline-offset: 2px; border-radius: 2px; }
+}
 
 .icon-btn--chat {
   position: relative;
