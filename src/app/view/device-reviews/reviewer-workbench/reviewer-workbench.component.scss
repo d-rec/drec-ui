@@ -168,6 +168,15 @@ $chip-hover: #e2e8f0;
     justify-content: center;
     grid-row: 1; grid-column: 1;
   }
+  &__real-doc {
+    width: 100%;
+    max-width: 900px;
+    background: #fff;
+    border: 1px solid $border;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    &--img { display: block; height: auto; max-height: 80vh; object-fit: contain; }
+    &--pdf { height: 80vh; }
+  }
   &__doc-page {
     background: #ffffff;
     color: #1f2937;

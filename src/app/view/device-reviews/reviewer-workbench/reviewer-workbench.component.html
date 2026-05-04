@@ -68,14 +68,30 @@
           🛰️ Detect panels
         </button>
         <span class="rw__tool-divider"></span>
-        <button class="rw__tool-btn dimmed" disabled
-                title="Download — wired in Phase 2 once the doc carries a real signed URL">↓</button>
+        <button class="rw__tool-btn"
+                [disabled]="!doc.url"
+                [class.dimmed]="!doc.url"
+                (click)="download()"
+                [title]="doc.url ? 'Download original' : 'Download — no file uploaded'">↓</button>
       </div>
 
       <div class="rw__preview-body">
         <div class="rw__preview-canvas">
+          <!-- Real doc — populated by Phase 2a when the device fetch returns signed URLs. -->
+          <ng-container *ngIf="doc.url; else stubPage">
+            <img *ngIf="doc.isImage; else realPdf"
+                 class="rw__real-doc rw__real-doc--img"
+                 [src]="doc.url"
+                 [alt]="doc.name" />
+            <ng-template #realPdf>
+              <iframe class="rw__real-doc rw__real-doc--pdf"
+                      [src]="trustUrl(doc.url)"
+                      [title]="doc.name"></iframe>
+            </ng-template>
+          </ng-container>
+          <ng-template #stubPage>
           <div class="rw__doc-page">
-            <!-- Doc-type-specific stub renderings — replaced with real pdf-preview/picture-window in Phase 2 -->
+            <!-- Demo stub — only rendered when no real signed URL is available. -->
             <ng-container [ngSwitch]="doc.id">
               <ng-container *ngSwitchCase="'sld'">
                 <div class="rw__doc-stamp">DRAFT v1.2</div>
@@ -121,6 +137,7 @@
               </ng-container>
             </ng-container>
           </div>
+          </ng-template>
         </div>
 
 

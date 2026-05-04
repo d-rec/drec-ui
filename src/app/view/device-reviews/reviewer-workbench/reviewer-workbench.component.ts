@@ -7,7 +7,11 @@ import {
   QueryList,
   ViewChildren,
 } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { Asset } from '../asset.model';
+import { AssetService } from '../asset.service';
 
 interface ChipMapping {
   ocNum: number;
@@ -454,11 +458,23 @@ export class ReviewerWorkbenchComponent
 
   filterMode: 'all' | 'commented' | 'unticked' = 'all';
 
+  /** Set true once the device's real data has replaced the fixture. */
+  private hydrated = false;
+  private assetSub: Subscription | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private host: ElementRef<HTMLElement>,
+    private svc: AssetService,
+    private sanitizer: DomSanitizer,
   ) {}
+
+  trustUrl(url: string | undefined): SafeResourceUrl | null {
+    if (!url) return null;
+    // Signed URLs come from our own backend's S3 presigner — trusted source.
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+  }
 
   exit(): void {
     this.router.navigate(['/device/reviews']);
@@ -470,6 +486,79 @@ export class ReviewerWorkbenchComponent
     // mat-sidenav-container stacking context (z-index alone doesn't escape
     // it — see the drec-ui stacking-context note in shared dev memory).
     document.body.appendChild(this.host.nativeElement);
+
+    // Hydrate from real device data when available.
+    this.assetSub = this.svc.assets$.subscribe((assets) => {
+      const asset = assets.find((a) => String(a.id) === String(this.deviceId));
+      if (asset) this.hydrateFromAsset(asset);
+    });
+    if (!this.svc.assets$.value.length) {
+      this.svc.populateFromDb();
+    }
+  }
+
+  private hydrateFromAsset(a: Asset): void {
+    this.hydrated = true;
+    this.siteName = `${a.siteName}${a.countryCode ? ' · ' + a.countryCode : ''}`;
+    this.externalId = a.serial || String(a.id);
+    this.docs = this.buildDocsFromAsset(a);
+    if (
+      this.docs.length &&
+      !this.docs.some((d) => d.id === this.selectedDocId)
+    ) {
+      this.selectedDocId = this.docs[0].id;
+    }
+  }
+
+  /** Map the device's signed URLs to the workbench's DocItem shape. */
+  private buildDocsFromAsset(a: Asset): DocItem[] {
+    const docs: DocItem[] = [];
+    const fileBase = (url: string) =>
+      decodeURIComponent(url.split('?')[0].split('/').pop() || 'file');
+    const isImage = (url: string) =>
+      /\.(jpe?g|png|webp|gif|svg)(\?|$)/i.test(url);
+    const push = (
+      id: string,
+      url: string,
+      name: string,
+      badge: string,
+      category: DocItem['category'],
+      isFacilityBoundary = false,
+    ) => {
+      docs.push({
+        id,
+        name,
+        filename: fileBase(url),
+        category,
+        badge,
+        size: '',
+        isImage: isImage(url),
+        isFacilityBoundary,
+        chips: [],
+        url,
+      });
+    };
+    if (a.sldUrl) push('sld', a.sldUrl, 'Single Line Diagram', 'SLD', 'site');
+    if (a.sf02Url) push('sf02', a.sf02Url, 'Form SF-02', 'SF02', 'ownership');
+    if (a.sf02cUrl)
+      push('sf02c', a.sf02cUrl, 'Form SF-02C', 'SF02C', 'ownership');
+    if (a.sf02cOwnersDeclarationUrl)
+      push(
+        'sf02c-od',
+        a.sf02cOwnersDeclarationUrl,
+        "Owner's Declaration",
+        'OD',
+        'ownership',
+      );
+    if (a.codProofUrl)
+      push('cod', a.codProofUrl, 'COD proof', 'COD_PROOF', 'site');
+    a.meteringEvidenceUrls.forEach((u, i) =>
+      push(`metering-${i}`, u, `Metering evidence ${i + 1}`, 'METER', 'metering'),
+    );
+    a.pictureUrls.forEach((u, i) =>
+      push(`photo-${i}`, u, `Site photo ${i + 1}`, 'PHOTO', 'photos'),
+    );
+    return docs;
   }
 
   ngAfterViewInit() {
@@ -479,6 +568,13 @@ export class ReviewerWorkbenchComponent
   ngOnDestroy() {
     // Restore normal layout when leaving the workbench.
     this.host.nativeElement.remove();
+    this.assetSub?.unsubscribe();
+  }
+
+  download(): void {
+    const url = this.selectedDoc?.url;
+    if (!url) return;
+    window.open(url, '_blank', 'noopener');
   }
 
   get selectedDoc(): DocItem | undefined {
