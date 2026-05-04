@@ -177,6 +177,27 @@ $chip-hover: #e2e8f0;
     &--img { display: block; height: auto; max-height: 80vh; object-fit: contain; }
     &--pdf { height: 80vh; }
   }
+  &__doc-loading {
+    width: 100%;
+    max-width: 900px;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: $muted;
+    border: 1px solid $border;
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 24px;
+    text-align: center;
+  }
+  &__doc-loading-hint {
+    margin-top: 8px;
+    font-size: 12px;
+    color: lighten($muted, 10%);
+  }
   &__doc-page {
     background: #ffffff;
     color: #1f2937;

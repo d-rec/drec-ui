@@ -32,6 +32,14 @@ interface DocItem {
   chips: ChipMapping[];
   /** Signed URL from the API. Empty for docs that don't exist on this device. */
   url?: string;
+  /**
+   * Blob URL the workbench renders. Computed lazily from `url` so the
+   * iframe never sees the raw signed URL (which carries
+   * Content-Disposition: attachment and would trigger a download).
+   */
+  blobUrl?: string;
+  blobLoading?: boolean;
+  blobError?: boolean;
 }
 
 type OcStatus = 'confirmed' | 'pending' | 'discrepancy';
@@ -589,9 +597,11 @@ export class ReviewerWorkbenchComponent
   }
 
   download(): void {
-    const url = this.selectedDoc?.url;
-    if (!url) return;
-    window.open(url, '_blank', 'noopener');
+    // Use the original signed URL for download so the user gets the
+    // real filename + content-disposition. The blobUrl is preview-only.
+    const doc = this.selectedDoc;
+    if (!doc?.url) return;
+    window.open(doc.url, '_blank', 'noopener');
   }
 
   get selectedDoc(): DocItem | undefined {
@@ -606,22 +616,39 @@ export class ReviewerWorkbenchComponent
 
   /**
    * Materialize the selected doc as a blob: URL so pdf-preview's iframe
-   * renders inline regardless of the original Content-Disposition. Lazy:
-   * only fetches the doc when first viewed; result cached per doc id.
+   * renders inline regardless of the original Content-Disposition.
+   *
+   * `blobUrl` is the only thing the template renders — the iframe never
+   * sees the raw signed URL (which would trigger Firefox's download
+   * dialog before the fetch completes).
    */
   private blobCache: Record<string, string> = {};
   private async ensureBlobUrlFor(id: string): Promise<void> {
     const doc = this.docs.find((d) => d.id === id);
-    if (!doc?.url || this.blobCache[id]) return;
+    if (!doc?.url) return;
+    if (this.blobCache[id]) {
+      doc.blobUrl = this.blobCache[id];
+      return;
+    }
+    if (doc.blobLoading) return;
+    doc.blobLoading = true;
+    doc.blobError = false;
     try {
       const resp = await fetch(doc.url);
-      if (!resp.ok) return;
+      if (!resp.ok) {
+        doc.blobError = true;
+        doc.blobLoading = false;
+        return;
+      }
       const blob = await resp.blob();
       const blobUrl = URL.createObjectURL(blob);
       this.blobCache[id] = blobUrl;
-      doc.url = blobUrl;
+      doc.blobUrl = blobUrl;
+      doc.blobLoading = false;
     } catch (err) {
       console.warn('Could not fetch doc as blob:', err);
+      doc.blobError = true;
+      doc.blobLoading = false;
     }
   }
 

@@ -83,11 +83,26 @@
                attachment). The same component handles images via previewType='image'. -->
           <ng-container *ngIf="doc.url; else stubPage">
             <app-pdf-preview
+              *ngIf="doc.blobUrl; else docLoading"
               class="rw__real-doc"
-              [previewUrl]="trustUrl(doc.url)"
+              [previewUrl]="trustUrl(doc.blobUrl)"
               [previewType]="doc.isImage ? 'image' : 'pdf'"
-              [ocrSource]="doc.url"
+              [ocrSource]="doc.blobUrl"
             ></app-pdf-preview>
+            <ng-template #docLoading>
+              <div class="rw__doc-loading">
+                <ng-container *ngIf="doc.blobError; else loadingMsg">
+                  <div>Could not load this document.</div>
+                  <div class="rw__doc-loading-hint">
+                    The signed URL may have expired. Re-open the workbench to
+                    fetch a fresh one.
+                  </div>
+                </ng-container>
+                <ng-template #loadingMsg>
+                  Loading {{ doc.name }}…
+                </ng-template>
+              </div>
+            </ng-template>
           </ng-container>
           <ng-template #stubPage>
           <div class="rw__doc-page">
