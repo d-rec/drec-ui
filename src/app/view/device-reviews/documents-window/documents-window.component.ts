@@ -374,12 +374,18 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   get scanDialogX(): number {
     const sidenavWidth = 200;
     const dialogWidth = 720;
-    return sidenavWidth + Math.max(0, (window.innerWidth - sidenavWidth - dialogWidth) / 2);
+    return (
+      sidenavWidth +
+      Math.max(0, (window.innerWidth - sidenavWidth - dialogWidth) / 2)
+    );
   }
   get scanDialogY(): number {
     const headerHeight = 42;
     const dialogHeight = 620;
-    return headerHeight + Math.max(0, (window.innerHeight - headerHeight - dialogHeight) / 2);
+    return (
+      headerHeight +
+      Math.max(0, (window.innerHeight - headerHeight - dialogHeight) / 2)
+    );
   }
   showScanDialog = false;
   scanRunning = false;
@@ -387,9 +393,20 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   scanLog: Array<{
     key: string;
     label: string;
-    status: 'pending' | 'running' | 'pass' | 'warn' | 'fail' | 'error' | 'skipped';
+    status:
+      | 'pending'
+      | 'running'
+      | 'pass'
+      | 'warn'
+      | 'fail'
+      | 'error'
+      | 'skipped';
     detail?: string;
-    subItems?: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }>;
+    subItems?: Array<{
+      label: string;
+      status: 'pass' | 'warn' | 'fail' | 'info';
+      detail?: string;
+    }>;
     duration?: number;
   }> = [];
 
@@ -399,16 +416,66 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     description: string;
     enabled: boolean;
   }> = [
-    { key: 'autoScreen',   label: 'Auto-Screen',            description: 'Run all built-in verification checks (VA layer)',          enabled: true },
-    { key: 'duplicates',   label: 'Duplicate Screening',    description: 'Screen for duplicate devices across all organizations',    enabled: true },
-    { key: 'sourceAccess', label: 'Source Access Mode',      description: 'Verify source-access mode requirements (§3.3)',            enabled: true },
-    { key: 'ceiling',      label: 'Production Ceiling',     description: 'Irradiance-based production ceiling check (§3.6)',          enabled: true },
-    { key: 'crossSource',  label: 'Cross-Source Verification', description: 'Compare metered production against solar model (§3.10)', enabled: true },
-    { key: 'photoGps',     label: 'Photo GPS Location',     description: 'Verify photo EXIF GPS matches declared device location',    enabled: true },
-    { key: 'sldCapacity',  label: 'SLD Capacity Compare',   description: 'Compare single-line diagram capacity with registered kW',   enabled: true },
-    { key: 'controls',     label: 'Compensating Controls',  description: 'Evaluate compensating controls for Mode 4 (§3.9)',          enabled: true },
-    { key: 'consistency',  label: 'Historical Consistency',  description: 'Review historical meter read consistency and anomalies',    enabled: true },
-    { key: 'classify',     label: 'Document Classification', description: 'AI-classify all documents and check they match their slots', enabled: true },
+    {
+      key: 'autoScreen',
+      label: 'Auto-Screen',
+      description: 'Run all built-in verification checks (VA layer)',
+      enabled: true,
+    },
+    {
+      key: 'duplicates',
+      label: 'Duplicate Screening',
+      description: 'Screen for duplicate devices across all organizations',
+      enabled: true,
+    },
+    {
+      key: 'sourceAccess',
+      label: 'Source Access Mode',
+      description: 'Verify source-access mode requirements (§3.3)',
+      enabled: true,
+    },
+    {
+      key: 'ceiling',
+      label: 'Production Ceiling',
+      description: 'Irradiance-based production ceiling check (§3.6)',
+      enabled: true,
+    },
+    {
+      key: 'crossSource',
+      label: 'Cross-Source Verification',
+      description: 'Compare metered production against solar model (§3.10)',
+      enabled: true,
+    },
+    {
+      key: 'photoGps',
+      label: 'Photo GPS Location',
+      description: 'Verify photo EXIF GPS matches declared device location',
+      enabled: true,
+    },
+    {
+      key: 'sldCapacity',
+      label: 'SLD Capacity Compare',
+      description: 'Compare single-line diagram capacity with registered kW',
+      enabled: true,
+    },
+    {
+      key: 'controls',
+      label: 'Compensating Controls',
+      description: 'Evaluate compensating controls for Mode 4 (§3.9)',
+      enabled: true,
+    },
+    {
+      key: 'consistency',
+      label: 'Historical Consistency',
+      description: 'Review historical meter read consistency and anomalies',
+      enabled: true,
+    },
+    {
+      key: 'classify',
+      label: 'Document Classification',
+      description: 'AI-classify all documents and check they match their slots',
+      enabled: true,
+    },
   ];
 
   get scanHasEnabled(): boolean {
@@ -499,9 +566,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     // Update asset badge with auto-screen result if it ran
     const autoEntry = this.scanLog.find((e) => e.key === 'autoScreen');
     if (autoEntry && this.autoScreenResult) {
-      const asset = this.svc.assets$.value.find(
-        (a) => a.id === this.editingId,
-      );
+      const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
       if (asset) {
         asset.lastScreenStatus = this.autoScreenResult.overallStatus;
         asset.lastScreenedAt = this.autoScreenResult.timestamp;
@@ -513,18 +578,36 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   private runSingleCheck(
     key: string,
     deviceId: number,
-  ): Promise<{ status: 'pass' | 'warn' | 'fail'; detail: string; subItems?: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> }> {
+  ): Promise<{
+    status: 'pass' | 'warn' | 'fail';
+    detail: string;
+    subItems?: Array<{
+      label: string;
+      status: 'pass' | 'warn' | 'fail' | 'info';
+      detail?: string;
+    }>;
+  }> {
     return new Promise((resolve, reject) => {
       switch (key) {
         case 'autoScreen':
           this.svc.autoScreen(deviceId).subscribe({
             next: (res: any) => {
               this.autoScreenResult = res;
-              const fails = res.sections.filter((s: any) => s.status === 'fail').length;
-              const warns = res.sections.filter((s: any) => s.status === 'warn').length;
-              const passes = res.sections.filter((s: any) => s.status === 'pass').length;
-              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
-              for (const s of (res.sections || [])) {
+              const fails = res.sections.filter(
+                (s: any) => s.status === 'fail',
+              ).length;
+              const warns = res.sections.filter(
+                (s: any) => s.status === 'warn',
+              ).length;
+              const passes = res.sections.filter(
+                (s: any) => s.status === 'pass',
+              ).length;
+              const subItems: Array<{
+                label: string;
+                status: 'pass' | 'warn' | 'fail' | 'info';
+                detail?: string;
+              }> = [];
+              for (const s of res.sections || []) {
                 const flagList = (s.flags || []).join('; ');
                 subItems.push({
                   label: s.name || s.key || 'Check',
@@ -547,7 +630,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
             next: (res: any) => {
               this.duplicateResults = res.duplicates || [];
               const n = this.duplicateResults.length;
-              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              const subItems: Array<{
+                label: string;
+                status: 'pass' | 'warn' | 'fail' | 'info';
+                detail?: string;
+              }> = [];
               for (const d of this.duplicateResults) {
                 subItems.push({
                   label: d.siteName || `Device #${d.id}`,
@@ -557,19 +644,34 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                     d.serialNumber ? `Serial: ${d.serialNumber}` : null,
                     d.organizationId ? `Org ID: ${d.organizationId}` : null,
                     d.externalId ? `ExtID: ${d.externalId}` : null,
-                  ].filter(Boolean).join(' | '),
+                  ]
+                    .filter(Boolean)
+                    .join(' | '),
                 });
               }
               if (n === 0) {
-                subItems.push({ label: 'Serial number', status: 'pass', detail: 'No matches across orgs' });
-                subItems.push({ label: 'Coordinates', status: 'pass', detail: 'No co-located devices' });
-                subItems.push({ label: 'Site name', status: 'pass', detail: 'No similar names found' });
+                subItems.push({
+                  label: 'Serial number',
+                  status: 'pass',
+                  detail: 'No matches across orgs',
+                });
+                subItems.push({
+                  label: 'Coordinates',
+                  status: 'pass',
+                  detail: 'No co-located devices',
+                });
+                subItems.push({
+                  label: 'Site name',
+                  status: 'pass',
+                  detail: 'No similar names found',
+                });
               }
               resolve({
                 status: n > 0 ? 'warn' : 'pass',
-                detail: n > 0
-                  ? `${n} potential duplicate(s) found`
-                  : 'No duplicates found',
+                detail:
+                  n > 0
+                    ? `${n} potential duplicate(s) found`
+                    : 'No duplicates found',
                 subItems,
               });
             },
@@ -583,30 +685,56 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
               this.sourceVerifyResult = res;
               this.sourceVerifyError = null;
               const missing = (res.missingRequired || []).length;
-              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
-              subItems.push({ label: `Source Access Mode`, status: 'info', detail: `Mode ${res.mode || '?'}` });
+              const subItems: Array<{
+                label: string;
+                status: 'pass' | 'warn' | 'fail' | 'info';
+                detail?: string;
+              }> = [];
+              subItems.push({
+                label: `Source Access Mode`,
+                status: 'info',
+                detail: `Mode ${res.mode || '?'}`,
+              });
               if (res.presentRequired?.length) {
                 for (const item of res.presentRequired) {
-                  subItems.push({ label: item, status: 'pass', detail: 'Required — present' });
+                  subItems.push({
+                    label: item,
+                    status: 'pass',
+                    detail: 'Required — present',
+                  });
                 }
               }
               if (res.missingRequired?.length) {
                 for (const item of res.missingRequired) {
-                  subItems.push({ label: item, status: 'fail', detail: 'Required — MISSING' });
+                  subItems.push({
+                    label: item,
+                    status: 'fail',
+                    detail: 'Required — MISSING',
+                  });
                 }
               }
               if (res.missingRecommended?.length) {
                 for (const item of res.missingRecommended) {
-                  subItems.push({ label: item, status: 'warn', detail: 'Recommended — missing' });
+                  subItems.push({
+                    label: item,
+                    status: 'warn',
+                    detail: 'Recommended — missing',
+                  });
                 }
               }
               resolve({
-                status: missing > 0 ? 'fail' : (res.missingRecommended?.length > 0 ? 'warn' : 'pass'),
-                detail: missing > 0
-                  ? `${missing} required item(s) missing: ${res.missingRequired.join(', ')}`
-                  : res.missingRecommended?.length > 0
-                    ? `${res.missingRecommended.length} recommended item(s) missing`
-                    : `Mode ${res.mode || '?'} — all requirements satisfied`,
+                status:
+                  missing > 0
+                    ? 'fail'
+                    : res.missingRecommended?.length > 0
+                      ? 'warn'
+                      : 'pass',
+                detail:
+                  missing > 0
+                    ? `${missing} required item(s) missing: ${res.missingRequired.join(', ')}`
+                    : res.missingRecommended?.length > 0
+                      ? `${res.missingRecommended.length} recommended item(s) missing`
+                      : `Mode ${res.mode || '?'} — all requirements satisfied`,
                 subItems,
               });
             },
@@ -619,35 +747,78 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
             next: (res: any) => {
               this.ceilingResult = res;
               this.ceilingError = null;
-              const exceeded = res.recentReadings?.filter((r: any) => r.exceedsCeiling).length || 0;
-              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
-              subItems.push({ label: 'Capacity', status: 'info', detail: `${res.capacityKw || '?'} kW` });
+              const exceeded =
+                res.recentReadings?.filter((r: any) => r.exceedsCeiling)
+                  .length || 0;
+              const subItems: Array<{
+                label: string;
+                status: 'pass' | 'warn' | 'fail' | 'info';
+                detail?: string;
+              }> = [];
+              subItems.push({
+                label: 'Capacity',
+                status: 'info',
+                detail: `${res.capacityKw || '?'} kW`,
+              });
               if (res.irradiance) {
-                subItems.push({ label: 'Irradiance estimate', status: 'pass', detail: `Yield range ${res.irradiance.yieldLow}–${res.irradiance.yieldHigh} kWh/kW/yr (lat ${res.irradiance.absLatitude}°)` });
+                subItems.push({
+                  label: 'Irradiance estimate',
+                  status: 'pass',
+                  detail: `Yield range ${res.irradiance.yieldLow}–${res.irradiance.yieldHigh} kWh/kW/yr (lat ${res.irradiance.absLatitude}°)`,
+                });
               } else {
-                subItems.push({ label: 'Irradiance estimate', status: 'warn', detail: 'No coordinates — cannot estimate' });
+                subItems.push({
+                  label: 'Irradiance estimate',
+                  status: 'warn',
+                  detail: 'No coordinates — cannot estimate',
+                });
               }
               if (res.solarGsa) {
-                subItems.push({ label: 'Solar GSA (Global Solar Atlas)', status: 'pass', detail: `${res.solarGsa.annualKwh?.toFixed(0)} kWh/yr total | ${res.gsaYieldPerKw || (res.solarGsa.annualKwh / (res.capacityKw || 1)).toFixed(0)} kWh/kW/yr | v${res.solarGsa.version || '?'}` });
+                subItems.push({
+                  label: 'Solar GSA (Global Solar Atlas)',
+                  status: 'pass',
+                  detail: `${res.solarGsa.annualKwh?.toFixed(0)} kWh/yr total | ${res.gsaYieldPerKw || (res.solarGsa.annualKwh / (res.capacityKw || 1)).toFixed(0)} kWh/kW/yr | v${res.solarGsa.version || '?'}`,
+                });
               } else {
-                subItems.push({ label: 'Solar GSA (Global Solar Atlas)', status: 'warn', detail: 'Unavailable — missing coords, capacity, or pre-COD' });
+                subItems.push({
+                  label: 'Solar GSA (Global Solar Atlas)',
+                  status: 'warn',
+                  detail: 'Unavailable — missing coords, capacity, or pre-COD',
+                });
               }
-              subItems.push({ label: 'Configured yield', status: res.configuredYield ? 'info' : 'warn', detail: res.configuredYield ? `${res.configuredYield} kWh/kW/yr` : 'Not set — using fallback' });
+              subItems.push({
+                label: 'Configured yield',
+                status: res.configuredYield ? 'info' : 'warn',
+                detail: res.configuredYield
+                  ? `${res.configuredYield} kWh/kW/yr`
+                  : 'Not set — using fallback',
+              });
               const sources: string[] = [];
               if (res.irradiance?.yieldHigh) sources.push('irradiance');
-              else if (res.gsaYieldPerKw || res.solarGsa) sources.push('Solar GSA');
+              else if (res.gsaYieldPerKw || res.solarGsa)
+                sources.push('Solar GSA');
               else if (res.configuredYield) sources.push('configured');
               else sources.push('default (1500)');
-              subItems.push({ label: 'Effective ceiling yield', status: 'info', detail: `${res.effectiveCeiling ?? '?'} kWh/kW/yr (source: ${sources[0]})` });
+              subItems.push({
+                label: 'Effective ceiling yield',
+                status: 'info',
+                detail: `${res.effectiveCeiling ?? '?'} kWh/kW/yr (source: ${sources[0]})`,
+              });
               if (res.yieldMismatch) {
-                subItems.push({ label: 'Yield mismatch', status: 'fail', detail: `Configured ${res.configuredYield} exceeds location estimate ${res.irradiance?.yieldHigh} kWh/kW/yr` });
+                subItems.push({
+                  label: 'Yield mismatch',
+                  status: 'fail',
+                  detail: `Configured ${res.configuredYield} exceeds location estimate ${res.irradiance?.yieldHigh} kWh/kW/yr`,
+                });
               }
               if (res.recentReadings?.length) {
                 for (const r of res.recentReadings) {
                   const valueKwh = r.valueKwh ?? r.value;
                   const ceilingKwh = r.ceilingKwh ?? r.ceiling;
                   const period = r.periodHours ? `${r.periodHours}h` : '';
-                  const dateStr = r.endDate ? new Date(r.endDate).toLocaleDateString() : r.date || '?';
+                  const dateStr = r.endDate
+                    ? new Date(r.endDate).toLocaleDateString()
+                    : r.date || '?';
                   subItems.push({
                     label: dateStr,
                     status: r.exceedsCeiling ? 'warn' : 'pass',
@@ -655,10 +826,18 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                   });
                 }
               } else {
-                subItems.push({ label: 'Readings', status: 'info', detail: 'No recent meter readings found' });
+                subItems.push({
+                  label: 'Readings',
+                  status: 'info',
+                  detail: 'No recent meter readings found',
+                });
               }
               resolve({
-                status: res.yieldMismatch ? 'fail' : exceeded > 0 ? 'warn' : 'pass',
+                status: res.yieldMismatch
+                  ? 'fail'
+                  : exceeded > 0
+                    ? 'warn'
+                    : 'pass',
                 detail: res.yieldMismatch
                   ? `Yield mismatch: configured ${res.configuredYield} vs estimated ${res.irradiance?.yieldHigh} kWh/kW/yr`
                   : exceeded > 0
@@ -676,17 +855,47 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
             next: (res: any) => {
               this.crossSourceResult = res;
               const flagCount = (res.flags || []).length;
-              const hasCritical = res.flags?.some((f: any) => f.severity === 'critical');
-              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
-              subItems.push({ label: 'Performance factor', status: res.performanceFactor > 1.2 || res.performanceFactor < 0.3 ? 'warn' : 'pass', detail: `${res.performanceFactor?.toFixed(3) || '?'}` });
-              subItems.push({ label: 'Correlation (R²)', status: res.rSquared != null && res.rSquared < 0.5 ? 'warn' : 'pass', detail: `${res.rSquared?.toFixed(4) || '?'}` });
-              subItems.push({ label: 'Simple ratio', status: 'info', detail: `${res.simpleRatio?.toFixed(3) || '?'}` });
-              subItems.push({ label: 'Period compared', status: 'info', detail: `${res.monthsCompared || 0} months` });
+              const hasCritical = res.flags?.some(
+                (f: any) => f.severity === 'critical',
+              );
+              const subItems: Array<{
+                label: string;
+                status: 'pass' | 'warn' | 'fail' | 'info';
+                detail?: string;
+              }> = [];
+              subItems.push({
+                label: 'Performance factor',
+                status:
+                  res.performanceFactor > 1.2 || res.performanceFactor < 0.3
+                    ? 'warn'
+                    : 'pass',
+                detail: `${res.performanceFactor?.toFixed(3) || '?'}`,
+              });
+              subItems.push({
+                label: 'Correlation (R²)',
+                status:
+                  res.rSquared != null && res.rSquared < 0.5 ? 'warn' : 'pass',
+                detail: `${res.rSquared?.toFixed(4) || '?'}`,
+              });
+              subItems.push({
+                label: 'Simple ratio',
+                status: 'info',
+                detail: `${res.simpleRatio?.toFixed(3) || '?'}`,
+              });
+              subItems.push({
+                label: 'Period compared',
+                status: 'info',
+                detail: `${res.monthsCompared || 0} months`,
+              });
               if (res.modelSource) {
-                subItems.push({ label: 'Model source', status: 'info', detail: res.modelSource });
+                subItems.push({
+                  label: 'Model source',
+                  status: 'info',
+                  detail: res.modelSource,
+                });
               }
               // Show individual months with outlier ratios
-              for (const m of (res.months || [])) {
+              for (const m of res.months || []) {
                 if (m.ratio > 1.5 || m.ratio < 0.3) {
                   subItems.push({
                     label: m.month,
@@ -695,19 +904,28 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                   });
                 }
               }
-              for (const flag of (res.flags || [])) {
+              for (const flag of res.flags || []) {
                 subItems.push({
                   label: flag.label || flag.type || flag.description || 'Flag',
                   status: flag.severity === 'critical' ? 'fail' : 'warn',
-                  detail: flag.detail || flag.message || flag.description || undefined,
+                  detail:
+                    flag.detail ||
+                    flag.message ||
+                    flag.description ||
+                    undefined,
                 });
               }
               if (flagCount === 0) {
-                subItems.push({ label: 'Flags', status: 'pass', detail: 'No anomalies detected' });
+                subItems.push({
+                  label: 'Flags',
+                  status: 'pass',
+                  detail: 'No anomalies detected',
+                });
               }
               resolve({
                 status: hasCritical ? 'fail' : flagCount > 0 ? 'warn' : 'pass',
-                detail: `PF=${res.performanceFactor?.toFixed(2) || '?'}, R²=${res.rSquared?.toFixed(3) || '?'}, ${res.monthsCompared || 0} months compared` +
+                detail:
+                  `PF=${res.performanceFactor?.toFixed(2) || '?'}, R²=${res.rSquared?.toFixed(3) || '?'}, ${res.monthsCompared || 0} months compared` +
                   (flagCount > 0 ? `, ${flagCount} flag(s)` : ''),
                 subItems,
               });
@@ -723,15 +941,31 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
               const flagged = res.summary?.flagged || 0;
               const withGps = res.summary?.withGps || 0;
               const total = res.summary?.total || 0;
-              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
-              subItems.push({ label: 'Photos analyzed', status: 'info', detail: `${total} total, ${withGps} with GPS EXIF data` });
+              const subItems: Array<{
+                label: string;
+                status: 'pass' | 'warn' | 'fail' | 'info';
+                detail?: string;
+              }> = [];
+              subItems.push({
+                label: 'Photos analyzed',
+                status: 'info',
+                detail: `${total} total, ${withGps} with GPS EXIF data`,
+              });
               if (res.declaredLocation) {
-                subItems.push({ label: 'Declared location', status: 'info', detail: `${res.declaredLocation.lat?.toFixed(5)}, ${res.declaredLocation.lng?.toFixed(5)}` });
+                subItems.push({
+                  label: 'Declared location',
+                  status: 'info',
+                  detail: `${res.declaredLocation.lat?.toFixed(5)}, ${res.declaredLocation.lng?.toFixed(5)}`,
+                });
               }
               if (res.thresholdKm != null) {
-                subItems.push({ label: 'Distance threshold', status: 'info', detail: `${res.thresholdKm} km` });
+                subItems.push({
+                  label: 'Distance threshold',
+                  status: 'info',
+                  detail: `${res.thresholdKm} km`,
+                });
               }
-              for (const photo of (res.photos || [])) {
+              for (const photo of res.photos || []) {
                 if (!photo.hasGps) {
                   subItems.push({
                     label: photo.filename || photo.fileName || 'Photo',
@@ -742,23 +976,24 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                   subItems.push({
                     label: photo.filename || photo.fileName || 'Photo',
                     status: 'fail',
-                    detail: `GPS: ${photo.lat?.toFixed(5)}, ${photo.lng?.toFixed(5)} — ${(photo.distanceKm ?? (photo.distanceMeters / 1000))?.toFixed(2)} km from site — EXCEEDS threshold`,
+                    detail: `GPS: ${photo.lat?.toFixed(5)}, ${photo.lng?.toFixed(5)} — ${(photo.distanceKm ?? photo.distanceMeters / 1000)?.toFixed(2)} km from site — EXCEEDS threshold`,
                   });
                 } else {
                   subItems.push({
                     label: photo.filename || photo.fileName || 'Photo',
                     status: 'pass',
-                    detail: `GPS: ${photo.lat?.toFixed(5)}, ${photo.lng?.toFixed(5)} — ${(photo.distanceKm ?? (photo.distanceMeters / 1000))?.toFixed(2)} km (OK)`,
+                    detail: `GPS: ${photo.lat?.toFixed(5)}, ${photo.lng?.toFixed(5)} — ${(photo.distanceKm ?? photo.distanceMeters / 1000)?.toFixed(2)} km (OK)`,
                   });
                 }
               }
               resolve({
                 status: flagged > 0 ? 'warn' : withGps === 0 ? 'warn' : 'pass',
-                detail: withGps === 0
-                  ? `No GPS data found in any of ${total} photo(s)`
-                  : flagged > 0
-                    ? `${flagged} photo(s) flagged (${withGps}/${total} have GPS)`
-                    : `${withGps}/${total} photos have GPS, all within threshold`,
+                detail:
+                  withGps === 0
+                    ? `No GPS data found in any of ${total} photo(s)`
+                    : flagged > 0
+                      ? `${flagged} photo(s) flagged (${withGps}/${total} have GPS)`
+                      : `${withGps}/${total} photos have GPS, all within threshold`,
                 subItems,
               });
             },
@@ -771,12 +1006,32 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
             next: (res: any) => {
               this.sldResult = res;
               this.sldInputKw = res.sldCapacityKw;
-              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
-              subItems.push({ label: 'Registered capacity', status: 'info', detail: `${res.registeredCapacityKw ?? '?'} kW` });
-              subItems.push({ label: 'SLD capacity', status: 'info', detail: res.hasSld ? `${res.sldCapacityKw} kW` : 'Not recorded' });
+              const subItems: Array<{
+                label: string;
+                status: 'pass' | 'warn' | 'fail' | 'info';
+                detail?: string;
+              }> = [];
+              subItems.push({
+                label: 'Registered capacity',
+                status: 'info',
+                detail: `${res.registeredCapacityKw ?? '?'} kW`,
+              });
+              subItems.push({
+                label: 'SLD capacity',
+                status: 'info',
+                detail: res.hasSld ? `${res.sldCapacityKw} kW` : 'Not recorded',
+              });
               if (res.hasSld) {
-                subItems.push({ label: 'Tolerance', status: 'info', detail: `${res.tolerancePercent}%` });
-                subItems.push({ label: 'Difference', status: res.match ? 'pass' : 'fail', detail: `${res.differencePercent?.toFixed(1)}%` });
+                subItems.push({
+                  label: 'Tolerance',
+                  status: 'info',
+                  detail: `${res.tolerancePercent}%`,
+                });
+                subItems.push({
+                  label: 'Difference',
+                  status: res.match ? 'pass' : 'fail',
+                  detail: `${res.differencePercent?.toFixed(1)}%`,
+                });
               }
               resolve({
                 status: !res.hasSld ? 'warn' : res.match ? 'pass' : 'fail',
@@ -796,19 +1051,36 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           this.svc.evaluateCompensatingControls(deviceId).subscribe({
             next: (res: any) => {
               this.controlsResult = res;
-              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              const subItems: Array<{
+                label: string;
+                status: 'pass' | 'warn' | 'fail' | 'info';
+                detail?: string;
+              }> = [];
               if (!res.isMode4) {
-                subItems.push({ label: 'Mode check', status: 'info', detail: `Device is Mode ${res.mode || '?'} — compensating controls only apply to Mode 4` });
-                resolve({ status: 'pass', detail: 'Not Mode 4 — compensating controls not applicable', subItems });
+                subItems.push({
+                  label: 'Mode check',
+                  status: 'info',
+                  detail: `Device is Mode ${res.mode || '?'} — compensating controls only apply to Mode 4`,
+                });
+                resolve({
+                  status: 'pass',
+                  detail: 'Not Mode 4 — compensating controls not applicable',
+                  subItems,
+                });
               } else {
-                for (const c of (res.controls || [])) {
+                for (const c of res.controls || []) {
                   subItems.push({
                     label: c.name || c.key || 'Control',
                     status: c.satisfied ? 'pass' : 'fail',
-                    detail: c.detail || c.reason || (c.satisfied ? 'Satisfied' : 'NOT satisfied'),
+                    detail:
+                      c.detail ||
+                      c.reason ||
+                      (c.satisfied ? 'Satisfied' : 'NOT satisfied'),
                   });
                 }
-                const unsat = res.controls.filter((c: any) => !c.satisfied).length;
+                const unsat = res.controls.filter(
+                  (c: any) => !c.satisfied,
+                ).length;
                 resolve({
                   status: res.allSatisfied ? 'pass' : 'fail',
                   detail: res.allSatisfied
@@ -828,30 +1100,56 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
               this.consistencyResult = res;
               this.consistencyError = null;
               const anomalies = res.anomalies?.length || 0;
-              const critical = res.anomalies?.filter((a: any) => a.severity === 'critical').length || 0;
-              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
-              subItems.push({ label: 'Period', status: 'info', detail: `${res.periodMonths || '?'} months, ${res.totalReadings || 0} readings` });
+              const critical =
+                res.anomalies?.filter((a: any) => a.severity === 'critical')
+                  .length || 0;
+              const subItems: Array<{
+                label: string;
+                status: 'pass' | 'warn' | 'fail' | 'info';
+                detail?: string;
+              }> = [];
+              subItems.push({
+                label: 'Period',
+                status: 'info',
+                detail: `${res.periodMonths || '?'} months, ${res.totalReadings || 0} readings`,
+              });
               if (res.avgMonthlyKwh != null) {
-                subItems.push({ label: 'Avg monthly production', status: 'info', detail: `${res.avgMonthlyKwh.toFixed(1)} kWh` });
+                subItems.push({
+                  label: 'Avg monthly production',
+                  status: 'info',
+                  detail: `${res.avgMonthlyKwh.toFixed(1)} kWh`,
+                });
               }
               if (res.stdDevKwh != null) {
-                subItems.push({ label: 'Std deviation', status: 'info', detail: `${res.stdDevKwh.toFixed(1)} kWh` });
+                subItems.push({
+                  label: 'Std deviation',
+                  status: 'info',
+                  detail: `${res.stdDevKwh.toFixed(1)} kWh`,
+                });
               }
-              for (const a of (res.anomalies || [])) {
+              for (const a of res.anomalies || []) {
                 subItems.push({
                   label: a.type || a.label || 'Anomaly',
                   status: a.severity === 'critical' ? 'fail' : 'warn',
-                  detail: a.detail || a.message || `${a.month || '?'}: ${a.value?.toFixed(1) || '?'} kWh`,
+                  detail:
+                    a.detail ||
+                    a.message ||
+                    `${a.month || '?'}: ${a.value?.toFixed(1) || '?'} kWh`,
                 });
               }
               if (anomalies === 0) {
-                subItems.push({ label: 'Anomalies', status: 'pass', detail: 'None detected' });
+                subItems.push({
+                  label: 'Anomalies',
+                  status: 'pass',
+                  detail: 'None detected',
+                });
               }
               resolve({
                 status: critical > 0 ? 'fail' : anomalies > 0 ? 'warn' : 'pass',
-                detail: anomalies === 0
-                  ? `${res.totalReadings} readings over ${res.periodMonths} months — no anomalies`
-                  : `${anomalies} anomaly/ies (${critical} critical) in ${res.totalReadings} readings`,
+                detail:
+                  anomalies === 0
+                    ? `${res.totalReadings} readings over ${res.periodMonths} months — no anomalies`
+                    : `${anomalies} anomaly/ies (${critical} critical) in ${res.totalReadings} readings`,
                 subItems,
               });
             },
@@ -867,22 +1165,40 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           this.svc.getAuditTrail(deviceId).subscribe({
             next: (res: any[]) => {
               this.auditTrail = res;
-              const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+              const subItems: Array<{
+                label: string;
+                status: 'pass' | 'warn' | 'fail' | 'info';
+                detail?: string;
+              }> = [];
               const actionCounts: Record<string, number> = {};
               for (const entry of res) {
                 const action = entry.actionType || 'unknown';
                 actionCounts[action] = (actionCounts[action] || 0) + 1;
               }
               for (const [action, count] of Object.entries(actionCounts)) {
-                subItems.push({ label: action, status: 'info', detail: `${count} occurrence(s)` });
+                subItems.push({
+                  label: action,
+                  status: 'info',
+                  detail: `${count} occurrence(s)`,
+                });
               }
               if (res.length > 0) {
                 const latest = res[0];
-                subItems.push({ label: 'Latest entry', status: 'info', detail: `${latest.actionType} by ${latest.performedBy || '?'} on ${latest.createdAt ? new Date(latest.createdAt).toLocaleDateString() : '?'}` });
+                subItems.push({
+                  label: 'Latest entry',
+                  status: 'info',
+                  detail: `${latest.actionType} by ${latest.performedBy || '?'} on ${latest.createdAt ? new Date(latest.createdAt).toLocaleDateString() : '?'}`,
+                });
               }
-              const warningEntries = res.filter((e: any) => e.detail?.includes('exceeds'));
+              const warningEntries = res.filter((e: any) =>
+                e.detail?.includes('exceeds'),
+              );
               if (warningEntries.length > 0) {
-                subItems.push({ label: 'Warning entries', status: 'warn', detail: `${warningEntries.length} entries contain "exceeds" flag` });
+                subItems.push({
+                  label: 'Warning entries',
+                  status: 'warn',
+                  detail: `${warningEntries.length} entries contain "exceeds" flag`,
+                });
               }
               resolve({
                 status: warningEntries.length > 0 ? 'warn' : 'pass',
@@ -902,10 +1218,17 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
 
   private async runClassifyForScan(
     _deviceId: number,
-  ): Promise<{ status: 'pass' | 'warn' | 'fail'; detail: string; subItems?: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> }> {
+  ): Promise<{
+    status: 'pass' | 'warn' | 'fail';
+    detail: string;
+    subItems?: Array<{
+      label: string;
+      status: 'pass' | 'warn' | 'fail' | 'info';
+      detail?: string;
+    }>;
+  }> {
     const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
-    if (!asset)
-      return { status: 'warn', detail: 'No asset selected' };
+    if (!asset) return { status: 'warn', detail: 'No asset selected' };
 
     this.classifyResults = [];
     let total = 0;
@@ -937,9 +1260,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           const file = new File([blob], fname, { type: mime });
           const result = await this.classifier.classify(file).toPromise();
           const classifiedType = result?.suggestedType ?? null;
-          const confidence = result
-            ? Math.round(result.confidence * 100)
-            : 0;
+          const confidence = result ? Math.round(result.confidence * 100) : 0;
           const typeLabel = classifiedType
             ? DOCUMENT_TYPE_LABELS[classifiedType] || classifiedType
             : 'Unknown';
@@ -972,7 +1293,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       }
     }
 
-    const subItems: Array<{ label: string; status: 'pass' | 'warn' | 'fail' | 'info'; detail?: string }> = [];
+    const subItems: Array<{
+      label: string;
+      status: 'pass' | 'warn' | 'fail' | 'info';
+      detail?: string;
+    }> = [];
     for (const r of this.classifyResults) {
       subItems.push({
         label: r.filename,
@@ -981,7 +1306,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       });
     }
     if (total === 0) {
-      subItems.push({ label: 'No documents', status: 'info', detail: 'No uploaded documents to classify' });
+      subItems.push({
+        label: 'No documents',
+        status: 'info',
+        detail: 'No uploaded documents to classify',
+      });
     }
 
     return {
@@ -2082,10 +2411,17 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
               console.warn('Could not log status change to chat', err),
           });
         } else {
+          if (!submitterEmail || submitterEmail === username) {
+            console.warn(
+              'Skipping status-log chat: no submitter email for site',
+              siteName,
+            );
+            return;
+          }
           this.chatService
             .startConversation(
               username,
-              submitterEmail || username,
+              submitterEmail,
               username,
               entry,
               siteName,
@@ -2663,11 +2999,18 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
             error: (err) => console.warn('Could not log to chat', err),
           });
         } else {
+          if (!submitterEmail || submitterEmail === username) {
+            console.warn(
+              'Skipping auto-log chat: no submitter email for site',
+              siteName,
+            );
+            return;
+          }
           // No conversation yet — create one with this log entry as the first message
           this.chatService
             .startConversation(
               username,
-              submitterEmail || username,
+              submitterEmail,
               username,
               entry,
               siteName,
@@ -2970,14 +3313,62 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     urlKey: keyof Asset;
     multi: boolean;
   }> = [
-    { slot: 'SLD', label: 'Single Line Diagram', expectedType: DocumentType.SINGLE_LINE_DIAGRAM, urlKey: 'sldUrl', multi: false },
-    { slot: 'SF-02', label: 'SF-02 Registration Form', expectedType: DocumentType.FORM_SF_02, urlKey: 'sf02Url', multi: false },
-    { slot: 'SF-02C', label: 'SF-02C Declaration', expectedType: DocumentType.SF_02C, urlKey: 'sf02cUrl', multi: false },
-    { slot: "Owner's Decl.", label: "Owner's Declaration", expectedType: DocumentType.SF_02C_OWNERS_DECLARATION, urlKey: 'sf02cOwnersDeclarationUrl', multi: false },
-    { slot: 'COD Proof', label: 'COD Proof', expectedType: DocumentType.COD_PROOF, urlKey: 'codProofUrl', multi: false },
-    { slot: 'Metering', label: 'Metering Evidence', expectedType: DocumentType.METERING_EVIDENCE, urlKey: 'meteringEvidenceUrls', multi: true },
-    { slot: 'Photos', label: 'Project Photos', expectedType: DocumentType.PROJECT_PHOTOS, urlKey: 'pictureUrls', multi: true },
-    { slot: 'Other', label: 'Other Documents', expectedType: DocumentType.OTHER_DOCUMENTS, urlKey: 'otherDocumentUrls', multi: true },
+    {
+      slot: 'SLD',
+      label: 'Single Line Diagram',
+      expectedType: DocumentType.SINGLE_LINE_DIAGRAM,
+      urlKey: 'sldUrl',
+      multi: false,
+    },
+    {
+      slot: 'SF-02',
+      label: 'SF-02 Registration Form',
+      expectedType: DocumentType.FORM_SF_02,
+      urlKey: 'sf02Url',
+      multi: false,
+    },
+    {
+      slot: 'SF-02C',
+      label: 'SF-02C Declaration',
+      expectedType: DocumentType.SF_02C,
+      urlKey: 'sf02cUrl',
+      multi: false,
+    },
+    {
+      slot: "Owner's Decl.",
+      label: "Owner's Declaration",
+      expectedType: DocumentType.SF_02C_OWNERS_DECLARATION,
+      urlKey: 'sf02cOwnersDeclarationUrl',
+      multi: false,
+    },
+    {
+      slot: 'COD Proof',
+      label: 'COD Proof',
+      expectedType: DocumentType.COD_PROOF,
+      urlKey: 'codProofUrl',
+      multi: false,
+    },
+    {
+      slot: 'Metering',
+      label: 'Metering Evidence',
+      expectedType: DocumentType.METERING_EVIDENCE,
+      urlKey: 'meteringEvidenceUrls',
+      multi: true,
+    },
+    {
+      slot: 'Photos',
+      label: 'Project Photos',
+      expectedType: DocumentType.PROJECT_PHOTOS,
+      urlKey: 'pictureUrls',
+      multi: true,
+    },
+    {
+      slot: 'Other',
+      label: 'Other Documents',
+      expectedType: DocumentType.OTHER_DOCUMENTS,
+      urlKey: 'otherDocumentUrls',
+      multi: true,
+    },
   ];
 
   get classifyMatchCount(): number {
@@ -3039,16 +3430,17 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           const freshUrl = await this.svc.refreshUrl(url);
           const resp = await fetch(freshUrl);
           const blob = await resp.blob();
-          const mime = blob.type && blob.type !== 'application/octet-stream'
-            ? blob.type
-            : this.guessMime(fname);
+          const mime =
+            blob.type && blob.type !== 'application/octet-stream'
+              ? blob.type
+              : this.guessMime(fname);
           const file = new File([blob], fname, { type: mime });
 
           const result = await this.classifier.classify(file).toPromise();
           const classifiedType = result?.suggestedType ?? null;
           const confidence = result ? Math.round(result.confidence * 100) : 0;
           const typeLabel = classifiedType
-            ? (DOCUMENT_TYPE_LABELS[classifiedType] || classifiedType)
+            ? DOCUMENT_TYPE_LABELS[classifiedType] || classifiedType
             : 'Unknown';
 
           this.classifyResults = [
@@ -3061,12 +3453,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
               classifiedType: typeLabel,
               confidence,
               match: classifiedType
-                ? (classifiedType === slot.expectedType
+                ? classifiedType === slot.expectedType ||
                   // Bitmap classified as Project Photos is fine in Other or Photos slot
-                  || (classifiedType === DocumentType.PROJECT_PHOTOS
-                    && /\.(jpe?g|png|gif|webp|bmp)$/i.test(fname)
-                    && (slot.expectedType === DocumentType.OTHER_DOCUMENTS
-                      || slot.expectedType === DocumentType.PROJECT_PHOTOS)))
+                  (classifiedType === DocumentType.PROJECT_PHOTOS &&
+                    /\.(jpe?g|png|gif|webp|bmp)$/i.test(fname) &&
+                    (slot.expectedType === DocumentType.OTHER_DOCUMENTS ||
+                      slot.expectedType === DocumentType.PROJECT_PHOTOS))
                 : null,
             },
           ];
