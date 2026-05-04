@@ -50,6 +50,18 @@ $chip-hover: #e2e8f0;
     padding: 0 16px;
     gap: 16px;
   }
+  &__exit {
+    background: #0f607f;
+    color: #ffffff;
+    border: 1px solid #0a4a62;
+    border-radius: 4px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 120ms ease;
+    &:hover, &:focus-visible { background: #0a4a62; outline: none; }
+  }
   &__crumbs { color: $muted; font-size: 12px; b { color: $text; } }
   &__device-id { font-family: ui-monospace, monospace; color: $accent; margin-left: 8px; }
   &__spacer { flex: 1; }

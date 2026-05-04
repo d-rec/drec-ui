@@ -1,6 +1,12 @@
 <div class="rw">
 
   <div class="rw__topbar">
+    <button
+      type="button"
+      class="rw__exit"
+      title="Exit full-screen review (back to device list)"
+      (click)="exit()"
+    >&#x2715; Exit</button>
     <span class="rw__crumbs">Reviews › <b>{{ siteName }}</b></span>
     <span class="rw__device-id">{{ externalId }}</span>
     <div class="rw__spacer"></div>

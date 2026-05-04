@@ -7,7 +7,7 @@ import {
   QueryList,
   ViewChildren,
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface ChipMapping {
   ocNum: number;
@@ -454,8 +454,13 @@ export class ReviewerWorkbenchComponent
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private host: ElementRef<HTMLElement>,
   ) {}
+
+  exit(): void {
+    this.router.navigate(['/device/reviews']);
+  }
 
   ngOnInit() {
     this.deviceId = this.route.snapshot.paramMap.get('id') || 'demo';
