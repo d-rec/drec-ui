@@ -340,13 +340,6 @@ mat-form-field.compact-search {
     display: flex !important;
     align-items: center !important;
   }
-  // when the label is at rest (not floating), center it vertically inside
-  // the shorter infix; Material's default `top` value assumes a 56px box
-  .mdc-text-field--outlined
-    .mdc-floating-label:not(.mdc-floating-label--float-above) {
-    top: 50%;
-    transform: translateY(-50%);
-  }
   // collapse the validation/hint gutter to 0 height (vs display:none, which
   // also collapses our margin-bottom on adjacent elements)
   .mat-mdc-form-field-subscript-wrapper {
