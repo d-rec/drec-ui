@@ -487,8 +487,13 @@ export class ReviewerWorkbenchComponent
     // it — see the drec-ui stacking-context note in shared dev memory).
     document.body.appendChild(this.host.nativeElement);
 
-    // Hydrate from real device data when available.
+    // Hydrate from real device data — once. assets$ is a BehaviorSubject
+    // so it emits the current value immediately AND again when populateFromDb
+    // resolves; without the guard we'd swap pdf-preview's input multiple
+    // times and Chrome would open a new tab per iframe re-render of an
+    // attachment-disposition signed URL.
     this.assetSub = this.svc.assets$.subscribe((assets) => {
+      if (this.hydrated) return;
       const asset = assets.find((a) => String(a.id) === String(this.deviceId));
       if (asset) this.hydrateFromAsset(asset);
     });
