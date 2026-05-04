@@ -268,9 +268,9 @@ export class ReviewerWorkbenchComponent
       num: 5,
       label: 'Country',
       value: 'IND',
-      status: 'discrepancy',
-      comment: "reg said 'IND', SLD lists 'India' — accept",
-      tickedBy: [],
+      status: 'confirmed',
+      comment: '',
+      tickedBy: ['sld'],
     },
     {
       num: 8,
