@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 
 import { DeviceReviewsPageComponent } from './device-reviews-page.component';
+import { ReviewerWorkbenchComponent } from './reviewer-workbench/reviewer-workbench.component';
 import { FloatingWindowComponent } from './floating-window/floating-window.component';
 import { DocumentsWindowComponent } from './documents-window/documents-window.component';
 import { MapWindowComponent } from './map-window/map-window.component';
@@ -26,6 +27,7 @@ import { ImageZoomPanDirective } from '../../shared/directives/image-zoom-pan.di
 @NgModule({
   declarations: [
     DeviceReviewsPageComponent,
+    ReviewerWorkbenchComponent,
     FloatingWindowComponent,
     DocumentsWindowComponent,
     MapWindowComponent,
@@ -51,6 +53,11 @@ import { ImageZoomPanDirective } from '../../shared/directives/image-zoom-pan.di
       {
         path: '',
         component: DeviceReviewsPageComponent,
+        canActivate: [AdminGuard],
+      },
+      {
+        path: 'workbench/:id',
+        component: ReviewerWorkbenchComponent,
         canActivate: [AdminGuard],
       },
     ]),

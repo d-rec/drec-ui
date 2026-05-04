@@ -1,0 +1,208 @@
+<div class="rw">
+
+  <div class="rw__topbar">
+    <span class="rw__crumbs">Reviews › <b>{{ siteName }}</b></span>
+    <span class="rw__device-id">{{ externalId }}</span>
+    <div class="rw__spacer"></div>
+    <div class="rw__progress-summary">
+      <b>{{ progress.confirmed }}</b> / {{ progress.total }} OC# items confirmed ·
+      <b>{{ progress.discrepancies }}</b> discrepancies ·
+      <b>{{ docs.length }}</b> docs
+    </div>
+  </div>
+
+  <div class="rw__columns">
+
+    <!-- left: doc list -->
+    <div class="rw__doclist">
+      <ng-container *ngFor="let g of docCategoryGroups">
+        <h2>{{ g.label }}</h2>
+        <div *ngFor="let d of g.docs"
+             class="rw__doc-item"
+             [class.active]="d.id === selectedDocId"
+             [class.has-chips]="hasChipsForDoc(d) && !isFullyChecked(d)"
+             [class.fully-checked]="isFullyChecked(d)"
+             (click)="selectDoc(d.id)">
+          <div class="rw__doc-name">{{ d.name }}</div>
+          <div class="rw__doc-meta">
+            <span class="rw__doc-badge">{{ d.badge }}</span>
+            <span>{{ d.size }}</span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- middle: preview -->
+    <div class="rw__preview" *ngIf="selectedDoc as doc">
+      <div class="rw__preview-toolbar">
+        <span class="rw__doc-title">{{ doc.name }}</span>
+        <span class="rw__filename">{{ doc.filename }}</span>
+        <div class="rw__spacer"></div>
+        <button class="rw__tool-btn" title="Zoom in">⊕</button>
+        <button class="rw__tool-btn" title="Zoom out">⊖</button>
+        <button class="rw__tool-btn" title="Fit to page">⛶</button>
+        <button class="rw__tool-btn" title="Pan">✥</button>
+        <span class="rw__tool-divider"></span>
+        <button class="rw__tool-btn" [class.active]="ocrOpen" (click)="toggleOcr()" title="OCR text from doc"
+                [disabled]="!doc.ocrText">
+          📄 OCR
+        </button>
+        <button class="rw__tool-btn" title="Translate selection">🌐 Translate</button>
+        <button class="rw__tool-btn"
+                [disabled]="!doc.isFacilityBoundary"
+                [class.dimmed]="!doc.isFacilityBoundary"
+                (click)="satOverlayOpen = true"
+                title="Detect panels (FACILITY_BOUNDARY only)">
+          🛰️ Detect panels
+        </button>
+        <span class="rw__tool-divider"></span>
+        <button class="rw__tool-btn" title="Download">↓</button>
+      </div>
+
+      <div class="rw__preview-body">
+        <div class="rw__preview-canvas">
+          <div class="rw__doc-page">
+            <!-- Doc-type-specific stub renderings — replaced with real pdf-preview/picture-window in Phase 2 -->
+            <ng-container [ngSwitch]="doc.id">
+              <ng-container *ngSwitchCase="'sld'">
+                <div class="rw__doc-stamp">DRAFT v1.2</div>
+                <h3>Single Line Diagram — Bilgram MG</h3>
+                <table class="rw__doc-table">
+                  <tr><td class="lbl">Site</td><td>Bilgram, Hardoi, Uttar Pradesh, IN</td></tr>
+                  <tr><td class="lbl">Operator</td><td>OMC Power Pvt. Ltd.</td></tr>
+                  <tr><td class="lbl">Capacity (DC)</td><td><b>27.5 kWp</b></td></tr>
+                  <tr><td class="lbl">Capacity (AC)</td><td><b>25 kW</b></td></tr>
+                  <tr><td class="lbl">Inverter</td><td>SMA Sunny Tripower 25-3SE</td></tr>
+                  <tr><td class="lbl">Modules</td><td>50 × Trina Vertex S 550 W</td></tr>
+                  <tr><td class="lbl">Grid interconnection</td><td><b>Behind-the-meter, no export</b></td></tr>
+                  <tr><td class="lbl">Meter ID</td><td>SMA-2025-08137</td></tr>
+                  <tr><td class="lbl">COD</td><td>2024-03-12</td></tr>
+                </table>
+                <p class="rw__topology-label"><b>Topology:</b></p>
+                <svg class="rw__doc-svg" viewBox="0 0 480 200" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="10" y="80" width="80" height="40" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+                  <text x="50" y="105" text-anchor="middle" font-size="10">PV Array</text>
+                  <line x1="90" y1="100" x2="140" y2="100" stroke="#1f2937" stroke-width="1.5"/>
+                  <rect x="140" y="80" width="80" height="40" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+                  <text x="180" y="105" text-anchor="middle" font-size="10">Inverter</text>
+                  <line x1="220" y1="100" x2="270" y2="100" stroke="#1f2937" stroke-width="1.5"/>
+                  <rect x="270" y="80" width="60" height="40" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+                  <text x="300" y="105" text-anchor="middle" font-size="10">Meter</text>
+                  <line x1="330" y1="100" x2="380" y2="100" stroke="#1f2937" stroke-width="1.5"/>
+                  <rect x="380" y="60" width="80" height="80" fill="none" stroke="#1f2937" stroke-width="1.5"/>
+                  <text x="420" y="100" text-anchor="middle" font-size="10">Local load</text>
+                  <text x="420" y="115" text-anchor="middle" font-size="9" fill="#6b7280">(no export)</text>
+                </svg>
+                <p class="rw__doc-note"><b>Notes:</b> Behind-the-meter installation. No connection to grid feed-in. Full local consumption.</p>
+              </ng-container>
+              <ng-container *ngSwitchDefault>
+                <div class="rw__doc-stub">
+                  <div class="rw__doc-stub-icon">{{ doc.isImage ? '🖼️' : '📄' }}</div>
+                  <div class="rw__doc-stub-title">{{ doc.name }}</div>
+                  <div class="rw__doc-stub-meta">{{ doc.filename }} · {{ doc.size }}</div>
+                  <div class="rw__doc-stub-note">
+                    Phase 2 hooks the existing <code>pdf-preview</code> /
+                    <code>picture-window</code> components for real content.
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="rw__ocr-pane" *ngIf="ocrOpen && doc.ocrText">
+          <h3>
+            OCR result
+            <span class="rw__ocr-close" (click)="toggleOcr()">×</span>
+          </h3>
+          <div class="rw__ocr-text">{{ doc.ocrText }}</div>
+          <div class="rw__ocr-actions">
+            <button>Copy</button>
+            <button>🌐 Translate</button>
+            <button>Re-run OCR</button>
+          </div>
+        </div>
+
+        <div class="rw__chip-rail">
+          <span class="rw__chip-rail-label">This {{ doc.badge }} evidences:</span>
+          <ng-container *ngIf="doc.chips.length === 0">
+            <span class="rw__chip-rail-empty">No OC# fields are typically evidenced by this document type.</span>
+          </ng-container>
+          <div *ngFor="let c of doc.chips"
+               class="rw__chip"
+               [class.ticked]="isChipTicked(c)"
+               (click)="toggleChip(c)">
+            <div class="rw__chip-title">({{ c.ocNum }}) {{ c.label }}</div>
+            <div class="rw__chip-value">{{ c.registrantValue }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- right: OC# sidebar -->
+    <div class="rw__oc-sidebar">
+      <div class="rw__oc-header">
+        <h2>OC# checklist · progress</h2>
+        <div class="rw__oc-progress-bar">
+          <div class="rw__oc-progress-fill" [style.width.%]="progress.percent"></div>
+        </div>
+        <div class="rw__oc-progress-text">
+          <b>{{ progress.confirmed }} of {{ progress.total }}</b> confirmed ·
+          <b>{{ progress.discrepancies }}</b> discrepancies ·
+          <b>{{ progress.pending }}</b> pending
+        </div>
+        <div class="rw__oc-filter">
+          <button [class.active]="filterMode === 'all'" (click)="filterMode = 'all'">
+            All ({{ progress.filterAll }})
+          </button>
+          <button [class.active]="filterMode === 'commented'" (click)="filterMode = 'commented'">
+            With comments ({{ progress.filterCommented }})
+          </button>
+          <button [class.active]="filterMode === 'unticked'" (click)="filterMode = 'unticked'">
+            Un-ticked ({{ progress.filterUnticked }})
+          </button>
+        </div>
+      </div>
+      <div class="rw__oc-list">
+        <div *ngFor="let r of filteredOcRows"
+             class="rw__oc-row"
+             [class.confirmed]="r.status === 'confirmed'"
+             [class.pending]="r.status === 'pending'"
+             [class.discrepancy]="r.status === 'discrepancy'">
+          <div class="rw__oc-line">
+            <span class="rw__oc-status"></span>
+            <span class="rw__oc-num">({{ r.num }})</span>
+            <span class="rw__oc-label">{{ r.label }}</span>
+            <span class="rw__oc-value" *ngIf="r.value">{{ r.value }}</span>
+          </div>
+          <input class="rw__oc-comment"
+                 [value]="r.comment"
+                 (blur)="onCommentChange(r, $any($event.target).value)"
+                 placeholder="add comment…" />
+        </div>
+        <div *ngIf="filteredOcRows.length === 0" class="rw__oc-empty">
+          No items match this filter.
+        </div>
+      </div>
+      <div class="rw__oc-footer">
+        <button class="rw__submit" (click)="onSubmit()">Submit review</button>
+        <button class="rw__reject" (click)="onReject()">Reject for re-submission</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- satellite overlay -->
+  <div class="rw__sat-overlay" [class.open]="satOverlayOpen" (click)="satOverlayOpen = false">
+    <div class="rw__sat-modal" (click)="$event.stopPropagation()">
+      <h3>🛰️ Roboflow panel detection</h3>
+      <div class="rw__sat-output">
+        <div>2 panel arrays detected:</div>
+        <div>→ array #1 — confidence 94%, ~14m × 8m</div>
+        <div>→ array #2 — confidence 87%, ~6m × 6m</div>
+        <div class="rw__sat-warn">⚠ Output is informational only. Tick OC#44 manually based on what you see.</div>
+      </div>
+      <button class="rw__sat-close" (click)="satOverlayOpen = false">close</button>
+    </div>
+  </div>
+</div>
