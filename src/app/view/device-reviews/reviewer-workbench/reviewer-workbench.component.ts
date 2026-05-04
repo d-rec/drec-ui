@@ -1,4 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 interface ChipMapping {
@@ -38,7 +46,9 @@ interface OcRow {
   templateUrl: './reviewer-workbench.component.html',
   styleUrls: ['./reviewer-workbench.component.scss'],
 })
-export class ReviewerWorkbenchComponent implements OnInit {
+export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChildren('ocRow') ocRowElements!: QueryList<ElementRef<HTMLElement>>;
+
   deviceId = '';
   siteName = 'OMC Power · Bilgram, IN';
   externalId = 'eeb568c3';
@@ -213,10 +223,26 @@ export class ReviewerWorkbenchComponent implements OnInit {
 
   filterMode: 'all' | 'commented' | 'unticked' = 'all';
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private host: ElementRef<HTMLElement>,
+  ) {}
 
   ngOnInit() {
     this.deviceId = this.route.snapshot.paramMap.get('id') || 'demo';
+    // Full-bleed: portal the host element to <body> so it escapes the
+    // mat-sidenav-container stacking context (z-index alone doesn't escape
+    // it — see the drec-ui stacking-context note in shared dev memory).
+    document.body.appendChild(this.host.nativeElement);
+  }
+
+  ngAfterViewInit() {
+    // no-op for now; scroll target lookup happens in toggleChip()
+  }
+
+  ngOnDestroy() {
+    // Restore normal layout when leaving the workbench.
+    this.host.nativeElement.remove();
   }
 
   get selectedDoc(): DocItem | undefined {
@@ -247,6 +273,22 @@ export class ReviewerWorkbenchComponent implements OnInit {
     if (row.status !== 'discrepancy') {
       row.status = row.tickedBy.length > 0 ? 'confirmed' : 'pending';
     }
+    this.scrollOcRowIntoView(row.num);
+  }
+
+  private scrollOcRowIntoView(num: number) {
+    if (!this.ocRowElements) return;
+    // The QueryList renders only the *filtered* rows, so we look up by data-attr
+    setTimeout(() => {
+      const el = this.ocRowElements.find(
+        (e) => e.nativeElement.dataset['ocNum'] === String(num),
+      );
+      if (el) {
+        el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.nativeElement.classList.add('rw__oc-row--flash');
+        setTimeout(() => el.nativeElement.classList.remove('rw__oc-row--flash'), 1200);
+      }
+    }, 0);
   }
 
   onCommentChange(row: OcRow, value: string) {

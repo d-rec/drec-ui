@@ -43,8 +43,9 @@
         <button class="rw__tool-btn" title="Fit to page">⛶</button>
         <button class="rw__tool-btn" title="Pan">✥</button>
         <span class="rw__tool-divider"></span>
-        <button class="rw__tool-btn" [class.active]="ocrOpen" (click)="toggleOcr()" title="OCR text from doc"
-                [disabled]="!doc.ocrText">
+        <button class="rw__tool-btn dimmed"
+                disabled
+                title="Wired to client-side tesseract.js once Phase 2 swaps the doc-stub for real pdf-preview / picture-window">
           📄 OCR
         </button>
         <button class="rw__tool-btn" title="Translate selection">🌐 Translate</button>
@@ -110,18 +111,6 @@
           </div>
         </div>
 
-        <div class="rw__ocr-pane" *ngIf="ocrOpen && doc.ocrText">
-          <h3>
-            OCR result
-            <span class="rw__ocr-close" (click)="toggleOcr()">×</span>
-          </h3>
-          <div class="rw__ocr-text">{{ doc.ocrText }}</div>
-          <div class="rw__ocr-actions">
-            <button>Copy</button>
-            <button>🌐 Translate</button>
-            <button>Re-run OCR</button>
-          </div>
-        </div>
 
         <div class="rw__chip-rail">
           <span class="rw__chip-rail-label">This {{ doc.badge }} evidences:</span>
@@ -165,6 +154,8 @@
       </div>
       <div class="rw__oc-list">
         <div *ngFor="let r of filteredOcRows"
+             #ocRow
+             [attr.data-oc-num]="r.num"
              class="rw__oc-row"
              [class.confirmed]="r.status === 'confirmed'"
              [class.pending]="r.status === 'pending'"
@@ -185,7 +176,7 @@
         </div>
       </div>
       <div class="rw__oc-footer">
-        <button class="rw__submit" (click)="onSubmit()">Submit review</button>
+        <button class="rw__submit" (click)="onSubmit()">Approve</button>
         <button class="rw__reject" (click)="onReject()">Reject for re-submission</button>
       </div>
     </div>

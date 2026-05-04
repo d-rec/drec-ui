@@ -20,8 +20,13 @@ $chip-active: #0f766e;
 $chip-hover: #e2e8f0;
 
 :host {
+  // Portaled to <body> in ngOnInit — escapes the mat-sidenav-container
+  // stacking context so the workbench truly takes the whole viewport.
   display: block;
-  height: 100vh;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: $bg;
   overflow: hidden;
 }
 
@@ -307,6 +312,7 @@ $chip-hover: #e2e8f0;
     padding: 8px 16px;
     display: flex; flex-direction: column; gap: 4px;
     border-left: 2px solid transparent;
+    transition: background 0.18s ease;
     &:hover { background: rgba(15, 23, 42, 0.02); }
     &.confirmed .rw__oc-status::before { content: '✓'; color: $accent-bright; }
     &.pending .rw__oc-status::before { content: '○'; color: $dim; }
@@ -315,6 +321,15 @@ $chip-hover: #e2e8f0;
       border-left-color: $warn;
       .rw__oc-status::before { content: '!'; color: $warn; }
     }
+    // Brief highlight when a chip click scrolled this row into view.
+    &--flash {
+      animation: rw-flash 1.2s ease-out;
+    }
+  }
+  @keyframes rw-flash {
+    0%   { background: rgba(15, 118, 110, 0.25); }
+    60%  { background: rgba(15, 118, 110, 0.18); }
+    100% { background: transparent; }
   }
   &__oc-line {
     display: flex; align-items: center; gap: 6px;
