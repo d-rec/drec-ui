@@ -77,17 +77,17 @@
 
       <div class="rw__preview-body">
         <div class="rw__preview-canvas">
-          <!-- Real doc — populated by Phase 2a when the device fetch returns signed URLs. -->
+          <!-- Real doc — populated by Phase 2a when the device fetch returns signed URLs.
+               Use the shared pdf-preview component (pdf.js based) so PDFs render inline
+               instead of triggering download (signed URLs may have Content-Disposition:
+               attachment). The same component handles images via previewType='image'. -->
           <ng-container *ngIf="doc.url; else stubPage">
-            <img *ngIf="doc.isImage; else realPdf"
-                 class="rw__real-doc rw__real-doc--img"
-                 [src]="doc.url"
-                 [alt]="doc.name" />
-            <ng-template #realPdf>
-              <iframe class="rw__real-doc rw__real-doc--pdf"
-                      [src]="trustUrl(doc.url)"
-                      [title]="doc.name"></iframe>
-            </ng-template>
+            <app-pdf-preview
+              class="rw__real-doc"
+              [previewUrl]="trustUrl(doc.url)"
+              [previewType]="doc.isImage ? 'image' : 'pdf'"
+              [ocrSource]="doc.url"
+            ></app-pdf-preview>
           </ng-container>
           <ng-template #stubPage>
           <div class="rw__doc-page">
