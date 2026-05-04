@@ -30,7 +30,7 @@ export class AllUsersComponent {
     'type',
     'status',
     'organization',
-    'lastUsed',
+    'lastLoginAt',
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -197,8 +197,8 @@ export class AllUsersComponent {
           ).toLowerCase();
         case 'type':
           return (item.role ?? '').toLowerCase();
-        case 'lastUsed':
-          return item.lastUsed ? new Date(item.lastUsed).getTime() : 0;
+        case 'lastLoginAt':
+          return item.lastLoginAt ? new Date(item.lastLoginAt).getTime() : 0;
         default:
           return (item[prop] ?? '').toString().toLowerCase();
       }
