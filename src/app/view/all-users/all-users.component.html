@@ -14,8 +14,8 @@
           routerLink="/admin/add_user"
           *ngIf="loginuser?.role === 'Admin'"
         >
-          <mat-icon class="align-middle me-2">person_add</mat-icon>New User
-        </button>&nbsp;
+          <mat-icon class="align-middle me-2">person_add</mat-icon>New User</button
+        >&nbsp;
         <button
           class="btn btn-dark justify-content-end px-4 align-items-center"
           (click)="openinviteDialog()"
@@ -76,7 +76,11 @@
         </mat-card-content>
         <hr />
       </mat-card>
-      <mat-form-field appearance="outline" style="width: 25%" *ngIf="!showorg && !showorguser">
+      <mat-form-field
+        appearance="outline"
+        style="width: 25%"
+        *ngIf="!showorg && !showorguser"
+      >
         <mat-label>Search users</mat-label>
         <input
           type="text"
@@ -85,7 +89,12 @@
           (input)="applySearch()"
           placeholder="Name, email, or organization..."
         />
-        <button *ngIf="searchText" matSuffix mat-icon-button (click)="searchText = ''; applySearch()">
+        <button
+          *ngIf="searchText"
+          matSuffix
+          mat-icon-button
+          (click)="searchText = ''; applySearch()"
+        >
           <mat-icon>close</mat-icon>
         </button>
         <mat-icon *ngIf="!searchText" matSuffix>search</mat-icon>
@@ -94,7 +103,12 @@
         <table mat-table [dataSource]="dataSource" class="" matSort>
           <!-- Position Column -->
           <ng-container matColumnDef="organization">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-left"
+            >
               Organization
             </th>
             <td mat-cell *matCellDef="let row; let i = index">
@@ -102,7 +116,14 @@
             </td>
           </ng-container>
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">Name</th>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-left"
+            >
+              Name
+            </th>
             <td mat-cell *matCellDef="let row; let i = index">
               {{ row.firstName }} {{ row.lastName }}
             </td>
@@ -120,7 +141,14 @@
           </ng-container>
 
           <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-left">Email</th>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-left"
+            >
+              Email
+            </th>
             <td mat-cell *matCellDef="let element">{{ element.email }}</td>
           </ng-container>
 
@@ -133,7 +161,9 @@
             >
               Role
             </th>
-            <td mat-cell *matCellDef="let element">{{ getOrgTypeName(element.organization?.organizationType) || getRoleName(element.role) }}</td>
+            <td mat-cell *matCellDef="let element">
+              {{ getRoleName(element.role) }}
+            </td>
           </ng-container>
           <!-- Status Column -->
           <!-- <ng-container matColumnDef="commissioningDate">
@@ -181,11 +211,17 @@
       <div *ngIf="!showlist" style="text-align: center; color: #475569">
         No User
       </div>
-      <div style="margin-top: 16px; display: flex; justify-content: flex-end"
-        *ngIf="loginuser?.role === 'Admin' || loginuser?.role === 'Registrant'">
+      <div
+        style="margin-top: 16px; display: flex; justify-content: flex-end"
+        *ngIf="loginuser?.role === 'Admin' || loginuser?.role === 'Registrant'"
+      >
         <button
           class="btn btn-dark px-4 align-items-center"
-          [routerLink]="loginuser?.role === 'Admin' ? '/admin/add_user' : '/organization/user/invitation'"
+          [routerLink]="
+            loginuser?.role === 'Admin'
+              ? '/admin/add_user'
+              : '/organization/user/invitation'
+          "
         >
           <mat-icon class="align-middle me-2">person_add</mat-icon>Invite User
         </button>
