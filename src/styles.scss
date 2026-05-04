@@ -284,13 +284,13 @@ fieldset:disabled .btn.btn-primary {
 
 // All tables
 tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
-  background: transparent;
+  background: $color-primary;
   box-shadow: none;
   height: 36px !important;
   min-height: 36px !important;
 
   th {
-    color: $color-primary;
+    color: #ffffff;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
@@ -303,7 +303,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
 // Mat Styles Overiding
 .mat-sort-header-arrow,
 .mat-sort-header-content {
-  color: $color-primary !important;
+  color: #ffffff !important;
 }
 
 .mat-mdc-table .mdc-data-table__row {
