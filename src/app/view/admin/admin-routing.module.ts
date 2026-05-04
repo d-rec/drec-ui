@@ -9,6 +9,8 @@ import { EditUserComponent } from '../edit-user/edit-user.component';
 
 import { AllRegistrantComponent } from '../registrant/all-registrant/all-registrant.component';
 import { WebhooksComponent } from './webhooks/webhooks.component';
+import { ChatReviewComponent } from './chat-review/chat-review.component';
+import { ChatReviewGuard } from '../../guards/chat-review.guard';
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent },
@@ -50,6 +52,11 @@ const routes: Routes = [
   {
     path: 'webhooks',
     component: WebhooksComponent,
+  },
+  {
+    path: 'chat-review',
+    component: ChatReviewComponent,
+    canActivate: [ChatReviewGuard],
   },
   {
     path: 'permission',

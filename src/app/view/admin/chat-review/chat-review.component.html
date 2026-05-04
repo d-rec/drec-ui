@@ -1,0 +1,77 @@
+<div class="cr">
+  <div class="cr__header">
+    <h2>Chat Review</h2>
+    <p class="cr__subtitle">
+      Read-only view of every conversation between Reviewers and Registrants.
+    </p>
+  </div>
+
+  <div class="cr__split">
+    <div class="cr__list">
+      <div class="cr__search-row">
+        <input
+          type="text"
+          class="cr__search-input"
+          placeholder="Search by email, site, or message..."
+          [(ngModel)]="searchText"
+          (input)="applyFilter()"
+        />
+        <button
+          *ngIf="searchText"
+          class="cr__search-clear"
+          (click)="searchText = ''; applyFilter()"
+          title="Clear"
+        >
+          ×
+        </button>
+      </div>
+
+      <div *ngIf="loading" class="cr__placeholder">Loading conversations…</div>
+      <div *ngIf="error" class="cr__error">{{ error }}</div>
+      <div
+        *ngIf="!loading && !error && filtered.length === 0"
+        class="cr__placeholder"
+      >
+        No conversations match.
+      </div>
+
+      <div
+        *ngFor="let conv of filtered"
+        class="cr__list-row"
+        [class.cr__list-row--active]="selected?.id === conv.id"
+        (click)="select(conv)"
+      >
+        <div class="cr__list-row-top">
+          <span class="cr__list-row-site">
+            {{ conv.deviceSiteName || '— no site —' }}
+          </span>
+          <span class="cr__list-row-time" *ngIf="conv.lastMessageAt">
+            {{ conv.lastMessageAt | date: 'short' }}
+          </span>
+        </div>
+        <div class="cr__list-row-parties">
+          <span>{{ conv.participant1 }}</span>
+          <span class="cr__list-row-sep">↔</span>
+          <span>{{ conv.participant2 }}</span>
+        </div>
+        <div *ngIf="conv.lastMessagePreview" class="cr__list-row-preview">
+          <span class="cr__list-row-author">{{ conv.lastMessageBy }}:</span>
+          {{ conv.lastMessagePreview }}
+        </div>
+      </div>
+    </div>
+
+    <div class="cr__detail">
+      <div *ngIf="loadingMessages" class="cr__placeholder">
+        Loading messages…
+      </div>
+      <app-chat-transcript
+        *ngIf="!loadingMessages"
+        [messages]="messages"
+        [participant1]="selected?.participant1 || ''"
+        [participant2]="selected?.participant2 || ''"
+        [siteName]="selected?.deviceSiteName ?? null"
+      ></app-chat-transcript>
+    </div>
+  </div>
+</div>

@@ -28,6 +28,12 @@ export interface ChatConversation {
   deviceSiteName: string | null;
 }
 
+export interface EnrichedConversation extends ChatConversation {
+  lastMessageAt: string | null;
+  lastMessageBy: string | null;
+  lastMessagePreview: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ChatService implements OnDestroy {
   private readonly apiUrl = environment.API_URL;
@@ -204,6 +210,12 @@ export class ChatService implements OnDestroy {
   getAllConversations(): Observable<ChatConversation[]> {
     return this.http.get<ChatConversation[]>(
       `${this.apiUrl}chat/conversations`,
+    );
+  }
+
+  getAllConversationsEnriched(): Observable<EnrichedConversation[]> {
+    return this.http.get<EnrichedConversation[]>(
+      `${this.apiUrl}chat/conversations/admin/all`,
     );
   }
 

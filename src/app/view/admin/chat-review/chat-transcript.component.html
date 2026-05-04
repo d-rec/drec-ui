@@ -1,0 +1,19 @@
+<div class="rt" #scroll>
+  <div class="rt__legend" *ngIf="messages.length > 0">
+    <span class="rt__legend-chip rt__legend-chip--p1">{{ participant1 }}</span>
+    <span class="rt__legend-chip rt__legend-chip--p2">{{ participant2 }}</span>
+    <span *ngIf="siteName" class="rt__legend-site">site {{ siteName }}</span>
+  </div>
+
+  <div *ngIf="messages.length === 0" class="rt__empty">
+    Pick a conversation on the left to view its transcript.
+  </div>
+
+  <div *ngFor="let msg of messages" [class]="bubbleClass(msg)">
+    <div class="rt__bubble-meta">
+      <span class="rt__bubble-author">{{ msg.username }}</span>
+      <span class="rt__bubble-time">{{ msg.createdAt | date: 'medium' }}</span>
+    </div>
+    <div class="rt__bubble-text">{{ msg.chatEntry }}</div>
+  </div>
+</div>

@@ -9,6 +9,8 @@ import { AddUsersComponent } from './add-users/add-users.component';
 import { InvitationformComponent } from './invitationform/invitationform.component';
 import { RegistrantComponent } from './registrant/registrant.component';
 import { WebhooksComponent } from './webhooks/webhooks.component';
+import { ChatReviewComponent } from './chat-review/chat-review.component';
+import { ChatTranscriptComponent } from './chat-review/chat-transcript.component';
 import { SharedModule } from '../../shared.module';
 import { MapModule } from '../map/map.module';
 import { SatellitePreviewComponent } from '../../shared/satellite-preview/satellite-preview.component';
@@ -20,6 +22,8 @@ import { SatellitePreviewComponent } from '../../shared/satellite-preview/satell
     InvitationformComponent,
     RegistrantComponent,
     WebhooksComponent,
+    ChatReviewComponent,
+    ChatTranscriptComponent,
   ],
   imports: [
     CommonModule,
