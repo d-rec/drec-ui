@@ -2308,6 +2308,20 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     return level;
   }
 
+  /**
+   * Show the standalone "missing" tag only when no req-tag is carrying
+   * the same information. Otherwise the row reads "REQUIRED missing"
+   * which is duplicative — pick one.
+   */
+  showMissingTag(
+    docType: string,
+    config: string | null,
+    hasDoc: boolean,
+  ): boolean {
+    if (hasDoc) return false;
+    return !this.getReqStatus(docType, config, hasDoc);
+  }
+
   /** Get config-specific hint for a document type. */
   getDocHint(docType: string, config?: string | null): string | null {
     const c =
