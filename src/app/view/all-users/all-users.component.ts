@@ -411,11 +411,14 @@ export class AllUsersComponent {
   }
 
   openinviteDialog() {
+    const title = this.orgdetails
+      ? 'User invite in ' + this.orgdetails.name
+      : 'Invite a user to an organization';
     const confirmDialog = this.dialog.open(InvitationformComponent, {
       data: {
-        title: 'User invite in ' + this.orgdetails.name,
+        title,
         message: 'Are you sure, you want to  Invite: ',
-        orginfo: this.orgdetails,
+        orginfo: this.orgdetails ?? null,
       },
     });
     confirmDialog.afterClosed().subscribe((result) => {

@@ -3,22 +3,22 @@
 @import '~leaflet/dist/leaflet.css';
 
 // --- Design Tokens (modern slate/teal) ---
-$color-bg: #f1f5f9;          // slate-100
-$color-surface: #ffffff;     // clean white
-$color-border: #e2e8f0;      // slate-200
-$color-header-bg: #0f172a;   // slate-900
+$color-bg: #f1f5f9; // slate-100
+$color-surface: #ffffff; // clean white
+$color-border: #e2e8f0; // slate-200
+$color-header-bg: #0f172a; // slate-900
 $color-header-text: #f8fafc;
-$color-primary: #0F607F;     // teal-700
+$color-primary: #0f607f; // teal-700
 $color-primary-dark: #115e59;
 $color-primary-light: rgba(15, 118, 110, 0.08);
-$color-text: #1e293b;        // slate-800
-$color-muted: #64748b;       // slate-500
+$color-text: #1e293b; // slate-800
+$color-muted: #64748b; // slate-500
 $color-danger: #dc2626;
 $color-success: #16a34a;
 $color-warning: #d97706;
 $white: #ffffff;
 $danger: #dc2626;
-$color-row-alt: #f8fafc;     // slate-50
+$color-row-alt: #f8fafc; // slate-50
 
 // CSS custom properties (used by component SCSS via var())
 :root {
@@ -38,7 +38,13 @@ $color-row-alt: #f8fafc;     // slate-50
   --color-row-alt: #{$color-row-alt};
 }
 
-$font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+$font-sans:
+  'Inter',
+  system-ui,
+  -apple-system,
+  'Segoe UI',
+  Roboto,
+  sans-serif;
 $font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
 $shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -63,7 +69,13 @@ html,
 body,
 .mat-mdc-card-title,
 .mdc-button,
-h1, h2, h3, h4, h5, h6, p {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
   font-family: $font-sans !important;
 }
 .mat-typography,
@@ -85,8 +97,8 @@ body {
 }
 
 // --- Custom form controls (no blue browser checkboxes) ---
-input[type="checkbox"],
-input[type="radio"] {
+input[type='checkbox'],
+input[type='radio'] {
   appearance: none;
   -webkit-appearance: none;
   width: 16px;
@@ -122,7 +134,7 @@ input[type="radio"] {
     outline-offset: 2px;
   }
 }
-input[type="radio"] {
+input[type='radio'] {
   border-radius: 50%;
   &:checked::after {
     border: none;
@@ -136,8 +148,15 @@ input[type="radio"] {
   }
 }
 
-.fn { font-size: 9px; color: #64748b; vertical-align: super; margin-left: 1px; }
-.wide-panel { min-width: 520px !important; }
+.fn {
+  font-size: 9px;
+  color: #64748b;
+  vertical-align: super;
+  margin-left: 1px;
+}
+.wide-panel {
+  min-width: 520px !important;
+}
 
 .body-bg {
   padding: 16px 20px;
@@ -184,9 +203,15 @@ input[type="radio"] {
 
 // Buttons — embossed style
 .btn-primary {
-  background: linear-gradient(to bottom, lighten($color-primary, 6%), $color-primary) !important;
+  background: linear-gradient(
+    to bottom,
+    lighten($color-primary, 6%),
+    $color-primary
+  ) !important;
   border: 1px solid darken($color-primary, 6%) !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
   color: $white !important;
   font-weight: 600 !important;
   padding: 7px 16px;
@@ -197,19 +222,31 @@ input[type="radio"] {
   &:hover,
   &:active,
   &:focus {
-    background: linear-gradient(to bottom, $color-primary, darken($color-primary, 4%)) !important;
+    background: linear-gradient(
+      to bottom,
+      $color-primary,
+      darken($color-primary, 4%)
+    ) !important;
     border-color: darken($color-primary, 8%) !important;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+    box-shadow:
+      0 1px 3px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
     color: $white !important;
   }
 }
 
 .btn-content-back {
-  background: linear-gradient(to bottom, lighten($color-muted, 8%), $color-muted) !important;
+  background: linear-gradient(
+    to bottom,
+    lighten($color-muted, 8%),
+    $color-muted
+  ) !important;
   color: $white !important;
   font-weight: 600;
   border: 1px solid darken($color-muted, 6%) !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.12) !important;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
   padding: 7px 16px;
   border-radius: $radius-sm;
   font-size: 13px;
@@ -217,7 +254,11 @@ input[type="radio"] {
   &:hover,
   &:active,
   &:focus {
-    background: linear-gradient(to bottom, $color-muted, darken($color-muted, 4%)) !important;
+    background: linear-gradient(
+      to bottom,
+      $color-muted,
+      darken($color-muted, 4%)
+    ) !important;
     border-color: darken($color-muted, 8%) !important;
     color: $white !important;
   }
@@ -280,6 +321,29 @@ fieldset:disabled .btn.btn-primary {
 .mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
   font-size: $f-14 !important;
   top: 25px !important;
+}
+
+// Compact a search-style mat-form-field. Tag the field with the
+// .compact-search class to opt in (e.g., the All Users header search).
+mat-form-field.compact-search {
+  .mat-mdc-text-field-wrapper {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  .mat-mdc-form-field-infix {
+    min-height: 36px !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+  // outline notch top/bottom are positioned relative to infix, recompute
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    height: 36px !important;
+  }
 }
 
 // All tables
@@ -454,7 +518,8 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
   --mdc-protected-button-container-color: #{$color-primary} !important;
   --mdc-protected-button-label-text-color: #{$white} !important;
 
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     --mdc-filled-button-container-color: #{$color-primary-dark} !important;
     --mdc-protected-button-container-color: #{$color-primary-dark} !important;
   }
@@ -581,7 +646,7 @@ tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
 // Login / Register layout
 .guest-layout {
   height: 100vh;
-  background: linear-gradient(144deg, #0F607F 0%, #0f172a 48%);
+  background: linear-gradient(144deg, #0f607f 0%, #0f172a 48%);
   overflow: hidden;
 
   .mat-card {
@@ -775,25 +840,40 @@ tr.mat-row:nth-child(even) {
 // ══════════════════════════════════════════════════════════════════════════════
 
 // Bootstrap overrides
-.navbar, .navbar-default, .navbar-light {
+.navbar,
+.navbar-default,
+.navbar-light {
   background-color: $color-header-bg !important;
   border-color: $color-border !important;
 }
-.card, .modal-content, .dropdown-menu, .popover, .tooltip-inner {
+.card,
+.modal-content,
+.dropdown-menu,
+.popover,
+.tooltip-inner {
   background-color: $color-surface !important;
   border-color: $color-border !important;
   color: $color-text !important;
 }
 .dropdown-item {
   color: $color-text !important;
-  &:hover, &:focus { background-color: $color-row-alt !important; }
+  &:hover,
+  &:focus {
+    background-color: $color-row-alt !important;
+  }
 }
-.table, .table-striped, .table-bordered {
+.table,
+.table-striped,
+.table-bordered {
   color: $color-text !important;
   border-color: $color-border !important;
-  th, td { border-color: $color-border !important; }
+  th,
+  td {
+    border-color: $color-border !important;
+  }
 }
-.form-control, .form-select {
+.form-control,
+.form-select {
   background-color: $color-surface !important;
   border-color: $color-border !important;
   color: $color-text !important;
@@ -801,7 +881,9 @@ tr.mat-row:nth-child(even) {
     border-color: $color-primary !important;
     box-shadow: 0 0 0 2px $color-primary-light !important;
   }
-  &::placeholder { color: $color-muted !important; }
+  &::placeholder {
+    color: $color-muted !important;
+  }
 }
 .input-group-text {
   background-color: $color-row-alt !important;
@@ -812,70 +894,188 @@ tr.mat-row:nth-child(even) {
   color: $color-primary !important;
   border: 1px solid $color-primary !important;
   background: linear-gradient(to bottom, #fff, $color-row-alt) !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 #fff !important;
-  &:hover { background: linear-gradient(to bottom, lighten($color-primary, 6%), $color-primary) !important; color: #fff !important; box-shadow: 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15) !important; }
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 #fff !important;
+  &:hover {
+    background: linear-gradient(
+      to bottom,
+      lighten($color-primary, 6%),
+      $color-primary
+    ) !important;
+    color: #fff !important;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  }
 }
 .btn-outline-secondary {
   color: $color-muted !important;
   border: 1px solid $color-border !important;
   background: linear-gradient(to bottom, #fff, $color-row-alt) !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.06), inset 0 1px 0 #fff !important;
-  &:hover { background: linear-gradient(to bottom, $color-row-alt, darken($color-row-alt, 3%)) !important; color: $color-text !important; }
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 #fff !important;
+  &:hover {
+    background: linear-gradient(
+      to bottom,
+      $color-row-alt,
+      darken($color-row-alt, 3%)
+    ) !important;
+    color: $color-text !important;
+  }
 }
 .btn-success {
-  background: linear-gradient(to bottom, lighten($color-success, 6%), $color-success) !important;
+  background: linear-gradient(
+    to bottom,
+    lighten($color-success, 6%),
+    $color-success
+  ) !important;
   border: 1px solid darken($color-success, 8%) !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 .btn-danger {
-  background: linear-gradient(to bottom, lighten($color-danger, 6%), $color-danger) !important;
+  background: linear-gradient(
+    to bottom,
+    lighten($color-danger, 6%),
+    $color-danger
+  ) !important;
   border: 1px solid darken($color-danger, 8%) !important;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15) !important;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
-.alert { border-color: $color-border !important; }
-.alert-info { background-color: rgba(90, 102, 80, 0.1) !important; color: $color-primary-dark !important; }
-.alert-warning { background-color: rgba(192, 146, 58, 0.1) !important; color: #8a6a20 !important; }
-.alert-danger { background-color: rgba(181, 64, 58, 0.1) !important; color: $color-danger !important; }
-.alert-success { background-color: rgba(90, 138, 94, 0.1) !important; color: $color-success !important; }
+.alert {
+  border-color: $color-border !important;
+}
+.alert-info {
+  background-color: rgba(90, 102, 80, 0.1) !important;
+  color: $color-primary-dark !important;
+}
+.alert-warning {
+  background-color: rgba(192, 146, 58, 0.1) !important;
+  color: #8a6a20 !important;
+}
+.alert-danger {
+  background-color: rgba(181, 64, 58, 0.1) !important;
+  color: $color-danger !important;
+}
+.alert-success {
+  background-color: rgba(90, 138, 94, 0.1) !important;
+  color: $color-success !important;
+}
 
-a { color: $color-primary; }
-a:hover { color: $color-primary-dark; }
-.text-muted { color: $color-muted !important; }
-.text-dark { color: $color-text !important; }
-.bg-light { background-color: $color-row-alt !important; }
-.bg-white { background-color: $color-surface !important; }
-.border { border-color: $color-border !important; }
-hr { border-color: $color-border; }
+a {
+  color: $color-primary;
+}
+a:hover {
+  color: $color-primary-dark;
+}
+.text-muted {
+  color: $color-muted !important;
+}
+.text-dark {
+  color: $color-text !important;
+}
+.bg-light {
+  background-color: $color-row-alt !important;
+}
+.bg-white {
+  background-color: $color-surface !important;
+}
+.border {
+  border-color: $color-border !important;
+}
+hr {
+  border-color: $color-border;
+}
 
 // Angular Material dark surfaces
-.mat-mdc-card, .mat-mdc-dialog-container .mat-mdc-dialog-surface {
+.mat-mdc-card,
+.mat-mdc-dialog-container .mat-mdc-dialog-surface {
   background-color: $color-surface !important;
   color: $color-text !important;
 }
-.mat-mdc-card { border: 1px solid $color-border !important; }
-.mat-toolbar { background-color: $color-header-bg !important; color: $color-header-text !important; }
-.mat-mdc-menu-panel { background-color: $color-surface !important; }
-.mat-mdc-menu-item { color: $color-text !important; }
-.mat-mdc-option { color: $color-text !important; background-color: $color-surface !important; }
-.mat-mdc-option:hover, .mat-mdc-option.mat-mdc-option-active { background-color: $color-row-alt !important; }
-.mat-mdc-select-panel { background-color: $color-surface !important; }
-.mat-mdc-paginator { background-color: $color-surface !important; color: $color-text !important; }
-.mat-mdc-tab-header { background-color: $color-surface !important; }
-.mat-mdc-tab-label-container { color: $color-muted !important; }
-.mat-expansion-panel { background-color: $color-surface !important; color: $color-text !important; }
-.mat-mdc-form-field-input-control { color: $color-text !important; }
-.mat-mdc-floating-label { color: $color-muted !important; }
-.mat-mdc-select-value-text { color: $color-text !important; }
-.mat-datepicker-content { background-color: $color-surface !important; color: $color-text !important; }
-.mat-calendar-body-cell-content { color: $color-text !important; }
-.mat-mdc-snack-bar-container { background-color: $color-row-alt !important; color: $color-text !important; }
-.mat-sidenav-container, .mat-sidenav-content, .mat-drawer-container, .mat-drawer-content {
+.mat-mdc-card {
+  border: 1px solid $color-border !important;
+}
+.mat-toolbar {
+  background-color: $color-header-bg !important;
+  color: $color-header-text !important;
+}
+.mat-mdc-menu-panel {
+  background-color: $color-surface !important;
+}
+.mat-mdc-menu-item {
+  color: $color-text !important;
+}
+.mat-mdc-option {
+  color: $color-text !important;
+  background-color: $color-surface !important;
+}
+.mat-mdc-option:hover,
+.mat-mdc-option.mat-mdc-option-active {
+  background-color: $color-row-alt !important;
+}
+.mat-mdc-select-panel {
+  background-color: $color-surface !important;
+}
+.mat-mdc-paginator {
+  background-color: $color-surface !important;
+  color: $color-text !important;
+}
+.mat-mdc-tab-header {
+  background-color: $color-surface !important;
+}
+.mat-mdc-tab-label-container {
+  color: $color-muted !important;
+}
+.mat-expansion-panel {
+  background-color: $color-surface !important;
+  color: $color-text !important;
+}
+.mat-mdc-form-field-input-control {
+  color: $color-text !important;
+}
+.mat-mdc-floating-label {
+  color: $color-muted !important;
+}
+.mat-mdc-select-value-text {
+  color: $color-text !important;
+}
+.mat-datepicker-content {
+  background-color: $color-surface !important;
+  color: $color-text !important;
+}
+.mat-calendar-body-cell-content {
+  color: $color-text !important;
+}
+.mat-mdc-snack-bar-container {
+  background-color: $color-row-alt !important;
+  color: $color-text !important;
+}
+.mat-sidenav-container,
+.mat-sidenav-content,
+.mat-drawer-container,
+.mat-drawer-content {
   background-color: $color-bg !important;
   color: $color-text !important;
 }
 
 // Scrollbar
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: $color-bg; }
-::-webkit-scrollbar-thumb { background: $color-border; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: $color-muted; }
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: $color-bg;
+}
+::-webkit-scrollbar-thumb {
+  background: $color-border;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: $color-muted;
+}

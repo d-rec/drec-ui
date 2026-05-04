@@ -35,6 +35,8 @@ export class InvitationformComponent {
   ];
   loginuser: any;
   role: any;
+  orgs: any[] = [];
+  preselectedOrg: any;
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -47,22 +49,40 @@ export class InvitationformComponent {
     public dialogRef: MatDialogRef<InvitationformComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
-    this.data = data.orginfo;
-    if (data.orginfo.organizationType === 'Registrant') {
-      this.role = 'Registrant';
-    }
-    if (data.orginfo.organizationType === 'Buyer') {
-      this.role = 'Buyer';
-    }
+    this.preselectedOrg = data.orginfo ?? null;
+    this.data = this.preselectedOrg;
+    this.applyOrgType(this.preselectedOrg?.organizationType);
   }
   ngOnInit() {
-    // this.getinvitationList();
     this.inviteForm = this.fb.group({
+      orgId: [this.preselectedOrg?.id ?? null, [Validators.required]],
       firstName: [null],
       lastName: [null],
       email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
       role: [null, [Validators.required]],
     });
+
+    if (!this.preselectedOrg) {
+      this.adminService.GetAllOrganization().subscribe((data: any) => {
+        this.orgs = (data?.organizations ?? []).filter(
+          (o: any) =>
+            o.organizationType === 'Registrant' ||
+            o.organizationType === 'Buyer',
+        );
+      });
+      this.inviteForm.get('orgId')?.valueChanges.subscribe((id: number) => {
+        const org = this.orgs.find((o) => o.id === id);
+        this.data = org ?? null;
+        this.applyOrgType(org?.organizationType);
+        // role options depend on org type — clear selection
+        this.inviteForm.get('role')?.setValue(null);
+      });
+    }
+  }
+
+  private applyOrgType(type: string | undefined) {
+    this.role =
+      type === 'Registrant' ? 'Registrant' : type === 'Buyer' ? 'Buyer' : null;
   }
   emaiErrors() {
     return this.inviteForm.get('email')?.hasError('required')
@@ -80,25 +100,32 @@ export class InvitationformComponent {
     });
   }
   async onSubmit() {
-    this.inveiteService
-      .Postuserinvitation(this.inviteForm.value, this.data.id)
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.toastrService.success('Invitation Sent');
-            this.dialogRef.close(true);
-          }
-        },
-        error: (err) => {
-          if (err.error.statusCode === 403) {
-            this.toastrService.error('You are Unauthorized');
-          }
-          this.toastrService.error(
-            'Error:' + err.error.message,
-            'Invitation Fail',
-          );
-        },
-      });
+    const targetOrgId = this.inviteForm.value.orgId ?? this.data?.id;
+    if (!targetOrgId) {
+      this.toastrService.error(
+        'Pick an organization first.',
+        'Invitation Fail',
+      );
+      return;
+    }
+    const { orgId: _orgId, ...payload } = this.inviteForm.value;
+    this.inveiteService.Postuserinvitation(payload, targetOrgId).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastrService.success('Invitation Sent');
+          this.dialogRef.close(true);
+        }
+      },
+      error: (err) => {
+        if (err.error.statusCode === 403) {
+          this.toastrService.error('You are Unauthorized');
+        }
+        this.toastrService.error(
+          'Error:' + err.error.message,
+          'Invitation Fail',
+        );
+      },
+    });
   }
   getinvitationList() {
     this.inveiteService.getinvitaion().subscribe({
