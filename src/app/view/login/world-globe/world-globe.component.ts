@@ -8,12 +8,7 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { select } from 'd3-selection';
-import {
-  geoOrthographic,
-  geoPath,
-  geoGraticule10,
-  geoDistance,
-} from 'd3-geo';
+import { geoOrthographic, geoPath, geoGraticule10, geoDistance } from 'd3-geo';
 import { timer, Timer } from 'd3-timer';
 import { feature } from 'topojson-client';
 import { environment } from '../../../../environments/environment';
@@ -106,10 +101,14 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     if (this.animTimer) this.animTimer.stop();
     if (this.cutawayTimeout) clearTimeout(this.cutawayTimeout);
     if (this.resizeObserver) this.resizeObserver.disconnect();
-    if (this.boundMouseMove) document.removeEventListener('mousemove', this.boundMouseMove);
-    if (this.boundMouseUp) document.removeEventListener('mouseup', this.boundMouseUp);
-    if (this.boundTouchMove) document.removeEventListener('touchmove', this.boundTouchMove);
-    if (this.boundTouchEnd) document.removeEventListener('touchend', this.boundTouchEnd);
+    if (this.boundMouseMove)
+      document.removeEventListener('mousemove', this.boundMouseMove);
+    if (this.boundMouseUp)
+      document.removeEventListener('mouseup', this.boundMouseUp);
+    if (this.boundTouchMove)
+      document.removeEventListener('touchmove', this.boundTouchMove);
+    if (this.boundTouchEnd)
+      document.removeEventListener('touchend', this.boundTouchEnd);
   }
 
   private attachDragHandlers() {
@@ -125,7 +124,8 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
       if (!this.dragging) return;
       const globeR = this.projection.scale();
       const degPerPx = 90 / globeR; // a drag of one globe-radius ≈ 90° rotation
-      this.rotation[0] = this.dragBaseRotation + (clientX - this.dragBaseX) * degPerPx;
+      this.rotation[0] =
+        this.dragBaseRotation + (clientX - this.dragBaseX) * degPerPx;
       this.dragSamples.push({ ms: performance.now(), x: clientX });
       const cutoff = performance.now() - 100;
       this.dragSamples = this.dragSamples.filter((s) => s.ms >= cutoff);
@@ -156,15 +156,21 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     this.boundMouseUp = () => onUp();
     document.addEventListener('mousemove', this.boundMouseMove);
     document.addEventListener('mouseup', this.boundMouseUp);
-    svg.addEventListener('touchstart', (e: TouchEvent) => {
-      if (e.touches.length === 0) return;
-      onDown(e.touches[0].clientX);
-    }, { passive: true });
+    svg.addEventListener(
+      'touchstart',
+      (e: TouchEvent) => {
+        if (e.touches.length === 0) return;
+        onDown(e.touches[0].clientX);
+      },
+      { passive: true },
+    );
     this.boundTouchMove = (e: TouchEvent) => {
       if (e.touches.length > 0) onMove(e.touches[0].clientX);
     };
     this.boundTouchEnd = () => onUp();
-    document.addEventListener('touchmove', this.boundTouchMove, { passive: true });
+    document.addEventListener('touchmove', this.boundTouchMove, {
+      passive: true,
+    });
     document.addEventListener('touchend', this.boundTouchEnd);
   }
 
@@ -304,17 +310,13 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     const dotSel = dotG
       .selectAll<SVGCircleElement, SiteDot>('circle')
       .data(this.sites);
-    const dotsEnter = dotSel
-      .enter()
-      .append('circle')
-      .attr('class', 'site-dot');
+    const dotsEnter = dotSel.enter().append('circle').attr('class', 'site-dot');
     const dotsAll: any = dotsEnter.merge(dotSel as any);
 
     const tSec = now / 1000;
     dotsAll.each((d: any, i: number, nodes: any) => {
       const node = select(nodes[i]);
-      const visible =
-        geoDistance([d.lon, d.lat], center) < Math.PI / 2 - 0.02;
+      const visible = geoDistance([d.lon, d.lat], center) < Math.PI / 2 - 0.02;
       if (!visible) {
         node.attr('display', 'none');
         return;
@@ -367,9 +369,7 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
       (s: FeaturedSite, idx: number) => {
         const onHemisphere =
           geoDistance([s.lon, s.lat], center) < Math.PI / 2 - 0.05;
-        const p = onHemisphere
-          ? this.projection([s.lon, s.lat])
-          : null;
+        const p = onHemisphere ? this.projection([s.lon, s.lat]) : null;
         if (!p) {
           return {
             idx,
@@ -395,7 +395,17 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
         labelY = Math.max(20, Math.min(this.height - 20, labelY));
         const anchor: 'start' | 'end' | 'middle' =
           ux > 0.08 ? 'start' : ux < -0.08 ? 'end' : 'middle';
-        return { idx, site: s, p, labelX, labelY, ux, uy, visible: true, anchor };
+        return {
+          idx,
+          site: s,
+          p,
+          labelX,
+          labelY,
+          ux,
+          uy,
+          visible: true,
+          anchor,
+        };
       },
     );
 
@@ -562,10 +572,8 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     // Track the site as the globe rotates: re-project each frame.
     const center: [number, number] = [-this.rotation[0], -this.rotation[1]];
     const offHemisphere =
-      geoDistance(
-        [this.cutawaySite.lon, this.cutawaySite.lat],
-        center,
-      ) >= Math.PI / 2 - 0.05;
+      geoDistance([this.cutawaySite.lon, this.cutawaySite.lat], center) >=
+      Math.PI / 2 - 0.05;
     if (offHemisphere) {
       this.endCutaway();
       return;

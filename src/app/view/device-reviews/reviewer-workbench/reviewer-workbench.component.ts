@@ -46,7 +46,9 @@ interface OcRow {
   templateUrl: './reviewer-workbench.component.html',
   styleUrls: ['./reviewer-workbench.component.scss'],
 })
-export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ReviewerWorkbenchComponent
+  implements OnInit, OnDestroy, AfterViewInit
+{
   @ViewChildren('ocRow') ocRowElements!: QueryList<ElementRef<HTMLElement>>;
 
   deviceId = '';
@@ -68,10 +70,22 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
         'Single Line Diagram — Bilgram MG\nSite: Bilgram, Hardoi, Uttar Pradesh, IN\nOperator: OMC Power Pvt. Ltd.\nCapacity (DC): 27.5 kWp\nCapacity (AC): 25 kW\nInverter: SMA Sunny Tripower 25-3SE\nModules: 50 × Trina Vertex S 550 W\nGrid interconnection: Behind-the-meter, no export\nMeter ID: SMA-2025-08137\nCOD: 2024-03-12',
       chips: [
         { ocNum: 9, label: 'Capacity', registrantValue: '25 kW' },
-        { ocNum: 11, label: 'Inverter make/model', registrantValue: 'SMA Sunny Tripower 25' },
-        { ocNum: 13, label: 'Module make/model', registrantValue: 'Trina Vertex S 550 W' },
+        {
+          ocNum: 11,
+          label: 'Inverter make/model',
+          registrantValue: 'SMA Sunny Tripower 25',
+        },
+        {
+          ocNum: 13,
+          label: 'Module make/model',
+          registrantValue: 'Trina Vertex S 550 W',
+        },
         { ocNum: 14, label: 'Meter ID', registrantValue: 'SMA-2025-08137' },
-        { ocNum: 15, label: 'Grid interconnection', registrantValue: 'true (behind-the-meter)' },
+        {
+          ocNum: 15,
+          label: 'Grid interconnection',
+          registrantValue: 'true (behind-the-meter)',
+        },
         { ocNum: 16, label: 'Grid export type', registrantValue: 'none' },
         { ocNum: 24, label: 'Auxiliary energy sources', registrantValue: 'No' },
       ],
@@ -87,7 +101,11 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
       isFacilityBoundary: false,
       chips: [
         { ocNum: 9, label: 'Capacity', registrantValue: '25 kW' },
-        { ocNum: 11, label: 'Inverter make/model', registrantValue: 'SMA Sunny Tripower 25' },
+        {
+          ocNum: 11,
+          label: 'Inverter make/model',
+          registrantValue: 'SMA Sunny Tripower 25',
+        },
       ],
     },
     {
@@ -99,7 +117,13 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
       size: '820 KB',
       isImage: false,
       isFacilityBoundary: false,
-      chips: [{ ocNum: 8, label: 'Commercial operation date', registrantValue: '2024-03-12' }],
+      chips: [
+        {
+          ocNum: 8,
+          label: 'Commercial operation date',
+          registrantValue: '2024-03-12',
+        },
+      ],
     },
     {
       id: 'boundary',
@@ -111,7 +135,11 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
       isImage: true,
       isFacilityBoundary: true,
       chips: [
-        { ocNum: 3, label: 'Site coordinates', registrantValue: '27.18, 80.45' },
+        {
+          ocNum: 3,
+          label: 'Site coordinates',
+          registrantValue: '27.18, 80.45',
+        },
         { ocNum: 44, label: 'Facility boundary', registrantValue: 'uploaded' },
       ],
     },
@@ -125,7 +153,11 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
       isImage: false,
       isFacilityBoundary: false,
       chips: [
-        { ocNum: 47, label: 'PV system owner', registrantValue: 'OMC Power Pvt. Ltd.' },
+        {
+          ocNum: 47,
+          label: 'PV system owner',
+          registrantValue: 'OMC Power Pvt. Ltd.',
+        },
         { ocNum: 1, label: 'Operator name', registrantValue: 'OMC Power' },
       ],
     },
@@ -140,7 +172,11 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
       isFacilityBoundary: false,
       chips: [
         { ocNum: 23, label: 'Captive consumer', registrantValue: 'Yes' },
-        { ocNum: 47, label: 'PV system owner', registrantValue: 'OMC Power Pvt. Ltd.' },
+        {
+          ocNum: 47,
+          label: 'PV system owner',
+          registrantValue: 'OMC Power Pvt. Ltd.',
+        },
         { ocNum: 46, label: 'OD letter upload', registrantValue: 'present' },
       ],
     },
@@ -155,7 +191,11 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
       isFacilityBoundary: false,
       chips: [
         { ocNum: 14, label: 'Meter ID', registrantValue: 'SMA-2025-08137' },
-        { ocNum: 49, label: 'Metering evidence', registrantValue: 'Q4 2024 log' },
+        {
+          ocNum: 49,
+          label: 'Metering evidence',
+          registrantValue: 'Q4 2024 log',
+        },
       ],
     },
     {
@@ -168,7 +208,11 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
       isImage: true,
       isFacilityBoundary: false,
       chips: [
-        { ocNum: 3, label: 'Site coordinates', registrantValue: '27.18, 80.45' },
+        {
+          ocNum: 3,
+          label: 'Site coordinates',
+          registrantValue: '27.18, 80.45',
+        },
         { ocNum: 44, label: 'Facility boundary', registrantValue: 'uploaded' },
       ],
     },
@@ -182,8 +226,16 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
       isImage: true,
       isFacilityBoundary: false,
       chips: [
-        { ocNum: 3, label: 'Site coordinates', registrantValue: '27.18, 80.45' },
-        { ocNum: 13, label: 'Module make/model', registrantValue: 'Trina Vertex S 550 W' },
+        {
+          ocNum: 3,
+          label: 'Site coordinates',
+          registrantValue: '27.18, 80.45',
+        },
+        {
+          ocNum: 13,
+          label: 'Module make/model',
+          registrantValue: 'Trina Vertex S 550 W',
+        },
       ],
     },
   ];
@@ -194,31 +246,208 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
 
   // -- OC# state --
   ocRows: OcRow[] = [
-    { num: 1, label: 'Operator name', value: 'OMC Power', status: 'confirmed', comment: '', tickedBy: ['ownership'] },
-    { num: 3, label: 'Site coordinates', value: '27.180, 80.448', status: 'confirmed', comment: '', tickedBy: ['boundary', 'photo1'] },
-    { num: 5, label: 'Country', value: 'IND', status: 'discrepancy', comment: "reg said 'IND', SLD lists 'India' — accept", tickedBy: [] },
-    { num: 8, label: 'Commercial operation date', value: '2024-03-12', status: 'confirmed', comment: '', tickedBy: ['cod'] },
-    { num: 9, label: 'Capacity', value: '25 kW', status: 'confirmed', comment: '', tickedBy: ['sld'] },
-    { num: 10, label: 'DC vs AC capacity', value: '27.5 / 25', status: 'pending', comment: '', tickedBy: [] },
-    { num: 11, label: 'Inverter', value: 'SMA STP 25-3SE', status: 'confirmed', comment: '', tickedBy: ['sld'] },
-    { num: 13, label: 'Module', value: 'Trina Vertex S 550W', status: 'confirmed', comment: '', tickedBy: ['sld'] },
-    { num: 14, label: 'Meter / serial IDs', value: 'SMA-2025-08137', status: 'confirmed', comment: '', tickedBy: ['sld'] },
-    { num: 15, label: 'Grid interconnection', value: 'true', status: 'confirmed', comment: '', tickedBy: ['sld'] },
-    { num: 16, label: 'Grid export type', value: 'none', status: 'pending', comment: '', tickedBy: [] },
-    { num: 22, label: 'Operating configuration', value: 'GridNoExport', status: 'pending', comment: '', tickedBy: [] },
-    { num: 23, label: 'Captive consumer', value: 'Yes', status: 'discrepancy', comment: "OD letter says 'on-site only', SLD shows local-load topology — consistent", tickedBy: [] },
-    { num: 24, label: 'Aux energy sources', value: 'No', status: 'confirmed', comment: '', tickedBy: [] },
-    { num: 26, label: 'Submitter status', value: 'Operator', status: 'pending', comment: '', tickedBy: [] },
-    { num: 33, label: 'Public funding end', value: '—', status: 'confirmed', comment: '', tickedBy: [] },
-    { num: 34, label: 'Subsidy received', value: 'No', status: 'confirmed', comment: '', tickedBy: [] },
-    { num: 35, label: 'Subsidy types', value: '—', status: 'pending', comment: '', tickedBy: [] },
-    { num: 37, label: 'Labelling scheme', value: 'D-REC', status: 'pending', comment: '', tickedBy: [] },
-    { num: 42, label: 'Signature', value: '—', status: 'pending', comment: '', tickedBy: [] },
-    { num: 44, label: 'Facility boundary', value: 'uploaded', status: 'pending', comment: '', tickedBy: [] },
-    { num: 46, label: 'OD letter upload', value: 'present', status: 'pending', comment: '', tickedBy: [] },
-    { num: 47, label: 'PV system owner', value: 'OMC Power', status: 'discrepancy', comment: "ownership decl says 'OMC Power Pvt Ltd', OD letter says 'OMC Power Inc' — likely typo", tickedBy: [] },
-    { num: 49, label: 'Metering evidence', value: 'Q4 2024 log', status: 'pending', comment: '', tickedBy: [] },
-    { num: 50, label: 'Off-grid circumstances', value: 'n/a', status: 'pending', comment: '', tickedBy: [] },
+    {
+      num: 1,
+      label: 'Operator name',
+      value: 'OMC Power',
+      status: 'confirmed',
+      comment: '',
+      tickedBy: ['ownership'],
+    },
+    {
+      num: 3,
+      label: 'Site coordinates',
+      value: '27.180, 80.448',
+      status: 'confirmed',
+      comment: '',
+      tickedBy: ['boundary', 'photo1'],
+    },
+    {
+      num: 5,
+      label: 'Country',
+      value: 'IND',
+      status: 'discrepancy',
+      comment: "reg said 'IND', SLD lists 'India' — accept",
+      tickedBy: [],
+    },
+    {
+      num: 8,
+      label: 'Commercial operation date',
+      value: '2024-03-12',
+      status: 'confirmed',
+      comment: '',
+      tickedBy: ['cod'],
+    },
+    {
+      num: 9,
+      label: 'Capacity',
+      value: '25 kW',
+      status: 'confirmed',
+      comment: '',
+      tickedBy: ['sld'],
+    },
+    {
+      num: 10,
+      label: 'DC vs AC capacity',
+      value: '27.5 / 25',
+      status: 'pending',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 11,
+      label: 'Inverter',
+      value: 'SMA STP 25-3SE',
+      status: 'confirmed',
+      comment: '',
+      tickedBy: ['sld'],
+    },
+    {
+      num: 13,
+      label: 'Module',
+      value: 'Trina Vertex S 550W',
+      status: 'confirmed',
+      comment: '',
+      tickedBy: ['sld'],
+    },
+    {
+      num: 14,
+      label: 'Meter / serial IDs',
+      value: 'SMA-2025-08137',
+      status: 'confirmed',
+      comment: '',
+      tickedBy: ['sld'],
+    },
+    {
+      num: 15,
+      label: 'Grid interconnection',
+      value: 'true',
+      status: 'confirmed',
+      comment: '',
+      tickedBy: ['sld'],
+    },
+    {
+      num: 16,
+      label: 'Grid export type',
+      value: 'none',
+      status: 'pending',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 22,
+      label: 'Operating configuration',
+      value: 'GridNoExport',
+      status: 'pending',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 23,
+      label: 'Captive consumer',
+      value: 'Yes',
+      status: 'discrepancy',
+      comment:
+        "OD letter says 'on-site only', SLD shows local-load topology — consistent",
+      tickedBy: [],
+    },
+    {
+      num: 24,
+      label: 'Aux energy sources',
+      value: 'No',
+      status: 'confirmed',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 26,
+      label: 'Submitter status',
+      value: 'Operator',
+      status: 'pending',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 33,
+      label: 'Public funding end',
+      value: '—',
+      status: 'confirmed',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 34,
+      label: 'Subsidy received',
+      value: 'No',
+      status: 'confirmed',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 35,
+      label: 'Subsidy types',
+      value: '—',
+      status: 'pending',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 37,
+      label: 'Labelling scheme',
+      value: 'D-REC',
+      status: 'pending',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 42,
+      label: 'Signature',
+      value: '—',
+      status: 'pending',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 44,
+      label: 'Facility boundary',
+      value: 'uploaded',
+      status: 'pending',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 46,
+      label: 'OD letter upload',
+      value: 'present',
+      status: 'pending',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 47,
+      label: 'PV system owner',
+      value: 'OMC Power',
+      status: 'discrepancy',
+      comment:
+        "ownership decl says 'OMC Power Pvt Ltd', OD letter says 'OMC Power Inc' — likely typo",
+      tickedBy: [],
+    },
+    {
+      num: 49,
+      label: 'Metering evidence',
+      value: 'Q4 2024 log',
+      status: 'pending',
+      comment: '',
+      tickedBy: [],
+    },
+    {
+      num: 50,
+      label: 'Off-grid circumstances',
+      value: 'n/a',
+      status: 'pending',
+      comment: '',
+      tickedBy: [],
+    },
   ];
 
   filterMode: 'all' | 'commented' | 'unticked' = 'all';
@@ -284,9 +513,15 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
         (e) => e.nativeElement.dataset['ocNum'] === String(num),
       );
       if (el) {
-        el.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.nativeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
         el.nativeElement.classList.add('rw__oc-row--flash');
-        setTimeout(() => el.nativeElement.classList.remove('rw__oc-row--flash'), 1200);
+        setTimeout(
+          () => el.nativeElement.classList.remove('rw__oc-row--flash'),
+          1200,
+        );
       }
     }, 0);
   }
@@ -303,19 +538,28 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
       { key: 'photos' as const, label: 'Site photos' },
     ];
     return groups
-      .map((g) => ({ label: g.label, docs: this.docs.filter((d) => d.category === g.key) }))
+      .map((g) => ({
+        label: g.label,
+        docs: this.docs.filter((d) => d.category === g.key),
+      }))
       .filter((g) => g.docs.length > 0);
   }
 
   get filteredOcRows(): OcRow[] {
-    if (this.filterMode === 'commented') return this.ocRows.filter((r) => r.comment.trim().length > 0);
-    if (this.filterMode === 'unticked') return this.ocRows.filter((r) => r.tickedBy.length === 0);
+    if (this.filterMode === 'commented')
+      return this.ocRows.filter((r) => r.comment.trim().length > 0);
+    if (this.filterMode === 'unticked')
+      return this.ocRows.filter((r) => r.tickedBy.length === 0);
     return this.ocRows;
   }
 
   get progress() {
-    const confirmed = this.ocRows.filter((r) => r.status === 'confirmed').length;
-    const discrepancies = this.ocRows.filter((r) => r.status === 'discrepancy').length;
+    const confirmed = this.ocRows.filter(
+      (r) => r.status === 'confirmed',
+    ).length;
+    const discrepancies = this.ocRows.filter(
+      (r) => r.status === 'discrepancy',
+    ).length;
     const pending = this.ocRows.filter((r) => r.status === 'pending').length;
     const total = this.ocRows.length;
     return {
@@ -325,7 +569,8 @@ export class ReviewerWorkbenchComponent implements OnInit, OnDestroy, AfterViewI
       total,
       percent: total > 0 ? Math.round((confirmed / total) * 100) : 0,
       filterAll: total,
-      filterCommented: this.ocRows.filter((r) => r.comment.trim().length > 0).length,
+      filterCommented: this.ocRows.filter((r) => r.comment.trim().length > 0)
+        .length,
       filterUnticked: this.ocRows.filter((r) => r.tickedBy.length === 0).length,
     };
   }

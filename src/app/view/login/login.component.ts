@@ -7,7 +7,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { decodeJwtToken, storeUserSession } from '../../utils/token-utils';
 import { RoleModeService } from '../../auth/services/role-mode.service';
-import { VersionService, AppVersion } from '../../auth/services/version.service';
+import {
+  VersionService,
+  AppVersion,
+} from '../../auth/services/version.service';
 import { environment } from '../../../environments/environment';
 
 interface PlatformStats {
@@ -63,14 +66,12 @@ export class LoginComponent implements OnInit {
     this.versionService.get().subscribe((v) => {
       this.versionLine = this.formatVersion(v);
     });
-    this.http
-      .get<PlatformStats>(`${environment.API_URL}stats`)
-      .subscribe({
-        next: (s) => (this.platformStats = s),
-        error: () => {
-          // Silent fail — login still works without stats overlay.
-        },
-      });
+    this.http.get<PlatformStats>(`${environment.API_URL}stats`).subscribe({
+      next: (s) => (this.platformStats = s),
+      error: () => {
+        // Silent fail — login still works without stats overlay.
+      },
+    });
   }
 
   private formatVersion(v: AppVersion | null): string {
