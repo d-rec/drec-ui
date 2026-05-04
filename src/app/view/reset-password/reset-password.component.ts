@@ -113,24 +113,52 @@ export class ResetPasswordComponent {
     return validation;
   }
   submitting = false;
+  errorMessage: string | null = null;
 
   onSubmit() {
     if (this.submitting) return;
     this.submitting = true;
+    this.errorMessage = null;
     this.authService
       .UserResetPassword(this.accesstoken, this.resetpasswordForm.value)
       .subscribe({
-        next: (data) => {
+        next: () => {
           this.submitting = false;
           this.toastrService.success('Password set successfully!', 'Success');
           this.router.navigate(['/login']);
         },
         error: (err) => {
           this.submitting = false;
-          const message =
-            err.error?.message || err.message || 'An error occurred';
+          const message = this.friendlyErrorMessage(err);
+          this.errorMessage = message;
+          // also fire toast for users who scroll past the inline banner
           this.toastrService.error(message, 'Password Reset Failed');
+          // log raw response for debugging
+          // eslint-disable-next-line no-console
+          console.error('Reset-password failed:', err);
         },
       });
+  }
+
+  private friendlyErrorMessage(err: any): string {
+    const status = err?.status;
+    const raw = err?.error?.message || err?.message;
+    if (status === 401 || status === 403) {
+      return (
+        "We couldn't apply your password change. Your invitation link " +
+        'may have expired, or your account does not yet have permission ' +
+        'to set a password. Ask your administrator to re-invite you, ' +
+        'or contact support.'
+      );
+    }
+    if (status === 404 || status === 409) {
+      return 'This invitation link is no longer valid. Ask your administrator to send a fresh one.';
+    }
+    if (status === 0) {
+      return 'Network error — could not reach the server. Check your connection and try again.';
+    }
+    return raw
+      ? `Unexpected error: ${raw}`
+      : 'Something went wrong while resetting your password.';
   }
 }
