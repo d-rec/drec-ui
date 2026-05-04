@@ -10,21 +10,21 @@
       </div>
       <div>
         <button
-          class="btn btn-dark justify-content-end px-4 align-items-center"
+          class="btn btn-primary justify-content-end px-4 align-items-center"
           routerLink="/admin/add_user"
           *ngIf="loginuser?.role === 'Admin'"
         >
           <mat-icon class="align-middle me-2">person_add</mat-icon>New User</button
         >&nbsp;
         <button
-          class="btn btn-dark justify-content-end px-4 align-items-center"
+          class="btn btn-primary justify-content-end px-4 align-items-center"
           (click)="openinviteDialog()"
           *ngIf="showorg && !showorguser"
         >
           <mat-icon class="align-middle me-2">add_circle</mat-icon>Invite User</button
         >&nbsp;
         <button
-          class="btn btn-dark justify-content-end px-4 align-items-center"
+          class="btn btn-primary justify-content-end px-4 align-items-center"
           routerLink="/admin/All_organization"
           *ngIf="showorg && !showorguser"
         >
@@ -229,7 +229,7 @@
         *ngIf="loginuser?.role === 'Admin' || loginuser?.role === 'Registrant'"
       >
         <button
-          class="btn btn-dark px-4 align-items-center"
+          class="btn btn-primary px-4 align-items-center"
           [routerLink]="
             loginuser?.role === 'Admin'
               ? '/admin/add_user'
