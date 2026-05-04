@@ -2,7 +2,18 @@
   <mat-sidenav #sidenav mode="side" opened class="example-sidenav">
     <mat-nav-list *ngIf="loginuser">
       <div style="padding: 10px">
-        <p style="padding: 0; margin: 5px 0; font-size: 13px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap" [title]="loginuser.email">
+        <p
+          style="
+            padding: 0;
+            margin: 5px 0;
+            font-size: 13px;
+            color: #475569;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          "
+          [title]="loginuser.email"
+        >
           {{ loginuser.email }}
         </p>
         <small>
@@ -18,10 +29,12 @@
       >
         <span>Dashboard</span>
       </button>
-      <mat-expansion-panel [class.mat-elevation-z0]="true"
+      <mat-expansion-panel
+        [class.mat-elevation-z0]="true"
         [expanded]="isExpanded('account-settings')"
         (opened)="setExpanded('account-settings', true)"
-        (closed)="setExpanded('account-settings', false)">
+        (closed)="setExpanded('account-settings', false)"
+      >
         <mat-expansion-panel-header
           class="mdc-button"
           [attr.test-id]="'account-setting-header'"
@@ -44,7 +57,9 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/admin/All_organization"
-            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'Registrant'"
+            *ngIf="
+              loginuser.role === 'Admin' || loginuser.role === 'Registrant'
+            "
           >
             <span>Organizations</span>
           </a>
@@ -54,6 +69,10 @@
             routerLinkActive="active"
             routerLink="{{ Alluserurl }}"
             test-id="all-users"
+            *ngIf="
+              loginuser?.role !== 'Reviewer' &&
+              loginuser?.role !== 'SeniorReviewer'
+            "
           >
             <span>Users</span>
           </a>
@@ -97,6 +116,10 @@
             routerLinkActive="active"
             routerLink="settings/evident"
             test-id="evident-settings"
+            *ngIf="
+              loginuser?.role !== 'Reviewer' &&
+              loginuser?.role !== 'SeniorReviewer'
+            "
           >
             <span>Evident Settings</span>
           </a>
@@ -165,8 +188,7 @@
             routerLinkActive="active"
             routerLink="/device/add"
             *ngIf="
-              loginuser.role != 'Reviewer' &&
-              loginuser.role != 'SeniorReviewer'
+              loginuser.role != 'Reviewer' && loginuser.role != 'SeniorReviewer'
             "
             test-id="add-devices"
           >
@@ -221,7 +243,11 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/reads/reviews"
-            *ngIf="loginuser.role === 'Admin' || loginuser.role === 'Reviewer' || loginuser.role === 'SeniorReviewer'"
+            *ngIf="
+              loginuser.role === 'Admin' ||
+              loginuser.role === 'Reviewer' ||
+              loginuser.role === 'SeniorReviewer'
+            "
           >
             <span>Read Reviews</span>
           </a>
@@ -230,7 +256,9 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/reads/add"
-            *ngIf="loginuser.role != 'Reviewer' && loginuser.role != 'SeniorReviewer'"
+            *ngIf="
+              loginuser.role != 'Reviewer' && loginuser.role != 'SeniorReviewer'
+            "
             test-id="add-meter-read"
           >
             <!-- <mat-icon>list</mat-icon> -->
@@ -241,7 +269,10 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/reads/bulk-upload"
-            *ngIf="loginuser.role === 'Admin' || loginuser.organization?.organizationType === 'Registrant'"
+            *ngIf="
+              loginuser.role === 'Admin' ||
+              loginuser.organization?.organizationType === 'Registrant'
+            "
             test-id="meter-read-bulk-upload"
           >
             <!-- <mat-icon>list</mat-icon> -->
@@ -252,7 +283,10 @@
             class="menu-button inside-menu-button"
             routerLinkActive="active"
             routerLink="/device/certifiedin_reservation"
-            *ngIf="loginuser.role === 'Registrant' || loginuser.role === 'SiteOperator'"
+            *ngIf="
+              loginuser.role === 'Registrant' ||
+              loginuser.role === 'SiteOperator'
+            "
             test-id="certified-meter-read"
           >
             <!-- <mat-icon>list</mat-icon> -->
@@ -349,10 +383,13 @@
           </a>
         </mat-nav-list>
       </mat-expansion-panel>
-      <mat-expansion-panel [class.mat-elevation-z0]="true" *ngIf="loginuser.role === 'Registrant'"
+      <mat-expansion-panel
+        [class.mat-elevation-z0]="true"
+        *ngIf="loginuser.role === 'Registrant'"
         [expanded]="isExpanded('permission-registrant')"
         (opened)="setExpanded('permission-registrant', true)"
-        (closed)="setExpanded('permission-registrant', false)">
+        (closed)="setExpanded('permission-registrant', false)"
+      >
         <mat-expansion-panel-header
           class="mdc-button d-flex align-items-center"
         >
