@@ -11,6 +11,7 @@ import { AllRegistrantComponent } from '../registrant/all-registrant/all-registr
 import { WebhooksComponent } from './webhooks/webhooks.component';
 import { ChatReviewComponent } from './chat-review/chat-review.component';
 import { ChatReviewGuard } from '../../guards/chat-review.guard';
+import { NonReviewerGuard } from '../../guards/non-reviewer.guard';
 const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent },

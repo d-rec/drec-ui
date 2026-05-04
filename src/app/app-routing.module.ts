@@ -18,6 +18,7 @@ import { UserAcceptInvitationComponent } from './view/user-accept-invitation/use
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
 import { VerificationComponent } from './view/verification/verification.component';
+import { NonReviewerGuard } from './guards/non-reviewer.guard';
 import { AuthVerifiedGuard } from './guards/auth-verified.guard';
 import { AcceptTermsAndConditionsComponent } from './view/accept-terms-and-conditions/accept-terms-and-conditions.component';
 import { ResendConfirmEmailComponent } from './view/resend-confirmation-email/resend-confirmation-email.component';
@@ -114,10 +115,18 @@ const routes: Routes = [
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'analytics', component: ChartsComponent },
-      { path: 'tokens', component: CertificateDetailsComponent },
+      {
+        path: 'tokens',
+        component: CertificateDetailsComponent,
+        canActivate: [NonReviewerGuard],
+      },
       { path: 'certificate', component: CertificateComponent },
       { path: 'device-groups', component: DeviceGroups },
-      { path: 'settings/evident', component: EvidentSettingsComponent },
+      {
+        path: 'settings/evident',
+        component: EvidentSettingsComponent,
+        canActivate: [NonReviewerGuard],
+      },
       { path: 'settings/licenses', component: LicensesComponent },
       {
         path: 'issuer/add-issuer',

@@ -318,9 +318,18 @@ fieldset:disabled .btn.btn-primary {
   font-size: $f-12 !important;
 }
 
-.mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {
+// Floating label at-rest centering. Material 19 sets `top: 50%` + a
+// translateY transform; the previous hard-coded `top: 25px !important`
+// pinned labels to a fixed pixel offset that no longer matches the
+// default 56px outline-field height (drifted upward by the fix's age).
+// Use Material's intended math instead so labels stay centered when
+// field height changes.
+.mat-mdc-text-field-wrapper
+  .mat-mdc-form-field-flex
+  .mat-mdc-floating-label:not(.mdc-floating-label--float-above) {
   font-size: $f-14 !important;
-  top: 25px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
 }
 
 // Compact a search-style mat-form-field. Tag the field with the
