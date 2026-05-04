@@ -75,10 +75,14 @@
                 </div>
                 <div class="col-md-4">
                   <mat-form-field appearance="outline" class="mt-2">
-                    <mat-label class="mat-labels-cont text-capitalize">Role</mat-label>
+                    <mat-label class="mat-labels-cont text-capitalize"
+                      >Role</mat-label
+                    >
                     <mat-select formControlName="role">
                       <mat-option value="Reviewer">Reviewer</mat-option>
-                      <mat-option value="SeniorReviewer">Senior Reviewer</mat-option>
+                      <mat-option value="SeniorReviewer"
+                        >Senior Reviewer</mat-option
+                      >
                     </mat-select>
                     <mat-error class="pb-1" *ngIf="checkValidation('role')">
                       {{ fieldRequired }}
@@ -87,7 +91,12 @@
                 </div>
               </div>
               <div class="d-flex justify-content-end align-items-center mt-2">
-                <mat-checkbox formControlName="emailNotification" class="me-3">Email notification</mat-checkbox>
+                <mat-checkbox
+                  formControlName="emailNotification"
+                  color="primary"
+                  class="me-3"
+                  >Email notification</mat-checkbox
+                >
                 <button
                   mat-raised-button
                   class="btn-dark btn btn-block me-2"
