@@ -72,9 +72,12 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
     });
   }
 
+  fetchError = false;
   private async fetchAndDisplay(url: string): Promise<void> {
+    this.fetchError = false;
     try {
       const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const arrayBuffer = await response.arrayBuffer();
       // Force application/pdf MIME type to ensure iframe renders it
       const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
@@ -82,8 +85,16 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
       this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
         this.blobUrl,
       );
-    } catch {
-      this.safeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    } catch (err) {
+      // CRITICAL: do NOT fall back to the raw signed URL. It carries
+      // Content-Disposition: attachment, which makes Firefox open a
+      // download dialog that can re-trigger on every change-detection
+      // cycle and steal focus until the browser is killed. Show an
+      // error and let the user click Download (which uses window.open
+      // intentionally).
+      console.warn('pdf-window: fetch failed, refusing to render raw URL:', err);
+      this.fetchError = true;
+      this.safeUrl = null;
     }
     this.cdr.detectChanges();
   }

@@ -1,4 +1,4 @@
-<ng-container *ngIf="safeUrl">
+<ng-container *ngIf="safeUrl || fetchError">
   <app-ds-floating-window
     [title]="fileName"
     [initX]="150" [initY]="80"
@@ -8,10 +8,21 @@
     (close)="close()"
   >
     <app-pdf-preview
+      *ngIf="safeUrl"
       [previewUrl]="safeUrl"
       [previewType]="previewType"
       [ocrSource]="currentUrl"
       [sldDeviceId]="sldDeviceId">
     </app-pdf-preview>
+    <div *ngIf="fetchError" style="padding: 32px; text-align: center; color: #64748b;">
+      <div style="margin-bottom: 12px;">Could not load this document inline.</div>
+      <div style="font-size: 12px; margin-bottom: 16px;">
+        Likely causes: signed URL expired, CORS blocked, or network error.
+      </div>
+      <a *ngIf="currentUrl" [href]="currentUrl" target="_blank" rel="noopener"
+         style="background: #0f607f; color: #fff; padding: 8px 16px; border-radius: 4px; text-decoration: none; font-size: 13px;">
+        Open in new tab (download)
+      </a>
+    </div>
   </app-ds-floating-window>
 </ng-container>
