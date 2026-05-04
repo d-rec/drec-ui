@@ -178,6 +178,19 @@
               <th mat-header-cell *matHeaderCellDef > SDGBenefits </th>
               <td mat-cell *matCellDef="let row"> {{row.SDGBenefits}} </td> -->
           <!-- </ng-container> -->
+          <ng-container matColumnDef="lastUsed">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              class="text-left"
+            >
+              Last used
+            </th>
+            <td mat-cell *matCellDef="let element">
+              {{ element.lastUsed ? (element.lastUsed | date: 'medium') : '—' }}
+            </td>
+          </ng-container>
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef class="text-left">Action</th>
             <td mat-cell *matCellDef="let row; let i = index">

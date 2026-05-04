@@ -30,6 +30,7 @@ export class AllUsersComponent {
     'email',
     'type',
     'status',
+    'lastUsed',
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -168,7 +169,7 @@ export class AllUsersComponent {
     if (!this.allUsers.length) return;
     const term = (this.searchText || '').trim().toLowerCase();
     if (!term) {
-      this.dataSource = new MatTableDataSource(this.allUsers);
+      this.setDataSource(this.allUsers);
       return;
     }
     const filtered = this.allUsers.filter(
@@ -178,7 +179,30 @@ export class AllUsersComponent {
         u.organization?.name?.toLowerCase().includes(term) ||
         u.role?.toLowerCase().includes(term),
     );
-    this.dataSource = new MatTableDataSource(filtered);
+    this.setDataSource(filtered);
+  }
+
+  private setDataSource(rows: any[]) {
+    this.dataSource = new MatTableDataSource(rows);
+    this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (item: any, prop: string) => {
+      switch (prop) {
+        case 'organization':
+          return (item.organization?.name ?? '').toLowerCase();
+        case 'name':
+          return (
+            (item.firstName ?? '') +
+            ' ' +
+            (item.lastName ?? '')
+          ).toLowerCase();
+        case 'type':
+          return (item.role ?? '').toLowerCase();
+        case 'lastUsed':
+          return item.lastUsed ? new Date(item.lastUsed).getTime() : 0;
+        default:
+          return (item[prop] ?? '').toString().toLowerCase();
+      }
+    };
   }
   getAllUsers(page: number) {
     const limit = 10000;
@@ -211,7 +235,7 @@ export class AllUsersComponent {
         this.showorguser = false;
         this.loading = false;
         this.allUsers = data.users;
-        this.dataSource = new MatTableDataSource(this.allUsers);
+        this.setDataSource(this.allUsers);
       },
       error: (err) => {
         this.loading = false;
@@ -225,7 +249,7 @@ export class AllUsersComponent {
         this.showlist = true;
         this.loading = false;
         this.allUsers = (data as any).users;
-        this.dataSource = new MatTableDataSource(this.allUsers);
+        this.setDataSource(this.allUsers);
       },
       error: (err) => {
         this.loading = false;
@@ -242,7 +266,7 @@ export class AllUsersComponent {
           this.showlist = true;
           this.loading = false;
           this.allUsers = data.users;
-          this.dataSource = new MatTableDataSource(this.allUsers);
+          this.setDataSource(this.allUsers);
         },
         error: (err) => {
           this.loading = false;
