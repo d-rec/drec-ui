@@ -318,12 +318,27 @@ fieldset:disabled .btn.btn-primary {
   font-size: $f-12 !important;
 }
 
-// Floating label at-rest centering. Material 19 sets `top: 50%` + a
-// translateY transform; the previous hard-coded `top: 25px !important`
-// pinned labels to a fixed pixel offset that no longer matches the
-// default 56px outline-field height (drifted upward by the fix's age).
-// Use Material's intended math instead so labels stay centered when
-// field height changes.
+// Compact mat-form-field height app-wide. Material 19's outline default
+// is a 56px-tall infix; that box is too tall for our forms, which made
+// resting labels look "way too high" relative to the box edges no matter
+// where they sit (label-position fixes don't help — the box itself was
+// the problem).
+//
+// Shrink the infix to ~40px and let Material's default top:50% resting
+// label centering keep up. Notched-outline notch heights are recomputed
+// to match so the cut-out animation stays aligned.
+.mat-mdc-form-field .mat-mdc-form-field-infix {
+  min-height: 40px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-notched-outline {
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    height: 40px !important;
+  }
+}
 .mat-mdc-text-field-wrapper
   .mat-mdc-form-field-flex
   .mat-mdc-floating-label:not(.mdc-floating-label--float-above) {
