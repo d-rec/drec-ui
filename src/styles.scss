@@ -284,21 +284,26 @@ fieldset:disabled .btn.btn-primary {
 
 // All tables
 tr.mat-mdc-header-row.mdc-data-table__header-row.cdk-header-row {
-  background: $color-header-bg;
+  background: transparent;
   box-shadow: none;
+  height: 36px !important;
+  min-height: 36px !important;
 
   th {
-    color: $color-header-text;
+    color: $color-primary;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
 }
 
 // Mat Styles Overiding
-.mat-sort-header-arrow {
-  color: $color-header-text !important;
+.mat-sort-header-arrow,
+.mat-sort-header-content {
+  color: $color-primary !important;
 }
 
 .mat-mdc-table .mdc-data-table__row {

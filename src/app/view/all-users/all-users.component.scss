@@ -51,27 +51,6 @@
 ::ng-deep table.mat-mdc-table {
   border: none !important;
   box-shadow: none !important;
-
-  .mat-mdc-header-row {
-    height: 36px !important;
-    min-height: 36px !important;
-  }
-
-  .mat-mdc-header-cell {
-    color: #0f607f !important;
-    font-weight: 600;
-    font-size: 12px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding-top: 4px;
-    padding-bottom: 4px;
-  }
-
-  // sort arrow + active sort label inherit the brand teal too
-  .mat-sort-header-arrow,
-  .mat-sort-header-content {
-    color: #0f607f !important;
-  }
 }
 
 :host ::ng-deep .btn-primary {
