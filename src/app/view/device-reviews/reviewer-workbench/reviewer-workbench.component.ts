@@ -513,6 +513,9 @@ export class ReviewerWorkbenchComponent
     ) {
       this.selectedDocId = this.docs[0].id;
     }
+    // Pre-fetch the first selected doc as a blob so it renders without
+    // attachment-disposition shenanigans.
+    if (this.selectedDocId) this.ensureBlobUrlFor(this.selectedDocId);
   }
 
   /** Map the device's signed URLs to the workbench's DocItem shape. */
@@ -574,6 +577,15 @@ export class ReviewerWorkbenchComponent
     // Restore normal layout when leaving the workbench.
     this.host.nativeElement.remove();
     this.assetSub?.unsubscribe();
+    // Free blob URLs we created for inline preview.
+    Object.values(this.blobCache).forEach((u) => {
+      try {
+        URL.revokeObjectURL(u);
+      } catch {
+        /* ignore */
+      }
+    });
+    this.blobCache = {};
   }
 
   download(): void {
@@ -588,8 +600,29 @@ export class ReviewerWorkbenchComponent
 
   selectDoc(id: string) {
     this.selectedDocId = id;
-    // close OCR pane on doc switch — fresh content
     this.ocrOpen = false;
+    this.ensureBlobUrlFor(id);
+  }
+
+  /**
+   * Materialize the selected doc as a blob: URL so pdf-preview's iframe
+   * renders inline regardless of the original Content-Disposition. Lazy:
+   * only fetches the doc when first viewed; result cached per doc id.
+   */
+  private blobCache: Record<string, string> = {};
+  private async ensureBlobUrlFor(id: string): Promise<void> {
+    const doc = this.docs.find((d) => d.id === id);
+    if (!doc?.url || this.blobCache[id]) return;
+    try {
+      const resp = await fetch(doc.url);
+      if (!resp.ok) return;
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      this.blobCache[id] = blobUrl;
+      doc.url = blobUrl;
+    } catch (err) {
+      console.warn('Could not fetch doc as blob:', err);
+    }
   }
 
   isChipTicked(chip: ChipMapping): boolean {
