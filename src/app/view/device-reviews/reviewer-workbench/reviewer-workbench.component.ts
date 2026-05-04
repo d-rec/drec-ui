@@ -521,9 +521,9 @@ export class ReviewerWorkbenchComponent
     ) {
       this.selectedDocId = this.docs[0].id;
     }
-    // Pre-fetch the first selected doc as a blob so it renders without
-    // attachment-disposition shenanigans.
-    if (this.selectedDocId) this.ensureBlobUrlFor(this.selectedDocId);
+    // No auto-fetch — preview is opt-in via the Load Preview button so a
+    // signed URL with Content-Disposition: attachment can never reach an
+    // iframe without an explicit user action.
   }
 
   /** Map the device's signed URLs to the workbench's DocItem shape. */
@@ -611,7 +611,13 @@ export class ReviewerWorkbenchComponent
   selectDoc(id: string) {
     this.selectedDocId = id;
     this.ocrOpen = false;
-    this.ensureBlobUrlFor(id);
+    // Do NOT auto-fetch. Preview only loads after explicit click on
+    // "Load Preview" — see ensureBlobUrlFor.
+  }
+
+  /** Public — bound to the Load Preview button. */
+  loadPreview(): void {
+    if (this.selectedDocId) this.ensureBlobUrlFor(this.selectedDocId);
   }
 
   /**

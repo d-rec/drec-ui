@@ -83,24 +83,39 @@
                attachment). The same component handles images via previewType='image'. -->
           <ng-container *ngIf="doc.url; else stubPage">
             <app-pdf-preview
-              *ngIf="doc.blobUrl; else docLoading"
+              *ngIf="doc.blobUrl; else loadCta"
               class="rw__real-doc"
               [previewUrl]="trustUrl(doc.blobUrl)"
               [previewType]="doc.isImage ? 'image' : 'pdf'"
               [ocrSource]="doc.blobUrl"
             ></app-pdf-preview>
-            <ng-template #docLoading>
+            <ng-template #loadCta>
               <div class="rw__doc-loading">
-                <ng-container *ngIf="doc.blobError; else loadingMsg">
+                <ng-container *ngIf="doc.blobLoading">
+                  Loading {{ doc.name }}…
+                </ng-container>
+                <ng-container *ngIf="!doc.blobLoading && doc.blobError">
                   <div>Could not load this document.</div>
                   <div class="rw__doc-loading-hint">
                     The signed URL may have expired. Re-open the workbench to
                     fetch a fresh one.
                   </div>
                 </ng-container>
-                <ng-template #loadingMsg>
-                  Loading {{ doc.name }}…
-                </ng-template>
+                <ng-container *ngIf="!doc.blobLoading && !doc.blobError">
+                  <div class="rw__doc-loading-hint" style="margin-bottom: 12px">
+                    {{ doc.name }} — {{ doc.filename }}
+                  </div>
+                  <button
+                    type="button"
+                    class="rw__load-preview-btn"
+                    (click)="loadPreview()"
+                  >
+                    Load preview
+                  </button>
+                  <div class="rw__doc-loading-hint" style="margin-top: 12px">
+                    Click to fetch this document and render it inline.
+                  </div>
+                </ng-container>
               </div>
             </ng-template>
           </ng-container>
