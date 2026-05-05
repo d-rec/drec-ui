@@ -83,9 +83,9 @@
                attachment). The same component handles images via previewType='image'. -->
           <ng-container *ngIf="doc.url; else stubPage">
             <app-pdf-preview
-              *ngIf="doc.blobUrl; else loadCta"
+              *ngIf="doc.blobUrl && doc.trustedBlobUrl; else loadCta"
               class="rw__real-doc"
-              [previewUrl]="trustUrl(doc.blobUrl)"
+              [previewUrl]="doc.trustedBlobUrl"
               [previewType]="doc.isImage ? 'image' : 'pdf'"
               [ocrSource]="doc.blobUrl"
             ></app-pdf-preview>

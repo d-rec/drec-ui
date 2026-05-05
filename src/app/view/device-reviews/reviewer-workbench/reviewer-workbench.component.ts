@@ -39,6 +39,13 @@ interface DocItem {
    * Content-Disposition: attachment and would trigger a download).
    */
   blobUrl?: string;
+  /**
+   * Cached SafeResourceUrl wrapping blobUrl. Cached because the
+   * sanitizer returns a NEW object each call — calling it from the
+   * template binds a fresh reference every change-detection cycle and
+   * Angular treats the iframe src as changed, causing re-mount/blink.
+   */
+  trustedBlobUrl?: SafeResourceUrl;
   blobLoading?: boolean;
   blobError?: boolean;
 }
@@ -636,6 +643,9 @@ export class ReviewerWorkbenchComponent
     if (!doc?.url) return;
     if (this.blobCache[id]) {
       doc.blobUrl = this.blobCache[id];
+      doc.trustedBlobUrl =
+        doc.trustedBlobUrl ??
+        this.sanitizer.bypassSecurityTrustResourceUrl(this.blobCache[id]);
       return;
     }
     if (doc.blobLoading) return;
@@ -653,6 +663,7 @@ export class ReviewerWorkbenchComponent
       const blobUrl = URL.createObjectURL(blob);
       this.blobCache[id] = blobUrl;
       doc.blobUrl = blobUrl;
+      doc.trustedBlobUrl = this.sanitizer.bypassSecurityTrustResourceUrl(blobUrl);
       doc.blobLoading = false;
     } catch (err) {
       console.warn('Could not fetch doc as blob:', err);
