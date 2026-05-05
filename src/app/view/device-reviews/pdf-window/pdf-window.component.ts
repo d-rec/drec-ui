@@ -42,6 +42,13 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
       this.cdr.detectChanges();
     });
     this.sub = this.svc.viewPdfUrl$.subscribe((url) => {
+      // Dedupe: if the SAME URL is re-emitted while we're already
+      // showing it (or fetching it), do nothing. Prevents an upstream
+      // re-emission loop from re-triggering the fetch.
+      if (url && url === this.currentUrl) {
+        return;
+      }
+
       // Revoke previous blob URL
       if (this.blobUrl) {
         URL.revokeObjectURL(this.blobUrl);
@@ -73,7 +80,14 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
   }
 
   fetchError = false;
+  private fetching: string | null = null;
   private async fetchAndDisplay(url: string): Promise<void> {
+    // Guard concurrent fetches for the same URL — under no circumstance
+    // do we double-fetch. If a different URL is requested mid-flight,
+    // we accept the new one (the subscriber already revoked the prior
+    // blobUrl).
+    if (this.fetching === url) return;
+    this.fetching = url;
     this.fetchError = false;
     try {
       const response = await fetch(url);
@@ -95,6 +109,8 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
       console.warn('pdf-window: fetch failed, refusing to render raw URL:', err);
       this.fetchError = true;
       this.safeUrl = null;
+    } finally {
+      if (this.fetching === url) this.fetching = null;
     }
     this.cdr.detectChanges();
   }
