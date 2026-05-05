@@ -12,6 +12,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Asset } from '../asset.model';
 import { AssetService } from '../asset.service';
+import { canFireDocOpen } from '../../../utils/doc-open-rate-limit';
 
 interface ChipMapping {
   ocNum: number;
@@ -601,6 +602,7 @@ export class ReviewerWorkbenchComponent
     // real filename + content-disposition. The blobUrl is preview-only.
     const doc = this.selectedDoc;
     if (!doc?.url) return;
+    if (!canFireDocOpen('workbench.download')) return;
     window.open(doc.url, '_blank', 'noopener');
   }
 
@@ -637,6 +639,7 @@ export class ReviewerWorkbenchComponent
       return;
     }
     if (doc.blobLoading) return;
+    if (!canFireDocOpen('workbench.ensureBlobUrlFor')) return;
     doc.blobLoading = true;
     doc.blobError = false;
     try {
