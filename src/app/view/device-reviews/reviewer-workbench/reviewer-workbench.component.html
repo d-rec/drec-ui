@@ -87,7 +87,7 @@
               class="rw__real-doc"
               [previewUrl]="doc.trustedBlobUrl"
               [previewType]="doc.isImage ? 'image' : 'pdf'"
-              [ocrSource]="doc.blobUrl"
+              [ocrSource]="doc.url"
             ></app-pdf-preview>
             <ng-template #loadCta>
               <div class="rw__doc-loading">
