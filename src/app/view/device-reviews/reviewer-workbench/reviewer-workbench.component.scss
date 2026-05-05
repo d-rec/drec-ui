@@ -161,21 +161,28 @@ $chip-hover: #e2e8f0;
   }
   &__preview-canvas {
     background: #eef2f6;
-    padding: 24px;
-    overflow: auto;
+    padding: 8px;
+    overflow: hidden;
     display: flex;
-    align-items: flex-start;
-    justify-content: center;
+    align-items: stretch;
+    justify-content: stretch;
     grid-row: 1; grid-column: 1;
+    min-height: 0;
   }
+  // pdf-preview fills the entire preview canvas. The component itself
+  // hosts an iframe with height:100%, so it needs a definite height
+  // (provided by the canvas's flex stretch) to render full size.
   &__real-doc {
+    flex: 1 1 auto;
     width: 100%;
-    max-width: 900px;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
     background: #fff;
     border: 1px solid $border;
     box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
-    &--img { display: block; height: auto; max-height: 80vh; object-fit: contain; }
-    &--pdf { height: 80vh; }
+    overflow: hidden;
+    display: flex;
   }
   &__doc-loading {
     width: 100%;
