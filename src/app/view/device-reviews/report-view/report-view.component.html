@@ -1,0 +1,72 @@
+<div class="rv">
+  <div *ngIf="loading" class="rv__loading">Loading verification report…</div>
+  <div *ngIf="!loading && error" class="rv__error">
+    <h2>Couldn't load report</h2>
+    <p>{{ error }}</p>
+  </div>
+  <ng-container *ngIf="!loading && !error && report">
+    <div class="rv__header">
+      <h2>Verification Report</h2>
+      <span class="rv__status rv__status--{{ report.overallStatus || 'unknown' }}">
+        {{ (report.overallStatus || 'unknown') | uppercase }}
+      </span>
+    </div>
+    <div class="rv__meta">
+      <div><strong>Device:</strong> #{{ report.deviceId }}</div>
+      <div><strong>Run by:</strong> {{ report.createdByName || report.createdByEmail }}</div>
+      <div><strong>When:</strong> {{ report.createdAt | date:'dd/MM/yyyy HH:mm' }}</div>
+      <div><strong>Elapsed:</strong> {{ report.payload?.elapsedDisplay || (report.elapsedMs / 1000) + 's' }}</div>
+    </div>
+
+    <div class="rv__counts" *ngIf="report.payload?.counts">
+      <span class="rv__count rv__count--pass" *ngIf="report.payload.counts.pass">
+        {{ report.payload.counts.pass }} pass
+      </span>
+      <span class="rv__count rv__count--warn" *ngIf="report.payload.counts.warn">
+        {{ report.payload.counts.warn }} warn
+      </span>
+      <span class="rv__count rv__count--fail" *ngIf="report.payload.counts.fail">
+        {{ report.payload.counts.fail }} fail
+      </span>
+      <span class="rv__count rv__count--skip" *ngIf="report.payload.counts.skipped">
+        {{ report.payload.counts.skipped }} skipped
+      </span>
+    </div>
+
+    <div class="rv__entries">
+      <div class="rv__entry rv__entry--{{ entry.status }}"
+           *ngFor="let entry of scanLog">
+        <div class="rv__entry-head">
+          <span class="rv__entry-icon">
+            <ng-container [ngSwitch]="entry.status">
+              <span *ngSwitchCase="'pass'">&#x2714;</span>
+              <span *ngSwitchCase="'warn'">&#x26A0;</span>
+              <span *ngSwitchCase="'fail'">&#x2718;</span>
+              <span *ngSwitchCase="'error'">&#x26D4;</span>
+              <span *ngSwitchCase="'skipped'" title="Skipped">⤴</span>
+              <span *ngSwitchDefault>&#x25CB;</span>
+            </ng-container>
+          </span>
+          <span class="rv__entry-label">{{ entry.label }}</span>
+          <span class="rv__entry-time" *ngIf="entry.duration != null">{{ entry.duration }}ms</span>
+        </div>
+        <div class="rv__entry-detail" *ngIf="entry.detail">{{ entry.detail }}</div>
+        <div class="rv__entry-subs" *ngIf="entry.subItems?.length">
+          <div class="rv__entry-sub rv__entry-sub--{{ sub.status }}"
+               *ngFor="let sub of entry.subItems">
+            <span class="rv__sub-icon">
+              <ng-container [ngSwitch]="sub.status">
+                <span *ngSwitchCase="'pass'">&#x2714;</span>
+                <span *ngSwitchCase="'warn'">&#x26A0;</span>
+                <span *ngSwitchCase="'fail'">&#x2718;</span>
+                <span *ngSwitchDefault>&#x2022;</span>
+              </ng-container>
+            </span>
+            <span class="rv__sub-label">{{ sub.label }}</span>
+            <span class="rv__sub-detail" *ngIf="sub.detail">{{ sub.detail }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

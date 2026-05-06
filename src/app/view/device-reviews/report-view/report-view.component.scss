@@ -1,0 +1,122 @@
+.rv {
+  max-width: 900px;
+  margin: 24px auto;
+  padding: 24px;
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #1e293b;
+
+  &__loading,
+  &__error {
+    padding: 48px 0;
+    text-align: center;
+    color: #64748b;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    h2 {
+      margin: 0;
+      flex: 1;
+      font-size: 20px;
+    }
+  }
+
+  &__status {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #fff;
+    background: #94a3b8;
+
+    &--pass { background: #16a34a; }
+    &--warn { background: #f59e0b; }
+    &--fail { background: #dc2626; }
+  }
+
+  &__meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #475569;
+  }
+
+  &__counts {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  &__count {
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    &--pass { background: #16a34a; }
+    &--warn { background: #f59e0b; }
+    &--fail { background: #dc2626; }
+    &--skip { background: #94a3b8; }
+  }
+
+  &__entry {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: #fff;
+
+    &--pass { border-left: 4px solid #16a34a; }
+    &--warn { border-left: 4px solid #f59e0b; }
+    &--fail { border-left: 4px solid #dc2626; }
+    &--error { border-left: 4px solid #ef4444; }
+    &--skipped { border-left: 4px solid #94a3b8; }
+
+    &-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    &-icon { width: 18px; }
+    &-label { flex: 1; }
+    &-time { font-size: 11px; color: #64748b; font-weight: 400; }
+
+    &-detail {
+      margin-top: 4px;
+      font-size: 13px;
+      color: #475569;
+      white-space: pre-wrap;
+    }
+
+    &-subs {
+      margin-top: 6px;
+      padding-left: 26px;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 6px;
+    }
+
+    &-sub {
+      display: flex;
+      gap: 6px;
+      align-items: baseline;
+      font-size: 12px;
+      padding: 2px 0;
+
+      &--pass { color: #16a34a; }
+      &--warn { color: #b45309; }
+      &--fail { color: #dc2626; }
+    }
+  }
+
+  &__sub-icon { width: 14px; }
+  &__sub-label { font-weight: 500; }
+  &__sub-detail { color: #64748b; }
+}

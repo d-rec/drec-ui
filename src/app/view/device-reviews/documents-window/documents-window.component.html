@@ -46,7 +46,7 @@
         <span class="col-country th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='countryCode'&&sortDir===1" [class.desc]="sortColumn==='countryCode'&&sortDir===-1" (click)="sortBy('countryCode')" (keydown.enter)="sortBy('countryCode')">Country</span>
         <span class="col-modified th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='modifiedDate'&&sortDir===1" [class.desc]="sortColumn==='modifiedDate'&&sortDir===-1" (click)="sortBy('modifiedDate')" (keydown.enter)="sortBy('modifiedDate')">Modified</span>
         <span class="col-status  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='status'&&sortDir===1" [class.desc]="sortColumn==='status'&&sortDir===-1" (click)="sortBy('status')" (keydown.enter)="sortBy('status')">Status</span>
-        <span class="col-screen th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='screenStatus'&&sortDir===1" [class.desc]="sortColumn==='screenStatus'&&sortDir===-1" (click)="sortBy('screenStatus')" (keydown.enter)="sortBy('screenStatus')" title="Auto-screen result">Screen</span>
+        <span class="col-screen th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='screenStatus'&&sortDir===1" [class.desc]="sortColumn==='screenStatus'&&sortDir===-1" (click)="sortBy('screenStatus')" (keydown.enter)="sortBy('screenStatus')" title="Automation result">Screen</span>
         <span class="col-docs th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='docs'&&sortDir===1" [class.desc]="sortColumn==='docs'&&sortDir===-1" (click)="sortBy('docs')" (keydown.enter)="sortBy('docs')" title="Required documents uploaded">Docs</span>
         <span class="col-cod th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='sf02Ready'&&sortDir===1" [class.desc]="sortColumn==='sf02Ready'&&sortDir===-1" (click)="sortBy('sf02Ready')" (keydown.enter)="sortBy('sf02Ready')" title="SF-02 generation ready">SF-02</span>
       </div>
@@ -323,7 +323,7 @@
               </div>
             </div>
           <div class="detail-actions">
-            <button type="button" class="btn btn-outline-primary btn-sm" (click)="openScanDialog()" title="Run verification checks on this device">Scan Device</button>
+            <button type="button" class="btn btn-outline-primary btn-sm" (click)="openScanDialog()" title="Run verification checks on this device">Verify Device</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit Trail</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" (click)="generateSf02ForSelected($event)" [disabled]="!editingId || generatingSf02[editingId!]" title="Generate SF-02 registration form from device data">
               {{ editingId && generatingSf02[editingId!] ? 'Generating…' : 'Generate SF-02' }}
@@ -784,10 +784,10 @@
     </div>
   </app-ds-floating-window>
 
-  <!-- ── Auto-Screen Report floating window (VA layer) ─────────────── -->
+  <!-- ── Automation Report floating window (VA layer) ─────────────── -->
   <app-ds-floating-window
     *ngIf="showAutoScreenModal"
-    title="Auto-Screen Report"
+    title="Automation Report"
     [initX]="120"
     [initY]="80"
     [initWidth]="560"
@@ -827,7 +827,7 @@
         Running all checks…
       </div>
       <div *ngIf="!autoScreenResult && !autoScreenLoading" style="padding: 12px 0;">
-        <p style="color: #dc2626; font-weight: 600; margin: 0 0 8px;">Internal Error — Auto-screen failed</p>
+        <p style="color: #dc2626; font-weight: 600; margin: 0 0 8px;">Internal Error — Automation failed</p>
         <p *ngIf="autoScreenError" style="color: #64748b; font-size: 12px; margin: 0; white-space: pre-wrap; background: #fef2f2; padding: 10px 12px; border-radius: 4px; border-left: 3px solid #dc2626;">{{ autoScreenError }}</p>
       </div>
       <div class="autoscreen-window__actions" *ngIf="autoScreenResult">
@@ -996,7 +996,7 @@
   <!-- ── Scan dialog ──────────────────────────────────────────────────── -->
   <app-ds-floating-window
     *ngIf="showScanDialog"
-    title="Device Scan"
+    title="Verify Device"
     [initWidth]="720"
     [initHeight]="620"
     [initX]="scanDialogX"
@@ -1008,20 +1008,35 @@
       <!-- Checklist (before running) -->
       <div class="scan-checklist" *ngIf="!scanRunning && scanLog.length === 0">
         <p class="scan-checklist__intro">Select which checks to run on this device:</p>
-        <div class="scan-checklist__item" *ngFor="let check of scanChecks; let i = index"
-             [class.scan-checklist__item--even]="i % 2 === 0">
-          <label class="scan-checklist__label">
-            <input type="checkbox" [(ngModel)]="check.enabled" />
-            <span class="scan-checklist__name">{{ check.label }}</span>
-            <span class="scan-checklist__desc">{{ check.description }}</span>
-          </label>
+        <div class="scan-checklist__body">
+          <ng-container *ngFor="let g of scanGroupKeys()">
+            <div *ngIf="scanGroups[g].label" class="scan-checklist__group">
+              <label class="scan-checklist__group-label">
+                <input type="checkbox"
+                       [checked]="isScanGroupAllOn(g)"
+                       [indeterminate]="isScanGroupAnyOn(g) && !isScanGroupAllOn(g)"
+                       (change)="toggleScanGroup(g, $any($event.target).checked)" />
+                <span>{{ scanGroups[g].label }}</span>
+              </label>
+            </div>
+            <div class="scan-checklist__item"
+                 *ngFor="let check of scanChecksInGroup(g); let i = index"
+                 [class.scan-checklist__item--even]="i % 2 === 0"
+                 [class.scan-checklist__item--indented]="g !== 'aggregate'">
+              <label class="scan-checklist__label">
+                <input type="checkbox" [(ngModel)]="check.enabled" />
+                <span class="scan-checklist__name">{{ check.label }}</span>
+                <span class="scan-checklist__desc">{{ check.description }}</span>
+              </label>
+            </div>
+          </ng-container>
         </div>
         <div class="scan-checklist__footer">
           <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeScan()"
             (mousedown)="$event.stopPropagation()">Cancel</button>
           <button type="button" class="btn btn-primary btn-sm" (click)="startScan()"
             [disabled]="!scanHasEnabled"
-            (mousedown)="$event.stopPropagation()">Run Scan</button>
+            (mousedown)="$event.stopPropagation()">Run</button>
         </div>
       </div>
 
@@ -1032,6 +1047,10 @@
             <div class="scan-log__fill" [class.scan-log__fill--done]="!scanRunning" [style.width.%]="scanProgress"></div>
           </div>
           <span class="scan-log__pct">{{ scanProgress }}%</span>
+          <span class="scan-log__elapsed" *ngIf="scanStartedAt"
+                [title]="scanRunning ? 'Time elapsed' : 'Total time'">
+            {{ scanRunning ? '⏱' : '✓' }} {{ scanElapsedDisplay }}
+          </span>
         </div>
         <div class="scan-log__body">
           <div class="scan-log__entry" *ngFor="let entry of scanLog"
@@ -1049,7 +1068,14 @@
                 <span *ngSwitchCase="'fail'">&#x2718;</span>
                 <span *ngSwitchCase="'error'">&#x26D4;</span>
                 <span *ngSwitchCase="'running'" class="scan-log__spinner"></span>
-                <span *ngSwitchCase="'skipped'">&#x23ED;</span>
+                <span *ngSwitchCase="'skipped'" title="Skipped (no data / step-over)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">
+                    <!-- VS Code "Step Over" icon: curved arrow over a dot -->
+                    <path d="M3 6 Q8 0.5 13 6" />
+                    <polyline points="13,3.5 13,6 10.5,6" />
+                    <circle cx="8" cy="13" r="1.5" fill="currentColor" />
+                  </svg>
+                </span>
                 <span *ngSwitchDefault>&#x25CB;</span>
               </ng-container>
             </span>
@@ -1080,6 +1106,21 @@
           <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelScan()"
             *ngIf="scanRunning"
             (mousedown)="$event.stopPropagation()">Cancel</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" (click)="copyScanReport()"
+            *ngIf="!scanRunning && scanLog.length > 0"
+            (mousedown)="$event.stopPropagation()"
+            title="Copy report as text">
+            <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">content_copy</mat-icon>
+            Copy
+          </button>
+          <button type="button" class="btn btn-primary btn-sm" (click)="shareScanReport()"
+            *ngIf="!scanRunning && scanLog.length > 0"
+            [disabled]="sharingReport"
+            (mousedown)="$event.stopPropagation()"
+            title="Save and share with the registrant via chat">
+            <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">share</mat-icon>
+            {{ sharingReport ? 'Sharing…' : 'Share with Registrant' }}
+          </button>
           <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeScan()"
             *ngIf="!scanRunning"
             (mousedown)="$event.stopPropagation()">Close</button>

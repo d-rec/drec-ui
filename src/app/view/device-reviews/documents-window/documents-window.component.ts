@@ -390,6 +390,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   showScanDialog = false;
   scanRunning = false;
   scanCancelled = false;
+  scanStartedAt: number | null = null;
+  scanElapsedMs = 0;
+  private scanTimerHandle: any = null;
   scanLog: Array<{
     key: string;
     label: string;
@@ -415,71 +418,304 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     label: string;
     description: string;
     enabled: boolean;
+    /** Bucket header rendered above this entry. Cosmetic only. */
+    group?: 'aggregate' | 'identity' | 'compliance' | 'site' | 'production';
   }> = [
+    // ─ Aggregate ─
     {
       key: 'autoScreen',
-      label: 'Auto-Screen',
-      description: 'Run all built-in verification checks (VA layer)',
+      label: 'Automation',
+      description: 'Run all automated checks (VA layer)',
       enabled: true,
+      group: 'aggregate',
     },
+    // ─ Identity & Documents ─
     {
       key: 'duplicates',
       label: 'Duplicate Screening',
       description: 'Screen for duplicate devices across all organizations',
       enabled: true,
-    },
-    {
-      key: 'sourceAccess',
-      label: 'Source Access Mode',
-      description: 'Verify source-access mode requirements (§3.3)',
-      enabled: true,
-    },
-    {
-      key: 'ceiling',
-      label: 'Production Ceiling',
-      description: 'Irradiance-based production ceiling check (§3.6)',
-      enabled: true,
-    },
-    {
-      key: 'crossSource',
-      label: 'Cross-Source Verification',
-      description: 'Compare metered production against solar model (§3.10)',
-      enabled: true,
-    },
-    {
-      key: 'photoGps',
-      label: 'Photo GPS Location',
-      description: 'Verify photo EXIF GPS matches declared device location',
-      enabled: true,
-    },
-    {
-      key: 'sldCapacity',
-      label: 'SLD Capacity Compare',
-      description: 'Compare single-line diagram capacity with registered kW',
-      enabled: true,
-    },
-    {
-      key: 'controls',
-      label: 'Compensating Controls',
-      description: 'Evaluate compensating controls for Mode 4 (§3.9)',
-      enabled: true,
-    },
-    {
-      key: 'consistency',
-      label: 'Historical Consistency',
-      description: 'Review historical meter read consistency and anomalies',
-      enabled: true,
+      group: 'identity',
     },
     {
       key: 'classify',
       label: 'Document Classification',
       description: 'AI-classify all documents and check they match their slots',
       enabled: true,
+      group: 'identity',
+    },
+    {
+      key: 'requiredFields',
+      label: 'Required Fields',
+      description: 'Confirm SF-02 mandatory fields are populated',
+      enabled: true,
+      group: 'identity',
+    },
+    // ─ Compliance ─
+    {
+      key: 'sourceAccess',
+      label: 'Source Access Mode',
+      description: 'Verify source-access mode requirements (§3.3)',
+      enabled: true,
+      group: 'compliance',
+    },
+    {
+      key: 'controls',
+      label: 'Compensating Controls',
+      description: 'Evaluate compensating controls for Mode 4 (§3.9)',
+      enabled: true,
+      group: 'compliance',
+    },
+    {
+      key: 'opConfigDocs',
+      label: 'Operating-Config Docs',
+      description: 'Required documents for the chosen operating configuration',
+      enabled: true,
+      group: 'compliance',
+    },
+    // ─ Site Verification ─
+    {
+      key: 'photoGps',
+      label: 'Photo GPS Location',
+      description: 'Verify photo EXIF GPS matches declared device location',
+      enabled: true,
+      group: 'site',
+    },
+    {
+      key: 'sldCapacity',
+      label: 'SLD Capacity Compare',
+      description: 'Compare single-line diagram capacity with registered kW',
+      enabled: true,
+      group: 'site',
+    },
+    {
+      key: 'countryMatch',
+      label: 'Country Match',
+      description: 'Declared country matches reverse-geocoded coordinates',
+      enabled: true,
+      group: 'site',
+    },
+    {
+      key: 'coordPrecision',
+      label: 'Coordinate Precision',
+      description: 'Latitude/longitude has at least 6 decimal places',
+      enabled: true,
+      group: 'site',
+    },
+    // ─ Production Validation ─
+    {
+      key: 'ceiling',
+      label: 'Production Ceiling',
+      description: 'Irradiance-based production ceiling check (§3.6)',
+      enabled: true,
+      group: 'production',
+    },
+    {
+      key: 'crossSource',
+      label: 'Cross-Source Verification',
+      description: 'Compare metered production against solar model (§3.10)',
+      enabled: true,
+      group: 'production',
+    },
+    {
+      key: 'consistency',
+      label: 'Historical Consistency',
+      description: 'Review historical meter read consistency and anomalies',
+      enabled: true,
+      group: 'production',
+    },
+    {
+      key: 'yieldRange',
+      label: 'Yield-Value Reasonableness',
+      description: 'Configured yieldValue falls inside the Solar GSA expected band',
+      enabled: true,
+      group: 'production',
     },
   ];
 
+  /** Group rendering metadata. Order in this map = render order in dialog. */
+  readonly scanGroups: Record<
+    'aggregate' | 'identity' | 'compliance' | 'site' | 'production',
+    { label: string }
+  > = {
+    aggregate: { label: '' },
+    identity: { label: 'Identity & Documents' },
+    compliance: { label: 'Compliance' },
+    site: { label: 'Site Verification' },
+    production: { label: 'Production Validation' },
+  };
+
+  scanGroupKeys(): Array<keyof typeof this.scanGroups> {
+    return Object.keys(this.scanGroups) as Array<keyof typeof this.scanGroups>;
+  }
+  scanChecksInGroup(g: string): typeof this.scanChecks {
+    return this.scanChecks.filter((c) => c.group === g);
+  }
+  toggleScanGroup(g: string, on: boolean): void {
+    for (const c of this.scanChecks) if (c.group === g) c.enabled = on;
+  }
+  isScanGroupAllOn(g: string): boolean {
+    const inGroup = this.scanChecksInGroup(g);
+    return inGroup.length > 0 && inGroup.every((c) => c.enabled);
+  }
+  isScanGroupAnyOn(g: string): boolean {
+    return this.scanChecksInGroup(g).some((c) => c.enabled);
+  }
+
   get scanHasEnabled(): boolean {
     return this.scanChecks.some((c) => c.enabled);
+  }
+
+  sharingReport = false;
+
+  /** Build the report payload that gets persisted server-side. */
+  private buildReportPayload(): {
+    elapsedMs: number;
+    overallStatus: string | null;
+    payload: any;
+  } {
+    const counts = { pass: 0, warn: 0, fail: 0, error: 0, skipped: 0 };
+    for (const e of this.scanLog) {
+      if (counts[e.status as keyof typeof counts] !== undefined)
+        (counts as any)[e.status]++;
+    }
+    const overallStatus =
+      counts.fail > 0 || counts.error > 0
+        ? 'fail'
+        : counts.warn > 0
+          ? 'warn'
+          : 'pass';
+    return {
+      elapsedMs: this.scanElapsedMs,
+      overallStatus,
+      payload: {
+        scanLog: this.scanLog,
+        counts,
+        elapsedDisplay: this.scanElapsedDisplay,
+        autoScreenResult: this.autoScreenResult || null,
+      },
+    };
+  }
+
+  /** Plain-text TSV-ish render of the scan log for clipboard pasting. */
+  private renderReportAsText(): string {
+    const lines: string[] = [];
+    lines.push(`Verify Device Report`);
+    lines.push(`Time elapsed: ${this.scanElapsedDisplay}`);
+    lines.push('');
+    for (const e of this.scanLog) {
+      const status = e.status.toUpperCase();
+      lines.push(`[${status}] ${e.label}${e.detail ? ' — ' + e.detail : ''}`);
+      for (const sub of e.subItems || []) {
+        lines.push(`    • ${sub.label}${sub.detail ? ' — ' + sub.detail : ''}`);
+      }
+    }
+    return lines.join('\n');
+  }
+
+  copyScanReport(): void {
+    const text = this.renderReportAsText();
+    const done = () => this.toast('Report copied to clipboard');
+    navigator.clipboard?.writeText(text).then(done, () => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        done();
+      } finally {
+        document.body.removeChild(ta);
+      }
+    });
+  }
+
+  /** Persist the report and post a chat message to the registrant. */
+  shareScanReport(): void {
+    if (!this.editingId || this.sharingReport) return;
+    this.sharingReport = true;
+    const deviceId = parseInt(this.editingId, 10);
+    const { elapsedMs, overallStatus, payload } = this.buildReportPayload();
+    this.svc
+      .saveVerificationReport(deviceId, elapsedMs, overallStatus, payload)
+      .subscribe({
+        next: ({ id }) => {
+          const url = `${window.location.origin}/device/reviews/report/${id}`;
+          // Find the registrant for this device and open / append a chat
+          // message with the link.
+          const asset = this.svc.assets$.value.find(
+            (a) => a.id === this.editingId,
+          );
+          const registrantEmail = asset?.submitterEmail;
+          if (!registrantEmail) {
+            this.sharingReport = false;
+            this.toast(
+              `Report saved (${overallStatus}) but no registrant email — copy the URL: ${url}`,
+              8000,
+            );
+            return;
+          }
+          this.sendChatLink(
+            registrantEmail,
+            asset?.siteName || `device ${deviceId}`,
+            url,
+            overallStatus || 'verify',
+          ).then(
+            () => {
+              this.sharingReport = false;
+              this.toast(`Verification report sent to ${registrantEmail}`);
+            },
+            (err) => {
+              this.sharingReport = false;
+              console.error(err);
+              this.toast(
+                `Saved but chat send failed — copy the URL: ${url}`,
+                8000,
+              );
+            },
+          );
+        },
+        error: (err) => {
+          this.sharingReport = false;
+          this.toast(
+            `Save failed: ${err?.error?.message || err?.message || 'unknown error'}`,
+            6000,
+          );
+        },
+      });
+  }
+
+  /** Send a chat message containing the report URL to the registrant. */
+  private sendChatLink(
+    toEmail: string,
+    siteName: string,
+    reportUrl: string,
+    overallStatus: string,
+  ): Promise<void> {
+    const body =
+      `Verification report for ${siteName} — overall: ${overallStatus.toUpperCase()}\n\n` +
+      `Open: ${reportUrl}`;
+    // Use the chat service: open or create a conversation with this email,
+    // then send. We expose a thin helper if it doesn't already exist.
+    return new Promise((resolve, reject) => {
+      try {
+        // chatService is already injected (see deviceChats subscription).
+        this.chatService
+          .sendDirectMessage(toEmail, body, { deviceSiteName: siteName })
+          .subscribe({ next: () => resolve(), error: reject });
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+
+  /** "0:08.3" / "1:24.0" — minutes:seconds.tenths */
+  get scanElapsedDisplay(): string {
+    const ms = this.scanElapsedMs;
+    const total = ms / 1000;
+    const m = Math.floor(total / 60);
+    const s = total - m * 60;
+    return `${m}:${s.toFixed(1).padStart(4, '0')}`;
   }
 
   openScanDialog(): void {
@@ -522,6 +758,15 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     }));
     this.scanRunning = true;
     this.scanCancelled = false;
+    this.scanStartedAt = Date.now();
+    this.scanElapsedMs = 0;
+    if (this.scanTimerHandle) clearInterval(this.scanTimerHandle);
+    this.scanTimerHandle = setInterval(() => {
+      if (this.scanStartedAt && this.scanRunning) {
+        this.scanElapsedMs = Date.now() - this.scanStartedAt;
+        this.cdr.markForCheck();
+      }
+    }, 100);
     this.cdr.detectChanges();
 
     for (const entry of this.scanLog) {
@@ -562,6 +807,13 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     }
 
     this.scanRunning = false;
+    if (this.scanStartedAt) {
+      this.scanElapsedMs = Date.now() - this.scanStartedAt;
+    }
+    if (this.scanTimerHandle) {
+      clearInterval(this.scanTimerHandle);
+      this.scanTimerHandle = null;
+    }
 
     // Update asset badge with auto-screen result if it ran
     const autoEntry = this.scanLog.find((e) => e.key === 'autoScreen');
@@ -1186,6 +1438,137 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         case 'classify':
           this.runClassifyForScan(deviceId).then(resolve).catch(reject);
           break;
+
+        case 'coordPrecision': {
+          const a = this.svc.assets$.value.find((x) => x.id === String(deviceId));
+          if (!a) {
+            resolve({ status: 'skip', detail: 'Device not in current list' });
+            break;
+          }
+          const latStr = a.lat != null ? String(a.lat) : '';
+          const lngStr = a.long != null ? String(a.long) : '';
+          const dec = (s: string) => {
+            const i = s.indexOf('.');
+            return i < 0 ? 0 : s.length - i - 1;
+          };
+          const latDec = dec(latStr);
+          const lngDec = dec(lngStr);
+          const ok = latStr && lngStr && latDec >= 6 && lngDec >= 6;
+          resolve({
+            status: ok ? 'pass' : 'fail',
+            detail: ok
+              ? `lat ${latDec}d, lng ${lngDec}d (≥6 required)`
+              : `lat has ${latDec} decimals, lng has ${lngDec} decimals — D-REC requires ≥6 each`,
+            subItems: [],
+          });
+          break;
+        }
+
+        case 'requiredFields': {
+          const a = this.svc.assets$.value.find((x) => x.id === String(deviceId));
+          if (!a) {
+            resolve({ status: 'skip', detail: 'Device not in current list' });
+            break;
+          }
+          const missing: string[] = [];
+          if (!a.siteName) missing.push('siteName');
+          if (a.lat == null) missing.push('latitude');
+          if (a.long == null) missing.push('longitude');
+          if (a.capacity == null || a.capacity <= 0) missing.push('capacity');
+          if (!a.countryCode) missing.push('country');
+          if (!a.operatingConfiguration)
+            missing.push('operatingConfiguration');
+          if (!a.sourceAccessMode) missing.push('sourceAccessMode');
+          resolve({
+            status: missing.length ? 'fail' : 'pass',
+            detail: missing.length
+              ? `Missing: ${missing.join(', ')}`
+              : `All ${7} required fields populated`,
+          });
+          break;
+        }
+
+        case 'countryMatch':
+          this.svc.verifyCountryMatch(deviceId).subscribe({
+            next: (res: any) => {
+              // CountryMatchStatus = 'match' | 'mismatch' | 'disputed' | 'skip'
+              const map: Record<string, 'pass' | 'warn' | 'fail' | 'skip'> = {
+                match: 'pass',
+                mismatch: 'fail',
+                disputed: 'warn',
+                skip: 'skip',
+              };
+              const status = map[res?.status] || 'skip';
+              const declared = res?.declaredCountry || '—';
+              const resolved = res?.resolvedCountry || '—';
+              const reason = res?.reason || '';
+              resolve({
+                status,
+                detail:
+                  status === 'pass'
+                    ? `Declared ${declared} matches reverse-geocode (${resolved})`
+                    : status === 'fail'
+                      ? `Declared ${declared} but coords resolve to ${resolved}${reason ? ` — ${reason}` : ''}`
+                      : status === 'warn'
+                        ? `Disputed territory: declared ${declared}, resolves ${resolved}${reason ? ` — ${reason}` : ''}`
+                        : reason || 'Country match could not be evaluated',
+              });
+            },
+            error: reject,
+          });
+          break;
+
+        case 'yieldRange':
+          this.svc.checkProductionCeiling(deviceId).subscribe({
+            next: (res: any) => {
+              if (!res.irradiance) {
+                resolve({
+                  status: 'skip',
+                  detail:
+                    res.irradianceUnavailableReason ||
+                    'No irradiance estimate available',
+                });
+                return;
+              }
+              const cy = res.configuredYield;
+              const lo = res.irradiance.yieldLow;
+              const hi = res.irradiance.yieldHigh;
+              if (cy == null) {
+                resolve({
+                  status: 'warn',
+                  detail: `No yieldValue configured. Expected ${lo}–${hi} kWh/kW/yr for this latitude.`,
+                });
+                return;
+              }
+              const inBand = cy >= lo * 0.85 && cy <= hi * 1.15;
+              resolve({
+                status: inBand ? 'pass' : 'fail',
+                detail: inBand
+                  ? `${cy} kWh/kW/yr is inside the ${lo}–${hi} expected band (±15%).`
+                  : `${cy} kWh/kW/yr is OUTSIDE the ${lo}–${hi} expected band (±15%).`,
+              });
+            },
+            error: reject,
+          });
+          break;
+
+        case 'opConfigDocs': {
+          // Lean on the existing source-access verification: it already
+          // returns required+missing docs for the chosen pathway/config.
+          this.svc.verifySourceAccessMode(deviceId).subscribe({
+            next: (res: any) => {
+              const missing = (res.missingRequired || []) as string[];
+              resolve({
+                status: missing.length ? 'fail' : 'pass',
+                detail: missing.length
+                  ? `Missing for ${res.operatingConfiguration || 'this configuration'}: ${missing.join(', ')}`
+                  : `All required documents present for ${res.operatingConfiguration || 'this configuration'}`,
+              });
+            },
+            error: reject,
+          });
+          break;
+        }
 
         case 'audit':
           this.svc.getAuditTrail(deviceId).subscribe({
@@ -2736,7 +3119,7 @@ trustUrl(url: string): SafeUrl {
     if (!this.autoScreenResult) return;
     const r = this.autoScreenResult;
     const lines: string[] = [];
-    lines.push(`Auto-Screen Report`);
+    lines.push(`Automation Report`);
     lines.push(`Overall: ${r.overallStatus.toUpperCase()}`);
     lines.push(`Generated: ${new Date(r.timestamp).toLocaleString()}`);
     lines.push('');
@@ -2797,7 +3180,7 @@ trustUrl(url: string): SafeUrl {
         }
       },
       error: (err: any) => {
-        console.error('Auto-screen failed:', err);
+        console.error('Automation failed:', err);
         this.autoScreenResult = null;
         this.autoScreenError =
           err?.error?.message ||
@@ -3206,7 +3589,7 @@ trustUrl(url: string): SafeUrl {
       .map((id) => parseInt(id, 10))
       .filter((n) => !isNaN(n));
     if (!ids.length) return;
-    if (!confirm(`Auto-screen ${ids.length} device(s)? This may take a while.`))
+    if (!confirm(`Run automation on ${ids.length} device(s)? This may take a while.`))
       return;
     this.bulkBusy = true;
     this.svc.bulkAutoScreen(ids).subscribe({
@@ -3240,7 +3623,7 @@ trustUrl(url: string): SafeUrl {
   screenAllUnscreened(): void {
     if (
       !confirm(
-        'Auto-screen all unscreened pending devices (up to 50)? This may take a while.',
+        'Run automation on all unscreened pending devices (up to 50)? This may take a while.',
       )
     )
       return;

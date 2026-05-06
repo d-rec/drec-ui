@@ -102,9 +102,9 @@
           <span class="pdf-preview__sld-label">Registered</span>
           <span class="pdf-preview__sld-val">{{ sldResult.registeredCapacityKw != null ? (sldResult.registeredCapacityKw + ' kW') : '—' }}</span>
         </div>
-        <div class="pdf-preview__sld-row">
+        <div class="pdf-preview__sld-row pdf-preview__sld-row--stack">
           <span class="pdf-preview__sld-label">SLD stated (kW)</span>
-          <div style="display: flex; gap: 6px; align-items: center;">
+          <div class="pdf-preview__sld-input-row">
             <input type="number" class="pdf-preview__sld-input" [(ngModel)]="sldInputKw" step="0.1" min="0" placeholder="Enter kW">
             <button class="pdf-preview__sld-save" (click)="saveSldCapacity()" [disabled]="sldInputKw == null">Save</button>
           </div>

@@ -207,6 +207,58 @@ export class ChatService implements OnDestroy {
     });
   }
 
+  /** Send a one-shot message to `toEmail` without requiring the chat
+   *  panel to be open. Finds the existing conversation (or starts one) and
+   *  posts the message. Useful for "share verification report" flows. */
+  sendDirectMessage(
+    toEmail: string,
+    chatEntry: string,
+    opts?: { deviceSiteName?: string },
+  ): Observable<ChatMessage | { conversation: ChatConversation; message: ChatMessage }> {
+    const fromEmail = this.getCurrentUserEmail();
+    if (!fromEmail) {
+      return new Observable((sub) =>
+        sub.error(new Error('No logged-in user email')),
+      );
+    }
+    const username = fromEmail.split('@')[0];
+    return new Observable<any>((subscriber) => {
+      this.getConversation(fromEmail, toEmail, opts?.deviceSiteName).subscribe({
+        next: (conv) => {
+          if (conv) {
+            this.http
+              .post<ChatMessage>(
+                `${this.apiUrl}chat/conversations/${conv.id}/messages`,
+                { username, chatEntry },
+              )
+              .subscribe({
+                next: (msg) => {
+                  subscriber.next(msg);
+                  subscriber.complete();
+                },
+                error: (e) => subscriber.error(e),
+              });
+          } else {
+            this.startConversation(
+              fromEmail,
+              toEmail,
+              username,
+              chatEntry,
+              opts?.deviceSiteName,
+            ).subscribe({
+              next: (res) => {
+                subscriber.next(res);
+                subscriber.complete();
+              },
+              error: (e) => subscriber.error(e),
+            });
+          }
+        },
+        error: (e) => subscriber.error(e),
+      });
+    });
+  }
+
   getAllConversations(): Observable<ChatConversation[]> {
     return this.http.get<ChatConversation[]>(
       `${this.apiUrl}chat/conversations`,

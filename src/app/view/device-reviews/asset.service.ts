@@ -297,6 +297,30 @@ export class AssetService {
     );
   }
 
+  verifyCountryMatch(deviceId: number): Observable<any> {
+    return this.http.get<any>(
+      `${environment.API_URL}device-reviews/${deviceId}/country-match`,
+    );
+  }
+
+  saveVerificationReport(
+    deviceId: number,
+    elapsedMs: number,
+    overallStatus: string | null,
+    payload: any,
+  ): Observable<{ id: number }> {
+    return this.http.post<{ id: number }>(
+      `${environment.API_URL}device-reviews/${deviceId}/reports`,
+      { elapsedMs, overallStatus, payload },
+    );
+  }
+
+  getVerificationReport(reportId: number): Observable<any> {
+    return this.http.get<any>(
+      `${environment.API_URL}device-reviews/reports/${reportId}`,
+    );
+  }
+
   detectPanels(imageBase64: string): Observable<any> {
     return this.http
       .post<any>(`${environment.API_URL}device-reviews/detect-panels`, {
