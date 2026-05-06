@@ -12,7 +12,6 @@ import {
 } from 'rxjs';
 import { Asset } from './asset.model';
 import { environment } from '../../../environments/environment';
-import { canFireDocOpen } from '../../utils/doc-open-rate-limit';
 
 export interface OpenPicture {
   id: string;
@@ -75,7 +74,6 @@ export class AssetService {
       );
       return;
     }
-    if (!canFireDocOpen('viewPicture')) return;
     const id = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
     this.openPictures$.next([
       ...current,
@@ -102,8 +100,6 @@ export class AssetService {
   }
 
   viewPdf(url: string | null): void {
-    // null = "close the window" — always allowed.
-    if (url !== null && !canFireDocOpen('viewPdf')) return;
     this.viewPdfUrl$.next(url);
   }
 
