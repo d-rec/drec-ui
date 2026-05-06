@@ -479,10 +479,10 @@
     outline: none;
     background: #f9f9f9;
     resize: none;
-    min-height: 64px;
-    max-height: 200px;
-    line-height: 1.5;
-    padding: 10px 14px;
+    min-height: 40px;
+    max-height: 140px;
+    line-height: 1.4;
+    padding: 8px 14px;
     overflow-y: auto;
 
     &:focus {
