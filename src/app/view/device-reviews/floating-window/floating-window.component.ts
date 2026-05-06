@@ -52,13 +52,16 @@ export class FloatingWindowComponent
   ) {}
 
   ngOnInit(): void {
-    this.x = this.initX;
-    this.y = Math.max(0, this.initY);
-    // Cap requested initial size to ~70% of the viewport so windows
-    // open visibly inside the screen instead of swallowing it.
-    // Floor of 320×240 so nothing collapses to nothing on tiny windows.
-    const maxW = Math.max(320, Math.round(window.innerWidth * 0.7));
-    const maxH = Math.max(240, Math.round(window.innerHeight * 0.7));
+    // Hard-cap the right/bottom edge to viewport - 24px so the resize handle
+    // is always reachable. Position from initX/initY but pull back if the
+    // requested size+pos would push the right/bottom edge off-screen.
+    const padding = 24;
+    const maxRight = window.innerWidth - padding;
+    const maxBottom = window.innerHeight - padding;
+    this.x = Math.max(0, Math.min(this.initX, maxRight - 320));
+    this.y = Math.max(0, Math.min(this.initY, maxBottom - 240));
+    const maxW = Math.max(320, maxRight - this.x);
+    const maxH = Math.max(240, maxBottom - this.y);
     this.width = Math.min(this.initWidth, maxW);
     this.height = Math.min(this.initHeight, maxH);
   }
@@ -112,13 +115,18 @@ export class FloatingWindowComponent
       if (this.x < -(this.width - 80)) this.x = -(this.width - 80);
       this.cdr.markForCheck();
     } else if (this.resizing) {
-      this.width = Math.max(
-        260,
-        this.resizeStartW + (event.clientX - this.resizeStartX),
+      // Clamp so the user can't drag the window wider/taller than the viewport.
+      // Otherwise the bottom-right resize handle ends up off-screen and the
+      // window becomes unreachable.
+      const maxW = Math.max(320, window.innerWidth - this.x - 8);
+      const maxH = Math.max(140, window.innerHeight - this.y - 8);
+      this.width = Math.min(
+        maxW,
+        Math.max(260, this.resizeStartW + (event.clientX - this.resizeStartX)),
       );
-      this.height = Math.max(
-        140,
-        this.resizeStartH + (event.clientY - this.resizeStartY),
+      this.height = Math.min(
+        maxH,
+        Math.max(140, this.resizeStartH + (event.clientY - this.resizeStartY)),
       );
       this.cdr.markForCheck();
     }

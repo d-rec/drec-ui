@@ -622,3 +622,20 @@
   <div mat-dialog-content></div>
   <div mat-dialog-actions class="continue-button"></div>
 </ng-template>
+
+<ng-template #deleteErrorDialog let-data>
+  <h2 mat-dialog-title style="color:#dc3545;">
+    <mat-icon style="vertical-align:middle;margin-right:8px;">error</mat-icon>
+    {{ data?.title || 'Error' }}
+  </h2>
+  <div mat-dialog-content>
+    <pre style="white-space:pre-wrap;font-family:inherit;margin:0;font-size:13px;max-height:300px;overflow:auto">{{ data?.message }}</pre>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-end" style="gap:8px;">
+    <button mat-stroked-button (click)="copyErrorToClipboard(data?.message)">
+      <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">content_copy</mat-icon>
+      Copy Error
+    </button>
+    <button mat-flat-button color="primary" mat-dialog-close>Close</button>
+  </div>
+</ng-template>

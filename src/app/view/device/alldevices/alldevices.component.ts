@@ -1,5 +1,11 @@
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ChangeDetectorRef, Component, Inject, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  Inject,
+  TemplateRef,
+  ViewChild,
+} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
 
@@ -526,12 +532,50 @@ export class AlldevicesComponent {
   }
 
   deleteDevice(id: number) {
-    this.deviceService.RemoveDevice(id).subscribe((response) => {
-      if (response.success) {
-        this.toastrService.success(response.message, 'Successfully');
-        this.getDeviceListData(this.p);
-      } else {
-        this.toastrService.error(response.message, 'Failure');
+    this.deviceService.RemoveDevice(id).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastrService.success(response.message, 'Successfully');
+          this.getDeviceListData(this.p);
+        } else {
+          this.showCopyableError(response.message, `Delete device ${id}`);
+        }
+      },
+      error: (err) => {
+        const msg =
+          err?.error?.message || err?.message || 'Unknown delete error';
+        this.showCopyableError(String(msg), `Delete device ${id}`);
+      },
+    });
+  }
+
+  @ViewChild('deleteErrorDialog') deleteErrorDialogTemplate =
+    {} as TemplateRef<any>;
+
+  /** Open a MatDialog with the error message and an explicit Copy Error
+   *  button so the user can lift the message into a bug report or Slack. */
+  private showCopyableError(message: string, title: string): void {
+    this.dialog.open(this.deleteErrorDialogTemplate, {
+      width: '480px',
+      data: { title, message },
+    });
+  }
+
+  copyErrorToClipboard(message: string): void {
+    const done = () =>
+      this.toastrService.info('Error message copied', '', { timeOut: 1500 });
+    navigator.clipboard?.writeText(message).then(done, () => {
+      const ta = document.createElement('textarea');
+      ta.value = message;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        done();
+      } finally {
+        document.body.removeChild(ta);
       }
     });
   }

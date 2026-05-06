@@ -37,6 +37,9 @@
           <strong>Extracted Text</strong>
           <input class="picw__search" type="text" placeholder="Search..." [(ngModel)]="ocrSearch" />
           <button class="picw__copy-btn" (click)="copyOcrText()">Copy</button>
+          <button class="picw__close-btn" type="button"
+                  (click)="ocrText = null; ocrSearch = ''"
+                  title="Hide extracted text">&times;</button>
         </div>
         <pre class="picw__ocr-text" [innerHTML]="highlightOcr(ocrText!, ocrSearch)"></pre>
       </div>

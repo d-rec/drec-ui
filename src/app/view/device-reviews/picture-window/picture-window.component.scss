@@ -238,6 +238,26 @@
     }
   }
 
+  &__close-btn {
+    background: transparent;
+    border: 1px solid #6c757d;
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    line-height: 1;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: #f1d4d4;
+      border-color: #b03a2e;
+      color: #b03a2e;
+    }
+  }
+
   &__ocr-text {
     margin: 0;
     padding: 8px 10px;
