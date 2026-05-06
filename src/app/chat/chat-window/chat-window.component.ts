@@ -7,6 +7,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subscription } from 'rxjs';
 import { ChatMessage, ChatService } from '../chat.service';
 
@@ -53,6 +54,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     readonly chatService: ChatService,
     private sanitizer: DomSanitizer,
+    private snackBar: MatSnackBar,
   ) {}
 
   private dismissContextMenu = () => {
@@ -198,6 +200,20 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  /** Match the verify-report short URL we share via chat. Accepts both
+   *  the uuid form (preferred) and the integer-id form (legacy). */
+  private readonly REPORT_URL_RE =
+    /\bhttps?:\/\/[^\s]+\/r\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|\d+)\b/gi;
+  /** Generic URL (run AFTER report-url substitution so we don't double-wrap). */
+  private readonly URL_RE = /\bhttps?:\/\/[^\s<]+/g;
+
+  /** Returns the first /r/<ref> URL in the message, or null. */
+  reportLink(text: string): { url: string; id: string } | null {
+    this.REPORT_URL_RE.lastIndex = 0;
+    const m = this.REPORT_URL_RE.exec(text || '');
+    return m ? { url: m[0], id: m[1] } : null;
+  }
+
   highlightText(text: string): string | SafeHtml {
     const safe = text.replace(
       /[&<>"']/g,
@@ -210,11 +226,19 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
           "'": '&#39;',
         })[c] ?? c,
     );
+
+    // Auto-linkify any URL so the registrant can click instead of copy/pasting.
+    // Auto-linkify every URL — keep the URL visible AND clickable. The
+    // /r/<ref> ones also get a richer card rendered below the bubble text.
+    const linked = safe.replace(this.URL_RE, (u) => {
+      return `<a href="${u}" target="_blank" rel="noopener" class="chat-link">${u}</a>`;
+    });
+
     const term = this.chatSearch.trim();
-    if (!term) return safe;
+    if (!term) return this.sanitizer.bypassSecurityTrustHtml(linked); // nosemgrep: angular-bypasssecuritytrust
     const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const re = new RegExp(escaped, 'gi'); // nosemgrep: detect-non-literal-regexp -- term is regex-escaped above
-    const highlighted = safe.replace(
+    const highlighted = linked.replace(
       re,
       (m) => `<mark class="chat-highlight">${m}</mark>`,
     );
@@ -234,10 +258,17 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   isOwnMessage(msg: ChatMessage): boolean {
+    // msg.username can be either the full email or the localpart depending
+    // on which sender path produced it; compare both forms.
+    const my = (this.currentUsername || '').toLowerCase();
+    const myLocal = my.split('@')[0];
+    const theirs = (msg.username || '').toLowerCase();
     if (this.isInternalUser) {
-      return msg.username !== this.partnerEmail;
+      const partner = (this.partnerEmail || '').toLowerCase();
+      const partnerLocal = partner.split('@')[0];
+      return theirs !== partner && theirs !== partnerLocal;
     }
-    return msg.username === this.currentUsername;
+    return theirs === my || theirs === myLocal;
   }
 
   get filteredMessages(): ChatMessage[] {
@@ -302,7 +333,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
   msgMenu: { x: number; y: number; uuid: string } | null = null;
 
   onMessageContextMenu(event: MouseEvent, msg: ChatMessage): void {
-    if (!this.isOwnMessage(msg)) return; // can only delete own messages
     if (!window.getSelection()?.isCollapsed) return;
     event.preventDefault();
     event.stopPropagation();
@@ -313,14 +343,38 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     const uuid = this.msgMenu?.uuid;
     this.msgMenu = null;
     if (!uuid) return;
+    console.log('[chat] deleting message', uuid);
     this.chatService.deleteMessage(uuid).subscribe({
-      next: () => {
-        // Remove locally immediately; the polling will re-sync from server.
+      next: (res) => {
+        console.log('[chat] delete OK', res);
+        // Remove locally and refresh the chain from the head so the linked
+        // list rewire is reflected.
         this.messages = this.messages.filter((m) => m.uuid !== uuid);
         this.chatService.messages$.next(this.messages);
+        // Force a server refetch so polling-stale doesn't bring it back.
+        if (this.chatService.currentHeadUuid) {
+          this.chatService
+            .getChain(this.chatService.currentHeadUuid)
+            .subscribe((msgs) => this.chatService.messages$.next(msgs));
+        }
       },
       error: (err) => {
-        console.error('delete message failed', err);
+        console.error('[chat] delete message failed', err);
+        const detail =
+          err?.error?.message || err?.message || 'unknown error';
+        const ref = this.snackBar.open(
+          `Delete failed — ${detail}`,
+          'Copy',
+          {
+            duration: 0,
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom',
+          },
+        );
+        ref.onAction().subscribe(() => {
+          navigator.clipboard?.writeText(detail);
+          ref.dismiss();
+        });
       },
     });
   }

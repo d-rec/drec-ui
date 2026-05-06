@@ -33,16 +33,17 @@ export class VerificationReportViewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const id = parseInt(this.route.snapshot.params['id'], 10);
-    if (!id) {
+    const ref = this.route.snapshot.params['id'];
+    if (!ref) {
       this.loading = false;
       this.error = 'Missing report id';
       return;
     }
     // Direct HTTP — endpoint is public (no JWT) so the registrant can
-    // open the URL without being logged in.
+    // open the URL without being logged in. `ref` may be a uuid (preferred)
+    // or the legacy integer id.
     this.http
-      .get<any>(`${environment.API_URL}device-reviews/reports/${id}`)
+      .get<any>(`${environment.API_URL}device-reviews/reports/${ref}`)
       .subscribe({
         next: (r) => {
           this.report = r;

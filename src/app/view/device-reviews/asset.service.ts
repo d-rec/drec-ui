@@ -308,16 +308,16 @@ export class AssetService {
     elapsedMs: number,
     overallStatus: string | null,
     payload: any,
-  ): Observable<{ id: number }> {
-    return this.http.post<{ id: number }>(
+  ): Observable<{ id: number; uuid: string }> {
+    return this.http.post<{ id: number; uuid: string }>(
       `${environment.API_URL}device-reviews/${deviceId}/reports`,
       { elapsedMs, overallStatus, payload },
     );
   }
 
-  getVerificationReport(reportId: number): Observable<any> {
+  getVerificationReport(ref: string | number): Observable<any> {
     return this.http.get<any>(
-      `${environment.API_URL}device-reviews/reports/${reportId}`,
+      `${environment.API_URL}device-reviews/reports/${ref}`,
     );
   }
 

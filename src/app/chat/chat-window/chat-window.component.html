@@ -43,6 +43,18 @@
           <span class="sender-name">{{ msg.username }}</span>
           <span class="text" *ngIf="!isItalic(msg.chatEntry)" [innerHTML]="highlightText(msg.chatEntry)"></span>
           <span class="text text--italic" *ngIf="isItalic(msg.chatEntry)" [innerHTML]="highlightText(stripItalic(msg.chatEntry))"></span>
+          <a *ngIf="reportLink(msg.chatEntry) as link"
+             class="report-card"
+             [href]="link.url"
+             target="_blank"
+             rel="noopener">
+            <span class="report-card__icon">🛡️</span>
+            <span class="report-card__body">
+              <span class="report-card__title">Verification Report</span>
+              <span class="report-card__sub">Tap to open</span>
+            </span>
+            <span class="report-card__arrow">›</span>
+          </a>
           <span class="time">{{ msg.createdAt | date: 'd MMM, HH:mm' }}</span>
         </div>
         <div *ngIf="messages.length === 0" class="no-messages">

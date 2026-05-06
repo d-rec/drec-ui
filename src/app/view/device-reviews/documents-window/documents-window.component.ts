@@ -672,8 +672,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.svc
       .saveVerificationReport(deviceId, elapsedMs, overallStatus, payload)
       .subscribe({
-        next: ({ id }) => {
-          const url = `${window.location.origin}/r/${id}`;
+        next: ({ id, uuid }) => {
+          // Prefer the uuid in the share URL — non-guessable + stable across
+          // reseeds. Falls back to id if the backend predates the uuid column.
+          const ref = uuid || id;
+          const url = `${window.location.origin}/r/${ref}`;
           // Find the registrant for this device and open / append a chat
           // message with the link.
           const asset = this.svc.assets$.value.find(
@@ -737,9 +740,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     reportUrl: string,
     overallStatus: string,
   ): Promise<void> {
-    const body =
-      `Verification report for ${siteName} — overall: ${overallStatus.toUpperCase()}\n\n` +
-      `Open: ${reportUrl}`;
+    // Body kept short — the chat-window renders the report URL as a
+    // styled "Verification Report" card with a tap-to-open arrow, so
+    // there's no need to spell out "Open: <url>" in the text.
+    const body = `Verification report for ${siteName} — overall: ${overallStatus.toUpperCase()}\n${reportUrl}`;
     // Use the chat service: open or create a conversation with this email,
     // then send. We expose a thin helper if it doesn't already exist.
     return new Promise((resolve, reject) => {

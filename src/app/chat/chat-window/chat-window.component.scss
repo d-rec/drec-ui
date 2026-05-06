@@ -371,6 +371,43 @@
   }
 }
 
+.chat-link {
+  color: inherit;
+  text-decoration: underline;
+  &:hover { opacity: 0.85; }
+}
+
+.report-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  font-size: 12px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.28);
+  }
+
+  &__icon { font-size: 18px; }
+  &__body { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+  &__title { font-weight: 700; }
+  &__sub { opacity: 0.85; font-size: 11px; }
+  &__arrow { font-size: 22px; line-height: 1; opacity: 0.8; }
+}
+
+.bubble:not(.own) .report-card {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  &:hover { background: #e2e8f0; }
+  .report-card__sub { color: #64748b; opacity: 1; }
+}
+
 .bubble {
   max-width: 72%;
   padding: 8px 14px;
