@@ -1269,7 +1269,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
               (classifiedType === DocumentType.PROJECT_PHOTOS &&
                 /\.(jpe?g|png|gif|webp|bmp)$/i.test(fname) &&
                 (slot.expectedType === DocumentType.OTHER_DOCUMENTS ||
-                  slot.expectedType === DocumentType.PROJECT_PHOTOS))
+                  slot.expectedType === DocumentType.PROJECT_PHOTOS)) ||
+              // A facility boundary is a site photo — accept in the Photos slot
+              (classifiedType === DocumentType.FACILITY_BOUNDARY &&
+                slot.expectedType === DocumentType.PROJECT_PHOTOS)
             : null;
           if (isMatch === true) matchCount++;
           else if (isMatch === false) mismatchCount++;
@@ -3472,7 +3475,10 @@ trustUrl(url: string): SafeUrl {
                   (classifiedType === DocumentType.PROJECT_PHOTOS &&
                     /\.(jpe?g|png|gif|webp|bmp)$/i.test(fname) &&
                     (slot.expectedType === DocumentType.OTHER_DOCUMENTS ||
-                      slot.expectedType === DocumentType.PROJECT_PHOTOS))
+                      slot.expectedType === DocumentType.PROJECT_PHOTOS)) ||
+                  // A facility boundary is a site photo — accept in the Photos slot
+                  (classifiedType === DocumentType.FACILITY_BOUNDARY &&
+                    slot.expectedType === DocumentType.PROJECT_PHOTOS)
                 : null,
             },
           ];
