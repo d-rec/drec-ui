@@ -86,6 +86,13 @@ export class DocumentClassifierService {
   /**
    * Tier 0: classify based on filename patterns.
    * Fast, runs before OCR. Returns null if no strong filename match.
+   *
+   * NOTE on word boundaries: JS treats `_` as a word character, so
+   * `\bsld\b` does not match `_sld_`. Real-world filenames almost
+   * always separate tokens with `_`, ` `, `-`, or `.`. We use explicit
+   * character-class lookarounds `(?<![a-z0-9])X(?![a-z0-9])` so the
+   * heuristic still rejects substrings inside other words but matches
+   * any non-alphanumeric separator.
    */
   private classifyByFilename(name: string): ClassificationResult | null {
     const lower = name.toLowerCase();
@@ -98,7 +105,7 @@ export class DocumentClassifierService {
         alternatives: [],
       };
     }
-    if (/\bsld\b|single.?line/i.test(lower)) {
+    if (/(?<![a-z0-9])sld(?![a-z0-9])|single.?line/i.test(lower)) {
       return {
         suggestedType: DocumentType.SINGLE_LINE_DIAGRAM,
         confidence: 0.8,
@@ -106,7 +113,10 @@ export class DocumentClassifierService {
         alternatives: [],
       };
     }
-    if (/\bsf.?02c?\b/i.test(lower) && /owner|declaration/i.test(lower)) {
+    if (
+      /(?<![a-z0-9])sf.?02c?(?![a-z0-9])/i.test(lower) &&
+      /owner|declaration/i.test(lower)
+    ) {
       return {
         suggestedType: DocumentType.SF_02C_OWNERS_DECLARATION,
         confidence: 0.8,
@@ -114,7 +124,7 @@ export class DocumentClassifierService {
         alternatives: [],
       };
     }
-    if (/\bsf.?02c\b/i.test(lower)) {
+    if (/(?<![a-z0-9])sf.?02c(?![a-z0-9])/i.test(lower)) {
       return {
         suggestedType: DocumentType.SF_02C,
         confidence: 0.8,
@@ -122,7 +132,7 @@ export class DocumentClassifierService {
         alternatives: [],
       };
     }
-    if (/\bsf.?02\b/i.test(lower)) {
+    if (/(?<![a-z0-9])sf.?02(?![a-z0-9])/i.test(lower)) {
       return {
         suggestedType: DocumentType.FORM_SF_02,
         confidence: 0.8,
@@ -130,7 +140,7 @@ export class DocumentClassifierService {
         alternatives: [],
       };
     }
-    if (/\bcod\b|commission/i.test(lower)) {
+    if (/(?<![a-z0-9])cod(?![a-z0-9])|commission/i.test(lower)) {
       return {
         suggestedType: DocumentType.COD_PROOF,
         confidence: 0.7,
@@ -138,7 +148,7 @@ export class DocumentClassifierService {
         alternatives: [],
       };
     }
-    if (/meter|kwh|mwh|reading/i.test(lower)) {
+    if (/meter|kwh|mwh|reading|screenshot/i.test(lower)) {
       return {
         suggestedType: DocumentType.METERING_EVIDENCE,
         confidence: 0.7,
@@ -150,6 +160,14 @@ export class DocumentClassifierService {
       return {
         suggestedType: DocumentType.SF_02C_OWNERS_DECLARATION,
         confidence: 0.8,
+        method: 'keywords',
+        alternatives: [],
+      };
+    }
+    if (/(?<![a-z0-9])od(?![a-z0-9]).{0,8}letter/i.test(lower)) {
+      return {
+        suggestedType: DocumentType.SF_02C_OWNERS_DECLARATION,
+        confidence: 0.7,
         method: 'keywords',
         alternatives: [],
       };

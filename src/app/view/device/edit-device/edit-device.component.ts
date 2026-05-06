@@ -839,9 +839,17 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       this.documentClassifier.classify(file).subscribe({
         next: (result) => {
           this.ngZone.run(() => {
-            const targetType = result?.suggestedType ?? DocumentType.OTHER_DOCUMENTS;
+            const rawType = result?.suggestedType ?? DocumentType.OTHER_DOCUMENTS;
+            // FACILITY_BOUNDARY has no registrant-side upload slot today,
+            // so drop the boundary jpg into PROJECT_PHOTOS where it can
+            // still be reviewed. The magic-table label below still shows
+            // "Facility Boundary" so the reviewer knows what it is.
+            const targetType =
+              rawType === DocumentType.FACILITY_BOUNDARY
+                ? DocumentType.PROJECT_PHOTOS
+                : rawType;
             const label =
-              this.DOCUMENT_TYPE_LABELS[targetType] ?? 'Other Document';
+              this.DOCUMENT_TYPE_LABELS[rawType] ?? 'Other Document';
             const confidence = result
               ? Math.round(result.confidence * 100)
               : null;
