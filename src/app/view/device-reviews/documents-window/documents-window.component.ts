@@ -10,7 +10,6 @@ import {
   ElementRef,
   HostListener,
 } from '@angular/core';
-import { Router } from '@angular/router';
 import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -1372,17 +1371,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private toastr: ToastrService,
     private classifier: DocumentClassifierService,
-    private router: Router,
   ) {}
 
-  /** Open the new full-bleed reviewer workbench for a device. */
-  openWorkbench(id: string | number, ev: Event): void {
-    ev.preventDefault();
-    ev.stopPropagation();
-    this.router.navigate(['/device/reviews/workbench', id]);
-  }
-
-  trustUrl(url: string): SafeUrl {
+trustUrl(url: string): SafeUrl {
     // nosemgrep: angular-bypasssecuritytrust -- url comes from backend S3 presigned URLs, not user input
     return this.sanitizer.bypassSecurityTrustUrl(url);
   }

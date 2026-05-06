@@ -71,16 +71,7 @@
         >
           <span class="chevron" role="button" tabindex="0" [class.chevron--open]="expanded[item.id]" (click)="toggleDevice(item.id); $event.stopPropagation()" (keydown.enter)="toggleDevice(item.id); $event.stopPropagation()">&#8250;</span>
           <span class="col-serial">
-            <a
-              class="site-name-link"
-              role="button"
-              tabindex="0"
-              [innerHTML]="hl(item.siteName, result.searchTerm)"
-              title="Open in reviewer workbench"
-              (click)="openWorkbench(item.id, $event)"
-              (keydown.enter)="openWorkbench(item.id, $event)"
-              (mousedown)="$event.stopPropagation()"
-            ></a>
+            <span [innerHTML]="hl(item.siteName, result.searchTerm)"></span>
           </span>
           <span class="col-country muted">{{ item.countryCode | countryName }}</span>
           <span class="col-modified muted">{{ item.modifiedDate ? (item.modifiedDate | date:'dd/MM/yyyy') : '—' }}</span>
