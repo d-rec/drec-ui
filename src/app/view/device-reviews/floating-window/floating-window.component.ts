@@ -54,8 +54,13 @@ export class FloatingWindowComponent
   ngOnInit(): void {
     this.x = this.initX;
     this.y = Math.max(0, this.initY);
-    this.width = this.initWidth;
-    this.height = this.initHeight;
+    // Cap requested initial size to ~70% of the viewport so windows
+    // open visibly inside the screen instead of swallowing it.
+    // Floor of 320×240 so nothing collapses to nothing on tiny windows.
+    const maxW = Math.max(320, Math.round(window.innerWidth * 0.7));
+    const maxH = Math.max(240, Math.round(window.innerHeight * 0.7));
+    this.width = Math.min(this.initWidth, maxW);
+    this.height = Math.min(this.initHeight, maxH);
   }
 
   /**
