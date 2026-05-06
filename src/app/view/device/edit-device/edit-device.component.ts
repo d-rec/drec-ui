@@ -87,9 +87,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   numberregex: RegExp = /[0-9]+(\.[0-9]*){0,1}/;
   maxDate = new Date();
   public date: any;
-  addmoredetals: any;
-  shownomore: any;
-  showaddmore: any;
   public sdgblist: any;
   id: number;
   externalid: any;
@@ -495,9 +492,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       offGridCircumstances: [null],
       sf02EvidenceMode: ['self'],
     });
-    this.addmoredetals = false;
-    this.showaddmore = true;
-    this.shownomore = false;
     this.updateDeviceForm.valueChanges.subscribe();
     this.updateDeviceForm.get('latitude')?.valueChanges.subscribe((v) => {
       const stripped = typeof v === 'string' ? v.replace(/\s/g, '') : v;
@@ -602,16 +596,6 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     });
   }
   private initSerialNumber: string | null = null;
-  addmore() {
-    this.addmoredetals = true;
-    this.shownomore = true;
-    this.showaddmore = false;
-  }
-  nomore() {
-    this.addmoredetals = false;
-    this.showaddmore = true;
-    this.shownomore = false;
-  }
   getDeviceinfo() {
     this.deviceService
       .getDeviceInfoBYexternalId(this.externalid)

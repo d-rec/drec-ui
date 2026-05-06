@@ -770,7 +770,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                 subItems.push({
                   label: 'Irradiance estimate',
                   status: 'warn',
-                  detail: 'No coordinates — cannot estimate',
+                  detail:
+                    res.irradianceUnavailableReason ||
+                    'Unavailable — cannot estimate',
                 });
               }
               if (res.solarGsa) {
@@ -780,10 +782,18 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                   detail: `${res.solarGsa.annualKwh?.toFixed(0)} kWh/yr total | ${res.gsaYieldPerKw || (res.solarGsa.annualKwh / (res.capacityKw || 1)).toFixed(0)} kWh/kW/yr | v${res.solarGsa.version || '?'}`,
                 });
               } else {
+                const inputDiag: string[] = [];
+                if (res.lat == null || isNaN(res.lat)) inputDiag.push('latitude');
+                if (res.lng == null || isNaN(res.lng)) inputDiag.push('longitude');
+                if (!(res.capacityKw > 0)) inputDiag.push('capacity');
+                if (!res.commissioningDate) inputDiag.push('commissioning date');
+                const fallback = inputDiag.length
+                  ? `Missing ${inputDiag.join(', ')}`
+                  : 'Unavailable — likely SOLAR_GRID_NPZ_PATH unset on API or coordinates outside grid (lat ∈ [-60,65])';
                 subItems.push({
                   label: 'Solar GSA (Global Solar Atlas)',
                   status: 'warn',
-                  detail: 'Unavailable — missing coords, capacity, or pre-COD',
+                  detail: res.solarGsaUnavailableReason || fallback,
                 });
               }
               subItems.push({
