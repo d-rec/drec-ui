@@ -140,6 +140,21 @@ export class DeviceService {
     >(this.url + 'device/' + deviceId + '/documents');
   }
 
+  uploadSingleDocument(
+    deviceId: number,
+    type: string,
+    file: File,
+  ): Observable<{ id: number; url: string; type: string; createdAt: string }> {
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    return this.httpClient.post<{
+      id: number;
+      url: string;
+      type: string;
+      createdAt: string;
+    }>(`${this.url}device/${deviceId}/documents/${type}`, fd);
+  }
+
   updateDocumentLabel(
     documentId: number,
     label: string | null,

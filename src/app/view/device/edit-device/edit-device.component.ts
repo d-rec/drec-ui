@@ -1426,23 +1426,45 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   }
 
   onScreenshotFromMap(file: File): void {
-    // Map screenshot of the current site (with EXIF GPS) is saved as a Site Photo.
-    if (!this.files[DocumentType.PROJECT_PHOTOS]) {
-      this.files[DocumentType.PROJECT_PHOTOS] = [];
+    // Upload the map screenshot (with EXIF GPS) immediately as a Site Photo —
+    // no need to wait for the Update button. Falls back to staging if the
+    // device id isn't loaded yet (e.g. add-device flow uses a separate path).
+    if (!this.id) {
+      if (!this.files[DocumentType.PROJECT_PHOTOS]) {
+        this.files[DocumentType.PROJECT_PHOTOS] = [];
+      }
+      this.files[DocumentType.PROJECT_PHOTOS].push(file);
+      this.toastrService.info(
+        `Map capture staged — Save to upload`,
+        'Captured',
+      );
+      return;
     }
-    this.files[DocumentType.PROJECT_PHOTOS].push(file);
-
-    const objectUrl = URL.createObjectURL(file);
-    this.filePreviews[DocumentType.PROJECT_PHOTOS] = {
-      url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
-      type: 'image',
-      name: file.name,
-    };
-
-    this.toastrService.success(
-      `Map capture "${file.name}" added as a Site Photo (GPS embedded). Save to upload.`,
-      'Captured',
-    );
+    this.deviceService
+      .uploadSingleDocument(this.id, DocumentType.PROJECT_PHOTOS, file)
+      .subscribe({
+        next: (saved) => {
+          if (!this.existingDocs[DocumentType.PROJECT_PHOTOS]) {
+            this.existingDocs[DocumentType.PROJECT_PHOTOS] = [];
+          }
+          this.existingDocs[DocumentType.PROJECT_PHOTOS].push({
+            url: saved.url,
+            name: file.name,
+            id: saved.id,
+            label: null,
+            createdAt: saved.createdAt,
+          });
+          this.toastrService.success(
+            `Map capture "${file.name}" uploaded as Site Photo`,
+            'Uploaded',
+          );
+        },
+        error: (err) =>
+          this.toastrService.error(
+            err?.error?.message || err?.message || 'Upload failed',
+            'Site Photo',
+          ),
+      });
   }
 
   updateMapMarkers(latitude: any, longitude: any) {
