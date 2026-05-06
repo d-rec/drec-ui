@@ -77,47 +77,17 @@
 
       <div class="rw__preview-body">
         <div class="rw__preview-canvas">
-          <!-- Real doc — populated by Phase 2a when the device fetch returns signed URLs.
-               Use the shared pdf-preview component (pdf.js based) so PDFs render inline
-               instead of triggering download (signed URLs may have Content-Disposition:
-               attachment). The same component handles images via previewType='image'. -->
-          <ng-container *ngIf="doc.url; else stubPage">
+          <!-- Real doc — pdf-preview renders the signed URL inline. The
+               server now signs with SigV4 + ResponseContentType so the
+               iframe gets the right Content-Type and never triggers a
+               browser download dialog. -->
+          <ng-container *ngIf="doc.url && doc.trustedUrl; else stubPage">
             <app-pdf-preview
-              *ngIf="doc.blobUrl && doc.trustedBlobUrl; else loadCta"
               class="rw__real-doc"
-              [previewUrl]="doc.trustedBlobUrl"
+              [previewUrl]="doc.trustedUrl"
               [previewType]="doc.isImage ? 'image' : 'pdf'"
               [ocrSource]="doc.url"
             ></app-pdf-preview>
-            <ng-template #loadCta>
-              <div class="rw__doc-loading">
-                <ng-container *ngIf="doc.blobLoading">
-                  Loading {{ doc.name }}…
-                </ng-container>
-                <ng-container *ngIf="!doc.blobLoading && doc.blobError">
-                  <div>Could not load this document.</div>
-                  <div class="rw__doc-loading-hint">
-                    The signed URL may have expired. Re-open the workbench to
-                    fetch a fresh one.
-                  </div>
-                </ng-container>
-                <ng-container *ngIf="!doc.blobLoading && !doc.blobError">
-                  <div class="rw__doc-loading-hint" style="margin-bottom: 12px">
-                    {{ doc.name }} — {{ doc.filename }}
-                  </div>
-                  <button
-                    type="button"
-                    class="rw__load-preview-btn"
-                    (click)="loadPreview()"
-                  >
-                    Load preview
-                  </button>
-                  <div class="rw__doc-loading-hint" style="margin-top: 12px">
-                    Click to fetch this document and render it inline.
-                  </div>
-                </ng-container>
-              </div>
-            </ng-template>
           </ng-container>
           <ng-template #stubPage>
           <div class="rw__doc-page">

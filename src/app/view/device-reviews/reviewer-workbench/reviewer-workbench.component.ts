@@ -12,7 +12,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Asset } from '../asset.model';
 import { AssetService } from '../asset.service';
-import { canFireDocOpen } from '../../../utils/doc-open-rate-limit';
 
 interface ChipMapping {
   ocNum: number;
@@ -34,20 +33,12 @@ interface DocItem {
   /** Signed URL from the API. Empty for docs that don't exist on this device. */
   url?: string;
   /**
-   * Blob URL the workbench renders. Computed lazily from `url` so the
-   * iframe never sees the raw signed URL (which carries
-   * Content-Disposition: attachment and would trigger a download).
+   * Cached SafeResourceUrl wrapping `url`. Cached at doc-build time
+   * because the sanitizer returns a new object on every call —
+   * computing it from the template would re-bind the iframe src every
+   * change-detection cycle and cause re-mount/blink.
    */
-  blobUrl?: string;
-  /**
-   * Cached SafeResourceUrl wrapping blobUrl. Cached because the
-   * sanitizer returns a NEW object each call — calling it from the
-   * template binds a fresh reference every change-detection cycle and
-   * Angular treats the iframe src as changed, causing re-mount/blink.
-   */
-  trustedBlobUrl?: SafeResourceUrl;
-  blobLoading?: boolean;
-  blobError?: boolean;
+  trustedUrl?: SafeResourceUrl;
 }
 
 type OcStatus = 'confirmed' | 'pending' | 'discrepancy';
@@ -529,9 +520,6 @@ export class ReviewerWorkbenchComponent
     ) {
       this.selectedDocId = this.docs[0].id;
     }
-    // No auto-fetch — preview is opt-in via the Load Preview button so a
-    // signed URL with Content-Disposition: attachment can never reach an
-    // iframe without an explicit user action.
   }
 
   /** Map the device's signed URLs to the workbench's DocItem shape. */
@@ -558,8 +546,9 @@ export class ReviewerWorkbenchComponent
         size: '',
         isImage: isImage(url),
         isFacilityBoundary,
-        chips: [],
+        chips: this.chipsForDocId(id),
         url,
+        trustedUrl: this.sanitizer.bypassSecurityTrustResourceUrl(url),
       });
     };
     if (a.sldUrl) push('sld', a.sldUrl, 'Single Line Diagram', 'SLD', 'site');
@@ -585,6 +574,68 @@ export class ReviewerWorkbenchComponent
     return docs;
   }
 
+  /**
+   * OC# items each evidence-doc-id evidences. Mirrors the demo-stub
+   * mapping so the chip rail isn't empty after real-data hydration.
+   * Registrant value is sourced from the matching ocRow when present
+   * so chip text stays in sync with whatever the registrant submitted.
+   *
+   * SF-02 and SF-02C mappings are best-guess pending Paul B's
+   * authoritative form-field disposition (see project memory note
+   * project_oc_checklist_mapping.md).
+   */
+  private chipsForDocId(id: string): ChipMapping[] {
+    const ocNumsByDoc: Record<string, { ocNum: number; label: string }[]> = {
+      sld: [
+        { ocNum: 9, label: 'Capacity' },
+        { ocNum: 11, label: 'Inverter make/model' },
+        { ocNum: 13, label: 'Module make/model' },
+        { ocNum: 14, label: 'Meter ID' },
+        { ocNum: 15, label: 'Grid interconnection' },
+        { ocNum: 16, label: 'Grid export type' },
+        { ocNum: 24, label: 'Auxiliary energy sources' },
+      ],
+      sf02: [
+        { ocNum: 1, label: 'Operator name' },
+        { ocNum: 3, label: 'Site coordinates' },
+        { ocNum: 5, label: 'Country' },
+        { ocNum: 8, label: 'Commercial operation date' },
+      ],
+      sf02c: [
+        { ocNum: 23, label: 'Captive consumer' },
+        { ocNum: 47, label: 'PV system owner' },
+      ],
+      'sf02c-od': [
+        { ocNum: 23, label: 'Captive consumer' },
+        { ocNum: 46, label: 'OD letter upload' },
+        { ocNum: 47, label: 'PV system owner' },
+      ],
+      cod: [{ ocNum: 8, label: 'Commercial operation date' }],
+    };
+    let preset = ocNumsByDoc[id];
+    if (!preset) {
+      if (id.startsWith('metering-')) {
+        preset = [
+          { ocNum: 14, label: 'Meter ID' },
+          { ocNum: 49, label: 'Metering evidence' },
+        ];
+      } else if (id.startsWith('photo-')) {
+        preset = [
+          { ocNum: 3, label: 'Site coordinates' },
+          { ocNum: 44, label: 'Facility boundary' },
+        ];
+      } else {
+        return [];
+      }
+    }
+    return preset.map((p) => ({
+      ocNum: p.ocNum,
+      label: p.label,
+      registrantValue:
+        this.ocRows.find((r) => r.num === p.ocNum)?.value || '—',
+    }));
+  }
+
   ngAfterViewInit() {
     // no-op for now; scroll target lookup happens in toggleChip()
   }
@@ -593,23 +644,11 @@ export class ReviewerWorkbenchComponent
     // Restore normal layout when leaving the workbench.
     this.host.nativeElement.remove();
     this.assetSub?.unsubscribe();
-    // Free blob URLs we created for inline preview.
-    Object.values(this.blobCache).forEach((u) => {
-      try {
-        URL.revokeObjectURL(u);
-      } catch {
-        /* ignore */
-      }
-    });
-    this.blobCache = {};
   }
 
   download(): void {
-    // Use the original signed URL for download so the user gets the
-    // real filename + content-disposition. The blobUrl is preview-only.
     const doc = this.selectedDoc;
     if (!doc?.url) return;
-    if (!canFireDocOpen('workbench.download')) return;
     window.open(doc.url, '_blank', 'noopener');
   }
 
@@ -620,56 +659,6 @@ export class ReviewerWorkbenchComponent
   selectDoc(id: string) {
     this.selectedDocId = id;
     this.ocrOpen = false;
-    // Do NOT auto-fetch. Preview only loads after explicit click on
-    // "Load Preview" — see ensureBlobUrlFor.
-  }
-
-  /** Public — bound to the Load Preview button. */
-  loadPreview(): void {
-    if (this.selectedDocId) this.ensureBlobUrlFor(this.selectedDocId);
-  }
-
-  /**
-   * Materialize the selected doc as a blob: URL so pdf-preview's iframe
-   * renders inline regardless of the original Content-Disposition.
-   *
-   * `blobUrl` is the only thing the template renders — the iframe never
-   * sees the raw signed URL (which would trigger Firefox's download
-   * dialog before the fetch completes).
-   */
-  private blobCache: Record<string, string> = {};
-  private async ensureBlobUrlFor(id: string): Promise<void> {
-    const doc = this.docs.find((d) => d.id === id);
-    if (!doc?.url) return;
-    if (this.blobCache[id]) {
-      doc.blobUrl = this.blobCache[id];
-      doc.trustedBlobUrl =
-        doc.trustedBlobUrl ??
-        this.sanitizer.bypassSecurityTrustResourceUrl(this.blobCache[id]);
-      return;
-    }
-    if (doc.blobLoading) return;
-    if (!canFireDocOpen('workbench.ensureBlobUrlFor')) return;
-    doc.blobLoading = true;
-    doc.blobError = false;
-    try {
-      const resp = await fetch(doc.url);
-      if (!resp.ok) {
-        doc.blobError = true;
-        doc.blobLoading = false;
-        return;
-      }
-      const blob = await resp.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      this.blobCache[id] = blobUrl;
-      doc.blobUrl = blobUrl;
-      doc.trustedBlobUrl = this.sanitizer.bypassSecurityTrustResourceUrl(blobUrl);
-      doc.blobLoading = false;
-    } catch (err) {
-      console.warn('Could not fetch doc as blob:', err);
-      doc.blobError = true;
-      doc.blobLoading = false;
-    }
   }
 
   isChipTicked(chip: ChipMapping): boolean {
