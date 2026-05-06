@@ -566,6 +566,13 @@
                   </table>
                   <div class="magic-dialog__footer">
                     <button type="button" class="btn btn-outline-secondary btn-sm"
+                      *ngIf="magicLog.length"
+                      (click)="copyMagicLog()" (mousedown)="$event.stopPropagation()"
+                      title="Copy results as TSV">
+                      <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">content_copy</mat-icon>
+                      Copy
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
                       (click)="cancelMagic()" (mousedown)="$event.stopPropagation()">Cancel</button>
                     <button type="button" class="btn btn-primary btn-sm"
                       (click)="acceptMagic()" (mousedown)="$event.stopPropagation()">OK</button>

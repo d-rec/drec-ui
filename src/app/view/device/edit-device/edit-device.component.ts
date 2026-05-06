@@ -749,12 +749,16 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
 
   /** Check if a file with the same name already exists in any slot. */
   private isDuplicate(file: File): boolean {
-    for (const slot of Object.values(this.files)) {
-      if (slot?.some((f: File) => f.name === file.name && f.size === file.size)) {
-        return true;
+    return this.duplicateMatch(file) !== null;
+  }
+  /** Returns the slot key where this file is already staged, or null. */
+  private duplicateMatch(file: File): string | null {
+    for (const [slot, list] of Object.entries(this.files)) {
+      if (list?.some((f: File) => f.name === file.name && f.size === file.size)) {
+        return slot;
       }
     }
-    return false;
+    return null;
   }
 
   onFileChange(event: Event, fileType: FileType) {
@@ -811,11 +815,12 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       }
 
       const file = filesToProcess[idx];
-      if (this.isDuplicate(file)) {
+      const dupSlot = this.duplicateMatch(file);
+      if (dupSlot) {
         this.ngZone.run(() => {
           this.magicLog.push({
             filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
-            target: 'Skipped (duplicate)',
+            target: `Skipped (already in ${dupSlot})`,
             confidence: null,
             type: 'miss',
           });
@@ -920,6 +925,37 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     this.magicLog = [];
     this.magicBackupFiles = {};
     this.magicBackupPreviews = {};
+  }
+
+  /** Copy the auto-classify results as TSV (file, target, confidence) so the
+   *  registrant can paste into a spreadsheet or share with support. */
+  copyMagicLog(): void {
+    const header = 'File\tClassified as\tConfidence';
+    const rows = this.magicLog.map((e) =>
+      [
+        e.filename,
+        e.target,
+        e.confidence != null ? `${e.confidence}%` : '—',
+      ].join('\t'),
+    );
+    const text = [header, ...rows].join('\n');
+    const done = () =>
+      this.toastrService.info(`Copied ${rows.length} row(s) to clipboard`);
+    navigator.clipboard?.writeText(text).then(done, () => {
+      // Fallback for non-secure contexts.
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        done();
+      } finally {
+        document.body.removeChild(ta);
+      }
+    });
   }
 
   cancelMagic(): void {
