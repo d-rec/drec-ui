@@ -379,6 +379,53 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  /**
+   * Resolve once every <img> in the tile pane has either loaded
+   * (naturalWidth > 0) or errored, or after `timeoutMs`. Also uses leaflet's
+   * own 'load' event when available — fires after tilesToLoad reaches 0.
+   */
+  private waitForTilesLoaded(
+    tilePane: HTMLElement,
+    timeoutMs: number,
+  ): Promise<void> {
+    return new Promise((resolve) => {
+      const deadline = Date.now() + timeoutMs;
+      const check = () => {
+        const imgs = Array.from(
+          tilePane.querySelectorAll('img'),
+        ) as HTMLImageElement[];
+        const pending = imgs.filter(
+          (i) => !i.complete || i.naturalWidth === 0,
+        );
+        if (pending.length === 0) {
+          resolve();
+          return;
+        }
+        if (Date.now() >= deadline) {
+          resolve();
+          return;
+        }
+        // Wait for the next image to load/error, then re-check.
+        const onSettled = () => {
+          pending.forEach((i) => {
+            i.removeEventListener('load', onSettled);
+            i.removeEventListener('error', onSettled);
+          });
+          // Coalesce burst of resolves into a single check on next frame.
+          requestAnimationFrame(check);
+        };
+        pending.forEach((i) => {
+          i.addEventListener('load', onSettled, { once: true });
+          i.addEventListener('error', onSettled, { once: true });
+        });
+        // Also poll occasionally in case new <img> elements appear (leaflet
+        // can append more tiles on pan/zoom).
+        setTimeout(check, 250);
+      };
+      check();
+    });
+  }
+
   private async captureAndDetect(): Promise<void> {
     const mapEl = this.map.getContainer();
     const w = mapEl.offsetWidth;
@@ -395,6 +442,11 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       this.detectError = 'Could not capture map';
       return;
     }
+
+    // Wait for tiles to finish loading. Leaflet keeps pending <img> elements
+    // in the tile pane while they fetch; drawing them produces blank squares.
+    // Time-bounded so we don't hang on a stuck CDN.
+    await this.waitForTilesLoaded(tilePane, 4000);
 
     const mapRect = mapEl.getBoundingClientRect();
     const imgs = Array.from(tilePane.querySelectorAll('img'));
@@ -523,7 +575,19 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     this.panelCount = preds.length;
 
     if (this.panelCount === 0) {
-      this.detectError = 'No solar panels detected in this image';
+      const hasOutputs = !!outputs;
+      const hasImage = !!outputs?.predictions?.image;
+      const hint = hasOutputs && hasImage
+        ? 'Model ran but found 0 panels. Try zooming in (z19+), recentering, or wait for satellite tiles to fully load.'
+        : 'Unexpected model response (no `outputs[0].predictions`).';
+      let raw = '';
+      try {
+        raw = JSON.stringify(data, null, 2);
+        if (raw.length > 1500) raw = raw.slice(0, 1500) + '\n…[truncated]';
+      } catch {
+        raw = String(data);
+      }
+      this.detectError = `${hint}\n\nRoboflow response:\n${raw}`;
       this.detecting = false;
       return;
     }
@@ -661,7 +725,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
 
     // Re-draw any committed drawn rectangle
     if (this.drawnRect) {
-      ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
+      ctx.fillStyle = 'rgba(0, 255, 180, 0.12)';
       ctx.fillRect(
         this.drawnRect.x,
         this.drawnRect.y,
@@ -683,7 +747,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       const selected = i === this.selectedRegion;
       const fill = selected
         ? 'rgba(239, 68, 68, 0.4)'
-        : 'rgba(0, 255, 180, 0.3)';
+        : 'rgba(0, 255, 180, 0.12)';
       const stroke = selected ? '#ef4444' : '#00ffb4';
       const points: { x: number; y: number }[] = pred.points ?? [];
 
@@ -824,7 +888,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const drawRect = (r: { x: number; y: number; w: number; h: number }) => {
-      ctx.fillStyle = 'rgba(0, 255, 180, 0.3)';
+      ctx.fillStyle = 'rgba(0, 255, 180, 0.12)';
       ctx.fillRect(r.x, r.y, r.w, r.h);
       ctx.strokeStyle = '#00ffb4';
       ctx.lineWidth = 2;

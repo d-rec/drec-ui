@@ -78,8 +78,8 @@
                     <a
                       class="di__me-name"
                       href="javascript:void(0)"
-                      (click)="openLink(l.url, $event)"
-                      (mousedown)="openLink(l.url, $event)"
+                      (click)="openLink(l.url, $event, l.docType)"
+                      (mousedown)="openLink(l.url, $event, l.docType)"
                       [innerHTML]="l.text | highlight: search"
                     ></a>
                     <span class="di__me-type">{{ linkExt(l) || '—' }}</span>

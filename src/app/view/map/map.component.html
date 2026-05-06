@@ -55,7 +55,8 @@
       <span class="detect-count" *ngIf="panelCount > 0"
         >{{ panelCount }} region{{ panelCount === 1 ? '' : 's' }} found</span
       >
-      <span class="detect-error" *ngIf="detectError">{{ detectError }}</span>
+      <pre class="detect-error" *ngIf="detectError"
+           style="white-space:pre-wrap;font-family:inherit;margin:0;font-size:12px;max-height:300px;overflow:auto">{{ detectError }}</pre>
     </div>
     <div class="detect-confirm-backdrop" *ngIf="showDetectConfirm" (click)="cancelDetect()">
       <div class="detect-confirm" (click)="$event.stopPropagation()">

@@ -82,9 +82,8 @@ const STATUS_COLOR: Record<string, string> = {
             }}
             found</span
           >
-          <span class="detect-error" *ngIf="detectError">{{
-            detectError
-          }}</span>
+          <pre class="detect-error" *ngIf="detectError"
+               style="white-space:pre-wrap;font-family:inherit;margin:0;font-size:12px;max-height:300px;overflow:auto">{{ detectError }}</pre>
         </div>
         <div class="sat-date" *ngIf="satelliteDate">
           🛰 Latest imagery: {{ satelliteDate }}
@@ -482,7 +481,7 @@ export class SatelliteWindowComponent
       const selected = i === this.selectedRegion;
       const fill = selected
         ? 'rgba(239, 68, 68, 0.4)'
-        : 'rgba(0, 255, 180, 0.3)';
+        : 'rgba(0, 255, 180, 0.12)';
       const stroke = selected ? '#ef4444' : '#00ffb4';
       const points: { x: number; y: number }[] = pred.points ?? [];
 
@@ -677,7 +676,19 @@ export class SatelliteWindowComponent
     this.panelCount = preds.length;
 
     if (this.panelCount === 0) {
-      this.detectError = 'No solar panels detected in this image';
+      const hasOutputs = !!outputs;
+      const hasImage = !!outputs?.predictions?.image;
+      const hint = hasOutputs && hasImage
+        ? 'Model ran but found 0 panels. Try zooming in (z19+), recentering, or wait for satellite tiles to fully load.'
+        : 'Unexpected model response (no `outputs[0].predictions`).';
+      let raw = '';
+      try {
+        raw = JSON.stringify(data, null, 2);
+        if (raw.length > 1500) raw = raw.slice(0, 1500) + '\n…[truncated]';
+      } catch {
+        raw = String(data);
+      }
+      this.detectError = `${hint}\n\nRoboflow response:\n${raw}`;
       this.detecting = false;
       this.cdr.markForCheck();
       return;

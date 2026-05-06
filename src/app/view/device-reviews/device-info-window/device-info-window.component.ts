@@ -26,7 +26,7 @@ interface Field {
   /** mouseover hint (from Operating Checklist tooltips) */
   hint?: string;
   /** when present, render as clickable links (opens each in a new tab) */
-  links?: { url: string; text: string }[];
+  links?: { url: string; text: string; docType?: string }[];
   /** when present, render as indented sub-rows below the label */
   items?: string[];
   /** when true AND links is populated, render as a #/Filename/Type table */
@@ -98,7 +98,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
     this.svc.viewDeviceInfo(null);
   }
 
-  openLink(url: string, event: MouseEvent): void {
+  openLink(url: string, event: MouseEvent, docType?: string): void {
     event.preventDefault();
     event.stopPropagation();
     if (!url) {
@@ -109,7 +109,10 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
     }
     if (/\.(jpe?g|png|gif|webp|bmp|svg)/i.test(url)) {
       this.svc.sldDeviceId$.next(null);
-      this.svc.viewPicture(url);
+      // OCR makes sense for screenshots / scanned text, not for site
+      // photos or facility boundary images. Limit to METERING_EVIDENCE.
+      const ocr = docType === 'METERING_EVIDENCE';
+      this.svc.viewPicture(url, ocr);
     } else {
       this.svc.viewPdf(url);
     }
@@ -195,6 +198,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
         .map((d) => ({
           url: d.url,
           text: d.label || d.originalFilename || `File ${d.id}`,
+          docType: type,
         }));
 
     return [
@@ -389,6 +393,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
             label: '(43) Project Photos',
             value: fmtDocs('PROJECT_PHOTOS'),
             links: linksFor('PROJECT_PHOTOS'),
+            tabular: true,
             hint: 'At least three photos showing the full installation and surrounding topography',
           },
           {

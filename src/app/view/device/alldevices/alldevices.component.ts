@@ -164,14 +164,13 @@ export class AlldevicesComponent {
           (org) => org.organizationType != 'Buyer',
         );
       });
-      const email = this.chatService.getCurrentUserEmail();
-      if (email) {
-        this.chatService.getConversationsForUser(email).subscribe((convs) => {
-          this.deviceChats = new Set(
-            convs.filter((c) => c.deviceSiteName).map((c) => c.deviceSiteName!),
-          );
-        });
-      }
+      // Subscribe to the chat service's unread-device set so the
+      // "awaiting chat" indicator clears as soon as the user reads the
+      // conversation (instead of staying for every conversation that
+      // has ever existed for the device).
+      this.chatService.unreadDevices$.subscribe((set) => {
+        this.deviceChats = new Set(set);
+      });
     }
     this.authService.GetMethod('sdgbenefit/code').subscribe((data) => {
       this.sdgblist = data;

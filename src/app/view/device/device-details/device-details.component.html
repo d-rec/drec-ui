@@ -287,7 +287,7 @@
             ]
           "
         >
-          <p *ngIf="row.type !== 'METERING_EVIDENCE'">
+          <p *ngIf="!isTabularType(row.type)">
             <b>{{ row.label }} {{ row.oc }}</b
             >:
             <ng-container *ngIf="docsOf(row.type).length; else noDocsInline">
@@ -300,7 +300,7 @@
             </ng-container>
             <ng-template #noDocsInline>—</ng-template>
           </p>
-          <div *ngIf="row.type === 'METERING_EVIDENCE'" class="me-block">
+          <div *ngIf="isTabularType(row.type)" class="me-block">
             <p class="me-title">
               <b>{{ row.label }} {{ row.oc }}</b>
             </p>

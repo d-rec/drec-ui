@@ -130,6 +130,16 @@ export class DeviceDetailsComponent {
 
   trackDocById = (_: number, d: { id: number }) => d.id;
 
+  /** Doc types that render as a #/Filename/Type table (one-per-row) instead
+   *  of comma-separated inline links. Multi-file types get the table. */
+  isTabularType(type: string): boolean {
+    return (
+      type === 'PROJECT_PHOTOS' ||
+      type === 'METERING_EVIDENCE' ||
+      type === 'OTHER_DOCUMENTS'
+    );
+  }
+
   splitSerials(joined: string | null | undefined): string[] {
     if (!joined) return [];
     return String(joined)
