@@ -560,12 +560,6 @@
                   mat-menu-item
                   class="edit-icon action-icons"
                   (click)="openChat(row)"
-                  *ngIf="
-                    loginuser?.role === 'Registrant'
-                      ? deviceChats.has(row.siteName)
-                      : row.reviewStatus === 'draft' ||
-                        row.reviewStatus === 'pending'
-                  "
                 >
                   <mat-icon class="primary">chat</mat-icon> Chat
                 </a>

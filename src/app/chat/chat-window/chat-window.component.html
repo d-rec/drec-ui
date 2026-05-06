@@ -38,6 +38,7 @@
           [class.own]="isOwnMessage(msg)"
           [class.unread-bold]="unreadUuids.has(msg.uuid)"
           class="bubble"
+          (contextmenu)="onMessageContextMenu($event, msg)"
         >
           <span class="sender-name">{{ msg.username }}</span>
           <span class="text" *ngIf="!isItalic(msg.chatEntry)" [innerHTML]="highlightText(msg.chatEntry)"></span>
@@ -77,4 +78,16 @@
       </div>
     </div>
   </div>
+
+  <!-- Right-click context menu for own messages: delete -->
+  <div *ngIf="msgMenu"
+       class="msg-menu"
+       [style.left.px]="msgMenu.x"
+       [style.top.px]="msgMenu.y"
+       (click)="$event.stopPropagation()">
+    <button type="button" class="msg-menu__item" (click)="deleteMessageFromMenu()">
+      🗑 Delete message
+    </button>
+  </div>
+  <div *ngIf="msgMenu" class="msg-menu__backdrop" (click)="msgMenu = null"></div>
 </div>

@@ -1783,6 +1783,14 @@ $legacy:   #a0845c;
     }
   }
 
+  &__num {
+    font-size: 11px;
+    color: $muted;
+    font-variant-numeric: tabular-nums;
+    min-width: 18px;
+    text-align: right;
+  }
+
   &__name {
     font-weight: 600;
     white-space: nowrap;

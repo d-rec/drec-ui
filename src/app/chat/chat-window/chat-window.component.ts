@@ -297,6 +297,34 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showContextMenu = true;
   }
 
+  /** Per-message right-click menu (Delete). Only fires for the user's own
+   *  messages — others fall through to the native menu. */
+  msgMenu: { x: number; y: number; uuid: string } | null = null;
+
+  onMessageContextMenu(event: MouseEvent, msg: ChatMessage): void {
+    if (!this.isOwnMessage(msg)) return; // can only delete own messages
+    if (!window.getSelection()?.isCollapsed) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.msgMenu = { x: event.clientX, y: event.clientY, uuid: msg.uuid };
+  }
+
+  deleteMessageFromMenu(): void {
+    const uuid = this.msgMenu?.uuid;
+    this.msgMenu = null;
+    if (!uuid) return;
+    this.chatService.deleteMessage(uuid).subscribe({
+      next: () => {
+        // Remove locally immediately; the polling will re-sync from server.
+        this.messages = this.messages.filter((m) => m.uuid !== uuid);
+        this.chatService.messages$.next(this.messages);
+      },
+      error: (err) => {
+        console.error('delete message failed', err);
+      },
+    });
+  }
+
   clearChat(): void {
     this.showContextMenu = false;
     this.showClearConfirm = true;

@@ -44,6 +44,15 @@ const routes: Routes = [
     pathMatch: 'full',
   },
   {
+    // Public Verify Device report viewer. Reviewers share the URL with
+    // registrants via chat; no auth required so the link works for anyone.
+    path: 'r/:id',
+    loadComponent: () =>
+      import('./view/device-reviews/report-view/report-view.component').then(
+        (m) => m.VerificationReportViewComponent,
+      ),
+  },
+  {
     path: '',
     component: GuestLayoutComponent,
     canActivate: [GuestGuard],

@@ -1,9 +1,12 @@
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AssetService } from '../asset.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule],
   selector: 'app-verification-report-view',
   templateUrl: './report-view.component.html',
   styleUrls: ['./report-view.component.scss'],
@@ -26,7 +29,7 @@ export class VerificationReportViewComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private svc: AssetService,
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -36,17 +39,21 @@ export class VerificationReportViewComponent implements OnInit {
       this.error = 'Missing report id';
       return;
     }
-    this.svc.getVerificationReport(id).subscribe({
-      next: (r) => {
-        this.report = r;
-        this.loading = false;
-      },
-      error: (e) => {
-        this.error =
-          e?.error?.message || e?.message || 'Could not load report';
-        this.loading = false;
-      },
-    });
+    // Direct HTTP — endpoint is public (no JWT) so the registrant can
+    // open the URL without being logged in.
+    this.http
+      .get<any>(`${environment.API_URL}device-reviews/reports/${id}`)
+      .subscribe({
+        next: (r) => {
+          this.report = r;
+          this.loading = false;
+        },
+        error: (e) => {
+          this.error =
+            e?.error?.message || e?.message || 'Could not load report';
+          this.loading = false;
+        },
+      });
   }
 
   get scanLog(): any[] {

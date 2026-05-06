@@ -15,7 +15,6 @@ import { PictureWindowComponent } from './picture-window/picture-window.componen
 import { PdfWindowComponent } from './pdf-window/pdf-window.component';
 import { DeviceInfoWindowComponent } from './device-info-window/device-info-window.component';
 import { ChatListComponent } from './chat-list/chat-list.component';
-import { VerificationReportViewComponent } from './report-view/report-view.component';
 import { CountryNamePipe } from './country-name.pipe';
 import { HighlightPipe } from './highlight.pipe';
 import { AssetService } from './asset.service';
@@ -40,7 +39,6 @@ import { ImageZoomPanDirective } from '../../shared/directives/image-zoom-pan.di
     ChatListComponent,
     CountryNamePipe,
     HighlightPipe,
-    VerificationReportViewComponent,
   ],
   imports: [
     CommonModule,
@@ -61,12 +59,6 @@ import { ImageZoomPanDirective } from '../../shared/directives/image-zoom-pan.di
         path: 'workbench/:id',
         component: ReviewerWorkbenchComponent,
         canActivate: [AdminGuard],
-      },
-      {
-        // Read-only view of a saved Verify Device report. No AdminGuard so
-        // registrants can open links the reviewer shared via chat.
-        path: 'report/:id',
-        component: VerificationReportViewComponent,
       },
     ]),
   ],

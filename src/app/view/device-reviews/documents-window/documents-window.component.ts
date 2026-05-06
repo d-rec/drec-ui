@@ -548,6 +548,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   scanGroupKeys(): Array<keyof typeof this.scanGroups> {
     return Object.keys(this.scanGroups) as Array<keyof typeof this.scanGroups>;
   }
+  /** Position of `check` in the flat scanChecks array, used for numbering. */
+  scanCheckIndex(check: { key: string }): number {
+    return this.scanChecks.findIndex((c) => c.key === check.key);
+  }
   scanChecksInGroup(g: string): typeof this.scanChecks {
     return this.scanChecks.filter((c) => c.group === g);
   }
@@ -567,6 +571,35 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   }
 
   sharingReport = false;
+
+  /** Sticky error snackbar with a "Copy" action — pastes the full title +
+   *  message into the clipboard. Used everywhere a copyable error is wanted. */
+  private showCopyableError(title: string, message: string): void {
+    console.error(`[${title}]`, message);
+    const ref = this.snackBar.open(`${title} — ${message}`, 'Copy', {
+      duration: 0, // sticky until dismissed
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: ['snack-error'],
+    });
+    ref.onAction().subscribe(() => {
+      const text = `${title}\n\n${message}`;
+      const done = () => this.toast('Error copied');
+      navigator.clipboard?.writeText(text).then(done, () => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          done();
+        } finally {
+          document.body.removeChild(ta);
+        }
+      });
+      ref.dismiss();
+    });
+  }
 
   /** Build the report payload that gets persisted server-side. */
   private buildReportPayload(): {
@@ -640,7 +673,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       .saveVerificationReport(deviceId, elapsedMs, overallStatus, payload)
       .subscribe({
         next: ({ id }) => {
-          const url = `${window.location.origin}/device/reviews/report/${id}`;
+          const url = `${window.location.origin}/r/${id}`;
           // Find the registrant for this device and open / append a chat
           // message with the link.
           const asset = this.svc.assets$.value.find(
@@ -649,9 +682,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           const registrantEmail = asset?.submitterEmail;
           if (!registrantEmail) {
             this.sharingReport = false;
-            this.toast(
-              `Report saved (${overallStatus}) but no registrant email — copy the URL: ${url}`,
-              8000,
+            this.showCopyableError(
+              'No registrant email on file',
+              `Report saved (${overallStatus}) but the device has no submitterEmail to chat. ` +
+                `Manually share this URL:\n${url}`,
             );
             return;
           }
@@ -667,19 +701,30 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
             },
             (err) => {
               this.sharingReport = false;
-              console.error(err);
-              this.toast(
-                `Saved but chat send failed — copy the URL: ${url}`,
-                8000,
+              const detail =
+                err?.error?.message ||
+                err?.message ||
+                JSON.stringify(err) ||
+                'unknown error';
+              this.showCopyableError(
+                'Chat send failed',
+                `Report was saved successfully (id=${id}) but the chat message to ${registrantEmail} failed.\n\n` +
+                  `URL: ${url}\n\n` +
+                  `Error: ${detail}`,
               );
             },
           );
         },
         error: (err) => {
           this.sharingReport = false;
-          this.toast(
-            `Save failed: ${err?.error?.message || err?.message || 'unknown error'}`,
-            6000,
+          const detail =
+            err?.error?.message ||
+            err?.message ||
+            JSON.stringify(err) ||
+            'unknown error';
+          this.showCopyableError(
+            'Could not save report',
+            `POST /device-reviews/${deviceId}/reports failed.\n\nError: ${detail}`,
           );
         },
       });

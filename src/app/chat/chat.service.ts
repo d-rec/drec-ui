@@ -167,6 +167,12 @@ export class ChatService implements OnDestroy {
     );
   }
 
+  deleteMessage(uuid: string): Observable<{ success: boolean }> {
+    return this.http.delete<{ success: boolean }>(
+      `${this.apiUrl}chat/messages/${uuid}`,
+    );
+  }
+
   getAdminUser(): Observable<{
     id: number;
     firstName: string;

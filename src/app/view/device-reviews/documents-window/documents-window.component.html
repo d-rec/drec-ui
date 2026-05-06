@@ -1025,6 +1025,7 @@
                  [class.scan-checklist__item--indented]="g !== 'aggregate'">
               <label class="scan-checklist__label">
                 <input type="checkbox" [(ngModel)]="check.enabled" />
+                <span class="scan-checklist__num">{{ scanCheckIndex(check) + 1 }}.</span>
                 <span class="scan-checklist__name">{{ check.label }}</span>
                 <span class="scan-checklist__desc">{{ check.description }}</span>
               </label>
@@ -1053,7 +1054,7 @@
           </span>
         </div>
         <div class="scan-log__body">
-          <div class="scan-log__entry" *ngFor="let entry of scanLog"
+          <div class="scan-log__entry" *ngFor="let entry of scanLog; let i = index"
                [class.scan-log__entry--pass]="entry.status === 'pass'"
                [class.scan-log__entry--warn]="entry.status === 'warn'"
                [class.scan-log__entry--fail]="entry.status === 'fail'"
@@ -1079,6 +1080,7 @@
                 <span *ngSwitchDefault>&#x25CB;</span>
               </ng-container>
             </span>
+            <span class="scan-log__num">{{ i + 1 }}.</span>
             <span class="scan-log__label">{{ entry.label }}</span>
             <span class="scan-log__time" *ngIf="entry.duration != null">{{ entry.duration }}ms</span>
             <div class="scan-log__detail" *ngIf="entry.detail">{{ entry.detail }}</div>
@@ -1110,16 +1112,14 @@
             *ngIf="!scanRunning && scanLog.length > 0"
             (mousedown)="$event.stopPropagation()"
             title="Copy report as text">
-            <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">content_copy</mat-icon>
-            Copy
+            ⧉ Copy
           </button>
           <button type="button" class="btn btn-primary btn-sm" (click)="shareScanReport()"
             *ngIf="!scanRunning && scanLog.length > 0"
             [disabled]="sharingReport"
             (mousedown)="$event.stopPropagation()"
             title="Save and share with the registrant via chat">
-            <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">share</mat-icon>
-            {{ sharingReport ? 'Sharing…' : 'Share with Registrant' }}
+            {{ sharingReport ? 'Sharing…' : '↗ Share with Registrant' }}
           </button>
           <button type="button" class="btn btn-outline-secondary btn-sm" (click)="closeScan()"
             *ngIf="!scanRunning"
@@ -1137,6 +1137,5 @@
     [x]="satPreview.x"
     [y]="satPreview.y"
   ></app-sat-preview>
-
 
 </div>
