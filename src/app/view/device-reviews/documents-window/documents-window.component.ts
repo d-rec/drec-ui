@@ -543,7 +543,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       try {
         const result = await this.runSingleCheck(entry.key, deviceId);
         entry.duration = Math.round(performance.now() - t0);
-        entry.status = result.status;
+        entry.status = result.status === 'skip' ? 'skipped' : result.status;
         entry.detail = result.detail;
         entry.subItems = result.subItems;
       } catch (err: any) {
@@ -579,7 +579,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     key: string,
     deviceId: number,
   ): Promise<{
-    status: 'pass' | 'warn' | 'fail';
+    status: 'pass' | 'warn' | 'fail' | 'skip';
     detail: string;
     subItems?: Array<{
       label: string;
@@ -864,6 +864,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           this.svc.crossSourceVerification(deviceId).subscribe({
             next: (res: any) => {
               this.crossSourceResult = res;
+              if (res.noActualData) {
+                resolve({
+                  status: 'skip',
+                  detail: 'No meter readings yet — check skipped',
+                  subItems: [],
+                });
+                return;
+              }
               const flagCount = (res.flags || []).length;
               const hasCritical = res.flags?.some(
                 (f: any) => f.severity === 'critical',
@@ -1109,6 +1117,14 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
             next: (res: any) => {
               this.consistencyResult = res;
               this.consistencyError = null;
+              if (!res.totalReadings) {
+                resolve({
+                  status: 'skip',
+                  detail: 'No meter readings yet — check skipped',
+                  subItems: [],
+                });
+                return;
+              }
               const anomalies = res.anomalies?.length || 0;
               const critical =
                 res.anomalies?.filter((a: any) => a.severity === 'critical')

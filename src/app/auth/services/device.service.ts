@@ -125,6 +125,7 @@ export class DeviceService {
       id: number;
       label: string | null;
       originalFilename: string | null;
+      createdAt: string;
     }[]
   > {
     return this.httpClient.get<
@@ -134,6 +135,7 @@ export class DeviceService {
         id: number;
         label: string | null;
         originalFilename: string | null;
+        createdAt: string;
       }[]
     >(this.url + 'device/' + deviceId + '/documents');
   }

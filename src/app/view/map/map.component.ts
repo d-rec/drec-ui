@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as L from 'leaflet';
+import * as piexif from 'piexifjs';
 import { environment } from '../../../environments/environment';
 import { SatellitePreviewComponent } from '../../shared/satellite-preview/satellite-preview.component';
 import { mapPinIcon } from '../../shared/map-pin';
@@ -176,26 +177,33 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       // anything meaningful.
 
       let dragging = false;
+      // Defer all parent-facing emits to the next macrotask so they land
+      // outside Angular's current change-detection cycle (avoids NG0100 on
+      // [class.coord-adjusting]="mapAdjusting" when leaflet fires
+      // movestart+moveend in the same tick, e.g. a click).
+      const deferEmit = (fn: () => void) => setTimeout(() => this.zone.run(fn), 0);
       this.map.on('movestart', () => {
         dragging = true;
-        this.mapDragging.emit(true);
+        deferEmit(() => this.mapDragging.emit(true));
         this.ensureCenterPin();
       });
       this.map.on('move', () => {
         const c = this.map.getCenter();
         this.centerPinMarker?.setLatLng(c);
         if (dragging) {
-          this.centerChanged.emit({
-            lat: +c.lat.toFixed(6),
-            lng: +c.lng.toFixed(6),
-          });
+          deferEmit(() =>
+            this.centerChanged.emit({
+              lat: +c.lat.toFixed(6),
+              lng: +c.lng.toFixed(6),
+            }),
+          );
         }
       });
       this.map.on('moveend', () => {
         const c = this.map.getCenter();
         this.centerPinMarker?.setLatLng(c);
         dragging = false;
-        this.mapDragging.emit(false);
+        deferEmit(() => this.mapDragging.emit(false));
       });
     }
 
@@ -838,6 +846,12 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const name = window.prompt('Screenshot name:');
     if (!name) return;
 
+    // Make sure the center pin is on the map even if the user hasn't moved
+    // it yet — otherwise the screenshot won't contain it.
+    if (this.centerPin) {
+      this.ensureCenterPin();
+    }
+
     const mapEl = this.map.getContainer();
     const w = mapEl.offsetWidth;
     const h = mapEl.offsetHeight;
@@ -928,16 +942,41 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
 
-    outCanvas.toBlob(
-      (blob) => {
-        if (!blob) return;
-        const filename = name.replace(/[^a-zA-Z0-9_\- ]/g, '') + '.jpg';
-        const file = new File([blob], filename, { type: 'image/jpeg' });
-        this.zone.run(() => this.screenshotTaken.emit(file));
-      },
-      'image/jpeg',
-      0.85,
-    );
+    const center = this.map.getCenter();
+    const dataUrl = outCanvas.toDataURL('image/jpeg', 0.85);
+    let withGpsDataUrl = dataUrl;
+    try {
+      withGpsDataUrl = piexif.insert(
+        piexif.dump({
+          GPS: {
+            [piexif.GPSIFD.GPSLatitudeRef]: center.lat >= 0 ? 'N' : 'S',
+            [piexif.GPSIFD.GPSLatitude]: piexif.GPSHelper.degToDmsRational(
+              Math.abs(center.lat),
+            ),
+            [piexif.GPSIFD.GPSLongitudeRef]: center.lng >= 0 ? 'E' : 'W',
+            [piexif.GPSIFD.GPSLongitude]: piexif.GPSHelper.degToDmsRational(
+              Math.abs(center.lng),
+            ),
+            [piexif.GPSIFD.GPSDateStamp]: new Date()
+              .toISOString()
+              .slice(0, 10)
+              .replace(/-/g, ':'),
+          },
+        }),
+        dataUrl,
+      );
+    } catch (e) {
+      console.warn('piexif GPS insert failed, saving without EXIF', e);
+    }
+
+    const byteString = atob(withGpsDataUrl.split(',')[1]);
+    const bytes = new Uint8Array(byteString.length);
+    for (let i = 0; i < byteString.length; i++) bytes[i] = byteString.charCodeAt(i);
+    const blob = new Blob([bytes], { type: 'image/jpeg' });
+
+    const filename = name.replace(/[^a-zA-Z0-9_\- ]/g, '') + '.jpg';
+    const file = new File([blob], filename, { type: 'image/jpeg' });
+    this.zone.run(() => this.screenshotTaken.emit(file));
   }
 
   private pinOverlay: HTMLElement | null = null;

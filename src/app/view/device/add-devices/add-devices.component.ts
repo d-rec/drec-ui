@@ -153,9 +153,6 @@ export class AddDevicesComponent implements OnDestroy {
   fuellist: fulecodeType[] = [];
   devicetypelist: devicecodeType[] = [];
   hide = true;
-  addmoredetals: any[] = [];
-  shownomore: any[] = [];
-  showaddmore: any[] = [];
   showerror: any[] = [];
   siteNameExists: boolean[] = [];
   maxDate = new Date();
@@ -258,11 +255,8 @@ export class AddDevicesComponent implements OnDestroy {
   ngOnInit() {
     this.loadData();
     this.initializeForm();
-    this.addmoredetals[0] = false;
-    this.showaddmore[0] = true;
     this.showerror[0] = false;
     this.siteNameExists[0] = false;
-    this.shownomore[0] = false;
 
     this.deviceForms.controls.forEach((group, i) => {
       this.setupdataSourceBrandWatcher(group as FormGroup);
@@ -554,7 +548,6 @@ export class AddDevicesComponent implements OnDestroy {
     });
 
     this.deviceForms.push(device);
-    this.showaddmore[this.deviceForms.length - 1] = true;
     this.serialNumberLists[this.deviceForms.length - 1] = [''];
 
     const index = this.deviceForms.length - 1;
@@ -648,18 +641,6 @@ export class AddDevicesComponent implements OnDestroy {
     this.showerror[i] = filteredCountries.length === 0;
 
     return filteredCountries;
-  }
-
-  addmore(i: number) {
-    this.addmoredetals[i] = true;
-    this.shownomore[i] = true;
-    this.showaddmore[i] = false;
-  }
-
-  nomore(i: number) {
-    this.addmoredetals[i] = false;
-    this.showaddmore[i] = true;
-    this.shownomore[i] = false;
   }
 
   deleteDevice(i: number) {
@@ -1419,10 +1400,6 @@ export class AddDevicesComponent implements OnDestroy {
         return;
       }
 
-      const sf02Mode = this.deviceForms
-        .at(index)
-        ?.get('sf02EvidenceMode')?.value;
-
       this.deviceService.create(formData).subscribe({
         next: (result: any) => {
           this.toastrService.success(
@@ -1433,24 +1410,6 @@ export class AddDevicesComponent implements OnDestroy {
           // Persist any per-file labels the registrant set in the rename dialog.
           if (result?.id) {
             this.persistStagedLabels(result.id, index);
-          }
-
-          // Auto-generate SF-02 registration form when self-declaration mode is selected
-          if (sf02Mode === 'self' && result?.id) {
-            this.http
-              .post(
-                `${environment.API_URL}device-reviews/${result.id}/generate-sf02`,
-                {},
-              )
-              .subscribe({
-                next: () =>
-                  this.toastrService.info(
-                    'SF-02 registration form generated',
-                    'SF-02',
-                  ),
-                error: (err) =>
-                  console.warn('SF-02 generation failed:', err?.message),
-              });
           }
 
           const idx = deviceArray.indexOf(element);
@@ -1600,33 +1559,24 @@ export class AddDevicesComponent implements OnDestroy {
         {} as DeviceFiles,
       );
     }
-    // Phase 1c: map captures are saved as METERING_EVIDENCE (SCREENSHOTS merged in)
-    if (!this.files[deviceIndex][DocumentType.METERING_EVIDENCE]) {
-      this.files[deviceIndex][DocumentType.METERING_EVIDENCE] = [];
+    // Map screenshot of the current site (with EXIF GPS) is saved as a Site Photo.
+    if (!this.files[deviceIndex][DocumentType.PROJECT_PHOTOS]) {
+      this.files[deviceIndex][DocumentType.PROJECT_PHOTOS] = [];
     }
-    this.files[deviceIndex][DocumentType.METERING_EVIDENCE].push(file);
+    this.files[deviceIndex][DocumentType.PROJECT_PHOTOS].push(file);
 
-    const fileControl = this.deviceForms
-      .at(deviceIndex)
-      .get('METERING_EVIDENCE');
-    if (fileControl) {
-      fileControl.setValue(file);
-      fileControl.markAsDirty();
-    }
-
-    // Generate preview so the file is viewable
     if (!this.filePreviews[deviceIndex]) {
       this.filePreviews[deviceIndex] = {};
     }
     const objectUrl = URL.createObjectURL(file);
-    this.filePreviews[deviceIndex][DocumentType.METERING_EVIDENCE] = {
+    this.filePreviews[deviceIndex][DocumentType.PROJECT_PHOTOS] = {
       url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
       type: 'image',
       name: file.name,
     };
 
     this.toastrService.success(
-      `Map capture "${file.name}" added as metering evidence`,
+      `Map capture "${file.name}" added as a Site Photo (GPS embedded). Submit to upload.`,
       'Captured',
     );
   }

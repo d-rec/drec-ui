@@ -17,6 +17,7 @@ import {
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService } from '../../../auth/services/device.service';
 import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -138,6 +139,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       name: string;
       id: number;
       label: string | null;
+      createdAt?: string;
     }[];
   } = {};
   // Which doc categories support per-file rename (registrant-facing).
@@ -422,6 +424,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer,
     private documentClassifier: DocumentClassifierService,
     private ngZone: NgZone,
+    private http: HttpClient,
   ) {
     this.activatedRoute.queryParams.subscribe((params) => {
       if (params['fromdevices'] != undefined) {
@@ -679,6 +682,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
               name: doc.originalFilename || name,
               id: doc.id,
               label: doc.label,
+              createdAt: doc.createdAt,
             });
           }
           // Check each document URL for 404s (GET + abort, since HEAD may be blocked by CORS)
@@ -1199,6 +1203,59 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         },
       });
   }
+  isGeneratingSf02 = false;
+  generateSf02Now(): void {
+    if (!this.id || this.isGeneratingSf02) return;
+    this.isGeneratingSf02 = true;
+    this.http
+      .post(
+        `${environment.API_URL}device-reviews/${this.id}/generate-sf02`,
+        {},
+      )
+      .subscribe({
+        next: () => {
+          this.isGeneratingSf02 = false;
+          this.toastrService.success(
+            'SF-02 registration form generated',
+            'SF-02',
+          );
+          // Refresh existing docs so the new createdAt timestamp shows up.
+          this.deviceService.getDocuments(this.id).subscribe({
+            next: (docs) => {
+              const sf02 = docs.filter(
+                (d: any) => d.type === DocumentType.FORM_SF_02,
+              );
+              this.existingDocs[DocumentType.FORM_SF_02] = sf02.map(
+                (doc: any) => ({
+                  url: doc.url,
+                  name: doc.originalFilename || `SF02-${this.externalid}.pdf`,
+                  id: doc.id,
+                  label: doc.label,
+                  createdAt: doc.createdAt,
+                }),
+              );
+            },
+            error: () => {},
+          });
+        },
+        error: (err) => {
+          this.isGeneratingSf02 = false;
+          this.toastrService.error(
+            err?.error?.message || err?.message || 'Generation failed',
+            'SF-02',
+          );
+        },
+      });
+  }
+  /** Returns the createdAt of the latest FORM_SF_02 doc for this device, if any. */
+  sf02LatestGeneratedAt(): string | null {
+    const docs = this.existingDocs['FORM_SF_02'] || [];
+    if (!docs.length) return null;
+    const sorted = [...docs].sort((a, b) =>
+      (b.createdAt || '').localeCompare(a.createdAt || ''),
+    );
+    return sorted[0].createdAt || null;
+  }
   reset() {
     if (this.frombulk) {
       this.router.navigate(['/device/bulk_upload']);
@@ -1234,15 +1291,17 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         lng: this.longitude,
       };
     }
+    // Update the form (the source of truth). Don't touch this.latitude /
+    // this.longitude — those component properties are bound via [(ngModel)]
+    // alongside formControlName, and writing them triggers a deferred
+    // ngModel-driven setValue on the next CD pass that fires valueChanges
+    // with mapCenterUpdating already cleared, which would reset coordsDirty.
     this.updateDeviceForm
       .get('latitude')
       ?.setValue(center.lat, { emitEvent: false });
     this.updateDeviceForm
       .get('longitude')
       ?.setValue(center.lng, { emitEvent: false });
-    this.latitude = String(center.lat);
-    this.longitude = String(center.lng);
-    // Only mark dirty if coords actually changed from the original
     const origLat = parseFloat(this.savedCoords.lat);
     const origLng = parseFloat(this.savedCoords.lng);
     this.coordsDirty = center.lat !== origLat || center.lng !== origLng;
@@ -1331,22 +1390,21 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   }
 
   onScreenshotFromMap(file: File): void {
-    // Phase 1c: map captures are saved as METERING_EVIDENCE (SCREENSHOTS merged in)
-    if (!this.files[DocumentType.METERING_EVIDENCE]) {
-      this.files[DocumentType.METERING_EVIDENCE] = [];
+    // Map screenshot of the current site (with EXIF GPS) is saved as a Site Photo.
+    if (!this.files[DocumentType.PROJECT_PHOTOS]) {
+      this.files[DocumentType.PROJECT_PHOTOS] = [];
     }
-    this.files[DocumentType.METERING_EVIDENCE].push(file);
+    this.files[DocumentType.PROJECT_PHOTOS].push(file);
 
-    // Generate preview so the file is viewable
     const objectUrl = URL.createObjectURL(file);
-    this.filePreviews[DocumentType.METERING_EVIDENCE] = {
+    this.filePreviews[DocumentType.PROJECT_PHOTOS] = {
       url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
       type: 'image',
       name: file.name,
     };
 
     this.toastrService.success(
-      `Map capture "${file.name}" added as metering evidence`,
+      `Map capture "${file.name}" added as a Site Photo (GPS embedded). Save to upload.`,
       'Captured',
     );
   }

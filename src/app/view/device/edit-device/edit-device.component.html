@@ -119,6 +119,37 @@
               </div>
               <div class="col-md-3">
                 <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">Device Type Code</mat-label>
+                  <mat-select formControlName="deviceTypeCode" [(ngModel)]="deviceTypeCode">
+                    <mat-option *ngFor="let code of devicetypelist" [value]="code.code">
+                      {{ code.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label class="text-capitalize">Fuel Type Code</mat-label>
+                  <mat-select formControlName="fuelCode" [(ngModel)]="fuelCode">
+                    <mat-option *ngFor="let code of fuellist" [value]="code.code">
+                      {{ code.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
+                  <mat-label>Operating Configuration</mat-label>
+                  <mat-select formControlName="operatingConfiguration" [(ngModel)]="operatingConfiguration" panelClass="wide-panel">
+                    <mat-option [value]="null">--</mat-option>
+                    <mat-option *ngFor="let oc of operatingConfigurations" [value]="oc">
+                      {{ oc }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div class="col-md-3">
+                <mat-form-field appearance="outline">
                   <mat-label class="text-capitalize">(10) commissioning Date</mat-label>
                   <input matInput [ngxMatDatetimePicker]="picker" placeholder="Choose a date"
                     formControlName="commissioningDate" [max]="maxDate" [(ngModel)]="commissioningDate" />
@@ -606,6 +637,49 @@
                 </div>
                 <ng-container *ngTemplateOutlet="classifyBadge; context: { docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
                 <ng-container *ngTemplateOutlet="existingDocList; context: { docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label>Form SF-02 — Production Facility Registration</label>
+                <mat-radio-group formControlName="sf02EvidenceMode" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px">
+                  <mat-radio-button value="self">Self-declaration (we generate it)</mat-radio-button>
+                  <mat-radio-button value="upload">Upload your own SF-02</mat-radio-button>
+                </mat-radio-group>
+                <div *ngIf="updateDeviceForm.get('sf02EvidenceMode')?.value === 'upload'">
+                  <small class="doc-hint" *ngIf="getDocHint('FORM_SF_02')">{{getDocHint('FORM_SF_02')}}</small>
+                  <div class="d-flex justify-content-between align-items-center doc-box">
+                    <input type="file" #sf02FileInput (change)="onFileChange($event, DocumentType.FORM_SF_02)"
+                      style="display: none" />
+                    <button type="button" (click)="sf02FileInput.click()" class="btn btn-primary">
+                      <mat-icon>attach_file</mat-icon>
+                    </button>
+                    <span class="file-name" [class.file-name--missing]="!files['FORM_SF_02']?.length && brokenDocs['FORM_SF_02']">
+                      {{ files['FORM_SF_02']?.[0]?.name || existingDocLabel('FORM_SF_02') }}
+                    </span>
+                    <span *ngIf="!files['FORM_SF_02']?.length && brokenDocs['FORM_SF_02']"
+                      class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
+                      <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
+                    </span>
+                  </div>
+                  <ng-container *ngTemplateOutlet="classifyBadge; context: { docType: 'FORM_SF_02' }"></ng-container>
+                  <ng-container *ngTemplateOutlet="existingDocList; context: { docType: 'FORM_SF_02' }"></ng-container>
+                </div>
+                <div *ngIf="updateDeviceForm.get('sf02EvidenceMode')?.value === 'self'">
+                  <button type="button" class="btn btn-outline-primary"
+                    (click)="generateSf02Now()" [disabled]="isGeneratingSf02 || !id">
+                    <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">picture_as_pdf</mat-icon>
+                    {{ isGeneratingSf02 ? 'Generating…' : (sf02LatestGeneratedAt() ? 'Re-generate SF-02' : 'Generate SF-02') }}
+                  </button>
+                  <div *ngIf="sf02LatestGeneratedAt() as ts"
+                       style="margin-top:6px;color:#64748b;font-size:12px">
+                    Last generated: {{ ts | date:'dd/MM/yyyy HH:mm' }}
+                  </div>
+                  <ng-container *ngTemplateOutlet="existingDocList; context: { docType: 'FORM_SF_02' }"></ng-container>
+                  <small *ngIf="!sf02LatestGeneratedAt()"
+                         style="display:block;margin-top:6px;color:#64748b;font-style:italic">
+                    Save the form first, then click Generate to render an SF-02 from the saved device data.
+                  </small>
+                </div>
               </div>
 
               <div class="col-md-4 mb-3">
