@@ -50,6 +50,17 @@ export class LicensesComponent implements OnInit {
         }
       },
       error: (err) => {
+        const apiMsg =
+          err?.error?.message ||
+          err?.error?.error ||
+          err?.message ||
+          'Unknown error';
+        const status = err?.status ? ` (HTTP ${err.status})` : '';
+        this.toastrService.error(
+          `Failed to load license settings${status}: ${apiMsg}`,
+          'Load failed',
+          { timeOut: 8000 },
+        );
         console.error('Failed to load license settings', err);
       },
     });
@@ -74,7 +85,17 @@ export class LicensesComponent implements OnInit {
         this.loadSettings();
       },
       error: (err) => {
-        this.toastrService.error('Failed to save API keys');
+        const apiMsg =
+          err?.error?.message ||
+          err?.error?.error ||
+          err?.message ||
+          'Unknown error';
+        const status = err?.status ? ` (HTTP ${err.status})` : '';
+        this.toastrService.error(
+          `Failed to save API keys${status}: ${apiMsg}`,
+          'Save failed',
+          { timeOut: 8000, enableHtml: false },
+        );
         console.error('Error saving license settings:', err);
       },
     });
