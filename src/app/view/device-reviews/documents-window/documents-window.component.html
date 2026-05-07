@@ -499,14 +499,6 @@
           <p class="verify-heading">No coordinates set — cannot estimate irradiance.</p>
         </div>
 
-        <!-- Yield mismatch warning -->
-        <div class="verify-section verify-section--fail" *ngIf="ceilingResult.yieldMismatch">
-          <p class="verify-heading">Configured yield ({{ ceilingResult.configuredYield }} kWh/kW/year) exceeds location-based estimate ({{ ceilingResult.irradiance?.yieldHigh }} kWh/kW/year).</p>
-        </div>
-        <div class="verify-section verify-section--pass" *ngIf="!ceilingResult.yieldMismatch && ceilingResult.irradiance">
-          <p class="verify-heading">Configured yield ({{ ceilingResult.configuredYield }} kWh/kW/year) is within expected range.</p>
-        </div>
-
         <!-- Recent readings -->
       </ng-container>
       <div *ngIf="!ceilingResult" style="color: #dc2626;">

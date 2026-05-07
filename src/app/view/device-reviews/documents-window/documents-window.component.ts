@@ -275,9 +275,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       annualCeilingKwh: number;
       monthlyCeilingKwh: number;
     } | null;
-    configuredYield: number;
     capacityKw: number;
-    yieldMismatch: boolean;
     recentReadings: Array<{
       startDate: string;
       endDate: string;
@@ -521,13 +519,6 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       key: 'consistency',
       label: 'Historical Consistency',
       description: 'Review historical meter read consistency and anomalies',
-      enabled: true,
-      group: 'production',
-    },
-    {
-      key: 'yieldRange',
-      label: 'Yield-Value Reasonableness',
-      description: 'Configured yieldValue falls inside the Solar GSA expected band',
       enabled: true,
       group: 'production',
     },
@@ -1097,31 +1088,16 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                   detail: res.solarGsaUnavailableReason || fallback,
                 });
               }
-              subItems.push({
-                label: 'Configured yield',
-                status: res.configuredYield ? 'info' : 'warn',
-                detail: res.configuredYield
-                  ? `${res.configuredYield} kWh/kW/yr`
-                  : 'Not set — using fallback',
-              });
               const sources: string[] = [];
               if (res.irradiance?.yieldHigh) sources.push('irradiance');
               else if (res.gsaYieldPerKw || res.solarGsa)
                 sources.push('Solar GSA');
-              else if (res.configuredYield) sources.push('configured');
               else sources.push('default (1500)');
               subItems.push({
                 label: 'Effective ceiling yield',
                 status: 'info',
                 detail: `${res.effectiveCeiling ?? '?'} kWh/kW/yr (source: ${sources[0]})`,
               });
-              if (res.yieldMismatch) {
-                subItems.push({
-                  label: 'Yield mismatch',
-                  status: 'fail',
-                  detail: `Configured ${res.configuredYield} exceeds location estimate ${res.irradiance?.yieldHigh} kWh/kW/yr`,
-                });
-              }
               if (res.recentReadings?.length) {
                 for (const r of res.recentReadings) {
                   const valueKwh = r.valueKwh ?? r.value;
@@ -1561,40 +1537,6 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                       : status === 'warn'
                         ? `Disputed territory: declared ${declared}, resolves ${resolved}${reason ? ` — ${reason}` : ''}`
                         : reason || 'Country match could not be evaluated',
-              });
-            },
-            error: reject,
-          });
-          break;
-
-        case 'yieldRange':
-          this.svc.checkProductionCeiling(deviceId).subscribe({
-            next: (res: any) => {
-              if (!res.irradiance) {
-                resolve({
-                  status: 'skip',
-                  detail:
-                    res.irradianceUnavailableReason ||
-                    'No irradiance estimate available',
-                });
-                return;
-              }
-              const cy = res.configuredYield;
-              const lo = res.irradiance.yieldLow;
-              const hi = res.irradiance.yieldHigh;
-              if (cy == null) {
-                resolve({
-                  status: 'warn',
-                  detail: `No yieldValue configured. Expected ${lo}–${hi} kWh/kW/yr for this latitude.`,
-                });
-                return;
-              }
-              const inBand = cy >= lo * 0.85 && cy <= hi * 1.15;
-              resolve({
-                status: inBand ? 'pass' : 'fail',
-                detail: inBand
-                  ? `${cy} kWh/kW/yr is inside the ${lo}–${hi} expected band (±15%).`
-                  : `${cy} kWh/kW/yr is OUTSIDE the ${lo}–${hi} expected band (±15%).`,
               });
             },
             error: reject,
