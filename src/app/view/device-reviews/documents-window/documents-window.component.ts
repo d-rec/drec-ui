@@ -3248,7 +3248,7 @@ trustUrl(url: string): SafeUrl {
       sld: 'SLD',
       sf02: 'SF-02',
       sf02c: 'SF-02C',
-      proofOfOwnership: "Owner's Declaration",
+      proofOfOwnership: 'Proof of Ownership',
       codProof: 'COD Proof',
       meteringEvidence: 'Metering Evidence',
     };
@@ -3594,7 +3594,7 @@ trustUrl(url: string): SafeUrl {
         SLD: a.sldUrl ? 'Yes' : '',
         'SF-02': a.sf02Url ? 'Yes' : '',
         'SF-02C': a.sf02cUrl ? 'Yes' : '',
-        "Owner's Declaration": a.proofOfOwnershipUrl ? 'Yes' : '',
+        'Proof of Ownership': a.proofOfOwnershipUrl ? 'Yes' : '',
         'COD Proof': a.codProofUrl ? 'Yes' : '',
         'Metering Evidence': a.meteringEvidenceUrls.length || '',
         Pictures: a.pictureUrls.length || '',
@@ -3664,8 +3664,8 @@ trustUrl(url: string): SafeUrl {
       multi: false,
     },
     {
-      slot: "Owner's Decl.",
-      label: "Owner's Declaration",
+      slot: 'Proof of Own.',
+      label: 'Proof of Ownership',
       expectedType: DocumentType.PROOF_OF_OWNERSHIP,
       urlKey: 'proofOfOwnershipUrl',
       multi: false,

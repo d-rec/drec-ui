@@ -557,10 +557,10 @@ export class ReviewerWorkbenchComponent
       push('sf02c', a.sf02cUrl, 'Form SF-02C', 'SF02C', 'ownership');
     if (a.proofOfOwnershipUrl)
       push(
-        'sf02c-od',
+        'proof-of-ownership',
         a.proofOfOwnershipUrl,
-        "Owner's Declaration",
-        'OD',
+        'Proof of Ownership',
+        'PO',
         'ownership',
       );
     if (a.codProofUrl)
