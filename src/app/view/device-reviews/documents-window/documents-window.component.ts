@@ -1108,6 +1108,23 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                   detail: 'No recent meter readings found',
                 });
               }
+              // Skip rather than pass when the inputs needed to compute a
+              // ceiling aren't there (no capacity, no coords, no
+              // commissioning date) — a green ✓ on a no-op check is
+              // misleading.
+              const missing: string[] = [];
+              if (!(res.capacityKw > 0)) missing.push('capacity');
+              if (res.lat == null || isNaN(res.lat)) missing.push('latitude');
+              if (res.lng == null || isNaN(res.lng)) missing.push('longitude');
+              if (!res.commissioningDate) missing.push('commissioning date');
+              if (missing.length) {
+                resolve({
+                  status: 'skip',
+                  detail: `Cannot compute ceiling — missing ${missing.join(', ')}`,
+                  subItems,
+                });
+                return;
+              }
               resolve({
                 status: res.yieldMismatch
                   ? 'fail'
