@@ -430,6 +430,82 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  /**
+   * Diagnostic. Logs the captured image's geometry, base64 length, and a
+   * SHA-256 of the bytes to the console so the same site rendered on two
+   * different machines (e.g. Mac vs Linux through a KVM) can be diffed.
+   * Stashes the base64 in window.__lastCapture__ so a Save Captured button
+   * can re-download it without re-running the full capture pipeline.
+   */
+  private async logCaptureDebug(
+    base64: string,
+    viewportW: number,
+    viewportH: number,
+    cropW: number,
+    cropH: number,
+    encodedW: number,
+    encodedH: number,
+  ): Promise<void> {
+    let sha = '(crypto.subtle unavailable)';
+    try {
+      const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+      const buf = await crypto.subtle.digest('SHA-256', bytes);
+      sha = Array.from(new Uint8Array(buf))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+    } catch {
+      /* hashing best-effort — never block detection on it */
+    }
+    // eslint-disable-next-line no-console
+    console.log(
+      '[detect-panels] captured image',
+      JSON.stringify(
+        {
+          devicePixelRatio: window.devicePixelRatio,
+          viewport: `${viewportW}x${viewportH}`,
+          cropSrc: `${cropW}x${cropH}`,
+          encoded: `${encodedW}x${encodedH}`,
+          base64Length: base64.length,
+          jpegBytes: Math.round((base64.length * 3) / 4),
+          sha256: sha,
+        },
+        null,
+        2,
+      ),
+    );
+    (window as any).__lastCapture__ = {
+      base64,
+      sha,
+      encodedW,
+      encodedH,
+      capturedAt: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Trigger a download of the most recent captured image (or capture a
+   * fresh one if none exists). Lets the registrant compare the actual
+   * pixels sent to Roboflow on Mac vs Linux for the same site.
+   */
+  async downloadCapturedImage(): Promise<void> {
+    const last = (window as any).__lastCapture__;
+    if (!last?.base64) {
+      // No prior capture — run the same pipeline up to the toDataURL step
+      // by issuing a normal detection. Cheaper to just nudge the user.
+      this.detectError =
+        'No capture yet — click Detect Panels first, then come back.';
+      return;
+    }
+    const blob = await (
+      await fetch(`data:image/jpeg;base64,${last.base64}`)
+    ).blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `panel-detect-${last.sha.slice(0, 12)}.jpg`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
   private async captureAndDetect(): Promise<void> {
     const mapEl = this.map.getContainer();
     const w = mapEl.offsetWidth;
@@ -535,6 +611,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     );
 
     const base64 = cropCanvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+    await this.logCaptureDebug(base64, w, h, cropW, cropH, cropCanvas.width, cropCanvas.height);
 
     this.http
       .post<any>(`${environment.API_URL}device-reviews/detect-panels`, {
