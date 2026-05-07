@@ -127,17 +127,70 @@
     }
   }
 
-  &--active {
-    background: #0ea5e9;
-
-    &:hover:not(:disabled) {
-      background: #0284c7;
-    }
-  }
-
   &--camera {
     font-size: 14px;
     padding: 4px 10px;
+  }
+}
+
+.detect-error-toast {
+  position: absolute;
+  top: 60px;
+  right: 12px;
+  max-width: 480px;
+  min-width: 320px;
+  background: #fef2f2;
+  border: 1px solid #dc2626;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  pointer-events: auto;
+  font-size: 12px;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    border-bottom: 1px solid #fecaca;
+    color: #991b1b;
+    gap: 6px;
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+
+  &__btn {
+    background: #fff;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 120ms;
+
+    &:hover {
+      background: #fee2e2;
+    }
+
+    &--ok {
+      background: #d1fae5;
+      border-color: #10b981;
+      color: #065f46;
+    }
+  }
+
+  &__body {
+    margin: 0;
+    padding: 8px 10px;
+    white-space: pre-wrap;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px;
+    color: #334155;
+    max-height: 280px;
+    overflow: auto;
   }
 }
 

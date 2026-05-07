@@ -131,6 +131,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   // before sending to Roboflow. Helps small-object detection on hazy
   // or low-contrast satellite tiles. Toggle persists in sessionStorage.
   sharpen = sessionStorage.getItem('detect_sharpen') === '1';
+  errorCopied = false;
 
   // Region selection state
   predictions: any[] = [];
@@ -442,6 +443,34 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     sessionStorage.setItem('detect_sharpen', this.sharpen ? '1' : '0');
   }
 
+  async copyDetectError(): Promise<void> {
+    if (!this.detectError) return;
+    try {
+      await navigator.clipboard.writeText(this.detectError);
+      this.errorCopied = true;
+      setTimeout(() => (this.errorCopied = false), 1500);
+    } catch {
+      // Fallback for environments without async clipboard.
+      const ta = document.createElement('textarea');
+      ta.value = this.detectError;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        this.errorCopied = true;
+        setTimeout(() => (this.errorCopied = false), 1500);
+      } finally {
+        document.body.removeChild(ta);
+      }
+    }
+  }
+
+  dismissDetectError(): void {
+    this.detectError = '';
+  }
+
   /**
    * 3×3 sharpen convolution applied in-place to the encode canvas.
    *  -1 -1 -1
@@ -650,10 +679,17 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (this.sharpen) {
+      // Two passes — JPEG encoding eats a lot of the high-frequency
+      // content the kernel just produced, so a single pass at q=0.85 is
+      // visually invisible and helps the model only marginally. Two
+      // passes plus a higher quality keeps the effect through encode.
+      this.applySharpen(ctx, SIZE, SIZE);
       this.applySharpen(ctx, SIZE, SIZE);
     }
-
-    const base64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+    const jpegQuality = this.sharpen ? 0.95 : 0.85;
+    const base64 = canvas
+      .toDataURL('image/jpeg', jpegQuality)
+      .split(',')[1];
 
     // Where does the 1024×1024 capture sit in the visible map's
     // container? Image pixel (HALF, HALF) corresponds to the visible
