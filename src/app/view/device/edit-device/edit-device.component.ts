@@ -1446,6 +1446,25 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Roboflow panel detection succeeded with ≥1 panels at these coords —
+   * persist that on the device so auto-screen's ≥6-decimal precision
+   * check passes. Skips if the device hasn't been saved yet.
+   */
+  onPanelDetected(event: { lat: number; lng: number; panelCount: number }): void {
+    if (!this.id) return;
+    this.deviceService
+      .confirmCoords(this.id, event.lat, event.lng, event.panelCount)
+      .subscribe({
+        next: () => {},
+        error: (err) =>
+          console.warn(
+            'coords-confirmed failed (non-blocking):',
+            err?.error?.message || err?.message,
+          ),
+      });
+  }
+
   onScreenshotFromMap(file: File): void {
     // Upload the map screenshot (with EXIF GPS) immediately as a Site Photo —
     // no need to wait for the Update button. Falls back to staging if the

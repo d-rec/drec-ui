@@ -47,4 +47,11 @@ export interface Asset {
   lastScreenedAt: string | null;
   sf02Ready: boolean;
   docMeta: Record<string, DocMeta>;
+  // Set when the registrant ran panel detection at these coords and the
+  // model found ≥1 panels; auto-screen's ≥6-decimal precision check
+  // passes when this exists and matches the device's current lat/lng.
+  coordsConfirmedAt: string | null;
+  coordsConfirmedLat: number | null;
+  coordsConfirmedLng: number | null;
+  coordsConfirmedPanelCount: number | null;
 }

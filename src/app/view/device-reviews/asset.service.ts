@@ -183,6 +183,24 @@ export class AssetService {
     );
   }
 
+  /**
+   * Record that Roboflow panel detection found ≥1 panels at the
+   * device's lat/lng. The auto-screen ≥6-decimal precision check
+   * passes when this exists and matches the device's current coords.
+   * Backend gates this to non-Reviewer roles.
+   */
+  confirmCoords(
+    deviceId: number,
+    lat: number,
+    lng: number,
+    panelCount: number,
+  ): Observable<void> {
+    return this.http.post<void>(
+      `${environment.API_URL}device-reviews/${deviceId}/coords-confirmed`,
+      { lat, lng, panelCount },
+    );
+  }
+
   toggleDocReviewed(docId: number): Observable<{ reviewed: boolean }> {
     return this.http.patch<{ reviewed: boolean }>(
       `${environment.API_URL}device-reviews/documents/${docId}/reviewed`,

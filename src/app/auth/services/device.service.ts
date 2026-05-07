@@ -177,6 +177,24 @@ export class DeviceService {
     );
   }
 
+  /**
+   * Persist a successful Roboflow panel detection at the device's
+   * lat/lng. Auto-screen's ≥6-decimal precision check uses this as
+   * visual confirmation that the coords actually point at the
+   * facility (overrides the formal decimal-count rule).
+   */
+  confirmCoords(
+    deviceId: number,
+    lat: number,
+    lng: number,
+    panelCount: number,
+  ): Observable<void> {
+    return this.httpClient.post<void>(
+      `${this.url}device-reviews/${deviceId}/coords-confirmed`,
+      { lat, lng, panelCount },
+    );
+  }
+
   public create(data: FormData): Observable<any> {
     return this.httpClient.post<any>(this.url + 'device', data);
   }

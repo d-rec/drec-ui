@@ -100,6 +100,14 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   @Output() markerClicked = new EventEmitter();
   @Output() centerChanged = new EventEmitter<{ lat: number; lng: number }>();
   @Output() mapDragging = new EventEmitter<boolean>();
+  // Fires after a successful Roboflow panel detection that found ≥1
+  // panels. Parents (e.g. edit-device) use this to call
+  // device-reviews/coords-confirmed and persist the visual confirmation.
+  @Output() panelDetected = new EventEmitter<{
+    lat: number;
+    lng: number;
+    panelCount: number;
+  }>();
 
   @ViewChild('overlayCanvas') overlayCanvas!: ElementRef<HTMLCanvasElement>;
 
@@ -740,6 +748,13 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     this.redrawDetections();
     this.showOverlay = true;
     this.detecting = false;
+    if (this.captureCenter && preds.length > 0) {
+      this.panelDetected.emit({
+        lat: this.captureCenter.lat,
+        lng: this.captureCenter.lng,
+        panelCount: preds.length,
+      });
+    }
   }
 
   onRegionClick(event: MouseEvent): void {

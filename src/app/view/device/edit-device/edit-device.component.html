@@ -87,7 +87,7 @@
                 <app-map [zoom]="6" [centerPin]="true" [scrollWheelZoom]="false" (centerChanged)="onMapCenterChanged($event)" (mapDragging)="mapAdjusting = $event" #streetMap></app-map>
               </div>
               <div class="col-md-6 pb-4 map-col">
-                <app-map [zoom]="19" [satellite]="true" [centerPin]="true" [scrollWheelZoom]="false" (centerChanged)="onMapCenterChanged($event)" (mapDragging)="mapAdjusting = $event" (screenshotTaken)="onScreenshotFromMap($event)" #satelliteMap></app-map>
+                <app-map [zoom]="19" [satellite]="true" [centerPin]="true" [scrollWheelZoom]="false" (centerChanged)="onMapCenterChanged($event)" (mapDragging)="mapAdjusting = $event" (screenshotTaken)="onScreenshotFromMap($event)" (panelDetected)="onPanelDetected($event)" #satelliteMap></app-map>
               </div>
             </div>
             <div class="coord-actions" *ngIf="coordsDirty">
@@ -460,8 +460,7 @@
                   <textarea matInput formControlName="impactStory" [(ngModel)]="impactStory"
                     rows="4"
                     matTooltip="Describe the social, environmental, or economic impact of this device. For example: number of households served, displacement of diesel generators, improvement in local air quality, support for livelihoods, or contribution to community electrification goals."
-                    matTooltipPosition="above"
-                    style="display:block;width:100%;box-sizing:border-box;resize:vertical;min-height:96px;max-height:280px;overflow-y:scroll;line-height:1.4;font-family:inherit;white-space:pre-wrap;word-break:break-word"></textarea>
+                    matTooltipPosition="above"></textarea>
                 </mat-form-field>
               </div>
               <div class="col-md-3">
