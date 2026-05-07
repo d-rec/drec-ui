@@ -482,13 +482,6 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       enabled: true,
       group: 'site',
     },
-    {
-      key: 'coordPrecision',
-      label: 'Coordinate Precision',
-      description: 'Latitude/longitude has at least 6 decimal places',
-      enabled: true,
-      group: 'site',
-    },
     // ─ Production Validation ─
     {
       key: 'ceiling',
@@ -1480,63 +1473,6 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         case 'classify':
           this.runClassifyForScan(deviceId).then(resolve).catch(reject);
           break;
-
-        case 'coordPrecision': {
-          const a = this.svc.assets$.value.find((x) => x.id === String(deviceId));
-          if (!a) {
-            resolve({ status: 'skip', detail: 'Device not in current list' });
-            break;
-          }
-          const latStr = a.lat != null ? String(a.lat) : '';
-          const lngStr = a.long != null ? String(a.long) : '';
-          const dec = (s: string) => {
-            const i = s.indexOf('.');
-            return i < 0 ? 0 : s.length - i - 1;
-          };
-          const latDec = dec(latStr);
-          const lngDec = dec(lngStr);
-          // Real validation > formal: if the registrant ran panel
-          // detection at these coords and Roboflow found ≥1 panels, the
-          // visual confirmation overrides the formal ≥6-decimal rule.
-          // Allow the confirmed coords to be off by ~30m (0.0003°) from
-          // the device's current coords — small drift from minor edits
-          // is fine; bigger means the user moved the device meaningfully
-          // and should re-run detection.
-          const TOLERANCE = 0.0003;
-          const confirmed =
-            a.coordsConfirmedAt != null &&
-            a.coordsConfirmedLat != null &&
-            a.coordsConfirmedLng != null &&
-            (a.coordsConfirmedPanelCount ?? 0) >= 1 &&
-            a.lat != null &&
-            a.long != null &&
-            Math.abs(a.coordsConfirmedLat - a.lat) <= TOLERANCE &&
-            Math.abs(a.coordsConfirmedLng - a.long) <= TOLERANCE;
-          if (confirmed) {
-            resolve({
-              status: 'pass',
-              detail: `Visually confirmed: ${a.coordsConfirmedPanelCount} panel(s) detected at these coords on ${new Date(a.coordsConfirmedAt!).toLocaleString()}`,
-              subItems: [],
-            });
-            break;
-          }
-          const ok = latStr && lngStr && latDec >= 6 && lngDec >= 6;
-          // Soft signal, not a gate. The 6-decimal rule is a *proxy*
-          // for "coords are specific to this facility"; the real check
-          // is the reviewer's visual confirmation against the satellite
-          // imagery + panel detection. Flag low precision so the
-          // reviewer notices, but don't block: legacy devices with
-          // 2-decimal coords that happen to land on real panels would
-          // otherwise be permanently stuck.
-          resolve({
-            status: ok ? 'pass' : 'warn',
-            detail: ok
-              ? `lat ${latDec}d, lng ${lngDec}d (≥6 required)`
-              : `lat has ${latDec} decimals, lng has ${lngDec} decimals — D-REC recommends ≥6. Confirm visually that the pin sits on the panels, then run panel detection on the registrant side to mark coords confirmed.`,
-            subItems: [],
-          });
-          break;
-        }
 
         case 'requiredFields': {
           const a = this.svc.assets$.value.find((x) => x.id === String(deviceId));
