@@ -35,7 +35,10 @@ export const DOCUMENT_KEYWORDS: Partial<
   [DocumentType.SF_02C_OWNERS_DECLARATION]: [
     { pattern: "owner's declaration", weight: 3 },
     { pattern: 'owners declaration', weight: 3 },
-    { pattern: 'proof of ownership', weight: 3 },
+    // "proof of ownership" intentionally NOT here — it's a separate
+    // artifact (deed / lease / purchase contract) that lives under
+    // OTHER_DOCUMENTS. The OD letter is a formal attribute-rights
+    // declaration, not the underlying ownership evidence.
     { pattern: 'declaration of ownership', weight: 3 },
     { pattern: 'declaration of attribute', weight: 3 },
     { pattern: 'attribute generation', weight: 2 },

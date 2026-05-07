@@ -134,6 +134,18 @@ export class DocumentClassifierService {
         alternatives: [],
       };
     }
+    // "Proof of Ownership" is a deed / lease / purchase contract, not
+    // the OD letter — file it under OTHER_DOCUMENTS until we add a
+    // dedicated slot. Match before the OD heuristic below so it doesn't
+    // get pulled into the declaration bucket.
+    if (/proof.{0,3}of.{0,3}ownership/i.test(lower)) {
+      return {
+        suggestedType: DocumentType.OTHER_DOCUMENTS,
+        confidence: 0.8,
+        method: 'keywords',
+        alternatives: [],
+      };
+    }
     // "OD" (uppercase, standalone token) is the field abbreviation for
     // Owner's Declaration — e.g. "Atsawa_OD letter.pdf". Match against
     // the original-case filename so we don't false-positive on substrings
