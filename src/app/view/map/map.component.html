@@ -13,7 +13,8 @@
       can never get above our sibling .detect-overlay regardless of
       pane z-indexes. This DOM-level pin sidesteps that.
     -->
-    <div *ngIf="centerPin" class="center-pin" aria-hidden="true">
+    <div *ngIf="centerPin && pinVisible" class="center-pin" aria-hidden="true"
+         [style.left.px]="pinX" [style.top.px]="pinY">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36">
         <path d="M12 0C5.373 0 0 5.373 0 12c0 8.25 12 24 12 24S24 20.25 24 12C24 5.373 18.627 0 12 0z"
               fill="#e53e3e" stroke="#fff" stroke-width="1.5"/>

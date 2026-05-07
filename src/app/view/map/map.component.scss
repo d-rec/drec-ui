@@ -21,9 +21,10 @@
 }
 
 .center-pin {
+  // Position is set live via [style.left.px]/[style.top.px] from the
+  // component (driven by latLngToContainerPoint(pinLatLng)). Translate
+  // anchors the pin's tip at the given coords.
   position: absolute;
-  top: 50%;
-  left: 50%;
   transform: translate(-50%, -100%);
   z-index: 1000;
   pointer-events: none;

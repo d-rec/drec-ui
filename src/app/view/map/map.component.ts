@@ -129,6 +129,15 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   tilesLoading = false;
   errorCopied = false;
 
+  // Live container-coord position of the HTML centre pin. Anchored to
+  // a specific lat/lng (pinLatLng) — updated on user pan but NOT on
+  // zoom — so wheel-zooming toward a cursor doesn't drift the pin away
+  // from the panels (mouse-wheel zoom shifts the map's centre).
+  pinX = 0;
+  pinY = 0;
+  pinVisible = false;
+  private pinLatLng: L.LatLng | null = null;
+
   // Region selection state
   predictions: any[] = [];
   selectedRegion: number = -1;
@@ -192,29 +201,39 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       // [class.coord-adjusting]="mapAdjusting" when leaflet fires
       // movestart+moveend in the same tick, e.g. a click).
       const deferEmit = (fn: () => void) => setTimeout(() => this.zone.run(fn), 0);
-      this.map.on('movestart', () => {
+      // Drag (pan) is the only thing that moves the pin's anchor latLng;
+      // zoom keeps it where it is. Tracking 'dragstart' / 'dragend' lets
+      // us distinguish pan from zoom (both fire 'move').
+      this.map.on('dragstart', () => {
         dragging = true;
         deferEmit(() => this.mapDragging.emit(true));
         this.ensureCenterPin();
       });
-      this.map.on('move', () => {
+      this.map.on('drag', () => {
         const c = this.map.getCenter();
+        this.pinLatLng = c;
         this.centerPinMarker?.setLatLng(c);
-        if (dragging) {
-          deferEmit(() =>
-            this.centerChanged.emit({
-              lat: +c.lat.toFixed(6),
-              lng: +c.lng.toFixed(6),
-            }),
-          );
-        }
+        deferEmit(() =>
+          this.centerChanged.emit({
+            lat: +c.lat.toFixed(6),
+            lng: +c.lng.toFixed(6),
+          }),
+        );
       });
-      this.map.on('moveend', () => {
+      this.map.on('dragend', () => {
         const c = this.map.getCenter();
+        this.pinLatLng = c;
         this.centerPinMarker?.setLatLng(c);
         dragging = false;
         deferEmit(() => this.mapDragging.emit(false));
       });
+      // Initial pin anchor: wherever the map starts.
+      this.pinLatLng = this.map.getCenter();
+      this.repositionPin();
+      this.map.on('move', () => this.repositionPin());
+      this.map.on('zoom', () => this.repositionPin());
+      this.map.on('moveend', () => this.repositionPin());
+      this.map.on('zoomend', () => this.repositionPin());
     }
 
     // Re-project the panel mask onto the live viewport on any pan/zoom
@@ -233,6 +252,17 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.update();
+  }
+
+  /** Reposition the HTML centre pin to its anchored lat/lng. */
+  private repositionPin(): void {
+    if (!this.map || !this.pinLatLng) return;
+    const p = this.map.latLngToContainerPoint(this.pinLatLng);
+    this.zone.run(() => {
+      this.pinX = p.x;
+      this.pinY = p.y;
+      this.pinVisible = true;
+    });
   }
 
   private resizeAndRedraw(): void {
