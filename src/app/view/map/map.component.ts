@@ -127,10 +127,6 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   // True while one or more satellite tiles are still fetching for the
   // current viewport. Detection works best after this returns to false.
   tilesLoading = false;
-  // When true, run a 3×3 sharpen convolution on the captured image
-  // before sending to Roboflow. Helps small-object detection on hazy
-  // or low-contrast satellite tiles. Toggle persists in sessionStorage.
-  sharpen = sessionStorage.getItem('detect_sharpen') === '1';
   errorCopied = false;
 
   // Region selection state
@@ -438,11 +434,6 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  toggleSharpen(): void {
-    this.sharpen = !this.sharpen;
-    sessionStorage.setItem('detect_sharpen', this.sharpen ? '1' : '0');
-  }
-
   async copyDetectError(): Promise<void> {
     if (!this.detectError) return;
     try {
@@ -471,154 +462,27 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     this.detectError = '';
   }
 
-  /**
-   * 3×3 sharpen convolution applied in-place to the encode canvas.
-   *  -1 -1 -1
-   *  -1  9 -1
-   *  -1 -1 -1
-   * Operates on the raw RGBA buffer; alpha is preserved untouched.
-   * Stronger than the 5-center cross so the effect is visible on
-   * satellite imagery (the previous kernel was too subtle to see).
-   */
-  private applySharpen(
-    ctx: CanvasRenderingContext2D,
-    w: number,
-    h: number,
-  ): void {
-    const src = ctx.getImageData(0, 0, w, h);
-    const dst = ctx.createImageData(w, h);
-    const s = src.data;
-    const d = dst.data;
-    const stride = w * 4;
-    for (let y = 1; y < h - 1; y++) {
-      for (let x = 1; x < w - 1; x++) {
-        const i = (y * w + x) * 4;
-        for (let c = 0; c < 3; c++) {
-          const v =
-            9 * s[i + c] -
-            s[i - 4 + c] -
-            s[i + 4 + c] -
-            s[i - stride - 4 + c] -
-            s[i - stride + c] -
-            s[i - stride + 4 + c] -
-            s[i + stride - 4 + c] -
-            s[i + stride + c] -
-            s[i + stride + 4 + c];
-          d[i + c] = v < 0 ? 0 : v > 255 ? 255 : v;
-        }
-        d[i + 3] = s[i + 3];
-      }
-    }
-    // Copy the unprocessed 1-px border verbatim so the edges aren't black.
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        if (x === 0 || y === 0 || x === w - 1 || y === h - 1) {
-          const i = (y * w + x) * 4;
-          d[i] = s[i];
-          d[i + 1] = s[i + 1];
-          d[i + 2] = s[i + 2];
-          d[i + 3] = s[i + 3];
-        }
-      }
-    }
-    ctx.putImageData(dst, 0, 0);
-  }
-
-  /**
-   * Diagnostic. Logs the captured image's geometry, base64 length, and a
-   * SHA-256 of the bytes to the console so the same site rendered on two
-   * different machines (e.g. Mac vs Linux through a KVM) can be diffed.
-   * Stashes the base64 in window.__lastCapture__ so a Save Captured button
-   * can re-download it without re-running the full capture pipeline.
-   */
-  private async logCaptureDebug(
-    base64: string,
-    viewportW: number,
-    viewportH: number,
-    cropW: number,
-    cropH: number,
-    encodedW: number,
-    encodedH: number,
-  ): Promise<void> {
-    let sha = '(crypto.subtle unavailable)';
-    try {
-      const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-      const buf = await crypto.subtle.digest('SHA-256', bytes);
-      sha = Array.from(new Uint8Array(buf))
-        .map((b) => b.toString(16).padStart(2, '0'))
-        .join('');
-    } catch {
-      /* hashing best-effort — never block detection on it */
-    }
-    // eslint-disable-next-line no-console
-    console.log(
-      '[detect-panels] captured image',
-      JSON.stringify(
-        {
-          devicePixelRatio: window.devicePixelRatio,
-          viewport: `${viewportW}x${viewportH}`,
-          cropSrc: `${cropW}x${cropH}`,
-          encoded: `${encodedW}x${encodedH}`,
-          base64Length: base64.length,
-          encodedBytes: Math.round((base64.length * 3) / 4),
-          sha256: sha,
-        },
-        null,
-        2,
-      ),
-    );
-    (window as any).__lastCapture__ = {
-      base64,
-      sha,
-      encodedW,
-      encodedH,
-      capturedAt: new Date().toISOString(),
-    };
-  }
-
-  /**
-   * Trigger a download of the most recent captured image (or capture a
-   * fresh one if none exists). Lets the registrant compare the actual
-   * pixels sent to Roboflow on Mac vs Linux for the same site.
-   */
-  async downloadCapturedImage(): Promise<void> {
-    const last = (window as any).__lastCapture__;
-    if (!last?.base64) {
-      // No prior capture — run the same pipeline up to the toDataURL step
-      // by issuing a normal detection. Cheaper to just nudge the user.
-      this.detectError =
-        'No capture yet — click Detect Panels first, then come back.';
-      return;
-    }
-    const blob = await (
-      await fetch(`data:image/png;base64,${last.base64}`)
-    ).blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `panel-detect-${last.sha.slice(0, 12)}.png`;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  }
-
   private async captureAndDetect(): Promise<void> {
     if (!this.map) {
       this.detecting = false;
       return;
     }
 
-    // Fixed-size, off-screen capture: 512×512 at zoom 19 centered on
-    // the map center. We fetch tiles ourselves from the Google endpoint
-    // and composite onto a hidden canvas, so the captured image is
-    // independent of window size, devicePixelRatio, and OS — Mac and
-    // Linux send byte-equivalent images to Roboflow for the same
-    // lat/lng. Mirrors the satellite-window implementation introduced
-    // in f7b1fdb7 (which only fixed the reviewer side).
-    // 512 covers ~150 m of ground at zoom 19, plenty for a typical
-    // solar installation. PNG drops from ~2 MB to ~500 KB.
+    // Fixed-size, off-screen capture: 512×512 centered on the map
+    // center, at the *current map zoom* (not a hardcoded value). Using
+    // the live zoom keeps the captured image's pixel-to-ground ratio
+    // identical to the viewport's, so when we project predictions back
+    // onto the viewport via map.latLngToContainerPoint(center) the
+    // overlay lines up with what the user is looking at — including
+    // when they Clear, zoom in, and re-Detect.
+    //
+    // Capture is independent of window size, devicePixelRatio, and OS;
+    // tiles are fetched directly from Google so Mac / Linux / Firefox /
+    // Safari send byte-equivalent images for the same lat/lng + zoom.
     const SIZE = 512;
     const TILE = 256;
     const HALF = SIZE / 2;
-    const z = 19;
+    const z = Math.round(this.map.getZoom());
 
     const center = this.map.getCenter();
     const lat = center.lat;
@@ -680,14 +544,8 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    if (this.sharpen) {
-      this.applySharpen(ctx, SIZE, SIZE);
-    }
-    // PNG (lossless) — JPEG was smoothing back the high-frequency
-    // content the sharpen kernel produced, and even without sharpen,
-    // lossless input gives the model the most faithful pixels we can.
-    // ~2-4 MB after base64 for 1024² satellite, well within the 10MB
-    // body cap.
+    // PNG (lossless) — gives the model the most faithful pixels and
+    // sits comfortably under the 10MB API body cap.
     const base64 = canvas.toDataURL('image/png').split(',')[1];
 
     // Where does the 1024×1024 capture sit in the visible map's
@@ -699,8 +557,6 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const centerPt = this.map.latLngToContainerPoint(center);
     const cropX = centerPt.x - HALF;
     const cropY = centerPt.y - HALF;
-
-    await this.logCaptureDebug(base64, w, h, SIZE, SIZE, SIZE, SIZE);
 
     this.http
       .post<any>(`${environment.API_URL}device-reviews/detect-panels`, {
