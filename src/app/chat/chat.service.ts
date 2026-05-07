@@ -134,12 +134,21 @@ export class ChatService implements OnDestroy {
     this.currentConversationId = null;
   }
 
-  private startPolling(headUuid: string): void {
+  private startPolling(_headUuid: string): void {
     this.stopPolling();
+    // Read currentHeadUuid live each tick — if a delete advances the
+    // conversation head, the closured value would be stale and fetch
+    // an empty chain, blanking the UI.
     this.pollingSubscription = interval(4000)
-      .pipe(switchMap(() => this.getChain(headUuid)))
+      .pipe(
+        switchMap(() => {
+          const head = this.currentHeadUuid;
+          if (!head) return [];
+          return this.getChain(head);
+        }),
+      )
       .subscribe((messages) => {
-        this.messages$.next(messages);
+        this.messages$.next(messages as any);
       });
   }
 
