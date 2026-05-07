@@ -20,13 +20,6 @@ import { SatellitePreviewComponent } from '../../../shared/satellite-preview/sat
 import { mapPinIcon } from '../../../shared/map-pin';
 import { safeErrorMessage } from '../../../utils/safe-error-message';
 
-const STATUS_COLOR: Record<string, string> = {
-  approved: '#22c55e',
-  rejected: '#ef4444',
-  pending: '#f59e0b',
-  legacy: '#a0845c',
-};
-
 @Component({
   standalone: false,
   selector: 'app-ds-satellite-window',
@@ -712,7 +705,10 @@ export class SatelliteWindowComponent
 
     for (const asset of assets) {
       if (asset.lat === null || asset.long === null) continue;
-      const color = STATUS_COLOR[asset.status] ?? '#dc2626';
+      // Same red as the registrant-side centre pin in map.component for
+      // visual consistency across reviewer + registrant maps. Status is
+      // surfaced via the asset list / status pill, not the pin colour.
+      const color = '#e53e3e';
 
       const lat = asset.lat;
       const lng = asset.long;
