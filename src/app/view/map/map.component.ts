@@ -137,6 +137,11 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   selectedRegion: number = -1;
   private detScaleX = 1;
   private detScaleY = 1;
+  // Top-left of the captured 1024×1024 image expressed in viewport
+  // container coordinates. Predictions come back in capture-image
+  // pixel space; adding the crop offset places them on the live map.
+  private detCropX = 0;
+  private detCropY = 0;
   private deleteBtn: { x: number; y: number; r: number } | null = null;
 
   // Rectangle draw state
@@ -562,73 +567,72 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private async captureAndDetect(): Promise<void> {
-    const mapEl = this.map.getContainer();
-    const w = mapEl.offsetWidth;
-    const h = mapEl.offsetHeight;
-
-    const srcCanvas = document.createElement('canvas');
-    srcCanvas.width = w;
-    srcCanvas.height = h;
-    const srcCtx = srcCanvas.getContext('2d')!;
-
-    const tilePane = mapEl.querySelector('.leaflet-tile-pane') as HTMLElement;
-    if (!tilePane) {
+    if (!this.map) {
       this.detecting = false;
-      this.detectError = 'Could not capture map';
       return;
     }
 
-    // Wait for tiles to finish loading. Leaflet keeps pending <img> elements
-    // in the tile pane while they fetch; drawing them produces blank squares.
-    // Time-bounded so we don't hang on a stuck CDN.
-    await this.waitForTilesLoaded(tilePane, 4000);
+    // Fixed-size, off-screen capture: 1024×1024 at zoom 19 centered on
+    // the map center. We fetch tiles ourselves from the Google endpoint
+    // and composite onto a hidden canvas, so the captured image is
+    // independent of window size, devicePixelRatio, and OS — Mac and
+    // Linux send byte-equivalent images to Roboflow for the same
+    // lat/lng. Mirrors the satellite-window implementation introduced
+    // in f7b1fdb7 (which only fixed the reviewer side).
+    const SIZE = 1024;
+    const TILE = 256;
+    const HALF = SIZE / 2;
+    const z = 19;
 
-    const mapRect = mapEl.getBoundingClientRect();
-    const imgs = Array.from(tilePane.querySelectorAll('img'));
+    const center = this.map.getCenter();
+    const lat = center.lat;
+    const lng = center.lng;
 
-    // Try direct drawImage first; if CORS blocks it, re-fetch tiles as blobs
-    let drawn = 0;
-    for (const img of imgs) {
-      const rect = img.getBoundingClientRect();
-      const x = rect.left - mapRect.left;
-      const y = rect.top - mapRect.top;
-      try {
-        srcCtx.drawImage(img, x, y, rect.width, rect.height);
-        drawn++;
-      } catch {
-        // CORS tainted — will fallback below
+    // Web Mercator: lat/lng → global pixel coords at zoom z
+    const sinLat = Math.sin((lat * Math.PI) / 180);
+    const px = ((lng + 180) / 360) * Math.pow(2, z) * TILE;
+    const py =
+      (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) *
+      Math.pow(2, z) *
+      TILE;
+
+    const topLeftPx = px - HALF;
+    const topLeftPy = py - HALF;
+
+    const tx0 = Math.floor(topLeftPx / TILE);
+    const ty0 = Math.floor(topLeftPy / TILE);
+    const tx1 = Math.floor((topLeftPx + SIZE - 1) / TILE);
+    const ty1 = Math.floor((topLeftPy + SIZE - 1) / TILE);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = SIZE;
+    canvas.height = SIZE;
+    const ctx = canvas.getContext('2d')!;
+
+    const tasks: Promise<void>[] = [];
+    for (let tx = tx0; tx <= tx1; tx++) {
+      for (let ty = ty0; ty <= ty1; ty++) {
+        tasks.push(
+          (async () => {
+            const url = `https://mt1.google.com/vt/lyrs=s&x=${tx}&y=${ty}&z=${z}`;
+            try {
+              const resp = await fetch(url);
+              const blob = await resp.blob();
+              const bmp = await createImageBitmap(blob);
+              const dx = tx * TILE - topLeftPx;
+              const dy = ty * TILE - topLeftPy;
+              ctx.drawImage(bmp, dx, dy);
+              bmp.close();
+            } catch {
+              // skip missing tile
+            }
+          })(),
+        );
       }
     }
+    await Promise.all(tasks);
 
-    if (drawn === 0 && imgs.length > 0) {
-      // Fallback: re-fetch each tile as a blob to bypass CORS tainting
-      await Promise.all(
-        imgs.map(async (img) => {
-          const src = img.getAttribute('src');
-          if (!src) return;
-          const rect = img.getBoundingClientRect();
-          const x = rect.left - mapRect.left;
-          const y = rect.top - mapRect.top;
-          try {
-            const resp = await fetch(src);
-            const blob = await resp.blob();
-            const bmp = await createImageBitmap(blob);
-            srcCtx.drawImage(bmp, x, y, rect.width, rect.height);
-            bmp.close();
-          } catch {
-            // skip tile
-          }
-        }),
-      );
-    }
-
-    // Verify canvas isn't blank
-    const sample = srcCtx.getImageData(
-      Math.floor(w / 2),
-      Math.floor(h / 2),
-      1,
-      1,
-    ).data;
+    const sample = ctx.getImageData(HALF, HALF, 1, 1).data;
     if (
       sample[0] === 0 &&
       sample[1] === 0 &&
@@ -636,47 +640,34 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       sample[3] === 0
     ) {
       this.detecting = false;
-      this.detectError = 'Could not capture map tiles (CORS)';
+      this.detectError = 'Could not capture map tiles';
       return;
     }
 
-    // Send the full viewport (no center-crop) — registrants can now
-    // delete individual false-positive panels post-detection, so the
-    // edge-artifact protection a center crop used to provide is no
-    // longer worth the framing risk (panels near the edge of zoom-19
-    // were sometimes cropped out of detection entirely).
-    // Still cap the longer side at 1024 px to keep payloads reasonable.
-    const encodeCanvas = document.createElement('canvas');
-    const maxDim = 1024;
-    const scale = Math.min(1, maxDim / Math.max(w, h));
-    encodeCanvas.width = Math.round(w * scale);
-    encodeCanvas.height = Math.round(h * scale);
-    const encodeCtx = encodeCanvas.getContext('2d')!;
-    encodeCtx.drawImage(srcCanvas, 0, 0, encodeCanvas.width, encodeCanvas.height);
-
     if (this.sharpen) {
-      this.applySharpen(encodeCtx, encodeCanvas.width, encodeCanvas.height);
+      this.applySharpen(ctx, SIZE, SIZE);
     }
 
-    const base64 = encodeCanvas
-      .toDataURL('image/jpeg', 0.85)
-      .split(',')[1];
-    await this.logCaptureDebug(
-      base64,
-      w,
-      h,
-      w,
-      h,
-      encodeCanvas.width,
-      encodeCanvas.height,
-    );
+    const base64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+
+    // Where does the 1024×1024 capture sit in the visible map's
+    // container? Image pixel (HALF, HALF) corresponds to the visible
+    // map's container point for the map's current center.
+    const mapEl = this.map.getContainer();
+    const w = mapEl.offsetWidth;
+    const h = mapEl.offsetHeight;
+    const centerPt = this.map.latLngToContainerPoint(center);
+    const cropX = centerPt.x - HALF;
+    const cropY = centerPt.y - HALF;
+
+    await this.logCaptureDebug(base64, w, h, SIZE, SIZE, SIZE, SIZE);
 
     this.http
       .post<any>(`${environment.API_URL}device-reviews/detect-panels`, {
         image: base64,
       })
       .subscribe({
-        next: (data) => this.drawDetections(data, w, h),
+        next: (data) => this.drawDetections(data, w, h, cropX, cropY, SIZE),
         error: (err) => {
           this.detectError = 'Detection failed: ' + safeErrorMessage(err);
           this.detecting = false;
@@ -684,7 +675,14 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  private drawDetections(data: any, w: number, h: number): void {
+  private drawDetections(
+    data: any,
+    w: number,
+    h: number,
+    cropX: number,
+    cropY: number,
+    captureSize: number,
+  ): void {
     const canvas = this.overlayCanvas.nativeElement;
     canvas.width = w;
     canvas.height = h;
@@ -692,10 +690,14 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const outputs = data?.outputs?.[0];
     const preds = outputs?.predictions?.predictions ?? [];
 
-    const imgW = outputs?.predictions?.image?.width ?? w;
-    const imgH = outputs?.predictions?.image?.height ?? h;
-    this.detScaleX = w / imgW;
-    this.detScaleY = h / imgH;
+    // Image dims as the model saw them. Capture is square (SIZE×SIZE),
+    // so a single scale factor suffices.
+    const imgW = outputs?.predictions?.image?.width ?? captureSize;
+    const imgH = outputs?.predictions?.image?.height ?? captureSize;
+    this.detScaleX = captureSize / imgW;
+    this.detScaleY = captureSize / imgH;
+    this.detCropX = cropX;
+    this.detCropY = cropY;
 
     this.predictions = preds;
     this.selectedRegion = -1;
@@ -831,8 +833,8 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const points: { x: number; y: number }[] = pred.points ?? [];
     if (points.length > 2) {
       const scaled = points.map((p: any) => ({
-        x: p.x * this.detScaleX,
-        y: p.y * this.detScaleY,
+        x: p.x * this.detScaleX + this.detCropX,
+        y: p.y * this.detScaleY + this.detCropY,
       }));
       let inside = false;
       for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
@@ -849,8 +851,8 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       }
       return inside;
     }
-    const bx = (pred.x - pred.width / 2) * this.detScaleX;
-    const by = (pred.y - pred.height / 2) * this.detScaleY;
+    const bx = (pred.x - pred.width / 2) * this.detScaleX + this.detCropX;
+    const by = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
     const bw = pred.width * this.detScaleX;
     const bh = pred.height * this.detScaleY;
     return mx >= bx && mx <= bx + bw && my >= by && my <= by + bh;
@@ -892,13 +894,13 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       if (points.length > 2) {
         ctx.beginPath();
         ctx.moveTo(
-          points[0].x * this.detScaleX,
-          points[0].y * this.detScaleY,
+          points[0].x * this.detScaleX + this.detCropX,
+          points[0].y * this.detScaleY + this.detCropY,
         );
         for (let j = 1; j < points.length; j++) {
           ctx.lineTo(
-            points[j].x * this.detScaleX,
-            points[j].y * this.detScaleY,
+            points[j].x * this.detScaleX + this.detCropX,
+            points[j].y * this.detScaleY + this.detCropY,
           );
         }
         ctx.closePath();
@@ -908,8 +910,8 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         ctx.lineWidth = selected ? 3 : 2;
         ctx.stroke();
       } else {
-        const bx = (pred.x - pred.width / 2) * this.detScaleX;
-        const by = (pred.y - pred.height / 2) * this.detScaleY;
+        const bx = (pred.x - pred.width / 2) * this.detScaleX + this.detCropX;
+        const by = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
         const bw = pred.width * this.detScaleX;
         const bh = pred.height * this.detScaleY;
         ctx.fillStyle = fill;
@@ -924,16 +926,16 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         let dotX: number, dotY: number;
         if (points.length > 2) {
           const xs = points.map(
-            (p: any) => p.x * this.detScaleX,
+            (p: any) => p.x * this.detScaleX + this.detCropX,
           );
           const ys = points.map(
-            (p: any) => p.y * this.detScaleY,
+            (p: any) => p.y * this.detScaleY + this.detCropY,
           );
           dotX = Math.max(...xs);
           dotY = Math.min(...ys);
         } else {
-          dotX = (pred.x + pred.width / 2) * this.detScaleX;
-          dotY = (pred.y - pred.height / 2) * this.detScaleY;
+          dotX = (pred.x + pred.width / 2) * this.detScaleX + this.detCropX;
+          dotY = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
         }
         const r = 10;
         ctx.beginPath();
