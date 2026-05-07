@@ -248,6 +248,17 @@ export class OcChecklistPanelComponent
 
   ngOnInit(): void {
     this.restore();
+    this.applyReserve();
+  }
+
+  /** Tab is 18px; tab + 340px panel = 358px when expanded. The page reads
+   *  this var to keep its right edge inside the OCP, so the table's
+   *  scrollbar stays clickable. */
+  private applyReserve(): void {
+    document.documentElement.style.setProperty(
+      '--ocp-reserve',
+      this.collapsed ? '18px' : '358px',
+    );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -268,10 +279,12 @@ export class OcChecklistPanelComponent
   ngOnDestroy(): void {
     const host = this.elementRef.nativeElement;
     host.parentNode?.removeChild(host);
+    document.documentElement.style.removeProperty('--ocp-reserve');
   }
 
   toggleCollapsed(): void {
     this.collapsed = !this.collapsed;
+    this.applyReserve();
     this.cdr.markForCheck();
   }
 

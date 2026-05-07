@@ -3,7 +3,11 @@
   top: 42px;
   bottom: 32px;
   left: var(--sidenav-width, 200px);
-  right: 0;
+  // The right inset is driven by --ocp-reserve, which the OC checklist
+  // panel sets to its own visible width. Without this, the panel covers
+  // the table's vertical scrollbar — wheel events still work, but the
+  // scrollbar thumb is unreachable to mouse clicks.
+  right: var(--ocp-reserve, 18px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
