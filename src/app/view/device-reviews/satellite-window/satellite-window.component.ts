@@ -553,11 +553,12 @@ export class SatelliteWindowComponent
       return;
     }
 
-    // Capture a fixed 1024x1024 image centered on the map center at zoom 19.
+    // Capture a fixed 512x512 image centered on the map center at zoom 19.
     // Fetching tiles ourselves (instead of screenshotting the visible viewport)
     // makes the capture independent of window size, devicePixelRatio, and OS,
     // so Roboflow always sees the same ground area at the same resolution.
-    const SIZE = 1024;
+    // 512 covers ~150 m of ground at zoom 19; PNG ≈ 500 KB after base64.
+    const SIZE = 512;
     const TILE = 256;
     const HALF = SIZE / 2;
     const z = 19;

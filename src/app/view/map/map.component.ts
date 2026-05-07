@@ -606,14 +606,16 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    // Fixed-size, off-screen capture: 1024×1024 at zoom 19 centered on
+    // Fixed-size, off-screen capture: 512×512 at zoom 19 centered on
     // the map center. We fetch tiles ourselves from the Google endpoint
     // and composite onto a hidden canvas, so the captured image is
     // independent of window size, devicePixelRatio, and OS — Mac and
     // Linux send byte-equivalent images to Roboflow for the same
     // lat/lng. Mirrors the satellite-window implementation introduced
     // in f7b1fdb7 (which only fixed the reviewer side).
-    const SIZE = 1024;
+    // 512 covers ~150 m of ground at zoom 19, plenty for a typical
+    // solar installation. PNG drops from ~2 MB to ~500 KB.
+    const SIZE = 512;
     const TILE = 256;
     const HALF = SIZE / 2;
     const z = 19;
