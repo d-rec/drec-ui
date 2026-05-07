@@ -45,6 +45,9 @@ export class LicensesComponent implements OnInit {
             roboflowWorkflowUrl: data.roboflowWorkflowUrl || '',
             deeplApiKey: data.deeplApiKey || '',
           });
+          // Loaded values aren't user edits — mark the form pristine so
+          // an immediate Save without typing won't re-send them.
+          this.licensesForm.markAsPristine();
           this.roboflowCredits = data.roboflowCreditsRemaining;
           this.deeplCredits = data.deeplCreditsRemaining;
         }
@@ -67,16 +70,24 @@ export class LicensesComponent implements OnInit {
   }
 
   onSubmit(): void {
-    const formValue = this.licensesForm.value;
+    // Only ship fields the user actually touched. Sending unchanged fields
+    // (especially blank ones) used to wipe valid keys when the form
+    // rendered without populated values for any reason.
     const payload: any = {};
-    if (formValue.roboflowApiKey !== undefined) {
-      payload.roboflowApiKey = formValue.roboflowApiKey || null;
+    const c = this.licensesForm.controls;
+    if (c['roboflowApiKey'].dirty) {
+      payload.roboflowApiKey = c['roboflowApiKey'].value || '';
     }
-    if (formValue.roboflowWorkflowUrl !== undefined) {
-      payload.roboflowWorkflowUrl = formValue.roboflowWorkflowUrl || null;
+    if (c['roboflowWorkflowUrl'].dirty) {
+      payload.roboflowWorkflowUrl = c['roboflowWorkflowUrl'].value || '';
     }
-    if (formValue.deeplApiKey !== undefined) {
-      payload.deeplApiKey = formValue.deeplApiKey || null;
+    if (c['deeplApiKey'].dirty) {
+      payload.deeplApiKey = c['deeplApiKey'].value || '';
+    }
+
+    if (Object.keys(payload).length === 0) {
+      this.toastrService.info('No changes to save');
+      return;
     }
 
     this.licensesService.saveSettings(payload).subscribe({
