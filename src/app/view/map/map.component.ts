@@ -560,7 +560,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
           cropSrc: `${cropW}x${cropH}`,
           encoded: `${encodedW}x${encodedH}`,
           base64Length: base64.length,
-          jpegBytes: Math.round((base64.length * 3) / 4),
+          encodedBytes: Math.round((base64.length * 3) / 4),
           sha256: sha,
         },
         null,
@@ -591,11 +591,11 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     const blob = await (
-      await fetch(`data:image/jpeg;base64,${last.base64}`)
+      await fetch(`data:image/png;base64,${last.base64}`)
     ).blob();
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `panel-detect-${last.sha.slice(0, 12)}.jpg`;
+    a.download = `panel-detect-${last.sha.slice(0, 12)}.png`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
@@ -679,17 +679,14 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (this.sharpen) {
-      // Two passes — JPEG encoding eats a lot of the high-frequency
-      // content the kernel just produced, so a single pass at q=0.85 is
-      // visually invisible and helps the model only marginally. Two
-      // passes plus a higher quality keeps the effect through encode.
-      this.applySharpen(ctx, SIZE, SIZE);
       this.applySharpen(ctx, SIZE, SIZE);
     }
-    const jpegQuality = this.sharpen ? 0.95 : 0.85;
-    const base64 = canvas
-      .toDataURL('image/jpeg', jpegQuality)
-      .split(',')[1];
+    // PNG (lossless) — JPEG was smoothing back the high-frequency
+    // content the sharpen kernel produced, and even without sharpen,
+    // lossless input gives the model the most faithful pixels we can.
+    // ~2-4 MB after base64 for 1024² satellite, well within the 10MB
+    // body cap.
+    const base64 = canvas.toDataURL('image/png').split(',')[1];
 
     // Where does the 1024×1024 capture sit in the visible map's
     // container? Image pixel (HALF, HALF) corresponds to the visible
