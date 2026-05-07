@@ -134,8 +134,10 @@
 }
 
 .detect-error-toast {
-  position: absolute;
-  top: 60px;
+  // Viewport-anchored, matches ngx-toastr's top-right placement so this
+  // sits in the same column as the rest of the app's toasts.
+  position: fixed;
+  top: 12px;
   right: 12px;
   max-width: 480px;
   min-width: 320px;
