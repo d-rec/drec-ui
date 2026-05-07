@@ -838,17 +838,16 @@
     width: 100%;
   }
 
+  // Inside the form-field as a matSuffix. Default Material centers the
+  // button to the form-field box, but our compact rule's asymmetric
+  // padding (top: 12, bottom: 4) anchors the input ~4-5px below the
+  // form-field's geometric centre — shift the icon down to match.
   &__remove {
-    flex-shrink: 0;
-    width: 28px;
-    height: 28px;
-    line-height: 28px;
     color: #64748b;
+    transform: translateY(4px);
 
     mat-icon {
       font-size: 18px;
-      height: 18px;
-      width: 18px;
     }
 
     &:hover {
