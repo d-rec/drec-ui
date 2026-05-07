@@ -1,7 +1,7 @@
 .ds-page {
   position: fixed;
   top: 42px;
-  bottom: 32px;
+  bottom: 0;
   left: var(--sidenav-width, 200px);
   // The right inset is driven by --ocp-reserve, which the OC checklist
   // panel sets to its own visible width. Without this, the panel covers
