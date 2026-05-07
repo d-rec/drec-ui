@@ -345,6 +345,10 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       this.map.setView([lat, lng], this.map.getZoom(), { animate: true });
       this.ensureCenterPin([lat, lng]);
       this.centerPinMarker?.setLatLng([lat, lng]);
+      // Re-anchor the HTML pin too — otherwise it stays at the
+      // pre-recenter latLng and renders off-screen until the user pans.
+      this.pinLatLng = L.latLng(lat, lng);
+      this.repositionPin();
     }
   }
 
@@ -378,6 +382,11 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
           });
           this.ensureCenterPin([m.latitude, m.longitude]);
           this.centerPinMarker?.setLatLng([m.latitude, m.longitude]);
+          // Re-anchor the HTML pin to the recentered location so it's
+          // visible immediately on page load, not only after the user
+          // pans (whose drag handler also writes pinLatLng).
+          this.pinLatLng = L.latLng(m.latitude, m.longitude);
+          this.repositionPin();
           this.centerPinInitialized = true;
         }
       }
