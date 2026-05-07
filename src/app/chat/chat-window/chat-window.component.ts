@@ -347,15 +347,23 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     this.chatService.deleteMessage(uuid).subscribe({
       next: (res) => {
         console.log('[chat] delete OK', res);
-        // Remove locally and refresh the chain from the head so the linked
-        // list rewire is reflected.
+        // Remove locally and refresh the chain from the *new* head — the
+        // backend may have advanced conversation.headUuid (when the
+        // deleted message was the head) or dropped the conversation
+        // entirely. Using the cached currentHeadUuid would have asked
+        // the server for a non-existent node and returned [], making it
+        // look like everything got deleted.
         this.messages = this.messages.filter((m) => m.uuid !== uuid);
         this.chatService.messages$.next(this.messages);
-        // Force a server refetch so polling-stale doesn't bring it back.
-        if (this.chatService.currentHeadUuid) {
+        if (res.headUuid) {
+          this.chatService.currentHeadUuid = res.headUuid;
           this.chatService
-            .getChain(this.chatService.currentHeadUuid)
+            .getChain(res.headUuid)
             .subscribe((msgs) => this.chatService.messages$.next(msgs));
+        } else {
+          // Conversation emptied — clear local state, no refetch needed.
+          this.chatService.currentHeadUuid = null;
+          this.chatService.messages$.next([]);
         }
       },
       error: (err) => {

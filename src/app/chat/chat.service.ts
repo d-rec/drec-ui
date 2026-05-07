@@ -167,10 +167,16 @@ export class ChatService implements OnDestroy {
     );
   }
 
-  deleteMessage(uuid: string): Observable<{ success: boolean }> {
-    return this.http.delete<{ success: boolean }>(
-      `${this.apiUrl}chat/messages/${uuid}`,
-    );
+  deleteMessage(uuid: string): Observable<{
+    success: boolean;
+    conversationId: number | null;
+    headUuid: string | null;
+  }> {
+    return this.http.delete<{
+      success: boolean;
+      conversationId: number | null;
+      headUuid: string | null;
+    }>(`${this.apiUrl}chat/messages/${uuid}`);
   }
 
   getAdminUser(): Observable<{
