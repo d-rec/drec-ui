@@ -133,8 +133,6 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   selectedRegion: number = -1;
   private detScaleX = 1;
   private detScaleY = 1;
-  private detCropX = 0;
-  private detCropY = 0;
   private deleteBtn: { x: number; y: number; r: number } | null = null;
 
   // Rectangle draw state
@@ -585,41 +583,40 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    // Crop center 80% of viewport and cap at 1024px to keep payload small
-    const frac = 0.8;
-    const cropW = Math.round(w * frac);
-    const cropH = Math.round(h * frac);
-    const cropX = Math.round((w - cropW) / 2);
-    const cropY = Math.round((h - cropH) / 2);
-
-    const cropCanvas = document.createElement('canvas');
+    // Send the full viewport (no center-crop) — registrants can now
+    // delete individual false-positive panels post-detection, so the
+    // edge-artifact protection a center crop used to provide is no
+    // longer worth the framing risk (panels near the edge of zoom-19
+    // were sometimes cropped out of detection entirely).
+    // Still cap the longer side at 1024 px to keep payloads reasonable.
+    const encodeCanvas = document.createElement('canvas');
     const maxDim = 1024;
-    const scale = Math.min(1, maxDim / Math.max(cropW, cropH));
-    cropCanvas.width = Math.round(cropW * scale);
-    cropCanvas.height = Math.round(cropH * scale);
-    const cropCtx = cropCanvas.getContext('2d')!;
-    cropCtx.drawImage(
-      srcCanvas,
-      cropX,
-      cropY,
-      cropW,
-      cropH,
-      0,
-      0,
-      cropCanvas.width,
-      cropCanvas.height,
-    );
+    const scale = Math.min(1, maxDim / Math.max(w, h));
+    encodeCanvas.width = Math.round(w * scale);
+    encodeCanvas.height = Math.round(h * scale);
+    encodeCanvas
+      .getContext('2d')!
+      .drawImage(srcCanvas, 0, 0, encodeCanvas.width, encodeCanvas.height);
 
-    const base64 = cropCanvas.toDataURL('image/jpeg', 0.85).split(',')[1];
-    await this.logCaptureDebug(base64, w, h, cropW, cropH, cropCanvas.width, cropCanvas.height);
+    const base64 = encodeCanvas
+      .toDataURL('image/jpeg', 0.85)
+      .split(',')[1];
+    await this.logCaptureDebug(
+      base64,
+      w,
+      h,
+      w,
+      h,
+      encodeCanvas.width,
+      encodeCanvas.height,
+    );
 
     this.http
       .post<any>(`${environment.API_URL}device-reviews/detect-panels`, {
         image: base64,
       })
       .subscribe({
-        next: (data) =>
-          this.drawDetections(data, w, h, cropX, cropY, cropW, cropH),
+        next: (data) => this.drawDetections(data, w, h),
         error: (err) => {
           this.detectError = 'Detection failed: ' + safeErrorMessage(err);
           this.detecting = false;
@@ -627,15 +624,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  private drawDetections(
-    data: any,
-    w: number,
-    h: number,
-    cropX: number,
-    cropY: number,
-    cropW: number,
-    cropH: number,
-  ): void {
+  private drawDetections(data: any, w: number, h: number): void {
     const canvas = this.overlayCanvas.nativeElement;
     canvas.width = w;
     canvas.height = h;
@@ -643,12 +632,10 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const outputs = data?.outputs?.[0];
     const preds = outputs?.predictions?.predictions ?? [];
 
-    const imgW = outputs?.predictions?.image?.width ?? cropW;
-    const imgH = outputs?.predictions?.image?.height ?? cropH;
-    this.detScaleX = cropW / imgW;
-    this.detScaleY = cropH / imgH;
-    this.detCropX = cropX;
-    this.detCropY = cropY;
+    const imgW = outputs?.predictions?.image?.width ?? w;
+    const imgH = outputs?.predictions?.image?.height ?? h;
+    this.detScaleX = w / imgW;
+    this.detScaleY = h / imgH;
 
     this.predictions = preds;
     this.selectedRegion = -1;
@@ -784,8 +771,8 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const points: { x: number; y: number }[] = pred.points ?? [];
     if (points.length > 2) {
       const scaled = points.map((p: any) => ({
-        x: p.x * this.detScaleX + this.detCropX,
-        y: p.y * this.detScaleY + this.detCropY,
+        x: p.x * this.detScaleX,
+        y: p.y * this.detScaleY,
       }));
       let inside = false;
       for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
@@ -802,8 +789,8 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       }
       return inside;
     }
-    const bx = (pred.x - pred.width / 2) * this.detScaleX + this.detCropX;
-    const by = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
+    const bx = (pred.x - pred.width / 2) * this.detScaleX;
+    const by = (pred.y - pred.height / 2) * this.detScaleY;
     const bw = pred.width * this.detScaleX;
     const bh = pred.height * this.detScaleY;
     return mx >= bx && mx <= bx + bw && my >= by && my <= by + bh;
@@ -845,13 +832,13 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       if (points.length > 2) {
         ctx.beginPath();
         ctx.moveTo(
-          points[0].x * this.detScaleX + this.detCropX,
-          points[0].y * this.detScaleY + this.detCropY,
+          points[0].x * this.detScaleX,
+          points[0].y * this.detScaleY,
         );
         for (let j = 1; j < points.length; j++) {
           ctx.lineTo(
-            points[j].x * this.detScaleX + this.detCropX,
-            points[j].y * this.detScaleY + this.detCropY,
+            points[j].x * this.detScaleX,
+            points[j].y * this.detScaleY,
           );
         }
         ctx.closePath();
@@ -861,8 +848,8 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         ctx.lineWidth = selected ? 3 : 2;
         ctx.stroke();
       } else {
-        const bx = (pred.x - pred.width / 2) * this.detScaleX + this.detCropX;
-        const by = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
+        const bx = (pred.x - pred.width / 2) * this.detScaleX;
+        const by = (pred.y - pred.height / 2) * this.detScaleY;
         const bw = pred.width * this.detScaleX;
         const bh = pred.height * this.detScaleY;
         ctx.fillStyle = fill;
@@ -877,16 +864,16 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         let dotX: number, dotY: number;
         if (points.length > 2) {
           const xs = points.map(
-            (p: any) => p.x * this.detScaleX + this.detCropX,
+            (p: any) => p.x * this.detScaleX,
           );
           const ys = points.map(
-            (p: any) => p.y * this.detScaleY + this.detCropY,
+            (p: any) => p.y * this.detScaleY,
           );
           dotX = Math.max(...xs);
           dotY = Math.min(...ys);
         } else {
-          dotX = (pred.x + pred.width / 2) * this.detScaleX + this.detCropX;
-          dotY = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
+          dotX = (pred.x + pred.width / 2) * this.detScaleX;
+          dotY = (pred.y - pred.height / 2) * this.detScaleY;
         }
         const r = 10;
         ctx.beginPath();
