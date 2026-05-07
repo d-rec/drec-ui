@@ -325,9 +325,6 @@
           <div class="detail-actions">
             <button type="button" class="btn btn-outline-primary btn-sm" (click)="openScanDialog()" title="Run verification checks on this device">Verify Device</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit Trail</button>
-            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="generateSf02ForSelected($event)" [disabled]="!editingId || generatingSf02[editingId!]" title="Generate SF-02 registration form from device data">
-              {{ editingId && generatingSf02[editingId!] ? 'Generating…' : 'Generate SF-02' }}
-            </button>
             <span class="detail-actions__sep"></span>
             <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
