@@ -124,6 +124,18 @@ export class DocumentClassifierService {
         alternatives: [],
       };
     }
+    // "OD" (uppercase, standalone token) is the field abbreviation for
+    // Owner's Declaration — e.g. "Atsawa_OD letter.pdf". Match against
+    // the original-case filename so we don't false-positive on substrings
+    // of common lowercase words ("good", "mood", "body", …).
+    if (/(?<![A-Za-z0-9])OD(?![A-Za-z0-9])/.test(name)) {
+      return {
+        suggestedType: DocumentType.SF_02C_OWNERS_DECLARATION,
+        confidence: 0.75,
+        method: 'keywords',
+        alternatives: [],
+      };
+    }
     if (/(?<![a-z0-9])sf.?02c(?![a-z0-9])/i.test(lower)) {
       return {
         suggestedType: DocumentType.SF_02C,
