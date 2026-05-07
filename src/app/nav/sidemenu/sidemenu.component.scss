@@ -10,9 +10,12 @@ $white: #fff;
 }
 
 .example-container {
+  // Top: clears the fixed app-header (~42px). Bottom was 32px to leave
+  // room for the now-removed footer; with footer gone, fill all the way
+  // to the viewport bottom so client pages use the whole client area.
   position: absolute;
   top: 42px;
-  bottom: 32px;
+  bottom: 0;
   left: 0;
   right: 0;
   z-index: 0;
