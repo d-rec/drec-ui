@@ -46,9 +46,6 @@
         <span class="col-country th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='countryCode'&&sortDir===1" [class.desc]="sortColumn==='countryCode'&&sortDir===-1" (click)="sortBy('countryCode')" (keydown.enter)="sortBy('countryCode')">Country</span>
         <span class="col-modified th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='modifiedDate'&&sortDir===1" [class.desc]="sortColumn==='modifiedDate'&&sortDir===-1" (click)="sortBy('modifiedDate')" (keydown.enter)="sortBy('modifiedDate')">Modified</span>
         <span class="col-status  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='status'&&sortDir===1" [class.desc]="sortColumn==='status'&&sortDir===-1" (click)="sortBy('status')" (keydown.enter)="sortBy('status')">Status</span>
-        <span class="col-screen th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='screenStatus'&&sortDir===1" [class.desc]="sortColumn==='screenStatus'&&sortDir===-1" (click)="sortBy('screenStatus')" (keydown.enter)="sortBy('screenStatus')" title="Automation result">Screen</span>
-        <span class="col-docs th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='docs'&&sortDir===1" [class.desc]="sortColumn==='docs'&&sortDir===-1" (click)="sortBy('docs')" (keydown.enter)="sortBy('docs')" title="Required documents uploaded">Docs</span>
-        <span class="col-cod th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='sf02Ready'&&sortDir===1" [class.desc]="sortColumn==='sf02Ready'&&sortDir===-1" (click)="sortBy('sf02Ready')" (keydown.enter)="sortBy('sf02Ready')" title="SF-02 generation ready">SF-02</span>
       </div>
 
       <ng-container *ngIf="filtered$ | async as result">
@@ -78,20 +75,6 @@
           <span class="col-status">
             <span class="status-icon status-icon--{{ item.status }}">{{ item.status === 'approved' ? '✓' : item.status === 'rejected' ? '✗' : '●' }}</span>
             <span class="status-label" [innerHTML]="hl(item.status | titlecase, result.searchTerm)"></span>
-          </span>
-          <span class="col-screen">
-            <span *ngIf="item.lastScreenStatus" class="screen-badge screen-badge--{{ item.lastScreenStatus }}"
-              [title]="(item.lastScreenStatus === 'pass' ? 'Passed' : item.lastScreenStatus === 'fail' ? 'Failed' : 'Warnings') + ' — screened ' + (item.lastScreenedAt | date:'dd MMM yyyy, HH:mm') + ' (click for details)'"
-              (click)="openScreenReport(item, $event)">{{ item.lastScreenStatus === 'pass' ? '✓' : item.lastScreenStatus === 'fail' ? '✗' : '!' }}</span>
-          </span>
-          <span class="col-docs"
-            [class.col-docs--ready]="item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length >= 3"
-            [class.col-docs--not]="!item.sldUrl || !item.sf02Url || !item.codProofUrl || !item.pictureUrls.length"
-            [title]="(item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length >= 3) ? 'All documents uploaded' : 'Missing documents'">
-            {{ (item.sldUrl && item.sf02Url && item.codProofUrl && item.pictureUrls.length >= 3) ? '✓' : '✗' }}
-          </span>
-          <span class="col-cod" [class.col-cod--ready]="item.sf02Ready" [class.col-cod--not]="!item.sf02Ready" [title]="item.sf02Ready ? 'Ready to generate SF-02' : 'Missing required fields'">
-            {{ item.sf02Ready ? '✓' : '✗' }}
           </span>
         </div>
 
