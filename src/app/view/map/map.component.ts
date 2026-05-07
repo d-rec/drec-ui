@@ -399,6 +399,13 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
 
   detectPanels(): void {
     if (!this.map || this.detecting) return;
+    // Skip the "limited free-tier licenses" warning in dev — we hit the
+    // platform key locally and burn through detections during testing
+    // without it really mattering.
+    if (!environment.production && !environment.staging) {
+      this.confirmDetect();
+      return;
+    }
     this.showDetectConfirm = true;
   }
 
