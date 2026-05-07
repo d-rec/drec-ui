@@ -38,6 +38,15 @@
       </button>
       <button
         type="button"
+        class="detect-btn"
+        [class.detect-btn--active]="sharpen"
+        (click)="toggleSharpen()"
+        [title]="sharpen ? 'Sharpen filter ON — click to disable' : 'Apply a 3×3 sharpen convolution to the captured image before detection'"
+      >
+        ✨ Sharpen
+      </button>
+      <button
+        type="button"
         class="detect-btn detect-btn--camera"
         (click)="captureScreenshot()"
         title="Save screenshot"

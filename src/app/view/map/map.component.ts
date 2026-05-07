@@ -127,6 +127,10 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   // True while one or more satellite tiles are still fetching for the
   // current viewport. Detection works best after this returns to false.
   tilesLoading = false;
+  // When true, run a 3×3 sharpen convolution on the captured image
+  // before sending to Roboflow. Helps small-object detection on hazy
+  // or low-contrast satellite tiles. Toggle persists in sessionStorage.
+  sharpen = sessionStorage.getItem('detect_sharpen') === '1';
 
   // Region selection state
   predictions: any[] = [];
@@ -428,6 +432,59 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  toggleSharpen(): void {
+    this.sharpen = !this.sharpen;
+    sessionStorage.setItem('detect_sharpen', this.sharpen ? '1' : '0');
+  }
+
+  /**
+   * 3×3 sharpen convolution applied in-place to the encode canvas.
+   *   0 -1  0
+   *  -1  5 -1
+   *   0 -1  0
+   * Operates on the raw RGBA buffer; alpha is preserved untouched.
+   */
+  private applySharpen(
+    ctx: CanvasRenderingContext2D,
+    w: number,
+    h: number,
+  ): void {
+    const src = ctx.getImageData(0, 0, w, h);
+    const dst = ctx.createImageData(w, h);
+    const s = src.data;
+    const d = dst.data;
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = 1; x < w - 1; x++) {
+        const i = (y * w + x) * 4;
+        const top = i - w * 4;
+        const bot = i + w * 4;
+        for (let c = 0; c < 3; c++) {
+          const v =
+            5 * s[i + c] -
+            s[i - 4 + c] -
+            s[i + 4 + c] -
+            s[top + c] -
+            s[bot + c];
+          d[i + c] = v < 0 ? 0 : v > 255 ? 255 : v;
+        }
+        d[i + 3] = s[i + 3];
+      }
+    }
+    // Copy the unprocessed 1-px border verbatim so the edges aren't black.
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        if (x === 0 || y === 0 || x === w - 1 || y === h - 1) {
+          const i = (y * w + x) * 4;
+          d[i] = s[i];
+          d[i + 1] = s[i + 1];
+          d[i + 2] = s[i + 2];
+          d[i + 3] = s[i + 3];
+        }
+      }
+    }
+    ctx.putImageData(dst, 0, 0);
+  }
+
   /**
    * Diagnostic. Logs the captured image's geometry, base64 length, and a
    * SHA-256 of the bytes to the console so the same site rendered on two
@@ -594,9 +651,12 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const scale = Math.min(1, maxDim / Math.max(w, h));
     encodeCanvas.width = Math.round(w * scale);
     encodeCanvas.height = Math.round(h * scale);
-    encodeCanvas
-      .getContext('2d')!
-      .drawImage(srcCanvas, 0, 0, encodeCanvas.width, encodeCanvas.height);
+    const encodeCtx = encodeCanvas.getContext('2d')!;
+    encodeCtx.drawImage(srcCanvas, 0, 0, encodeCanvas.width, encodeCanvas.height);
+
+    if (this.sharpen) {
+      this.applySharpen(encodeCtx, encodeCanvas.width, encodeCanvas.height);
+    }
 
     const base64 = encodeCanvas
       .toDataURL('image/jpeg', 0.85)
