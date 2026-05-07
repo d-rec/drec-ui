@@ -1026,7 +1026,6 @@
             </span>
             <span class="scan-log__num">{{ i + 1 }}.</span>
             <span class="scan-log__label">{{ entry.label }}</span>
-            <span class="scan-log__time" *ngIf="entry.duration != null">{{ entry.duration }}ms</span>
             <div class="scan-log__detail" *ngIf="entry.detail">{{ entry.detail }}</div>
             <div class="scan-log__subitems" *ngIf="entry.subItems?.length">
               <div class="scan-log__subitem" *ngFor="let sub of entry.subItems"
