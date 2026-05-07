@@ -43,7 +43,13 @@
               <span *ngSwitchCase="'warn'">&#x26A0;</span>
               <span *ngSwitchCase="'fail'">&#x2718;</span>
               <span *ngSwitchCase="'error'">&#x26D4;</span>
-              <span *ngSwitchCase="'skipped'" title="Skipped">⤴</span>
+              <span *ngSwitchCase="'skipped'" title="Skipped (no data / step-over)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">
+                  <path d="M3 6 Q8 0.5 13 6" />
+                  <polyline points="13,3.5 13,6 10.5,6" />
+                  <circle cx="8" cy="13" r="1.5" fill="currentColor" />
+                </svg>
+              </span>
               <span *ngSwitchDefault>&#x25CB;</span>
             </ng-container>
           </span>
