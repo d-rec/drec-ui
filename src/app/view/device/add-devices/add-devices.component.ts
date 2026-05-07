@@ -1367,6 +1367,32 @@ export class AddDevicesComponent implements OnDestroy {
     this.myform.markAllAsTouched();
     this.checkDocumentsUploaded();
     if (!this.formValid) return;
+
+    // D-REC requires ≥6 decimals on lat/lng (≈10cm) so the coords
+    // pinpoint a specific facility, not a 1km cell. Rejected at
+    // submission time so the device never enters review with
+    // unfixable formal-fail state.
+    const lowPrecisionRows: number[] = [];
+    const dec = (v: any): number => {
+      const s = v == null ? '' : String(v);
+      const i = s.indexOf('.');
+      return i < 0 ? 0 : s.length - i - 1;
+    };
+    for (let i = 0; i < this.deviceForms.length; i++) {
+      const row = this.deviceForms.at(i).value;
+      if (dec(row.latitude) < 6 || dec(row.longitude) < 6) {
+        lowPrecisionRows.push(i + 1);
+      }
+    }
+    if (lowPrecisionRows.length) {
+      this.toastrService.error(
+        `Lat/lng need at least 6 decimals (≈10 cm precision). Drag the satellite-map pin onto the panels for device ${lowPrecisionRows.join(', ')}.`,
+        'Coordinates too imprecise',
+        { timeOut: 8000 },
+      );
+      return;
+    }
+
     this.openPopupDialog();
     this.isSubmitting = true;
   }

@@ -1468,11 +1468,18 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           const latDec = dec(latStr);
           const lngDec = dec(lngStr);
           const ok = latStr && lngStr && latDec >= 6 && lngDec >= 6;
+          // Soft signal, not a gate. The 6-decimal rule is a *proxy*
+          // for "coords are specific to this facility"; the real check
+          // is the reviewer's visual confirmation against the satellite
+          // imagery + panel detection. Flag low precision so the
+          // reviewer notices, but don't block: legacy devices with
+          // 2-decimal coords that happen to land on real panels would
+          // otherwise be permanently stuck.
           resolve({
-            status: ok ? 'pass' : 'fail',
+            status: ok ? 'pass' : 'warn',
             detail: ok
               ? `lat ${latDec}d, lng ${lngDec}d (≥6 required)`
-              : `lat has ${latDec} decimals, lng has ${lngDec} decimals — D-REC requires ≥6 each`,
+              : `lat has ${latDec} decimals, lng has ${lngDec} decimals — D-REC recommends ≥6. Confirm visually that the pin sits on the panels.`,
             subItems: [],
           });
           break;

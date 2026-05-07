@@ -1111,6 +1111,27 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    // D-REC requires ≥6 decimals on lat/lng (≈10cm precision). Block
+    // edits that would push a device into review with fail-precision
+    // already baked in; force the registrant to drag the satellite-map
+    // pin onto the panels (which writes high-precision coords via
+    // map.getCenter()).
+    const dec = (v: any): number => {
+      const s = v == null ? '' : String(v);
+      const i = s.indexOf('.');
+      return i < 0 ? 0 : s.length - i - 1;
+    };
+    const latVal = this.updateDeviceForm.value.latitude;
+    const lngVal = this.updateDeviceForm.value.longitude;
+    if (dec(latVal) < 6 || dec(lngVal) < 6) {
+      this.toastrService.error(
+        'Lat/lng need at least 6 decimals (≈10 cm precision). Drag the satellite-map pin onto the panels.',
+        'Coordinates too imprecise',
+        { timeOut: 8000 },
+      );
+      return;
+    }
+
     const selectedCountry: CountryInfo | undefined = this.countrylist.find(
       (option) => option.country === this.updateDeviceForm.value.countryCode,
     );
