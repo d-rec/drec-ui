@@ -39,7 +39,7 @@ import { RegistrantClientReponseComponent } from './view/registrant-client-repon
 import * as Sentry from '@sentry/angular';
 import { SharedModule } from './shared.module';
 import { provideNgxMatMomentDate } from '@ngxmc/moment-adapter';
-import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { MAT_DATE_LOCALE, MAT_DATE_FORMATS } from '@angular/material/core';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
@@ -130,6 +130,21 @@ import { WorldGlobeComponent } from './view/login/world-globe/world-globe.compon
     // dd/MM/yyyy across the app (matches the date pipe usage everywhere
     // else in the templates) instead of the browser's default M/D/YYYY.
     { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+    // Force date-only display in mat-datepicker inputs. Without this,
+    // the moment adapter's default display format includes time
+    // ("5/7/2026, 5:43:45 PM") because the underlying Date carries it.
+    {
+      provide: MAT_DATE_FORMATS,
+      useValue: {
+        parse: { dateInput: 'DD/MM/YYYY' },
+        display: {
+          dateInput: 'DD/MM/YYYY',
+          monthYearLabel: 'MMM YYYY',
+          dateA11yLabel: 'LL',
+          monthYearA11yLabel: 'MMMM YYYY',
+        },
+      },
+    },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     {
       provide: ErrorHandler,
