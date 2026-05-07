@@ -276,11 +276,12 @@ $legacy:   #a0845c;
     transition: all 0.15s ease;
     &:nth-child(even) { background: $bg; }
     &:hover {
+      // Visual feedback only — don't change font-size / padding /
+      // border-left, those reflow the row and shift the column's
+      // scrollbar position out from under the cursor while you're
+      // trying to click it.
       background: #f1f5f9;
-      font-size: 15px;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-      border-left: 3px solid #475569;
-      padding-left: 9px;
     }
   }
 
