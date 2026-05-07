@@ -222,6 +222,12 @@ export class AddDevicesComponent implements OnDestroy {
   formValid: boolean = false;
   isSubmitting: boolean = false;
   submitButtonText: string = 'Submit';
+  // Per-row state for the Save & Generate SF-02 flow. After a row is
+  // saved this way it carries the new device id and the timestamp of
+  // the latest auto-generated SF-02; bulk Submit then skips it.
+  savedDeviceIdByIndex: Record<number, number> = {};
+  isGeneratingSf02ByIndex: Record<number, boolean> = {};
+  sf02GeneratedAtByIndex: Record<number, string> = {};
   requiredFileTypes: FileType[] = [
     DocumentType.FORM_SF_02,
     DocumentType.SF_02C,
@@ -1280,6 +1286,83 @@ export class AddDevicesComponent implements OnDestroy {
     });
   }
 
+  /**
+   * Save & Generate SF-02 for a single row. Equivalent to bulk Submit
+   * for that one device, then immediately calls
+   * /device-reviews/:id/generate-sf02. The row stays in the FormArray
+   * (so the user can see the timestamp + Re-generate) but bulk Submit
+   * will skip it on subsequent runs.
+   */
+  saveAndGenerateSf02(index: number): void {
+    if (this.savedDeviceIdByIndex[index] != null) {
+      // Already saved; just regenerate.
+      this.runGenerateSf02(index, this.savedDeviceIdByIndex[index]);
+      return;
+    }
+    if (this.isGeneratingSf02ByIndex[index]) return;
+    this.myform.markAllAsTouched();
+    if (!this.myform.valid) {
+      this.toastrService.error(
+        'Fix validation errors before saving this device.',
+        'SF-02',
+      );
+      return;
+    }
+    const element = this.myform.value.devices[index];
+    if (!element) return;
+    const formData = this.buildDeviceFormData(element, index);
+    if (!formData) return;
+
+    this.isGeneratingSf02ByIndex[index] = true;
+    this.deviceService.create(formData).subscribe({
+      next: (result: any) => {
+        if (!result?.id) {
+          this.isGeneratingSf02ByIndex[index] = false;
+          this.toastrService.error(
+            'Saved but no device id returned',
+            'SF-02',
+          );
+          return;
+        }
+        this.savedDeviceIdByIndex[index] = result.id;
+        this.persistStagedLabels(result.id, index);
+        this.runGenerateSf02(index, result.id);
+      },
+      error: (err) => {
+        this.isGeneratingSf02ByIndex[index] = false;
+        const message =
+          err?.error?.message || err?.message || 'Failed to save device';
+        this.toastrService.error(message, 'SF-02 — save step failed');
+      },
+    });
+  }
+
+  private runGenerateSf02(index: number, deviceId: number): void {
+    this.isGeneratingSf02ByIndex[index] = true;
+    this.http
+      .post(
+        `${environment.API_URL}device-reviews/${deviceId}/generate-sf02`,
+        {},
+      )
+      .subscribe({
+        next: () => {
+          this.isGeneratingSf02ByIndex[index] = false;
+          this.sf02GeneratedAtByIndex[index] = new Date().toISOString();
+          this.toastrService.success(
+            'Device saved and SF-02 generated',
+            'SF-02',
+          );
+        },
+        error: (err) => {
+          this.isGeneratingSf02ByIndex[index] = false;
+          this.toastrService.error(
+            err?.error?.message || err?.message || 'Generation failed',
+            'SF-02 — generate step failed',
+          );
+        },
+      });
+  }
+
   onSubmit() {
     this.myform.markAllAsTouched();
     this.checkDocumentsUploaded();
@@ -1288,113 +1371,125 @@ export class AddDevicesComponent implements OnDestroy {
     this.isSubmitting = true;
   }
 
+  /**
+   * Build the FormData payload for a single device row (deviceToRegister
+   * + eSignature + files). Shared by bulk submit and per-row
+   * Save & Generate SF-02. Returns null if any file validation failed.
+   */
+  private buildDeviceFormData(element: any, index: number): FormData | null {
+    const formData = new FormData();
+    if (this.organizationName != null) {
+      element['organizationId'] = this.organizationId;
+    }
+    const selectedCountry = this.countrylist.find(
+      (option: CountryInfo) => option.country === element.countryCodename,
+    );
+    element['countryCode'] = selectedCountry?.alpha3;
+
+    // Truncate lat/long to 9 decimal places (backend regex limit)
+    if (element.latitude) {
+      const [intLat, decLat] = String(element.latitude).split('.');
+      element.latitude = decLat ? `${intLat}.${decLat.slice(0, 20)}` : intLat;
+    }
+    if (element.longitude) {
+      const [intLng, decLng] = String(element.longitude).split('.');
+      element.longitude = decLng ? `${intLng}.${decLng.slice(0, 20)}` : intLng;
+    }
+
+    // OC#37 is a multi-select in the UI but stored as a '; '-joined string
+    if (Array.isArray(element.labellingSchemeAccreditation)) {
+      element.labellingSchemeAccreditation =
+        element.labellingSchemeAccreditation.join('; ') || null;
+    }
+
+    formData.append('deviceToRegister', JSON.stringify(element));
+
+    // E-signature evidence
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 50;
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.textBaseline = 'top';
+      ctx.font = '14px Arial';
+      ctx.fillText('fingerprint', 2, 2);
+    }
+    const canvasHash = canvas.toDataURL();
+
+    formData.append(
+      'eSignature',
+      JSON.stringify({
+        browserFingerprint: canvasHash
+          ? btoa(canvasHash).substring(0, 64)
+          : null,
+        screenResolution: `${screen.width}x${screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: navigator.language,
+        signedAt: new Date().toISOString(),
+        metadata: {
+          colorDepth: screen.colorDepth,
+          platform: navigator.platform,
+          hardwareConcurrency: navigator.hardwareConcurrency,
+          touchSupport: navigator.maxTouchPoints > 0,
+        },
+      }),
+    );
+    if (element.countryCode) {
+      formData.append('countryCode', element.countryCode);
+    } else {
+      console.error('Country code is missing for device:', element);
+    }
+
+    const fileFields: FileType[] = [
+      DocumentType.FORM_SF_02,
+      DocumentType.SF_02C,
+      DocumentType.SF_02C_OWNERS_DECLARATION,
+      DocumentType.METERING_EVIDENCE,
+      DocumentType.SINGLE_LINE_DIAGRAM,
+      DocumentType.PROJECT_PHOTOS,
+      DocumentType.COD_PROOF,
+      DocumentType.OTHER_DOCUMENTS,
+    ];
+
+    const allowedExtensions = [...DOCUMENTS_EXTENSIONS];
+    const maxSizeInMB = 20;
+
+    let allErrors: Record<string, string[]> = {};
+    fileFields.forEach((fileType: FileType) => {
+      const files = this.files[index]?.[fileType];
+      if (files?.length) {
+        const { errors } = validateAndAppendFiles(
+          formData,
+          files,
+          fileType,
+          allowedExtensions,
+          maxSizeInMB,
+          this.toastrService,
+        );
+        if (Object.keys(errors).length > 0) {
+          allErrors = { ...allErrors, ...errors };
+        }
+      }
+    });
+
+    if (Object.keys(allErrors).length > 0) {
+      console.error(
+        'One or more files are invalid. Request will not be sent.',
+        allErrors,
+      );
+      return null;
+    }
+    return formData;
+  }
+
   submitForm() {
     const deviceArray = this.myform.value.devices;
     deviceArray.forEach((element: any, index: number) => {
-      const formData = new FormData();
-      if (this.organizationName != null) {
-        element['organizationId'] = this.organizationId;
-      }
-      const selectedCountry = this.countrylist.find(
-        (option: CountryInfo) => option.country === element.countryCodename,
-      );
-      element['countryCode'] = selectedCountry?.alpha3;
+      // Skip rows already saved via Save & Generate SF-02.
+      if (this.savedDeviceIdByIndex[index] != null) return;
 
-      // Truncate lat/long to 9 decimal places (backend regex limit)
-      if (element.latitude) {
-        const [intLat, decLat] = String(element.latitude).split('.');
-        element.latitude = decLat ? `${intLat}.${decLat.slice(0, 20)}` : intLat;
-      }
-      if (element.longitude) {
-        const [intLng, decLng] = String(element.longitude).split('.');
-        element.longitude = decLng
-          ? `${intLng}.${decLng.slice(0, 20)}`
-          : intLng;
-      }
-
-      // OC#37 is a multi-select in the UI but stored as a '; '-joined string
-      if (Array.isArray(element.labellingSchemeAccreditation)) {
-        element.labellingSchemeAccreditation =
-          element.labellingSchemeAccreditation.join('; ') || null;
-      }
-
-      formData.append('deviceToRegister', JSON.stringify(element));
-
-      // E-signature evidence
-      const canvas = document.createElement('canvas');
-      canvas.width = 200;
-      canvas.height = 50;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.textBaseline = 'top';
-        ctx.font = '14px Arial';
-        ctx.fillText('fingerprint', 2, 2);
-      }
-      const canvasHash = canvas.toDataURL();
-
-      formData.append(
-        'eSignature',
-        JSON.stringify({
-          browserFingerprint: canvasHash
-            ? btoa(canvasHash).substring(0, 64)
-            : null,
-          screenResolution: `${screen.width}x${screen.height}`,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          language: navigator.language,
-          signedAt: new Date().toISOString(),
-          metadata: {
-            colorDepth: screen.colorDepth,
-            platform: navigator.platform,
-            hardwareConcurrency: navigator.hardwareConcurrency,
-            touchSupport: navigator.maxTouchPoints > 0,
-          },
-        }),
-      );
-      if (element.countryCode) {
-        formData.append('countryCode', element.countryCode);
-      } else {
-        console.error('Country code is missing for device:', element);
-      }
-
-      const fileFields: FileType[] = [
-        DocumentType.FORM_SF_02,
-        DocumentType.SF_02C,
-        DocumentType.SF_02C_OWNERS_DECLARATION,
-        DocumentType.METERING_EVIDENCE,
-        DocumentType.SINGLE_LINE_DIAGRAM,
-        DocumentType.PROJECT_PHOTOS,
-        DocumentType.COD_PROOF,
-        DocumentType.OTHER_DOCUMENTS,
-      ];
-
-      const allowedExtensions = [...DOCUMENTS_EXTENSIONS];
-      const maxSizeInMB = 20;
-
-      let allErrors: Record<string, string[]> = {};
-
-      fileFields.forEach((fileType: FileType) => {
-        const files = this.files[index]?.[fileType];
-        if (files?.length) {
-          const { errors } = validateAndAppendFiles(
-            formData,
-            files,
-            fileType,
-            allowedExtensions,
-            maxSizeInMB,
-            this.toastrService,
-          );
-
-          if (Object.keys(errors).length > 0) {
-            allErrors = { ...allErrors, ...errors };
-          }
-        }
-      });
-
-      if (Object.keys(allErrors).length > 0) {
-        console.error(
-          'One or more files are invalid. Request will not be sent.',
-          allErrors,
-        );
+      const formData = this.buildDeviceFormData(element, index);
+      if (!formData) {
         this.submitButtonText = 'Submit';
         this.isSubmitting = false;
         return;

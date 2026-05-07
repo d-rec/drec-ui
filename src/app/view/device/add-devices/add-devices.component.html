@@ -702,10 +702,24 @@
                       </div>
                       <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'FORM_SF_02' }"></ng-container>
                     </div>
-                    <small *ngIf="deviceForms.at(i).get('sf02EvidenceMode')?.value === 'self'"
-                           style="color:#64748b;font-style:italic">
-                      An SF-02 registration form will be generated from the device data during review.
-                    </small>
+                    <div *ngIf="deviceForms.at(i).get('sf02EvidenceMode')?.value === 'self'">
+                      <button type="button" class="btn btn-outline-primary"
+                        (click)="saveAndGenerateSf02(i)"
+                        [disabled]="isGeneratingSf02ByIndex[i]">
+                        <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">picture_as_pdf</mat-icon>
+                        {{ isGeneratingSf02ByIndex[i]
+                            ? (savedDeviceIdByIndex[i] != null ? 'Generating…' : 'Saving…')
+                            : (sf02GeneratedAtByIndex[i] ? 'Re-generate SF-02' : 'Save & Generate SF-02') }}
+                      </button>
+                      <div *ngIf="sf02GeneratedAtByIndex[i] as ts"
+                           style="margin-top:6px;color:#64748b;font-size:12px">
+                        Last generated: {{ ts | date:'dd/MM/yyyy HH:mm' }}
+                      </div>
+                      <small *ngIf="!sf02GeneratedAtByIndex[i]"
+                             style="display:block;margin-top:6px;color:#64748b;font-style:italic">
+                        Saves this device, then renders an SF-02 from the saved data. Bulk Submit will skip this row afterwards.
+                      </small>
+                    </div>
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="(files[i]?.['PROJECT_PHOTOS']?.length || 0) < 3">
