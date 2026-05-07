@@ -322,8 +322,15 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   private ensureCenterPin(latLng?: L.LatLngExpression): void {
     if (this.centerPinMarker || !this.map) return;
     const pos = latLng ?? this.map.getCenter();
+    // The visible centre indicator is the HTML .center-pin element in
+    // the template (sits above .detect-overlay). This Leaflet marker is
+    // kept invisible (CSS .leaflet-center-pin-hidden) but still in the
+    // DOM so captureScreenshot's marker-pane iteration picks it up and
+    // bakes the pin into the saved image.
+    const icon = mapPinIcon();
+    (icon.options as any).className = 'leaflet-center-pin-hidden';
     this.centerPinMarker = L.marker(pos, {
-      icon: mapPinIcon(),
+      icon,
       interactive: false,
       zIndexOffset: 1000,
     }).addTo(this.map);

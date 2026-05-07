@@ -34,6 +34,15 @@
   z-index: 10000 !important;
 }
 
+// Hide the Leaflet centre-pin marker visually. The HTML .center-pin
+// element handles live display (above the detect overlay); this marker
+// stays in the DOM so captureScreenshot can serialise its SVG into the
+// saved image. visibility:hidden keeps getBoundingClientRect working,
+// which the screenshot positioning depends on.
+::ng-deep .leaflet-marker-icon.leaflet-center-pin-hidden {
+  visibility: hidden;
+}
+
 .map {
   height: 100%;
   width: 100%;
