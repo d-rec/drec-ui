@@ -465,7 +465,6 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
             value: fmt(d.offGridCircumstances),
           },
           { label: 'Version', value: fmt(d.version) },
-          { label: 'Yield Value', value: fmt(d.yieldValue) },
           { label: 'Meter Read Type', value: fmt(d.meterReadtype) },
         ],
       },

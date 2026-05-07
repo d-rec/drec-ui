@@ -24,7 +24,6 @@ export interface Device {
   operatingConfiguration?: string;
   sourceAccessMode?: string;
   offTaker: string;
-  yieldValue: number;
   impactStory?: string;
   images?: string[];
   groupId?: number | null;

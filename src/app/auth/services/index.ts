@@ -4,7 +4,6 @@ export * from './meter-read.service';
 export * from './organization.service';
 export * from './device-group.service';
 export * from './user.service';
-export * from './yieldConfiguration.service';
 export * from './blockchain-drec.service';
 export * from './admin.service';
 export * from './invitation.service';

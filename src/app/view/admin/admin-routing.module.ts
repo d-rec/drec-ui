@@ -16,13 +16,6 @@ const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent },
   {
-    path: 'yield',
-    loadChildren: () =>
-      import('../yieldconfiguration/yieldconfiguration.module').then(
-        (m) => m.YieldconfigurationModule,
-      ),
-  },
-  {
     path: 'All_organization',
     component: AdminOrganizationComponent,
   },
