@@ -825,51 +825,6 @@
     </div>
   </app-ds-floating-window>
 
-  <!-- ── SF-02 Preview / Confirmation modal ────────────────────────── -->
-  <div class="modal-backdrop" *ngIf="showSf02Preview" role="dialog" aria-modal="true" (click)="cancelSf02Generation()" (keydown.escape)="cancelSf02Generation()">
-    <div class="modal-box modal-box--wide" role="document" (click)="$event.stopPropagation()">
-      <button type="button" class="modal-close" (click)="cancelSf02Generation()" aria-label="Close">&times;</button>
-      <p class="modal-msg" style="font-weight: 600;" [style.color]="sf02MissingRequired ? '#991b1b' : ''">
-        {{ sf02MissingRequired ? 'Cannot Generate SF-02 — Missing Documents' : 'Generate SF-02 Registration Form' }}
-      </p>
-      <p *ngIf="!sf02MissingRequired" style="color: #64748b; font-size: 12px; margin: 0 0 16px;">Review the data below. This will be included in the generated PDF.</p>
-
-      <div *ngIf="sf02PreviewLoading" style="text-align:center; padding: 24px; color: #64748b;">
-        Loading preview…
-      </div>
-
-      <ng-container *ngIf="!sf02PreviewLoading && sf02PreviewFields.length > 0">
-        <table class="cod-preview-table">
-          <tr *ngFor="let f of sf02PreviewFields" [class.cod-preview-table--empty]="f.value === '—' || f.value === 'Not specified'">
-            <td class="cod-preview-table__label">{{ f.label }}</td>
-            <td class="cod-preview-table__value">{{ f.value }}</td>
-          </tr>
-        </table>
-
-        <p style="font-weight: 600; font-size: 12px; margin: 16px 0 6px; color: #334155;">Documents</p>
-        <div class="cod-preview-docs">
-          <span *ngFor="let d of sf02PreviewDocs" class="cod-preview-doc"
-            [class.cod-preview-doc--present]="d.present"
-            [class.cod-preview-doc--missing]="!d.present && d.required"
-            [class.cod-preview-doc--optional]="!d.present && !d.required">
-            {{ d.present ? '✓' : '✗' }} {{ d.type | titlecase }}{{ !d.required ? ' (optional)' : '' }}
-          </span>
-        </div>
-      </ng-container>
-
-      <p *ngIf="!sf02PreviewLoading && sf02MissingRequired"
-         style="color: #991b1b; font-size: 12px; margin: 12px 0 0; font-weight: 500;">
-        Required documents are missing — upload them before generating the SF-02 form.
-      </p>
-
-      <div class="modal-actions" style="margin-top: 20px;">
-        <button class="btn btn-outline-secondary btn-sm" (click)="cancelSf02Generation()">Cancel</button>
-        <button class="btn btn-outline-secondary btn-sm" (click)="confirmSf02Generation()"
-          [disabled]="sf02PreviewLoading || sf02MissingRequired">Generate SF-02</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ── SLD Capacity Compare (floating report VA layer) ────────── -->
   <app-ds-floating-window
     *ngIf="showSldModal"

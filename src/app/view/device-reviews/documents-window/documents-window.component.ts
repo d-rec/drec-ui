@@ -62,17 +62,6 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     this.searchTerm$.next(v);
   }
 
-  generatingSf02: Record<string, boolean> = {};
-  showSf02Preview = false;
-  sf02PreviewLoading = false;
-  sf02PreviewItem: Asset | null = null;
-  sf02PreviewFields: Array<{ label: string; value: string }> = [];
-  sf02PreviewDocs: Array<{
-    type: string;
-    present: boolean;
-    required: boolean;
-  }> = [];
-
   satPreviewEnabled = false;
   satPreview: {
     lat: number;
@@ -2154,82 +2143,6 @@ trustUrl(url: string): SafeUrl {
       | 'otherDocuments',
   ): boolean {
     return this.sectionOpen[id]?.[section] ?? true;
-  }
-
-  // ── SF-02 generation ─────────────────────────────────────────────────────────
-
-  generateSf02(item: Asset, event: Event): void {
-    event.stopPropagation();
-    this.sf02PreviewItem = item;
-    this.sf02PreviewLoading = true;
-    this.sf02PreviewFields = [];
-    this.sf02PreviewDocs = [];
-    this.showSf02Preview = true;
-    this.cdr.markForCheck();
-
-    this.svc.previewSf02(parseInt(item.id, 10)).subscribe({
-      next: (res) => {
-        this.sf02PreviewFields = res.fields;
-        this.sf02PreviewDocs = res.documents;
-        this.sf02PreviewLoading = false;
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.showSf02Preview = false;
-        this.sf02PreviewItem = null;
-        this.sf02PreviewLoading = false;
-        this.toastr.error(
-          err?.error?.message || err?.message || 'unknown error',
-          'Failed to load SF-02 preview',
-        );
-        this.cdr.markForCheck();
-      },
-    });
-  }
-
-  confirmSf02Generation(): void {
-    const item = this.sf02PreviewItem;
-    if (!item) return;
-    this.showSf02Preview = false;
-    this.generatingSf02[item.id] = true;
-    this.cdr.markForCheck();
-
-    this.svc.generateSf02(parseInt(item.id, 10)).subscribe({
-      next: (res) => {
-        item.sf02Url = res.url;
-        this.svc.saveAsset(item);
-        this.generatingSf02[item.id] = false;
-        this.sf02PreviewItem = null;
-        this.snackBar.open('SF-02 registration form generated', '', {
-          duration: 3000,
-        });
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.generatingSf02[item.id] = false;
-        this.sf02PreviewItem = null;
-        this.toastr.error(
-          err?.error?.message || err?.message || 'unknown error',
-          'SF-02 generation failed',
-        );
-        this.cdr.markForCheck();
-      },
-    });
-  }
-
-  get sf02MissingRequired(): boolean {
-    return this.sf02PreviewDocs.some((d) => !d.present && d.required);
-  }
-
-  cancelSf02Generation(): void {
-    this.showSf02Preview = false;
-    this.sf02PreviewItem = null;
-  }
-
-  generateSf02ForSelected(event: Event): void {
-    if (!this.editingId) return;
-    const item = this.svc.assets$.value.find((a) => a.id === this.editingId);
-    if (item) this.generateSf02(item, event);
   }
 
   // ── File handling ─────────────────────────────────────────────────────────────
