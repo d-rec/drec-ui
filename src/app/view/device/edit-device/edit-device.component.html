@@ -495,7 +495,8 @@
                     (mousedown)="$event.stopPropagation()">&times;</button>
                 </div>
                 <div class="classify-running" *ngIf="classifying[docType]">
-                  <small>Classifying...</small>
+                  <span class="barber-pole" aria-hidden="true"></span>
+                  <small>Classifying…</small>
                 </div>
               </ng-template>
 
