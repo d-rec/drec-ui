@@ -6,6 +6,20 @@
     (leafletMapReady)="onMapReady($event)"
   ></div>
   <ng-container *ngIf="satellite">
+    <!--
+      HTML pin rendered above the detection canvas. Leaflet's marker
+      pane lives inside .leaflet-container which has its own stacking
+      context (translate3d on each pane), so the leaflet centre marker
+      can never get above our sibling .detect-overlay regardless of
+      pane z-indexes. This DOM-level pin sidesteps that.
+    -->
+    <div *ngIf="centerPin" class="center-pin" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36">
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 8.25 12 24 12 24S24 20.25 24 12C24 5.373 18.627 0 12 0z"
+              fill="#e53e3e" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="12" cy="12" r="5" fill="#fff" fill-opacity="0.85"/>
+      </svg>
+    </div>
     <canvas
       #overlayCanvas
       class="detect-overlay"

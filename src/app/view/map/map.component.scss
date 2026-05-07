@@ -48,6 +48,9 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s;
+  // Sit above Leaflet's tile pane (z=200) but below its marker pane
+  // (z=600) so the centre pin (with zIndexOffset 1000 → effective
+  // ~1600) renders above the detected-panel mask.
   z-index: 500;
 
   &.visible {

@@ -132,13 +132,15 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   // Region selection state
   predictions: any[] = [];
   selectedRegion: number = -1;
-  private detScaleX = 1;
-  private detScaleY = 1;
-  // Top-left of the captured 1024×1024 image expressed in viewport
-  // container coordinates. Predictions come back in capture-image
-  // pixel space; adding the crop offset places them on the live map.
-  private detCropX = 0;
-  private detCropY = 0;
+  // Capture metadata, kept so that predictions (which arrive in
+  // capture-image pixel coords) can be re-projected onto the live
+  // viewport every time the user pans or zooms — masks track the
+  // ground instead of sliding off when the map moves.
+  private captureCenter: L.LatLng | null = null;
+  private captureZoom = 0;
+  private captureSize = 0;
+  private captureImgW = 0; // image width as the model reported it
+  private captureImgH = 0;
   private deleteBtn: { x: number; y: number; r: number } | null = null;
 
   // Rectangle draw state
@@ -215,7 +217,33 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       });
     }
 
+    // Re-project the panel mask onto the live viewport on any pan/zoom
+    // so detections track the ground (instead of sliding off when the
+    // user explores the map after detecting).
+    if (this.satellite) {
+      const onMapMoved = () => {
+        if (this.predictions.length && this.overlayCanvas) {
+          this.resizeAndRedraw();
+        }
+      };
+      this.map.on('move', onMapMoved);
+      this.map.on('zoom', onMapMoved);
+      this.map.on('moveend', onMapMoved);
+      this.map.on('zoomend', onMapMoved);
+    }
+
     this.update();
+  }
+
+  private resizeAndRedraw(): void {
+    if (!this.overlayCanvas) return;
+    const mapEl = this.map.getContainer();
+    const canvas = this.overlayCanvas.nativeElement;
+    if (canvas.width !== mapEl.offsetWidth || canvas.height !== mapEl.offsetHeight) {
+      canvas.width = mapEl.offsetWidth;
+      canvas.height = mapEl.offsetHeight;
+    }
+    this.redrawDetections();
   }
 
   /** Force crossorigin="anonymous" on every tile <img> so canvas capture works. */
@@ -462,6 +490,43 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     this.detectError = '';
   }
 
+  /**
+   * Convert a capture-image pixel coordinate (0..captureImgW × 0..H)
+   * back to a viewport container pixel for the current map state. Lets
+   * predictions stay glued to the ground when the user pans/zooms after
+   * detection — image px → global Web-Mercator px at captureZoom →
+   * latLng → live container point.
+   */
+  private imagePxToContainer(
+    px: number,
+    py: number,
+  ): { x: number; y: number } {
+    if (!this.captureCenter || !this.map || !this.captureImgW || !this.captureSize) {
+      return { x: 0, y: 0 };
+    }
+    const TILE = 256;
+    const HALF = this.captureSize / 2;
+    const z = this.captureZoom;
+    const sinLat = Math.sin((this.captureCenter.lat * Math.PI) / 180);
+    const centerPxX =
+      ((this.captureCenter.lng + 180) / 360) * Math.pow(2, z) * TILE;
+    const centerPxY =
+      (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) *
+      Math.pow(2, z) *
+      TILE;
+    const globalPxX =
+      centerPxX - HALF + (px / this.captureImgW) * this.captureSize;
+    const globalPxY =
+      centerPxY - HALF + (py / this.captureImgH) * this.captureSize;
+    const lng = (globalPxX / (Math.pow(2, z) * TILE)) * 360 - 180;
+    const n =
+      Math.PI - 2 * Math.PI * (globalPxY / (Math.pow(2, z) * TILE));
+    const lat =
+      (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+    const cp = this.map.latLngToContainerPoint([lat, lng]);
+    return { x: cp.x, y: cp.y };
+  }
+
   private async captureAndDetect(): Promise<void> {
     if (!this.map) {
       this.detecting = false;
@@ -548,22 +613,18 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     // sits comfortably under the 10MB API body cap.
     const base64 = canvas.toDataURL('image/png').split(',')[1];
 
-    // Where does the 1024×1024 capture sit in the visible map's
-    // container? Image pixel (HALF, HALF) corresponds to the visible
-    // map's container point for the map's current center.
-    const mapEl = this.map.getContainer();
-    const w = mapEl.offsetWidth;
-    const h = mapEl.offsetHeight;
-    const centerPt = this.map.latLngToContainerPoint(center);
-    const cropX = centerPt.x - HALF;
-    const cropY = centerPt.y - HALF;
+    // Capture metadata is enough to re-project predictions onto the
+    // live viewport on any subsequent pan/zoom (see imagePxToContainer).
+    this.captureCenter = center;
+    this.captureZoom = z;
+    this.captureSize = SIZE;
 
     this.http
       .post<any>(`${environment.API_URL}device-reviews/detect-panels`, {
         image: base64,
       })
       .subscribe({
-        next: (data) => this.drawDetections(data, w, h, cropX, cropY, SIZE),
+        next: (data) => this.drawDetections(data),
         error: (err) => {
           this.detectError = 'Detection failed: ' + safeErrorMessage(err);
           this.detecting = false;
@@ -571,29 +632,20 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       });
   }
 
-  private drawDetections(
-    data: any,
-    w: number,
-    h: number,
-    cropX: number,
-    cropY: number,
-    captureSize: number,
-  ): void {
+  private drawDetections(data: any): void {
+    const mapEl = this.map.getContainer();
     const canvas = this.overlayCanvas.nativeElement;
-    canvas.width = w;
-    canvas.height = h;
+    canvas.width = mapEl.offsetWidth;
+    canvas.height = mapEl.offsetHeight;
 
     const outputs = data?.outputs?.[0];
     const preds = outputs?.predictions?.predictions ?? [];
 
-    // Image dims as the model saw them. Capture is square (SIZE×SIZE),
-    // so a single scale factor suffices.
-    const imgW = outputs?.predictions?.image?.width ?? captureSize;
-    const imgH = outputs?.predictions?.image?.height ?? captureSize;
-    this.detScaleX = captureSize / imgW;
-    this.detScaleY = captureSize / imgH;
-    this.detCropX = cropX;
-    this.detCropY = cropY;
+    // Image dims as the model saw them. Usually equals captureSize but
+    // models occasionally resize to a fixed input; keeping both means
+    // imagePxToContainer interpolates correctly either way.
+    this.captureImgW = outputs?.predictions?.image?.width ?? this.captureSize;
+    this.captureImgH = outputs?.predictions?.image?.height ?? this.captureSize;
 
     this.predictions = preds;
     this.selectedRegion = -1;
@@ -729,8 +781,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const points: { x: number; y: number }[] = pred.points ?? [];
     if (points.length > 2) {
       const scaled = points.map((p: any) => ({
-        x: p.x * this.detScaleX + this.detCropX,
-        y: p.y * this.detScaleY + this.detCropY,
+        ...this.imagePxToContainer(p.x, p.y),
       }));
       let inside = false;
       for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
@@ -747,10 +798,18 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       }
       return inside;
     }
-    const bx = (pred.x - pred.width / 2) * this.detScaleX + this.detCropX;
-    const by = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
-    const bw = pred.width * this.detScaleX;
-    const bh = pred.height * this.detScaleY;
+    const tl = this.imagePxToContainer(
+      pred.x - pred.width / 2,
+      pred.y - pred.height / 2,
+    );
+    const br = this.imagePxToContainer(
+      pred.x + pred.width / 2,
+      pred.y + pred.height / 2,
+    );
+    const bx = tl.x;
+    const by = tl.y;
+    const bw = br.x - tl.x;
+    const bh = br.y - tl.y;
     return mx >= bx && mx <= bx + bw && my >= by && my <= by + bh;
   }
 
@@ -789,15 +848,11 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
 
       if (points.length > 2) {
         ctx.beginPath();
-        ctx.moveTo(
-          points[0].x * this.detScaleX + this.detCropX,
-          points[0].y * this.detScaleY + this.detCropY,
-        );
+        const p0 = this.imagePxToContainer(points[0].x, points[0].y);
+        ctx.moveTo(p0.x, p0.y);
         for (let j = 1; j < points.length; j++) {
-          ctx.lineTo(
-            points[j].x * this.detScaleX + this.detCropX,
-            points[j].y * this.detScaleY + this.detCropY,
-          );
+          const pj = this.imagePxToContainer(points[j].x, points[j].y);
+          ctx.lineTo(pj.x, pj.y);
         }
         ctx.closePath();
         ctx.fillStyle = fill;
@@ -806,10 +861,18 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         ctx.lineWidth = selected ? 3 : 2;
         ctx.stroke();
       } else {
-        const bx = (pred.x - pred.width / 2) * this.detScaleX + this.detCropX;
-        const by = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
-        const bw = pred.width * this.detScaleX;
-        const bh = pred.height * this.detScaleY;
+        const tl = this.imagePxToContainer(
+          pred.x - pred.width / 2,
+          pred.y - pred.height / 2,
+        );
+        const br = this.imagePxToContainer(
+          pred.x + pred.width / 2,
+          pred.y + pred.height / 2,
+        );
+        const bx = tl.x;
+        const by = tl.y;
+        const bw = br.x - tl.x;
+        const bh = br.y - tl.y;
         ctx.fillStyle = fill;
         ctx.fillRect(bx, by, bw, bh);
         ctx.strokeStyle = stroke;
@@ -821,17 +884,18 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       if (selected) {
         let dotX: number, dotY: number;
         if (points.length > 2) {
-          const xs = points.map(
-            (p: any) => p.x * this.detScaleX + this.detCropX,
+          const projected = points.map((p: any) =>
+            this.imagePxToContainer(p.x, p.y),
           );
-          const ys = points.map(
-            (p: any) => p.y * this.detScaleY + this.detCropY,
-          );
-          dotX = Math.max(...xs);
-          dotY = Math.min(...ys);
+          dotX = Math.max(...projected.map((p) => p.x));
+          dotY = Math.min(...projected.map((p) => p.y));
         } else {
-          dotX = (pred.x + pred.width / 2) * this.detScaleX + this.detCropX;
-          dotY = (pred.y - pred.height / 2) * this.detScaleY + this.detCropY;
+          const tr = this.imagePxToContainer(
+            pred.x + pred.width / 2,
+            pred.y - pred.height / 2,
+          );
+          dotX = tr.x;
+          dotY = tr.y;
         }
         const r = 10;
         ctx.beginPath();
