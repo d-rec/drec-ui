@@ -751,10 +751,18 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   private isDuplicate(file: File): boolean {
     return this.duplicateMatch(file) !== null;
   }
-  /** Returns the slot key where this file is already staged, or null. */
+  /** Returns the slot key where this file is already attached (staged
+   *  in this session, OR already saved server-side from a previous edit),
+   *  or null. We can't size-match server-saved docs (we only have the
+   *  filename), so name alone is enough there. */
   private duplicateMatch(file: File): string | null {
     for (const [slot, list] of Object.entries(this.files)) {
       if (list?.some((f: File) => f.name === file.name && f.size === file.size)) {
+        return slot;
+      }
+    }
+    for (const [slot, docs] of Object.entries(this.existingDocs)) {
+      if (docs?.some((d) => d.name === file.name)) {
         return slot;
       }
     }
@@ -765,11 +773,23 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
 
-    const newFiles = Array.from(input.files).filter((f) => !this.isDuplicate(f));
-    if (newFiles.length < input.files.length) {
-      this.toastrService.info(`${input.files.length - newFiles.length} duplicate file(s) skipped`);
+    const skipped: string[] = [];
+    const newFiles: File[] = [];
+    for (const f of Array.from(input.files)) {
+      const where = this.duplicateMatch(f);
+      if (where) skipped.push(`${f.name} (already in ${where})`);
+      else newFiles.push(f);
     }
-    if (newFiles.length === 0) return;
+    if (skipped.length) {
+      this.toastrService.info(
+        `Skipped: ${skipped.join('; ')}`,
+        'Files can only live in one slot',
+      );
+    }
+    if (newFiles.length === 0) {
+      input.value = '';
+      return;
+    }
 
     this.files[fileType] = newFiles;
 

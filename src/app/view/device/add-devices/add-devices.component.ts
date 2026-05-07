@@ -740,14 +740,18 @@ export class AddDevicesComponent implements OnDestroy {
 
   /** Check if a file with the same name already exists in any slot for this device. */
   private isDuplicate(deviceIndex: number, file: File): boolean {
+    return this.duplicateMatch(deviceIndex, file) !== null;
+  }
+  /** Returns the slot key where this file is already staged, or null. */
+  private duplicateMatch(deviceIndex: number, file: File): string | null {
     const deviceFiles = this.files[deviceIndex];
-    if (!deviceFiles) return false;
-    for (const slot of Object.values(deviceFiles)) {
-      if (slot?.some((f: File) => f.name === file.name && f.size === file.size)) {
-        return true;
+    if (!deviceFiles) return null;
+    for (const [slot, list] of Object.entries(deviceFiles)) {
+      if (list?.some((f: File) => f.name === file.name && f.size === file.size)) {
+        return slot;
       }
     }
-    return false;
+    return null;
   }
 
   onFileChange(event: Event, deviceIndex: number, fileType: FileType) {
@@ -771,10 +775,18 @@ export class AddDevicesComponent implements OnDestroy {
       'METERING_EVIDENCE',
       'OTHER_DOCUMENTS',
     ];
-    const newFiles = Array.from(files).filter((f) => !this.isDuplicate(deviceIndex, f));
-    if (newFiles.length < files.length) {
-      const skipped = files.length - newFiles.length;
-      this.toastrService.info(`${skipped} duplicate file(s) skipped`);
+    const skippedNames: string[] = [];
+    const newFiles: File[] = [];
+    for (const f of Array.from(files)) {
+      const where = this.duplicateMatch(deviceIndex, f);
+      if (where) skippedNames.push(`${f.name} (already in ${where})`);
+      else newFiles.push(f);
+    }
+    if (skippedNames.length) {
+      this.toastrService.info(
+        `Skipped: ${skippedNames.join('; ')}`,
+        'Files can only live in one slot',
+      );
     }
     if (newFiles.length === 0) return;
 
