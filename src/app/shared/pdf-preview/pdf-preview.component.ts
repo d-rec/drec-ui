@@ -19,6 +19,7 @@ import { retry, timer } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { OrgApiLicensesService } from '../../auth/services/org-api-licenses.service';
 import { ImageZoomPanDirective } from '../directives/image-zoom-pan.directive';
+import { safeErrorMessage } from '../../utils/safe-error-message';
 
 @Component({
   standalone: true,
@@ -629,8 +630,7 @@ export class PdfPreviewComponent implements OnChanges {
       .subscribe({
         next: (data) => this.handleDetections(data),
         error: (err) => {
-          this.detectError =
-            'Detection failed: ' + (err?.error?.message || err?.message || err);
+          this.detectError = 'Detection failed: ' + safeErrorMessage(err);
           this.detecting = false;
           this.cdr.detectChanges();
         },

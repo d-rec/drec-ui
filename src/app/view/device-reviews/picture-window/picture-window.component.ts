@@ -12,6 +12,7 @@ import { AssetService, OpenPicture } from '../asset.service';
 import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.service';
 import Tesseract from 'tesseract.js';
 import { ImageZoomPanDirective } from '../../../shared/directives/image-zoom-pan.directive';
+import { safeErrorMessage } from '../../../utils/safe-error-message';
 
 @Component({
   standalone: false,
@@ -392,8 +393,7 @@ export class PictureWindowComponent implements OnInit {
     this.svc.detectPanels(base64).subscribe({
       next: (data) => this.drawDetections(data),
       error: (err) => {
-        this.detectError =
-          'Detection failed: ' + (err?.error?.message || err?.message || err);
+        this.detectError = 'Detection failed: ' + safeErrorMessage(err);
         this.detecting = false;
       },
     });

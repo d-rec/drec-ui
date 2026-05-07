@@ -18,6 +18,7 @@ import { AssetService } from '../asset.service';
 import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.service';
 import { SatellitePreviewComponent } from '../../../shared/satellite-preview/satellite-preview.component';
 import { mapPinIcon } from '../../../shared/map-pin';
+import { safeErrorMessage } from '../../../utils/safe-error-message';
 
 const STATUS_COLOR: Record<string, string> = {
   approved: '#22c55e',
@@ -640,8 +641,7 @@ export class SatelliteWindowComponent
       next: (data) =>
         this.drawDetections(data, w, h, cropX, cropY, SIZE, SIZE),
       error: (err) => {
-        this.detectError =
-          'Detection failed: ' + (err?.error?.message || err?.message || err);
+        this.detectError = 'Detection failed: ' + safeErrorMessage(err);
         this.detecting = false;
         this.cdr.markForCheck();
       },

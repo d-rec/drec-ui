@@ -17,6 +17,7 @@ import * as piexif from 'piexifjs';
 import { environment } from '../../../environments/environment';
 import { SatellitePreviewComponent } from '../../shared/satellite-preview/satellite-preview.component';
 import { mapPinIcon } from '../../shared/map-pin';
+import { safeErrorMessage } from '../../utils/safe-error-message';
 
 export interface MapMarker {
   latitude: number;
@@ -540,8 +541,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         next: (data) =>
           this.drawDetections(data, w, h, cropX, cropY, cropW, cropH),
         error: (err) => {
-          this.detectError =
-            'Detection failed: ' + (err?.error?.message || err?.message || err);
+          this.detectError = 'Detection failed: ' + safeErrorMessage(err);
           this.detecting = false;
         },
       });
@@ -580,12 +580,23 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       const hint = hasOutputs && hasImage
         ? 'Model ran but found 0 panels. Try zooming in (z19+), recentering, or wait for satellite tiles to fully load.'
         : 'Unexpected model response (no `outputs[0].predictions`).';
+      // Strip long string fields (base64 image data, etc.) before
+      // dumping the response — Roboflow workflows return annotated
+      // images embedded in the JSON, and a 1500-char slice still
+      // pastes a wall of base64 into the error toast.
       let raw = '';
       try {
-        raw = JSON.stringify(data, null, 2);
+        raw = JSON.stringify(
+          data,
+          (_k, v) =>
+            typeof v === 'string' && v.length > 80
+              ? `[${v.length} chars omitted]`
+              : v,
+          2,
+        );
         if (raw.length > 1500) raw = raw.slice(0, 1500) + '\n…[truncated]';
       } catch {
-        raw = String(data);
+        raw = '(unstringifiable)';
       }
       this.detectError = `${hint}\n\nRoboflow response:\n${raw}`;
       this.detecting = false;
