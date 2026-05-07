@@ -52,7 +52,9 @@ $legacy:   #a0845c;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    background: $bg;
+    // Was $bg (slate); below the last row the empty space looked like
+    // a dead grey strip. Transparent lets the page bg show through.
+    background: transparent;
   }
 
   &__resize-handle {
