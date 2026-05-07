@@ -252,15 +252,16 @@
                             [ngModelOptions]="{standalone: true}"
                             matTooltip="Please provide the serial numbers for all devices from which metering evidence will be shared (e.g. inverters, smart meter, etc.)."
                             matTooltipPosition="above" />
+                          <button *ngIf="getSerialNumbers(i).length > 1"
+                            type="button"
+                            matSuffix
+                            mat-icon-button
+                            class="serial-list__remove"
+                            (click)="removeSerialNumber(i, j)"
+                            title="Remove">
+                            <mat-icon>close</mat-icon>
+                          </button>
                         </mat-form-field>
-                        <button *ngIf="getSerialNumbers(i).length > 1"
-                          type="button"
-                          mat-icon-button
-                          class="serial-list__remove"
-                          (click)="removeSerialNumber(i, j)"
-                          title="Remove">
-                          <mat-icon>close</mat-icon>
-                        </button>
                       </div>
                       <button type="button"
                         mat-stroked-button

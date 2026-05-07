@@ -203,15 +203,16 @@
                         [ngModel]="s"
                         (ngModelChange)="setSerialNumber(j, $event)"
                         [ngModelOptions]="{standalone: true}" />
+                      <button *ngIf="getSerialNumbers().length > 1"
+                        type="button"
+                        matSuffix
+                        mat-icon-button
+                        class="serial-list__remove"
+                        (click)="removeSerialNumber(j)"
+                        title="Remove">
+                        <mat-icon>close</mat-icon>
+                      </button>
                     </mat-form-field>
-                    <button *ngIf="getSerialNumbers().length > 1"
-                      type="button"
-                      mat-icon-button
-                      class="serial-list__remove"
-                      (click)="removeSerialNumber(j)"
-                      title="Remove">
-                      <mat-icon>close</mat-icon>
-                    </button>
                   </div>
                   <button type="button"
                     mat-stroked-button
