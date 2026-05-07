@@ -45,8 +45,18 @@ export class DocumentClassifierService {
     if (fnResult) return fnResult;
 
     try {
-      const canvas = await this.renderFirstPage(file);
-      const text = await this.ocrCanvas(canvas);
+      // For generated PDFs, the text layer is lossless — read it
+      // directly and skip OCR. OCR-on-rasterized-text mangles
+      // apostrophes, ligatures, and tight kerning, which can drop
+      // the keyword score below threshold even on perfect input.
+      let text = '';
+      if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+        text = await this.extractPdfTextLayer(file);
+      }
+      if (!text || text.trim().length < 10) {
+        const canvas = await this.renderFirstPage(file);
+        text = await this.ocrCanvas(canvas);
+      }
       if (!text || text.trim().length < 10) {
         // OCR failed — for images, default to PROJECT_PHOTOS
         if (file.type.startsWith('image/')) {
@@ -221,6 +231,39 @@ export class DocumentClassifierService {
       return canvas;
     } finally {
       URL.revokeObjectURL(url);
+    }
+  }
+
+  /**
+   * Pull the embedded text layer from the first 2 pages of a PDF.
+   * Generated PDFs (letters, exports) ship lossless text — no need to
+   * raster + OCR it. Returns '' if the text layer is empty / scanned.
+   */
+  private async extractPdfTextLayer(file: File): Promise<string> {
+    try {
+      let pdfjs = (window as any).pdfjsLib;
+      if (!pdfjs) {
+        pdfjs = await import('pdfjs-dist' as any);
+      }
+      pdfjs.GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.js';
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjs.getDocument({
+        data: new Uint8Array(arrayBuffer),
+      }).promise;
+      const pageCount = Math.min(pdf.numPages, 2);
+      const chunks: string[] = [];
+      for (let p = 1; p <= pageCount; p++) {
+        const page = await pdf.getPage(p);
+        const tc = await page.getTextContent();
+        const pageText = tc.items
+          .map((it: any) => (typeof it.str === 'string' ? it.str : ''))
+          .join(' ');
+        chunks.push(pageText);
+      }
+      return chunks.join('\n');
+    } catch (err) {
+      console.warn('[DocumentClassifier] text-layer extract failed:', err);
+      return '';
     }
   }
 
