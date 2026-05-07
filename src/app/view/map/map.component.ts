@@ -124,6 +124,9 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   showDetectConfirm = false;
   panelCount = 0;
   detectError = '';
+  // True while one or more satellite tiles are still fetching for the
+  // current viewport. Detection works best after this returns to false.
+  tilesLoading = false;
 
   // Region selection state
   predictions: any[] = [];
@@ -1084,13 +1087,32 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private createSatelliteLayer(): L.TileLayer {
-    return L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-      minZoom: 3,
-      maxZoom: 21,
-      noWrap: true,
-      attribution: '&copy; Google',
-      crossOrigin: true,
-    } as any);
+    const layer = L.tileLayer(
+      'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+      {
+        minZoom: 3,
+        maxZoom: 21,
+        noWrap: true,
+        attribution: '&copy; Google',
+        crossOrigin: true,
+      } as any,
+    );
+    // 'loading' fires when one+ tiles start fetching after a pan/zoom;
+    // 'load' fires when every visible tile has finished (or errored).
+    // The detect-panels hint tells users to wait for tiles to fully
+    // load — gate that visibly so they know when "ready" actually means
+    // ready.
+    layer.on('loading', () => {
+      this.zone.run(() => {
+        this.tilesLoading = true;
+      });
+    });
+    layer.on('load', () => {
+      this.zone.run(() => {
+        this.tilesLoading = false;
+      });
+    });
+    return layer;
   }
 
   // --- Markers ---

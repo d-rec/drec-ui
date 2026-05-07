@@ -22,9 +22,10 @@
         type="button"
         class="detect-btn"
         (click)="detectPanels()"
-        [disabled]="detecting"
+        [disabled]="detecting || tilesLoading"
+        [title]="tilesLoading ? 'Waiting for satellite tiles to finish loading' : ''"
       >
-        {{ detecting ? 'Scanning...' : showOverlay ? 'Re-scan' : '⚡ Detect Panels' }}
+        {{ detecting ? 'Scanning...' : tilesLoading ? 'Loading tiles…' : showOverlay ? 'Re-scan' : '⚡ Detect Panels' }}
       </button>
       <button
         type="button"
