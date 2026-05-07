@@ -1698,6 +1698,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         if (this.scanCancelled) break;
         total++;
         const fname = this.fileName(url);
+        this.classifyCurrentFile = fname;
         try {
           const freshUrl = await this.svc.refreshUrl(url);
           const resp = await fetch(freshUrl);
@@ -1744,6 +1745,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         }
       }
     }
+    this.classifyCurrentFile = null;
 
     const subItems: Array<{
       label: string;
@@ -3685,6 +3687,7 @@ trustUrl(url: string): SafeUrl {
   showClassifyModal = false;
   classifyRunning = false;
   classifyTotal = 0;
+  classifyCurrentFile: string | null = null;
   private classifyCancelled = false;
   classifyResults: Array<{
     slot: string;
