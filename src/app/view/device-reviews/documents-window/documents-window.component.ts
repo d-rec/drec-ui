@@ -463,7 +463,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     // ─ Site Verification ─
     {
       key: 'photoGps',
-      label: 'Photo GPS Location',
+      label: 'Photo EXIF GPS',
       description: 'Verify photo EXIF GPS matches declared device location',
       enabled: true,
       group: 'site',
@@ -1251,11 +1251,6 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                 status: 'pass' | 'warn' | 'fail' | 'info';
                 detail?: string;
               }> = [];
-              subItems.push({
-                label: 'Photos analyzed',
-                status: 'info',
-                detail: `${total} total, ${withGps} with GPS EXIF data`,
-              });
               if (res.declaredLocation) {
                 subItems.push({
                   label: 'Declared location',
