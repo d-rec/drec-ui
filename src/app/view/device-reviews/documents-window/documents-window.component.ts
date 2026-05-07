@@ -681,6 +681,10 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
             () => {
               this.sharingReport = false;
               this.toast(`Verification report sent to ${registrantEmail}`);
+              // Skip the 4s polling lag — push the new message into the
+              // open chat window immediately if it's pointed at this
+              // conversation.
+              this.chatService.refreshOpenChain();
             },
             (err) => {
               this.sharingReport = false;

@@ -156,6 +156,17 @@ export class ChatService implements OnDestroy {
     });
   }
 
+  /**
+   * Force an immediate refetch of whichever conversation is currently
+   * open. Used after side-channel writes (Share Verification Report)
+   * to skip the 4s polling delay before the new message shows up.
+   */
+  refreshOpenChain(): void {
+    if (this.currentHeadUuid) {
+      this.loadChain(this.currentHeadUuid);
+    }
+  }
+
   getChain(headUuid: string): Observable<ChatMessage[]> {
     return this.http.get<ChatMessage[]>(`${this.apiUrl}chat/chain/${headUuid}`);
   }
