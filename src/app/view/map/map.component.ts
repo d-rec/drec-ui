@@ -444,10 +444,12 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
 
   /**
    * 3×3 sharpen convolution applied in-place to the encode canvas.
-   *   0 -1  0
-   *  -1  5 -1
-   *   0 -1  0
+   *  -1 -1 -1
+   *  -1  9 -1
+   *  -1 -1 -1
    * Operates on the raw RGBA buffer; alpha is preserved untouched.
+   * Stronger than the 5-center cross so the effect is visible on
+   * satellite imagery (the previous kernel was too subtle to see).
    */
   private applySharpen(
     ctx: CanvasRenderingContext2D,
@@ -458,18 +460,21 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const dst = ctx.createImageData(w, h);
     const s = src.data;
     const d = dst.data;
+    const stride = w * 4;
     for (let y = 1; y < h - 1; y++) {
       for (let x = 1; x < w - 1; x++) {
         const i = (y * w + x) * 4;
-        const top = i - w * 4;
-        const bot = i + w * 4;
         for (let c = 0; c < 3; c++) {
           const v =
-            5 * s[i + c] -
+            9 * s[i + c] -
             s[i - 4 + c] -
             s[i + 4 + c] -
-            s[top + c] -
-            s[bot + c];
+            s[i - stride - 4 + c] -
+            s[i - stride + c] -
+            s[i - stride + 4 + c] -
+            s[i + stride - 4 + c] -
+            s[i + stride + c] -
+            s[i + stride + 4 + c];
           d[i + c] = v < 0 ? 0 : v > 255 ? 255 : v;
         }
         d[i + 3] = s[i + 3];

@@ -108,6 +108,17 @@
     }
   }
 
+  // Toggled-on state for stateful buttons (Draw, Sharpen). Visually
+  // obvious so users can tell at a glance whether the mode is active.
+  &--active {
+    background: #f59e0b;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f59e0b;
+
+    &:hover:not(:disabled) {
+      background: #d97706;
+    }
+  }
+
   &--delete {
     background: #dc2626;
 
