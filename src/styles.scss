@@ -1112,3 +1112,17 @@ hr {
 ::-webkit-scrollbar-thumb:hover {
   background: $color-muted;
 }
+
+// Hide the native up/down spinner arrows on every <input type="number">.
+// The forms use plain text entry; the spinners just clutter compact
+// fields. Wheel-scroll-to-change still works.
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
