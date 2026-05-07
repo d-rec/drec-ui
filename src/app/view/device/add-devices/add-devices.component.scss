@@ -146,15 +146,21 @@
       height: auto !important;
       min-height: 0 !important;
     }
+    // Override align-items: center inherited from the compact rule —
+    // we need stretch so the form-field-flex sizes to the textarea
+    // (otherwise the outline shrinks to the row height and the
+    // textarea overflows below the border, with the resize handle
+    // sitting outside the outline).
+    .mat-mdc-form-field-flex {
+      align-items: stretch !important;
+    }
     .mat-mdc-form-field-infix {
       padding-top: 16px !important;
       padding-bottom: 8px !important;
-      display: flex; // contain the textarea so it can't bleed above
     }
     // Material's outline parts inherit Material's container-height
     // variable plus a 40px floor; force them to span the full grown
-    // height so the border encloses the textarea instead of just the
-    // label row.
+    // height so the border encloses the textarea + resize handle.
     .mdc-notched-outline {
       display: flex;
       align-items: stretch;
@@ -163,11 +169,12 @@
     .mdc-notched-outline__leading,
     .mdc-notched-outline__notch,
     .mdc-notched-outline__trailing {
-      height: auto;
-      align-self: stretch;
+      height: auto !important;
+      align-self: stretch !important;
     }
     textarea.mat-mdc-input-element {
       box-sizing: border-box;
+      display: block;
       width: 100%;
       min-height: 96px;
       max-height: 280px;

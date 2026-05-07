@@ -129,10 +129,13 @@
       height: auto !important;
       min-height: 0 !important;
     }
+    // Override align-items: center inherited from the compact rule.
+    .mat-mdc-form-field-flex {
+      align-items: stretch !important;
+    }
     .mat-mdc-form-field-infix {
       padding-top: 16px !important;
       padding-bottom: 8px !important;
-      display: flex;
     }
     .mdc-notched-outline {
       display: flex;
@@ -142,11 +145,12 @@
     .mdc-notched-outline__leading,
     .mdc-notched-outline__notch,
     .mdc-notched-outline__trailing {
-      height: auto;
-      align-self: stretch;
+      height: auto !important;
+      align-self: stretch !important;
     }
     textarea.mat-mdc-input-element {
       box-sizing: border-box;
+      display: block;
       width: 100%;
       min-height: 96px;
       max-height: 280px;
