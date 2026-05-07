@@ -1635,6 +1635,11 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
         total++;
         const fname = this.fileName(url);
         this.classifyCurrentFile = fname;
+        // Surface the live filename in the running scan-log entry too,
+        // so the verify dialog (not just the standalone classify modal)
+        // shows progress during the long-ish per-file work.
+        const runningEntry = this.scanLog.find((e) => e.key === 'classify');
+        if (runningEntry) runningEntry.detail = `Classifying ${fname}…`;
         try {
           const freshUrl = await this.svc.refreshUrl(url);
           const resp = await fetch(freshUrl);
