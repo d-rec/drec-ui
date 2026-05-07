@@ -39,6 +39,7 @@ import { RegistrantClientReponseComponent } from './view/registrant-client-repon
 import * as Sentry from '@sentry/angular';
 import { SharedModule } from './shared.module';
 import { provideNgxMatMomentDate } from '@ngxmc/moment-adapter';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
@@ -126,6 +127,9 @@ import { WorldGlobeComponent } from './view/login/world-globe/world-globe.compon
   ],
   providers: [
     provideNgxMatMomentDate(),
+    // dd/MM/yyyy across the app (matches the date pipe usage everywhere
+    // else in the templates) instead of the browser's default M/D/YYYY.
+    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     {
       provide: ErrorHandler,
