@@ -525,12 +525,14 @@
                       </mat-select>
                     </mat-form-field>
                   </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label class="text-capitalize">(39) impact Story</mat-label>
-                      <textarea matInput formControlName="impactStory" test-id="impact-story" rows="3" autocomplete="off"
+                  <div class="col-md-12">
+                    <mat-form-field appearance="outline" class="w-100 impact-story-field">
+                      <mat-label class="text-capitalize">(39) Impact Story</mat-label>
+                      <textarea matInput formControlName="impactStory" test-id="impact-story"
+                        rows="4" autocomplete="off"
                         matTooltip="Describe the social, environmental, or economic impact of this device. For example: number of households served, displacement of diesel generators, improvement in local air quality, support for livelihoods, or contribution to community electrification goals."
-                        matTooltipPosition="above"></textarea>
+                        matTooltipPosition="above"
+                        style="display:block;width:100%;box-sizing:border-box;resize:vertical;min-height:96px;max-height:280px;overflow-y:scroll;line-height:1.4;font-family:inherit;white-space:pre-wrap;word-break:break-word"></textarea>
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
