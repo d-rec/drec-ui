@@ -887,6 +887,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
               const passes = res.sections.filter(
                 (s: any) => s.status === 'pass',
               ).length;
+              const skips = res.sections.filter(
+                (s: any) => s.status === 'skip',
+              ).length;
               const subItems: Array<{
                 label: string;
                 status: 'pass' | 'warn' | 'fail' | 'info';
@@ -900,9 +903,13 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                   detail: flagList || s.detail || s.message || undefined,
                 });
               }
+              const parts: string[] = [`${passes} pass`];
+              if (warns) parts.push(`${warns} warn`);
+              if (fails) parts.push(`${fails} fail`);
+              if (skips) parts.push(`${skips} skip`);
               resolve({
                 status: res.overallStatus,
-                detail: `${passes} pass, ${warns} warn, ${fails} fail out of ${res.sections.length} checks`,
+                detail: `${parts.join(', ')} out of ${res.sections.length} checks`,
                 subItems,
               });
             },
