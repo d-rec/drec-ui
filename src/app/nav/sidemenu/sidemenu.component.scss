@@ -173,7 +173,8 @@ mat-nav-list {
 ::ng-deep
   .mat-expansion-panel-header.mat-expanded
   .mat-expansion-indicator::before {
-  transform: rotate(90deg);
+  // Expanded state: tip points DOWN (was rotating to UP).
+  transform: rotate(-90deg);
 }
 
 .mdc-button {
