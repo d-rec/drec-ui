@@ -249,6 +249,10 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       this.map.on('zoom', onMapMoved);
       this.map.on('moveend', onMapMoved);
       this.map.on('zoomend', onMapMoved);
+
+      // Region select on map click (canvas stays pointer-events:none so
+      // map drag works for centre-pin adjustment).
+      this.map.on('click', (e: L.LeafletMouseEvent) => this.handleMapClick(e));
     }
 
     this.update();
@@ -739,7 +743,11 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onRegionClick(event: MouseEvent): void {
-    if (!this.predictions.length || this.drawMode) return;
+    // Used only while drawMode is on (the canvas captures pointer events
+    // in that mode for rectangle drawing). For the normal panel-select
+    // path, see handleMapClick — fired by Leaflet's 'click' event so the
+    // map stays draggable for centre-pin adjustment.
+    if (!this.predictions.length || !this.drawMode) return;
     const canvas = this.overlayCanvas.nativeElement;
     const rect = canvas.getBoundingClientRect();
     const cssToCanvasX = canvas.width / rect.width;
@@ -748,6 +756,58 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const y = (event.clientY - rect.top) * cssToCanvasY;
 
     // Check × button first
+    if (this.deleteBtn && this.selectedRegion >= 0) {
+      const dx = x - this.deleteBtn.x;
+      const dy = y - this.deleteBtn.y;
+      if (dx * dx + dy * dy <= this.deleteBtn.r * this.deleteBtn.r) {
+        this.predictions = this.predictions.filter(
+          (_: any, i: number) => i !== this.selectedRegion,
+        );
+        this.selectedRegion = -1;
+        this.deleteBtn = null;
+        this.panelCount = this.predictions.length;
+        const ctx = canvas.getContext('2d')!;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (this.panelCount === 0) {
+          this.showOverlay = false;
+        } else {
+          this.redrawDetections();
+        }
+        return;
+      }
+    }
+
+    for (let i = this.predictions.length - 1; i >= 0; i--) {
+      if (this.regionHitTest(this.predictions[i], x, y)) {
+        this.selectedRegion = this.selectedRegion === i ? -1 : i;
+        this.redrawDetections();
+        return;
+      }
+    }
+    if (this.selectedRegion >= 0) {
+      this.selectedRegion = -1;
+      this.deleteBtn = null;
+      this.redrawDetections();
+    }
+  }
+
+  /**
+   * Region select / × button hit-test for the normal (non-drawMode)
+   * case. Wired to Leaflet's 'click' event so the canvas can stay
+   * pointer-events:none and the centre pin remains adjustable while a
+   * mask is on screen. Coords come from event.containerPoint; the
+   * canvas is sized to the same container so they map directly.
+   */
+  private handleMapClick(event: L.LeafletMouseEvent): void {
+    if (!this.predictions.length || this.drawMode) return;
+    const canvas = this.overlayCanvas?.nativeElement;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const cssToCanvasX = canvas.width / rect.width;
+    const cssToCanvasY = canvas.height / rect.height;
+    const x = event.containerPoint.x * cssToCanvasX;
+    const y = event.containerPoint.y * cssToCanvasY;
+
     if (this.deleteBtn && this.selectedRegion >= 0) {
       const dx = x - this.deleteBtn.x;
       const dy = y - this.deleteBtn.y;

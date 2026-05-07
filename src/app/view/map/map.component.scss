@@ -70,10 +70,10 @@
     opacity: 0.75;
   }
 
-  &.select-active {
-    pointer-events: auto;
-    cursor: grab;
-  }
+  // (region selection is dispatched via map.on('click') — see the
+  // component — so we never enable pointer-events here, otherwise the
+  // canvas would steal Leaflet drag and the centre pin couldn't be
+  // adjusted while a mask is on screen.)
 
   &.draw-active {
     pointer-events: auto;
