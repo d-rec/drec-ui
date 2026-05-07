@@ -1,3 +1,6 @@
 .default-layout-content {
-  padding: 3.5rem 0;
+  // Top padding clears the fixed app-header; the previous bottom 3.5rem
+  // was reserving space for the now-removed footer, leaving a dead
+  // strip below the content.
+  padding: 3.5rem 0 0;
 }
