@@ -72,7 +72,7 @@ import {
 export type DeviceFiles = {
   [DocumentType.FORM_SF_02]: File[];
   [DocumentType.SF_02C]: File[];
-  [DocumentType.SF_02C_OWNERS_DECLARATION]: File[];
+  [DocumentType.PROOF_OF_OWNERSHIP]: File[];
   [DocumentType.METERING_EVIDENCE]: File[];
   [DocumentType.SINGLE_LINE_DIAGRAM]: File[];
   [DocumentType.PROJECT_PHOTOS]: File[];
@@ -231,7 +231,7 @@ export class AddDevicesComponent implements OnDestroy {
   requiredFileTypes: FileType[] = [
     DocumentType.FORM_SF_02,
     DocumentType.SF_02C,
-    DocumentType.SF_02C_OWNERS_DECLARATION,
+    DocumentType.PROOF_OF_OWNERSHIP,
     DocumentType.METERING_EVIDENCE,
     DocumentType.SINGLE_LINE_DIAGRAM,
     DocumentType.PROJECT_PHOTOS,
@@ -406,7 +406,7 @@ export class AddDevicesComponent implements OnDestroy {
       offGridCircumstances: [null],
       FORM_SF_02: [null],
       SF_02C: [null],
-      SF_02C_OWNERS_DECLARATION: [null],
+      PROOF_OF_OWNERSHIP: [null],
       METERING_EVIDENCE: [null],
       SINGLE_LINE_DIAGRAM: [null],
       PROJECT_PHOTOS: [null],
@@ -544,7 +544,7 @@ export class AddDevicesComponent implements OnDestroy {
       offGridCircumstances: [null],
       FORM_SF_02: [null],
       SF_02C: [null],
-      SF_02C_OWNERS_DECLARATION: [null],
+      PROOF_OF_OWNERSHIP: [null],
       METERING_EVIDENCE: [null],
       SINGLE_LINE_DIAGRAM: [null],
       PROJECT_PHOTOS: [null],
@@ -1469,7 +1469,7 @@ export class AddDevicesComponent implements OnDestroy {
     const fileFields: FileType[] = [
       DocumentType.FORM_SF_02,
       DocumentType.SF_02C,
-      DocumentType.SF_02C_OWNERS_DECLARATION,
+      DocumentType.PROOF_OF_OWNERSHIP,
       DocumentType.METERING_EVIDENCE,
       DocumentType.SINGLE_LINE_DIAGRAM,
       DocumentType.PROJECT_PHOTOS,

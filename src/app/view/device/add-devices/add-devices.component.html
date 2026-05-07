@@ -817,32 +817,32 @@
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SF_02C' }"></ng-container>
                   </div>
 
-                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C_OWNERS_DECLARATION') === 'required' && !deviceForms.at(i).get('SF_02C_OWNERS_DECLARATION')?.value">
+                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('PROOF_OF_OWNERSHIP') === 'required' && !deviceForms.at(i).get('PROOF_OF_OWNERSHIP')?.value">
                     <label title="Please provide a copy of the contract with the PV system owner such as a PPA or lease agreement that clarifies who owns the facility and who has the legal right to trade the environmental attributes.">(47) Proof of Ownership
-                      <span class="badge-{{getDocRequirement('SF_02C_OWNERS_DECLARATION')}}">{{getDocRequirement('SF_02C_OWNERS_DECLARATION')}}</span>
+                      <span class="badge-{{getDocRequirement('PROOF_OF_OWNERSHIP')}}">{{getDocRequirement('PROOF_OF_OWNERSHIP')}}</span>
                     </label>
-                    <small class="doc-hint" *ngIf="getDocHint('SF_02C_OWNERS_DECLARATION')">{{getDocHint('SF_02C_OWNERS_DECLARATION')}}</small>
+                    <small class="doc-hint" *ngIf="getDocHint('PROOF_OF_OWNERSHIP')">{{getDocHint('PROOF_OF_OWNERSHIP')}}</small>
                     <div class="d-flex justify-content-between align-items-center doc-box">
-                      <input type="file" #ownersDeclarationFileInput (change)="onFileChange($event, i, DocumentType.SF_02C_OWNERS_DECLARATION)"
+                      <input type="file" #ownersDeclarationFileInput (change)="onFileChange($event, i, DocumentType.PROOF_OF_OWNERSHIP)"
                         style="display: none" test-id="attach-file" />
                       <button type="button" (click)="ownersDeclarationFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('SF_02C_OWNERS_DECLARATION')?.value">
-                        {{ deviceForms.at(i).get('SF_02C_OWNERS_DECLARATION')?.value ?
-                        deviceForms.at(i).get('SF_02C_OWNERS_DECLARATION')?.value.name : '' }}
+                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('PROOF_OF_OWNERSHIP')?.value">
+                        {{ deviceForms.at(i).get('PROOF_OF_OWNERSHIP')?.value ?
+                        deviceForms.at(i).get('PROOF_OF_OWNERSHIP')?.value.name : '' }}
                       </span>
-                      <button *ngIf="filePreviews[i]?.['SF_02C_OWNERS_DECLARATION']" type="button"
+                      <button *ngIf="filePreviews[i]?.['PROOF_OF_OWNERSHIP']" type="button"
                         class="badge bg-success text-white px-3 py-2 preview-btn"
-                        (click)="openPreview(i, 'SF_02C_OWNERS_DECLARATION')">
+                        (click)="openPreview(i, 'PROOF_OF_OWNERSHIP')">
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
-                      <span *ngIf="!deviceForms.at(i).get('SF_02C_OWNERS_DECLARATION')?.value"
+                      <span *ngIf="!deviceForms.at(i).get('PROOF_OF_OWNERSHIP')?.value"
                         class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
                     </div>
-                    <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SF_02C_OWNERS_DECLARATION' }"></ng-container>
+                    <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'PROOF_OF_OWNERSHIP' }"></ng-container>
                   </div>
 
                   <div class="col-md-4 mb-3">

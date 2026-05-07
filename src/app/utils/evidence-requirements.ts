@@ -9,7 +9,7 @@ export type RequirementLevel = 'required' | 'recommended' | 'optional';
 export interface EvidenceRequirements {
   FORM_SF_02: RequirementLevel;
   SF_02C: RequirementLevel;
-  SF_02C_OWNERS_DECLARATION: RequirementLevel;
+  PROOF_OF_OWNERSHIP: RequirementLevel;
   METERING_EVIDENCE: RequirementLevel;
   SINGLE_LINE_DIAGRAM: RequirementLevel;
   PROJECT_PHOTOS: RequirementLevel;
@@ -19,7 +19,7 @@ export interface EvidenceRequirements {
 const DEFAULT_REQUIREMENTS: EvidenceRequirements = {
   FORM_SF_02: 'required',
   SF_02C: 'required',
-  SF_02C_OWNERS_DECLARATION: 'required',
+  PROOF_OF_OWNERSHIP: 'required',
   METERING_EVIDENCE: 'required',
   SINGLE_LINE_DIAGRAM: 'required',
   PROJECT_PHOTOS: 'required',
@@ -50,7 +50,7 @@ export const EVIDENCE_REQUIREMENTS: Record<string, EvidenceRequirements> = {
   [OperatingConfiguration.GridNoExport]: {
     FORM_SF_02: 'required',
     SF_02C: 'required',
-    SF_02C_OWNERS_DECLARATION: 'required',
+    PROOF_OF_OWNERSHIP: 'required',
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
@@ -59,7 +59,7 @@ export const EVIDENCE_REQUIREMENTS: Record<string, EvidenceRequirements> = {
   [OperatingConfiguration.GridPermittedExport]: {
     FORM_SF_02: 'required',
     SF_02C: 'required',
-    SF_02C_OWNERS_DECLARATION: 'required',
+    PROOF_OF_OWNERSHIP: 'required',
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
@@ -68,7 +68,7 @@ export const EVIDENCE_REQUIREMENTS: Record<string, EvidenceRequirements> = {
   [OperatingConfiguration.GridFullExport]: {
     FORM_SF_02: 'required',
     SF_02C: 'required',
-    SF_02C_OWNERS_DECLARATION: 'required',
+    PROOF_OF_OWNERSHIP: 'required',
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
@@ -77,7 +77,7 @@ export const EVIDENCE_REQUIREMENTS: Record<string, EvidenceRequirements> = {
   [OperatingConfiguration.OffGrid]: {
     FORM_SF_02: 'required',
     SF_02C: 'required',
-    SF_02C_OWNERS_DECLARATION: 'required',
+    PROOF_OF_OWNERSHIP: 'required',
     METERING_EVIDENCE: 'recommended',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',
@@ -86,7 +86,7 @@ export const EVIDENCE_REQUIREMENTS: Record<string, EvidenceRequirements> = {
   [OperatingConfiguration.DualModeHybrid]: {
     FORM_SF_02: 'required',
     SF_02C: 'required',
-    SF_02C_OWNERS_DECLARATION: 'required',
+    PROOF_OF_OWNERSHIP: 'required',
     METERING_EVIDENCE: 'required',
     SINGLE_LINE_DIAGRAM: 'required',
     PROJECT_PHOTOS: 'required',

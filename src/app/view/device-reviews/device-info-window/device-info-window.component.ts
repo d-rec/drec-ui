@@ -414,8 +414,8 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
           },
           {
             label: '(47) Proof of Ownership',
-            value: fmtDocs('SF_02C_OWNERS_DECLARATION'),
-            links: linksFor('SF_02C_OWNERS_DECLARATION'),
+            value: fmtDocs('PROOF_OF_OWNERSHIP'),
+            links: linksFor('PROOF_OF_OWNERSHIP'),
           },
           {
             label: '(48) COD Proof',

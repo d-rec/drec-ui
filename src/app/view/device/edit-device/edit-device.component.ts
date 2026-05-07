@@ -53,7 +53,7 @@ import {
 type FileType =
   | DocumentType.FORM_SF_02
   | DocumentType.SF_02C
-  | DocumentType.SF_02C_OWNERS_DECLARATION
+  | DocumentType.PROOF_OF_OWNERSHIP
   | DocumentType.METERING_EVIDENCE
   | DocumentType.SINGLE_LINE_DIAGRAM
   | DocumentType.PROJECT_PHOTOS
@@ -383,7 +383,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   fileTypes: FileType[] = [
     DocumentType.FORM_SF_02,
     DocumentType.SF_02C,
-    DocumentType.SF_02C_OWNERS_DECLARATION,
+    DocumentType.PROOF_OF_OWNERSHIP,
     DocumentType.METERING_EVIDENCE,
     DocumentType.SINGLE_LINE_DIAGRAM,
     DocumentType.PROJECT_PHOTOS,

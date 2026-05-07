@@ -555,10 +555,10 @@ export class ReviewerWorkbenchComponent
     if (a.sf02Url) push('sf02', a.sf02Url, 'Form SF-02', 'SF02', 'ownership');
     if (a.sf02cUrl)
       push('sf02c', a.sf02cUrl, 'Form SF-02C', 'SF02C', 'ownership');
-    if (a.sf02cOwnersDeclarationUrl)
+    if (a.proofOfOwnershipUrl)
       push(
         'sf02c-od',
-        a.sf02cOwnersDeclarationUrl,
+        a.proofOfOwnershipUrl,
         "Owner's Declaration",
         'OD',
         'ownership',

@@ -23,32 +23,48 @@ export const DOCUMENT_KEYWORDS: Partial<
     { pattern: 'installed capacity', weight: 1 },
     { pattern: 'commissioning date', weight: 1 },
   ],
+  // SF_02C is the I-REC Owner's Declaration letter — the formal
+  // attribute-rights declaration on the owner's letterhead. The
+  // "Proof of Ownership" artifact (deed / lease / PPA) lives in
+  // PROOF_OF_OWNERSHIP, below.
   [DocumentType.SF_02C]: [
     { pattern: 'sf-02c', weight: 3 },
     { pattern: 'sf02c', weight: 3 },
+    { pattern: "owner's declaration", weight: 3 },
+    { pattern: 'owners declaration', weight: 3 },
+    { pattern: 'declaration of attribute', weight: 3 },
+    { pattern: 'declaration of ownership', weight: 3 },
+    { pattern: 'attribute generation', weight: 2 },
+    { pattern: 'hereby declare', weight: 2 },
     { pattern: 'i-rec', weight: 2 },
     { pattern: 'irec', weight: 2 },
     { pattern: 'irec declaration', weight: 3 },
+    { pattern: 'environmental attribute', weight: 2 },
+    { pattern: 'legal right', weight: 2 },
+    { pattern: 'ownership', weight: 1 },
+    { pattern: 'letterhead', weight: 1 },
+    { pattern: 'signatory', weight: 1 },
     { pattern: 'participant', weight: 1 },
     { pattern: 'declaration', weight: 1 },
   ],
-  [DocumentType.SF_02C_OWNERS_DECLARATION]: [
-    { pattern: "owner's declaration", weight: 3 },
-    { pattern: 'owners declaration', weight: 3 },
-    // "proof of ownership" intentionally NOT here — it's a separate
-    // artifact (deed / lease / purchase contract) that lives under
-    // OTHER_DOCUMENTS. The OD letter is a formal attribute-rights
-    // declaration, not the underlying ownership evidence.
-    { pattern: 'declaration of ownership', weight: 3 },
-    { pattern: 'declaration of attribute', weight: 3 },
-    { pattern: 'attribute generation', weight: 2 },
-    { pattern: 'hereby declare', weight: 2 },
-    { pattern: 'ownership', weight: 2 },
-    { pattern: 'declaration', weight: 1 },
-    { pattern: 'signatory', weight: 1 },
-    { pattern: 'letterhead', weight: 1 },
-    { pattern: 'legal right', weight: 2 },
-    { pattern: 'environmental attribute', weight: 2 },
+  [DocumentType.PROOF_OF_OWNERSHIP]: [
+    { pattern: 'proof of ownership', weight: 3 },
+    { pattern: 'title deed', weight: 3 },
+    { pattern: 'lease agreement', weight: 3 },
+    { pattern: 'purchase agreement', weight: 3 },
+    { pattern: 'sale agreement', weight: 3 },
+    { pattern: 'bill of sale', weight: 3 },
+    { pattern: 'land registry', weight: 3 },
+    { pattern: 'power purchase agreement', weight: 3 },
+    { pattern: ' ppa ', weight: 2 },
+    { pattern: 'ground lease', weight: 3 },
+    { pattern: 'rooftop lease', weight: 3 },
+    { pattern: 'lessee', weight: 2 },
+    { pattern: 'lessor', weight: 2 },
+    { pattern: 'grantor', weight: 1 },
+    { pattern: 'grantee', weight: 1 },
+    { pattern: 'tenant', weight: 1 },
+    { pattern: 'leasehold', weight: 2 },
   ],
   [DocumentType.METERING_EVIDENCE]: [
     { pattern: 'kwh', weight: 3 },
@@ -124,7 +140,7 @@ export const DOCUMENT_KEYWORDS: Partial<
 export const CLASSIFIABLE_TYPES: DocumentType[] = [
   DocumentType.FORM_SF_02,
   DocumentType.SF_02C,
-  DocumentType.SF_02C_OWNERS_DECLARATION,
+  DocumentType.PROOF_OF_OWNERSHIP,
   DocumentType.METERING_EVIDENCE,
   DocumentType.SINGLE_LINE_DIAGRAM,
   DocumentType.PROJECT_PHOTOS,
@@ -137,7 +153,7 @@ export const CLASSIFIABLE_TYPES: DocumentType[] = [
 export const DOCUMENT_TYPE_LABELS: Partial<Record<DocumentType, string>> = {
   [DocumentType.FORM_SF_02]: 'SF-02 Registration Form',
   [DocumentType.SF_02C]: 'SF-02C Declaration',
-  [DocumentType.SF_02C_OWNERS_DECLARATION]: "Owner's Declaration",
+  [DocumentType.PROOF_OF_OWNERSHIP]: 'Proof of Ownership',
   [DocumentType.METERING_EVIDENCE]: 'Metering Evidence',
   [DocumentType.SINGLE_LINE_DIAGRAM]: 'Single Line Diagram',
   [DocumentType.PROJECT_PHOTOS]: 'Site Photos',

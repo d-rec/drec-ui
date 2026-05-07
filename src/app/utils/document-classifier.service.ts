@@ -123,36 +123,44 @@ export class DocumentClassifierService {
         alternatives: [],
       };
     }
+    // Proof of Ownership (deed / lease / PPA) — match BEFORE the OD-letter
+    // patterns so a filename like "proof of ownership.pdf" lands in the
+    // PROOF_OF_OWNERSHIP slot, not in the SF-02c (OD letter) slot.
+    if (/proof.{0,3}of.{0,3}own/i.test(lower)) {
+      return {
+        suggestedType: DocumentType.PROOF_OF_OWNERSHIP,
+        confidence: 0.85,
+        method: 'keywords',
+        alternatives: [],
+      };
+    }
+    if (/title.{0,3}deed|lease.{0,5}agreement|ppa\b|purchase.{0,5}agreement|land.{0,3}registry/i.test(lower)) {
+      return {
+        suggestedType: DocumentType.PROOF_OF_OWNERSHIP,
+        confidence: 0.8,
+        method: 'keywords',
+        alternatives: [],
+      };
+    }
+    // SF-02c filename + owner/declaration tokens → the I-REC OD letter.
     if (
       /(?<![a-z0-9])sf.?02c?(?![a-z0-9])/i.test(lower) &&
       /owner|declaration/i.test(lower)
     ) {
       return {
-        suggestedType: DocumentType.SF_02C_OWNERS_DECLARATION,
-        confidence: 0.8,
+        suggestedType: DocumentType.SF_02C,
+        confidence: 0.85,
         method: 'keywords',
         alternatives: [],
       };
     }
-    // "Proof of Ownership" is a deed / lease / purchase contract, not
-    // the OD letter — file it under OTHER_DOCUMENTS until we add a
-    // dedicated slot. Match before the OD heuristic below so it doesn't
-    // get pulled into the declaration bucket.
-    if (/proof.{0,3}of.{0,3}ownership/i.test(lower)) {
-      return {
-        suggestedType: DocumentType.OTHER_DOCUMENTS,
-        confidence: 0.8,
-        method: 'keywords',
-        alternatives: [],
-      };
-    }
-    // "OD" (uppercase, standalone token) is the field abbreviation for
-    // Owner's Declaration — e.g. "Atsawa_OD letter.pdf". Match against
-    // the original-case filename so we don't false-positive on substrings
-    // of common lowercase words ("good", "mood", "body", …).
+    // "OD" (uppercase, standalone token) is the in-house abbreviation for
+    // Owner's Declaration — e.g. "Atsawa_OD letter.pdf". Case-sensitive
+    // against the raw name so we don't false-positive on substrings of
+    // lowercase words ("good", "mood", "body", …).
     if (/(?<![A-Za-z0-9])OD(?![A-Za-z0-9])/.test(name)) {
       return {
-        suggestedType: DocumentType.SF_02C_OWNERS_DECLARATION,
+        suggestedType: DocumentType.SF_02C,
         confidence: 0.75,
         method: 'keywords',
         alternatives: [],
@@ -190,18 +198,10 @@ export class DocumentClassifierService {
         alternatives: [],
       };
     }
-    if (/owner.?s?.?decl|proof.?of.?own/i.test(lower)) {
+    if (/owner.?s?.?decl/i.test(lower)) {
       return {
-        suggestedType: DocumentType.SF_02C_OWNERS_DECLARATION,
+        suggestedType: DocumentType.SF_02C,
         confidence: 0.8,
-        method: 'keywords',
-        alternatives: [],
-      };
-    }
-    if (/(?<![a-z0-9])od(?![a-z0-9]).{0,8}letter/i.test(lower)) {
-      return {
-        suggestedType: DocumentType.SF_02C_OWNERS_DECLARATION,
-        confidence: 0.7,
         method: 'keywords',
         alternatives: [],
       };

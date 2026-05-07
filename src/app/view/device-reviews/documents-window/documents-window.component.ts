@@ -189,7 +189,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       | 'sld'
       | 'sf02'
       | 'sf02c'
-      | 'sf02cOwnersDeclaration'
+      | 'proofOfOwnership'
       | 'meteringEvidence'
       | 'pictures'
       | 'screenshots'
@@ -1853,7 +1853,7 @@ trustUrl(url: string): SafeUrl {
             sld: true,
             sf02: true,
             sf02c: true,
-            sf02cOwnersDeclaration: true,
+            proofOfOwnership: true,
             meteringEvidence: true,
             pictures: true,
             screenshots: true,
@@ -2002,7 +2002,7 @@ trustUrl(url: string): SafeUrl {
           a.sldUrl,
           a.sf02Url,
           a.sf02cUrl,
-          a.sf02cOwnersDeclarationUrl,
+          a.proofOfOwnershipUrl,
           ...a.meteringEvidenceUrls,
           ...a.pictureUrls,
           ...a.screenshotUrls,
@@ -2082,7 +2082,7 @@ trustUrl(url: string): SafeUrl {
         sld: true,
         sf02: true,
         sf02c: true,
-        sf02cOwnersDeclaration: true,
+        proofOfOwnership: true,
         meteringEvidence: true,
         pictures: true,
         screenshots: true,
@@ -2099,7 +2099,7 @@ trustUrl(url: string): SafeUrl {
       | 'sld'
       | 'sf02'
       | 'sf02c'
-      | 'sf02cOwnersDeclaration'
+      | 'proofOfOwnership'
       | 'meteringEvidence'
       | 'pictures'
       | 'screenshots'
@@ -2111,7 +2111,7 @@ trustUrl(url: string): SafeUrl {
         sld: true,
         sf02: true,
         sf02c: true,
-        sf02cOwnersDeclaration: true,
+        proofOfOwnership: true,
         meteringEvidence: true,
         pictures: true,
         screenshots: true,
@@ -2134,7 +2134,7 @@ trustUrl(url: string): SafeUrl {
       | 'sld'
       | 'sf02'
       | 'sf02c'
-      | 'sf02cOwnersDeclaration'
+      | 'proofOfOwnership'
       | 'meteringEvidence'
       | 'pictures'
       | 'screenshots'
@@ -2238,14 +2238,14 @@ trustUrl(url: string): SafeUrl {
   onSf02cOwnersDeclarationChange(asset: Asset, event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    this.uploadAndRefresh(asset, 'SF_02C_OWNERS_DECLARATION', file);
+    this.uploadAndRefresh(asset, 'PROOF_OF_OWNERSHIP', file);
   }
 
   clearSf02cOwnersDeclaration(asset: Asset): void {
     this.requestDelete(
       asset,
-      'sf02cOwnersDeclaration',
-      'sf02cOwnersDeclarationUrl',
+      'proofOfOwnership',
+      'proofOfOwnershipUrl',
     );
   }
 
@@ -2515,7 +2515,7 @@ trustUrl(url: string): SafeUrl {
       if (a.sldUrl) urls.push(a.sldUrl);
       if (a.sf02Url) urls.push(a.sf02Url);
       if (a.sf02cUrl) urls.push(a.sf02cUrl);
-      if (a.sf02cOwnersDeclarationUrl) urls.push(a.sf02cOwnersDeclarationUrl);
+      if (a.proofOfOwnershipUrl) urls.push(a.proofOfOwnershipUrl);
       if (a.codProofUrl) urls.push(a.codProofUrl);
       for (const u of a.meteringEvidenceUrls) urls.push(u);
       for (const u of a.pictureUrls) urls.push(u);
@@ -3248,7 +3248,7 @@ trustUrl(url: string): SafeUrl {
       sld: 'SLD',
       sf02: 'SF-02',
       sf02c: 'SF-02C',
-      sf02cOwnersDeclaration: "Owner's Declaration",
+      proofOfOwnership: "Owner's Declaration",
       codProof: 'COD Proof',
       meteringEvidence: 'Metering Evidence',
     };
@@ -3594,7 +3594,7 @@ trustUrl(url: string): SafeUrl {
         SLD: a.sldUrl ? 'Yes' : '',
         'SF-02': a.sf02Url ? 'Yes' : '',
         'SF-02C': a.sf02cUrl ? 'Yes' : '',
-        "Owner's Declaration": a.sf02cOwnersDeclarationUrl ? 'Yes' : '',
+        "Owner's Declaration": a.proofOfOwnershipUrl ? 'Yes' : '',
         'COD Proof': a.codProofUrl ? 'Yes' : '',
         'Metering Evidence': a.meteringEvidenceUrls.length || '',
         Pictures: a.pictureUrls.length || '',
@@ -3666,8 +3666,8 @@ trustUrl(url: string): SafeUrl {
     {
       slot: "Owner's Decl.",
       label: "Owner's Declaration",
-      expectedType: DocumentType.SF_02C_OWNERS_DECLARATION,
-      urlKey: 'sf02cOwnersDeclarationUrl',
+      expectedType: DocumentType.PROOF_OF_OWNERSHIP,
+      urlKey: 'proofOfOwnershipUrl',
       multi: false,
     },
     {
