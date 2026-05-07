@@ -132,23 +132,51 @@
     display: block;
   }
 
-  // Impact-Story field: outline pieces (leading/notch/trailing) are flex
-  // children of .mdc-notched-outline; their height is governed by
-  // Material's --mdc-outlined-text-field-container-shape variable plus a
-  // 40px floor. With our textarea growing the wrapper to 112px+, we need
-  // to make the outline a stretching flex container so the border parts
-  // span the full textarea height instead of just the label row.
+  // Impact-Story textarea: full-row, multi-line. The compact-form rules
+  // above force every mat-form-field to a fixed 48px height; we have to
+  // (a) release that constraint for this specific field, (b) make the
+  // outline pieces (leading/notch/trailing) stretch to the new height,
+  // and (c) give the textarea inside a usable resize range.
   ::ng-deep .mat-mdc-form-field.impact-story-field {
+    height: auto !important;
+
+    .mat-mdc-text-field-wrapper,
+    .mat-mdc-form-field-flex,
+    .mat-mdc-form-field-infix {
+      height: auto !important;
+      min-height: 0 !important;
+    }
+    .mat-mdc-form-field-infix {
+      padding-top: 16px !important;
+      padding-bottom: 8px !important;
+      display: flex; // contain the textarea so it can't bleed above
+    }
+    // Material's outline parts inherit Material's container-height
+    // variable plus a 40px floor; force them to span the full grown
+    // height so the border encloses the textarea instead of just the
+    // label row.
     .mdc-notched-outline {
-      display: flex !important;
-      align-items: stretch !important;
-      height: 100% !important;
+      display: flex;
+      align-items: stretch;
+      height: 100%;
     }
     .mdc-notched-outline__leading,
     .mdc-notched-outline__notch,
     .mdc-notched-outline__trailing {
-      height: auto !important;
-      align-self: stretch !important;
+      height: auto;
+      align-self: stretch;
+    }
+    textarea.mat-mdc-input-element {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 96px;
+      max-height: 280px;
+      resize: vertical;
+      line-height: 1.4;
+      font-family: inherit;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-y: auto;
     }
   }
 }
