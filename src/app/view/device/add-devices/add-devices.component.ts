@@ -534,6 +534,14 @@ export class AddDevicesComponent implements OnDestroy {
                   createdAt: doc.createdAt,
                 });
               }
+              for (const t of Object.keys(docsByType)) {
+                docsByType[t].sort((a, b) =>
+                  (a.label || a.name).localeCompare(b.label || b.name, undefined, {
+                    numeric: true,
+                    sensitivity: 'base',
+                  }),
+                );
+              }
               this.existingDocs[0] = docsByType;
 
               // Probe each URL for 404s so the UI can flag broken links.
