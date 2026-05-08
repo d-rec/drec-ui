@@ -2444,6 +2444,10 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   submitForm() {
+    if (this.isEditMode) {
+      this.submitEdit();
+      return;
+    }
     const deviceArray = this.myform.value.devices;
     deviceArray.forEach((element: any, index: number) => {
       // Skip rows already saved via Save & Generate SF-02.
@@ -2507,6 +2511,157 @@ export class AddDevicesComponent implements OnDestroy {
 
   shortenFileName(fileName: string, maxLength: number = 20): string {
     return shortenFileName(fileName, maxLength);
+  }
+
+  /**
+   * Edit-mode submit. PATCH the existing device via deviceService.update
+   * with the first FormArray row's value + any newly-staged files.
+   * Mirrors edit-device.component.ts's old onSubmit() but reads from
+   * `this.deviceForms.at(0)` instead of `updateDeviceForm`.
+   */
+  private submitEdit(): void {
+    const firstRow = this.deviceForms.at(0) as FormGroup;
+    if (!firstRow) {
+      this.isSubmitting = false;
+      return;
+    }
+
+    const selectedCountry: CountryInfo | undefined = this.countrylist.find(
+      (option) => option.country === firstRow.value.countryCodename,
+    );
+
+    const formValue: any = { ...firstRow.value };
+    formValue.countryCode = selectedCountry?.alpha3 ?? formValue.countryCodename;
+    delete formValue.countryCodename;
+    formValue.organizationId = this.organizationId ?? this.user?.organizationId;
+    if (formValue.serialNumber == null) {
+      formValue.serialNumber = this.initSerialNumber;
+    }
+
+    if (formValue.latitude) {
+      const [intLat, decLat] = String(formValue.latitude).split('.');
+      formValue.latitude = decLat
+        ? `${intLat}.${decLat.slice(0, 20)}`
+        : intLat;
+    }
+    if (formValue.longitude) {
+      const [intLng, decLng] = String(formValue.longitude).split('.');
+      formValue.longitude = decLng
+        ? `${intLng}.${decLng.slice(0, 20)}`
+        : intLng;
+    }
+
+    if (Array.isArray(formValue.labellingSchemeAccreditation)) {
+      formValue.labellingSchemeAccreditation =
+        formValue.labellingSchemeAccreditation.join('; ') || null;
+    }
+
+    // Strip null/undefined/''/NaN keys so backend skipMissingProperties
+    // treats this as a partial update.
+    for (const k of Object.keys(formValue)) {
+      const v = (formValue as any)[k];
+      if (
+        v === null ||
+        v === undefined ||
+        v === '' ||
+        (typeof v === 'number' && isNaN(v))
+      ) {
+        delete (formValue as any)[k];
+      }
+    }
+
+    // Strip the per-doc-type form-control keys — backend doesn't expect
+    // them on the device DTO; they're file-input bindings only.
+    for (const ft of this.requiredFileTypes) {
+      delete (formValue as any)[ft];
+    }
+    delete (formValue as any).OTHER_DOCUMENTS;
+    delete (formValue as any).sf02EvidenceMode;
+
+    const fileBucket = this.files[0] || ({} as DeviceFiles);
+    const fileFields: FileType[] = [
+      DocumentType.FORM_SF_02,
+      DocumentType.SF_02C,
+      DocumentType.PROOF_OF_OWNERSHIP,
+      DocumentType.METERING_EVIDENCE,
+      DocumentType.SINGLE_LINE_DIAGRAM,
+      DocumentType.PROJECT_PHOTOS,
+      DocumentType.COD_PROOF,
+      DocumentType.OTHER_DOCUMENTS,
+    ];
+    const hasFiles = fileFields.some((ft) => fileBucket[ft]?.length > 0);
+
+    let payload: FormData | Record<string, any>;
+    if (hasFiles) {
+      const formData = new FormData();
+      formData.append('deviceToUpdate', JSON.stringify(formValue));
+      const allowedExtensions = [...DOCUMENTS_EXTENSIONS];
+      const maxSizeInMB = 20;
+      let allErrors: Record<string, string[]> = {};
+      fileFields.forEach((fileType: FileType) => {
+        const files = fileBucket[fileType];
+        if (files?.length) {
+          const { errors } = validateAndAppendFiles(
+            formData,
+            files,
+            fileType,
+            allowedExtensions,
+            maxSizeInMB,
+            this.toastrService,
+          );
+          if (Object.keys(errors).length > 0) {
+            allErrors = { ...allErrors, ...errors };
+          }
+        }
+      });
+      if (Object.keys(allErrors).length > 0) {
+        console.error('One or more files are invalid.', allErrors);
+        this.isSubmitting = false;
+        return;
+      }
+      payload = formData;
+    } else {
+      payload = formValue;
+    }
+
+    const serialChanged =
+      formValue.serialNumber !== this.initSerialNumber;
+
+    this.deviceService
+      .update(this.editingExternalId, payload, serialChanged)
+      .subscribe({
+        next: (data: any) => {
+          this.toastrService.success(
+            'Updated Successfully !!',
+            'Device! ' + (data?.serialNumber ?? this.editingExternalId),
+          );
+          if (this.user.role === OrganizationType.Admin) {
+            this.router.navigate(['/admin/All_devices']);
+          } else if (this.user.role === OrganizationType.Registrant) {
+            this.router.navigate(['/registrant/All_devices']);
+          } else {
+            this.router.navigate(['/device/AllList']);
+          }
+        },
+        error: (err: any) => {
+          console.error('error caught in component', err?.error?.message);
+          this.submitButtonText = 'Submit';
+          this.isSubmitting = false;
+          const message =
+            err?.error?.message || err?.message || 'Failed to update device';
+          if (err.status === 409 || err.error?.statusCode === 409) {
+            this.dialog.open(this.errorDialogTemplate, {
+              width: '450px',
+              data: { title: 'Duplicate Entry', message },
+            });
+          } else {
+            this.toastrService.error(
+              message,
+              'Device ' + this.editingExternalId,
+            );
+          }
+        },
+      });
   }
 
   openPopupDialog() {
