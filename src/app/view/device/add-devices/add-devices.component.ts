@@ -39,7 +39,7 @@ import {
   CountryInfo,
 } from '../../../models';
 import { postcodeValidator } from '../../../utils/validate-postcode';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
   DocumentType,
   DataSourceTypes,
@@ -2039,6 +2039,84 @@ export class AddDevicesComponent implements OnDestroy {
    *  template doesn't have to fight `keyof DeviceFiles`. */
   getStagedFiles(deviceIndex: number, fileType: string): File[] {
     return (this.files[deviceIndex]?.[fileType as keyof DeviceFiles] as File[] | undefined) ?? [];
+  }
+
+  /** Run client-side Tesseract OCR on a metering-evidence image and
+   *  show the extracted text in a dialog. Useful when the
+   *  registrant wants to copy a meter reading / SN out of a
+   *  monitoring-portal screenshot manually. */
+  ocrResultText: string | null = null;
+  ocrResultRunning = false;
+  @ViewChild('ocrResultDialog') ocrResultDialogTemplate?: TemplateRef<any>;
+  private ocrResultDialogRef: MatDialogRef<any> | null = null;
+
+  async runOcrOnStagedFile(file: File): Promise<void> {
+    if (this.ocrResultRunning) return;
+    this.ocrResultRunning = true;
+    this.ocrResultText = null;
+    if (this.ocrResultDialogTemplate) {
+      this.ocrResultDialogRef = this.dialog.open(this.ocrResultDialogTemplate, {
+        width: '720px',
+        maxWidth: '90vw',
+        maxHeight: '80vh',
+      });
+    }
+    try {
+      const text = await (this.documentClassifier as any)
+        .ocrCanvas(await this.imageFileToCanvas(file))
+        .catch(async () => {
+          // Fallback: instantiate a worker inline if the helper isn't
+          // exposed as public.
+          const Tesseract = await import('tesseract.js' as any);
+          const createWorker = Tesseract.createWorker || Tesseract.default?.createWorker;
+          const worker = await createWorker('eng', 1);
+          try {
+            const canvas = await this.imageFileToCanvas(file);
+            const { data } = await worker.recognize(canvas);
+            return data.text;
+          } finally {
+            await worker.terminate();
+          }
+        });
+      this.ocrResultText = (text || '').trim() || '(no text recognised)';
+    } catch (err: any) {
+      this.ocrResultText = `OCR failed: ${err?.message ?? err}`;
+    } finally {
+      this.ocrResultRunning = false;
+    }
+  }
+
+  private async imageFileToCanvas(file: File): Promise<HTMLCanvasElement> {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const el = new Image();
+        el.onload = () => resolve(el);
+        el.onerror = reject;
+        el.src = url;
+      });
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0);
+      return canvas;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  closeOcrResult(): void {
+    this.ocrResultDialogRef?.close();
+    this.ocrResultDialogRef = null;
+  }
+
+  copyOcrResult(): void {
+    if (!this.ocrResultText) return;
+    navigator.clipboard?.writeText(this.ocrResultText).then(
+      () => this.toastrService.success('OCR text copied'),
+      () => this.toastrService.error('Failed to copy'),
+    );
   }
 
   /** Remove a staged (not-yet-saved) file from a slot. Mirrors the

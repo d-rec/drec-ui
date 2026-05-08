@@ -617,6 +617,12 @@
                   <ul class="existing-doc-list" *ngIf="getStagedFiles(idx, docType).length">
                     <li *ngFor="let f of getStagedFiles(idx, docType); let si = index" class="existing-doc-item">
                       <span class="existing-doc-link" (click)="openPreview(idx, docType)" [title]="f.name">{{ f.name }}</span>
+                      <button type="button" class="existing-doc-ocr"
+                        *ngIf="docType === 'METERING_EVIDENCE' && f.type.startsWith('image/')"
+                        (click)="runOcrOnStagedFile(f)"
+                        title="Run Tesseract OCR on this image">
+                        OCR
+                      </button>
                       <button type="button" class="existing-doc-delete" (click)="removeStagedFile(idx, docType, si)" title="Remove">
                         <mat-icon style="font-size:14px;height:14px;width:14px">close</mat-icon>
                       </button>
@@ -1268,6 +1274,18 @@
   <div mat-dialog-actions class="d-flex justify-content-center pb-4">
     <button mat-button class="btn-primary text-capitalize" (click)="onAgreeClick()" test-id="agree">I agree</button>
     <button mat-button class="btn-default text-capitalize" (click)="dialogRef.close(false)">Cancel</button>
+  </div>
+</ng-template>
+
+<ng-template #ocrResultDialog>
+  <h2 mat-dialog-title class="mb-2">OCR result</h2>
+  <mat-dialog-content style="white-space: pre-wrap; font-family: 'JetBrains Mono', monospace; font-size: 12px; max-height: 60vh;">
+    <span *ngIf="ocrResultRunning">Running Tesseract… can take 5-15 s on a portal screenshot.</span>
+    <span *ngIf="!ocrResultRunning && ocrResultText">{{ ocrResultText }}</span>
+  </mat-dialog-content>
+  <div mat-dialog-actions class="d-flex justify-content-end gap-2 pt-2">
+    <button mat-button class="btn-default" [disabled]="ocrResultRunning || !ocrResultText" (click)="copyOcrResult()">Copy</button>
+    <button mat-button class="btn-primary" (click)="closeOcrResult()">Close</button>
   </div>
 </ng-template>
 
