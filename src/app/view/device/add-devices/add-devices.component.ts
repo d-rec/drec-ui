@@ -1312,18 +1312,11 @@ export class AddDevicesComponent implements OnDestroy {
   applyMeterIdsExtraction(deviceIndex: number): void {
     const ids = this.meterIdsExtractions[deviceIndex] || [];
     if (!ids.length) return;
-    const ctl = this.deviceForms.at(deviceIndex).get('serialNumber');
-    if (!ctl) {
-      console.warn('[meter-ids] serialNumber control not found on device', deviceIndex);
-      return;
-    }
-    // Merge with whatever is already in the field rather than bail
-    // on non-empty: this handler runs only on an explicit click, so
-    // the user has already opted in to the change. Dedup case-
-    // insensitively in case a portal screenshot and a nameplate photo
-    // disagree on capitalization.
-    const current = String(ctl.value ?? '').trim();
-    const existing = current ? current.split(/\s*;\s*/).filter(Boolean) : [];
+    // The (14) input list is rendered from serialNumberLists[i], not
+    // straight from the form control — so we have to update both.
+    const existing = (this.getSerialNumbers(deviceIndex) || [])
+      .map((s) => (s || '').trim())
+      .filter(Boolean);
     const merged: string[] = [];
     const seen = new Set<string>();
     for (const id of [...existing, ...ids]) {
@@ -1336,8 +1329,8 @@ export class AddDevicesComponent implements OnDestroy {
       this.toastrService.info('No new measurement IDs to add');
       return;
     }
-    ctl.setValue(merged.join(';'));
-    ctl.markAsDirty();
+    this.serialNumberLists[deviceIndex] = merged.length ? merged : [''];
+    this.syncSerialNumberControl(deviceIndex);
     const added = merged.length - existing.length;
     this.toastrService.success(
       `${added} measurement ID${added === 1 ? '' : 's'} added`,
