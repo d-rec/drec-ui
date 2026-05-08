@@ -931,3 +931,36 @@ input.example-right-align {
     margin-top: 2px;
   }
 }
+
+.sld-extract-running {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #475569;
+}
+.sld-extract-banner {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 4px;
+  font-size: 12px;
+
+  &__header {
+    margin-bottom: 6px;
+    color: #1e3a8a;
+  }
+  &__list {
+    margin: 0 0 8px;
+    padding-left: 20px;
+    color: #1f2937;
+    li { margin-bottom: 2px; }
+    small { color: #64748b; margin-left: 4px; }
+  }
+  &__actions {
+    display: flex;
+    gap: 8px;
+  }
+}

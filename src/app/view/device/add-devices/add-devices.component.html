@@ -787,6 +787,29 @@
                       </span>
                     </div>
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
+                    <div class="sld-extract-running" *ngIf="sldExtracting[i]">
+                      <span class="barber-pole" aria-hidden="true"></span>
+                      <small>Reading SLD…</small>
+                    </div>
+                    <div class="sld-extract-banner" *ngIf="sldExtractions[i] as fx">
+                      <div class="sld-extract-banner__header">
+                        <strong>AI extracted from SLD:</strong>
+                      </div>
+                      <ul class="sld-extract-banner__list">
+                        <li *ngIf="fx.acCapacityKw">AC capacity: {{ fx.acCapacityKw.value }} kW <small>({{ (fx.acCapacityKw.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="fx.dcCapacityKwp">DC capacity: {{ fx.dcCapacityKwp.value }} kWp <small>({{ (fx.dcCapacityKwp.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="fx.inverterCount">Inverters: {{ fx.inverterCount.value }}<span *ngIf="fx.inverterCapacityKw"> × {{ fx.inverterCapacityKw.value }} kW</span><span *ngIf="fx.inverterMakeModel"> ({{ fx.inverterMakeModel.value }})</span></li>
+                        <li *ngIf="fx.moduleCount">Modules: {{ fx.moduleCount.value }}<span *ngIf="fx.moduleWattage"> × {{ fx.moduleWattage.value }} W</span></li>
+                        <li *ngIf="fx.gridVoltage">Grid voltage: {{ fx.gridVoltage.value }} <small>({{ (fx.gridVoltage.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="fx.gridTied">Grid-tied: {{ fx.gridTied.value ? 'yes' : 'no' }}</li>
+                        <li *ngIf="fx.zeroExport">Zero-export: {{ fx.zeroExport.value ? 'yes' : 'no' }}</li>
+                        <li *ngIf="fx.transformerKva">Transformer: {{ fx.transformerKva.value }} kVA</li>
+                      </ul>
+                      <div class="sld-extract-banner__actions">
+                        <button type="button" class="btn btn-sm btn-primary" (click)="applySldExtraction(i)" (mousedown)="$event.stopPropagation()">Apply to form</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissSldExtraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
+                      </div>
+                    </div>
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C') === 'required' && !deviceForms.at(i).get('SF_02C')?.value">

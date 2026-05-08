@@ -10,6 +10,27 @@ import {
 } from './document-keywords';
 
 const HAIKU_FALLBACK_THRESHOLD = 0.6;
+const SLD_MAX_LONG_EDGE_PX = 1600;
+
+export interface ExtractedField<T> {
+  value: T;
+  confidence: number;
+}
+
+export interface SldExtractedFields {
+  acCapacityKw?: ExtractedField<number>;
+  dcCapacityKwp?: ExtractedField<number>;
+  inverterCount?: ExtractedField<number>;
+  inverterCapacityKw?: ExtractedField<number>;
+  inverterMakeModel?: ExtractedField<string>;
+  moduleCount?: ExtractedField<number>;
+  moduleWattage?: ExtractedField<number>;
+  gridVoltage?: ExtractedField<string>;
+  gridTied?: ExtractedField<boolean>;
+  zeroExport?: ExtractedField<boolean>;
+  transformerKva?: ExtractedField<number>;
+  reasoning: string;
+}
 
 /**
  * Zero-shot document classifier.
@@ -340,6 +361,58 @@ export class DocumentClassifierService {
     } finally {
       await worker.terminate();
     }
+  }
+
+  /**
+   * Vision-based field extraction from an SLD. Renders the first page
+   * to canvas, downsamples so the long edge is ≤ 1600px (keeps the
+   * payload under Anthropic's per-image limit and keeps token cost
+   * sane), encodes as PNG base64, and posts to /ai/extract-sld-fields.
+   * Returns null on any error so the upload flow doesn't break.
+   */
+  async extractSldFields(
+    file: File,
+    deviceId?: number,
+  ): Promise<SldExtractedFields | null> {
+    try {
+      const canvas = await this.renderFirstPage(file);
+      const downsampled = this.downsampleToLongEdge(
+        canvas,
+        SLD_MAX_LONG_EDGE_PX,
+      );
+      const dataUrl = downsampled.toDataURL('image/png');
+      const imageBase64 = dataUrl.replace(/^data:image\/png;base64,/, '');
+      const res = await firstValueFrom(
+        this.http.post<SldExtractedFields>(
+          `${environment.API_URL}ai/extract-sld-fields`,
+          {
+            filename: file.name,
+            imageBase64,
+            mimeType: 'image/png',
+            ...(deviceId ? { deviceId } : {}),
+          },
+        ),
+      );
+      return res ?? null;
+    } catch (err) {
+      console.warn('[DocumentClassifier] SLD extract failed:', err);
+      return null;
+    }
+  }
+
+  private downsampleToLongEdge(
+    src: HTMLCanvasElement,
+    maxLongEdgePx: number,
+  ): HTMLCanvasElement {
+    const longEdge = Math.max(src.width, src.height);
+    if (longEdge <= maxLongEdgePx) return src;
+    const scale = maxLongEdgePx / longEdge;
+    const out = document.createElement('canvas');
+    out.width = Math.round(src.width * scale);
+    out.height = Math.round(src.height * scale);
+    const ctx = out.getContext('2d')!;
+    ctx.drawImage(src, 0, 0, out.width, out.height);
+    return out;
   }
 
   /**

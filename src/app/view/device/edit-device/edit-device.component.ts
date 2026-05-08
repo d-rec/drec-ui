@@ -44,7 +44,10 @@ import {
   shortenFileName,
 } from '../../../utils/file-upload.helper';
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
-import { DocumentClassifierService } from '../../../utils/document-classifier.service';
+import {
+  DocumentClassifierService,
+  SldExtractedFields,
+} from '../../../utils/document-classifier.service';
 import {
   ClassificationResult,
   DOCUMENT_TYPE_LABELS,
@@ -152,6 +155,10 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   /** AI document classification suggestions per fileType. */
   classificationSuggestions: { [fileType: string]: ClassificationResult | null } = {};
   classifying: { [fileType: string]: boolean } = {};
+
+  /** SLD vision extraction state. */
+  sldExtraction: SldExtractedFields | null = null;
+  sldExtracting = false;
   DOCUMENT_TYPE_LABELS = DOCUMENT_TYPE_LABELS;
 
   /** Magic auto-sort state. */
@@ -806,6 +813,11 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
 
     // Trigger background AI classification
     this.classifyUploadedFile(file, fileType);
+
+    // For SLDs, also trigger field extraction (vision via Haiku)
+    if (fileType === DocumentType.SINGLE_LINE_DIAGRAM) {
+      this.extractSldFieldsForDevice(file);
+    }
   }
 
   /** Magic auto-sort: classify multiple files and dispatch them to slots. */
@@ -984,6 +996,58 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     this.magicLog = [];
     this.magicBackupFiles = {};
     this.magicBackupPreviews = {};
+  }
+
+  private extractSldFieldsForDevice(file: File): void {
+    this.sldExtracting = true;
+    this.sldExtraction = null;
+    const deviceId = typeof this.id === 'number' ? this.id : undefined;
+    this.documentClassifier
+      .extractSldFields(file, deviceId)
+      .then((res) =>
+        this.ngZone.run(() => {
+          this.sldExtracting = false;
+          this.sldExtraction = res;
+        }),
+      )
+      .catch(() =>
+        this.ngZone.run(() => {
+          this.sldExtracting = false;
+        }),
+      );
+  }
+
+  applySldExtraction(): void {
+    const fx = this.sldExtraction;
+    if (!fx) return;
+    const patchIfEmpty = (
+      controlName: string,
+      field: { value: any; confidence: number } | undefined,
+      transform?: (v: any) => any,
+    ) => {
+      if (!field || field.confidence < 0.7) return;
+      const ctl = this.updateDeviceForm.get(controlName);
+      if (!ctl) return;
+      const current = ctl.value;
+      if (current !== null && current !== undefined && current !== '') return;
+      const v = transform ? transform(field.value) : field.value;
+      ctl.setValue(v);
+      ctl.markAsDirty();
+    };
+    patchIfEmpty('capacity', fx.acCapacityKw);
+    patchIfEmpty('generatingUnitCount', fx.inverterCount);
+    patchIfEmpty('interconnectionVoltage', fx.gridVoltage);
+    patchIfEmpty(
+      'gridInterconnection',
+      fx.gridTied,
+      (v) => (v ? 'true' : 'false'),
+    );
+    patchIfEmpty('dataSourceBrand', fx.inverterMakeModel);
+    this.toastrService.success('SLD fields applied to the form');
+  }
+
+  dismissSldExtraction(): void {
+    this.sldExtraction = null;
   }
 
   private classifyUploadedFile(file: File, currentType: string): void {

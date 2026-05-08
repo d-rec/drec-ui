@@ -63,7 +63,10 @@ import {
 } from '../../../utils/file-upload.helper';
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
 import { environment } from '../../../../environments/environment';
-import { DocumentClassifierService } from '../../../utils/document-classifier.service';
+import {
+  DocumentClassifierService,
+  SldExtractedFields,
+} from '../../../utils/document-classifier.service';
 import {
   ClassificationResult,
   DOCUMENT_TYPE_LABELS,
@@ -114,6 +117,10 @@ export class AddDevicesComponent implements OnDestroy {
   } = {};
   classifying: { [deviceIndex: number]: { [fileType: string]: boolean } } = {};
   DOCUMENT_TYPE_LABELS = DOCUMENT_TYPE_LABELS;
+
+  /** SLD vision extraction state per device. */
+  sldExtractions: { [deviceIndex: number]: SldExtractedFields | null } = {};
+  sldExtracting: { [deviceIndex: number]: boolean } = {};
 
   /** Magic auto-sort state. */
   magicRunning: { [deviceIndex: number]: boolean } = {};
@@ -837,6 +844,11 @@ export class AddDevicesComponent implements OnDestroy {
 
     // Trigger background AI classification
     this.classifyUploadedFile(input.files[0], deviceIndex, fileType);
+
+    // For SLDs, also trigger field extraction (vision via Haiku)
+    if (fileType === DocumentType.SINGLE_LINE_DIAGRAM) {
+      this.extractSldFieldsForDevice(input.files[0], deviceIndex);
+    }
   }
 
   /** Magic auto-sort: classify multiple files and dispatch them to slots. */
@@ -1016,6 +1028,62 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   /** Run AI classification on an uploaded file and store the suggestion. */
+  private extractSldFieldsForDevice(file: File, deviceIndex: number): void {
+    this.sldExtracting[deviceIndex] = true;
+    this.sldExtractions[deviceIndex] = null;
+    this.documentClassifier
+      .extractSldFields(file)
+      .then((res) =>
+        this.ngZone.run(() => {
+          this.sldExtracting[deviceIndex] = false;
+          this.sldExtractions[deviceIndex] = res;
+        }),
+      )
+      .catch(() =>
+        this.ngZone.run(() => {
+          this.sldExtracting[deviceIndex] = false;
+        }),
+      );
+  }
+
+  /** Apply confident SLD-extracted values into the form. We only patch
+   *  fields the user hasn't already filled in (don't overwrite manual
+   *  input) and only when confidence ≥ 0.7. Reasoning: any false
+   *  positive at this layer is a bug a registrant has to find and undo. */
+  applySldExtraction(deviceIndex: number): void {
+    const fx = this.sldExtractions[deviceIndex];
+    if (!fx) return;
+    const form = this.deviceForms.at(deviceIndex);
+    const patchIfEmpty = (
+      controlName: string,
+      field: { value: any; confidence: number } | undefined,
+      transform?: (v: any) => any,
+    ) => {
+      if (!field || field.confidence < 0.7) return;
+      const ctl = form.get(controlName);
+      if (!ctl) return;
+      const current = ctl.value;
+      if (current !== null && current !== undefined && current !== '') return;
+      const v = transform ? transform(field.value) : field.value;
+      ctl.setValue(v);
+      ctl.markAsDirty();
+    };
+    patchIfEmpty('capacity', fx.acCapacityKw);
+    patchIfEmpty('generatingUnitCount', fx.inverterCount);
+    patchIfEmpty('interconnectionVoltage', fx.gridVoltage);
+    patchIfEmpty(
+      'gridInterconnection',
+      fx.gridTied,
+      (v) => (v ? 'true' : 'false'),
+    );
+    patchIfEmpty('dataSourceBrand', fx.inverterMakeModel);
+    this.toastrService.success('SLD fields applied to the form');
+  }
+
+  dismissSldExtraction(deviceIndex: number): void {
+    this.sldExtractions[deviceIndex] = null;
+  }
+
   private classifyUploadedFile(
     file: File,
     deviceIndex: number,
