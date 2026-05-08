@@ -1181,13 +1181,29 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   applyMeterIdsExtraction(): void {
     if (!this.meterIdsExtraction.length) return;
     const ctl = this.updateDeviceForm.get('serialNumber');
-    if (!ctl) return;
-    const current = (ctl.value || '').toString().trim();
-    if (current) return;
-    ctl.setValue(this.meterIdsExtraction.join(';'));
+    if (!ctl) {
+      console.warn('[meter-ids] serialNumber control not found');
+      return;
+    }
+    const current = String(ctl.value ?? '').trim();
+    const existing = current ? current.split(/\s*;\s*/).filter(Boolean) : [];
+    const merged: string[] = [];
+    const seen = new Set<string>();
+    for (const id of [...existing, ...this.meterIdsExtraction]) {
+      const k = id.toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k);
+      merged.push(id);
+    }
+    if (merged.length === existing.length) {
+      this.toastrService.info('No new measurement IDs to add');
+      return;
+    }
+    ctl.setValue(merged.join(';'));
     ctl.markAsDirty();
+    const added = merged.length - existing.length;
     this.toastrService.success(
-      `${this.meterIdsExtraction.length} measurement ID${this.meterIdsExtraction.length === 1 ? '' : 's'} applied`,
+      `${added} measurement ID${added === 1 ? '' : 's'} added`,
     );
   }
 

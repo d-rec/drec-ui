@@ -1313,13 +1313,34 @@ export class AddDevicesComponent implements OnDestroy {
     const ids = this.meterIdsExtractions[deviceIndex] || [];
     if (!ids.length) return;
     const ctl = this.deviceForms.at(deviceIndex).get('serialNumber');
-    if (!ctl) return;
-    const current = (ctl.value || '').trim();
-    if (current) return; // never overwrite manual input
-    ctl.setValue(ids.join(';'));
+    if (!ctl) {
+      console.warn('[meter-ids] serialNumber control not found on device', deviceIndex);
+      return;
+    }
+    // Merge with whatever is already in the field rather than bail
+    // on non-empty: this handler runs only on an explicit click, so
+    // the user has already opted in to the change. Dedup case-
+    // insensitively in case a portal screenshot and a nameplate photo
+    // disagree on capitalization.
+    const current = String(ctl.value ?? '').trim();
+    const existing = current ? current.split(/\s*;\s*/).filter(Boolean) : [];
+    const merged: string[] = [];
+    const seen = new Set<string>();
+    for (const id of [...existing, ...ids]) {
+      const k = id.toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k);
+      merged.push(id);
+    }
+    if (merged.length === existing.length) {
+      this.toastrService.info('No new measurement IDs to add');
+      return;
+    }
+    ctl.setValue(merged.join(';'));
     ctl.markAsDirty();
+    const added = merged.length - existing.length;
     this.toastrService.success(
-      `${ids.length} measurement ID${ids.length === 1 ? '' : 's'} applied`,
+      `${added} measurement ID${added === 1 ? '' : 's'} added`,
     );
   }
 
