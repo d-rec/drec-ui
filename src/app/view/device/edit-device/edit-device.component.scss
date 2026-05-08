@@ -846,12 +846,12 @@
 
   &__row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 28px;
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
     gap: 4px;
 
-    &:only-child {
-      grid-template-columns: minmax(0, 1fr);
+    &:has(.serial-list__remove) {
+      grid-template-columns: minmax(0, 1fr) 28px;
     }
   }
 

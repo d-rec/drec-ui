@@ -877,13 +877,15 @@ input.example-right-align {
 
   &__row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 28px;
+    // Default: input only — full column width. The × button shows via
+    // *ngIf when there's more than one row, at which point the second
+    // 28px track is added.
+    grid-template-columns: minmax(0, 1fr);
     align-items: center;
     gap: 4px;
 
-    // Single-ID rows (no × button) let the input span both columns
-    &:only-child {
-      grid-template-columns: minmax(0, 1fr);
+    &:has(.serial-list__remove) {
+      grid-template-columns: minmax(0, 1fr) 28px;
     }
   }
 
