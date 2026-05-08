@@ -301,6 +301,25 @@ export class AddDevicesComponent implements OnDestroy {
    *  for ai_audit_log per-device tracking. */
   editingDeviceId: number | null = null;
 
+  /** Existing server-saved docs for the device being edited, keyed by
+   *  device-row index → docType. Add-flow keeps this empty; edit-flow
+   *  populates it for index 0 from getDocuments(). */
+  existingDocs: {
+    [deviceIndex: number]: {
+      [type: string]: {
+        url: string;
+        name: string;
+        id: number;
+        label: string | null;
+        createdAt?: string;
+      }[];
+    };
+  } = {};
+  brokenDocs: { [deviceIndex: number]: { [type: string]: boolean } } = {};
+  /** Initial serial number observed at hydration time so we can flag
+   *  changes for the PATCH `serialNumberChanged` query param. */
+  private initSerialNumber: string | null = null;
+
   get isEditMode(): boolean {
     return this.editingExternalId !== null;
   }
@@ -335,6 +354,256 @@ export class AddDevicesComponent implements OnDestroy {
       this.setupDataSourceWatcher(group as FormGroup);
       this.setupSiteNameWatcher(group as FormGroup, i);
     });
+
+    if (this.isEditMode) {
+      // Defer until country/SDG/fuel/device-type lookups land — the
+      // hydration step needs them to translate codes into the form's
+      // display values. Poll briefly; loadData() kicks all four off in
+      // parallel so they typically resolve in <100ms.
+      const start = Date.now();
+      const wait = (): void => {
+        if (
+          this.countrylist?.length &&
+          this.sdgblist &&
+          this.fuellist?.length &&
+          this.devicetypelist?.length
+        ) {
+          this.loadDeviceForEdit();
+        } else if (Date.now() - start < 8000) {
+          setTimeout(wait, 100);
+        } else {
+          // Lookups still missing — try anyway; fields that depend on
+          // them will show the raw code instead of the display value.
+          this.loadDeviceForEdit();
+        }
+      };
+      wait();
+    }
+  }
+
+  /**
+   * Edit-mode hydration. Pulls the existing device by externalId and
+   * patches the first FormArray row with its values, then loads its
+   * server-saved documents into existingDocs[0]. Mirrors edit-device's
+   * old getDeviceinfo() / getDocuments() flow.
+   */
+  private loadDeviceForEdit(): void {
+    if (!this.editingExternalId) return;
+    this.deviceService
+      .getDeviceInfoBYexternalId(this.editingExternalId)
+      .subscribe({
+        next: (data: any) => {
+          this.editingDeviceId = data.id;
+          this.initSerialNumber = data.serialNumber ?? null;
+
+          const firstRow = this.deviceForms.at(0) as FormGroup;
+          if (!firstRow) return;
+
+          // Map alpha3 country code → display name for the autocomplete.
+          const countryName = this.countrylist.find(
+            (c: any) => c.alpha3 === data.countryCode,
+          )?.country ?? data.countryCode;
+
+          // SDGBenefits storage uses the value but the UI binds on name.
+          let sdgBenefitNames: string[] = [];
+          if (Array.isArray(data.SDGBenefits) && this.sdgblist) {
+            sdgBenefitNames = data.SDGBenefits.map((sdgValue: string) => {
+              const found = (this.sdgblist as any[]).find(
+                (ele: any) =>
+                  ele.value?.toString().toLowerCase() ===
+                  String(sdgValue).toLowerCase(),
+              );
+              return found?.name ?? sdgValue;
+            });
+          }
+
+          // OC#37 labelling-scheme accreditation: stored as '; '-joined string,
+          // form expects an array.
+          const labellingSchemeArr: string[] = data.labellingSchemeAccreditation
+            ? String(data.labellingSchemeAccreditation)
+                .split(/\s*;\s*/)
+                .map((s: string) => s.trim())
+                .filter(Boolean)
+            : [];
+
+          firstRow.patchValue({
+            siteName: data.siteName,
+            serialNumber: data.serialNumber,
+            address: data.address,
+            latitude: data.latitude,
+            longitude: data.longitude,
+            countryCodename: countryName,
+            fuelCode: data.fuelCode,
+            deviceTypeCode: data.deviceTypeCode,
+            capacity: data.capacity,
+            commissioningDate: data.commissioningDate,
+            gridInterconnection: data.gridInterconnection,
+            operatingConfiguration: data.operatingConfiguration ?? null,
+            sourceAccessMode: data.sourceAccessMode ?? null,
+            offTaker: data.offTaker,
+            impactStory: data.impactStory,
+            deviceDescription: data.deviceDescription,
+            stateProvince: data.stateProvince,
+            postcode: data.postcode,
+            SDGBenefits: sdgBenefitNames,
+            labellingSchemeAccreditation: labellingSchemeArr,
+            version: data.version ?? '1.0',
+            defaultAccountCode: data.defaultAccountCode,
+            requestedEffectiveRegDate: data.requestedEffectiveRegDate,
+            signatoryName: data.signatoryName,
+            gridExportType: data.gridExportType,
+            hasNetworkMeter: data.hasNetworkMeter,
+            meterReadsShareable: data.meterReadsShareable,
+            hasCaptiveConsumer: data.hasCaptiveConsumer,
+            hasAuxiliaryEnergySources: data.hasAuxiliaryEnergySources,
+            auxiliaryEnergySourceDetails: data.auxiliaryEnergySourceDetails,
+            nonMeterImportDetails: data.nonMeterImportDetails,
+            otherEacSchemeRegistration: data.otherEacSchemeRegistration,
+            additionalInfo: data.additionalInfo,
+            generatingUnitCount: data.generatingUnitCount,
+            networkOwner: data.networkOwner,
+            interconnectionVoltage: data.interconnectionVoltage,
+            pvSystemOwner: data.pvSystemOwner,
+            offTakerName: data.offTakerName,
+            offTakerSameCompanyAsOwner: data.offTakerSameCompanyAsOwner,
+            hasSubsidy: data.hasSubsidy,
+            subsidyTypes: data.subsidyTypes ?? [],
+            subsidyOtherDetails: data.subsidyOtherDetails,
+            subsidyClaimsEacs: data.subsidyClaimsEacs,
+            hasPublicFunding: data.hasPublicFunding,
+            publicFundingEndDate: data.publicFundingEndDate,
+            registrationType: data.registrationType,
+            volumeEvidenceType: data.volumeEvidenceType,
+            verificationAgentName: data.verificationAgentName,
+            offGridCircumstances: data.offGridCircumstances,
+            dataSource: data.dataSource,
+            dataSourceBrand: data.dataSourceBrand,
+            otherDataSource: data.otherDataSource,
+          });
+
+          this.organizationId = data.organizationId ?? this.organizationId;
+
+          // Refresh evidence-requirements off the loaded operating config.
+          this.evidenceReqs = getEvidenceRequirements(
+            data.operatingConfiguration ?? null,
+          );
+
+          // Re-seed serial-number list from joined string.
+          this.serialNumberLists[0] = data.serialNumber
+            ? String(data.serialNumber).split(/\s*;\s*/)
+            : [''];
+
+          // Load existing docs for this device (single-row, so always index 0).
+          this.deviceService.getDocuments(data.id).subscribe({
+            next: (docs) => {
+              const docsByType: {
+                [type: string]: {
+                  url: string;
+                  name: string;
+                  id: number;
+                  label: string | null;
+                  createdAt?: string;
+                }[];
+              } = {};
+              for (const doc of docs) {
+                if (!docsByType[doc.type]) docsByType[doc.type] = [];
+                let name =
+                  doc.url.split('/').pop()?.split('?')[0] || doc.type;
+                name = name.replace(/\+/g, ' ');
+                let prev = '';
+                while (name !== prev) {
+                  prev = name;
+                  try {
+                    name = decodeURIComponent(name);
+                  } catch {
+                    break;
+                  }
+                }
+                name = name.replace(
+                  /-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi,
+                  '',
+                );
+                name = name.replace(/_\d{10,}_\d+\./, '.');
+                docsByType[doc.type].push({
+                  url: doc.url,
+                  name: doc.originalFilename || name,
+                  id: doc.id,
+                  label: doc.label,
+                  createdAt: doc.createdAt,
+                });
+              }
+              this.existingDocs[0] = docsByType;
+
+              // Probe each URL for 404s so the UI can flag broken links.
+              this.brokenDocs[0] = {};
+              for (const type of Object.keys(docsByType)) {
+                for (const doc of docsByType[type]) {
+                  if (!doc.url) {
+                    this.brokenDocs[0][type] = true;
+                    continue;
+                  }
+                  const ctrl = new AbortController();
+                  fetch(doc.url, {
+                    method: 'GET',
+                    mode: 'cors',
+                    signal: ctrl.signal,
+                  }).then(
+                    (res) => {
+                      ctrl.abort();
+                      if (!res.ok) this.brokenDocs[0][type] = true;
+                    },
+                    (err) => {
+                      if (err?.name !== 'AbortError')
+                        this.brokenDocs[0][type] = true;
+                    },
+                  );
+                }
+                // Pre-populate filePreviews so View buttons render for
+                // existing docs even before the user touches the file
+                // input.
+                if (
+                  !this.filePreviews[0]?.[type] &&
+                  docsByType[type]?.length
+                ) {
+                  const doc = docsByType[type][0];
+                  const ext = doc.name.split('.').pop()?.toLowerCase() || '';
+                  const isImage = [
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                    'webp',
+                    'bmp',
+                  ].includes(ext);
+                  const isPdf = ext === 'pdf';
+                  const isExcel = ext === 'xlsx' || ext === 'xls';
+                  if (!this.filePreviews[0]) this.filePreviews[0] = {};
+                  this.filePreviews[0][type] = {
+                    url: this.sanitizer.bypassSecurityTrustResourceUrl(
+                      doc.url,
+                    ),
+                    type: isImage
+                      ? 'image'
+                      : isPdf
+                        ? 'pdf'
+                        : isExcel
+                          ? 'excel'
+                          : 'other',
+                    name: doc.name,
+                  };
+                }
+              }
+            },
+            error: () => {},
+          });
+        },
+        error: (err: any) => {
+          this.toastrService.error(
+            err?.error?.message || err?.message || 'Failed to load device',
+            'Edit',
+          );
+        },
+      });
   }
 
   ngOnDestroy() {
