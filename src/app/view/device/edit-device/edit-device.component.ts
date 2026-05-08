@@ -45,7 +45,9 @@ import {
 } from '../../../utils/file-upload.helper';
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
 import {
+  CodExtractedFields,
   DocumentClassifierService,
+  Sf02ExtractedFields,
   Sf02cExtractedFields,
   SldExtractedFields,
 } from '../../../utils/document-classifier.service';
@@ -164,6 +166,12 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   /** SF-02c text/vision extraction state. */
   sf02cExtraction: Sf02cExtractedFields | null = null;
   sf02cExtracting = false;
+
+  codExtraction: CodExtractedFields | null = null;
+  codExtracting = false;
+
+  sf02Extraction: Sf02ExtractedFields | null = null;
+  sf02Extracting = false;
   DOCUMENT_TYPE_LABELS = DOCUMENT_TYPE_LABELS;
 
   /** Magic auto-sort state. */
@@ -826,6 +834,12 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     if (fileType === DocumentType.SF_02C) {
       this.extractSf02cFieldsForDevice(file);
     }
+    if (fileType === DocumentType.COD_PROOF) {
+      this.extractCodFieldsForDevice(file);
+    }
+    if (fileType === DocumentType.FORM_SF_02) {
+      this.extractSf02FieldsForDevice(file);
+    }
   }
 
   /** Magic auto-sort: classify multiple files and dispatch them to slots. */
@@ -1101,6 +1115,102 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
 
   dismissSf02cExtraction(): void {
     this.sf02cExtraction = null;
+  }
+
+  private extractCodFieldsForDevice(file: File): void {
+    this.codExtracting = true;
+    this.codExtraction = null;
+    const deviceId = typeof this.id === 'number' ? this.id : undefined;
+    this.documentClassifier
+      .extractCodFields(file, deviceId)
+      .then((res) =>
+        this.ngZone.run(() => {
+          this.codExtracting = false;
+          this.codExtraction = res;
+        }),
+      )
+      .catch(() =>
+        this.ngZone.run(() => {
+          this.codExtracting = false;
+        }),
+      );
+  }
+
+  applyCodExtraction(): void {
+    const fx = this.codExtraction;
+    if (!fx) return;
+    const patchIfEmpty = (
+      controlName: string,
+      field: { value: any; confidence: number } | undefined,
+    ) => {
+      if (!field || field.confidence < 0.7) return;
+      const ctl = this.updateDeviceForm.get(controlName);
+      if (!ctl) return;
+      const current = ctl.value;
+      if (current !== null && current !== undefined && current !== '') return;
+      ctl.setValue(field.value);
+      ctl.markAsDirty();
+    };
+    patchIfEmpty('commissioningDate', fx.commissioningDate);
+    patchIfEmpty('siteName', fx.facilityName);
+    patchIfEmpty('capacity', fx.acCapacityKw);
+    patchIfEmpty('pvSystemOwner', fx.ownerName);
+    this.toastrService.success('COD proof fields applied to the form');
+  }
+
+  dismissCodExtraction(): void {
+    this.codExtraction = null;
+  }
+
+  private extractSf02FieldsForDevice(file: File): void {
+    this.sf02Extracting = true;
+    this.sf02Extraction = null;
+    const deviceId = typeof this.id === 'number' ? this.id : undefined;
+    this.documentClassifier
+      .extractSf02Fields(file, deviceId)
+      .then((res) =>
+        this.ngZone.run(() => {
+          this.sf02Extracting = false;
+          this.sf02Extraction = res;
+        }),
+      )
+      .catch(() =>
+        this.ngZone.run(() => {
+          this.sf02Extracting = false;
+        }),
+      );
+  }
+
+  applySf02Extraction(): void {
+    const fx = this.sf02Extraction;
+    if (!fx) return;
+    const patchIfEmpty = (
+      controlName: string,
+      field: { value: any; confidence: number } | undefined,
+    ) => {
+      if (!field || field.confidence < 0.7) return;
+      const ctl = this.updateDeviceForm.get(controlName);
+      if (!ctl) return;
+      const current = ctl.value;
+      if (current !== null && current !== undefined && current !== '') return;
+      ctl.setValue(field.value);
+      ctl.markAsDirty();
+    };
+    patchIfEmpty('siteName', fx.facilityName);
+    patchIfEmpty('capacity', fx.acCapacityKw);
+    patchIfEmpty('commissioningDate', fx.commissioningDate);
+    patchIfEmpty('deviceTypeCode', fx.deviceTypeCode);
+    patchIfEmpty('pvSystemOwner', fx.ownerLegalName);
+    patchIfEmpty('address', fx.ownerAddress);
+    patchIfEmpty('countryCodename', fx.ownerCountry);
+    patchIfEmpty('latitude', fx.latitude);
+    patchIfEmpty('longitude', fx.longitude);
+    patchIfEmpty('generatingUnitCount', fx.inverterCount);
+    this.toastrService.success('SF-02 fields applied to the form');
+  }
+
+  dismissSf02Extraction(): void {
+    this.sf02Extraction = null;
   }
 
   private classifyUploadedFile(file: File, currentType: string): void {

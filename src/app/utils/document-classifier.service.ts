@@ -18,6 +18,30 @@ export interface ExtractedField<T> {
   confidence: number;
 }
 
+export interface CodExtractedFields {
+  commissioningDate?: ExtractedField<string>;
+  facilityName?: ExtractedField<string>;
+  acCapacityKw?: ExtractedField<number>;
+  ownerName?: ExtractedField<string>;
+  utilityOrIssuer?: ExtractedField<string>;
+  reasoning: string;
+}
+
+export interface Sf02ExtractedFields {
+  facilityName?: ExtractedField<string>;
+  acCapacityKw?: ExtractedField<number>;
+  commissioningDate?: ExtractedField<string>;
+  deviceTypeCode?: ExtractedField<string>;
+  ownerLegalName?: ExtractedField<string>;
+  ownerAddress?: ExtractedField<string>;
+  ownerCountry?: ExtractedField<string>;
+  latitude?: ExtractedField<number>;
+  longitude?: ExtractedField<number>;
+  inverterCount?: ExtractedField<number>;
+  moduleCount?: ExtractedField<number>;
+  reasoning: string;
+}
+
 export interface Sf02cExtractedFields {
   projectName?: ExtractedField<string>;
   ownerLegalName?: ExtractedField<string>;
@@ -409,6 +433,63 @@ export class DocumentClassifierService {
       return res ?? null;
     } catch (err) {
       console.warn('[DocumentClassifier] SLD extract failed:', err);
+      return null;
+    }
+  }
+
+  async extractCodFields(
+    file: File,
+    deviceId?: number,
+  ): Promise<CodExtractedFields | null> {
+    return this.runDocExtractionFE<CodExtractedFields>(
+      'ai/extract-cod-fields',
+      file,
+      deviceId,
+    );
+  }
+
+  async extractSf02Fields(
+    file: File,
+    deviceId?: number,
+  ): Promise<Sf02ExtractedFields | null> {
+    return this.runDocExtractionFE<Sf02ExtractedFields>(
+      'ai/extract-sf02-fields',
+      file,
+      deviceId,
+    );
+  }
+
+  /** Shared text-or-vision extraction client used by COD / SF-02 / SF-02c. */
+  private async runDocExtractionFE<T>(
+    endpointPath: string,
+    file: File,
+    deviceId: number | undefined,
+  ): Promise<T | null> {
+    try {
+      let text = '';
+      if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+        text = await this.extractPdfTextLayer(file);
+      }
+      const payload: any = { filename: file.name };
+      if (deviceId) payload.deviceId = deviceId;
+      if (text && text.trim().length >= 40) {
+        payload.text = text;
+      } else {
+        const canvases = await this.renderFirstNPages(file, 2);
+        payload.images = canvases.map((c) => {
+          const ds = this.downsampleToLongEdge(c, 2048);
+          return {
+            base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
+            mimeType: 'image/png' as const,
+          };
+        });
+      }
+      const res = await firstValueFrom(
+        this.http.post<T>(`${environment.API_URL}${endpointPath}`, payload),
+      );
+      return res ?? null;
+    } catch (err) {
+      console.warn(`[DocumentClassifier] ${endpointPath} failed:`, err);
       return null;
     }
   }

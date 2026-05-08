@@ -64,7 +64,9 @@ import {
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
 import { environment } from '../../../../environments/environment';
 import {
+  CodExtractedFields,
   DocumentClassifierService,
+  Sf02ExtractedFields,
   Sf02cExtractedFields,
   SldExtractedFields,
 } from '../../../utils/document-classifier.service';
@@ -126,6 +128,14 @@ export class AddDevicesComponent implements OnDestroy {
   /** SF-02c text/vision extraction state per device. */
   sf02cExtractions: { [deviceIndex: number]: Sf02cExtractedFields | null } = {};
   sf02cExtracting: { [deviceIndex: number]: boolean } = {};
+
+  /** COD proof extraction state per device. */
+  codExtractions: { [deviceIndex: number]: CodExtractedFields | null } = {};
+  codExtracting: { [deviceIndex: number]: boolean } = {};
+
+  /** SF-02 (registration form) extraction state per device. */
+  sf02Extractions: { [deviceIndex: number]: Sf02ExtractedFields | null } = {};
+  sf02Extracting: { [deviceIndex: number]: boolean } = {};
 
   /** Magic auto-sort state. */
   magicRunning: { [deviceIndex: number]: boolean } = {};
@@ -858,6 +868,12 @@ export class AddDevicesComponent implements OnDestroy {
     if (fileType === DocumentType.SF_02C) {
       this.extractSf02cFieldsForDevice(input.files[0], deviceIndex);
     }
+    if (fileType === DocumentType.COD_PROOF) {
+      this.extractCodFieldsForDevice(input.files[0], deviceIndex);
+    }
+    if (fileType === DocumentType.FORM_SF_02) {
+      this.extractSf02FieldsForDevice(input.files[0], deviceIndex);
+    }
   }
 
   /** Magic auto-sort: classify multiple files and dispatch them to slots. */
@@ -1138,6 +1154,102 @@ export class AddDevicesComponent implements OnDestroy {
 
   dismissSf02cExtraction(deviceIndex: number): void {
     this.sf02cExtractions[deviceIndex] = null;
+  }
+
+  private extractCodFieldsForDevice(file: File, deviceIndex: number): void {
+    this.codExtracting[deviceIndex] = true;
+    this.codExtractions[deviceIndex] = null;
+    this.documentClassifier
+      .extractCodFields(file)
+      .then((res) =>
+        this.ngZone.run(() => {
+          this.codExtracting[deviceIndex] = false;
+          this.codExtractions[deviceIndex] = res;
+        }),
+      )
+      .catch(() =>
+        this.ngZone.run(() => {
+          this.codExtracting[deviceIndex] = false;
+        }),
+      );
+  }
+
+  applyCodExtraction(deviceIndex: number): void {
+    const fx = this.codExtractions[deviceIndex];
+    if (!fx) return;
+    const form = this.deviceForms.at(deviceIndex);
+    const patchIfEmpty = (
+      controlName: string,
+      field: { value: any; confidence: number } | undefined,
+    ) => {
+      if (!field || field.confidence < 0.7) return;
+      const ctl = form.get(controlName);
+      if (!ctl) return;
+      const current = ctl.value;
+      if (current !== null && current !== undefined && current !== '') return;
+      ctl.setValue(field.value);
+      ctl.markAsDirty();
+    };
+    patchIfEmpty('commissioningDate', fx.commissioningDate);
+    patchIfEmpty('siteName', fx.facilityName);
+    patchIfEmpty('capacity', fx.acCapacityKw);
+    patchIfEmpty('pvSystemOwner', fx.ownerName);
+    this.toastrService.success('COD proof fields applied to the form');
+  }
+
+  dismissCodExtraction(deviceIndex: number): void {
+    this.codExtractions[deviceIndex] = null;
+  }
+
+  private extractSf02FieldsForDevice(file: File, deviceIndex: number): void {
+    this.sf02Extracting[deviceIndex] = true;
+    this.sf02Extractions[deviceIndex] = null;
+    this.documentClassifier
+      .extractSf02Fields(file)
+      .then((res) =>
+        this.ngZone.run(() => {
+          this.sf02Extracting[deviceIndex] = false;
+          this.sf02Extractions[deviceIndex] = res;
+        }),
+      )
+      .catch(() =>
+        this.ngZone.run(() => {
+          this.sf02Extracting[deviceIndex] = false;
+        }),
+      );
+  }
+
+  applySf02Extraction(deviceIndex: number): void {
+    const fx = this.sf02Extractions[deviceIndex];
+    if (!fx) return;
+    const form = this.deviceForms.at(deviceIndex);
+    const patchIfEmpty = (
+      controlName: string,
+      field: { value: any; confidence: number } | undefined,
+    ) => {
+      if (!field || field.confidence < 0.7) return;
+      const ctl = form.get(controlName);
+      if (!ctl) return;
+      const current = ctl.value;
+      if (current !== null && current !== undefined && current !== '') return;
+      ctl.setValue(field.value);
+      ctl.markAsDirty();
+    };
+    patchIfEmpty('siteName', fx.facilityName);
+    patchIfEmpty('capacity', fx.acCapacityKw);
+    patchIfEmpty('commissioningDate', fx.commissioningDate);
+    patchIfEmpty('deviceTypeCode', fx.deviceTypeCode);
+    patchIfEmpty('pvSystemOwner', fx.ownerLegalName);
+    patchIfEmpty('address', fx.ownerAddress);
+    patchIfEmpty('countryCodename', fx.ownerCountry);
+    patchIfEmpty('latitude', fx.latitude);
+    patchIfEmpty('longitude', fx.longitude);
+    patchIfEmpty('generatingUnitCount', fx.inverterCount);
+    this.toastrService.success('SF-02 fields applied to the form');
+  }
+
+  dismissSf02Extraction(deviceIndex: number): void {
+    this.sf02Extractions[deviceIndex] = null;
   }
 
   private classifyUploadedFile(

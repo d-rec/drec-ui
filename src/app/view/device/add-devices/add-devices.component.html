@@ -702,6 +702,29 @@
                         </span>
                       </div>
                       <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'FORM_SF_02' }"></ng-container>
+                      <div class="sld-extract-running" *ngIf="sf02Extracting[i]">
+                        <span class="barber-pole" aria-hidden="true"></span>
+                        <small>Reading SF-02…</small>
+                      </div>
+                      <div class="sld-extract-banner" *ngIf="sf02Extractions[i] as fx">
+                        <div class="sld-extract-banner__header"><strong>AI extracted from SF-02:</strong></div>
+                        <ul class="sld-extract-banner__list">
+                          <li *ngIf="fx.facilityName">Site: {{ fx.facilityName.value }} <small>({{ (fx.facilityName.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                          <li *ngIf="fx.acCapacityKw">Capacity: {{ fx.acCapacityKw.value }} kW <small>({{ (fx.acCapacityKw.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                          <li *ngIf="fx.commissioningDate">COD: {{ fx.commissioningDate.value }} <small>({{ (fx.commissioningDate.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                          <li *ngIf="fx.deviceTypeCode">Type: {{ fx.deviceTypeCode.value }}</li>
+                          <li *ngIf="fx.ownerLegalName">Owner: {{ fx.ownerLegalName.value }}</li>
+                          <li *ngIf="fx.ownerAddress">Address: {{ fx.ownerAddress.value }}</li>
+                          <li *ngIf="fx.ownerCountry">Country: {{ fx.ownerCountry.value }}</li>
+                          <li *ngIf="fx.latitude && fx.longitude">Coords: {{ fx.latitude.value }}, {{ fx.longitude.value }}</li>
+                          <li *ngIf="fx.inverterCount">Inverters: {{ fx.inverterCount.value }}</li>
+                          <li *ngIf="fx.moduleCount">Modules: {{ fx.moduleCount.value }}</li>
+                        </ul>
+                        <div class="sld-extract-banner__actions">
+                          <button type="button" class="btn btn-sm btn-primary" (click)="applySf02Extraction(i)" (mousedown)="$event.stopPropagation()">Apply to form</button>
+                          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissSf02Extraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
+                        </div>
+                      </div>
                     </div>
                     <div *ngIf="deviceForms.at(i).get('sf02EvidenceMode')?.value === 'self'">
                       <button type="button" class="btn btn-outline-primary"
@@ -916,6 +939,24 @@
                       </span>
                     </div>
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'COD_PROOF' }"></ng-container>
+                    <div class="sld-extract-running" *ngIf="codExtracting[i]">
+                      <span class="barber-pole" aria-hidden="true"></span>
+                      <small>Reading COD proof…</small>
+                    </div>
+                    <div class="sld-extract-banner" *ngIf="codExtractions[i] as fx">
+                      <div class="sld-extract-banner__header"><strong>AI extracted from COD proof:</strong></div>
+                      <ul class="sld-extract-banner__list">
+                        <li *ngIf="fx.commissioningDate">COD: {{ fx.commissioningDate.value }} <small>({{ (fx.commissioningDate.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="fx.facilityName">Site: {{ fx.facilityName.value }}</li>
+                        <li *ngIf="fx.acCapacityKw">Capacity: {{ fx.acCapacityKw.value }} kW</li>
+                        <li *ngIf="fx.ownerName">Owner: {{ fx.ownerName.value }}</li>
+                        <li *ngIf="fx.utilityOrIssuer">Issued by: {{ fx.utilityOrIssuer.value }}</li>
+                      </ul>
+                      <div class="sld-extract-banner__actions">
+                        <button type="button" class="btn btn-sm btn-primary" (click)="applyCodExtraction(i)" (mousedown)="$event.stopPropagation()">Apply to form</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissCodExtraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
+                      </div>
+                    </div>
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('METERING_EVIDENCE') === 'required' && !deviceForms.at(i).get('METERING_EVIDENCE')?.value">
