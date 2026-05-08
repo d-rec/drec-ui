@@ -22,7 +22,7 @@ import {
   AdminService,
   OrganizationService,
 } from '../../../auth/services';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, Subscription, Subject } from 'rxjs';
 import {
@@ -291,11 +291,26 @@ export class AddDevicesComponent implements OnDestroy {
   @ViewChild('satelliteMap') satelliteMapComponent: MapComponent;
   @Output() zoom = new EventEmitter<number>();
 
+  /** When the route is /device/edit/:id, the same component runs in
+   *  edit mode: hydrates the first FormArray row from the existing
+   *  device, hides the "+ Add Device" button, switches the submit
+   *  path to PATCH. When undefined the component behaves as the
+   *  classic multi-row Add flow. */
+  editingExternalId: string | null = null;
+  /** Numeric id once the device has been loaded — extractors use it
+   *  for ai_audit_log per-device tracking. */
+  editingDeviceId: number | null = null;
+
+  get isEditMode(): boolean {
+    return this.editingExternalId !== null;
+  }
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthbaseService,
     private deviceService: DeviceService,
     private router: Router,
+    private route: ActivatedRoute,
     private toastrService: ToastrService,
     private adminService: AdminService,
     private orgService: OrganizationService,
@@ -309,6 +324,7 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   ngOnInit() {
+    this.editingExternalId = this.route.snapshot.paramMap.get('id');
     this.loadData();
     this.initializeForm();
     this.showerror[0] = false;
