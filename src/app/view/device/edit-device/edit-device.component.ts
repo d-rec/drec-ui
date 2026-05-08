@@ -175,6 +175,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   sf02Extracting = false;
 
   meterIdsExtraction: string[] = [];
+  meterIdsBrand = '';
   meterIdsExtracting = false;
 
   /** Auto-classifier extraction phase. When true, the magic-overlay
@@ -1185,6 +1186,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
             for (const id of res.measurementIds.value) set.add(id);
             this.meterIdsExtraction = [...set];
           }
+          if (res?.inverterMakeModel && res.inverterMakeModel.confidence >= 0.7) {
+            this.meterIdsBrand = res.inverterMakeModel.value;
+          }
         }),
       )
       .catch(() =>
@@ -1218,6 +1222,16 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     ctl.setValue(merged.join(';'));
     ctl.markAsDirty();
     this.setDataSourceIfEmpty('Inverter');
+    if (this.meterIdsBrand) {
+      const brandCtl = this.updateDeviceForm.get('dataSourceBrand');
+      if (brandCtl) {
+        const cur = String(brandCtl.value ?? '').trim();
+        if (!cur) {
+          brandCtl.setValue(this.meterIdsBrand);
+          brandCtl.markAsDirty();
+        }
+      }
+    }
     const added = merged.length - existing.length;
     this.toastrService.success(
       `${added} measurement ID${added === 1 ? '' : 's'} added`,
@@ -1373,6 +1387,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     this.codExtraction = null;
     this.sf02Extraction = null;
     this.meterIdsExtraction = [];
+    this.meterIdsBrand = '';
   }
 
   private classifyUploadedFile(file: File, currentType: string): void {

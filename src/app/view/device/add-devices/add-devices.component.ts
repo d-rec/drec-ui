@@ -142,6 +142,7 @@ export class AddDevicesComponent implements OnDestroy {
    *  screenshots / nameplate photos / COD proofs. Each upload appends
    *  its results so the user sees the running list. */
   meterIdsExtractions: { [deviceIndex: number]: string[] } = {};
+  meterIdsBrands: { [deviceIndex: number]: string } = {};
   meterIdsExtracting: { [deviceIndex: number]: boolean } = {};
 
   /** Auto-classifier extraction phase. When true, the magic-overlay
@@ -1326,6 +1327,9 @@ export class AddDevicesComponent implements OnDestroy {
             for (const id of res.measurementIds.value) existing.add(id);
             this.meterIdsExtractions[deviceIndex] = [...existing];
           }
+          if (res?.inverterMakeModel && res.inverterMakeModel.confidence >= 0.7) {
+            this.meterIdsBrands[deviceIndex] = res.inverterMakeModel.value;
+          }
         }),
       )
       .catch(() =>
@@ -1360,6 +1364,19 @@ export class AddDevicesComponent implements OnDestroy {
     // SNs were read from a metering portal / nameplate — the data
     // source is the inverter.
     this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
+    // Patch (27) Data Source Brand Name when we also captured an
+    // inverter make/model from any of the screenshots.
+    const brand = this.meterIdsBrands[deviceIndex];
+    if (brand) {
+      const brandCtl = this.deviceForms.at(deviceIndex).get('dataSourceBrand');
+      if (brandCtl) {
+        const cur = String(brandCtl.value ?? '').trim();
+        if (!cur) {
+          brandCtl.setValue(brand);
+          brandCtl.markAsDirty();
+        }
+      }
+    }
     const added = merged.length - existing.length;
     this.toastrService.success(
       `${added} measurement ID${added === 1 ? '' : 's'} added`,
@@ -1447,6 +1464,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.codExtractions[deviceIndex] = null;
     this.sf02Extractions[deviceIndex] = null;
     this.meterIdsExtractions[deviceIndex] = [];
+    delete this.meterIdsBrands[deviceIndex];
   }
 
   private classifyUploadedFile(
