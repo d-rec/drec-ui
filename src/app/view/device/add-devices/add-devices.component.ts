@@ -1126,7 +1126,23 @@ export class AddDevicesComponent implements OnDestroy {
       (v) => (v ? 'true' : 'false'),
     );
     patchIfEmpty('dataSourceBrand', fx.inverterMakeModel);
+    // SLD always describes inverter-side topology — if we read an
+    // inverter make/model or count, the data source is the inverter.
+    if (fx.inverterMakeModel || fx.inverterCount) {
+      this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
+    }
     this.toastrService.success('SLD fields applied to the form');
+  }
+
+  /** Set `dataSource` to a specific enum value only if the form
+   *  control is currently empty. Used by SLD / SF-02 / meter-ids
+   *  applies when an inverter signal is present. */
+  private setDataSourceIfEmpty(deviceIndex: number, value: string): void {
+    const ctl = this.deviceForms.at(deviceIndex).get('dataSource');
+    if (!ctl) return;
+    if (ctl.value !== null && ctl.value !== undefined && ctl.value !== '') return;
+    ctl.setValue(value);
+    ctl.markAsDirty();
   }
 
   dismissSldExtraction(deviceIndex: number): void {
@@ -1283,6 +1299,9 @@ export class AddDevicesComponent implements OnDestroy {
     patchIfEmpty('latitude', fx.latitude);
     patchIfEmpty('longitude', fx.longitude);
     patchIfEmpty('generatingUnitCount', fx.inverterCount);
+    if (fx.inverterCount) {
+      this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
+    }
     this.toastrService.success('SF-02 fields applied to the form');
   }
 
@@ -1338,6 +1357,9 @@ export class AddDevicesComponent implements OnDestroy {
     }
     this.serialNumberLists[deviceIndex] = merged.length ? merged : [''];
     this.syncSerialNumberControl(deviceIndex);
+    // SNs were read from a metering portal / nameplate — the data
+    // source is the inverter.
+    this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
     const added = merged.length - existing.length;
     this.toastrService.success(
       `${added} measurement ID${added === 1 ? '' : 's'} added`,

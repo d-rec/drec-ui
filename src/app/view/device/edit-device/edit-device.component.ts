@@ -1081,7 +1081,18 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       (v) => (v ? 'true' : 'false'),
     );
     patchIfEmpty('dataSourceBrand', fx.inverterMakeModel);
+    if (fx.inverterMakeModel || fx.inverterCount) {
+      this.setDataSourceIfEmpty('Inverter');
+    }
     this.toastrService.success('SLD fields applied to the form');
+  }
+
+  private setDataSourceIfEmpty(value: string): void {
+    const ctl = this.updateDeviceForm.get('dataSource');
+    if (!ctl) return;
+    if (ctl.value !== null && ctl.value !== undefined && ctl.value !== '') return;
+    ctl.setValue(value);
+    ctl.markAsDirty();
   }
 
   dismissSldExtraction(): void {
@@ -1206,6 +1217,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     }
     ctl.setValue(merged.join(';'));
     ctl.markAsDirty();
+    this.setDataSourceIfEmpty('Inverter');
     const added = merged.length - existing.length;
     this.toastrService.success(
       `${added} measurement ID${added === 1 ? '' : 's'} added`,
@@ -1286,6 +1298,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     patchIfEmpty('latitude', fx.latitude);
     patchIfEmpty('longitude', fx.longitude);
     patchIfEmpty('generatingUnitCount', fx.inverterCount);
+    if (fx.inverterCount) {
+      this.setDataSourceIfEmpty('Inverter');
+    }
     this.toastrService.success('SF-02 fields applied to the form');
   }
 
