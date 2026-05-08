@@ -10,6 +10,7 @@ import { EditUserComponent } from '../edit-user/edit-user.component';
 import { AllRegistrantComponent } from '../registrant/all-registrant/all-registrant.component';
 import { WebhooksComponent } from './webhooks/webhooks.component';
 import { ChatReviewComponent } from './chat-review/chat-review.component';
+import { AiUsageComponent } from './ai-usage/ai-usage.component';
 import { ChatReviewGuard } from '../../guards/chat-review.guard';
 import { NonReviewerGuard } from '../../guards/non-reviewer.guard';
 const routes: Routes = [
@@ -51,6 +52,10 @@ const routes: Routes = [
     path: 'chat-review',
     component: ChatReviewComponent,
     canActivate: [ChatReviewGuard],
+  },
+  {
+    path: 'ai-usage',
+    component: AiUsageComponent,
   },
   {
     path: 'permission',

@@ -1,0 +1,97 @@
+<div class="aiu">
+  <div class="aiu__header">
+    <h2>AI Usage</h2>
+    <button class="btn btn-sm btn-outline-secondary" (click)="refresh()" [disabled]="loading">
+      Refresh
+    </button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div *ngIf="loading" class="aiu__loading">Loading…</div>
+
+  <ng-container *ngIf="data && !loading">
+    <div class="aiu__cards">
+      <div class="aiu__card">
+        <div class="aiu__card-label">Month to date</div>
+        <div class="aiu__card-value">${{ data.monthToDate.estimatedUsd | number:'1.2-4' }}</div>
+        <div class="aiu__card-sub">of ${{ monthlyCapUsd }} cap</div>
+        <div class="aiu__bar">
+          <div class="aiu__bar-fill" [style.width.%]="capPercent()"
+            [class.aiu__bar-fill--warn]="capPercent() >= 75"
+            [class.aiu__bar-fill--danger]="capPercent() >= 90"></div>
+        </div>
+      </div>
+      <div class="aiu__card">
+        <div class="aiu__card-label">Calls</div>
+        <div class="aiu__card-value">{{ data.monthToDate.calls | number }}</div>
+        <div class="aiu__card-sub">{{ (data.monthToDate.successRate * 100) | number:'1.0-1' }}% success</div>
+      </div>
+      <div class="aiu__card">
+        <div class="aiu__card-label">Input tokens</div>
+        <div class="aiu__card-value">{{ data.monthToDate.inputTokens | number }}</div>
+      </div>
+      <div class="aiu__card">
+        <div class="aiu__card-label">Output tokens</div>
+        <div class="aiu__card-value">{{ data.monthToDate.outputTokens | number }}</div>
+      </div>
+    </div>
+
+    <h3>By endpoint (this month)</h3>
+    <table class="aiu__table">
+      <thead>
+        <tr>
+          <th>Endpoint</th>
+          <th class="num">Calls</th>
+          <th class="num">Input tok</th>
+          <th class="num">Output tok</th>
+          <th class="num">Cost (USD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of data.byEndpoint">
+          <td>{{ r.endpoint }}</td>
+          <td class="num">{{ r.calls | number }}</td>
+          <td class="num">{{ r.inputTokens | number }}</td>
+          <td class="num">{{ r.outputTokens | number }}</td>
+          <td class="num">${{ r.estimatedUsd | number:'1.2-4' }}</td>
+        </tr>
+        <tr *ngIf="!data.byEndpoint.length">
+          <td colspan="5" class="aiu__empty">No usage this month yet.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Daily spend (last 30 days)</h3>
+    <div class="aiu__bars" *ngIf="data.daily.length">
+      <div class="aiu__bar-row" *ngFor="let d of data.daily">
+        <span class="aiu__bar-day">{{ d.day }}</span>
+        <span class="aiu__bar-track">
+          <span class="aiu__bar-fill"
+            [style.width.%]="maxDailySpend() ? (d.estimatedUsd / maxDailySpend()) * 100 : 0"></span>
+        </span>
+        <span class="aiu__bar-val">{{ d.calls }} calls · ${{ d.estimatedUsd | number:'1.2-4' }}</span>
+      </div>
+    </div>
+
+    <h3>Top organisations (this month)</h3>
+    <table class="aiu__table">
+      <thead>
+        <tr>
+          <th>Org ID</th>
+          <th class="num">Calls</th>
+          <th class="num">Cost (USD)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let o of data.topOrgs">
+          <td>{{ o.organizationId ?? '(none)' }}</td>
+          <td class="num">{{ o.calls | number }}</td>
+          <td class="num">${{ o.estimatedUsd | number:'1.2-4' }}</td>
+        </tr>
+        <tr *ngIf="!data.topOrgs.length">
+          <td colspan="3" class="aiu__empty">No usage this month yet.</td>
+        </tr>
+      </tbody>
+    </table>
+  </ng-container>
+</div>
