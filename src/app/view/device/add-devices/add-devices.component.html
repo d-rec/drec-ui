@@ -605,7 +605,7 @@
                 <ng-template #existingDocList let-idx="idx" let-docType="docType">
                   <ul class="existing-doc-list" *ngIf="existingDocs[idx]?.[docType]?.length">
                     <li *ngFor="let doc of existingDocs[idx][docType]; let di = index" class="existing-doc-item">
-                      <span class="existing-doc-link" (click)="viewExistingDoc(doc)" [title]="doc.label || doc.name">{{ doc.label || doc.name }}</span>
+                      <span class="existing-doc-link" (click)="viewExistingDoc(doc, docType)" [title]="doc.label || doc.name">{{ doc.label || doc.name }}</span>
                       <button type="button" class="existing-doc-delete" (click)="deleteExistingDoc(idx, docType, di)" title="Delete">
                         <mat-icon style="font-size:14px;height:14px;width:14px">close</mat-icon>
                       </button>
@@ -1301,7 +1301,7 @@
       <app-pdf-preview
         [previewUrl]="previewData!.url"
         [previewType]="previewData!.type === 'pdf' ? 'pdf' : previewData!.type === 'excel' ? 'excel' : 'image'"
-        [ocrSource]="currentPreviewFile">
+        [ocrSource]="ocrEligibleDocType(currentPreviewDocType) ? currentPreviewFile : null">
       </app-pdf-preview>
     </div>
   </div>

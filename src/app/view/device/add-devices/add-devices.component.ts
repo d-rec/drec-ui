@@ -106,6 +106,7 @@ export class AddDevicesComponent implements OnDestroy {
   previewDialogRef: any;
   previewData: { url: any; type: string; name: string } | null = null;
   currentPreviewFile: File | null = null;
+  currentPreviewDocType: string | null = null;
   DataSourceTypes = DataSourceTypes;
   DocumentType = DocumentType;
   operatingConfigurations = Object.values(OperatingConfiguration);
@@ -2186,6 +2187,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.previewData = preview;
     this.currentPreviewFile =
       this.files[deviceIndex]?.[fileType as keyof DeviceFiles]?.[0] ?? null;
+    this.currentPreviewDocType = fileType;
     this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
       width: '95vw',
       maxWidth: '100vw',
@@ -2663,10 +2665,26 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   /**
+   * OCR is only meaningful on document images that contain text
+   * (meter screens, datasheets, statements, contracts). Site /
+   * project photos are visual evidence — running OCR on them
+   * yields nothing useful and confuses reviewers, so suppress the
+   * OCR affordance for those.
+   */
+  ocrEligibleDocType(docType: string | null | undefined): boolean {
+    if (!docType) return true; // unknown context → leave OCR enabled
+    return docType !== 'PROJECT_PHOTOS';
+  }
+
+  /**
    * Open a server-saved doc in the preview dialog. Edit-mode only —
    * Add flow has nothing to load. Mirrors edit-device.viewExistingDoc().
    */
-  viewExistingDoc(doc: { url: string; name: string; id: number }): void {
+  viewExistingDoc(
+    doc: { url: string; name: string; id: number },
+    docType?: string,
+  ): void {
+    this.currentPreviewDocType = docType ?? null;
     const ext = doc.name.split('.').pop()?.toLowerCase() || '';
     const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext);
     const isPdf = ext === 'pdf';
