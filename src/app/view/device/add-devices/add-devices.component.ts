@@ -2678,7 +2678,16 @@ export class AddDevicesComponent implements OnDestroy {
           panelClass: 'file-preview-dialog',
         });
       },
-      error: () => this.toastrService.error('Failed to load document'),
+      error: (err) => {
+        const status = err?.status ?? '?';
+        const apiMsg = err?.error?.message || err?.message || '';
+        const text = apiMsg
+          ? `Failed to load "${doc.name}" (HTTP ${status}): ${apiMsg}`
+          : `Failed to load "${doc.name}" (HTTP ${status})`;
+        // eslint-disable-next-line no-console
+        console.error('viewExistingDoc error', { docId: doc.id, err });
+        this.toastrService.error(text, '', { timeOut: 8000 });
+      },
     });
   }
 
