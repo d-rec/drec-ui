@@ -496,9 +496,12 @@ export class DocumentClassifierService {
   }
 
   /** Tokenise OCR'd text and keep only strings that look like a real
-   *  SN: contiguous alphanumeric 8-24 chars, no dashes, no kW/kWp
-   *  unit suffix. Same shape filter as the server applies to Haiku
-   *  output, so the two tiers stay consistent. */
+   *  hardware SN: contiguous alphanumeric 8-24 chars, mixing at
+   *  least one letter AND one digit, no dashes, no kW/kWp unit
+   *  suffix. Common dictionary words (Dashboard, Settings,
+   *  Notifications…) fail the letter+digit rule even though they
+   *  pass the length range — observed when monitoring portals
+   *  OCR-leak their UI labels into the bag of tokens. */
   private extractSnCandidatesFromText(text: string): string[] {
     if (!text) return [];
     const SN_RE = /^[A-Za-z0-9]{8,24}$/;
@@ -509,8 +512,13 @@ export class DocumentClassifierService {
     for (const raw of tokens) {
       const t = raw.trim();
       if (!SN_RE.test(t) || UNIT_TAIL_RE.test(t)) continue;
-      // Skip pure-numeric strings ≤ 10 chars (likely dates, kWh totals)
-      if (/^\d+$/.test(t) && t.length <= 10) continue;
+      // Real hardware SNs almost always mix letters with digits
+      // (e.g. ES2340051281, GW50K012345, 7E12345ABCD). Pure-letter
+      // strings are dictionary words; pure-digit short strings are
+      // dates / totals.
+      const hasLetter = /[A-Za-z]/.test(t);
+      const hasDigit = /\d/.test(t);
+      if (!hasLetter || !hasDigit) continue;
       const k = t.toLowerCase();
       if (seen.has(k)) continue;
       seen.add(k);

@@ -872,7 +872,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       const dx = x - this.deleteBtn.x;
       const dy = y - this.deleteBtn.y;
       if (dx * dx + dy * dy <= this.deleteBtn.r * this.deleteBtn.r) {
-        canvas.style.cursor = 'default';
+        canvas.style.cursor = 'pointer';
         return;
       }
     }
@@ -880,7 +880,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     canvas.style.cursor = this.predictions.some((p: any) =>
       this.regionHitTest(p, x, y),
     )
-      ? 'default'
+      ? 'pointer'
       : 'grab';
   }
 
