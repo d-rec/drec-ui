@@ -1031,3 +1031,12 @@ input.example-right-align {
     color: #64748b;
   }
 }
+
+// (14) Meter or Measurement IDs needs a touch more room than col-md-3
+// (16.666% under the compact override) to fit its label without
+// truncation, but col-md-4 (25%) was visibly out of step with the
+// surrounding fields. Land it at ~21%.
+:host ::ng-deep .col-md-3.serial-col {
+  flex: 0 0 21% !important;
+  max-width: 21% !important;
+}
