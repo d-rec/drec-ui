@@ -87,7 +87,7 @@
                 <app-map [zoom]="6" [centerPin]="true" [scrollWheelZoom]="false" (centerChanged)="onMapCenterChanged($event)" (mapDragging)="mapAdjusting = $event" #streetMap></app-map>
               </div>
               <div class="col-md-6 pb-4 map-col">
-                <app-map [zoom]="19" [satellite]="true" [centerPin]="true" [scrollWheelZoom]="false" (centerChanged)="onMapCenterChanged($event)" (mapDragging)="mapAdjusting = $event" (screenshotTaken)="onScreenshotFromMap($event)" (panelDetected)="onPanelDetected($event)" #satelliteMap></app-map>
+                <app-map [zoom]="19" [satellite]="true" [centerPin]="true" [scrollWheelZoom]="false" (centerChanged)="onMapCenterChanged($event)" (mapDragging)="mapAdjusting = $event" (screenshotTaken)="onScreenshotFromMap($event)" #satelliteMap></app-map>
               </div>
             </div>
             <div class="coord-actions" *ngIf="coordsDirty">
