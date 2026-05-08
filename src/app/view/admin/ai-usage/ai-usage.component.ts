@@ -47,7 +47,7 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
   data: UsageSummary | null = null;
   error = '';
   loading = false;
-  monthlyCapUsd = 200;
+  monthlyCapUsd = 50;
 
   @ViewChild('dailyChart') dailyChart!: ElementRef<SVGSVGElement>;
   @ViewChild('endpointChart') endpointChart!: ElementRef<SVGSVGElement>;
@@ -106,12 +106,8 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   capPercent(): number {
     if (!this.data) return 0;
-    return Math.min(
-      100,
-      Math.round(
-        (this.data.monthToDate.estimatedUsd / this.monthlyCapUsd) * 100,
-      ),
-    );
+    const pct = (this.data.monthToDate.estimatedUsd / this.monthlyCapUsd) * 100;
+    return Math.min(100, Math.round(pct * 10) / 10);
   }
 
   private renderCharts(): void {
@@ -347,6 +343,6 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
       .attr('dy', -16)
       .attr('font-size', '11px')
       .attr('fill', '#64748b')
-      .text(`of $${this.monthlyCapUsd} cap (${this.capPercent()}%)`);
+      .text(`of $${this.monthlyCapUsd} cap (${this.capPercent().toFixed(1)}%)`);
   }
 }
