@@ -91,10 +91,18 @@ export class DocumentClassifierService {
   /**
    * Classify a file and suggest a DocumentType.
    * Returns null if confidence is too low.
+   *
+   * `onProgress` is called with a short human-readable substep label
+   * at each transition so the caller can render granular progress
+   * during the slow phases (OCR on a photo can take 30 s; Haiku
+   * round-trip 1-3 s).
    */
-  classify(file: File): Observable<ClassificationResult | null> {
+  classify(
+    file: File,
+    onProgress?: (step: string) => void,
+  ): Observable<ClassificationResult | null> {
     if (!this.isClassifiable(file)) return of(null);
-    return from(this.classifyAsync(file));
+    return from(this.classifyAsync(file, onProgress));
   }
 
   private isClassifiable(file: File): boolean {
@@ -109,26 +117,30 @@ export class DocumentClassifierService {
 
   private async classifyAsync(
     file: File,
+    onProgress?: (step: string) => void,
   ): Promise<ClassificationResult | null> {
+    const tick = (s: string) => onProgress?.(s);
     // Tier 0: filename heuristics (instant, no OCR needed)
+    tick('checking filename');
     const fnResult = this.classifyByFilename(file.name);
     if (fnResult) return fnResult;
 
     try {
-      // For generated PDFs, the text layer is lossless — read it
-      // directly and skip OCR. OCR-on-rasterized-text mangles
-      // apostrophes, ligatures, and tight kerning, which can drop
-      // the keyword score below threshold even on perfect input.
       let text = '';
       if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+        tick('reading PDF text layer');
         text = await this.extractPdfTextLayer(file);
       }
       if (!text || text.trim().length < 10) {
+        tick(
+          file.type.startsWith('image/')
+            ? 'OCR on image (slow)…'
+            : 'OCR fallback (slow)…',
+        );
         const canvas = await this.renderFirstPage(file);
         text = await this.ocrCanvas(canvas);
       }
       if (!text || text.trim().length < 10) {
-        // OCR failed — for images, default to PROJECT_PHOTOS
         if (file.type.startsWith('image/')) {
           return {
             suggestedType: DocumentType.PROJECT_PHOTOS,
@@ -139,10 +151,9 @@ export class DocumentClassifierService {
         }
         return null;
       }
+      tick('keyword scoring');
       const kwResult = classifyByKeywords(text);
 
-      // Images that only match the OTHER_DOCUMENTS fallback are almost
-      // certainly site photos — real "other" docs are PDFs/scans with text.
       if (
         kwResult &&
         kwResult.suggestedType === DocumentType.OTHER_DOCUMENTS &&
@@ -156,13 +167,11 @@ export class DocumentClassifierService {
         };
       }
 
-      // Tier 3: if keyword scoring is unsure, ask Haiku. Skipped for
-      // images (no text layer to send) and only when the local result
-      // is below threshold or null.
       if (
         !file.type.startsWith('image/') &&
         (!kwResult || kwResult.confidence < HAIKU_FALLBACK_THRESHOLD)
       ) {
+        tick('asking Haiku…');
         const haiku = await this.classifyViaHaiku(file.name, text);
         if (haiku && (!kwResult || haiku.confidence > kwResult.confidence)) {
           return haiku;

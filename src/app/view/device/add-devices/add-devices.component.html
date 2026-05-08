@@ -640,7 +640,12 @@
                         </div>
                         <div class="magic-dialog__current" *ngIf="magicRunning[i] && magicCurrentFile[i]">
                           <span class="barber-pole" aria-hidden="true"></span>
-                          Reading <strong>{{ magicCurrentFile[i] }}</strong>&hellip;
+                          <span>
+                            <strong>{{ magicCurrentFile[i] }}</strong>
+                            <span class="magic-dialog__substep" *ngIf="magicCurrentStep[i]">
+                              — {{ magicCurrentStep[i] }}
+                            </span>
+                          </span>
                         </div>
                         <div class="magic-dialog__done" *ngIf="!magicRunning[i]">
                           Sorted {{ magicLog[i]?.length }} files

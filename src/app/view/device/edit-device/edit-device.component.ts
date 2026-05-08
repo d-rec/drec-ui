@@ -184,6 +184,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   magicExtractMode = false;
 
   magicCurrentFile: string | null = null;
+  magicCurrentStep: string | null = null;
   DOCUMENT_TYPE_LABELS = DOCUMENT_TYPE_LABELS;
 
   /** Magic auto-sort state. */
@@ -883,6 +884,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.ngZone.run(() => {
           this.magicRunning = false;
           this.magicCurrentFile = null;
+          this.magicCurrentStep = null;
         });
         return;
       }
@@ -890,6 +892,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       const file = filesToProcess[idx];
       this.ngZone.run(() => {
         this.magicCurrentFile = file.name;
+        this.magicCurrentStep = null;
       });
       const dupSlot = this.duplicateMatch(file);
       if (dupSlot) {
@@ -905,7 +908,11 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         setTimeout(() => processNext(idx + 1));
         return;
       }
-      this.documentClassifier.classify(file).subscribe({
+      this.documentClassifier.classify(file, (step) =>
+        this.ngZone.run(() => {
+          this.magicCurrentStep = step;
+        }),
+      ).subscribe({
         next: (result) => {
           this.ngZone.run(() => {
             const rawType = result?.suggestedType ?? DocumentType.OTHER_DOCUMENTS;

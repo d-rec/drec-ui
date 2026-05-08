@@ -155,6 +155,8 @@ export class AddDevicesComponent implements OnDestroy {
   /** Name of the file currently being processed in Phase 1 (sort).
    *  Surfaced below the progress bar so the user sees liveness. */
   magicCurrentFile: { [deviceIndex: number]: string | null } = {};
+  /** Substep within the current file (e.g. "OCR on image (slow)…"). */
+  magicCurrentStep: { [deviceIndex: number]: string | null } = {};
 
   /** Magic auto-sort state. */
   magicRunning: { [deviceIndex: number]: boolean } = {};
@@ -943,6 +945,7 @@ export class AddDevicesComponent implements OnDestroy {
         this.ngZone.run(() => {
           this.magicRunning[deviceIndex] = false;
           this.magicCurrentFile[deviceIndex] = null;
+          this.magicCurrentStep[deviceIndex] = null;
           this.checkDocumentsUploaded();
         });
         return;
@@ -951,6 +954,7 @@ export class AddDevicesComponent implements OnDestroy {
       const file = filesToProcess[idx];
       this.ngZone.run(() => {
         this.magicCurrentFile[deviceIndex] = file.name;
+        this.magicCurrentStep[deviceIndex] = null;
       });
       if (this.isDuplicate(deviceIndex, file)) {
         this.ngZone.run(() => {
@@ -965,7 +969,11 @@ export class AddDevicesComponent implements OnDestroy {
         setTimeout(() => processNext(idx + 1));
         return;
       }
-      this.documentClassifier.classify(file).subscribe({
+      this.documentClassifier.classify(file, (step) =>
+        this.ngZone.run(() => {
+          this.magicCurrentStep[deviceIndex] = step;
+        }),
+      ).subscribe({
         next: (result) => {
           this.ngZone.run(() => {
             const rawType = result?.suggestedType ?? DocumentType.OTHER_DOCUMENTS;
