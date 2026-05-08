@@ -1434,6 +1434,19 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         confidence: raw.confidence,
       });
     };
+    // After collecting extractor claims, also surface the form's
+    // current value as a "Current" source so the conflict panel
+    // lets the user keep what's already there. Only added for
+    // fields that have at least one extractor claim — no point
+    // showing a conflict on a field nobody is trying to change.
+    const addCurrent = (field: string) => {
+      if (!claims[field]?.length) return;
+      const ctl = this.updateDeviceForm.get(field);
+      if (!ctl) return;
+      const v = ctl.value;
+      if (v === null || v === undefined || v === '') return;
+      claims[field].push({ source: 'Current', value: v, confidence: 1.0 });
+    };
     const sld = this.sldExtraction;
     if (sld) {
       add('capacity', 'SLD', sld.acCapacityKw);
@@ -1471,6 +1484,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       add('longitude', 'SF-02', sf02.longitude);
       add('generatingUnitCount', 'SF-02', sf02.inverterCount);
     }
+    for (const field of Object.keys(claims)) addCurrent(field);
     return claims;
   }
 
@@ -1536,16 +1550,24 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     for (const [field, list] of Object.entries(claims)) {
       const ctl = this.updateDeviceForm.get(field);
       if (!ctl) continue;
-      const current = String(ctl.value ?? '').trim();
-      if (current) continue;
-      let chosen = list[0];
+      // Multi-source case: user picked, or default to highest
+      // confidence (which is "Current" at 1.0 when the form already
+      // had a value, so we won't overwrite by accident).
       if (list.length > 1) {
         const pickedSource = picks[field];
-        chosen =
+        const chosen =
           (pickedSource && list.find((c) => c.source === pickedSource)) ||
           [...list].sort((a, b) => b.confidence - a.confidence)[0];
+        if (chosen.source === 'Current') continue; // keep what's there
+        ctl.setValue(chosen.value);
+        ctl.markAsDirty();
+        continue;
       }
-      ctl.setValue(chosen.value);
+      // Single-source case: patch-empty-only (don't overwrite manual
+      // input the user typed before clicking Apply).
+      const current = String(ctl.value ?? '').trim();
+      if (current) continue;
+      ctl.setValue(list[0].value);
       ctl.markAsDirty();
     }
     if (
