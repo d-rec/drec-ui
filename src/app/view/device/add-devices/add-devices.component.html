@@ -605,7 +605,6 @@
                 <div class="row">
                   <div class="col-12">
                     <div class="magic-header">
-                      <h3>Supporting Documents</h3>
                       <button type="button" class="magic-btn" (click)="magicFileInput.click()"
                         (mousedown)="$event.stopPropagation()"
                         [disabled]="magicRunning[i]">
@@ -616,10 +615,6 @@
                         accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff,.tif,.webp"
                         (change)="onMagicUpload($event, i)">
                     </div>
-                    <p class="evidence-note" *ngIf="evidenceReqs">
-                      Document requirements are based on the selected Operating Configuration.
-                      <span class="badge-required">Required</span>
-                    </p>
                   </div>
 
                   <!-- Magic auto-sort floating dialog -->
