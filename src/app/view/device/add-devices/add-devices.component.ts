@@ -152,6 +152,11 @@ export class AddDevicesComponent implements OnDestroy {
    *  All / Cancel. */
   magicExtractMode: { [deviceIndex: number]: boolean } = {};
 
+  /** When multiple sources claim different values for the same form
+   *  field, the user picks one in the dialog. Maps form-control name
+   *  → chosen source label. */
+  conflictPicks: { [deviceIndex: number]: { [field: string]: string } } = {};
+
   /** Name of the file currently being processed in Phase 1 (sort).
    *  Surfaced below the progress bar so the user sees liveness. */
   magicCurrentFile: { [deviceIndex: number]: string | null } = {};
@@ -1455,17 +1460,174 @@ export class AddDevicesComponent implements OnDestroy {
     );
   }
 
-  /** Apply every extractor's result that has one, then close the
-   *  magic dialog. Each underlying apply method already implements
-   *  patch-empty-only rules. */
+  /** Aggregate every extractor's per-form-field claim with its
+   *  source label and confidence. One field may have multiple claims
+   *  (e.g. capacity from SLD + COD + SF-02). */
+  collectExtractionClaims(
+    deviceIndex: number,
+  ): {
+    [field: string]: Array<{ source: string; value: any; confidence: number }>;
+  } {
+    const claims: {
+      [field: string]: Array<{ source: string; value: any; confidence: number }>;
+    } = {};
+    const add = (
+      field: string,
+      source: string,
+      raw: { value: any; confidence: number } | undefined,
+      transform?: (v: any) => any,
+    ) => {
+      if (!raw || raw.confidence < 0.7) return;
+      if (!claims[field]) claims[field] = [];
+      claims[field].push({
+        source,
+        value: transform ? transform(raw.value) : raw.value,
+        confidence: raw.confidence,
+      });
+    };
+    const sld = this.sldExtractions[deviceIndex];
+    if (sld) {
+      add('capacity', 'SLD', sld.acCapacityKw);
+      add('generatingUnitCount', 'SLD', sld.inverterCount);
+      add('interconnectionVoltage', 'SLD', sld.gridVoltage);
+      add('gridInterconnection', 'SLD', sld.gridTied, (v) =>
+        v ? 'true' : 'false',
+      );
+      add('dataSourceBrand', 'SLD', sld.inverterMakeModel);
+    }
+    const sf02c = this.sf02cExtractions[deviceIndex];
+    if (sf02c) {
+      add('siteName', 'SF-02c', sf02c.projectName);
+      add('pvSystemOwner', 'SF-02c', sf02c.ownerLegalName);
+      add('address', 'SF-02c', sf02c.ownerAddress);
+      add('countryCodename', 'SF-02c', sf02c.ownerCountry);
+    }
+    const cod = this.codExtractions[deviceIndex];
+    if (cod) {
+      add('commissioningDate', 'COD', cod.commissioningDate);
+      add('siteName', 'COD', cod.facilityName);
+      add('capacity', 'COD', cod.acCapacityKw);
+      add('pvSystemOwner', 'COD', cod.ownerName);
+    }
+    const sf02 = this.sf02Extractions[deviceIndex];
+    if (sf02) {
+      add('siteName', 'SF-02', sf02.facilityName);
+      add('capacity', 'SF-02', sf02.acCapacityKw);
+      add('commissioningDate', 'SF-02', sf02.commissioningDate);
+      add('deviceTypeCode', 'SF-02', sf02.deviceTypeCode);
+      add('pvSystemOwner', 'SF-02', sf02.ownerLegalName);
+      add('address', 'SF-02', sf02.ownerAddress);
+      add('countryCodename', 'SF-02', sf02.ownerCountry);
+      add('latitude', 'SF-02', sf02.latitude);
+      add('longitude', 'SF-02', sf02.longitude);
+      add('generatingUnitCount', 'SF-02', sf02.inverterCount);
+    }
+    return claims;
+  }
+
+  /** Returns only the entries where ≥2 sources disagree (after
+   *  normalisation: numbers rounded to 2dp, strings trimmed +
+   *  lowercased). */
+  getConflicts(
+    deviceIndex: number,
+  ): {
+    [field: string]: Array<{ source: string; value: any; confidence: number }>;
+  } {
+    const claims = this.collectExtractionClaims(deviceIndex);
+    const out: typeof claims = {};
+    for (const [field, list] of Object.entries(claims)) {
+      if (list.length < 2) continue;
+      const norm = (v: any) => {
+        if (typeof v === 'number') return Number(v.toFixed(2));
+        if (typeof v === 'string') return v.trim().toLowerCase();
+        return v;
+      };
+      const distinct = new Set(list.map((c) => JSON.stringify(norm(c.value))));
+      if (distinct.size > 1) out[field] = list;
+    }
+    return out;
+  }
+
+  hasConflicts(deviceIndex: number): boolean {
+    return Object.keys(this.getConflicts(deviceIndex)).length > 0;
+  }
+
+  setConflictPick(
+    deviceIndex: number,
+    field: string,
+    source: string,
+  ): void {
+    if (!this.conflictPicks[deviceIndex]) this.conflictPicks[deviceIndex] = {};
+    this.conflictPicks[deviceIndex][field] = source;
+  }
+
+  isConflictPickSelected(
+    deviceIndex: number,
+    field: string,
+    source: string,
+    list: Array<{ source: string; confidence: number }>,
+  ): boolean {
+    const picked = this.conflictPicks[deviceIndex]?.[field];
+    if (picked) return picked === source;
+    // No explicit pick yet — default to highest-confidence claim.
+    const top = [...list].sort((a, b) => b.confidence - a.confidence)[0];
+    return top?.source === source;
+  }
+
+  fieldLabel(field: string): string {
+    const labels: { [k: string]: string } = {
+      capacity: '(9) Total AC Capacity (kW)',
+      generatingUnitCount: '(13) Number of generating units',
+      interconnectionVoltage: '(18) Interconnection voltage',
+      gridInterconnection: '(15) Grid-connected?',
+      dataSourceBrand: '(27) Data Source Brand Name',
+      siteName: 'Site name',
+      pvSystemOwner: 'PV system owner',
+      address: 'Address',
+      countryCodename: 'Country',
+      commissioningDate: 'Commissioning date',
+      deviceTypeCode: 'Device type code',
+      latitude: 'Latitude',
+      longitude: 'Longitude',
+    };
+    return labels[field] ?? field;
+  }
+
+  /** Apply every extractor's claim to the form. For fields with
+   *  multiple claims, use the user's pick (or highest-confidence
+   *  fallback). Patch-empty-only — never overwrites manual input. */
   applyAllExtracted(deviceIndex: number): void {
-    if (this.sldExtractions[deviceIndex]) this.applySldExtraction(deviceIndex);
-    if (this.sf02cExtractions[deviceIndex]) this.applySf02cExtraction(deviceIndex);
-    if (this.codExtractions[deviceIndex]) this.applyCodExtraction(deviceIndex);
-    if (this.sf02Extractions[deviceIndex]) this.applySf02Extraction(deviceIndex);
+    const claims = this.collectExtractionClaims(deviceIndex);
+    const picks = this.conflictPicks[deviceIndex] || {};
+    const form = this.deviceForms.at(deviceIndex);
+    for (const [field, list] of Object.entries(claims)) {
+      const ctl = form.get(field);
+      if (!ctl) continue;
+      const current = String(ctl.value ?? '').trim();
+      if (current) continue;
+      let chosen = list[0];
+      if (list.length > 1) {
+        const pickedSource = picks[field];
+        chosen =
+          (pickedSource && list.find((c) => c.source === pickedSource)) ||
+          [...list].sort((a, b) => b.confidence - a.confidence)[0];
+      }
+      ctl.setValue(chosen.value);
+      ctl.markAsDirty();
+    }
+    // Inverter signal → dataSource = Inverter
+    if (
+      claims['generatingUnitCount']?.length ||
+      claims['dataSourceBrand']?.length
+    ) {
+      this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
+    }
+    // Meter IDs (list union) and meter-ids-extracted brand still
+    // route through the existing single-source apply path.
     if (this.meterIdsExtractions[deviceIndex]?.length) {
       this.applyMeterIdsExtraction(deviceIndex);
     }
+    this.toastrService.success('Extracted fields applied to the form');
     this.dismissMagicExtraction(deviceIndex);
   }
 
@@ -1478,6 +1640,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.sf02Extractions[deviceIndex] = null;
     this.meterIdsExtractions[deviceIndex] = [];
     delete this.meterIdsBrands[deviceIndex];
+    delete this.conflictPicks[deviceIndex];
   }
 
   private classifyUploadedFile(

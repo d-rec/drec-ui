@@ -641,6 +641,24 @@
                       </li>
                     </ul>
 
+                    <div class="magic-conflicts" *ngIf="hasConflicts()">
+                      <div class="magic-conflicts__header">
+                        ⚠ Sources disagree on these fields — pick one before applying:
+                      </div>
+                      <div class="magic-conflict" *ngFor="let entry of getConflicts() | keyvalue">
+                        <div class="magic-conflict__field">{{ fieldLabel(entry.key) }}</div>
+                        <label class="magic-conflict__option" *ngFor="let c of entry.value">
+                          <input type="radio"
+                            [name]="'conflict-' + entry.key"
+                            [checked]="isConflictPickSelected(entry.key, c.source, entry.value)"
+                            (change)="setConflictPick(entry.key, c.source)"
+                            (mousedown)="$event.stopPropagation()" />
+                          <strong>{{ c.value }}</strong>
+                          <small>{{ c.source }} · {{ (c.confidence * 100) | number:'1.0-0' }}%</small>
+                        </label>
+                      </div>
+                    </div>
+
                     <div class="magic-extract-results" *ngIf="hasAnyExtractionResult()">
                       <div class="magic-extract-section" *ngIf="sldExtraction as fx">
                         <div class="magic-extract-section__header">From SLD</div>

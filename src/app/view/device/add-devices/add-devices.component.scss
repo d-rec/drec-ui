@@ -1035,3 +1035,41 @@ input.example-right-align {
 }
 
 .magic-dialog__substep { color: #64748b; font-style: italic; }
+
+.magic-conflicts {
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: #fef3c7;
+  border-left: 3px solid #f59e0b;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #1f2937;
+
+  &__header {
+    font-weight: 600;
+    color: #92400e;
+    margin-bottom: 8px;
+  }
+}
+.magic-conflict {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #fcd34d;
+  &:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+
+  &__field {
+    font-weight: 600;
+    color: #1e3a8a;
+    margin-bottom: 4px;
+  }
+  &__option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    cursor: pointer;
+    input[type="radio"] { margin: 0; }
+    strong { color: #1f2937; flex-shrink: 0; }
+    small { color: #64748b; }
+  }
+}
