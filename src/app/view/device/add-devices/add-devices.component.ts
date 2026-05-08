@@ -148,6 +148,8 @@ export class AddDevicesComponent implements OnDestroy {
       confidence: number | null;
       type: 'hit' | 'miss';
       file?: File;
+      docType?: string; // populated for hit rows so post-sort extraction
+                       // can route the file to the right extractor.
     }>;
   } = {};
   private magicBackupFiles: { [deviceIndex: number]: any } = {};
@@ -1017,6 +1019,7 @@ export class AddDevicesComponent implements OnDestroy {
                 ? 'hit'
                 : 'miss',
               file,
+              docType: rawType,
             });
 
             this.magicDone[deviceIndex] = idx + 1;
@@ -1250,6 +1253,34 @@ export class AddDevicesComponent implements OnDestroy {
 
   dismissSf02Extraction(deviceIndex: number): void {
     this.sf02Extractions[deviceIndex] = null;
+  }
+
+  /** Triggered from the auto-classifier dialog. Walks every classified
+   *  file and kicks off the matching field-extractor (SLD / SF-02c /
+   *  SF-02 / COD). Each extractor's banner lights up as its call
+   *  returns; the dialog closes with the same accept-classifications
+   *  side effect as the OK button. */
+  extractAllFromMagic(deviceIndex: number): void {
+    const log = this.magicLog[deviceIndex] || [];
+    // Make sure files are routed to slots first (same flow as OK)
+    this.acceptMagic(deviceIndex);
+    for (const entry of log) {
+      if (!entry.file || !entry.docType) continue;
+      switch (entry.docType) {
+        case DocumentType.SINGLE_LINE_DIAGRAM:
+          this.extractSldFieldsForDevice(entry.file, deviceIndex);
+          break;
+        case DocumentType.SF_02C:
+          this.extractSf02cFieldsForDevice(entry.file, deviceIndex);
+          break;
+        case DocumentType.COD_PROOF:
+          this.extractCodFieldsForDevice(entry.file, deviceIndex);
+          break;
+        case DocumentType.FORM_SF_02:
+          this.extractSf02FieldsForDevice(entry.file, deviceIndex);
+          break;
+      }
+    }
   }
 
   private classifyUploadedFile(

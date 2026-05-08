@@ -666,6 +666,10 @@
                           (click)="cancelMagic(i)" (mousedown)="$event.stopPropagation()">Cancel</button>
                         <button type="button" class="btn btn-primary btn-sm"
                           (click)="acceptMagic(i)" (mousedown)="$event.stopPropagation()">OK</button>
+                        <button type="button" class="btn btn-success btn-sm"
+                          *ngIf="!magicRunning[i]"
+                          [title]="'Accept the sort + read the documents to pre-fill form fields'"
+                          (click)="extractAllFromMagic(i)" (mousedown)="$event.stopPropagation()">OK + Extract</button>
                       </div>
                     </div>
                   </div>

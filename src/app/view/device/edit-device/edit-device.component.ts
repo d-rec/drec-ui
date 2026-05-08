@@ -184,6 +184,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     confidence: number | null;
     type: 'hit' | 'miss';
     file?: File;
+    docType?: string;
   }> = [];
   private magicBackupFiles: { [key: string]: File[] } = {};
   private magicBackupPreviews: typeof this.filePreviews = {};
@@ -942,6 +943,7 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
                 ? 'hit'
                 : 'miss',
               file,
+              docType: rawType,
             });
 
             this.magicDone = idx + 1;
@@ -1211,6 +1213,29 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
 
   dismissSf02Extraction(): void {
     this.sf02Extraction = null;
+  }
+
+  /** Auto-classifier OK + per-doc field extraction in one click. */
+  extractAllFromMagic(): void {
+    const log = [...this.magicLog];
+    this.acceptMagic();
+    for (const entry of log) {
+      if (!entry.file || !entry.docType) continue;
+      switch (entry.docType) {
+        case DocumentType.SINGLE_LINE_DIAGRAM:
+          this.extractSldFieldsForDevice(entry.file);
+          break;
+        case DocumentType.SF_02C:
+          this.extractSf02cFieldsForDevice(entry.file);
+          break;
+        case DocumentType.COD_PROOF:
+          this.extractCodFieldsForDevice(entry.file);
+          break;
+        case DocumentType.FORM_SF_02:
+          this.extractSf02FieldsForDevice(entry.file);
+          break;
+      }
+    }
   }
 
   private classifyUploadedFile(file: File, currentType: string): void {
