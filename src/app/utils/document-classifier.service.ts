@@ -464,19 +464,59 @@ export class DocumentClassifierService {
     );
   }
 
-  /** Vision-first since metering screenshots are usually images, not
-   *  PDFs. Falls back to text path if it happens to be a PDF with a
-   *  text layer. */
+  /** Tier 1 tesseract → Tier 3 Haiku-vision fallback.
+   *  Most metering portals (Goodwe SemsPortal, SolarEdge Monitoring,
+   *  Huawei FusionSolar) render clean digital text — Tesseract reads
+   *  the SN candidates locally for $0. We only fall through to Haiku
+   *  vision when the regex filter on the OCR'd text yields nothing
+   *  (noisy photo, scanned nameplate, unusual font). */
   async extractMeterIds(
     file: File,
     deviceId?: number,
   ): Promise<MeterIdsExtractedFields | null> {
+    try {
+      const canvas = await this.renderFirstPage(file);
+      const text = await this.ocrCanvas(canvas);
+      const ids = this.extractSnCandidatesFromText(text);
+      if (ids.length) {
+        return {
+          measurementIds: { value: ids, confidence: 0.7 },
+          reasoning: `${ids.length} SN candidate(s) read via Tesseract`,
+        };
+      }
+    } catch (err) {
+      console.warn('[meter-ids] Tesseract pre-pass failed:', err);
+    }
     return this.runDocExtractionFE<MeterIdsExtractedFields>(
       'ai/extract-meter-ids-fields',
       file,
       deviceId,
       /* preferVision */ true,
     );
+  }
+
+  /** Tokenise OCR'd text and keep only strings that look like a real
+   *  SN: contiguous alphanumeric 8-24 chars, no dashes, no kW/kWp
+   *  unit suffix. Same shape filter as the server applies to Haiku
+   *  output, so the two tiers stay consistent. */
+  private extractSnCandidatesFromText(text: string): string[] {
+    if (!text) return [];
+    const SN_RE = /^[A-Za-z0-9]{8,24}$/;
+    const UNIT_TAIL_RE = /(kw|kwp|kva|hz|v)$/i;
+    const tokens = text.split(/[\s\n\r,;:|\t()/\\[\]{}<>]+/);
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const raw of tokens) {
+      const t = raw.trim();
+      if (!SN_RE.test(t) || UNIT_TAIL_RE.test(t)) continue;
+      // Skip pure-numeric strings ≤ 10 chars (likely dates, kWh totals)
+      if (/^\d+$/.test(t) && t.length <= 10) continue;
+      const k = t.toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push(t);
+    }
+    return out;
   }
 
   async extractSf02Fields(
