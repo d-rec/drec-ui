@@ -648,11 +648,7 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   getSerialNumberLabel(_index: number): string {
-    // Shortened from "(14) Meter or Measurement ID(s)" so the label
-    // fits the standard col-md-3 column width and aligns with (15)
-    // / (22) / Operating Configuration. Tooltip on the input still
-    // explains the broader meaning.
-    return '(14) Measurement IDs';
+    return '(14) Meter/Measurement ID(s)';
   }
   private setupdataSourceBrandWatcher(deviceGroup: FormGroup) {
     const dataSource = deviceGroup.get('dataSource');

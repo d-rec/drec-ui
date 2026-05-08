@@ -198,7 +198,7 @@
                 <div class="serial-list" test-id="serial-number">
                   <div class="serial-list__row" *ngFor="let s of getSerialNumbers(); let j = index; trackBy: trackByIndex">
                     <mat-form-field appearance="outline" class="serial-list__field" subscriptSizing="dynamic">
-                      <mat-label>{{ j === 0 ? '(14) Measurement IDs' : 'Additional ID' }}</mat-label>
+                      <mat-label>{{ j === 0 ? '(14) Meter/Measurement ID(s)' : 'Additional ID' }}</mat-label>
                       <input matInput
                         [ngModel]="s"
                         (ngModelChange)="setSerialNumber(j, $event)"
