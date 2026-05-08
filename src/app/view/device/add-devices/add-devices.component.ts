@@ -152,6 +152,10 @@ export class AddDevicesComponent implements OnDestroy {
    *  All / Cancel. */
   magicExtractMode: { [deviceIndex: number]: boolean } = {};
 
+  /** Name of the file currently being processed in Phase 1 (sort).
+   *  Surfaced below the progress bar so the user sees liveness. */
+  magicCurrentFile: { [deviceIndex: number]: string | null } = {};
+
   /** Magic auto-sort state. */
   magicRunning: { [deviceIndex: number]: boolean } = {};
   magicDone: { [deviceIndex: number]: number } = {};
@@ -941,12 +945,16 @@ export class AddDevicesComponent implements OnDestroy {
       if (idx >= filesToProcess.length) {
         this.ngZone.run(() => {
           this.magicRunning[deviceIndex] = false;
+          this.magicCurrentFile[deviceIndex] = null;
           this.checkDocumentsUploaded();
         });
         return;
       }
 
       const file = filesToProcess[idx];
+      this.ngZone.run(() => {
+        this.magicCurrentFile[deviceIndex] = file.name;
+      });
       if (this.isDuplicate(deviceIndex, file)) {
         this.ngZone.run(() => {
           this.magicLog[deviceIndex].push({

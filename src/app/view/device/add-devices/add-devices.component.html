@@ -638,6 +638,10 @@
                           </div>
                           <span class="magic-dialog__count">{{ magicDone[i] }} / {{ magicTotal[i] }}</span>
                         </div>
+                        <div class="magic-dialog__current" *ngIf="magicRunning[i] && magicCurrentFile[i]">
+                          <span class="barber-pole" aria-hidden="true"></span>
+                          Reading <strong>{{ magicCurrentFile[i] }}</strong>&hellip;
+                        </div>
                         <div class="magic-dialog__done" *ngIf="!magicRunning[i]">
                           Sorted {{ magicLog[i]?.length }} files
                         </div>
@@ -686,6 +690,35 @@
                             No fields could be extracted from these documents.
                           </span>
                         </div>
+
+                        <!-- Per-extractor live status -->
+                        <ul class="magic-extract-status">
+                          <li *ngIf="sldExtracting[i] || sldExtractions[i]">
+                            <span class="barber-pole barber-pole--inline" *ngIf="sldExtracting[i]" aria-hidden="true"></span>
+                            <span class="magic-extract-status__check" *ngIf="!sldExtracting[i] && sldExtractions[i]">✓</span>
+                            SLD <span class="magic-extract-status__sub">{{ sldExtracting[i] ? 'reading…' : 'done' }}</span>
+                          </li>
+                          <li *ngIf="sf02cExtracting[i] || sf02cExtractions[i]">
+                            <span class="barber-pole barber-pole--inline" *ngIf="sf02cExtracting[i]" aria-hidden="true"></span>
+                            <span class="magic-extract-status__check" *ngIf="!sf02cExtracting[i] && sf02cExtractions[i]">✓</span>
+                            SF-02c <span class="magic-extract-status__sub">{{ sf02cExtracting[i] ? 'reading…' : 'done' }}</span>
+                          </li>
+                          <li *ngIf="codExtracting[i] || codExtractions[i]">
+                            <span class="barber-pole barber-pole--inline" *ngIf="codExtracting[i]" aria-hidden="true"></span>
+                            <span class="magic-extract-status__check" *ngIf="!codExtracting[i] && codExtractions[i]">✓</span>
+                            COD proof <span class="magic-extract-status__sub">{{ codExtracting[i] ? 'reading…' : 'done' }}</span>
+                          </li>
+                          <li *ngIf="sf02Extracting[i] || sf02Extractions[i]">
+                            <span class="barber-pole barber-pole--inline" *ngIf="sf02Extracting[i]" aria-hidden="true"></span>
+                            <span class="magic-extract-status__check" *ngIf="!sf02Extracting[i] && sf02Extractions[i]">✓</span>
+                            SF-02 <span class="magic-extract-status__sub">{{ sf02Extracting[i] ? 'reading…' : 'done' }}</span>
+                          </li>
+                          <li *ngIf="meterIdsExtracting[i] || meterIdsExtractions[i]?.length">
+                            <span class="barber-pole barber-pole--inline" *ngIf="meterIdsExtracting[i]" aria-hidden="true"></span>
+                            <span class="magic-extract-status__check" *ngIf="!meterIdsExtracting[i] && meterIdsExtractions[i]?.length">✓</span>
+                            Meter IDs <span class="magic-extract-status__sub">{{ meterIdsExtracting[i] ? 'reading…' : (meterIdsExtractions[i]?.length || 0) + ' found' }}</span>
+                          </li>
+                        </ul>
 
                         <div class="magic-extract-results" *ngIf="hasAnyExtractionResult(i)">
                           <div class="magic-extract-section" *ngIf="sldExtractions[i] as fx">

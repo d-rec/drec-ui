@@ -182,6 +182,8 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
    *  shows the consolidated extraction view instead of the
    *  classification table. */
   magicExtractMode = false;
+
+  magicCurrentFile: string | null = null;
   DOCUMENT_TYPE_LABELS = DOCUMENT_TYPE_LABELS;
 
   /** Magic auto-sort state. */
@@ -880,11 +882,15 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       if (idx >= filesToProcess.length) {
         this.ngZone.run(() => {
           this.magicRunning = false;
+          this.magicCurrentFile = null;
         });
         return;
       }
 
       const file = filesToProcess[idx];
+      this.ngZone.run(() => {
+        this.magicCurrentFile = file.name;
+      });
       const dupSlot = this.duplicateMatch(file);
       if (dupSlot) {
         this.ngZone.run(() => {
