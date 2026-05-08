@@ -2442,6 +2442,7 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   onSubmit() {
+    if (this.isSubmitting) return;
     this.myform.markAllAsTouched();
     this.checkDocumentsUploaded();
     if (!this.formValid) return;
