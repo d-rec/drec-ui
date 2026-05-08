@@ -2035,6 +2035,12 @@ export class AddDevicesComponent implements OnDestroy {
     }
   }
 
+  /** Read-only view of staged files for a slot — typed in TS so the
+   *  template doesn't have to fight `keyof DeviceFiles`. */
+  getStagedFiles(deviceIndex: number, fileType: string): File[] {
+    return (this.files[deviceIndex]?.[fileType as keyof DeviceFiles] as File[] | undefined) ?? [];
+  }
+
   /** Remove a staged (not-yet-saved) file from a slot. Mirrors the
    *  existing-doc delete affordance for files already on the server. */
   removeStagedFile(deviceIndex: number, fileType: string, fileIndex: number): void {

@@ -614,8 +614,8 @@
                 </ng-template>
 
                 <ng-template #stagedDocList let-idx="idx" let-docType="docType">
-                  <ul class="existing-doc-list" *ngIf="files[idx]?.[docType]?.length">
-                    <li *ngFor="let f of files[idx][docType]; let si = index" class="existing-doc-item">
+                  <ul class="existing-doc-list" *ngIf="getStagedFiles(idx, docType).length">
+                    <li *ngFor="let f of getStagedFiles(idx, docType); let si = index" class="existing-doc-item">
                       <span class="existing-doc-link" (click)="openPreview(idx, docType)" [title]="f.name">{{ f.name }}</span>
                       <button type="button" class="existing-doc-delete" (click)="removeStagedFile(idx, docType, si)" title="Remove">
                         <mat-icon style="font-size:14px;height:14px;width:14px">close</mat-icon>
