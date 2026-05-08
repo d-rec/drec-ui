@@ -38,7 +38,7 @@
         class="detect-btn"
         (click)="detectPanels()"
         [disabled]="detecting || tilesLoading"
-        [title]="tilesLoading ? 'Waiting for satellite tiles to finish loading' : ''"
+        [title]="tilesLoading ? 'Waiting for satellite tiles to finish loading' : 'Run AI panel detection (Roboflow) on the current satellite view. Found regions appear as overlays you can click to delete.'"
       >
         {{ detecting ? 'Scanning...' : tilesLoading ? 'Loading tiles…' : showOverlay ? 'Re-scan' : '⚡ Detect Panels' }}
       </button>
@@ -47,7 +47,7 @@
         class="detect-btn"
         [class.detect-btn--active]="drawMode"
         (click)="toggleDrawMode()"
-        title="Draw rectangle"
+        title="Toggle draw mode: drag a rectangle on the map to add a region the AI missed."
       >
         &#9645; Draw
       </button>
@@ -55,7 +55,7 @@
         type="button"
         class="detect-btn detect-btn--camera"
         (click)="captureScreenshot()"
-        title="Save screenshot"
+        title="Save a screenshot of the current map view (with any panel overlays) as a PROJECT_PHOTOS upload."
         [disabled]="detecting"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
