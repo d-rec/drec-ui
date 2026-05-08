@@ -66,6 +66,7 @@ import { environment } from '../../../../environments/environment';
 import {
   CodExtractedFields,
   DocumentClassifierService,
+  MeterIdsExtractedFields,
   Sf02ExtractedFields,
   Sf02cExtractedFields,
   SldExtractedFields,
@@ -136,6 +137,12 @@ export class AddDevicesComponent implements OnDestroy {
   /** SF-02 (registration form) extraction state per device. */
   sf02Extractions: { [deviceIndex: number]: Sf02ExtractedFields | null } = {};
   sf02Extracting: { [deviceIndex: number]: boolean } = {};
+
+  /** Aggregated measurement IDs harvested from any number of metering
+   *  screenshots / nameplate photos / COD proofs. Each upload appends
+   *  its results so the user sees the running list. */
+  meterIdsExtractions: { [deviceIndex: number]: string[] } = {};
+  meterIdsExtracting: { [deviceIndex: number]: boolean } = {};
 
   /** Magic auto-sort state. */
   magicRunning: { [deviceIndex: number]: boolean } = {};
@@ -876,6 +883,13 @@ export class AddDevicesComponent implements OnDestroy {
     if (fileType === DocumentType.FORM_SF_02) {
       this.extractSf02FieldsForDevice(input.files[0], deviceIndex);
     }
+    if (fileType === DocumentType.METERING_EVIDENCE) {
+      // Each metering screenshot is a separate inverter most of the
+      // time — extract from every newly-added file.
+      for (const f of newFiles) {
+        this.extractMeterIdsForDevice(f, deviceIndex);
+      }
+    }
   }
 
   /** Magic auto-sort: classify multiple files and dispatch them to slots. */
@@ -1168,6 +1182,20 @@ export class AddDevicesComponent implements OnDestroy {
         this.ngZone.run(() => {
           this.codExtracting[deviceIndex] = false;
           this.codExtractions[deviceIndex] = res;
+          // Opportunistic SN harvest: COD proofs sometimes carry an
+          // equipment list. Merge any IDs into the meter-ids banner
+          // so the user can apply them in one place.
+          if (
+            res?.measurementIds &&
+            res.measurementIds.confidence >= 0.7 &&
+            res.measurementIds.value.length
+          ) {
+            const existing = new Set(
+              this.meterIdsExtractions[deviceIndex] || [],
+            );
+            for (const id of res.measurementIds.value) existing.add(id);
+            this.meterIdsExtractions[deviceIndex] = [...existing];
+          }
         }),
       )
       .catch(() =>
@@ -1255,6 +1283,50 @@ export class AddDevicesComponent implements OnDestroy {
     this.sf02Extractions[deviceIndex] = null;
   }
 
+  private extractMeterIdsForDevice(file: File, deviceIndex: number): void {
+    this.meterIdsExtracting[deviceIndex] = true;
+    if (!this.meterIdsExtractions[deviceIndex]) {
+      this.meterIdsExtractions[deviceIndex] = [];
+    }
+    this.documentClassifier
+      .extractMeterIds(file)
+      .then((res) =>
+        this.ngZone.run(() => {
+          this.meterIdsExtracting[deviceIndex] = false;
+          if (res?.measurementIds && res.measurementIds.confidence >= 0.7) {
+            const existing = new Set(
+              this.meterIdsExtractions[deviceIndex] || [],
+            );
+            for (const id of res.measurementIds.value) existing.add(id);
+            this.meterIdsExtractions[deviceIndex] = [...existing];
+          }
+        }),
+      )
+      .catch(() =>
+        this.ngZone.run(() => {
+          this.meterIdsExtracting[deviceIndex] = false;
+        }),
+      );
+  }
+
+  applyMeterIdsExtraction(deviceIndex: number): void {
+    const ids = this.meterIdsExtractions[deviceIndex] || [];
+    if (!ids.length) return;
+    const ctl = this.deviceForms.at(deviceIndex).get('serialNumber');
+    if (!ctl) return;
+    const current = (ctl.value || '').trim();
+    if (current) return; // never overwrite manual input
+    ctl.setValue(ids.join(';'));
+    ctl.markAsDirty();
+    this.toastrService.success(
+      `${ids.length} measurement ID${ids.length === 1 ? '' : 's'} applied`,
+    );
+  }
+
+  dismissMeterIdsExtraction(deviceIndex: number): void {
+    this.meterIdsExtractions[deviceIndex] = [];
+  }
+
   /** Triggered from the auto-classifier dialog. Walks every classified
    *  file and kicks off the matching field-extractor (SLD / SF-02c /
    *  SF-02 / COD). Each extractor's banner lights up as its call
@@ -1278,6 +1350,9 @@ export class AddDevicesComponent implements OnDestroy {
           break;
         case DocumentType.FORM_SF_02:
           this.extractSf02FieldsForDevice(entry.file, deviceIndex);
+          break;
+        case DocumentType.METERING_EVIDENCE:
+          this.extractMeterIdsForDevice(entry.file, deviceIndex);
           break;
       }
     }

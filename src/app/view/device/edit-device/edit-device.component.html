@@ -878,6 +878,20 @@
                 </div>
                 <ng-container *ngTemplateOutlet="classifyBadge; context: { docType: 'METERING_EVIDENCE' }"></ng-container>
                 <ng-container *ngTemplateOutlet="existingDocList; context: { docType: 'METERING_EVIDENCE' }"></ng-container>
+                <div class="sld-extract-running" *ngIf="meterIdsExtracting">
+                  <span class="barber-pole" aria-hidden="true"></span>
+                  <small>Reading meter IDs…</small>
+                </div>
+                <div class="sld-extract-banner" *ngIf="meterIdsExtraction.length">
+                  <div class="sld-extract-banner__header"><strong>AI extracted meter / measurement IDs:</strong></div>
+                  <ul class="sld-extract-banner__list">
+                    <li *ngFor="let id of meterIdsExtraction">{{ id }}</li>
+                  </ul>
+                  <div class="sld-extract-banner__actions">
+                    <button type="button" class="btn btn-sm btn-primary" (click)="applyMeterIdsExtraction()" (mousedown)="$event.stopPropagation()">Apply to (14)</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissMeterIdsExtraction()" (mousedown)="$event.stopPropagation()">Dismiss</button>
+                  </div>
+                </div>
               </div>
 
               <div class="col-md-4 mb-3">

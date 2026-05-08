@@ -47,6 +47,7 @@ import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
 import {
   CodExtractedFields,
   DocumentClassifierService,
+  MeterIdsExtractedFields,
   Sf02ExtractedFields,
   Sf02cExtractedFields,
   SldExtractedFields,
@@ -172,6 +173,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
 
   sf02Extraction: Sf02ExtractedFields | null = null;
   sf02Extracting = false;
+
+  meterIdsExtraction: string[] = [];
+  meterIdsExtracting = false;
   DOCUMENT_TYPE_LABELS = DOCUMENT_TYPE_LABELS;
 
   /** Magic auto-sort state. */
@@ -841,6 +845,11 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     if (fileType === DocumentType.FORM_SF_02) {
       this.extractSf02FieldsForDevice(file);
     }
+    if (fileType === DocumentType.METERING_EVIDENCE) {
+      for (const f of newFiles) {
+        this.extractMeterIdsForDevice(f);
+      }
+    }
   }
 
   /** Magic auto-sort: classify multiple files and dispatch them to slots. */
@@ -1129,6 +1138,15 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
         this.ngZone.run(() => {
           this.codExtracting = false;
           this.codExtraction = res;
+          if (
+            res?.measurementIds &&
+            res.measurementIds.confidence >= 0.7 &&
+            res.measurementIds.value.length
+          ) {
+            const set = new Set(this.meterIdsExtraction);
+            for (const id of res.measurementIds.value) set.add(id);
+            this.meterIdsExtraction = [...set];
+          }
         }),
       )
       .catch(() =>
@@ -1136,6 +1154,45 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
           this.codExtracting = false;
         }),
       );
+  }
+
+  private extractMeterIdsForDevice(file: File): void {
+    this.meterIdsExtracting = true;
+    const deviceId = typeof this.id === 'number' ? this.id : undefined;
+    this.documentClassifier
+      .extractMeterIds(file, deviceId)
+      .then((res) =>
+        this.ngZone.run(() => {
+          this.meterIdsExtracting = false;
+          if (res?.measurementIds && res.measurementIds.confidence >= 0.7) {
+            const set = new Set(this.meterIdsExtraction);
+            for (const id of res.measurementIds.value) set.add(id);
+            this.meterIdsExtraction = [...set];
+          }
+        }),
+      )
+      .catch(() =>
+        this.ngZone.run(() => {
+          this.meterIdsExtracting = false;
+        }),
+      );
+  }
+
+  applyMeterIdsExtraction(): void {
+    if (!this.meterIdsExtraction.length) return;
+    const ctl = this.updateDeviceForm.get('serialNumber');
+    if (!ctl) return;
+    const current = (ctl.value || '').toString().trim();
+    if (current) return;
+    ctl.setValue(this.meterIdsExtraction.join(';'));
+    ctl.markAsDirty();
+    this.toastrService.success(
+      `${this.meterIdsExtraction.length} measurement ID${this.meterIdsExtraction.length === 1 ? '' : 's'} applied`,
+    );
+  }
+
+  dismissMeterIdsExtraction(): void {
+    this.meterIdsExtraction = [];
   }
 
   applyCodExtraction(): void {
@@ -1233,6 +1290,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
           break;
         case DocumentType.FORM_SF_02:
           this.extractSf02FieldsForDevice(entry.file);
+          break;
+        case DocumentType.METERING_EVIDENCE:
+          this.extractMeterIdsForDevice(entry.file);
           break;
       }
     }

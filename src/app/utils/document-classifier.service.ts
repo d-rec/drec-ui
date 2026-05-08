@@ -24,6 +24,13 @@ export interface CodExtractedFields {
   acCapacityKw?: ExtractedField<number>;
   ownerName?: ExtractedField<string>;
   utilityOrIssuer?: ExtractedField<string>;
+  measurementIds?: ExtractedField<string[]>;
+  reasoning: string;
+}
+
+export interface MeterIdsExtractedFields {
+  measurementIds?: ExtractedField<string[]>;
+  inverterMakeModel?: ExtractedField<string>;
   reasoning: string;
 }
 
@@ -448,6 +455,21 @@ export class DocumentClassifierService {
     );
   }
 
+  /** Vision-first since metering screenshots are usually images, not
+   *  PDFs. Falls back to text path if it happens to be a PDF with a
+   *  text layer. */
+  async extractMeterIds(
+    file: File,
+    deviceId?: number,
+  ): Promise<MeterIdsExtractedFields | null> {
+    return this.runDocExtractionFE<MeterIdsExtractedFields>(
+      'ai/extract-meter-ids-fields',
+      file,
+      deviceId,
+      /* preferVision */ true,
+    );
+  }
+
   async extractSf02Fields(
     file: File,
     deviceId?: number,
@@ -459,15 +481,22 @@ export class DocumentClassifierService {
     );
   }
 
-  /** Shared text-or-vision extraction client used by COD / SF-02 / SF-02c. */
+  /** Shared text-or-vision extraction client used by COD / SF-02 /
+   *  SF-02c / meter-ids. `preferVision` flips the order so metering
+   *  screenshots (which are usually images) skip the PDF text-layer
+   *  branch. */
   private async runDocExtractionFE<T>(
     endpointPath: string,
     file: File,
     deviceId: number | undefined,
+    preferVision = false,
   ): Promise<T | null> {
     try {
       let text = '';
-      if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+      if (
+        !preferVision &&
+        (file.type === 'application/pdf' || /\.pdf$/i.test(file.name))
+      ) {
         text = await this.extractPdfTextLayer(file);
       }
       const payload: any = { filename: file.name };
