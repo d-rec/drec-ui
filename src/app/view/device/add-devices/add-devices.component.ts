@@ -319,6 +319,7 @@ export class AddDevicesComponent implements OnDestroy {
   /** Initial serial number observed at hydration time so we can flag
    *  changes for the PATCH `serialNumberChanged` query param. */
   private initSerialNumber: string | null = null;
+  private initSiteName: string | null = null;
 
   get isEditMode(): boolean {
     return this.editingExternalId !== null;
@@ -395,6 +396,7 @@ export class AddDevicesComponent implements OnDestroy {
         next: (data: any) => {
           this.editingDeviceId = data.id;
           this.initSerialNumber = data.serialNumber ?? null;
+          this.initSiteName = data.siteName ?? null;
 
           const firstRow = this.deviceForms.at(0) as FormGroup;
           if (!firstRow) return;
@@ -911,11 +913,19 @@ export class AddDevicesComponent implements OnDestroy {
         debounceTime(400),
         distinctUntilChanged(),
         switchMap((name: string) => {
-          if (!name || name.trim().length < 2) {
+          const trimmed = (name || '').trim();
+          if (!trimmed || trimmed.length < 2) {
             this.siteNameExists[index] = false;
             return [];
           }
-          return this.deviceService.checkSiteName(name.trim());
+          // Edit-mode: don't flag the device's own current name as a
+          // collision. The backend exclude-self logic is by-id; doing
+          // it here too avoids the brief red flash on dialog open.
+          if (this.isEditMode && trimmed === (this.initSiteName ?? '').trim()) {
+            this.siteNameExists[index] = false;
+            return [];
+          }
+          return this.deviceService.checkSiteName(trimmed);
         }),
       )
       .subscribe((res) => {
