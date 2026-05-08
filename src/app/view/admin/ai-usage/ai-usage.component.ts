@@ -188,18 +188,24 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
       .append('title')
       .text((d) => `${d.day}\n$${d.usd.toFixed(4)}`);
 
-    // X axis: show every ~5th label to avoid clutter
+    // X axis: show every ~5th label, rotated 30° so they don't overlap.
+    // Format MM/DD instead of YYYY-MM-DD (year is implicit on a 30-day
+    // window).
     const xTickEvery = Math.ceil(days.length / 6);
     g.append('g')
       .attr('transform', `translate(0, ${innerH})`)
       .call(
-        axisBottom<string>(x).tickValues(
-          days.filter((_, i) => i % xTickEvery === 0).map((d) => d.day),
-        ),
+        axisBottom<string>(x)
+          .tickValues(
+            days.filter((_, i) => i % xTickEvery === 0).map((d) => d.day),
+          )
+          .tickFormat((d) => (d as string).slice(5)), // MM-DD
       )
       .selectAll('text')
       .attr('font-size', '10px')
-      .attr('fill', '#64748b');
+      .attr('fill', '#64748b')
+      .attr('text-anchor', 'end')
+      .attr('transform', 'translate(-2, 4) rotate(-30)');
 
     // Y axis: dollar formatted
     g.append('g')
