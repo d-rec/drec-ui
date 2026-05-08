@@ -18,6 +18,17 @@ export interface ExtractedField<T> {
   confidence: number;
 }
 
+export interface Sf02cExtractedFields {
+  projectName?: ExtractedField<string>;
+  ownerLegalName?: ExtractedField<string>;
+  ownerAddress?: ExtractedField<string>;
+  ownerCountry?: ExtractedField<string>;
+  signingDate?: ExtractedField<string>;
+  signatoryName?: ExtractedField<string>;
+  signatoryEmail?: ExtractedField<string>;
+  reasoning: string;
+}
+
 export interface SldExtractedFields {
   acCapacityKw?: ExtractedField<number>;
   dcCapacityKwp?: ExtractedField<number>;
@@ -398,6 +409,49 @@ export class DocumentClassifierService {
       return res ?? null;
     } catch (err) {
       console.warn('[DocumentClassifier] SLD extract failed:', err);
+      return null;
+    }
+  }
+
+  /**
+   * Text-first extraction of SF-02c fields. Tries the embedded PDF
+   * text layer (cheap path) and falls back to vision pages if the
+   * layer is empty (true scans). Returns null on error so the upload
+   * flow doesn't break.
+   */
+  async extractSf02cFields(
+    file: File,
+    deviceId?: number,
+  ): Promise<Sf02cExtractedFields | null> {
+    try {
+      let text = '';
+      if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+        text = await this.extractPdfTextLayer(file);
+      }
+      const payload: any = { filename: file.name };
+      if (deviceId) payload.deviceId = deviceId;
+      if (text && text.trim().length >= 40) {
+        payload.text = text;
+      } else {
+        // True scan / no text layer — fall back to up to 2 page images.
+        const canvases = await this.renderFirstNPages(file, 2);
+        payload.images = canvases.map((c) => {
+          const ds = this.downsampleToLongEdge(c, 2048);
+          return {
+            base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
+            mimeType: 'image/png' as const,
+          };
+        });
+      }
+      const res = await firstValueFrom(
+        this.http.post<Sf02cExtractedFields>(
+          `${environment.API_URL}ai/extract-sf02c-fields`,
+          payload,
+        ),
+      );
+      return res ?? null;
+    } catch (err) {
+      console.warn('[DocumentClassifier] SF-02c extract failed:', err);
       return null;
     }
   }

@@ -65,6 +65,7 @@ import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
 import { environment } from '../../../../environments/environment';
 import {
   DocumentClassifierService,
+  Sf02cExtractedFields,
   SldExtractedFields,
 } from '../../../utils/document-classifier.service';
 import {
@@ -121,6 +122,10 @@ export class AddDevicesComponent implements OnDestroy {
   /** SLD vision extraction state per device. */
   sldExtractions: { [deviceIndex: number]: SldExtractedFields | null } = {};
   sldExtracting: { [deviceIndex: number]: boolean } = {};
+
+  /** SF-02c text/vision extraction state per device. */
+  sf02cExtractions: { [deviceIndex: number]: Sf02cExtractedFields | null } = {};
+  sf02cExtracting: { [deviceIndex: number]: boolean } = {};
 
   /** Magic auto-sort state. */
   magicRunning: { [deviceIndex: number]: boolean } = {};
@@ -849,6 +854,10 @@ export class AddDevicesComponent implements OnDestroy {
     if (fileType === DocumentType.SINGLE_LINE_DIAGRAM) {
       this.extractSldFieldsForDevice(input.files[0], deviceIndex);
     }
+    // For SF-02c letters, extract owner / address / signing date
+    if (fileType === DocumentType.SF_02C) {
+      this.extractSf02cFieldsForDevice(input.files[0], deviceIndex);
+    }
   }
 
   /** Magic auto-sort: classify multiple files and dispatch them to slots. */
@@ -1082,6 +1091,53 @@ export class AddDevicesComponent implements OnDestroy {
 
   dismissSldExtraction(deviceIndex: number): void {
     this.sldExtractions[deviceIndex] = null;
+  }
+
+  private extractSf02cFieldsForDevice(file: File, deviceIndex: number): void {
+    this.sf02cExtracting[deviceIndex] = true;
+    this.sf02cExtractions[deviceIndex] = null;
+    this.documentClassifier
+      .extractSf02cFields(file)
+      .then((res) =>
+        this.ngZone.run(() => {
+          this.sf02cExtracting[deviceIndex] = false;
+          this.sf02cExtractions[deviceIndex] = res;
+        }),
+      )
+      .catch(() =>
+        this.ngZone.run(() => {
+          this.sf02cExtracting[deviceIndex] = false;
+        }),
+      );
+  }
+
+  applySf02cExtraction(deviceIndex: number): void {
+    const fx = this.sf02cExtractions[deviceIndex];
+    if (!fx) return;
+    const form = this.deviceForms.at(deviceIndex);
+    const patchIfEmpty = (
+      controlName: string,
+      field: { value: any; confidence: number } | undefined,
+      transform?: (v: any) => any,
+    ) => {
+      if (!field || field.confidence < 0.7) return;
+      const ctl = form.get(controlName);
+      if (!ctl) return;
+      const current = ctl.value;
+      if (current !== null && current !== undefined && current !== '') return;
+      const v = transform ? transform(field.value) : field.value;
+      ctl.setValue(v);
+      ctl.markAsDirty();
+    };
+    patchIfEmpty('siteName', fx.projectName);
+    patchIfEmpty('pvSystemOwner', fx.ownerLegalName);
+    patchIfEmpty('address', fx.ownerAddress);
+    patchIfEmpty('countryCodename', fx.ownerCountry);
+    this.toastrService.success('SF-02c fields applied to the form');
+  }
+
+  dismissSf02cExtraction(deviceIndex: number): void {
+    this.sf02cExtractions[deviceIndex] = null;
   }
 
   private classifyUploadedFile(

@@ -46,6 +46,7 @@ import {
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
 import {
   DocumentClassifierService,
+  Sf02cExtractedFields,
   SldExtractedFields,
 } from '../../../utils/document-classifier.service';
 import {
@@ -159,6 +160,10 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
   /** SLD vision extraction state. */
   sldExtraction: SldExtractedFields | null = null;
   sldExtracting = false;
+
+  /** SF-02c text/vision extraction state. */
+  sf02cExtraction: Sf02cExtractedFields | null = null;
+  sf02cExtracting = false;
   DOCUMENT_TYPE_LABELS = DOCUMENT_TYPE_LABELS;
 
   /** Magic auto-sort state. */
@@ -818,6 +823,9 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     if (fileType === DocumentType.SINGLE_LINE_DIAGRAM) {
       this.extractSldFieldsForDevice(file);
     }
+    if (fileType === DocumentType.SF_02C) {
+      this.extractSf02cFieldsForDevice(file);
+    }
   }
 
   /** Magic auto-sort: classify multiple files and dispatch them to slots. */
@@ -1048,6 +1056,51 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
 
   dismissSldExtraction(): void {
     this.sldExtraction = null;
+  }
+
+  private extractSf02cFieldsForDevice(file: File): void {
+    this.sf02cExtracting = true;
+    this.sf02cExtraction = null;
+    const deviceId = typeof this.id === 'number' ? this.id : undefined;
+    this.documentClassifier
+      .extractSf02cFields(file, deviceId)
+      .then((res) =>
+        this.ngZone.run(() => {
+          this.sf02cExtracting = false;
+          this.sf02cExtraction = res;
+        }),
+      )
+      .catch(() =>
+        this.ngZone.run(() => {
+          this.sf02cExtracting = false;
+        }),
+      );
+  }
+
+  applySf02cExtraction(): void {
+    const fx = this.sf02cExtraction;
+    if (!fx) return;
+    const patchIfEmpty = (
+      controlName: string,
+      field: { value: any; confidence: number } | undefined,
+    ) => {
+      if (!field || field.confidence < 0.7) return;
+      const ctl = this.updateDeviceForm.get(controlName);
+      if (!ctl) return;
+      const current = ctl.value;
+      if (current !== null && current !== undefined && current !== '') return;
+      ctl.setValue(field.value);
+      ctl.markAsDirty();
+    };
+    patchIfEmpty('siteName', fx.projectName);
+    patchIfEmpty('pvSystemOwner', fx.ownerLegalName);
+    patchIfEmpty('address', fx.ownerAddress);
+    patchIfEmpty('countryCodename', fx.ownerCountry);
+    this.toastrService.success('SF-02c fields applied to the form');
+  }
+
+  dismissSf02cExtraction(): void {
+    this.sf02cExtraction = null;
   }
 
   private classifyUploadedFile(file: File, currentType: string): void {

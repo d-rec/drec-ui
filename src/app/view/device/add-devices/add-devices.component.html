@@ -838,6 +838,27 @@
                       </span>
                     </div>
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SF_02C' }"></ng-container>
+                    <div class="sld-extract-running" *ngIf="sf02cExtracting[i]">
+                      <span class="barber-pole" aria-hidden="true"></span>
+                      <small>Reading SF-02c…</small>
+                    </div>
+                    <div class="sld-extract-banner" *ngIf="sf02cExtractions[i] as fx">
+                      <div class="sld-extract-banner__header">
+                        <strong>AI extracted from SF-02c:</strong>
+                      </div>
+                      <ul class="sld-extract-banner__list">
+                        <li *ngIf="fx.projectName">Project: {{ fx.projectName.value }} <small>({{ (fx.projectName.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="fx.ownerLegalName">Owner: {{ fx.ownerLegalName.value }} <small>({{ (fx.ownerLegalName.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="fx.ownerAddress">Address: {{ fx.ownerAddress.value }} <small>({{ (fx.ownerAddress.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="fx.ownerCountry">Country: {{ fx.ownerCountry.value }} <small>({{ (fx.ownerCountry.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="fx.signingDate">Signed: {{ fx.signingDate.value }} <small>({{ (fx.signingDate.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="fx.signatoryName">Signatory: {{ fx.signatoryName.value }}<span *ngIf="fx.signatoryEmail"> &lt;{{ fx.signatoryEmail.value }}&gt;</span></li>
+                      </ul>
+                      <div class="sld-extract-banner__actions">
+                        <button type="button" class="btn btn-sm btn-primary" (click)="applySf02cExtraction(i)" (mousedown)="$event.stopPropagation()">Apply to form</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissSf02cExtraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
+                      </div>
+                    </div>
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('PROOF_OF_OWNERSHIP') === 'required' && !deviceForms.at(i).get('PROOF_OF_OWNERSHIP')?.value">
