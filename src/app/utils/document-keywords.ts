@@ -165,7 +165,7 @@ export const DOCUMENT_TYPE_LABELS: Partial<Record<DocumentType, string>> = {
 export interface ClassificationResult {
   suggestedType: DocumentType;
   confidence: number;
-  method: 'keywords' | 'clip' | 'none';
+  method: 'keywords' | 'clip' | 'haiku' | 'none';
   alternatives: Array<{ type: DocumentType; confidence: number }>;
 }
 

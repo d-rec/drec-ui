@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Observable, from, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, firstValueFrom, from, of } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { DocumentType } from './drec.enum';
 import {
   ClassificationResult,
   classifyByKeywords,
   CLASSIFIABLE_TYPES,
 } from './document-keywords';
+
+const HAIKU_FALLBACK_THRESHOLD = 0.6;
 
 /**
  * Zero-shot document classifier.
@@ -18,6 +22,8 @@ import {
  */
 @Injectable({ providedIn: 'root' })
 export class DocumentClassifierService {
+  constructor(private http: HttpClient) {}
+
   /**
    * Classify a file and suggest a DocumentType.
    * Returns null if confidence is too low.
@@ -84,6 +90,19 @@ export class DocumentClassifierService {
           method: 'keywords',
           alternatives: [],
         };
+      }
+
+      // Tier 3: if keyword scoring is unsure, ask Haiku. Skipped for
+      // images (no text layer to send) and only when the local result
+      // is below threshold or null.
+      if (
+        !file.type.startsWith('image/') &&
+        (!kwResult || kwResult.confidence < HAIKU_FALLBACK_THRESHOLD)
+      ) {
+        const haiku = await this.classifyViaHaiku(file.name, text);
+        if (haiku && (!kwResult || haiku.confidence > kwResult.confidence)) {
+          return haiku;
+        }
       }
 
       return kwResult;
@@ -320,6 +339,40 @@ export class DocumentClassifierService {
       return text;
     } finally {
       await worker.terminate();
+    }
+  }
+
+  /**
+   * Tier 3: backend-mediated Haiku classification. Returns null on any
+   * error so the keyword result still wins instead of failing the
+   * whole classify call.
+   */
+  private async classifyViaHaiku(
+    filename: string,
+    text: string,
+  ): Promise<ClassificationResult | null> {
+    try {
+      const res = await firstValueFrom(
+        this.http.post<{
+          suggestedType: string;
+          confidence: number;
+          reasoning: string;
+        }>(`${environment.API_URL}ai/classify-document`, {
+          filename,
+          text,
+          validTypes: CLASSIFIABLE_TYPES,
+        }),
+      );
+      if (!res || !res.suggestedType) return null;
+      return {
+        suggestedType: res.suggestedType as DocumentType,
+        confidence: res.confidence,
+        method: 'haiku',
+        alternatives: [],
+      };
+    } catch (err) {
+      console.warn('[DocumentClassifier] Haiku tier failed:', err);
+      return null;
     }
   }
 }
