@@ -10,7 +10,8 @@ import {
 } from './document-keywords';
 
 const HAIKU_FALLBACK_THRESHOLD = 0.6;
-const SLD_MAX_LONG_EDGE_PX = 1600;
+const SLD_MAX_LONG_EDGE_PX = 2048;
+const SLD_MAX_PAGES = 2;
 
 export interface ExtractedField<T> {
   value: T;
@@ -375,20 +376,21 @@ export class DocumentClassifierService {
     deviceId?: number,
   ): Promise<SldExtractedFields | null> {
     try {
-      const canvas = await this.renderFirstPage(file);
-      const downsampled = this.downsampleToLongEdge(
-        canvas,
-        SLD_MAX_LONG_EDGE_PX,
-      );
-      const dataUrl = downsampled.toDataURL('image/png');
-      const imageBase64 = dataUrl.replace(/^data:image\/png;base64,/, '');
+      const canvases = await this.renderFirstNPages(file, SLD_MAX_PAGES);
+      if (!canvases.length) return null;
+      const images = canvases.map((c) => {
+        const ds = this.downsampleToLongEdge(c, SLD_MAX_LONG_EDGE_PX);
+        return {
+          base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
+          mimeType: 'image/png' as const,
+        };
+      });
       const res = await firstValueFrom(
         this.http.post<SldExtractedFields>(
           `${environment.API_URL}ai/extract-sld-fields`,
           {
             filename: file.name,
-            imageBase64,
-            mimeType: 'image/png',
+            images,
             ...(deviceId ? { deviceId } : {}),
           },
         ),
@@ -397,6 +399,42 @@ export class DocumentClassifierService {
     } catch (err) {
       console.warn('[DocumentClassifier] SLD extract failed:', err);
       return null;
+    }
+  }
+
+  /** Render the first N pages of a PDF (or one page if image). Falls
+   *  back to a single page on any error in the multi-page path. */
+  private async renderFirstNPages(
+    file: File,
+    n: number,
+  ): Promise<HTMLCanvasElement[]> {
+    if (file.type.startsWith('image/')) {
+      return [await this.imageToCanvas(file)];
+    }
+    try {
+      let pdfjs = (window as any).pdfjsLib;
+      if (!pdfjs) {
+        pdfjs = await import('pdfjs-dist' as any);
+      }
+      pdfjs.GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.js';
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjs.getDocument({ data: new Uint8Array(buf) }).promise;
+      const pageCount = Math.min(pdf.numPages, n);
+      const canvases: HTMLCanvasElement[] = [];
+      for (let p = 1; p <= pageCount; p++) {
+        const page = await pdf.getPage(p);
+        const viewport = page.getViewport({ scale: 2 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d')!;
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        canvases.push(canvas);
+      }
+      return canvases;
+    } catch (err) {
+      console.warn('[DocumentClassifier] multi-page render failed, falling back to page 1:', err);
+      return [await this.renderFirstPage(file)];
     }
   }
 
