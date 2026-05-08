@@ -1566,6 +1566,7 @@ export class AddDevicesComponent implements OnDestroy {
       const norm = (v: any) => {
         if (typeof v === 'number') return Number(v.toFixed(2));
         if (typeof v === 'string') return v.trim().toLowerCase();
+        if (typeof v === 'boolean') return String(v);
         return v;
       };
       const distinct = new Set(list.map((c) => JSON.stringify(norm(c.value))));
