@@ -897,16 +897,46 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
       });
       const dupSlot = this.duplicateMatch(file);
       if (dupSlot) {
-        this.ngZone.run(() => {
-          this.magicLog.push({
-            filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
-            target: `Skipped (already in ${dupSlot})`,
-            confidence: null,
-            type: 'miss',
-          });
-          this.magicDone = idx + 1;
+        // Don't route the file (it's already on the server / staged),
+        // but DO classify it so the OK + Extract path can run the
+        // matching field extractor against the bytes the user just
+        // dropped. Without this every re-upload would short-circuit
+        // and the consolidated dialog would say "no fields could be
+        // extracted from these documents."
+        this.documentClassifier.classify(file, (step) =>
+          this.ngZone.run(() => {
+            this.magicCurrentStep = step;
+          }),
+        ).subscribe({
+          next: (result) => {
+            this.ngZone.run(() => {
+              const rawType = result?.suggestedType ?? DocumentType.OTHER_DOCUMENTS;
+              this.magicLog.push({
+                filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
+                target: `Skipped (already in ${dupSlot})`,
+                confidence: null,
+                type: 'miss',
+                file,
+                docType: rawType,
+              });
+              this.magicDone = idx + 1;
+            });
+            setTimeout(() => processNext(idx + 1));
+          },
+          error: () => {
+            this.ngZone.run(() => {
+              this.magicLog.push({
+                filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
+                target: `Skipped (already in ${dupSlot})`,
+                confidence: null,
+                type: 'miss',
+                file,
+              });
+              this.magicDone = idx + 1;
+            });
+            setTimeout(() => processNext(idx + 1));
+          },
         });
-        setTimeout(() => processNext(idx + 1));
         return;
       }
       this.documentClassifier.classify(file, (step) =>

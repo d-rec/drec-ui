@@ -962,16 +962,42 @@ export class AddDevicesComponent implements OnDestroy {
         this.magicCurrentStep[deviceIndex] = null;
       });
       if (this.isDuplicate(deviceIndex, file)) {
-        this.ngZone.run(() => {
-          this.magicLog[deviceIndex].push({
-            filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
-            target: 'Skipped (duplicate)',
-            confidence: null,
-            type: 'miss',
-          });
-          this.magicDone[deviceIndex] = idx + 1;
+        // Don't route the duplicate to a slot, but DO classify it so
+        // the OK + Extract path can still pull fields from the bytes.
+        this.documentClassifier.classify(file, (step) =>
+          this.ngZone.run(() => {
+            this.magicCurrentStep[deviceIndex] = step;
+          }),
+        ).subscribe({
+          next: (result) => {
+            this.ngZone.run(() => {
+              const rawType = result?.suggestedType ?? DocumentType.OTHER_DOCUMENTS;
+              this.magicLog[deviceIndex].push({
+                filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
+                target: 'Skipped (duplicate)',
+                confidence: null,
+                type: 'miss',
+                file,
+                docType: rawType,
+              });
+              this.magicDone[deviceIndex] = idx + 1;
+            });
+            setTimeout(() => processNext(idx + 1));
+          },
+          error: () => {
+            this.ngZone.run(() => {
+              this.magicLog[deviceIndex].push({
+                filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
+                target: 'Skipped (duplicate)',
+                confidence: null,
+                type: 'miss',
+                file,
+              });
+              this.magicDone[deviceIndex] = idx + 1;
+            });
+            setTimeout(() => processNext(idx + 1));
+          },
         });
-        setTimeout(() => processNext(idx + 1));
         return;
       }
       this.documentClassifier.classify(file, (step) =>
