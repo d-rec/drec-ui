@@ -2035,6 +2035,49 @@ export class AddDevicesComponent implements OnDestroy {
     }
   }
 
+  /** Remove a staged (not-yet-saved) file from a slot. Mirrors the
+   *  existing-doc delete affordance for files already on the server. */
+  removeStagedFile(deviceIndex: number, fileType: string, fileIndex: number): void {
+    const list = this.files[deviceIndex]?.[fileType as keyof DeviceFiles] as File[] | undefined;
+    if (!list) return;
+    const removed = list.splice(fileIndex, 1)[0];
+    if (this.fileLabels[deviceIndex]?.[fileType]) {
+      this.fileLabels[deviceIndex][fileType].splice(fileIndex, 1);
+    }
+    // Form control + preview track only the first file in multi-slots,
+    // so refresh both based on what's left.
+    const ctrl = this.deviceForms.at(deviceIndex).get(fileType);
+    if (ctrl) {
+      ctrl.setValue(list[0] ?? null);
+      ctrl.markAsDirty();
+    }
+    if (this.filePreviews[deviceIndex]) {
+      const preview = this.filePreviews[deviceIndex][fileType];
+      if (list.length === 0) {
+        if (preview?.url) {
+          URL.revokeObjectURL(preview.url as unknown as string);
+        }
+        delete this.filePreviews[deviceIndex][fileType];
+      } else {
+        const next = list[0];
+        const isImage = next.type.startsWith('image/');
+        const isPdf = next.type === 'application/pdf';
+        const isExcel = /\.(xlsx|xls)$/i.test(next.name);
+        if (preview?.url) {
+          URL.revokeObjectURL(preview.url as unknown as string);
+        }
+        const objectUrl = URL.createObjectURL(next);
+        this.filePreviews[deviceIndex][fileType] = {
+          url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
+          type: isImage ? 'image' : isPdf ? 'pdf' : isExcel ? 'excel' : 'other',
+          name: next.name,
+        };
+      }
+    }
+    void removed;
+    this.checkDocumentsUploaded?.();
+  }
+
   openPreview(deviceIndex: number, fileType: string) {
     const preview = this.filePreviews[deviceIndex]?.[fileType];
     if (!preview) return;
