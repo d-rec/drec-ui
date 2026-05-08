@@ -866,6 +866,15 @@ tr.mat-row:nth-child(even) {
 .file-preview-dialog .mat-mdc-dialog-surface {
   resize: both;
   overflow: auto;
+  max-width: 100vw;
+  max-height: 100vh;
+}
+// Lift the cdk-overlay-pane cap so the user can drag the surface
+// resize handle out to the full viewport (default mat-dialog caps
+// the pane at 80vw / 80vh).
+.cdk-overlay-pane.file-preview-dialog {
+  max-width: 100vw !important;
+  max-height: 100vh !important;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════

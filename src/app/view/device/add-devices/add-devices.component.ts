@@ -2170,8 +2170,9 @@ export class AddDevicesComponent implements OnDestroy {
       this.files[deviceIndex]?.[fileType as keyof DeviceFiles]?.[0] ?? null;
     this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
       width: '95vw',
-      maxWidth: '1400px',
+      maxWidth: '100vw',
       height: '90vh',
+      maxHeight: '100vh',
       panelClass: 'file-preview-dialog',
     });
   }
@@ -2190,8 +2191,9 @@ export class AddDevicesComponent implements OnDestroy {
     this.currentPreviewFile = file;
     this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
       width: '95vw',
-      maxWidth: '1400px',
+      maxWidth: '100vw',
       height: '90vh',
+      maxHeight: '100vh',
       panelClass: 'file-preview-dialog',
     });
   }
@@ -2318,8 +2320,9 @@ export class AddDevicesComponent implements OnDestroy {
     this.currentPreviewFile = r.file;
     this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
       width: '95vw',
-      maxWidth: '1400px',
+      maxWidth: '100vw',
       height: '90vh',
+      maxHeight: '100vh',
       panelClass: 'file-preview-dialog',
     });
   }
@@ -2674,8 +2677,9 @@ export class AddDevicesComponent implements OnDestroy {
         });
         this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
           width: '95vw',
-          maxWidth: '1400px',
+          maxWidth: '100vw',
           height: '90vh',
+          maxHeight: '100vh',
           panelClass: 'file-preview-dialog',
         });
       },
