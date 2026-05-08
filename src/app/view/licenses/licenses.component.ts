@@ -16,6 +16,7 @@ export class LicensesComponent implements OnInit {
   licensesForm: FormGroup;
   roboflowCredits = 3;
   deeplCredits = 3;
+  anthropicCredits = 50;
   isAdmin = false;
 
   constructor(
@@ -27,6 +28,7 @@ export class LicensesComponent implements OnInit {
       roboflowApiKey: [''],
       roboflowWorkflowUrl: [''],
       deeplApiKey: [''],
+      anthropicApiKey: [''],
     });
   }
 
@@ -44,12 +46,14 @@ export class LicensesComponent implements OnInit {
             roboflowApiKey: data.roboflowApiKey || '',
             roboflowWorkflowUrl: data.roboflowWorkflowUrl || '',
             deeplApiKey: data.deeplApiKey || '',
+            anthropicApiKey: data.anthropicApiKey || '',
           });
           // Loaded values aren't user edits — mark the form pristine so
           // an immediate Save without typing won't re-send them.
           this.licensesForm.markAsPristine();
           this.roboflowCredits = data.roboflowCreditsRemaining;
           this.deeplCredits = data.deeplCreditsRemaining;
+          this.anthropicCredits = data.anthropicCreditsRemaining;
         }
       },
       error: (err) => {
@@ -83,6 +87,9 @@ export class LicensesComponent implements OnInit {
     }
     if (c['deeplApiKey'].dirty) {
       payload.deeplApiKey = c['deeplApiKey'].value || '';
+    }
+    if (c['anthropicApiKey'].dirty) {
+      payload.anthropicApiKey = c['anthropicApiKey'].value || '';
     }
 
     if (Object.keys(payload).length === 0) {

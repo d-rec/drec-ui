@@ -7,13 +7,16 @@ export interface LicenseSettings {
   roboflowApiKey: string | null;
   roboflowWorkflowUrl: string | null;
   deeplApiKey: string | null;
+  anthropicApiKey: string | null;
   roboflowCreditsRemaining: number;
   deeplCreditsRemaining: number;
+  anthropicCreditsRemaining: number;
 }
 
 export interface CreditInfo {
   roboflow: { credits: number; hasOwnKey: boolean };
   deepl: { credits: number; hasOwnKey: boolean };
+  anthropic: { credits: number; hasOwnKey: boolean };
 }
 
 @Injectable({
@@ -32,6 +35,11 @@ export class OrgApiLicensesService {
     roboflowApiKey?: string;
     roboflowWorkflowUrl?: string;
     deeplApiKey?: string;
+    anthropicApiKey?: string;
+    clearRoboflowApiKey?: boolean;
+    clearRoboflowWorkflowUrl?: boolean;
+    clearDeeplApiKey?: boolean;
+    clearAnthropicApiKey?: boolean;
   }): Observable<any> {
     return this.httpClient.post<any>(this.url + 'org-api-licenses', data);
   }

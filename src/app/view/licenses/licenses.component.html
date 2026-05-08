@@ -78,6 +78,37 @@
           </div>
         </div>
 
+        <div class="row g-3 mb-4">
+          <h5 class="card-section-heading">Anthropic Claude (Document Auto-Classifier)</h5>
+          <p class="text-muted">
+            Used by the document classifier as a Tier-3 fallback when filename
+            and keyword matching aren't confident. Drop in your own
+            <code>sk-ant-...</code> key for unlimited use, or rely on the free
+            credit allowance below.
+          </p>
+          <p class="mb-2">
+            <a href="https://console.anthropic.com/" target="_blank" rel="noopener noreferrer">
+              Create an Anthropic API key &rarr;
+            </a>
+          </p>
+          <div class="credits-display mb-2" *ngIf="!isAdmin">
+            <span
+              class="badge"
+              [ngClass]="anthropicCredits > 0 ? 'bg-success' : 'bg-danger'"
+            >
+              {{ anthropicCredits }} of 50 free credits remaining
+            </span>
+          </div>
+          <div class="col-md-6 d-flex flex-column">
+            <label class="form-label text-capitalize">Anthropic API Key</label>
+            <input
+              type="text"
+              formControlName="anthropicApiKey"
+              placeholder="Enter your Anthropic API key"
+            />
+          </div>
+        </div>
+
         <mat-card-footer>
           <div class="col-12 d-flex justify-content-end gap-2">
             <button
