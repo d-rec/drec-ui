@@ -2,9 +2,9 @@
   <mat-card>
     <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center overlay">
       <div>
-        <h2 class="pb-0 mb-0 fw-bold text-capitalize">Device Registration</h2>
+        <h2 class="pb-0 mb-0 fw-bold text-capitalize">{{ isEditMode ? 'Edit Device' : 'Device Registration' }}</h2>
       </div>
-      <div>
+      <div *ngIf="!isEditMode">
         <button class="btn btn-dark justify-content-end d-flex align-items-center px-4" (click)="adddevice()"
           test-id="add-more-devices">
           <mat-icon class="align-middle me-2">add_circle</mat-icon> Add More
@@ -602,6 +602,17 @@
                   </div>
                 </ng-template>
 
+                <ng-template #existingDocList let-idx="idx" let-docType="docType">
+                  <ul class="existing-doc-list" *ngIf="existingDocs[idx]?.[docType]?.length">
+                    <li *ngFor="let doc of existingDocs[idx][docType]; let di = index" class="existing-doc-item">
+                      <span class="existing-doc-link" (click)="viewExistingDoc(doc)" [title]="doc.label || doc.name">{{ doc.label || doc.name }}</span>
+                      <button type="button" class="existing-doc-delete" (click)="deleteExistingDoc(idx, docType, di)" title="Delete">
+                        <mat-icon style="font-size:14px;height:14px;width:14px">close</mat-icon>
+                      </button>
+                    </li>
+                  </ul>
+                </ng-template>
+
                 <div class="row">
                   <div class="col-12">
                     <div class="magic-header">
@@ -845,6 +856,7 @@
                         </span>
                       </div>
                       <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'FORM_SF_02' }"></ng-container>
+                    <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'FORM_SF_02' }"></ng-container>
                       <div class="sld-extract-running" *ngIf="sf02Extracting[i]">
                         <span class="barber-pole" aria-hidden="true"></span>
                         <small>Reading SF-02…</small>
@@ -869,7 +881,7 @@
                         </div>
                       </div>
                     </div>
-                    <div *ngIf="deviceForms.at(i).get('sf02EvidenceMode')?.value === 'self'">
+                    <div *ngIf="!isEditMode && deviceForms.at(i).get('sf02EvidenceMode')?.value === 'self'">
                       <button type="button" class="btn btn-outline-primary"
                         (click)="saveAndGenerateSf02(i)"
                         [disabled]="isGeneratingSf02ByIndex[i]">
@@ -924,6 +936,7 @@
                       </span>
                     </div>
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'PROJECT_PHOTOS' }"></ng-container>
+                    <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'PROJECT_PHOTOS' }"></ng-container>
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SINGLE_LINE_DIAGRAM') === 'required' && !deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
@@ -953,6 +966,7 @@
                       </span>
                     </div>
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
+                    <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
                     <div class="sld-extract-running" *ngIf="sldExtracting[i]">
                       <span class="barber-pole" aria-hidden="true"></span>
                       <small>Reading SLD…</small>
@@ -1004,6 +1018,7 @@
                       </span>
                     </div>
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SF_02C' }"></ng-container>
+                    <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'SF_02C' }"></ng-container>
                     <div class="sld-extract-running" *ngIf="sf02cExtracting[i]">
                       <span class="barber-pole" aria-hidden="true"></span>
                       <small>Reading SF-02c…</small>
@@ -1053,6 +1068,7 @@
                       </span>
                     </div>
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'PROOF_OF_OWNERSHIP' }"></ng-container>
+                    <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'PROOF_OF_OWNERSHIP' }"></ng-container>
                   </div>
 
                   <div class="col-md-4 mb-3">
@@ -1082,6 +1098,7 @@
                       </span>
                     </div>
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'COD_PROOF' }"></ng-container>
+                    <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'COD_PROOF' }"></ng-container>
                     <div class="sld-extract-running" *ngIf="codExtracting[i]">
                       <span class="barber-pole" aria-hidden="true"></span>
                       <small>Reading COD proof…</small>
@@ -1137,6 +1154,7 @@
                       </span>
                     </div>
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'METERING_EVIDENCE' }"></ng-container>
+                    <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'METERING_EVIDENCE' }"></ng-container>
                     <div class="sld-extract-running" *ngIf="meterIdsExtracting[i]">
                       <span class="barber-pole" aria-hidden="true"></span>
                       <small>Reading meter IDs…</small>
@@ -1170,6 +1188,7 @@
                       </span>
                     </div>
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'OTHER_DOCUMENTS' }"></ng-container>
+                    <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'OTHER_DOCUMENTS' }"></ng-container>
                   </div>
 
                 </div>
@@ -1197,7 +1216,7 @@
             </button>
             <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="isSubmitting"
               (click)="onSubmit()" test-id="submit-device">
-              {{ submitButtonText }}
+              {{ isEditMode ? 'Update' : submitButtonText }}
             </button>
           </div>
         </div>

@@ -2514,6 +2514,75 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   /**
+   * Open a server-saved doc in the preview dialog. Edit-mode only —
+   * Add flow has nothing to load. Mirrors edit-device.viewExistingDoc().
+   */
+  viewExistingDoc(doc: { url: string; name: string; id: number }): void {
+    const ext = doc.name.split('.').pop()?.toLowerCase() || '';
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext);
+    const isPdf = ext === 'pdf';
+    const isExcel = ext === 'xlsx' || ext === 'xls';
+    const mimeMap: Record<string, string> = {
+      pdf: 'application/pdf',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      webp: 'image/webp',
+      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      xls: 'application/vnd.ms-excel',
+    };
+    this.deviceService.getDocumentBlob(doc.id).subscribe({
+      next: (blob: Blob) => {
+        const typed = new Blob([blob], { type: mimeMap[ext] || blob.type });
+        const objUrl = URL.createObjectURL(typed);
+        this.previewData = {
+          url: this.sanitizer.bypassSecurityTrustResourceUrl(objUrl),
+          type: isImage ? 'image' : isPdf ? 'pdf' : isExcel ? 'excel' : 'other',
+          name: doc.name,
+        };
+        this.currentPreviewFile = new File([typed], doc.name, {
+          type: typed.type,
+        });
+        this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
+          width: '95vw',
+          maxWidth: '1400px',
+          height: '90vh',
+          panelClass: 'file-preview-dialog',
+        });
+      },
+      error: () => this.toastrService.error('Failed to load document'),
+    });
+  }
+
+  /** Delete a server-saved doc; only invoked from edit mode. */
+  deleteExistingDoc(deviceIndex: number, type: string, docIndex: number): void {
+    const doc = this.existingDocs[deviceIndex]?.[type]?.[docIndex];
+    if (!doc) return;
+    if (!confirm(`Delete "${doc.label || doc.name}"?`)) return;
+    if (!this.editingDeviceId) return;
+    this.deviceService
+      .deleteDocument(this.editingDeviceId, doc.id)
+      .subscribe({
+        next: () => {
+          this.existingDocs[deviceIndex][type].splice(docIndex, 1);
+          if (!this.existingDocs[deviceIndex][type].length) {
+            delete this.existingDocs[deviceIndex][type];
+            if (this.filePreviews[deviceIndex]?.[type]) {
+              delete this.filePreviews[deviceIndex][type];
+            }
+          }
+          this.toastrService.success('Document deleted');
+        },
+        error: (err) => {
+          this.toastrService.error(
+            err?.error?.message || 'Failed to delete document',
+          );
+        },
+      });
+  }
+
+  /**
    * Edit-mode submit. PATCH the existing device via deviceService.update
    * with the first FormArray row's value + any newly-staged files.
    * Mirrors edit-device.component.ts's old onSubmit() but reads from

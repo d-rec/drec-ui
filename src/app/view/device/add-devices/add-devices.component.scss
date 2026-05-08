@@ -1073,3 +1073,37 @@ input.example-right-align {
     small { color: #64748b; }
   }
 }
+
+// Edit-mode: server-saved documents shown alongside each upload slot.
+.existing-doc-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  font-size: 12px;
+}
+.existing-doc-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  &:nth-child(even) { background: #f1f5f9; }
+}
+.existing-doc-link {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #4f46e5;
+  text-decoration: underline dotted;
+  cursor: pointer;
+  &:hover { text-decoration-style: solid; }
+}
+.existing-doc-delete {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  &:hover { color: #ef4444; }
+}
