@@ -88,6 +88,21 @@ export interface SldExtractedFields {
 export class DocumentClassifierService {
   constructor(private http: HttpClient) {}
 
+  /** SHA-256 of the file bytes, hex-encoded. Used as the cache key
+   *  on every AI extraction call so a re-uploaded document hits the
+   *  backend's response cache instead of re-running OCR + Haiku. */
+  private async sha256OfFile(file: File): Promise<string> {
+    try {
+      const buf = await file.arrayBuffer();
+      const digest = await crypto.subtle.digest('SHA-256', buf);
+      return Array.from(new Uint8Array(digest))
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
+    } catch {
+      return '';
+    }
+  }
+
   /**
    * Classify a file and suggest a DocumentType.
    * Returns null if confidence is too low.
@@ -172,7 +187,8 @@ export class DocumentClassifierService {
         (!kwResult || kwResult.confidence < HAIKU_FALLBACK_THRESHOLD)
       ) {
         tick('asking Haiku…');
-        const haiku = await this.classifyViaHaiku(file.name, text);
+        const hash = await this.sha256OfFile(file);
+        const haiku = await this.classifyViaHaiku(file.name, text, hash);
         if (haiku && (!kwResult || haiku.confidence > kwResult.confidence)) {
           return haiku;
         }
@@ -444,6 +460,7 @@ export class DocumentClassifierService {
       if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
         text = await this.extractPdfTextLayer(file);
       }
+      const contentHash = await this.sha256OfFile(file);
       const res = await firstValueFrom(
         this.http.post<SldExtractedFields>(
           `${environment.API_URL}ai/extract-sld-fields`,
@@ -452,6 +469,7 @@ export class DocumentClassifierService {
             images,
             ...(text && text.trim().length >= 20 ? { text } : {}),
             ...(deviceId ? { deviceId } : {}),
+            ...(contentHash ? { contentHash } : {}),
           },
         ),
       );
@@ -567,6 +585,8 @@ export class DocumentClassifierService {
       }
       const payload: any = { filename: file.name };
       if (deviceId) payload.deviceId = deviceId;
+      const contentHash = await this.sha256OfFile(file);
+      if (contentHash) payload.contentHash = contentHash;
       if (text && text.trim().length >= 40) {
         payload.text = text;
       } else {
@@ -691,6 +711,7 @@ export class DocumentClassifierService {
   private async classifyViaHaiku(
     filename: string,
     text: string,
+    contentHash?: string,
   ): Promise<ClassificationResult | null> {
     try {
       const res = await firstValueFrom(
@@ -702,6 +723,7 @@ export class DocumentClassifierService {
           filename,
           text,
           validTypes: CLASSIFIABLE_TYPES,
+          ...(contentHash ? { contentHash } : {}),
         }),
       );
       if (!res || !res.suggestedType) return null;
