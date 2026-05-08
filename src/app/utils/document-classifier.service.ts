@@ -436,12 +436,21 @@ export class DocumentClassifierService {
           mimeType: 'image/png' as const,
         };
       });
+      // Vector SLDs (CAD exports) embed every label as real text.
+      // Send the text layer alongside the rasterised image so Haiku
+      // can read labels its vision pass might miss (small text in
+      // dense schematics, e.g. "HUAWEI SUN2000-30KTL-M3").
+      let text = '';
+      if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+        text = await this.extractPdfTextLayer(file);
+      }
       const res = await firstValueFrom(
         this.http.post<SldExtractedFields>(
           `${environment.API_URL}ai/extract-sld-fields`,
           {
             filename: file.name,
             images,
+            ...(text && text.trim().length >= 20 ? { text } : {}),
             ...(deviceId ? { deviceId } : {}),
           },
         ),
