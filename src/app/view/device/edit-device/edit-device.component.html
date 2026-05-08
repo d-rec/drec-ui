@@ -533,57 +533,145 @@
                 <div class="magic-dialog">
                   <div class="magic-dialog__header">
                     <mat-icon style="font-size:20px;height:20px;width:20px">auto_fix_high</mat-icon>
-                    <span>Auto-sorting documents</span>
+                    <span *ngIf="!magicExtractMode">Auto-sorting documents</span>
+                    <span *ngIf="magicExtractMode">Reading documents</span>
                     <button type="button" class="magic-dialog__close"
-                      (click)="magicRunning = false; magicLog = []"
+                      (click)="dismissMagicExtraction()"
                       (mousedown)="$event.stopPropagation()">&times;</button>
                   </div>
-                  <div class="magic-dialog__progress" *ngIf="magicRunning">
-                    <div class="magic-dialog__bar">
-                      <div class="magic-dialog__fill"
-                        [style.width.%]="magicTotal ? (magicDone / magicTotal) * 100 : 0"></div>
+
+                  <!-- Phase 1: classification -->
+                  <ng-container *ngIf="!magicExtractMode">
+                    <div class="magic-dialog__progress" *ngIf="magicRunning">
+                      <div class="magic-dialog__bar">
+                        <div class="magic-dialog__fill"
+                          [style.width.%]="magicTotal ? (magicDone / magicTotal) * 100 : 0"></div>
+                      </div>
+                      <span class="magic-dialog__count">{{ magicDone }} / {{ magicTotal }}</span>
                     </div>
-                    <span class="magic-dialog__count">{{ magicDone }} / {{ magicTotal }}</span>
-                  </div>
-                  <div class="magic-dialog__done" *ngIf="!magicRunning">
-                    Sorted {{ magicLog.length }} files
-                  </div>
-                  <table class="magic-table" *ngIf="magicLog.length">
-                    <thead>
-                      <tr><th>File</th><th>Classified as</th><th>Confidence</th></tr>
-                    </thead>
-                    <tbody>
-                      <tr *ngFor="let entry of magicLog; let odd = odd"
-                        [class.magic-table__miss]="entry.type === 'miss'"
-                        [class.magic-table__dimmed]="odd">
-                        <td class="magic-table__file">
-                          <span *ngIf="entry.file" class="magic-table__link"
-                            (click)="viewMagicFile(entry.file)"
-                            (mousedown)="$event.stopPropagation()">{{ entry.filename }}</span>
-                          <span *ngIf="!entry.file">{{ entry.filename }}</span>
-                        </td>
-                        <td class="magic-table__target">{{ entry.target }}</td>
-                        <td class="magic-table__conf">{{ entry.confidence ? entry.confidence + '%' : '—' }}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <div class="magic-dialog__footer">
-                    <button type="button" class="btn btn-outline-secondary btn-sm"
-                      *ngIf="magicLog.length"
-                      (click)="copyMagicLog()" (mousedown)="$event.stopPropagation()"
-                      title="Copy results as TSV">
-                      <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">content_copy</mat-icon>
-                      Copy
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm"
-                      (click)="cancelMagic()" (mousedown)="$event.stopPropagation()">Cancel</button>
-                    <button type="button" class="btn btn-primary btn-sm"
-                      (click)="acceptMagic()" (mousedown)="$event.stopPropagation()">OK</button>
-                    <button type="button" class="btn btn-success btn-sm"
-                      *ngIf="!magicRunning"
-                      [title]="'Accept the sort + read the documents to pre-fill form fields'"
-                      (click)="extractAllFromMagic()" (mousedown)="$event.stopPropagation()">OK + Extract</button>
-                  </div>
+                    <div class="magic-dialog__done" *ngIf="!magicRunning">
+                      Sorted {{ magicLog.length }} files
+                    </div>
+                    <table class="magic-table" *ngIf="magicLog.length">
+                      <thead>
+                        <tr><th>File</th><th>Classified as</th><th>Confidence</th></tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let entry of magicLog; let odd = odd"
+                          [class.magic-table__miss]="entry.type === 'miss'"
+                          [class.magic-table__dimmed]="odd">
+                          <td class="magic-table__file">
+                            <span *ngIf="entry.file" class="magic-table__link"
+                              (click)="viewMagicFile(entry.file)"
+                              (mousedown)="$event.stopPropagation()">{{ entry.filename }}</span>
+                            <span *ngIf="!entry.file">{{ entry.filename }}</span>
+                          </td>
+                          <td class="magic-table__target">{{ entry.target }}</td>
+                          <td class="magic-table__conf">{{ entry.confidence ? entry.confidence + '%' : '—' }}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div class="magic-dialog__footer">
+                      <button type="button" class="btn btn-outline-secondary btn-sm"
+                        *ngIf="magicLog.length"
+                        (click)="copyMagicLog()" (mousedown)="$event.stopPropagation()"
+                        title="Copy results as TSV">
+                        <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">content_copy</mat-icon>
+                        Copy
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary btn-sm"
+                        (click)="cancelMagic()" (mousedown)="$event.stopPropagation()">Cancel</button>
+                      <button type="button" class="btn btn-primary btn-sm"
+                        (click)="acceptMagic()" (mousedown)="$event.stopPropagation()">OK</button>
+                      <button type="button" class="btn btn-success btn-sm"
+                        *ngIf="!magicRunning"
+                        [title]="'Accept the sort + read the documents to pre-fill form fields'"
+                        (click)="extractAllFromMagic()" (mousedown)="$event.stopPropagation()">OK + Extract</button>
+                    </div>
+                  </ng-container>
+
+                  <!-- Phase 2: extraction results -->
+                  <ng-container *ngIf="magicExtractMode">
+                    <div class="magic-dialog__done">
+                      <span *ngIf="isAnyExtracting()">
+                        <span class="barber-pole" aria-hidden="true"></span>
+                        Reading documents&hellip;
+                      </span>
+                      <span *ngIf="!isAnyExtracting() && hasAnyExtractionResult()">
+                        Done — review fields below, then Apply.
+                      </span>
+                      <span *ngIf="!isAnyExtracting() && !hasAnyExtractionResult()">
+                        No fields could be extracted from these documents.
+                      </span>
+                    </div>
+
+                    <div class="magic-extract-results" *ngIf="hasAnyExtractionResult()">
+                      <div class="magic-extract-section" *ngIf="sldExtraction as fx">
+                        <div class="magic-extract-section__header">From SLD</div>
+                        <ul>
+                          <li *ngIf="fx.acCapacityKw">AC capacity: {{ fx.acCapacityKw.value }} kW <small>({{ (fx.acCapacityKw.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                          <li *ngIf="fx.dcCapacityKwp">DC capacity: {{ fx.dcCapacityKwp.value }} kWp</li>
+                          <li *ngIf="fx.inverterCount">Inverters: {{ fx.inverterCount.value }}<span *ngIf="fx.inverterCapacityKw"> × {{ fx.inverterCapacityKw.value }} kW</span><span *ngIf="fx.inverterMakeModel"> ({{ fx.inverterMakeModel.value }})</span></li>
+                          <li *ngIf="fx.moduleCount">Modules: {{ fx.moduleCount.value }}<span *ngIf="fx.moduleWattage"> × {{ fx.moduleWattage.value }} W</span></li>
+                          <li *ngIf="fx.gridVoltage">Grid voltage: {{ fx.gridVoltage.value }}</li>
+                          <li *ngIf="fx.gridTied">Grid-tied: {{ fx.gridTied.value ? 'yes' : 'no' }}</li>
+                          <li *ngIf="fx.zeroExport">Zero-export: {{ fx.zeroExport.value ? 'yes' : 'no' }}</li>
+                          <li *ngIf="fx.transformerKva">Transformer: {{ fx.transformerKva.value }} kVA</li>
+                        </ul>
+                      </div>
+                      <div class="magic-extract-section" *ngIf="sf02cExtraction as fx">
+                        <div class="magic-extract-section__header">From SF-02c</div>
+                        <ul>
+                          <li *ngIf="fx.projectName">Project: {{ fx.projectName.value }}</li>
+                          <li *ngIf="fx.ownerLegalName">Owner: {{ fx.ownerLegalName.value }}</li>
+                          <li *ngIf="fx.ownerAddress">Address: {{ fx.ownerAddress.value }}</li>
+                          <li *ngIf="fx.ownerCountry">Country: {{ fx.ownerCountry.value }}</li>
+                          <li *ngIf="fx.signingDate">Signed: {{ fx.signingDate.value }}</li>
+                          <li *ngIf="fx.signatoryName">Signatory: {{ fx.signatoryName.value }}<span *ngIf="fx.signatoryEmail"> &lt;{{ fx.signatoryEmail.value }}&gt;</span></li>
+                        </ul>
+                      </div>
+                      <div class="magic-extract-section" *ngIf="codExtraction as fx">
+                        <div class="magic-extract-section__header">From COD proof</div>
+                        <ul>
+                          <li *ngIf="fx.commissioningDate">COD: {{ fx.commissioningDate.value }}</li>
+                          <li *ngIf="fx.facilityName">Site: {{ fx.facilityName.value }}</li>
+                          <li *ngIf="fx.acCapacityKw">Capacity: {{ fx.acCapacityKw.value }} kW</li>
+                          <li *ngIf="fx.ownerName">Owner: {{ fx.ownerName.value }}</li>
+                          <li *ngIf="fx.utilityOrIssuer">Issued by: {{ fx.utilityOrIssuer.value }}</li>
+                        </ul>
+                      </div>
+                      <div class="magic-extract-section" *ngIf="sf02Extraction as fx">
+                        <div class="magic-extract-section__header">From SF-02</div>
+                        <ul>
+                          <li *ngIf="fx.facilityName">Site: {{ fx.facilityName.value }}</li>
+                          <li *ngIf="fx.acCapacityKw">Capacity: {{ fx.acCapacityKw.value }} kW</li>
+                          <li *ngIf="fx.commissioningDate">COD: {{ fx.commissioningDate.value }}</li>
+                          <li *ngIf="fx.deviceTypeCode">Type: {{ fx.deviceTypeCode.value }}</li>
+                          <li *ngIf="fx.ownerLegalName">Owner: {{ fx.ownerLegalName.value }}</li>
+                          <li *ngIf="fx.ownerAddress">Address: {{ fx.ownerAddress.value }}</li>
+                          <li *ngIf="fx.ownerCountry">Country: {{ fx.ownerCountry.value }}</li>
+                          <li *ngIf="fx.latitude && fx.longitude">Coords: {{ fx.latitude.value }}, {{ fx.longitude.value }}</li>
+                          <li *ngIf="fx.inverterCount">Inverters: {{ fx.inverterCount.value }}</li>
+                          <li *ngIf="fx.moduleCount">Modules: {{ fx.moduleCount.value }}</li>
+                        </ul>
+                      </div>
+                      <div class="magic-extract-section" *ngIf="meterIdsExtraction.length">
+                        <div class="magic-extract-section__header">Meter / Measurement IDs</div>
+                        <ul>
+                          <li *ngFor="let id of meterIdsExtraction">{{ id }}</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div class="magic-dialog__footer">
+                      <button type="button" class="btn btn-outline-secondary btn-sm"
+                        (click)="dismissMagicExtraction()" (mousedown)="$event.stopPropagation()">Skip</button>
+                      <button type="button" class="btn btn-primary btn-sm"
+                        *ngIf="hasAnyExtractionResult()"
+                        [disabled]="isAnyExtracting()"
+                        (click)="applyAllExtracted()" (mousedown)="$event.stopPropagation()">Apply all to form</button>
+                    </div>
+                  </ng-container>
                 </div>
               </div>
 

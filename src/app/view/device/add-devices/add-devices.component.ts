@@ -144,6 +144,13 @@ export class AddDevicesComponent implements OnDestroy {
   meterIdsExtractions: { [deviceIndex: number]: string[] } = {};
   meterIdsExtracting: { [deviceIndex: number]: boolean } = {};
 
+  /** Auto-classifier extraction phase. When true, the magic-overlay
+   *  dialog shows the consolidated extraction view (running spinner +
+   *  preview list + single Apply All button) instead of the
+   *  classification table. Set by "OK + Extract", cleared on Apply
+   *  All / Cancel. */
+  magicExtractMode: { [deviceIndex: number]: boolean } = {};
+
   /** Magic auto-sort state. */
   magicRunning: { [deviceIndex: number]: boolean } = {};
   magicDone: { [deviceIndex: number]: number } = {};
@@ -1341,15 +1348,17 @@ export class AddDevicesComponent implements OnDestroy {
     this.meterIdsExtractions[deviceIndex] = [];
   }
 
-  /** Triggered from the auto-classifier dialog. Walks every classified
-   *  file and kicks off the matching field-extractor (SLD / SF-02c /
-   *  SF-02 / COD). Each extractor's banner lights up as its call
-   *  returns; the dialog closes with the same accept-classifications
-   *  side effect as the OK button. */
+  /** OK + Extract: keep the magic dialog open, transition into
+   *  extraction-phase view, kick off all matching extractors.
+   *  Files are already routed (the classifier moved them at sort
+   *  time); we just clean up the cancel-backup since the user is
+   *  committing. */
   extractAllFromMagic(deviceIndex: number): void {
     const log = this.magicLog[deviceIndex] || [];
-    // Make sure files are routed to slots first (same flow as OK)
-    this.acceptMagic(deviceIndex);
+    // Drop the cancel-rollback backup -- user committed to the sort.
+    delete this.magicBackupFiles[deviceIndex];
+    delete this.magicBackupPreviews[deviceIndex];
+    this.magicExtractMode[deviceIndex] = true;
     for (const entry of log) {
       if (!entry.file || !entry.docType) continue;
       switch (entry.docType) {
@@ -1370,6 +1379,52 @@ export class AddDevicesComponent implements OnDestroy {
           break;
       }
     }
+  }
+
+  /** True while any extractor is still running on this device. */
+  isAnyExtracting(deviceIndex: number): boolean {
+    return !!(
+      this.sldExtracting[deviceIndex] ||
+      this.sf02cExtracting[deviceIndex] ||
+      this.codExtracting[deviceIndex] ||
+      this.sf02Extracting[deviceIndex] ||
+      this.meterIdsExtracting[deviceIndex]
+    );
+  }
+
+  /** True if at least one extractor returned a usable result. */
+  hasAnyExtractionResult(deviceIndex: number): boolean {
+    return !!(
+      this.sldExtractions[deviceIndex] ||
+      this.sf02cExtractions[deviceIndex] ||
+      this.codExtractions[deviceIndex] ||
+      this.sf02Extractions[deviceIndex] ||
+      (this.meterIdsExtractions[deviceIndex]?.length ?? 0) > 0
+    );
+  }
+
+  /** Apply every extractor's result that has one, then close the
+   *  magic dialog. Each underlying apply method already implements
+   *  patch-empty-only rules. */
+  applyAllExtracted(deviceIndex: number): void {
+    if (this.sldExtractions[deviceIndex]) this.applySldExtraction(deviceIndex);
+    if (this.sf02cExtractions[deviceIndex]) this.applySf02cExtraction(deviceIndex);
+    if (this.codExtractions[deviceIndex]) this.applyCodExtraction(deviceIndex);
+    if (this.sf02Extractions[deviceIndex]) this.applySf02Extraction(deviceIndex);
+    if (this.meterIdsExtractions[deviceIndex]?.length) {
+      this.applyMeterIdsExtraction(deviceIndex);
+    }
+    this.dismissMagicExtraction(deviceIndex);
+  }
+
+  dismissMagicExtraction(deviceIndex: number): void {
+    this.magicLog[deviceIndex] = [];
+    this.magicExtractMode[deviceIndex] = false;
+    this.sldExtractions[deviceIndex] = null;
+    this.sf02cExtractions[deviceIndex] = null;
+    this.codExtractions[deviceIndex] = null;
+    this.sf02Extractions[deviceIndex] = null;
+    this.meterIdsExtractions[deviceIndex] = [];
   }
 
   private classifyUploadedFile(

@@ -176,6 +176,11 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
 
   meterIdsExtraction: string[] = [];
   meterIdsExtracting = false;
+
+  /** Auto-classifier extraction phase. When true, the magic-overlay
+   *  shows the consolidated extraction view instead of the
+   *  classification table. */
+  magicExtractMode = false;
   DOCUMENT_TYPE_LABELS = DOCUMENT_TYPE_LABELS;
 
   /** Magic auto-sort state. */
@@ -1288,10 +1293,12 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
     this.sf02Extraction = null;
   }
 
-  /** Auto-classifier OK + per-doc field extraction in one click. */
   extractAllFromMagic(): void {
     const log = [...this.magicLog];
-    this.acceptMagic();
+    // Drop the cancel-rollback backup -- user committed.
+    this.magicBackupFiles = {};
+    this.magicBackupPreviews = {};
+    this.magicExtractMode = true;
     for (const entry of log) {
       if (!entry.file || !entry.docType) continue;
       switch (entry.docType) {
@@ -1312,6 +1319,45 @@ export class EditDeviceComponent implements OnInit, OnDestroy {
           break;
       }
     }
+  }
+
+  isAnyExtracting(): boolean {
+    return (
+      this.sldExtracting ||
+      this.sf02cExtracting ||
+      this.codExtracting ||
+      this.sf02Extracting ||
+      this.meterIdsExtracting
+    );
+  }
+
+  hasAnyExtractionResult(): boolean {
+    return !!(
+      this.sldExtraction ||
+      this.sf02cExtraction ||
+      this.codExtraction ||
+      this.sf02Extraction ||
+      this.meterIdsExtraction.length
+    );
+  }
+
+  applyAllExtracted(): void {
+    if (this.sldExtraction) this.applySldExtraction();
+    if (this.sf02cExtraction) this.applySf02cExtraction();
+    if (this.codExtraction) this.applyCodExtraction();
+    if (this.sf02Extraction) this.applySf02Extraction();
+    if (this.meterIdsExtraction.length) this.applyMeterIdsExtraction();
+    this.dismissMagicExtraction();
+  }
+
+  dismissMagicExtraction(): void {
+    this.magicLog = [];
+    this.magicExtractMode = false;
+    this.sldExtraction = null;
+    this.sf02cExtraction = null;
+    this.codExtraction = null;
+    this.sf02Extraction = null;
+    this.meterIdsExtraction = [];
   }
 
   private classifyUploadedFile(file: File, currentType: string): void {

@@ -964,3 +964,31 @@ input.example-right-align {
     gap: 8px;
   }
 }
+
+.magic-extract-results {
+  max-height: 360px;
+  overflow-y: auto;
+  margin: 8px 0;
+  padding: 0 4px;
+}
+.magic-extract-section {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: #eff6ff;
+  border-left: 3px solid #2563eb;
+  border-radius: 3px;
+  font-size: 12px;
+  color: #1f2937;
+
+  &__header {
+    font-weight: 600;
+    color: #1e3a8a;
+    margin-bottom: 4px;
+  }
+  ul {
+    margin: 0;
+    padding-left: 18px;
+    li { margin-bottom: 1px; }
+    small { color: #64748b; margin-left: 4px; }
+  }
+}
