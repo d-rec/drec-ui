@@ -25,7 +25,7 @@ import {
 } from '../../../auth/services';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subscription, Subject } from 'rxjs';
+import { Observable, Subscription, Subject, combineLatest } from 'rxjs';
 import {
   startWith,
   map,
@@ -926,6 +926,9 @@ export class AddDevicesComponent implements OnDestroy {
    * leading/trailing spaces or non-breaking spaces, and the backend
    * coord regex rejects them — making the form silently invalid
    * with no red border. Auto-strip avoids the "stray space" trap.
+   *
+   * Also reverse-geocodes via Nominatim (OSM) once both coords are
+   * set + valid, to fill stateProvince + postcode when empty.
    */
   private setupCoordSanitizer(deviceGroup: FormGroup): void {
     for (const name of ['latitude', 'longitude'] as const) {
@@ -939,6 +942,75 @@ export class AddDevicesComponent implements OnDestroy {
         }
       });
     }
+    const lat$ = deviceGroup.get('latitude')?.valueChanges;
+    const lng$ = deviceGroup.get('longitude')?.valueChanges;
+    if (lat$ && lng$) {
+      // Re-geocode 1.2 s after either coord stops changing — comfortably
+      // under Nominatim's 1 req/s recommendation.
+      const trigger = combineLatest([
+        lat$.pipe(startWith(deviceGroup.get('latitude')?.value)),
+        lng$.pipe(startWith(deviceGroup.get('longitude')?.value)),
+      ]).pipe(debounceTime(1200), distinctUntilChanged((a, b) => a[0] === b[0] && a[1] === b[1]));
+      trigger.subscribe(([lat, lng]) => {
+        const flat = parseFloat(String(lat));
+        const flng = parseFloat(String(lng));
+        if (!isFinite(flat) || !isFinite(flng)) return;
+        if (Math.abs(flat) > 90 || Math.abs(flng) > 180) return;
+        this.reverseGeocode(deviceGroup, flat, flng);
+      });
+    }
+  }
+
+  private lastGeocodedKey = '';
+
+  private reverseGeocode(
+    deviceGroup: FormGroup,
+    lat: number,
+    lng: number,
+  ): void {
+    const key = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+    if (key === this.lastGeocodedKey) return;
+    this.lastGeocodedKey = key;
+    const url =
+      `https://nominatim.openstreetmap.org/reverse` +
+      `?lat=${lat}&lon=${lng}&format=jsonv2&addressdetails=1`;
+    this.http
+      .get<any>(url, {
+        headers: { Accept: 'application/json' },
+      })
+      .subscribe({
+        next: (data) => {
+          const a = data?.address ?? {};
+          const setIfEmpty = (n: string, v: any) => {
+            const ctl = deviceGroup.get(n);
+            if (!ctl || ctl.value || !v) return;
+            ctl.setValue(v);
+            ctl.markAsDirty();
+          };
+          // State / region — Nominatim uses 'state' for federal
+          // entities, 'region' / 'county' / 'state_district' as
+          // fallbacks for places without a 'state'.
+          const stateLike =
+            a.state ||
+            a.region ||
+            a.state_district ||
+            a.county ||
+            a.province ||
+            null;
+          setIfEmpty('stateProvince', stateLike);
+          setIfEmpty('postcode', a.postcode ?? null);
+          // Country fallback — only if the country control is empty
+          // (don't fight an extractor or a user choice).
+          if (a.country) {
+            const c = this.normalizeCountry(a.country);
+            setIfEmpty('countryCodename', c);
+          }
+        },
+        error: () => {
+          // Silent — geocoding is best-effort. Leaving the field
+          // empty is fine.
+        },
+      });
   }
 
   /**
