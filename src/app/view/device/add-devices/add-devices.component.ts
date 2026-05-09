@@ -3119,7 +3119,10 @@ export class AddDevicesComponent implements OnDestroy {
     ctl.setValue('');
     ctl.markAsDirty();
     ctl.markAsTouched();
+    // submitEdit renames countryCodename → countryCode before the
+    // strip loop runs, so flag both keys as cleared.
     this.markCleared(deviceIndex, 'countryCodename');
+    this.markCleared(deviceIndex, 'countryCode');
   }
 
   /** Total project-photo count = staged + already-saved. Used by
