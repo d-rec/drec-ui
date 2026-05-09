@@ -126,42 +126,48 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   /** Find the EVIDENCE_PROVENANCE doc (if any) for this device,
    *  fetch its bytes through the auth-bearing HttpClient (the
    *  streaming endpoint requires JWT, which an iframe src= can't
-   *  send), wrap as a blob URL, and bind to the iframe. The HTML
-   *  document's relative source-doc links still target /api/...
-   *  on the same origin, so they resolve correctly when clicked. */
+   *  send), wrap as a blob URL, and bind to the iframe. */
   private loadProvenanceReport(): void {
-    if (this.provenanceObjectUrl) {
-      URL.revokeObjectURL(this.provenanceObjectUrl);
-      this.provenanceObjectUrl = null;
-    }
-    this.provenanceDocId = null;
-    this.provenanceUrl = null;
     const docs = this.documents.filter(
       (d) => d.type === 'EVIDENCE_PROVENANCE',
     );
     if (!docs.length) {
+      // No doc for this device — clear any previous render.
+      if (this.provenanceObjectUrl) {
+        URL.revokeObjectURL(this.provenanceObjectUrl);
+        this.provenanceObjectUrl = null;
+      }
+      this.provenanceDocId = null;
+      this.provenanceUrl = null;
       this.cdr.markForCheck();
       return;
     }
     const latest = [...docs].sort((a, b) => b.id - a.id)[0];
-    this.provenanceDocId = latest.id;
+    // Same doc as before? Skip re-fetch (avoids the iframe blanking
+    // for a second when load() re-enters with the same device id).
+    if (this.provenanceDocId === latest.id && this.provenanceUrl) {
+      return;
+    }
+    const previousUrl = this.provenanceObjectUrl;
     this.http
       .get(`${environment.API_URL}document-uploads/${latest.id}/url`, {
         responseType: 'blob',
       })
       .subscribe({
         next: (raw) => {
-          // Force text/html so the iframe renders rather than
-          // offering a download (the API streams as octet-stream).
           const blob = new Blob([raw], { type: 'text/html' });
           this.provenanceObjectUrl = URL.createObjectURL(blob);
           this.provenanceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
             this.provenanceObjectUrl,
           );
+          this.provenanceDocId = latest.id;
+          // Revoke previous AFTER the new iframe src is in place so
+          // the iframe never points at a freed blob URL.
+          if (previousUrl) URL.revokeObjectURL(previousUrl);
           this.cdr.markForCheck();
         },
         error: () => {
-          this.provenanceDocId = null;
+          // Leave any previous render in place — better stale than empty.
           this.cdr.markForCheck();
         },
       });
