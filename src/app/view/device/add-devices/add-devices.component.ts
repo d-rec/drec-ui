@@ -1067,22 +1067,26 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   checkDocumentsUploaded() {
-    const noFiles = Object.keys(this.files).length === 0;
-    const allDocsUploaded =
-      !noFiles &&
-      this.deviceForms.controls.every((group, deviceIndex) => {
-        if (!this.files[deviceIndex]) return false;
+    // Edit-mode aware: a slot counts as filled if either a new file
+    // is staged in `this.files` OR a server-saved doc is already
+    // attached (existingDocs).
+    const allDocsUploaded = this.deviceForms.controls.every(
+      (group, deviceIndex) => {
         return this.requiredFileTypes.every((fileType) => {
-          // SF-02 not required when self-declaration mode is selected (platform generates it)
           if (
             fileType === DocumentType.FORM_SF_02 &&
             group.get('sf02EvidenceMode')?.value === 'self'
           ) {
             return true;
           }
-          return this.files[deviceIndex][fileType]?.length > 0;
+          const staged =
+            (this.files[deviceIndex]?.[fileType]?.length ?? 0) > 0;
+          if (staged) return true;
+          const existing = this.existingDocs[deviceIndex]?.[fileType];
+          return Array.isArray(existing) && existing.length > 0;
         });
-      });
+      },
+    );
 
     this.allDocumentsUploaded = allDocsUploaded;
     // Partial submit allowed: docs just influence the warning banner, not formValid
@@ -2737,6 +2741,20 @@ export class AddDevicesComponent implements OnDestroy {
    * yields nothing useful and confuses reviewers, so suppress the
    * OCR affordance for those.
    */
+  /**
+   * Edit-mode aware "has at least one doc for this slot" check.
+   * - Add mode: only the form-control's value matters (newly chosen file).
+   * - Edit mode: also count server-saved docs surfaced in existingDocs,
+   *   so the (!) "missing" badge doesn't fire when docs are obviously
+   *   already attached.
+   */
+  hasDocFor(deviceIndex: number, docType: string): boolean {
+    const ctrlValue = this.deviceForms.at(deviceIndex)?.get(docType)?.value;
+    if (ctrlValue) return true;
+    const existing = this.existingDocs[deviceIndex]?.[docType];
+    return Array.isArray(existing) && existing.length > 0;
+  }
+
   ocrEligibleDocType(docType: string | null | undefined): boolean {
     if (!docType) return true; // unknown context → leave OCR enabled
     return docType !== 'PROJECT_PHOTOS';

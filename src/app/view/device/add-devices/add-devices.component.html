@@ -858,7 +858,7 @@
                         <button type="button" (click)="pfFileInput.click()" class="btn btn-primary">
                           <mat-icon>attach_file</mat-icon>
                         </button>
-                        <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('FORM_SF_02')?.value">
+                        <span class="file-name" [class.text-muted]="!hasDocFor(i, 'FORM_SF_02')">
                           {{ deviceForms.at(i).get('FORM_SF_02')?.value ?
                           deviceForms.at(i).get('FORM_SF_02')?.value.name : '' }}
                         </span>
@@ -867,7 +867,7 @@
                           (click)="openPreview(i, 'FORM_SF_02')">
                           <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                         </button>
-                        <span *ngIf="!deviceForms.at(i).get('FORM_SF_02')?.value"
+                        <span *ngIf="!hasDocFor(i, 'FORM_SF_02')"
                           class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                           <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                         </span>
@@ -931,7 +931,7 @@
                       <button type="button" (click)="photosFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value">
+                      <span class="file-name" [class.text-muted]="!hasDocFor(i, 'PROJECT_PHOTOS')">
                         {{ (files[i]?.['PROJECT_PHOTOS']?.length || 0) > 1
                           ? files[i]['PROJECT_PHOTOS'].length + ' files selected'
                           : (deviceForms.at(i).get('PROJECT_PHOTOS')?.value ?
@@ -948,7 +948,7 @@
                         title="Name each file">
                         <mat-icon style="font-size:18px;height:18px;width:18px">edit</mat-icon>
                       </button>
-                      <span *ngIf="!deviceForms.at(i).get('PROJECT_PHOTOS')?.value"
+                      <span *ngIf="!hasDocFor(i, 'PROJECT_PHOTOS')"
                         class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
@@ -958,7 +958,7 @@
                     <ng-container *ngTemplateOutlet="stagedDocList; context: { idx: i, docType: 'PROJECT_PHOTOS' }"></ng-container>
                   </div>
 
-                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SINGLE_LINE_DIAGRAM') === 'required' && !deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
+                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SINGLE_LINE_DIAGRAM') === 'required' && !hasDocFor(i, 'SINGLE_LINE_DIAGRAM')">
                     <label>(45) Single Line Diagram
                       <span class="badge-{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}">{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}</span>
                     </label>
@@ -970,7 +970,7 @@
                       <button type="button" (click)="diagramFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value">
+                      <span class="file-name" [class.text-muted]="!hasDocFor(i, 'SINGLE_LINE_DIAGRAM')">
                         {{ deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value ?
                         deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value.name : '' }}
                       </span>
@@ -979,7 +979,7 @@
                         (click)="openPreview(i, 'SINGLE_LINE_DIAGRAM')">
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
-                      <span *ngIf="!deviceForms.at(i).get('SINGLE_LINE_DIAGRAM')?.value"
+                      <span *ngIf="!hasDocFor(i, 'SINGLE_LINE_DIAGRAM')"
                         class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
@@ -1012,7 +1012,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C') === 'required' && !deviceForms.at(i).get('SF_02C')?.value">
+                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C') === 'required' && !hasDocFor(i, 'SF_02C')">
                     <label title="Please provide a signed copy of the attached template on your organization's letterhead. It must match this format, language, and site details exactly, and must include contact information for the person signing.">(46) SF-02c (Owner's Declaration letter)
                       <span class="badge-{{getDocRequirement('SF_02C')}}">{{getDocRequirement('SF_02C')}}</span>
                     </label>
@@ -1023,7 +1023,7 @@
                       <button type="button" (click)="sf02cFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('SF_02C')?.value">
+                      <span class="file-name" [class.text-muted]="!hasDocFor(i, 'SF_02C')">
                         {{ deviceForms.at(i).get('SF_02C')?.value ?
                         deviceForms.at(i).get('SF_02C')?.value.name : '' }}
                       </span>
@@ -1032,7 +1032,7 @@
                         (click)="openPreview(i, 'SF_02C')">
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
-                      <span *ngIf="!deviceForms.at(i).get('SF_02C')?.value"
+                      <span *ngIf="!hasDocFor(i, 'SF_02C')"
                         class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
@@ -1063,7 +1063,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('PROOF_OF_OWNERSHIP') === 'required' && !deviceForms.at(i).get('PROOF_OF_OWNERSHIP')?.value">
+                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('PROOF_OF_OWNERSHIP') === 'required' && !hasDocFor(i, 'PROOF_OF_OWNERSHIP')">
                     <label title="Please provide a copy of the contract with the PV system owner such as a PPA or lease agreement that clarifies who owns the facility and who has the legal right to trade the environmental attributes.">(47) Proof of Ownership
                       <span class="badge-{{getDocRequirement('PROOF_OF_OWNERSHIP')}}">{{getDocRequirement('PROOF_OF_OWNERSHIP')}}</span>
                     </label>
@@ -1074,7 +1074,7 @@
                       <button type="button" (click)="ownersDeclarationFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('PROOF_OF_OWNERSHIP')?.value">
+                      <span class="file-name" [class.text-muted]="!hasDocFor(i, 'PROOF_OF_OWNERSHIP')">
                         {{ deviceForms.at(i).get('PROOF_OF_OWNERSHIP')?.value ?
                         deviceForms.at(i).get('PROOF_OF_OWNERSHIP')?.value.name : '' }}
                       </span>
@@ -1083,7 +1083,7 @@
                         (click)="openPreview(i, 'PROOF_OF_OWNERSHIP')">
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
-                      <span *ngIf="!deviceForms.at(i).get('PROOF_OF_OWNERSHIP')?.value"
+                      <span *ngIf="!hasDocFor(i, 'PROOF_OF_OWNERSHIP')"
                         class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
@@ -1105,7 +1105,7 @@
                       <button type="button" (click)="codProofFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('COD_PROOF')?.value">
+                      <span class="file-name" [class.text-muted]="!hasDocFor(i, 'COD_PROOF')">
                         {{ deviceForms.at(i).get('COD_PROOF')?.value ?
                         deviceForms.at(i).get('COD_PROOF')?.value.name : '' }}
                       </span>
@@ -1114,7 +1114,7 @@
                         (click)="openPreview(i, 'COD_PROOF')">
                         <mat-icon style="font-size:18px;height:18px;width:18px">visibility</mat-icon>
                       </button>
-                      <span *ngIf="!deviceForms.at(i).get('COD_PROOF')?.value"
+                      <span *ngIf="!hasDocFor(i, 'COD_PROOF')"
                         class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
@@ -1142,7 +1142,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('METERING_EVIDENCE') === 'required' && !deviceForms.at(i).get('METERING_EVIDENCE')?.value">
+                  <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('METERING_EVIDENCE') === 'required' && !hasDocFor(i, 'METERING_EVIDENCE')">
                     <label title="Please provide a sample of the metering evidence you will rely on for I-REC issuance (e.g. RMS screenshots, Excel spreadsheets)">(49) Metering Evidence
                       <span class="badge-{{getDocRequirement('METERING_EVIDENCE')}}">{{getDocRequirement('METERING_EVIDENCE')}}</span>
                     </label>
@@ -1154,7 +1154,7 @@
                       <button type="button" (click)="meteringFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('METERING_EVIDENCE')?.value">
+                      <span class="file-name" [class.text-muted]="!hasDocFor(i, 'METERING_EVIDENCE')">
                         {{ (files[i]?.['METERING_EVIDENCE']?.length || 0) > 1
                           ? files[i]['METERING_EVIDENCE'].length + ' files selected'
                           : (deviceForms.at(i).get('METERING_EVIDENCE')?.value ?
@@ -1171,7 +1171,7 @@
                         title="Name each file">
                         <mat-icon style="font-size:18px;height:18px;width:18px">edit</mat-icon>
                       </button>
-                      <span *ngIf="!deviceForms.at(i).get('METERING_EVIDENCE')?.value"
+                      <span *ngIf="!hasDocFor(i, 'METERING_EVIDENCE')"
                         class="badge px-2 py-1" style="background:#94a3b8;color:#fff" title="Missing">
                         <mat-icon style="font-size:18px;height:18px;width:18px">error_outline</mat-icon>
                       </span>
@@ -1204,7 +1204,7 @@
                       <button type="button" (click)="otherDocsFileInput.click()" class="btn btn-primary">
                         <mat-icon>attach_file</mat-icon>
                       </button>
-                      <span class="file-name" [class.text-muted]="!deviceForms.at(i).get('OTHER_DOCUMENTS')?.value">
+                      <span class="file-name" [class.text-muted]="!hasDocFor(i, 'OTHER_DOCUMENTS')">
                         {{ (files[i]?.['OTHER_DOCUMENTS']?.length || 0) > 1
                           ? files[i]['OTHER_DOCUMENTS'].length + ' files selected'
                           : (deviceForms.at(i).get('OTHER_DOCUMENTS')?.value ?
