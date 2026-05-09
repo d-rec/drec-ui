@@ -896,7 +896,7 @@
                         </div>
                       </div>
                     </div>
-                    <div *ngIf="!isEditMode && deviceForms.at(i).get('sf02EvidenceMode')?.value === 'self'">
+                    <div *ngIf="deviceForms.at(i).get('sf02EvidenceMode')?.value === 'self'">
                       <button type="button" class="btn btn-outline-primary"
                         (click)="saveAndGenerateSf02(i)"
                         [disabled]="isGeneratingSf02ByIndex[i]">

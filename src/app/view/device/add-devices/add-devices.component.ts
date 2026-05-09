@@ -1491,6 +1491,7 @@ export class AddDevicesComponent implements OnDestroy {
       (v) => (v ? 'true' : 'false'),
     );
     patchIfEmpty('dataSourceBrand', fx.inverterMakeModel);
+    patchIfEmpty('networkOwner', fx.networkOwner);
     // SLD always describes inverter-side topology — if we read an
     // inverter make/model or count, the data source is the inverter.
     if (fx.inverterMakeModel || fx.inverterCount) {
@@ -1846,6 +1847,7 @@ export class AddDevicesComponent implements OnDestroy {
         v ? 'true' : 'false',
       );
       add('dataSourceBrand', 'SLD', sld.inverterMakeModel);
+      add('networkOwner', 'SLD', sld.networkOwner);
     }
     const sf02c = this.sf02cExtractions[deviceIndex];
     if (sf02c) {
@@ -2475,8 +2477,13 @@ export class AddDevicesComponent implements OnDestroy {
    * will skip it on subsequent runs.
    */
   saveAndGenerateSf02(index: number): void {
+    // Edit mode: device already exists, just regenerate.
+    if (this.isEditMode && this.editingDeviceId != null) {
+      this.runGenerateSf02(index, this.editingDeviceId);
+      return;
+    }
     if (this.savedDeviceIdByIndex[index] != null) {
-      // Already saved; just regenerate.
+      // Already saved in this session; just regenerate.
       this.runGenerateSf02(index, this.savedDeviceIdByIndex[index]);
       return;
     }
@@ -3004,6 +3011,20 @@ export class AddDevicesComponent implements OnDestroy {
     const serialChanged =
       formValue.serialNumber !== this.initSerialNumber;
 
+    const sf02Mode = firstRow.get('sf02EvidenceMode')?.value;
+    const shouldRegenerateSf02 =
+      sf02Mode === 'self' && this.editingDeviceId != null;
+
+    const navigateAway = (): void => {
+      if (this.user.role === OrganizationType.Admin) {
+        this.router.navigate(['/admin/All_devices']);
+      } else if (this.user.role === OrganizationType.Registrant) {
+        this.router.navigate(['/registrant/All_devices']);
+      } else {
+        this.router.navigate(['/device/AllList']);
+      }
+    };
+
     this.deviceService
       .update(this.editingExternalId, payload, serialChanged)
       .subscribe({
@@ -3012,13 +3033,31 @@ export class AddDevicesComponent implements OnDestroy {
             'Updated Successfully !!',
             'Device! ' + (data?.serialNumber ?? this.editingExternalId),
           );
-          if (this.user.role === OrganizationType.Admin) {
-            this.router.navigate(['/admin/All_devices']);
-          } else if (this.user.role === OrganizationType.Registrant) {
-            this.router.navigate(['/registrant/All_devices']);
-          } else {
-            this.router.navigate(['/device/AllList']);
+          if (shouldRegenerateSf02) {
+            // Regenerate the SF-02 from the now-updated device data,
+            // then navigate. Failure to regenerate is non-fatal — the
+            // user can re-trigger via the "Re-generate SF-02" button.
+            this.http
+              .post(
+                `${environment.API_URL}device-reviews/${this.editingDeviceId}/generate-sf02`,
+                {},
+              )
+              .subscribe({
+                next: () => {
+                  this.toastrService.success('SF-02 regenerated', 'SF-02');
+                  navigateAway();
+                },
+                error: (e) => {
+                  this.toastrService.warning(
+                    e?.error?.message || e?.message || 'Generation failed',
+                    'SF-02 — regenerate skipped',
+                  );
+                  navigateAway();
+                },
+              });
+            return;
           }
+          navigateAway();
         },
         error: (err: any) => {
           console.error('error caught in component', err?.error?.message);
