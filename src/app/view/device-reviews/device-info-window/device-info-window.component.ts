@@ -67,6 +67,8 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   search = '';
   provenanceHtml: SafeHtml | null = null;
   provenanceLoading = false;
+  // SafeResourceUrl typing isn't exported under SafeHtml; using the
+  // SafeUrl supertype so the iframe binding type-checks.
 
   private sub: Subscription | null = null;
 
@@ -116,31 +118,50 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Pull the latest EVIDENCE_PROVENANCE doc (if any) for this
-   *  device and render its HTML body inline. The doc is generated
-   *  by the registrant via add-devices.generateProvenanceReport. */
+  /** Latest EVIDENCE_PROVENANCE doc id for this device, or null. */
+  provenanceDocId: number | null = null;
+  provenanceUrl: SafeHtml | null = null;
+  private provenanceObjectUrl: string | null = null;
+
+  /** Find the EVIDENCE_PROVENANCE doc (if any) for this device,
+   *  fetch its bytes through the auth-bearing HttpClient (the
+   *  streaming endpoint requires JWT, which an iframe src= can't
+   *  send), wrap as a blob URL, and bind to the iframe. The HTML
+   *  document's relative source-doc links still target /api/...
+   *  on the same origin, so they resolve correctly when clicked. */
   private loadProvenanceReport(): void {
-    this.provenanceHtml = null;
+    if (this.provenanceObjectUrl) {
+      URL.revokeObjectURL(this.provenanceObjectUrl);
+      this.provenanceObjectUrl = null;
+    }
+    this.provenanceDocId = null;
+    this.provenanceUrl = null;
     const docs = this.documents.filter(
       (d) => d.type === 'EVIDENCE_PROVENANCE',
     );
-    if (!docs.length) return;
-    // Latest doc wins (sort by id desc).
+    if (!docs.length) {
+      this.cdr.markForCheck();
+      return;
+    }
     const latest = [...docs].sort((a, b) => b.id - a.id)[0];
-    this.provenanceLoading = true;
-    this.cdr.markForCheck();
+    this.provenanceDocId = latest.id;
     this.http
       .get(`${environment.API_URL}document-uploads/${latest.id}/url`, {
-        responseType: 'text',
+        responseType: 'blob',
       })
       .subscribe({
-        next: (html) => {
-          this.provenanceHtml = this.sanitizer.bypassSecurityTrustHtml(html);
-          this.provenanceLoading = false;
+        next: (raw) => {
+          // Force text/html so the iframe renders rather than
+          // offering a download (the API streams as octet-stream).
+          const blob = new Blob([raw], { type: 'text/html' });
+          this.provenanceObjectUrl = URL.createObjectURL(blob);
+          this.provenanceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+            this.provenanceObjectUrl,
+          );
           this.cdr.markForCheck();
         },
         error: () => {
-          this.provenanceLoading = false;
+          this.provenanceDocId = null;
           this.cdr.markForCheck();
         },
       });
