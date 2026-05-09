@@ -22,16 +22,53 @@
 
 .center-pin {
   // Position is set live via [style.left.px]/[style.top.px] from the
-  // component (driven by latLngToContainerPoint(pinLatLng)). Translate
-  // anchors the pin's tip at the given coords.
+  // component (driven by latLngToContainerPoint(pinLatLng)). The
+  // bottom-anchor below offsets the visual center of the SVG so the
+  // pin's TIP lands at the map center — i.e. on the actual picked
+  // coordinate. The 24×36 SVG has its tip at (12,36); translate
+  // (-50%, -100%) puts that point exactly at (pinX, pinY).
   // z-index 700 sits above .detect-overlay (500) and Leaflet's marker
-  // pane (600) but below modal/dialog tiers (cdk-overlay ≥1000), so
-  // confirmation popups still cover the pin.
+  // pane (600) but below modal/dialog tiers (cdk-overlay ≥1000).
   position: absolute;
   transform: translate(-50%, -100%);
   z-index: 700;
   pointer-events: none;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+// Crosshair markers at the geometric center of the satellite view.
+// Sits at the map's exact viewport center so the user can see the
+// pin's tip is anchored on the right pixel even when the icon body
+// floats above. 1px lines through the center, 12px arms.
+.center-crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  transform: translate(-50%, -50%);
+  z-index: 699;
+  pointer-events: none;
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 1px rgba(0,0,0,0.6);
+  }
+  &::before {
+    left: 50%;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    transform: translateX(-50%);
+  }
+  &::after {
+    top: 50%;
+    left: 0;
+    height: 1px;
+    width: 100%;
+    transform: translateY(-50%);
+  }
 }
 
 ::ng-deep .leaflet-tooltip.sat-tooltip {

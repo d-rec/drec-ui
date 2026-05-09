@@ -21,6 +21,9 @@
         <circle cx="12" cy="12" r="5" fill="#fff" fill-opacity="0.85"/>
       </svg>
     </div>
+    <!-- Crosshair shows the pin's tip is on the actual viewport
+         centre. Without it, the teardrop body looks off-centre. -->
+    <div *ngIf="centerPin && pinVisible" class="center-crosshair" aria-hidden="true"></div>
     <canvas
       #overlayCanvas
       class="detect-overlay"
