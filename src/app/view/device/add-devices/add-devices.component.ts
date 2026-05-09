@@ -3814,7 +3814,7 @@ export class AddDevicesComponent implements OnDestroy {
         next: (data: any) => {
           const siteLabel =
             data?.siteName || this.initSiteName || this.editingExternalId;
-          this.toastrService.success(`site ${siteLabel} updated`);
+          this.toastrService.success(`site "${siteLabel}" updated`);
           if (shouldRegenerateSf02) {
             // Regenerate the SF-02 from the now-updated device data,
             // then navigate. Failure to regenerate is non-fatal — the
