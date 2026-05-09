@@ -10,6 +10,7 @@ import {
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import {
+  AbstractControl,
   FormGroup,
   FormBuilder,
   FormArray,
@@ -3028,27 +3029,42 @@ export class AddDevicesComponent implements OnDestroy {
   private getMissingFieldsList(): string[] {
     const out: string[] = [];
     const seen = new Set<string>();
+    const labelFor = (name: string): string =>
+      AddDevicesComponent.FIELD_LABELS[name] ??
+      name.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
+    const visit = (
+      ctl: AbstractControl,
+      name: string,
+      rowPrefix: string,
+    ): void => {
+      if (!ctl || ctl.disabled || ctl.valid) return;
+      // FormGroup / FormArray: descend into children so we surface
+      // the leaf control rather than the parent wrapper.
+      if (ctl instanceof FormGroup) {
+        Object.entries(ctl.controls).forEach(([n, c]) =>
+          visit(c, n, rowPrefix),
+        );
+        return;
+      }
+      if (ctl instanceof FormArray) {
+        ctl.controls.forEach((c, i) =>
+          visit(c, `${name}[${i}]`, rowPrefix),
+        );
+        return;
+      }
+      const errs = ctl.errors
+        ? Object.keys(ctl.errors).join(', ')
+        : 'invalid';
+      const key = `${rowPrefix}${labelFor(name)} (${errs})`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(key);
+      }
+    };
     this.deviceForms.controls.forEach((group, deviceIndex) => {
-      const fg = group as FormGroup;
-      Object.keys(fg.controls).forEach((name) => {
-        const ctl = fg.get(name);
-        if (!ctl || ctl.disabled || ctl.valid) return;
-        // A control fails validation either because it's actually
-        // empty (required) or because the value violates a rule.
-        // Both are interesting. Skip controls that are valid even
-        // when empty (no required validator).
-        const label =
-          AddDevicesComponent.FIELD_LABELS[name] ??
-          name.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
-        const key =
-          this.deviceForms.length > 1
-            ? `Row ${deviceIndex + 1}: ${label}`
-            : label;
-        if (!seen.has(key)) {
-          seen.add(key);
-          out.push(key);
-        }
-      });
+      const prefix =
+        this.deviceForms.length > 1 ? `Row ${deviceIndex + 1}: ` : '';
+      visit(group, `device[${deviceIndex}]`, prefix);
     });
     return out;
   }
