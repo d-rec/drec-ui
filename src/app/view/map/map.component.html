@@ -82,10 +82,11 @@
                 title="Copy the full error to the clipboard">
           {{ errorCopied ? '✓ Copied' : '📋 Copy' }}
         </button>
-        <button type="button" class="detect-error-toast__btn"
+        <button type="button" class="detect-error-toast__btn detect-error-toast__btn--close"
                 (click)="dismissDetectError()"
+                aria-label="Dismiss"
                 title="Dismiss">
-          ✕
+          ×
         </button>
       </div>
       <pre class="detect-error-toast__body">{{ detectError }}</pre>

@@ -150,10 +150,12 @@
 }
 
 .detect-error-toast {
-  // Viewport-anchored, matches ngx-toastr's top-right placement so this
-  // sits in the same column as the rest of the app's toasts.
+  // Viewport-anchored, sits below the app header. Was top:12px which
+  // tucked the head (where the × lives) under the header on some
+  // viewports. z-index pushed up so nothing in the page chrome
+  // covers it.
   position: fixed;
-  top: 12px;
+  top: 76px;
   right: 12px;
   max-width: 480px;
   min-width: 320px;
@@ -161,7 +163,7 @@
   border: 1px solid #dc2626;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  z-index: 1000;
+  z-index: 10050;
   pointer-events: auto;
   font-size: 12px;
 
@@ -197,6 +199,13 @@
       background: #d1fae5;
       border-color: #10b981;
       color: #065f46;
+    }
+    &--close {
+      // Make the close affordance unmistakable: bigger, square, bold ×.
+      font-size: 16px;
+      line-height: 1;
+      padding: 2px 8px;
+      font-weight: 700;
     }
   }
 
