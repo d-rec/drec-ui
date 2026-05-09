@@ -3780,6 +3780,126 @@ export class AddDevicesComponent implements OnDestroy {
     return false;
   }
 
+  /** Re-entrancy guard so submitEdit doesn't re-prompt during the
+   *  same submit cycle after the user resolved conflicts. */
+  private formVsDocPromptShown = false;
+
+  /** Build the list of {field, current, candidates[]} entries where
+   *  the form's current value disagrees with at least one extractor
+   *  source. Empty current values are skipped (extractor would have
+   *  silently filled them). */
+  private collectFormVsDocConflicts(deviceIndex: number): Array<{
+    name: string;
+    label: string;
+    current: any;
+    candidates: Array<{ source: string; value: any; confidence: number; selected?: boolean }>;
+  }> {
+    const claims = this.collectExtractionClaims(deviceIndex);
+    const form = this.deviceForms.at(deviceIndex);
+    const norm = (v: any): string => {
+      if (v == null || v === '') return '';
+      if (typeof v === 'number') return Number(v.toFixed(2)).toString();
+      if (typeof v === 'boolean') return String(v);
+      if (Array.isArray(v))
+        return v.map((x) => String(x).trim().toLowerCase()).sort().join('|');
+      return String(v).trim().toLowerCase();
+    };
+    const out: any[] = [];
+    for (const [field, list] of Object.entries(claims)) {
+      const cur = form?.get(field)?.value;
+      if (cur == null || cur === '') continue;
+      // Filter to extractor-only sources (not the synthetic "Current"
+      // entry collectExtractionClaims injects), drop low-confidence
+      // and any source that already matches the form value.
+      const curN = norm(cur);
+      const docs = list.filter(
+        (c) => c.source !== 'Current' && c.confidence >= 0.7 && norm(c.value) !== curN,
+      );
+      if (!docs.length) continue;
+      const label =
+        AddDevicesComponent.FIELD_LABELS[field] ??
+        field.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
+      out.push({
+        name: field,
+        label,
+        current: cur,
+        candidates: docs.map((d) => ({ ...d, selected: false })),
+      });
+    }
+    return out;
+  }
+
+  pendingFormVsDocConflicts: ReturnType<
+    AddDevicesComponent['collectFormVsDocConflicts']
+  > = [];
+  pendingFormVsDocCallback: ((proceed: boolean) => void) | null = null;
+  @ViewChild('formVsDocDialog') formVsDocDialog?: TemplateRef<any>;
+  private formVsDocDialogRef: MatDialogRef<any> | null = null;
+
+  /** Open the doc-vs-form discrepancy resolver dialog. The user
+   *  picks "Keep form value" (default) or one of the doc candidates
+   *  per field; on confirm we apply the picks and re-enter submit. */
+  private openFormVsDocConflictDialog(
+    conflicts: ReturnType<AddDevicesComponent['collectFormVsDocConflicts']>,
+    cb: (proceed: boolean) => void,
+  ): void {
+    this.pendingFormVsDocConflicts = conflicts;
+    this.pendingFormVsDocCallback = cb;
+    if (!this.formVsDocDialog) {
+      cb(true); // dialog not available — proceed without prompting
+      return;
+    }
+    this.formVsDocDialogRef = this.dialog.open(this.formVsDocDialog, {
+      width: '760px',
+      maxWidth: '95vw',
+    });
+  }
+
+  /** Apply the user's picks (selected candidate per row → form
+   *  control), then continue submit. Rows where no candidate is
+   *  picked keep the form value as-is. */
+  /** Template helpers for the radio-group: only one candidate per
+   *  row may be selected at a time (or none = keep form value). */
+  isAnyDocPicked(row: { candidates: Array<{ selected?: boolean }> }): boolean {
+    return row.candidates.some((c) => !!c.selected);
+  }
+  clearDocPick(row: { candidates: Array<{ selected?: boolean }> }): void {
+    row.candidates.forEach((c) => (c.selected = false));
+  }
+  pickDoc(
+    row: { candidates: Array<{ selected?: boolean }> },
+    target: { selected?: boolean },
+  ): void {
+    row.candidates.forEach((c) => (c.selected = c === target));
+  }
+
+  applyFormVsDocPicks(): void {
+    const form = this.deviceForms.at(0);
+    for (const row of this.pendingFormVsDocConflicts) {
+      const pick = row.candidates.find((c) => c.selected);
+      if (!pick) continue;
+      const ctl = form?.get(row.name);
+      if (!ctl) continue;
+      ctl.setValue(pick.value);
+      ctl.markAsDirty();
+    }
+    this.pendingFormVsDocConflicts = [];
+    this.formVsDocDialogRef?.close();
+    this.formVsDocDialogRef = null;
+    const cb = this.pendingFormVsDocCallback;
+    this.pendingFormVsDocCallback = null;
+    cb?.(true);
+  }
+
+  cancelFormVsDocResolution(): void {
+    this.pendingFormVsDocConflicts = [];
+    this.formVsDocDialogRef?.close();
+    this.formVsDocDialogRef = null;
+    const cb = this.pendingFormVsDocCallback;
+    this.pendingFormVsDocCallback = null;
+    cb?.(false);
+  }
+
   /** Per-device set of fields the user explicitly cleared. submitEdit
    *  consults this to send `null` for these fields rather than
    *  stripping them (the backend's skipMissingProperties otherwise
@@ -3971,6 +4091,28 @@ export class AddDevicesComponent implements OnDestroy {
     const firstRow = this.deviceForms.at(0) as FormGroup;
     if (!firstRow) {
       this.isSubmitting = false;
+      return;
+    }
+
+    // Last-chance discrepancy check: any form field whose current
+    // value disagrees with at least one extractor source pops a
+    // dialog before we PATCH. User picks per-field whether to keep
+    // the form value or switch to the doc value. Cancel aborts
+    // submit so the user can fix things and try again.
+    const conflicts = this.collectFormVsDocConflicts(0);
+    if (conflicts.length && !this.formVsDocPromptShown) {
+      this.formVsDocPromptShown = true;
+      this.openFormVsDocConflictDialog(conflicts, (proceed) => {
+        if (!proceed) {
+          this.isSubmitting = false;
+          this.formVsDocPromptShown = false;
+          return;
+        }
+        // User resolved conflicts (form values may have been
+        // updated). Re-enter submitEdit to use the new values.
+        this.submitEdit();
+        this.formVsDocPromptShown = false;
+      });
       return;
     }
 

@@ -1298,6 +1298,41 @@
   </div>
 </ng-template>
 
+<ng-template #formVsDocDialog>
+  <h2 mat-dialog-title>Documents disagree with the form</h2>
+  <div mat-dialog-content style="max-height:60vh;overflow:auto;padding-bottom:8px">
+    <p class="text-muted small mb-2" style="font-size:12px">
+      The following form values don't match what the source documents say. Pick the value you want for each field, or keep the form value.
+    </p>
+    <div class="overwrite-list">
+      <div *ngFor="let row of pendingFormVsDocConflicts" class="overwrite-row"
+        style="display:block">
+        <div class="overwrite-row__label" style="margin-bottom:4px">{{ row.label }}</div>
+        <label style="display:block;padding:4px 0;cursor:pointer">
+          <input type="radio"
+            [name]="'fvd-' + row.name"
+            [checked]="!isAnyDocPicked(row)"
+            (change)="clearDocPick(row)" />
+          Keep form value: <strong>{{ row.current }}</strong>
+          <span style="color:#94a3b8;font-size:11px"> (current)</span>
+        </label>
+        <label *ngFor="let c of row.candidates" style="display:block;padding:4px 0;cursor:pointer">
+          <input type="radio"
+            [name]="'fvd-' + row.name"
+            [checked]="c.selected"
+            (change)="pickDoc(row, c)" />
+          Switch to: <strong>{{ c.value }}</strong>
+          <small style="color:#64748b">— from {{ c.source }} ({{ (c.confidence * 100) | number:'1.0-0' }}%)</small>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-end gap-2 pt-2">
+    <button mat-button class="btn-default" (click)="cancelFormVsDocResolution()">Cancel submit</button>
+    <button mat-button class="btn-primary" (click)="applyFormVsDocPicks()">Apply picks &amp; continue</button>
+  </div>
+</ng-template>
+
 <ng-template #overwriteConfirmDialog>
   <h2 mat-dialog-title>{{ pendingOverwriteSource }} — Overwrite existing values?</h2>
   <div mat-dialog-content style="max-height:60vh;overflow:auto;padding-bottom:8px">
