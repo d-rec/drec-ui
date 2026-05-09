@@ -937,6 +937,16 @@ export class AddDevicesComponent implements OnDestroy {
         setIfEmpty('hasPublicFunding', funding.publicFunding);
         setIfEmpty('hasSubsidy', funding.subsidy);
       }
+      // SDG benefits: only patch if currently empty (multi-select).
+      const sdgCtl = deviceGroup.get('SDGBenefits');
+      const cur = sdgCtl?.value;
+      if (sdgCtl && (!Array.isArray(cur) || cur.length === 0)) {
+        const inferred = this.inferSdgBenefits(text);
+        if (inferred.length) {
+          sdgCtl.setValue(inferred);
+          sdgCtl.markAsDirty();
+        }
+      }
     };
     // Run on initial value (covers edit-mode hydration) and on changes.
     apply(deviceGroup.get('impactStory')?.value);
@@ -957,6 +967,44 @@ export class AddDevicesComponent implements OnDestroy {
    * Vocabulary mirrors the offtaker enum so the value drops straight
    * into the dropdown.
    */
+  /**
+   * Infer applicable SDG codes (SDG1..SDG17) from impactStory text.
+   * Keyword-driven; permissive — adds an SDG only when an explicit
+   * cue is present. Solar generation projects always get SDG7
+   * (Affordable & Clean Energy) and SDG13 (Climate Action) since
+   * those are baked into the D-REC value proposition.
+   */
+  private inferSdgBenefits(text: string | null | undefined): string[] {
+    if (!text || !text.trim()) return [];
+    const t = text.toLowerCase();
+    const hits: string[] = [];
+    const map: Array<{ sdg: string; re: RegExp }> = [
+      { sdg: 'SDG1', re: /\b(poverty|livelihood|income|low[-\s]income|household income)\b/ },
+      { sdg: 'SDG2', re: /\b(food security|hunger|agricultur|farm(ing|s)?|crop yield|irrigation)\b/ },
+      { sdg: 'SDG3', re: /\b(health|clinic(s)?|hospital(s)?|vaccin|cold chain|maternal|disease)\b/ },
+      { sdg: 'SDG4', re: /\b(school(s)?|education|student(s)?|literacy|classroom|teacher(s)?|learning)\b/ },
+      { sdg: 'SDG5', re: /\b(gender|women[-\s]?(led|owned)?|female entrepreneur|girls?\b)/ },
+      { sdg: 'SDG6', re: /\b(clean water|water pump|sanitation|hygiene|wash\b)/ },
+      // SDG7 and SDG13 are baked-in for any solar project — see below.
+      { sdg: 'SDG8', re: /\b(jobs?|employ|economic growth|decent work|sme(s)?|smb(s)?|micro[-\s]enterprise)\b/ },
+      { sdg: 'SDG9', re: /\b(infrastructur|industr|mini[-\s]?grid|connectivity|digital access|innovation)\b/ },
+      { sdg: 'SDG10', re: /\b(rural|underserved|marginalised|marginalized|last[-\s]mile|equity|inclusion|inequality)\b/ },
+      { sdg: 'SDG11', re: /\b(community|urban|city|cities|sustainable cities|housing)\b/ },
+      { sdg: 'SDG12', re: /\b(responsible consumption|circular|waste reduction|sustainable production)\b/ },
+      { sdg: 'SDG14', re: /\b(marine|ocean|coastal|fisheries)\b/ },
+      { sdg: 'SDG15', re: /\b(biodiversity|forest(s)?|reforestation|land degradation|wildlife)\b/ },
+      { sdg: 'SDG16', re: /\b(governance|peace|justice|institutions|transparency)\b/ },
+      { sdg: 'SDG17', re: /\b(partnership(s)?|public[-\s]private|multi[-\s]stakeholder)\b/ },
+    ];
+    for (const { sdg, re } of map) {
+      if (re.test(t)) hits.push(sdg);
+    }
+    // Always-on for solar generation.
+    if (!hits.includes('SDG7')) hits.unshift('SDG7');
+    if (!hits.includes('SDG13')) hits.push('SDG13');
+    return hits;
+  }
+
   /**
    * Detect explicit mentions of public funding / subsidy in the
    * impact story. Conservative — only fires "Yes" when the text
