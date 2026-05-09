@@ -2078,6 +2078,8 @@ export class AddDevicesComponent implements OnDestroy {
         width: '720px',
         maxWidth: '90vw',
         maxHeight: '80vh',
+        hasBackdrop: false,
+        panelClass: 'ocr-result-dialog',
       });
     }
     try {

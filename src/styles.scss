@@ -899,6 +899,61 @@ tr.mat-row:nth-child(even) {
   display: flex;
 }
 
+// --- Floating, draggable OCR result window ---
+.ocr-result-dialog {
+  z-index: 10010 !important;
+  pointer-events: auto;
+}
+.ocr-result-window {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+
+  &__title {
+    cursor: move;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0;
+    padding: 4px 8px 4px 16px;
+  }
+
+  &__close {
+    margin-left: auto;
+  }
+
+  &__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 8px 16px;
+  }
+
+  &__status {
+    color: #64748b;
+    font-style: italic;
+  }
+
+  &__text {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 16px 12px;
+  }
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // Dark theme overrides — Bootstrap + Angular Material surfaces
 // ══════════════════════════════════════════════════════════════════════════════

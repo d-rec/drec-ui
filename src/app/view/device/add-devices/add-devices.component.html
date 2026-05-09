@@ -1278,14 +1278,24 @@
 </ng-template>
 
 <ng-template #ocrResultDialog>
-  <h2 mat-dialog-title class="mb-2">OCR result</h2>
-  <mat-dialog-content style="white-space: pre-wrap; font-family: 'JetBrains Mono', monospace; font-size: 12px; max-height: 60vh;">
-    <span *ngIf="ocrResultRunning">Running Tesseract… can take 5-15 s on a portal screenshot.</span>
-    <span *ngIf="!ocrResultRunning && ocrResultText">{{ ocrResultText }}</span>
-  </mat-dialog-content>
-  <div mat-dialog-actions class="d-flex justify-content-end gap-2 pt-2">
-    <button mat-button class="btn-default" [disabled]="ocrResultRunning || !ocrResultText" (click)="copyOcrResult()">Copy</button>
-    <button mat-button class="btn-primary" (click)="closeOcrResult()">Close</button>
+  <div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container" class="ocr-result-window">
+    <h2 mat-dialog-title cdkDragHandle class="ocr-result-window__title">
+      <span>OCR result</span>
+      <button type="button" mat-icon-button class="ocr-result-window__close"
+        (click)="closeOcrResult()" (mousedown)="$event.stopPropagation()" aria-label="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </h2>
+    <div mat-dialog-content class="ocr-result-window__body">
+      <span *ngIf="ocrResultRunning" class="ocr-result-window__status">Running Tesseract… can take 5-15 s on a portal screenshot.</span>
+      <pre *ngIf="!ocrResultRunning && ocrResultText" class="ocr-result-window__text">{{ ocrResultText }}</pre>
+    </div>
+    <div mat-dialog-actions class="ocr-result-window__actions">
+      <button mat-button class="btn-default" [disabled]="ocrResultRunning || !ocrResultText"
+        (click)="copyOcrResult()" (mousedown)="$event.stopPropagation()">Copy</button>
+      <button mat-button class="btn-primary"
+        (click)="closeOcrResult()" (mousedown)="$event.stopPropagation()">Close</button>
+    </div>
   </div>
 </ng-template>
 
