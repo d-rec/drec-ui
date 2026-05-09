@@ -1226,8 +1226,21 @@ export class AddDevicesComponent implements OnDestroy {
     }, 0);
   }
 
+  /** Serial-number values the user has explicitly removed. Keyed
+   *  by device index → lowercased value set. Used by
+   *  applyMeterIdsExtraction so the same spurious OCR result
+   *  doesn't reappear after the user deletes it. */
+  private dismissedSerialNumbers: { [deviceIndex: number]: Set<string> } = {};
+
   removeSerialNumber(deviceIndex: number, rowIndex: number): void {
     const list = this.getSerialNumbers(deviceIndex);
+    const removed = (list[rowIndex] || '').trim();
+    if (removed) {
+      if (!this.dismissedSerialNumbers[deviceIndex]) {
+        this.dismissedSerialNumbers[deviceIndex] = new Set();
+      }
+      this.dismissedSerialNumbers[deviceIndex].add(removed.toLowerCase());
+    }
     if (list.length <= 1) {
       list[0] = '';
     } else {
@@ -1901,11 +1914,15 @@ export class AddDevicesComponent implements OnDestroy {
     const existing = (this.getSerialNumbers(deviceIndex) || [])
       .map((s) => (s || '').trim())
       .filter(Boolean);
+    const dismissed = this.dismissedSerialNumbers[deviceIndex] ?? new Set();
     const merged: string[] = [];
     const seen = new Set<string>();
     for (const id of [...existing, ...ids]) {
       const k = id.toLowerCase();
       if (seen.has(k)) continue;
+      // Skip OCR/Haiku suggestions the user has already removed
+      // from the list — they shouldn't reappear after deletion.
+      if (dismissed.has(k) && !existing.includes(id)) continue;
       seen.add(k);
       merged.push(id);
     }
