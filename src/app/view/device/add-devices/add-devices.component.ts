@@ -357,6 +357,7 @@ export class AddDevicesComponent implements OnDestroy {
       this.setupDataSourceWatcher(group as FormGroup);
       this.setupSiteNameWatcher(group as FormGroup, i);
       this.setupImpactStoryWatcher(group as FormGroup);
+      this.setupCoordSanitizer(group as FormGroup);
     });
 
     if (this.isEditMode) {
@@ -916,6 +917,28 @@ export class AddDevicesComponent implements OnDestroy {
     this.siteNameExists[index] = false;
     this.setupSiteNameWatcher(device, index);
     this.setupImpactStoryWatcher(device);
+    this.setupCoordSanitizer(device);
+  }
+
+  /**
+   * Strip ALL whitespace from latitude/longitude inputs as the user
+   * types or pastes. Spreadsheet copy-paste regularly drags along
+   * leading/trailing spaces or non-breaking spaces, and the backend
+   * coord regex rejects them — making the form silently invalid
+   * with no red border. Auto-strip avoids the "stray space" trap.
+   */
+  private setupCoordSanitizer(deviceGroup: FormGroup): void {
+    for (const name of ['latitude', 'longitude'] as const) {
+      const ctl = deviceGroup.get(name);
+      if (!ctl) continue;
+      ctl.valueChanges.subscribe((v) => {
+        if (typeof v !== 'string') return;
+        const cleaned = v.replace(/\s+/g, '');
+        if (cleaned !== v) {
+          ctl.setValue(cleaned, { emitEvent: false });
+        }
+      });
+    }
   }
 
   /**
@@ -1211,8 +1234,13 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   setSerialNumber(deviceIndex: number, rowIndex: number, value: string): void {
+    // Strip ALL whitespace — copy/paste from a portal usually drags
+    // along trailing spaces or newlines, and the backend
+    // serialNumberRegex /^[a-zA-Z0-9_;-]+$/ rejects them. Don't
+    // make the user re-type because of an invisible character.
+    const cleaned = (value ?? '').replace(/\s+/g, '');
     const list = this.getSerialNumbers(deviceIndex);
-    list[rowIndex] = value;
+    list[rowIndex] = cleaned;
     this.syncSerialNumberControl(deviceIndex);
   }
 
