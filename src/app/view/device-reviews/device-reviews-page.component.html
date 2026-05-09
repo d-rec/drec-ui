@@ -11,6 +11,7 @@
   </div>
   <app-ds-satellite-window   *ngIf="showSatellite" [zIndex]="zFor('satellite')"  (bringToFront)="bringToFront('satellite')" (close)="showSatellite=false"></app-ds-satellite-window>
   <app-ds-device-info-window [zIndex]="zFor('deviceInfo')" (bringToFront)="bringToFront('deviceInfo')"></app-ds-device-info-window>
+  <app-ds-evidence-provenance-window></app-ds-evidence-provenance-window>
   <app-ds-picture-window
     *ngFor="let p of (openPictures$ | async) || []; let idx = index; trackBy: trackPictureId"
     [pic]="p"

@@ -168,22 +168,8 @@
              rendered inline so the reviewer can see at a glance
              which fields are document-backed and click straight into
              the source documents. -->
-        <section *ngIf="provenanceDocId" class="di__provenance" style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-top:12px;background:#f8fafc">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <strong style="font-size:13px">Evidence provenance report</strong>
-            <span style="display:flex;gap:8px">
-              <a class="di__btn" [href]="provenanceUrl" target="_blank" rel="noopener" style="font-size:12px;text-decoration:none">Open in new tab ↗</a>
-              <button type="button" class="di__btn"
-                (click)="contestExtraction()"
-                title="Send a chat message to the D-REC admin describing a Haiku misread you spotted"
-                style="font-size:12px">
-                ⚑ Contest a Haiku reading
-              </button>
-            </span>
-          </div>
-          <iframe *ngIf="provenanceUrl" [src]="provenanceUrl"
-            style="width:100%;height:520px;border:1px solid #e2e8f0;border-radius:6px;background:#fff"></iframe>
-        </section>
+        <!-- Evidence-provenance now lives in its own floating
+             window; opened from the documents-window action bar. -->
       </div>
 
       <div class="di__footer">

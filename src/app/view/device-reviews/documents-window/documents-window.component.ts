@@ -2804,6 +2804,13 @@ trustUrl(url: string): SafeUrl {
     this.svc.viewDeviceInfo(deviceId);
   }
 
+  openProvenance(): void {
+    if (!this.editingId) return;
+    const deviceId = parseInt(this.editingId, 10);
+    if (isNaN(deviceId)) return;
+    this.svc.viewProvenance(deviceId);
+  }
+
   screenDuplicates(): void {
     if (!this.editingId) return;
     const deviceId = parseInt(this.editingId, 10);

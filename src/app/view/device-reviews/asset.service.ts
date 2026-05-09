@@ -37,6 +37,13 @@ export class AssetService {
   viewDeviceInfo(deviceId: number | null): void {
     this.viewDeviceInfoId$.next(deviceId);
   }
+  /** When non-null, the evidence-provenance floating window should
+   *  load & show the provenance report for this device. */
+  readonly viewProvenanceDeviceId$ = new BehaviorSubject<number | null>(null);
+
+  viewProvenance(deviceId: number | null): void {
+    this.viewProvenanceDeviceId$.next(deviceId);
+  }
   readonly flyTo$ = new ReplaySubject<{ lat: number; lng: number }>(1);
   readonly loading$ = new BehaviorSubject<boolean>(false);
   readonly error$ = new BehaviorSubject<string | null>(null);

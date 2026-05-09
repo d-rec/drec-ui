@@ -1,0 +1,29 @@
+<ng-container *ngIf="(svc.viewProvenanceDeviceId$ | async) !== null">
+  <app-ds-floating-window
+    [title]="'Evidence provenance' + (siteName ? ' — ' + siteName : '')"
+    [initX]="80"
+    [initY]="80"
+    [initWidth]="900"
+    [initHeight]="700"
+    (close)="close()">
+    <div class="ep__body">
+      <div *ngIf="loading" class="ep__msg">Loading evidence-provenance report…</div>
+      <div *ngIf="!loading && !hasReport && !error" class="ep__msg">
+        No evidence-provenance report has been generated for this device.
+        The registrant can produce one from the edit-device page
+        ("Generate evidence provenance" button).
+      </div>
+      <div *ngIf="error" class="ep__msg ep__msg--error">{{ error }}</div>
+      <iframe *ngIf="hasReport && reportUrl" [src]="reportUrl"
+        class="ep__iframe"></iframe>
+    </div>
+    <div class="ep__footer">
+      <button type="button" class="ep__btn"
+        (click)="contestExtraction()"
+        title="Send a chat message to the D-REC admin describing a Haiku misread you spotted">
+        ⚑ Contest a Haiku reading
+      </button>
+      <button type="button" class="ep__btn ep__btn--primary" (click)="close()">Close</button>
+    </div>
+  </app-ds-floating-window>
+</ng-container>

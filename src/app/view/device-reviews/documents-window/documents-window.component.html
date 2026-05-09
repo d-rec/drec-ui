@@ -304,7 +304,8 @@
             </div>
           <div class="detail-actions">
             <button type="button" class="btn btn-outline-primary btn-sm" (click)="openScanDialog()" title="Run verification checks on this device">Verify Device</button>
-            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="openDeviceInfo()" title="Open the floating device-info window with all fields + evidence-provenance">Details</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="openDeviceInfo()" title="Open the floating device-info window with all fields">Details</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" (click)="openProvenance()" title="Per-field provenance — what each form value came from (which document or hand-entered)">Provenance</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" (click)="viewAuditTrail()" title="View audit trail (§3.8)">Audit Trail</button>
             <span class="detail-actions__sep"></span>
             <button type="button" class="icon-btn icon-btn--chat" (click)="openChat()" title="Chat" [disabled]="detailForm.get('status')?.value === 'rejected' || detailForm.get('status')?.value === 'legacy'">

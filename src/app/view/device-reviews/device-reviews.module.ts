@@ -14,6 +14,7 @@ import { AssetMapComponent } from './asset-map/asset-map.component';
 import { PictureWindowComponent } from './picture-window/picture-window.component';
 import { PdfWindowComponent } from './pdf-window/pdf-window.component';
 import { DeviceInfoWindowComponent } from './device-info-window/device-info-window.component';
+import { EvidenceProvenanceWindowComponent } from './evidence-provenance-window/evidence-provenance-window.component';
 import { ChatListComponent } from './chat-list/chat-list.component';
 import { CountryNamePipe } from './country-name.pipe';
 import { HighlightPipe } from './highlight.pipe';
@@ -36,6 +37,7 @@ import { ImageZoomPanDirective } from '../../shared/directives/image-zoom-pan.di
     PictureWindowComponent,
     PdfWindowComponent,
     DeviceInfoWindowComponent,
+    EvidenceProvenanceWindowComponent,
     ChatListComponent,
     CountryNamePipe,
     HighlightPipe,
