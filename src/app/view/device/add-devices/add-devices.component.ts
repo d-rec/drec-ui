@@ -1093,13 +1093,25 @@ export class AddDevicesComponent implements OnDestroy {
   private isDuplicate(deviceIndex: number, file: File): boolean {
     return this.duplicateMatch(deviceIndex, file) !== null;
   }
-  /** Returns the slot key where this file is already staged, or null. */
+  /** Returns the slot key where this file is already staged or
+   *  already saved on the server, or null. Filename match is enough
+   *  on the server side (we don't have the size of an existing-doc
+   *  without re-fetching). */
   private duplicateMatch(deviceIndex: number, file: File): string | null {
     const deviceFiles = this.files[deviceIndex];
-    if (!deviceFiles) return null;
-    for (const [slot, list] of Object.entries(deviceFiles)) {
-      if (list?.some((f: File) => f.name === file.name && f.size === file.size)) {
-        return slot;
+    if (deviceFiles) {
+      for (const [slot, list] of Object.entries(deviceFiles)) {
+        if (list?.some((f: File) => f.name === file.name && f.size === file.size)) {
+          return slot;
+        }
+      }
+    }
+    const existing = this.existingDocs[deviceIndex];
+    if (existing) {
+      for (const [slot, docs] of Object.entries(existing)) {
+        if ((docs as any[])?.some((d) => (d.name || '') === file.name)) {
+          return `${slot} (already saved)`;
+        }
       }
     }
     return null;
