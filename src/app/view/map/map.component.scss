@@ -20,6 +20,29 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
+// Debug crosshair pinned to the viewport centre — shows where
+// the picked coord SHOULD be so the leaflet marker's alignment
+// can be verified visually.
+.center-crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  transform: translate(-50%, -50%);
+  z-index: 699;
+  pointer-events: none;
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 1px rgba(0,0,0,0.7);
+  }
+  &::before { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-50%); }
+  &::after  { top: 50%; left: 0; height: 1px; width: 100%; transform: translateY(-50%); }
+}
+
 .center-pin {
   // CenterPin mode pins the picked coord to the map's geometric
   // viewport centre (panning shifts the coord with the map). Anchor
