@@ -916,7 +916,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-4 mb-3" [class.doc-missing-required]="(files[i]?.['PROJECT_PHOTOS']?.length || 0) < 3">
+                  <div class="col-md-4 mb-3" [class.doc-missing-required]="projectPhotosCount(i) < 3">
                     <label title="Please provide at least three photos that show the entire installation plus enough surrounding topography to match with a satellite image.">(43) Site Photos (min. 3)
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('PROJECT_PHOTOS')">{{getDocHint('PROJECT_PHOTOS')}}</small>

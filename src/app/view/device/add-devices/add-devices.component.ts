@@ -2748,6 +2748,16 @@ export class AddDevicesComponent implements OnDestroy {
    *   so the (!) "missing" badge doesn't fire when docs are obviously
    *   already attached.
    */
+  /** Total project-photo count = staged + already-saved. Used by
+   *  the min-3 red-border rule on the Site Photos slot in edit
+   *  mode (where the existing 3 might be the only 3). */
+  projectPhotosCount(deviceIndex: number): number {
+    const staged = this.files[deviceIndex]?.['PROJECT_PHOTOS']?.length ?? 0;
+    const existing =
+      this.existingDocs[deviceIndex]?.['PROJECT_PHOTOS']?.length ?? 0;
+    return staged + existing;
+  }
+
   hasDocFor(deviceIndex: number, docType: string): boolean {
     const ctrlValue = this.deviceForms.at(deviceIndex)?.get(docType)?.value;
     if (ctrlValue) return true;
