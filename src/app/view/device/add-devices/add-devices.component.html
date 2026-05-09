@@ -618,9 +618,9 @@
                     <li *ngFor="let f of getStagedFiles(idx, docType); let si = index" class="existing-doc-item">
                       <span class="existing-doc-link" (click)="openPreview(idx, docType)" [title]="f.name">{{ f.name }}</span>
                       <button type="button" class="existing-doc-ocr"
-                        *ngIf="docType === 'METERING_EVIDENCE' && f.type.startsWith('image/')"
+                        *ngIf="ocrInlineEligible(docType, f)"
                         (click)="runOcrOnStagedFile(f)"
-                        title="Run Tesseract OCR on this image">
+                        title="Extract text via OCR">
                         OCR
                       </button>
                       <button type="button" class="existing-doc-delete" (click)="removeStagedFile(idx, docType, si)" title="Remove">

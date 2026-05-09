@@ -2081,27 +2081,78 @@ export class AddDevicesComponent implements OnDestroy {
       });
     }
     try {
-      const text = await (this.documentClassifier as any)
-        .ocrCanvas(await this.imageFileToCanvas(file))
-        .catch(async () => {
-          // Fallback: instantiate a worker inline if the helper isn't
-          // exposed as public.
-          const Tesseract = await import('tesseract.js' as any);
-          const createWorker = Tesseract.createWorker || Tesseract.default?.createWorker;
-          const worker = await createWorker('eng', 1);
-          try {
-            const canvas = await this.imageFileToCanvas(file);
-            const { data } = await worker.recognize(canvas);
-            return data.text;
-          } finally {
-            await worker.terminate();
-          }
-        });
-      this.ocrResultText = (text || '').trim() || '(no text recognised)';
+      const isPdf =
+        file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+      let text = '';
+      if (isPdf) {
+        // 1. Try the embedded text layer (instant, lossless on
+        //    digitally-generated PDFs like e-signed contracts).
+        const layer = await (this.documentClassifier as any)
+          .extractPdfTextLayer(file)
+          .catch(() => '');
+        if ((layer || '').trim().length > 40) {
+          text = layer;
+        } else {
+          // 2. Scanned PDF — render each page and OCR with Tesseract.
+          text = await this.ocrPdfWithTesseract(file);
+        }
+      } else {
+        text = await this.ocrImageWithTesseract(file);
+      }
+      this.ocrResultText =
+        (text || '').trim() || '(no text recognised)';
     } catch (err: any) {
       this.ocrResultText = `OCR failed: ${err?.message ?? err}`;
     } finally {
       this.ocrResultRunning = false;
+    }
+  }
+
+  private async ocrImageWithTesseract(file: File): Promise<string> {
+    const Tesseract = await import('tesseract.js' as any);
+    const createWorker =
+      Tesseract.createWorker || Tesseract.default?.createWorker;
+    const worker = await createWorker('eng+fra', 1);
+    try {
+      const canvas = await this.imageFileToCanvas(file);
+      const { data } = await worker.recognize(canvas);
+      return data.text;
+    } finally {
+      await worker.terminate();
+    }
+  }
+
+  private async ocrPdfWithTesseract(file: File): Promise<string> {
+    let pdfjs = (window as any).pdfjsLib;
+    if (!pdfjs) {
+      pdfjs = await import('pdfjs-dist' as any);
+    }
+    pdfjs.GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.js';
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjs.getDocument({
+      data: new Uint8Array(arrayBuffer),
+    }).promise;
+    const Tesseract = await import('tesseract.js' as any);
+    const createWorker =
+      Tesseract.createWorker || Tesseract.default?.createWorker;
+    const worker = await createWorker('eng+fra', 1);
+    try {
+      const chunks: string[] = [];
+      const pages = Math.min(pdf.numPages, 10); // cap for sanity
+      for (let p = 1; p <= pages; p++) {
+        const page = await pdf.getPage(p);
+        const viewport = page.getViewport({ scale: 2 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d')!;
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const { data } = await worker.recognize(canvas);
+        chunks.push(`--- Page ${p} ---\n${data.text}`);
+      }
+      return chunks.join('\n\n');
+    } finally {
+      await worker.terminate();
     }
   }
 
@@ -2674,6 +2725,33 @@ export class AddDevicesComponent implements OnDestroy {
   ocrEligibleDocType(docType: string | null | undefined): boolean {
     if (!docType) return true; // unknown context → leave OCR enabled
     return docType !== 'PROJECT_PHOTOS';
+  }
+
+  /**
+   * Inline OCR button on a staged file row. Show for:
+   *   - Metering evidence images (meter screens)
+   *   - Contract / declaration PDFs (PROOF_OF_OWNERSHIP, COD_PROOF,
+   *     SF_02, SF_02C, OTHER_DOCUMENTS) — text-layer first, raster
+   *     fallback.
+   * Hidden for site / project photos (no useful text).
+   */
+  ocrInlineEligible(docType: string, file: File): boolean {
+    if (docType === 'PROJECT_PHOTOS') return false;
+    const isImage = file.type.startsWith('image/');
+    const isPdf =
+      file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    if (docType === 'METERING_EVIDENCE') return isImage || isPdf;
+    const contractTypes = new Set([
+      'PROOF_OF_OWNERSHIP',
+      'COD_PROOF',
+      'FORM_SF_02',
+      'SF_02',
+      'SF_02C',
+      'SINGLE_LINE_DIAGRAM',
+      'OTHER_DOCUMENTS',
+    ]);
+    if (contractTypes.has(docType)) return isImage || isPdf;
+    return false;
   }
 
   /**
