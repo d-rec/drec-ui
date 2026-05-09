@@ -3099,15 +3099,27 @@ export class AddDevicesComponent implements OnDestroy {
     return out;
   }
 
-  /** Clear the country autocomplete value. The autocomplete had no
-   *  clear affordance — typing select-all + delete was the only way
-   *  out — so add an explicit × button. */
+  /** Per-device set of fields the user explicitly cleared. submitEdit
+   *  consults this to send `null` for these fields rather than
+   *  stripping them (the backend's skipMissingProperties otherwise
+   *  treats an empty payload key as "no change"). */
+  private explicitlyClearedFields: { [deviceIndex: number]: Set<string> } = {};
+
+  private markCleared(deviceIndex: number, name: string): void {
+    if (!this.explicitlyClearedFields[deviceIndex]) {
+      this.explicitlyClearedFields[deviceIndex] = new Set();
+    }
+    this.explicitlyClearedFields[deviceIndex].add(name);
+  }
+
+  /** Clear the country autocomplete value. */
   clearCountry(deviceIndex: number): void {
     const ctl = this.deviceForms.at(deviceIndex).get('countryCodename');
     if (!ctl) return;
     ctl.setValue('');
     ctl.markAsDirty();
     ctl.markAsTouched();
+    this.markCleared(deviceIndex, 'countryCodename');
   }
 
   /** Total project-photo count = staged + already-saved. Used by
@@ -3286,15 +3298,24 @@ export class AddDevicesComponent implements OnDestroy {
     }
 
     // Strip null/undefined/''/NaN keys so backend skipMissingProperties
-    // treats this as a partial update.
+    // treats this as a partial update — EXCEPT for fields the user
+    // explicitly cleared via the UI (× or "—" affordances). Those
+    // get sent as `null` so the backend wipes them; otherwise the
+    // skipMissingProperties path leaves the old value in place and
+    // the cleared field "comes back" on reload.
+    const cleared = this.explicitlyClearedFields[0] ?? new Set<string>();
     for (const k of Object.keys(formValue)) {
       const v = (formValue as any)[k];
-      if (
+      const isEmpty =
         v === null ||
         v === undefined ||
         v === '' ||
-        (typeof v === 'number' && isNaN(v))
-      ) {
+        (typeof v === 'number' && isNaN(v));
+      if (!isEmpty) continue;
+      if (cleared.has(k)) {
+        // Force null so the backend nulls the column.
+        (formValue as any)[k] = null;
+      } else {
         delete (formValue as any)[k];
       }
     }
