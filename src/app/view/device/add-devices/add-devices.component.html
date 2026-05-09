@@ -656,6 +656,11 @@
                         <mat-icon style="font-size:20px;height:20px;width:20px">auto_fix_high</mat-icon>
                         <span *ngIf="!magicExtractMode[i]">Auto-sorting documents</span>
                         <span *ngIf="magicExtractMode[i]">Reading documents</span>
+                        <button type="button" class="magic-dialog__copy"
+                          *ngIf="magicExtractMode[i] && hasAnyExtractionResult(i)"
+                          (click)="copyMagicSummary(i)"
+                          (mousedown)="$event.stopPropagation()"
+                          title="Copy the extracted summary to the clipboard">📋 Copy</button>
                         <button type="button" class="magic-dialog__close"
                           (click)="dismissMagicExtraction(i)"
                           (mousedown)="$event.stopPropagation()">&times;</button>

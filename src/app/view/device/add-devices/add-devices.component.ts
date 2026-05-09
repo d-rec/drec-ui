@@ -2446,6 +2446,94 @@ export class AddDevicesComponent implements OnDestroy {
     return top?.source === source;
   }
 
+  /** Build a plain-text summary of every extractor's findings,
+   *  matching the on-screen "From SLD / SF-02c / …" sections, and
+   *  copy it to the clipboard. */
+  copyMagicSummary(deviceIndex: number): void {
+    const lines: string[] = [];
+    const sld = this.sldExtractions[deviceIndex];
+    if (sld) {
+      lines.push('From SLD');
+      const f = (l: string, x: any) => x && lines.push(`  ${l}: ${x.value}`);
+      f('AC capacity (kW)', sld.acCapacityKw);
+      f('DC capacity (kWp)', sld.dcCapacityKwp);
+      if (sld.inverterCount) {
+        const cap = sld.inverterCapacityKw ? ` × ${sld.inverterCapacityKw.value} kW` : '';
+        const mk = sld.inverterMakeModel ? ` (${sld.inverterMakeModel.value})` : '';
+        lines.push(`  Inverters: ${sld.inverterCount.value}${cap}${mk}`);
+      }
+      if (sld.moduleCount) {
+        const w = sld.moduleWattage ? ` × ${sld.moduleWattage.value} W` : '';
+        lines.push(`  Modules: ${sld.moduleCount.value}${w}`);
+      }
+      f('Grid voltage', sld.gridVoltage);
+      if (sld.gridTied) lines.push(`  Grid-tied: ${sld.gridTied.value ? 'yes' : 'no'}`);
+      if (sld.zeroExport) lines.push(`  Zero-export: ${sld.zeroExport.value ? 'yes' : 'no'}`);
+      f('Transformer (kVA)', sld.transformerKva);
+      f('Network owner', sld.networkOwner);
+      f('Aux energy', sld.auxiliaryEnergySourceDetails);
+    }
+    const sf02c = this.sf02cExtractions[deviceIndex];
+    if (sf02c) {
+      lines.push('', 'From SF-02c');
+      const f = (l: string, x: any) => x && lines.push(`  ${l}: ${x.value}`);
+      f('Project', sf02c.projectName);
+      f('Owner', sf02c.ownerLegalName);
+      f('Address', sf02c.ownerAddress);
+      f('Country', sf02c.ownerCountry);
+      f('Signed', sf02c.signingDate);
+      f('Signatory', sf02c.signatoryName);
+    }
+    const cod = this.codExtractions[deviceIndex];
+    if (cod) {
+      lines.push('', 'From COD proof');
+      const f = (l: string, x: any) => x && lines.push(`  ${l}: ${x.value}`);
+      f('COD', cod.commissioningDate);
+      f('Site', cod.facilityName);
+      f('AC capacity (kW)', cod.acCapacityKw);
+      f('Owner', cod.ownerName);
+      f('Off-taker', cod.offTakerName);
+      f('Country', cod.country);
+      f('Issuer', cod.utilityOrIssuer);
+    }
+    const sf02 = this.sf02Extractions[deviceIndex];
+    if (sf02) {
+      lines.push('', 'From SF-02');
+      const f = (l: string, x: any) => x && lines.push(`  ${l}: ${x.value}`);
+      f('Site', sf02.facilityName);
+      f('AC capacity (kW)', sf02.acCapacityKw);
+      f('COD', sf02.commissioningDate);
+      f('Owner', sf02.ownerLegalName);
+      f('Address', sf02.ownerAddress);
+      f('Country', sf02.ownerCountry);
+      f('Lat', sf02.latitude);
+      f('Lng', sf02.longitude);
+      f('Inverters', sf02.inverterCount);
+      f('Network owner', sf02.networkOwner);
+    }
+    const ids = this.meterIdsExtractions[deviceIndex] || [];
+    if (ids.length) {
+      lines.push('', 'Meter / Measurement IDs');
+      ids.forEach((s) => lines.push(`  ${s}`));
+    }
+    const conflicts = this.getConflicts(deviceIndex);
+    const conflictKeys = Object.keys(conflicts);
+    if (conflictKeys.length) {
+      lines.push('', 'Conflicts');
+      for (const k of conflictKeys) {
+        lines.push(`  ${this.fieldLabel(k)}:`);
+        for (const c of conflicts[k]) {
+          lines.push(`    - ${c.source}: ${c.value} (${Math.round(c.confidence * 100)}%)`);
+        }
+      }
+    }
+    const text = lines.join('\n');
+    navigator.clipboard?.writeText(text).then(
+      () => this.toastrService.success('Extraction summary copied'),
+      () => this.toastrService.error('Failed to copy'),
+    );
+  }
+
   fieldLabel(field: string): string {
     const labels: { [k: string]: string } = {
       capacity: '(9) Total AC Capacity (kW)',
@@ -3700,9 +3788,11 @@ export class AddDevicesComponent implements OnDestroy {
       .update(this.editingExternalId, payload, serialChanged)
       .subscribe({
         next: (data: any) => {
+          const siteLabel =
+            data?.siteName || this.initSiteName || this.editingExternalId;
           this.toastrService.success(
-            'Updated Successfully !!',
-            'Device! ' + (data?.serialNumber ?? this.editingExternalId),
+            'Site updated',
+            String(siteLabel),
           );
           if (shouldRegenerateSf02) {
             // Regenerate the SF-02 from the now-updated device data,
