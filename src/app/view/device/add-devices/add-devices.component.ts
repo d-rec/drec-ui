@@ -981,15 +981,6 @@ export class AddDevicesComponent implements OnDestroy {
       .subscribe({
         next: (data) => {
           const a = data?.address ?? {};
-          const setIfEmpty = (n: string, v: any) => {
-            const ctl = deviceGroup.get(n);
-            if (!ctl || ctl.value || !v) return;
-            ctl.setValue(v);
-            ctl.markAsDirty();
-          };
-          // State / region — Nominatim uses 'state' for federal
-          // entities, 'region' / 'county' / 'state_district' as
-          // fallbacks for places without a 'state'.
           const stateLike =
             a.state ||
             a.region ||
@@ -997,13 +988,22 @@ export class AddDevicesComponent implements OnDestroy {
             a.county ||
             a.province ||
             null;
-          setIfEmpty('stateProvince', stateLike);
-          setIfEmpty('postcode', a.postcode ?? null);
-          // Country fallback — only if the country control is empty
-          // (don't fight an extractor or a user choice).
+          // State + postcode are coord-derived: always overwrite on
+          // a coord change — keeping a stale Paris postcode after
+          // moving to India would be worse than clearing it (even if
+          // Nominatim returns null for rural locations). Only the
+          // tracked geocoder fields get cleared this way.
+          this.setCoordDerivedField(deviceGroup, 'stateProvince', stateLike);
+          this.setCoordDerivedField(deviceGroup, 'postcode', a.postcode ?? null);
+          // Country fallback — only if empty (don't fight an
+          // extractor or a deliberate user choice).
           if (a.country) {
             const c = this.normalizeCountry(a.country);
-            setIfEmpty('countryCodename', c);
+            const ctl = deviceGroup.get('countryCodename');
+            if (ctl && !ctl.value) {
+              ctl.setValue(c);
+              ctl.markAsDirty();
+            }
           }
         },
         error: () => {
@@ -1011,6 +1011,34 @@ export class AddDevicesComponent implements OnDestroy {
           // empty is fine.
         },
       });
+  }
+
+  /** Tracks which device-rows have had a coord-derived field
+   *  written so we know it's safe to overwrite on the next geocode
+   *  (vs. preserving a value the user typed manually). */
+  private coordDerivedDirty: Map<FormGroup, Set<string>> = new Map();
+
+  private setCoordDerivedField(
+    deviceGroup: FormGroup,
+    name: string,
+    value: any,
+  ): void {
+    const ctl = deviceGroup.get(name);
+    if (!ctl) return;
+    const ours = this.coordDerivedDirty.get(deviceGroup) ?? new Set();
+    const cur = ctl.value;
+    const isEmpty = cur === null || cur === undefined || cur === '';
+    // Overwrite if: empty OR previously set by us (so a stale
+    // geocoder value gets replaced when coords change).
+    if (isEmpty || ours.has(name)) {
+      const next = value ?? '';
+      if (cur !== next) {
+        ctl.setValue(next);
+        ctl.markAsDirty();
+      }
+      ours.add(name);
+      this.coordDerivedDirty.set(deviceGroup, ours);
+    }
   }
 
   /**
