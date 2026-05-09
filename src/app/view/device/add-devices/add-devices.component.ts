@@ -1920,6 +1920,13 @@ export class AddDevicesComponent implements OnDestroy {
     return fuzzy ? fuzzy.country : s;
   }
 
+  private markExtractionApplied(deviceIndex: number, source: string): void {
+    if (!this.extractionApplied[deviceIndex]) {
+      this.extractionApplied[deviceIndex] = {};
+    }
+    this.extractionApplied[deviceIndex][source] = true;
+  }
+
   private applyExtractionWithPrompt(
     deviceIndex: number,
     source: string,
@@ -1930,10 +1937,6 @@ export class AddDevicesComponent implements OnDestroy {
     }>,
     after?: () => void,
   ): void {
-    if (!this.extractionApplied[deviceIndex]) {
-      this.extractionApplied[deviceIndex] = {};
-    }
-    this.extractionApplied[deviceIndex][source] = true;
     const form = this.deviceForms.at(deviceIndex);
     let filled = 0;
     const conflicts: typeof this.pendingOverwriteCandidates = [];
@@ -1977,6 +1980,7 @@ export class AddDevicesComponent implements OnDestroy {
     }
     if (conflicts.length === 0) {
       after?.();
+      this.markExtractionApplied(deviceIndex, source);
       this.toastrService.success(
         filled
           ? `${source}: ${filled} field${filled === 1 ? '' : 's'} applied`
@@ -1988,6 +1992,10 @@ export class AddDevicesComponent implements OnDestroy {
     this.pendingOverwriteSource = source;
     this.pendingOverwriteAfter = () => {
       after?.();
+      // Mark applied only after the user resolved the overwrite
+      // dialog (whether they took the doc value or skipped). If they
+      // cancelled the dialog the flag stays false so they can retry.
+      this.markExtractionApplied(deviceIndex, source);
       this.toastrService.success(`${source} applied`);
     };
     this.overwriteDialogRef = this.dialog.open(this.overwriteConfirmDialog!, {
