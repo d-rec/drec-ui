@@ -1613,6 +1613,10 @@ export class AddDevicesComponent implements OnDestroy {
     patchIfEmpty('siteName', fx.facilityName);
     patchIfEmpty('capacity', fx.acCapacityKw);
     patchIfEmpty('pvSystemOwner', fx.ownerName);
+    // The COD letter is typically signed by the DSO / network owner —
+    // map it through. If an EPC issues the COD instead, the user can
+    // overwrite (we only patch when the field is empty).
+    patchIfEmpty('networkOwner', fx.utilityOrIssuer);
     this.toastrService.success('COD proof fields applied to the form');
   }
 
@@ -1854,6 +1858,7 @@ export class AddDevicesComponent implements OnDestroy {
       add('siteName', 'COD', cod.facilityName);
       add('capacity', 'COD', cod.acCapacityKw);
       add('pvSystemOwner', 'COD', cod.ownerName);
+      add('networkOwner', 'COD', cod.utilityOrIssuer);
     }
     const sf02 = this.sf02Extractions[deviceIndex];
     if (sf02) {
