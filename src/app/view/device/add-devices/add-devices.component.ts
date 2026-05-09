@@ -2980,7 +2980,13 @@ export class AddDevicesComponent implements OnDestroy {
    */
   missingFieldsTooltip(): string {
     const items = this.getMissingFieldsList();
-    if (!items.length) return '';
+    if (!items.length) {
+      // Fallback when the form is invalid but no specific control
+      // could be enumerated (e.g. cross-field validator on the
+      // FormGroup itself). Always return non-empty so the tooltip
+      // doesn't silently no-show.
+      return 'One or more required fields are missing or invalid. Look for red borders on the form above.';
+    }
     return 'Missing or invalid:\n' + items.map((s) => `  • ${s}`).join('\n');
   }
 
@@ -3026,8 +3032,11 @@ export class AddDevicesComponent implements OnDestroy {
       const fg = group as FormGroup;
       Object.keys(fg.controls).forEach((name) => {
         const ctl = fg.get(name);
-        if (!ctl || ctl.disabled) return;
-        if (ctl.valid) return;
+        if (!ctl || ctl.disabled || ctl.valid) return;
+        // A control fails validation either because it's actually
+        // empty (required) or because the value violates a rule.
+        // Both are interesting. Skip controls that are valid even
+        // when empty (no required validator).
         const label =
           AddDevicesComponent.FIELD_LABELS[name] ??
           name.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
