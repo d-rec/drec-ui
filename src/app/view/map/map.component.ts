@@ -368,7 +368,12 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   /** Reposition the map center (for use with centerPin mode, e.g. reverting coords) */
   recenter(lat: number, lng: number): void {
     if (this.map) {
-      this.map.setView([lat, lng], this.map.getZoom(), { animate: true });
+      // Tell leaflet the container's actual size first — without
+      // this, getCenter() returns a logical centre based on stale
+      // dimensions and the marker placed at the picked coord lands
+      // off-centre on the visible viewport.
+      this.map.invalidateSize({ animate: false });
+      this.map.setView([lat, lng], this.map.getZoom(), { animate: false });
       this.ensureCenterPin([lat, lng]);
       this.centerPinMarker?.setLatLng([lat, lng]);
       // Re-anchor the HTML pin too — otherwise it stays at the
@@ -432,6 +437,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         // legitimate D-REC site location.
         return;
       }
+      this.map.invalidateSize({ animate: false });
       this.map.setView([lat, lng], this.zoom, { animate: false });
       this.ensureCenterPin([lat, lng]);
       this.centerPinMarker?.setLatLng([lat, lng]);
