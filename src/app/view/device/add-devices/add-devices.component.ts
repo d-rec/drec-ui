@@ -2711,7 +2711,10 @@ export class AddDevicesComponent implements OnDestroy {
               `<a href="${apiBase}/document-uploads/${d.id}/url" target="_blank" rel="noopener" style="color:#0f607f">${escape(d.label || d.name)} ↗</a>`,
           )
           .join(', ');
-        return `<li>${escape(name)} (${docs.length}): ${links}</li>`;
+        // Only show count for categories with >1 doc — "(1)" beside
+        // every single-file category was visual noise.
+        const countSuffix = docs.length > 1 ? ` (${docs.length})` : '';
+        return `<li>${escape(name)}${countSuffix}: ${links}</li>`;
       })
       .join('');
 
