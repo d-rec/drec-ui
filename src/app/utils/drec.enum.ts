@@ -108,6 +108,7 @@ export enum DocumentType {
   SCREENSHOTS = 'SCREENSHOTS', //Screenshots (legacy; merged into METERING_EVIDENCE in Phase 1c)
   COD_PROOF = 'COD_PROOF', // Commercial Operation Date Proof
   FACILITY_BOUNDARY = 'FACILITY_BOUNDARY', // OC#44 satellite image with panel outline
+  EVIDENCE_PROVENANCE = 'EVIDENCE_PROVENANCE', // Auto-fill provenance report (HTML)
   OTHER_DOCUMENTS = 'OTHER_DOCUMENTS', // Other supporting documents
 }
 

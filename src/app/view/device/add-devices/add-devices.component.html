@@ -923,6 +923,23 @@
                         Saves this device, then renders an SF-02 from the saved data. Bulk Submit will skip this row afterwards.
                       </small>
                     </div>
+                    <div *ngIf="isEditMode" style="margin-top:8px">
+                      <button type="button" class="btn btn-outline-secondary"
+                        (click)="generateProvenanceReport(i)"
+                        [disabled]="isGeneratingProvenance[i]">
+                        <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">fact_check</mat-icon>
+                        {{ isGeneratingProvenance[i] ? 'Generating…'
+                            : (provenanceGeneratedAt[i] ? 'Re-generate evidence provenance' : 'Generate evidence provenance') }}
+                      </button>
+                      <div *ngIf="provenanceGeneratedAt[i] as ts"
+                           style="margin-top:6px;color:#64748b;font-size:12px">
+                        Last generated: {{ ts | date:'dd/MM/yyyy HH:mm' }}
+                      </div>
+                      <small *ngIf="!provenanceGeneratedAt[i]"
+                             style="display:block;margin-top:6px;color:#64748b;font-style:italic">
+                        Generates a per-field "where this came from" report (SLD / COD / SF-02 / SF-02C / geocoder / manual) so the reviewer can see at a glance which values are document-backed.
+                      </small>
+                    </div>
                   </div>
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="projectPhotosCount(i) < 3">
@@ -1242,7 +1259,8 @@
               routerLink="/device/MyList">
               Cancel
             </button>
-            <button type="submit" class="btn-primary btn text-capitalize px-4" [disabled]="isSubmitting"
+            <button type="submit" class="btn-primary btn text-capitalize px-4"
+              [disabled]="isSubmitting || (isEditMode && !hasUnsavedEditChanges())"
               test-id="submit-device">
               {{ isEditMode ? 'Update' : submitButtonText }}
             </button>

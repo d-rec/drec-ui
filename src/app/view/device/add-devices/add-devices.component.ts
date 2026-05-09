@@ -279,6 +279,8 @@ export class AddDevicesComponent implements OnDestroy {
   // the latest auto-generated SF-02; bulk Submit then skips it.
   savedDeviceIdByIndex: Record<number, number> = {};
   isGeneratingSf02ByIndex: Record<number, boolean> = {};
+  isGeneratingProvenance: Record<number, boolean> = {};
+  provenanceGeneratedAt: Record<number, string> = {};
   sf02GeneratedAtByIndex: Record<number, string> = {};
   requiredFileTypes: FileType[] = [
     DocumentType.FORM_SF_02,
@@ -2484,6 +2486,247 @@ export class AddDevicesComponent implements OnDestroy {
     return top?.source === source;
   }
 
+  /**
+   * Build an HTML evidence-provenance report from the live form +
+   * extractor state, then upload it to the device as an
+   * EVIDENCE_PROVENANCE document. Reviewers see this inline in the
+   * device-info-window so they know at a glance which form values
+   * are document-backed (and from which document) vs hand-entered
+   * by the registrant.
+   *
+   * Edit-mode only: needs a persisted device id to attach the doc.
+   */
+  generateProvenanceReport(deviceIndex: number): void {
+    const deviceId = this.editingDeviceId;
+    if (!deviceId) {
+      this.toastrService.warning('Save the device first', 'Provenance');
+      return;
+    }
+    if (this.isGeneratingProvenance[deviceIndex]) return;
+    this.isGeneratingProvenance[deviceIndex] = true;
+    const html = this.buildProvenanceHtml(deviceIndex);
+    const blob = new Blob([html], { type: 'text/html' });
+    const file = new File([blob], 'evidence-provenance.html', {
+      type: 'text/html',
+    });
+    const fd = new FormData();
+    fd.append('file', file);
+    this.http
+      .post(
+        `${environment.API_URL}device/${deviceId}/documents/EVIDENCE_PROVENANCE`,
+        fd,
+      )
+      .subscribe({
+        next: () => {
+          this.isGeneratingProvenance[deviceIndex] = false;
+          this.provenanceGeneratedAt[deviceIndex] = new Date().toISOString();
+          this.toastrService.success(
+            'Evidence provenance report attached',
+            'Provenance',
+          );
+        },
+        error: (err) => {
+          this.isGeneratingProvenance[deviceIndex] = false;
+          this.toastrService.error(
+            err?.error?.message || err?.message || 'Failed to attach',
+            'Provenance',
+          );
+        },
+      });
+  }
+
+  /** Render the HTML body of the provenance report for one device. */
+  private buildProvenanceHtml(deviceIndex: number): string {
+    const form = this.deviceForms.at(deviceIndex);
+    const claims = this.collectExtractionClaims(deviceIndex);
+    const docCount = (type: string): number => {
+      const staged =
+        (this.files[deviceIndex] as any)?.[type]?.length ?? 0;
+      const existing = this.existingDocs[deviceIndex]?.[type]?.length ?? 0;
+      return staged + existing;
+    };
+
+    const escape = (s: any): string =>
+      String(s ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+    type Row = {
+      label: string;
+      value: any;
+      sources: Array<{ source: string; value: any; confidence: number }>;
+      flag: 'auto-confirmed' | 'overwrote' | 'conflict' | 'manual' | 'empty';
+    };
+
+    const norm = (v: any): string => {
+      if (v == null || v === '') return '';
+      if (typeof v === 'number') return Number(v.toFixed(2)).toString();
+      if (typeof v === 'boolean') return String(v);
+      if (Array.isArray(v))
+        return v.map((x) => String(x).trim().toLowerCase()).sort().join('|');
+      return String(v).trim().toLowerCase();
+    };
+
+    const rows: Row[] = [];
+    const handled = new Set<string>();
+    for (const [field, list] of Object.entries(claims)) {
+      handled.add(field);
+      const label = AddDevicesComponent.FIELD_LABELS[field] ?? field;
+      const cur = form?.get(field)?.value;
+      const curN = norm(cur);
+      let flag: Row['flag'];
+      if (cur == null || cur === '') {
+        flag = 'empty';
+      } else {
+        const matchingSources = list.filter((c) => norm(c.value) === curN);
+        const distinctValues = new Set(list.map((c) => norm(c.value)));
+        if (matchingSources.length && distinctValues.size === 1) {
+          flag = 'auto-confirmed';
+        } else if (matchingSources.length) {
+          flag = 'overwrote'; // user / geocoder picked one of the candidates
+        } else {
+          flag = 'conflict'; // current matches no source — manual override
+        }
+      }
+      rows.push({ label, value: cur, sources: list, flag });
+    }
+    // Manual-only fields (filled by user, no extractor weighed in).
+    if (form) {
+      for (const name of Object.keys(
+        (form as FormGroup).controls,
+      )) {
+        if (handled.has(name)) continue;
+        const v = form.get(name)?.value;
+        if (v == null || v === '' || (Array.isArray(v) && v.length === 0))
+          continue;
+        const label =
+          AddDevicesComponent.FIELD_LABELS[name] ?? name;
+        rows.push({ label, value: v, sources: [], flag: 'manual' });
+      }
+    }
+
+    const flagBadge = (f: Row['flag']) => {
+      switch (f) {
+        case 'auto-confirmed':
+          return '<span style="background:#dcfce7;color:#166534;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600">DOC-BACKED</span>';
+        case 'overwrote':
+          return '<span style="background:#fef3c7;color:#854d0e;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600">RESOLVED CONFLICT</span>';
+        case 'conflict':
+          return '<span style="background:#fee2e2;color:#991b1b;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600">DISAGREES WITH DOCS</span>';
+        case 'manual':
+          return '<span style="background:#e0e7ff;color:#3730a3;padding:2px 6px;border-radius:3px;font-size:11px;font-weight:600">MANUAL</span>';
+        case 'empty':
+          return '<span style="background:#f1f5f9;color:#475569;padding:2px 6px;border-radius:3px;font-size:11px">EMPTY</span>';
+      }
+    };
+
+    // Map source-tag → first attached doc of the corresponding
+    // type, so we can render the source as a hyperlink that streams
+    // the document inline through the API. Reviewers click and jump
+    // straight to the SLD / SF-02 / etc. that backed the field.
+    const sourceDocType: Record<string, string> = {
+      SLD: 'SINGLE_LINE_DIAGRAM',
+      'SF-02': 'FORM_SF_02',
+      'SF-02c': 'SF_02C',
+      COD: 'COD_PROOF',
+    };
+    const apiBase = environment.API_URL.replace(/\/+$/, '');
+    const docLink = (sourceTag: string): string | null => {
+      const docType = sourceDocType[sourceTag];
+      if (!docType) return null;
+      const docs = this.existingDocs[deviceIndex]?.[docType];
+      if (!docs?.length) return null;
+      const id = docs[0].id;
+      const name = docs[0].label || docs[0].name || docType;
+      return `<a href="${apiBase}/document-uploads/${id}/url" target="_blank" rel="noopener" title="${escape(name)}" style="color:#0f607f;text-decoration:none;border-bottom:1px dotted #0f607f">${escape(sourceTag)} ↗</a>`;
+    };
+
+    const sourcesCell = (sources: Row['sources'], current: any): string => {
+      if (!sources.length)
+        return '<em style="color:#94a3b8">no extractor weighed in</em>';
+      const curN = norm(current);
+      return sources
+        .map((s) => {
+          const tick = norm(s.value) === curN ? ' ✓' : '';
+          const tag = docLink(s.source) ?? `<strong>${escape(s.source)}</strong>`;
+          return `<div>${tag}${tick}: ${escape(s.value)} <small style="color:#64748b">(${Math.round(
+            s.confidence * 100,
+          )}%)</small></div>`;
+        })
+        .join('');
+    };
+
+    // Document inventory with per-doc links. Single-doc types render
+    // as a count-with-link; multi-doc types list each filename as a
+    // separate link so the reviewer can jump straight to e.g. one
+    // specific metering screenshot.
+    const docList = [
+      ['SLD', 'SINGLE_LINE_DIAGRAM'],
+      ['SF-02', 'FORM_SF_02'],
+      ['SF-02c', 'SF_02C'],
+      ['Proof of Ownership', 'PROOF_OF_OWNERSHIP'],
+      ['COD Proof', 'COD_PROOF'],
+      ['Metering Evidence', 'METERING_EVIDENCE'],
+      ['Project Photos', 'PROJECT_PHOTOS'],
+      ['Other Documents', 'OTHER_DOCUMENTS'],
+    ]
+      .map(([name, type]) => {
+        const docs = this.existingDocs[deviceIndex]?.[type] ?? [];
+        if (!docs.length) {
+          return `<li>${escape(name)}: <em style="color:#94a3b8">none</em></li>`;
+        }
+        const links = docs
+          .map(
+            (d: any) =>
+              `<a href="${apiBase}/document-uploads/${d.id}/url" target="_blank" rel="noopener" style="color:#0f607f">${escape(d.label || d.name)} ↗</a>`,
+          )
+          .join(', ');
+        return `<li>${escape(name)} (${docs.length}): ${links}</li>`;
+      })
+      .join('');
+
+    const tableRows = rows
+      .map(
+        (r) => `
+    <tr>
+      <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;font-weight:600">${escape(r.label)}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0">${escape(r.value ?? '')}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0">${flagBadge(r.flag)}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0">${sourcesCell(r.sources, r.value)}</td>
+    </tr>`,
+      )
+      .join('');
+
+    const generated = new Date().toISOString();
+    return `<!doctype html>
+<html><head><meta charset="utf-8"><title>Evidence provenance — site ${escape(form?.get('siteName')?.value ?? this.editingExternalId ?? '')}</title></head>
+<body style="font-family:system-ui,-apple-system,sans-serif;color:#0f172a;max-width:1100px;margin:24px auto;padding:0 16px">
+  <h1 style="font-size:20px;margin:0 0 4px">Evidence provenance</h1>
+  <div style="color:#64748b;font-size:13px;margin-bottom:18px">Site: <strong>${escape(form?.get('siteName')?.value ?? '')}</strong> · External ID: ${escape(this.editingExternalId ?? '')} · Generated: ${escape(generated)}</div>
+  <h2 style="font-size:14px;margin-top:18px">Documents attached</h2>
+  <ul style="font-size:13px;line-height:1.5">${docList}</ul>
+  <h2 style="font-size:14px;margin-top:18px">Per-field provenance</h2>
+  <p style="font-size:12px;color:#475569;line-height:1.5">
+    <strong>DOC-BACKED</strong>: every extractor that read this field agrees with the form value.
+    <strong>RESOLVED CONFLICT</strong>: extractors disagreed; the registrant accepted one source (matches the form value, marked ✓).
+    <strong>DISAGREES WITH DOCS</strong>: the registrant's value matches no extractor — manual override.
+    <strong>MANUAL</strong>: no extractor weighed in.
+  </p>
+  <table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead>
+      <tr style="background:#f8fafc;border-bottom:2px solid #cbd5e1">
+        <th style="padding:6px 8px;text-align:left">Field</th>
+        <th style="padding:6px 8px;text-align:left">Form value</th>
+        <th style="padding:6px 8px;text-align:left">Status</th>
+        <th style="padding:6px 8px;text-align:left">Sources</th>
+      </tr>
+    </thead>
+    <tbody>${tableRows}</tbody>
+  </table>
+</body></html>`;
+  }
+
   /** Build a plain-text summary of every extractor's findings,
    *  matching the on-screen "From SLD / SF-02c / …" sections, and
    *  copy it to the clipboard. */
@@ -3497,6 +3740,44 @@ export class AddDevicesComponent implements OnDestroy {
       visit(group, `device[${deviceIndex}]`, prefix);
     });
     return out;
+  }
+
+  /**
+   * Edit-mode: anything to actually update? Compares current
+   * deviceForms[0] values against the snapshot taken at load time
+   * (initialValues), plus any newly-staged file or explicit clear.
+   * The submit button stays grey until something differs.
+   */
+  hasUnsavedEditChanges(): boolean {
+    if (!this.isEditMode) return true;
+    // New files staged?
+    const staged = this.files[0];
+    if (staged) {
+      for (const k of Object.keys(staged)) {
+        if (((staged as any)[k] as File[] | undefined)?.length) return true;
+      }
+    }
+    // Any explicit clears?
+    if ((this.explicitlyClearedFields[0]?.size ?? 0) > 0) return true;
+    // Any form-control value differing from initialValues?
+    const fg = this.deviceForms.at(0) as FormGroup | undefined;
+    if (!fg) return false;
+    const norm = (v: any) => {
+      if (v == null) return '';
+      if (typeof v === 'string') return v.trim();
+      if (Array.isArray(v))
+        return JSON.stringify([...v].map((x) => String(x).trim()).sort());
+      return v;
+    };
+    for (const k of Object.keys(fg.controls)) {
+      const cur = norm(fg.get(k)?.value);
+      const init = norm(this.initialValues[k]);
+      if (cur !== init && !(typeof cur === 'object' && typeof init === 'object'
+                            && JSON.stringify(cur) === JSON.stringify(init))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /** Per-device set of fields the user explicitly cleared. submitEdit
