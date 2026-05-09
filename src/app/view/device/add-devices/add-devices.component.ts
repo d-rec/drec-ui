@@ -2075,9 +2075,10 @@ export class AddDevicesComponent implements OnDestroy {
     this.ocrResultText = null;
     if (this.ocrResultDialogTemplate) {
       this.ocrResultDialogRef = this.dialog.open(this.ocrResultDialogTemplate, {
-        width: '720px',
-        maxWidth: '90vw',
-        maxHeight: '80vh',
+        // Don't set width/height here — let the .ocr-result-window
+        // CSS define the initial size (720×420). The user resizes
+        // via the bottom-right corner; mat-dialog caps are lifted
+        // in styles.scss so they don't fight the resize.
         hasBackdrop: false,
         panelClass: 'ocr-result-dialog',
       });

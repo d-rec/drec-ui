@@ -915,21 +915,22 @@ tr.mat-row:nth-child(even) {
   padding: 0 !important;
   overflow: visible !important;
 }
-// Lift mat-dialog size caps so the user-resizable window can grow.
+// Lift mat-dialog size caps so the user-resizable window can grow,
+// but don't force a 100% height — the surface should size to its
+// content (the .ocr-result-window's own initial height).
 .cdk-overlay-pane.ocr-result-dialog,
 .ocr-result-dialog .mat-mdc-dialog-container,
 .ocr-result-dialog .mdc-dialog__container,
 .ocr-result-dialog .mat-mdc-dialog-surface {
   max-width: 100vw !important;
   max-height: 100vh !important;
-  width: 100%;
-  height: 100%;
 }
 .ocr-result-window {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100%;
+  // Default size; user can resize via the bottom-right corner.
+  width: 720px;
+  height: 420px;
   min-width: 320px;
   min-height: 220px;
   background: #ffffff;
