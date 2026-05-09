@@ -18,6 +18,7 @@ import { satellitePreview, SatellitePreview } from '../../map/map.component';
 import { environment } from '../../../../environments/environment';
 import { CountryNamePipe } from '../country-name.pipe';
 import { extractExt } from '../../../utils/file-ext';
+import { ChatService } from '../../../chat/chat.service';
 
 interface Field {
   label: string;
@@ -76,8 +77,44 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
     private datePipe: DatePipe,
     private countryNamePipe: CountryNamePipe,
     private sanitizer: DomSanitizer,
+    private chat: ChatService,
     private cdr: ChangeDetectorRef,
   ) {}
+
+  /** Reviewer-side affordance: open a prompt asking the reviewer
+   *  to describe a Haiku misread (which field, what's wrong, why).
+   *  Send the message to the D-REC admin via the chat module so
+   *  the admin sees it in their normal chat thread and can update
+   *  the prompts / tighten the extractor logic. */
+  contestExtraction(): void {
+    if (!this.deviceInfo) return;
+    const note = window.prompt(
+      'Describe the Haiku misread (which field, what was wrong, what the correct value should be):',
+      '',
+    );
+    if (!note || !note.trim()) return;
+    this.chat.getAdminUser().subscribe({
+      next: (admin) => {
+        const siteName = this.deviceInfo?.siteName ?? '';
+        const externalId = this.deviceInfo?.externalId ?? this.deviceInfo?.id;
+        const body = `**Haiku extraction contested** (site: ${siteName}, id: ${externalId})\n\n${note.trim()}`;
+        this.chat.sendDirectMessage(admin.email, body, { deviceSiteName: siteName }).subscribe({
+          next: () =>
+            this.toastr.success(
+              'Sent to D-REC admin — thanks for the heads-up',
+              'Provenance',
+            ),
+          error: (e) =>
+            this.toastr.error(
+              e?.error?.message || e?.message || 'Failed to send message',
+              'Provenance',
+            ),
+        });
+      },
+      error: () =>
+        this.toastr.error('Could not resolve admin email', 'Provenance'),
+    });
+  }
 
   /** Pull the latest EVIDENCE_PROVENANCE doc (if any) for this
    *  device and render its HTML body inline. The doc is generated
