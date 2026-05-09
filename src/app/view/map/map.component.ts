@@ -387,8 +387,13 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     // kept invisible (CSS .leaflet-center-pin-hidden) but still in the
     // DOM so captureScreenshot's marker-pane iteration picks it up and
     // bakes the pin into the saved image.
+    // Use leaflet's own marker (no className override) so the
+    // projection is handled by leaflet — getting / keeping the pin
+    // tip on the picked coord through pan + zoom + invalidateSize
+    // is something leaflet already does correctly. The HTML pin in
+    // the template is hidden (pinVisible=false) so they don't
+    // double up.
     const icon = mapPinIcon();
-    (icon.options as any).className = 'leaflet-center-pin-hidden';
     this.centerPinMarker = L.marker(pos, {
       icon,
       interactive: false,

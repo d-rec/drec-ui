@@ -13,18 +13,13 @@
       can never get above our sibling .detect-overlay regardless of
       pane z-indexes. This DOM-level pin sidesteps that.
     -->
-    <!-- Pin + crosshair both anchored at 50%/50% of the map
-         container — guaranteed coincident with the leaflet
-         viewport centre, no pixel-coord projection drift. The pin
-         marks the picked coord (which IS the map centre in
-         centerPin mode); the crosshair shows where the tip lands. -->
-    <div *ngIf="centerPin && pinVisible" class="center-pin" aria-hidden="true">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36">
-        <path d="M12 0C5.373 0 0 5.373 0 12c0 8.25 12 24 12 24S24 20.25 24 12C24 5.373 18.627 0 12 0z"
-              fill="#e53e3e" stroke="#fff" stroke-width="1.5"/>
-        <circle cx="12" cy="12" r="5" fill="#fff" fill-opacity="0.85"/>
-      </svg>
-    </div>
+    <!-- Centre pin is rendered as a real Leaflet marker — leaflet
+         handles the projection so the pin tip stays glued to its
+         lat/lng through pan/zoom/invalidateSize without manual
+         pinX/pinY math. (Previously had an HTML overlay here that
+         drifted on zoom because the CSS 50%/50% anchor doesn't
+         move with the map.) -->
+    <ng-container *ngIf="false"><!-- HTML pin disabled --></ng-container>
     <canvas
       #overlayCanvas
       class="detect-overlay"
