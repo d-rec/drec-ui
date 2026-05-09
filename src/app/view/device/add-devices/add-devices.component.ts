@@ -322,6 +322,11 @@ export class AddDevicesComponent implements OnDestroy {
    *  changes for the PATCH `serialNumberChanged` query param. */
   private initSerialNumber: string | null = null;
   private initSiteName: string | null = null;
+  /** Snapshot of every control value at edit-mode load time. Used by
+   *  submitEdit to detect explicit clears: if a control was non-empty
+   *  on load and is now empty, send `null` so the backend wipes the
+   *  column instead of skipMissingProperties keeping the old value. */
+  private initialValues: { [name: string]: any } = {};
 
   get isEditMode(): boolean {
     return this.editingExternalId !== null;
@@ -401,6 +406,7 @@ export class AddDevicesComponent implements OnDestroy {
           this.editingDeviceId = data.id;
           this.initSerialNumber = data.serialNumber ?? null;
           this.initSiteName = data.siteName ?? null;
+          this.initialValues = { ...data };
 
           const firstRow = this.deviceForms.at(0) as FormGroup;
           if (!firstRow) return;
@@ -3526,12 +3532,18 @@ export class AddDevicesComponent implements OnDestroy {
     }
 
     // Strip null/undefined/''/NaN keys so backend skipMissingProperties
-    // treats this as a partial update — EXCEPT for fields the user
-    // explicitly cleared via the UI (× or "—" affordances). Those
-    // get sent as `null` so the backend wipes them; otherwise the
-    // skipMissingProperties path leaves the old value in place and
-    // the cleared field "comes back" on reload.
+    // treats this as a partial update — EXCEPT:
+    //   1. Fields explicitly cleared via the UI (× / "—" affordances).
+    //   2. Fields that had a value when the form loaded but are now
+    //      empty (the user wiped them).
+    // Those go out as `null` so the backend nulls the column; without
+    // this, skipMissingProperties keeps the old value and "blank"
+    // is not a valid entry in edit mode.
     const cleared = this.explicitlyClearedFields[0] ?? new Set<string>();
+    const wasInitiallySet = (k: string) => {
+      const init = this.initialValues[k];
+      return init != null && init !== '' && !(Array.isArray(init) && init.length === 0);
+    };
     for (const k of Object.keys(formValue)) {
       const v = (formValue as any)[k];
       const isEmpty =
@@ -3540,8 +3552,7 @@ export class AddDevicesComponent implements OnDestroy {
         v === '' ||
         (typeof v === 'number' && isNaN(v));
       if (!isEmpty) continue;
-      if (cleared.has(k)) {
-        // Force null so the backend nulls the column.
+      if (cleared.has(k) || wasInitiallySet(k)) {
         (formValue as any)[k] = null;
       } else {
         delete (formValue as any)[k];
