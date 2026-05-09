@@ -1635,9 +1635,18 @@ export class AddDevicesComponent implements OnDestroy {
     void oneOf(DocumentType.COD_PROOF, (f) =>
       this.extractCodFieldsForDevice(f, deviceIndex),
     );
-    void oneOf(DocumentType.FORM_SF_02, (f) =>
-      this.extractSf02FieldsForDevice(f, deviceIndex),
-    );
+    // SF-02 is platform-generated when sf02EvidenceMode === 'self'
+    // — extracting from it would just round-trip our own form values
+    // back onto the provenance report (circular). Only treat
+    // SF-02 as a source when the registrant uploaded their own.
+    const sf02Mode = this.deviceForms
+      .at(deviceIndex)
+      ?.get('sf02EvidenceMode')?.value;
+    if (sf02Mode === 'upload') {
+      void oneOf(DocumentType.FORM_SF_02, (f) =>
+        this.extractSf02FieldsForDevice(f, deviceIndex),
+      );
+    }
     // Metering evidence: one extraction per file.
     const meterDocs = docsByType[DocumentType.METERING_EVIDENCE] ?? [];
     for (const d of meterDocs) {
