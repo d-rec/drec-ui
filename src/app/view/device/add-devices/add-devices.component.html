@@ -117,7 +117,13 @@
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize" test-id="select-country">(5) Select country
                       </mat-label>
-                      <input type="text" matInput formControlName="countryCodename" [matAutocomplete]="auto" />
+                      <input type="text" matInput formControlName="countryCodename" [matAutocomplete]="auto" #countryInput />
+                      <button *ngIf="deviceForms.at(i).get('countryCodename')?.value"
+                        type="button" matSuffix mat-icon-button
+                        aria-label="Clear country"
+                        (click)="clearCountry(i); countryInput.focus()">
+                        <mat-icon>close</mat-icon>
+                      </button>
                       <mat-autocomplete #auto="matAutocomplete">
                         <mat-option *ngFor="let code of filteredCountryList[i] | async" [value]="code.country"
                           test-id="country-options">

@@ -3099,6 +3099,17 @@ export class AddDevicesComponent implements OnDestroy {
     return out;
   }
 
+  /** Clear the country autocomplete value. The autocomplete had no
+   *  clear affordance — typing select-all + delete was the only way
+   *  out — so add an explicit × button. */
+  clearCountry(deviceIndex: number): void {
+    const ctl = this.deviceForms.at(deviceIndex).get('countryCodename');
+    if (!ctl) return;
+    ctl.setValue('');
+    ctl.markAsDirty();
+    ctl.markAsTouched();
+  }
+
   /** Total project-photo count = staged + already-saved. Used by
    *  the min-3 red-border rule on the Site Photos slot in edit
    *  mode (where the existing 3 might be the only 3). */
