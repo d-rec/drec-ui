@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { forkJoin, Subscription } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { AssetService } from '../asset.service';
@@ -63,6 +64,8 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
   loading = false;
   satPreview: SatellitePreview | null = null;
   search = '';
+  provenanceHtml: SafeHtml | null = null;
+  provenanceLoading = false;
 
   private sub: Subscription | null = null;
 
@@ -72,8 +75,39 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private datePipe: DatePipe,
     private countryNamePipe: CountryNamePipe,
+    private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
   ) {}
+
+  /** Pull the latest EVIDENCE_PROVENANCE doc (if any) for this
+   *  device and render its HTML body inline. The doc is generated
+   *  by the registrant via add-devices.generateProvenanceReport. */
+  private loadProvenanceReport(): void {
+    this.provenanceHtml = null;
+    const docs = this.documents.filter(
+      (d) => d.type === 'EVIDENCE_PROVENANCE',
+    );
+    if (!docs.length) return;
+    // Latest doc wins (sort by id desc).
+    const latest = [...docs].sort((a, b) => b.id - a.id)[0];
+    this.provenanceLoading = true;
+    this.cdr.markForCheck();
+    this.http
+      .get(`${environment.API_URL}document-uploads/${latest.id}/url`, {
+        responseType: 'text',
+      })
+      .subscribe({
+        next: (html) => {
+          this.provenanceHtml = this.sanitizer.bypassSecurityTrustHtml(html);
+          this.provenanceLoading = false;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.provenanceLoading = false;
+          this.cdr.markForCheck();
+        },
+      });
+  }
 
   ngOnInit(): void {
     this.sub = this.svc.viewDeviceInfoId$.subscribe((id) => {
@@ -140,6 +174,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
         if (!isNaN(lat) && !isNaN(lng)) {
           this.satPreview = satellitePreview(lat, lng, 19);
         }
+        this.loadProvenanceReport();
         this.cdr.markForCheck();
       },
       error: (err) => {

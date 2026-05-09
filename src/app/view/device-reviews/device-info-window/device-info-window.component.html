@@ -163,6 +163,15 @@
             </div>
           </ng-container>
         </ng-container>
+
+        <!-- Evidence-provenance report (registrant-generated HTML),
+             rendered inline so the reviewer can see at a glance
+             which fields are document-backed and click straight into
+             the source documents. -->
+        <section *ngIf="provenanceHtml || provenanceLoading" class="di__provenance" style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin-top:12px;background:#f8fafc">
+          <div *ngIf="provenanceLoading" style="font-size:12px;color:#64748b">Loading evidence-provenance report…</div>
+          <div *ngIf="provenanceHtml" [innerHTML]="provenanceHtml"></div>
+        </section>
       </div>
 
       <div class="di__footer">
