@@ -355,6 +355,7 @@ export class AddDevicesComponent implements OnDestroy {
       this.setupdataSourceBrandWatcher(group as FormGroup);
       this.setupDataSourceWatcher(group as FormGroup);
       this.setupSiteNameWatcher(group as FormGroup, i);
+      this.setupImpactStoryWatcher(group as FormGroup);
     });
 
     if (this.isEditMode) {
@@ -913,6 +914,44 @@ export class AddDevicesComponent implements OnDestroy {
     this.setupDataSourceWatcher(device);
     this.siteNameExists[index] = false;
     this.setupSiteNameWatcher(device, index);
+    this.setupImpactStoryWatcher(device);
+  }
+
+  /**
+   * Infer (8) Device Description from free-text impactStory keywords.
+   * Only patches when the dropdown is empty so a deliberate user
+   * choice survives. Vocabulary matches the devicedescription enum.
+   */
+  private setupImpactStoryWatcher(deviceGroup: FormGroup): void {
+    const apply = (text: string | null | undefined) => {
+      const ctl = deviceGroup.get('deviceDescription');
+      if (!ctl || ctl.value) return;
+      const inferred = this.inferDeviceDescription(text);
+      if (inferred) {
+        ctl.setValue(inferred);
+        ctl.markAsDirty();
+      }
+    };
+    // Run on initial value (covers edit-mode hydration) and on changes.
+    apply(deviceGroup.get('impactStory')?.value);
+    deviceGroup
+      .get('impactStory')
+      ?.valueChanges.pipe(debounceTime(400), distinctUntilChanged())
+      .subscribe(apply);
+  }
+
+  private inferDeviceDescription(text: string | null | undefined): string | null {
+    if (!text) return null;
+    const t = text.toLowerCase();
+    // Check most-specific phrases first so "rooftop mini-grid" wins
+    // for mini-grid (the topology) over "rooftop" (the mounting).
+    if (/\bmini[\s-]?grid\b/.test(t)) return 'Mini Grid';
+    if (/\bsolar home system\b|\bSHS\b/i.test(t)) return 'Solar Home System';
+    if (/\bsolar lantern\b/.test(t)) return 'Solar Lantern';
+    if (/\bground[\s-]?mount(ed)?\b|\bground[\s-]?based\b/.test(t))
+      return 'Ground Mount Solar';
+    if (/\brooftop\b|\broof[\s-]?mount(ed)?\b/.test(t)) return 'Rooftop Solar';
+    return null;
   }
 
   private setupSiteNameWatcher(deviceGroup: FormGroup, index: number) {
