@@ -505,6 +505,20 @@ export class AddDevicesComponent implements OnDestroy {
             ? String(data.serialNumber).split(/\s*;\s*/)
             : [''];
 
+          // Recenter both maps on the loaded coords so the
+          // satellite view doesn't sit at the leaflet default
+          // (Sahara) until the user pans / pastes coords.
+          // Defer to next tick so the @ViewChild map components
+          // have caught up with hydration.
+          const lat = parseFloat(String(data.latitude));
+          const lng = parseFloat(String(data.longitude));
+          if (isFinite(lat) && isFinite(lng) && !(lat === 0 && lng === 0)) {
+            setTimeout(() => {
+              this.mapComponent?.recenter(lat, lng);
+              this.satelliteMapComponent?.recenter(lat, lng);
+            }, 0);
+          }
+
           // Load existing docs for this device (single-row, so always index 0).
           this.deviceService.getDocuments(data.id).subscribe({
             next: (docs) => {
