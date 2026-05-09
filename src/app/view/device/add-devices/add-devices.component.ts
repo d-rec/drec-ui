@@ -2393,6 +2393,30 @@ export class AddDevicesComponent implements OnDestroy {
       add('generatingUnitCount', 'SF-02', sf02.inverterCount);
       add('networkOwner', 'SF-02', sf02.networkOwner);
     }
+    // Inject the form's current value as a "Current" claim for any
+    // field a doc weighed in on. Triggers the conflict block when
+    // a manually-typed (or geocoder-set) value disagrees with what
+    // the document says.
+    const form = this.deviceForms.at(deviceIndex);
+    if (form) {
+      for (const field of Object.keys(claims)) {
+        const v = form.get(field)?.value;
+        if (v == null) continue;
+        if (typeof v === 'string' && v.trim() === '') continue;
+        if (Array.isArray(v) && v.length === 0) continue;
+        // Skip if the current value is identical to one of the
+        // doc claims — no point listing the same value twice.
+        const norm = (x: any) =>
+          typeof x === 'number'
+            ? Number(x.toFixed(2))
+            : typeof x === 'string'
+              ? x.trim().toLowerCase()
+              : x;
+        const cur = norm(v);
+        if (claims[field].some((c) => norm(c.value) === cur)) continue;
+        claims[field].push({ source: 'Current', value: v, confidence: 1 });
+      }
+    }
     return claims;
   }
 
