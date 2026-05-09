@@ -1732,6 +1732,38 @@ export class AddDevicesComponent implements OnDestroy {
   overwriteConfirmDialog?: TemplateRef<any>;
   private overwriteDialogRef: MatDialogRef<any> | null = null;
 
+  /** Normalise an extracted country value (ISO-2 / ISO-3 / common
+   *  short name) to the canonical full name in countrylist so the
+   *  autocomplete actually matches an option. Returns the input
+   *  untouched if no match. */
+  private normalizeCountry(raw: any): any {
+    if (!raw || typeof raw !== 'string') return raw;
+    const s = raw.trim();
+    if (!s || !this.countrylist?.length) return s;
+    const u = s.toUpperCase();
+    const exact = (this.countrylist as any[]).find(
+      (c) => c.country?.toUpperCase() === u,
+    );
+    if (exact) return exact.country;
+    if (s.length === 2) {
+      const m = (this.countrylist as any[]).find((c) => c.alpha2 === u);
+      if (m) return m.country;
+    }
+    if (s.length === 3) {
+      const m = (this.countrylist as any[]).find(
+        (c) => c.alpha3 === u || c.countryCode === u,
+      );
+      if (m) return m.country;
+    }
+    // Tolerate common short forms ("Vietnam" → "Viet Nam", "USA" → ...)
+    const flat = (str: string) => str.toLowerCase().replace(/[^a-z]/g, '');
+    const fs = flat(s);
+    const fuzzy = (this.countrylist as any[]).find(
+      (c) => flat(c.country || '') === fs,
+    );
+    return fuzzy ? fuzzy.country : s;
+  }
+
   private applyExtractionWithPrompt(
     deviceIndex: number,
     source: string,
@@ -1749,7 +1781,12 @@ export class AddDevicesComponent implements OnDestroy {
       if (!c.field || c.field.value == null || c.field.confidence < 0.7) continue;
       const ctl = form.get(c.name);
       if (!ctl) continue;
-      const next = c.transform ? c.transform(c.field.value) : c.field.value;
+      let next = c.transform ? c.transform(c.field.value) : c.field.value;
+      // The country control is bound to the full name; normalise
+      // ISO codes / common short forms before comparison + setValue.
+      if (c.name === 'countryCodename') {
+        next = this.normalizeCountry(next);
+      }
       const cur = ctl.value;
       const isEmpty =
         cur === null ||
