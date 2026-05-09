@@ -281,6 +281,11 @@ export class AddDevicesComponent implements OnDestroy {
   isGeneratingSf02ByIndex: Record<number, boolean> = {};
   isGeneratingProvenance: Record<number, boolean> = {};
   provenanceGeneratedAt: Record<number, string> = {};
+  /** Per-device, per-source flag: true once the user has clicked
+   *  "Apply to form" (whether or not they accepted the conflict
+   *  overwrites). Disables the button to prevent redundant re-apply
+   *  / re-prompt. Cleared when a fresh extraction lands. */
+  extractionApplied: Record<number, Record<string, boolean>> = {};
   sf02GeneratedAtByIndex: Record<number, string> = {};
   requiredFileTypes: FileType[] = [
     DocumentType.FORM_SF_02,
@@ -1813,6 +1818,9 @@ export class AddDevicesComponent implements OnDestroy {
   private extractSldFieldsForDevice(file: File, deviceIndex: number): void {
     this.sldExtracting[deviceIndex] = true;
     this.sldExtractions[deviceIndex] = null;
+    if (this.extractionApplied[deviceIndex]) {
+      this.extractionApplied[deviceIndex]['SLD'] = false;
+    }
     this.documentClassifier
       .extractSldFields(file)
       .then((res) =>
@@ -1922,6 +1930,10 @@ export class AddDevicesComponent implements OnDestroy {
     }>,
     after?: () => void,
   ): void {
+    if (!this.extractionApplied[deviceIndex]) {
+      this.extractionApplied[deviceIndex] = {};
+    }
+    this.extractionApplied[deviceIndex][source] = true;
     const form = this.deviceForms.at(deviceIndex);
     let filled = 0;
     const conflicts: typeof this.pendingOverwriteCandidates = [];
@@ -2041,6 +2053,9 @@ export class AddDevicesComponent implements OnDestroy {
   private extractSf02cFieldsForDevice(file: File, deviceIndex: number): void {
     this.sf02cExtracting[deviceIndex] = true;
     this.sf02cExtractions[deviceIndex] = null;
+    if (this.extractionApplied[deviceIndex]) {
+      this.extractionApplied[deviceIndex]['SF-02c'] = false;
+    }
     this.documentClassifier
       .extractSf02cFields(file)
       .then((res) =>
@@ -2085,6 +2100,9 @@ export class AddDevicesComponent implements OnDestroy {
   private extractCodFieldsForDevice(file: File, deviceIndex: number): void {
     this.codExtracting[deviceIndex] = true;
     this.codExtractions[deviceIndex] = null;
+    if (this.extractionApplied[deviceIndex]) {
+      this.extractionApplied[deviceIndex]['COD'] = false;
+    }
     this.documentClassifier
       .extractCodFields(file)
       .then((res) =>
@@ -2155,6 +2173,9 @@ export class AddDevicesComponent implements OnDestroy {
   private extractSf02FieldsForDevice(file: File, deviceIndex: number): void {
     this.sf02Extracting[deviceIndex] = true;
     this.sf02Extractions[deviceIndex] = null;
+    if (this.extractionApplied[deviceIndex]) {
+      this.extractionApplied[deviceIndex]['SF-02'] = false;
+    }
     this.documentClassifier
       .extractSf02Fields(file)
       .then((res) =>

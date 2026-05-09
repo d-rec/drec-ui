@@ -900,7 +900,12 @@
                           <li *ngIf="fx.moduleCount">Modules: {{ fx.moduleCount.value }}</li>
                         </ul>
                         <div class="sld-extract-banner__actions">
-                          <button type="button" class="btn btn-sm btn-primary" (click)="applySf02Extraction(i)" (mousedown)="$event.stopPropagation()">Apply to form</button>
+                          <button type="button" class="btn btn-sm btn-primary"
+                            (click)="applySf02Extraction(i)" (mousedown)="$event.stopPropagation()"
+                            [disabled]="extractionApplied[i]?.['SF-02']"
+                            [title]="extractionApplied[i]?.['SF-02'] ? 'Already applied this session' : ''">
+                            {{ extractionApplied[i]?.['SF-02'] ? 'Applied' : 'Apply to form' }}
+                          </button>
                           <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissSf02Extraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
                         </div>
                       </div>
@@ -1027,7 +1032,12 @@
                         <li *ngIf="fx.transformerKva">Transformer: {{ fx.transformerKva.value }} kVA</li>
                       </ul>
                       <div class="sld-extract-banner__actions">
-                        <button type="button" class="btn btn-sm btn-primary" (click)="applySldExtraction(i)" (mousedown)="$event.stopPropagation()">Apply to form</button>
+                        <button type="button" class="btn btn-sm btn-primary"
+                          (click)="applySldExtraction(i)" (mousedown)="$event.stopPropagation()"
+                          [disabled]="extractionApplied[i]?.['SLD']"
+                          [title]="extractionApplied[i]?.['SLD'] ? 'Already applied this session' : ''">
+                          {{ extractionApplied[i]?.['SLD'] ? 'Applied' : 'Apply to form' }}
+                        </button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissSldExtraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
                       </div>
                     </div>
@@ -1077,7 +1087,12 @@
                         <li *ngIf="fx.signatoryName">Signatory: {{ fx.signatoryName.value }}<span *ngIf="fx.signatoryEmail"> &lt;{{ fx.signatoryEmail.value }}&gt;</span></li>
                       </ul>
                       <div class="sld-extract-banner__actions">
-                        <button type="button" class="btn btn-sm btn-primary" (click)="applySf02cExtraction(i)" (mousedown)="$event.stopPropagation()">Apply to form</button>
+                        <button type="button" class="btn btn-sm btn-primary"
+                          (click)="applySf02cExtraction(i)" (mousedown)="$event.stopPropagation()"
+                          [disabled]="extractionApplied[i]?.['SF-02c']"
+                          [title]="extractionApplied[i]?.['SF-02c'] ? 'Already applied this session' : ''">
+                          {{ extractionApplied[i]?.['SF-02c'] ? 'Applied' : 'Apply to form' }}
+                        </button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissSf02cExtraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
                       </div>
                     </div>
@@ -1154,7 +1169,12 @@
                         <li *ngIf="fx.utilityOrIssuer">Issued by: {{ fx.utilityOrIssuer.value }}</li>
                       </ul>
                       <div class="sld-extract-banner__actions">
-                        <button type="button" class="btn btn-sm btn-primary" (click)="applyCodExtraction(i)" (mousedown)="$event.stopPropagation()">Apply to form</button>
+                        <button type="button" class="btn btn-sm btn-primary"
+                          (click)="applyCodExtraction(i)" (mousedown)="$event.stopPropagation()"
+                          [disabled]="extractionApplied[i]?.['COD']"
+                          [title]="extractionApplied[i]?.['COD'] ? 'Already applied this session' : ''">
+                          {{ extractionApplied[i]?.['COD'] ? 'Applied' : 'Apply to form' }}
+                        </button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissCodExtraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
                       </div>
                     </div>
