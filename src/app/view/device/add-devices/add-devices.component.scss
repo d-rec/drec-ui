@@ -871,19 +871,31 @@ input.example-right-align {
 .serial-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  // Tighter inter-row gap; the mat-form-field outline already
+  // gives breathing room between fields.
+  gap: 2px;
 
   &__row {
     display: grid;
-    // Default: input only — full column width. The × button shows via
-    // *ngIf when there's more than one row, at which point the second
-    // 28px track is added.
     grid-template-columns: minmax(0, 1fr);
     align-items: center;
     gap: 4px;
 
     &:has(.serial-list__remove) {
       grid-template-columns: minmax(0, 1fr) 28px;
+    }
+  }
+
+  // Compress the per-row mat-form-field — drop the bottom subscript
+  // wrapper and tighten internal padding so each row is a chip-sized
+  // input rather than a full Material text field.
+  &__field {
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+    ::ng-deep .mat-mdc-text-field-wrapper { padding-top: 0; padding-bottom: 0; }
+    ::ng-deep .mat-mdc-form-field-infix {
+      min-height: 36px;
+      padding-top: 6px;
+      padding-bottom: 6px;
     }
   }
 
