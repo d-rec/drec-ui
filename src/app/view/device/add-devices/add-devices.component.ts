@@ -924,12 +924,21 @@ export class AddDevicesComponent implements OnDestroy {
    */
   private setupImpactStoryWatcher(deviceGroup: FormGroup): void {
     const apply = (text: string | null | undefined) => {
-      const ctl = deviceGroup.get('deviceDescription');
-      if (!ctl || ctl.value) return;
-      const inferred = this.inferDeviceDescription(text);
-      if (inferred) {
-        ctl.setValue(inferred);
-        ctl.markAsDirty();
+      const dd = deviceGroup.get('deviceDescription');
+      if (dd && !dd.value) {
+        const inferred = this.inferDeviceDescription(text);
+        if (inferred) {
+          dd.setValue(inferred);
+          dd.markAsDirty();
+        }
+      }
+      const ot = deviceGroup.get('offTaker');
+      if (ot && !ot.value) {
+        const inferred = this.inferOffTaker(text);
+        if (inferred) {
+          ot.setValue(inferred);
+          ot.markAsDirty();
+        }
       }
     };
     // Run on initial value (covers edit-mode hydration) and on changes.
@@ -938,6 +947,54 @@ export class AddDevicesComponent implements OnDestroy {
       .get('impactStory')
       ?.valueChanges.pipe(debounceTime(400), distinctUntilChanged())
       .subscribe(apply);
+  }
+
+  /**
+   * Infer (off-taker dropdown) from impactStory free text. Strategy:
+   *   1. Look for "<count> <category>" patterns ("369 residential
+   *      users", "31 commercial customers"). Pick the category with
+   *      the highest count — this captures the typical mini-grid
+   *      breakdown ("400 connections, 369 residential, 31 commercial"
+   *      → Residential).
+   *   2. Fall back to keyword presence if no counts are written.
+   * Vocabulary mirrors the offtaker enum so the value drops straight
+   * into the dropdown.
+   */
+  private inferOffTaker(text: string | null | undefined): string | null {
+    if (!text) return null;
+    const t = text.toLowerCase();
+    const cats: Array<{ key: string; re: RegExp; countRe: RegExp }> = [
+      { key: 'School', re: /\bschool(s)?\b/, countRe: /(\d[\d,]*)\s*school/g },
+      { key: 'Education', re: /\beducation\b/, countRe: /(\d[\d,]*)\s*education/g },
+      { key: 'Health Facility', re: /\b(health\s+facilit(y|ies)|clinic(s)?|hospital(s)?)\b/, countRe: /(\d[\d,]*)\s*(health|clinic|hospital)/g },
+      { key: 'Residential', re: /\b(resident(ial|s)?|household(s)?|home(s)?)\b/, countRe: /(\d[\d,]*)\s*(resident|household|home|user)/g },
+      { key: 'Commercial', re: /\b(commercial|business(es)?|shop(s)?|merchant(s)?)\b/, countRe: /(\d[\d,]*)\s*(commercial|business|shop|merchant)/g },
+      { key: 'Industrial', re: /\b(industrial|factor(y|ies)|industry)\b/, countRe: /(\d[\d,]*)\s*(industrial|factor|industry)/g },
+      { key: 'Public Sector', re: /\bpublic sector\b|\bgovernment building/, countRe: /(\d[\d,]*)\s*public/g },
+      { key: 'Agriculture', re: /\b(agricultur|farm(s|ing)?|irrigation)\b/, countRe: /(\d[\d,]*)\s*(farm|agricultur)/g },
+      { key: 'Utility', re: /\butilit(y|ies)\b|\bdisco\b/, countRe: /(\d[\d,]*)\s*utilit/g },
+      { key: 'Off-Grid Community', re: /\boff[\s-]?grid\s+communit(y|ies)\b/, countRe: /(\d[\d,]*)\s*off[\s-]?grid/g },
+    ];
+
+    // Pass 1: count-based ranking
+    const counts: Array<{ key: string; n: number }> = [];
+    for (const c of cats) {
+      let total = 0;
+      for (const m of t.matchAll(c.countRe)) {
+        total += parseInt(m[1].replace(/,/g, ''), 10) || 0;
+      }
+      if (total > 0) counts.push({ key: c.key, n: total });
+    }
+    if (counts.length) {
+      counts.sort((a, b) => b.n - a.n);
+      return counts[0].key;
+    }
+
+    // Pass 2: presence fallback (no numbers in text)
+    for (const c of cats) {
+      if (c.re.test(t)) return c.key;
+    }
+    return null;
   }
 
   private inferDeviceDescription(text: string | null | undefined): string | null {
