@@ -553,6 +553,7 @@ export class AddDevicesComponent implements OnDestroy {
                 );
               }
               this.existingDocs[0] = docsByType;
+              this.autoSetMeterReadsShareable(0);
 
               // Probe each URL for 404s so the UI can flag broken links.
               this.brokenDocs[0] = {};
@@ -1559,7 +1560,24 @@ export class AddDevicesComponent implements OnDestroy {
       for (const f of newFiles) {
         this.extractMeterIdsForDevice(f, deviceIndex);
       }
+      this.autoSetMeterReadsShareable(deviceIndex);
     }
+  }
+
+  /** Default (20) Meter reads shareable via document? to "Yes" once
+   *  any METERING_EVIDENCE doc is staged or already saved — those
+   *  uploads ARE the shareable document. Only patches when empty so
+   *  a deliberate "No" survives. */
+  private autoSetMeterReadsShareable(deviceIndex: number): void {
+    const ctl = this.deviceForms.at(deviceIndex)?.get('meterReadsShareable');
+    if (!ctl || ctl.value) return;
+    const staged =
+      (this.files[deviceIndex]?.[DocumentType.METERING_EVIDENCE]?.length ?? 0) > 0;
+    const existing =
+      (this.existingDocs[deviceIndex]?.['METERING_EVIDENCE']?.length ?? 0) > 0;
+    if (!staged && !existing) return;
+    ctl.setValue('Yes');
+    ctl.markAsDirty();
   }
 
   /** Magic auto-sort: classify multiple files and dispatch them to slots. */
