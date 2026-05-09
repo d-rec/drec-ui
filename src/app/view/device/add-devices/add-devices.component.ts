@@ -1001,12 +1001,20 @@ export class AddDevicesComponent implements OnDestroy {
           // tracked geocoder fields get cleared this way.
           this.setCoordDerivedField(deviceGroup, 'stateProvince', stateLike);
           this.setCoordDerivedField(deviceGroup, 'postcode', a.postcode ?? null);
-          // Country fallback — only if empty (don't fight an
-          // extractor or a deliberate user choice).
+          // Country: geocoder beats extractor when they disagree.
+          // Coords are unambiguous; certificate addresses sometimes
+          // refer to a head office in another country (e.g. an EPC's
+          // Vietnam HQ on a COD for an Indian site). The user's
+          // explicit dropdown pick still wins (userPickedCountry).
           if (a.country) {
             const c = this.normalizeCountry(a.country);
             const ctl = deviceGroup.get('countryCodename');
-            if (ctl && !ctl.value) {
+            const idx = this.deviceForms.controls.indexOf(deviceGroup);
+            if (
+              ctl &&
+              !this.userPickedCountry[idx] &&
+              ctl.value !== c
+            ) {
               ctl.setValue(c);
               ctl.markAsDirty();
             }
@@ -3334,12 +3342,21 @@ export class AddDevicesComponent implements OnDestroy {
    *  optionSelected just setValues, bypassing our markCleared
    *  bookkeeping → submitEdit drops the empty value and France
    *  came back). */
+  /** Per-device flag: the user explicitly picked a country from the
+   *  autocomplete dropdown. Geocoder respects this and won't
+   *  overwrite. Cleared via the "—" option / clearCountry. */
+  private userPickedCountry: { [deviceIndex: number]: boolean } = {};
+
   onCountrySelected(
     deviceIndex: number,
     event: { option: { value: string } },
   ): void {
-    if (event?.option?.value === '') {
+    const v = event?.option?.value;
+    if (v === '') {
       this.clearCountry(deviceIndex);
+      this.userPickedCountry[deviceIndex] = false;
+    } else if (v) {
+      this.userPickedCountry[deviceIndex] = true;
     }
   }
 
