@@ -40,6 +40,7 @@ import * as Sentry from '@sentry/angular';
 import { SharedModule } from './shared.module';
 import { provideNgxMatMomentDate } from '@ngxmc/moment-adapter';
 import { MAT_DATE_LOCALE, MAT_DATE_FORMATS } from '@angular/material/core';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { TermsAndConditionsComponent } from './view/terms-and-conditions/terms-and-conditions.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { DocumentsUploadComponent } from './view/documents-upload/documents-upload.component';
@@ -126,6 +127,14 @@ import { WorldGlobeComponent } from './view/login/world-globe/world-globe.compon
     ChatModule,
   ],
   providers: [
+    // Always-floating mat-form-field labels — empty fields show the
+    // (NN) Field Name as a small superscript on the border instead
+    // of as inline placeholder text. Keeps every slot visually
+    // identical regardless of whether it has a value.
+    {
+      provide: MAT_FORM_FIELD_DEFAULT_OPTIONS,
+      useValue: { floatLabel: 'always', appearance: 'outline' },
+    },
     provideNgxMatMomentDate(),
     // dd/MM/yyyy across the app (matches the date pipe usage everywhere
     // else in the templates) instead of the browser's default M/D/YYYY.
