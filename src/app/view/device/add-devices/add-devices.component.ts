@@ -2049,7 +2049,17 @@ export class AddDevicesComponent implements OnDestroy {
       { name: 'address', field: fx.ownerAddress },
       { name: 'countryCodename', field: fx.ownerCountry },
       { name: 'signatoryName', field: fx.signatoryName },
-    ]);
+    ], () => {
+      // SF-02C carries the no-double-counting declaration — by
+      // signing it the owner attests they aren't enrolled in
+      // another EAC scheme. Default (31) to "No" when empty.
+      const ec = this.deviceForms.at(deviceIndex)?.get('otherEacSchemeRegistration');
+      if (ec && !ec.value) {
+        ec.setValue('No');
+        ec.markAsDirty();
+      }
+      this.deriveOffTakerSameAsOwner(deviceIndex);
+    });
   }
 
   dismissSf02cExtraction(deviceIndex: number): void {
@@ -2099,7 +2109,27 @@ export class AddDevicesComponent implements OnDestroy {
       { name: 'capacity', field: fx.acCapacityKw },
       { name: 'pvSystemOwner', field: fx.ownerName },
       { name: 'countryCodename', field: fx.country },
-    ]);
+      { name: 'offTakerName', field: fx.offTakerName },
+    ], () => {
+      this.deriveOffTakerSameAsOwner(deviceIndex);
+    });
+  }
+
+  /**
+   * (30) Off-taker same company as PV owner? auto-derives from
+   * (27) PV System Owner + (28) Off-taker Name once both are
+   * populated. Patches only when empty so a deliberate user
+   * override survives.
+   */
+  private deriveOffTakerSameAsOwner(deviceIndex: number): void {
+    const form = this.deviceForms.at(deviceIndex);
+    const ctl = form?.get('offTakerSameCompanyAsOwner');
+    if (!ctl || ctl.value) return;
+    const owner = String(form?.get('pvSystemOwner')?.value ?? '').trim().toLowerCase();
+    const off = String(form?.get('offTakerName')?.value ?? '').trim().toLowerCase();
+    if (!owner || !off) return;
+    ctl.setValue(owner === off ? 'Yes' : 'No');
+    ctl.markAsDirty();
   }
 
   dismissCodExtraction(deviceIndex: number): void {
@@ -2143,6 +2173,7 @@ export class AddDevicesComponent implements OnDestroy {
       if (fx.inverterCount) {
         this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
       }
+      this.deriveOffTakerSameAsOwner(deviceIndex);
     });
   }
 

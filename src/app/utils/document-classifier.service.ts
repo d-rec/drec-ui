@@ -25,6 +25,7 @@ export interface CodExtractedFields {
   ownerName?: ExtractedField<string>;
   utilityOrIssuer?: ExtractedField<string>;
   country?: ExtractedField<string>;
+  offTakerName?: ExtractedField<string>;
   measurementIds?: ExtractedField<string[]>;
   reasoning: string;
 }
