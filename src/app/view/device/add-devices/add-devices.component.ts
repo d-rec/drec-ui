@@ -1839,6 +1839,7 @@ export class AddDevicesComponent implements OnDestroy {
     patchIfEmpty('siteName', fx.facilityName);
     patchIfEmpty('capacity', fx.acCapacityKw);
     patchIfEmpty('pvSystemOwner', fx.ownerName);
+    patchIfEmpty('countryCodename', fx.country);
     // utilityOrIssuer is the COD signatory, NOT necessarily the DSO
     // (EPC-led projects sign their own CODs — e.g. CrossBoundary
     // Access). Don't auto-fill networkOwner from it; it still shows
@@ -2099,6 +2100,7 @@ export class AddDevicesComponent implements OnDestroy {
       add('siteName', 'COD', cod.facilityName);
       add('capacity', 'COD', cod.acCapacityKw);
       add('pvSystemOwner', 'COD', cod.ownerName);
+      add('countryCodename', 'COD', cod.country);
       // utilityOrIssuer dropped from networkOwner candidates — it's
       // the COD signatory (often the EPC), not the DSO. The
       // dedicated networkOwner field on SF-02 is the reliable source.

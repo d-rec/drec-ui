@@ -24,6 +24,7 @@ export interface CodExtractedFields {
   acCapacityKw?: ExtractedField<number>;
   ownerName?: ExtractedField<string>;
   utilityOrIssuer?: ExtractedField<string>;
+  country?: ExtractedField<string>;
   measurementIds?: ExtractedField<string[]>;
   reasoning: string;
 }
