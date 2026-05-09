@@ -2808,6 +2808,77 @@ export class AddDevicesComponent implements OnDestroy {
    *   so the (!) "missing" badge doesn't fire when docs are obviously
    *   already attached.
    */
+  /**
+   * Multi-line tooltip listing every missing/invalid required field
+   * with its (NN) form-index prefix. Used by the "Please fill in
+   * all required fields" footer notice.
+   */
+  missingFieldsTooltip(): string {
+    const items = this.getMissingFieldsList();
+    if (!items.length) return '';
+    return 'Missing or invalid:\n' + items.map((s) => `  • ${s}`).join('\n');
+  }
+
+  /** Map of formControlName → human "(NN) Field name" label, mirroring
+   *  the Add/Edit form labels. Static because labels don't change at
+   *  runtime; keep in sync if the form labels are re-numbered. */
+  private static readonly FIELD_LABELS: Record<string, string> = {
+    siteName: '(2) Site name',
+    deviceDescription: '(8) Device description',
+    countryCodename: '(9) Country',
+    commissioningDate: '(10) Commissioning date',
+    deviceTypeCode: '(11) Device type',
+    fuelCode: '(12) Fuel code',
+    capacity: '(13) AC capacity (kW)',
+    pvSystemOwner: '(15) PV system owner',
+    address: '(16) Address',
+    networkOwner: '(17) Network owner',
+    hasNetworkMeter: '(18) Network meter',
+    latitude: '(19) Latitude',
+    longitude: '(20) Longitude',
+    dataSource: '(21) Data source',
+    dataSourceBrand: '(22) Data source brand',
+    serialNumber: '(23) Serial number / meter ID',
+    SDGBenefits: '(28) SDG benefits',
+    impactStory: '(29) Impact story',
+    operatingConfiguration: '(30) Operating configuration',
+    interconnectionVoltage: '(31) Interconnection voltage',
+    gridInterconnection: '(32) Grid interconnection',
+    generatingUnitCount: '(33) Generating unit count',
+    hasAuxiliaryEnergySources: '(34) Auxiliary energy sources?',
+    hasPublicFunding: '(35) Has public funding?',
+    hasSubsidy: '(36) Has subsidy?',
+    labellingSchemeAccreditation: '(37) Labelling-scheme accreditation',
+  };
+
+  /** Walk the FormArray and collect labels for every invalid /
+   *  required-but-empty control. Falls back to the raw control name
+   *  if no label is mapped above. */
+  private getMissingFieldsList(): string[] {
+    const out: string[] = [];
+    const seen = new Set<string>();
+    this.deviceForms.controls.forEach((group, deviceIndex) => {
+      const fg = group as FormGroup;
+      Object.keys(fg.controls).forEach((name) => {
+        const ctl = fg.get(name);
+        if (!ctl || ctl.disabled) return;
+        if (ctl.valid) return;
+        const label =
+          AddDevicesComponent.FIELD_LABELS[name] ??
+          name.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase());
+        const key =
+          this.deviceForms.length > 1
+            ? `Row ${deviceIndex + 1}: ${label}`
+            : label;
+        if (!seen.has(key)) {
+          seen.add(key);
+          out.push(key);
+        }
+      });
+    });
+    return out;
+  }
+
   /** Total project-photo count = staged + already-saved. Used by
    *  the min-3 red-border rule on the Site Photos slot in edit
    *  mode (where the existing 3 might be the only 3). */

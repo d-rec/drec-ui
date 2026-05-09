@@ -899,6 +899,21 @@ tr.mat-row:nth-child(even) {
   display: flex;
 }
 
+// Multi-line tooltip for the "missing required fields" footer.
+// Default mat-tooltip collapses whitespace; preserve newlines + bump
+// width so the bullet list is readable.
+.mat-mdc-tooltip.missing-fields-tooltip .mdc-tooltip__surface {
+  white-space: pre-line !important;
+  text-align: left !important;
+  max-width: 380px !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  padding: 8px 12px !important;
+}
+.missing-fields-trigger {
+  cursor: help;
+}
+
 // --- Floating, draggable OCR result window ---
 .ocr-result-dialog {
   z-index: 10010 !important;
