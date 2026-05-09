@@ -1687,41 +1687,155 @@ export class AddDevicesComponent implements OnDestroy {
   applySldExtraction(deviceIndex: number): void {
     const fx = this.sldExtractions[deviceIndex];
     if (!fx) return;
+    this.applyExtractionWithPrompt(deviceIndex, 'SLD', [
+      { name: 'capacity', field: fx.acCapacityKw },
+      { name: 'generatingUnitCount', field: fx.inverterCount },
+      { name: 'interconnectionVoltage', field: fx.gridVoltage },
+      { name: 'gridInterconnection', field: fx.gridTied, transform: (v) => (v ? 'true' : 'false') },
+      { name: 'dataSourceBrand', field: fx.inverterMakeModel },
+      { name: 'networkOwner', field: fx.networkOwner },
+      { name: 'hasNetworkMeter', field: fx.hasNetworkMeter, transform: (v) => (v ? 'Yes' : 'No') },
+      { name: 'gridExportType', field: fx.gridExportType },
+      { name: 'hasAuxiliaryEnergySources', field: fx.hasAuxiliaryEnergySources, transform: (v) => (v ? 'Yes' : 'No') },
+      { name: 'auxiliaryEnergySourceDetails', field: fx.auxiliaryEnergySourceDetails },
+    ], () => {
+      // SLD always describes inverter-side topology — if we read an
+      // inverter make/model or count, the data source is the inverter.
+      if (fx.inverterMakeModel || fx.inverterCount) {
+        this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
+      }
+    });
+  }
+
+  /**
+   * Generic apply-extraction helper. Splits candidates into
+   * fill-empty (silent) and conflict (existing value differs from
+   * extracted) buckets. Empties get patched immediately; conflicts
+   * pop a single confirmation dialog the user can resolve per-field
+   * (default = overwrite). Skips fields with confidence < 0.7.
+   *
+   * after() runs after the user's choice has landed, so callers can
+   * trigger derived effects (e.g. setDataSourceIfEmpty).
+   */
+  pendingOverwriteCandidates: Array<{
+    deviceIndex: number;
+    name: string;
+    label: string;
+    current: any;
+    next: any;
+    confidence: number;
+    selected: boolean;
+  }> = [];
+  pendingOverwriteSource = '';
+  pendingOverwriteAfter: (() => void) | null = null;
+  @ViewChild('overwriteConfirmDialog')
+  overwriteConfirmDialog?: TemplateRef<any>;
+  private overwriteDialogRef: MatDialogRef<any> | null = null;
+
+  private applyExtractionWithPrompt(
+    deviceIndex: number,
+    source: string,
+    candidates: Array<{
+      name: string;
+      field: { value: any; confidence: number } | undefined;
+      transform?: (v: any) => any;
+    }>,
+    after?: () => void,
+  ): void {
     const form = this.deviceForms.at(deviceIndex);
-    const patchIfEmpty = (
-      controlName: string,
-      field: { value: any; confidence: number } | undefined,
-      transform?: (v: any) => any,
-    ) => {
-      if (!field || field.confidence < 0.7) return;
-      const ctl = form.get(controlName);
-      if (!ctl) return;
-      const current = ctl.value;
-      if (current !== null && current !== undefined && current !== '') return;
-      const v = transform ? transform(field.value) : field.value;
-      ctl.setValue(v);
-      ctl.markAsDirty();
-    };
-    patchIfEmpty('capacity', fx.acCapacityKw);
-    patchIfEmpty('generatingUnitCount', fx.inverterCount);
-    patchIfEmpty('interconnectionVoltage', fx.gridVoltage);
-    patchIfEmpty(
-      'gridInterconnection',
-      fx.gridTied,
-      (v) => (v ? 'true' : 'false'),
-    );
-    patchIfEmpty('dataSourceBrand', fx.inverterMakeModel);
-    patchIfEmpty('networkOwner', fx.networkOwner);
-    patchIfEmpty('hasNetworkMeter', fx.hasNetworkMeter, (v) => (v ? 'Yes' : 'No'));
-    patchIfEmpty('gridExportType', fx.gridExportType);
-    patchIfEmpty('hasAuxiliaryEnergySources', fx.hasAuxiliaryEnergySources, (v) => (v ? 'Yes' : 'No'));
-    patchIfEmpty('auxiliaryEnergySourceDetails', fx.auxiliaryEnergySourceDetails);
-    // SLD always describes inverter-side topology — if we read an
-    // inverter make/model or count, the data source is the inverter.
-    if (fx.inverterMakeModel || fx.inverterCount) {
-      this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
+    let filled = 0;
+    const conflicts: typeof this.pendingOverwriteCandidates = [];
+    for (const c of candidates) {
+      if (!c.field || c.field.value == null || c.field.confidence < 0.7) continue;
+      const ctl = form.get(c.name);
+      if (!ctl) continue;
+      const next = c.transform ? c.transform(c.field.value) : c.field.value;
+      const cur = ctl.value;
+      const isEmpty =
+        cur === null ||
+        cur === undefined ||
+        cur === '' ||
+        (Array.isArray(cur) && cur.length === 0);
+      if (isEmpty) {
+        ctl.setValue(next);
+        ctl.markAsDirty();
+        filled++;
+        continue;
+      }
+      if (this.normalizeForCompare(cur) === this.normalizeForCompare(next)) {
+        // Same value — nothing to do.
+        continue;
+      }
+      conflicts.push({
+        deviceIndex,
+        name: c.name,
+        label:
+          AddDevicesComponent.FIELD_LABELS[c.name] ??
+          c.name.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase()),
+        current: cur,
+        next,
+        confidence: c.field.confidence,
+        selected: true,
+      });
     }
-    this.toastrService.success('SLD fields applied to the form');
+    if (conflicts.length === 0) {
+      after?.();
+      this.toastrService.success(
+        filled
+          ? `${source}: ${filled} field${filled === 1 ? '' : 's'} applied`
+          : `${source}: nothing new to apply`,
+      );
+      return;
+    }
+    this.pendingOverwriteCandidates = conflicts;
+    this.pendingOverwriteSource = source;
+    this.pendingOverwriteAfter = () => {
+      after?.();
+      this.toastrService.success(`${source} applied`);
+    };
+    this.overwriteDialogRef = this.dialog.open(this.overwriteConfirmDialog!, {
+      width: '640px',
+      maxWidth: '95vw',
+    });
+  }
+
+  applyOverwriteConfirmed(): void {
+    const form = this.deviceForms.at(0);
+    let applied = 0;
+    for (const c of this.pendingOverwriteCandidates) {
+      if (!c.selected) continue;
+      const ctl = form.get(c.name);
+      if (!ctl) continue;
+      ctl.setValue(c.next);
+      ctl.markAsDirty();
+      applied++;
+    }
+    this.pendingOverwriteAfter?.();
+    if (applied) {
+      this.toastrService.success(`Overwrote ${applied} field${applied === 1 ? '' : 's'}`);
+    }
+    this.pendingOverwriteCandidates = [];
+    this.pendingOverwriteSource = '';
+    this.pendingOverwriteAfter = null;
+    this.overwriteDialogRef?.close();
+    this.overwriteDialogRef = null;
+  }
+
+  cancelOverwrite(): void {
+    this.pendingOverwriteAfter?.();
+    this.pendingOverwriteCandidates = [];
+    this.pendingOverwriteSource = '';
+    this.pendingOverwriteAfter = null;
+    this.overwriteDialogRef?.close();
+    this.overwriteDialogRef = null;
+  }
+
+  private normalizeForCompare(v: any): string {
+    if (v === null || v === undefined) return '';
+    if (typeof v === 'number') return Number(v.toFixed(4)).toString();
+    if (typeof v === 'boolean') return String(v);
+    if (Array.isArray(v)) return v.map((x) => String(x).trim().toLowerCase()).sort().join('|');
+    return String(v).trim().toLowerCase();
   }
 
   /** Set `dataSource` to a specific enum value only if the form
@@ -1760,27 +1874,13 @@ export class AddDevicesComponent implements OnDestroy {
   applySf02cExtraction(deviceIndex: number): void {
     const fx = this.sf02cExtractions[deviceIndex];
     if (!fx) return;
-    const form = this.deviceForms.at(deviceIndex);
-    const patchIfEmpty = (
-      controlName: string,
-      field: { value: any; confidence: number } | undefined,
-      transform?: (v: any) => any,
-    ) => {
-      if (!field || field.confidence < 0.7) return;
-      const ctl = form.get(controlName);
-      if (!ctl) return;
-      const current = ctl.value;
-      if (current !== null && current !== undefined && current !== '') return;
-      const v = transform ? transform(field.value) : field.value;
-      ctl.setValue(v);
-      ctl.markAsDirty();
-    };
-    patchIfEmpty('siteName', fx.projectName);
-    patchIfEmpty('pvSystemOwner', fx.ownerLegalName);
-    patchIfEmpty('address', fx.ownerAddress);
-    patchIfEmpty('countryCodename', fx.ownerCountry);
-    patchIfEmpty('signatoryName', fx.signatoryName);
-    this.toastrService.success('SF-02c fields applied to the form');
+    this.applyExtractionWithPrompt(deviceIndex, 'SF-02c', [
+      { name: 'siteName', field: fx.projectName },
+      { name: 'pvSystemOwner', field: fx.ownerLegalName },
+      { name: 'address', field: fx.ownerAddress },
+      { name: 'countryCodename', field: fx.ownerCountry },
+      { name: 'signatoryName', field: fx.signatoryName },
+    ]);
   }
 
   dismissSf02cExtraction(deviceIndex: number): void {
@@ -1822,30 +1922,15 @@ export class AddDevicesComponent implements OnDestroy {
   applyCodExtraction(deviceIndex: number): void {
     const fx = this.codExtractions[deviceIndex];
     if (!fx) return;
-    const form = this.deviceForms.at(deviceIndex);
-    const patchIfEmpty = (
-      controlName: string,
-      field: { value: any; confidence: number } | undefined,
-    ) => {
-      if (!field || field.confidence < 0.7) return;
-      const ctl = form.get(controlName);
-      if (!ctl) return;
-      const current = ctl.value;
-      if (current !== null && current !== undefined && current !== '') return;
-      ctl.setValue(field.value);
-      ctl.markAsDirty();
-    };
-    patchIfEmpty('commissioningDate', fx.commissioningDate);
-    patchIfEmpty('siteName', fx.facilityName);
-    patchIfEmpty('capacity', fx.acCapacityKw);
-    patchIfEmpty('pvSystemOwner', fx.ownerName);
-    patchIfEmpty('countryCodename', fx.country);
-    // utilityOrIssuer is the COD signatory, NOT necessarily the DSO
-    // (EPC-led projects sign their own CODs — e.g. CrossBoundary
-    // Access). Don't auto-fill networkOwner from it; it still shows
-    // up as a candidate in the cross-doc conflict panel for the
-    // user to accept manually if appropriate.
-    this.toastrService.success('COD proof fields applied to the form');
+    // utilityOrIssuer not auto-mapped to networkOwner — see SF-02
+    // / SLD extractors for the dedicated DSO field.
+    this.applyExtractionWithPrompt(deviceIndex, 'COD', [
+      { name: 'commissioningDate', field: fx.commissioningDate },
+      { name: 'siteName', field: fx.facilityName },
+      { name: 'capacity', field: fx.acCapacityKw },
+      { name: 'pvSystemOwner', field: fx.ownerName },
+      { name: 'countryCodename', field: fx.country },
+    ]);
   }
 
   dismissCodExtraction(deviceIndex: number): void {
@@ -1873,34 +1958,23 @@ export class AddDevicesComponent implements OnDestroy {
   applySf02Extraction(deviceIndex: number): void {
     const fx = this.sf02Extractions[deviceIndex];
     if (!fx) return;
-    const form = this.deviceForms.at(deviceIndex);
-    const patchIfEmpty = (
-      controlName: string,
-      field: { value: any; confidence: number } | undefined,
-    ) => {
-      if (!field || field.confidence < 0.7) return;
-      const ctl = form.get(controlName);
-      if (!ctl) return;
-      const current = ctl.value;
-      if (current !== null && current !== undefined && current !== '') return;
-      ctl.setValue(field.value);
-      ctl.markAsDirty();
-    };
-    patchIfEmpty('siteName', fx.facilityName);
-    patchIfEmpty('capacity', fx.acCapacityKw);
-    patchIfEmpty('commissioningDate', fx.commissioningDate);
-    patchIfEmpty('deviceTypeCode', fx.deviceTypeCode);
-    patchIfEmpty('pvSystemOwner', fx.ownerLegalName);
-    patchIfEmpty('address', fx.ownerAddress);
-    patchIfEmpty('countryCodename', fx.ownerCountry);
-    patchIfEmpty('latitude', fx.latitude);
-    patchIfEmpty('longitude', fx.longitude);
-    patchIfEmpty('generatingUnitCount', fx.inverterCount);
-    patchIfEmpty('networkOwner', fx.networkOwner);
-    if (fx.inverterCount) {
-      this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
-    }
-    this.toastrService.success('SF-02 fields applied to the form');
+    this.applyExtractionWithPrompt(deviceIndex, 'SF-02', [
+      { name: 'siteName', field: fx.facilityName },
+      { name: 'capacity', field: fx.acCapacityKw },
+      { name: 'commissioningDate', field: fx.commissioningDate },
+      { name: 'deviceTypeCode', field: fx.deviceTypeCode },
+      { name: 'pvSystemOwner', field: fx.ownerLegalName },
+      { name: 'address', field: fx.ownerAddress },
+      { name: 'countryCodename', field: fx.ownerCountry },
+      { name: 'latitude', field: fx.latitude },
+      { name: 'longitude', field: fx.longitude },
+      { name: 'generatingUnitCount', field: fx.inverterCount },
+      { name: 'networkOwner', field: fx.networkOwner },
+    ], () => {
+      if (fx.inverterCount) {
+        this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
+      }
+    });
   }
 
   dismissSf02Extraction(deviceIndex: number): void {

@@ -868,6 +868,51 @@ input.example-right-align {
   overflow: hidden !important;
 }
 
+.overwrite-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.overwrite-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+  cursor: pointer;
+  &:hover { background: #eef2f7; }
+
+  input[type="checkbox"] {
+    margin-top: 4px;
+  }
+  &__body { flex: 1; min-width: 0; }
+  &__label {
+    font-weight: 600;
+    font-size: 12px;
+    color: #1e293b;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  &__conf {
+    color: #64748b;
+    font-weight: 400;
+    font-size: 11px;
+  }
+  &__values {
+    margin-top: 4px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  &__cur { color: #94a3b8; text-decoration: line-through; }
+  &__new { color: #0f607f; font-weight: 600; }
+}
+
 .serial-list {
   display: flex;
   flex-direction: column;

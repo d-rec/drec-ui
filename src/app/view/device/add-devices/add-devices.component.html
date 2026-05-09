@@ -1275,6 +1275,35 @@
   </div>
 </ng-template>
 
+<ng-template #overwriteConfirmDialog>
+  <h2 mat-dialog-title>{{ pendingOverwriteSource }} — Overwrite existing values?</h2>
+  <div mat-dialog-content style="max-height:60vh;overflow:auto;padding-bottom:8px">
+    <p class="text-muted small mb-2" style="font-size:12px">
+      These fields already have a value. Tick the ones you want to replace with the {{ pendingOverwriteSource }} extraction.
+    </p>
+    <div class="overwrite-list">
+      <label *ngFor="let c of pendingOverwriteCandidates" class="overwrite-row">
+        <input type="checkbox" [(ngModel)]="c.selected" [ngModelOptions]="{standalone:true}" />
+        <div class="overwrite-row__body">
+          <div class="overwrite-row__label">
+            {{ c.label }}
+            <span class="overwrite-row__conf">conf {{ (c.confidence * 100) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="overwrite-row__values">
+            <span class="overwrite-row__cur" title="Current value">{{ c.current }}</span>
+            <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">arrow_forward</mat-icon>
+            <span class="overwrite-row__new" title="Extracted value">{{ c.next }}</span>
+          </div>
+        </div>
+      </label>
+    </div>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-end gap-2 pt-2">
+    <button mat-button class="btn-default" (click)="cancelOverwrite()">Skip all</button>
+    <button mat-button class="btn-primary" (click)="applyOverwriteConfirmed()">Overwrite selected</button>
+  </div>
+</ng-template>
+
 <ng-template #ocrResultDialog>
   <div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container" class="ocr-result-window">
     <div cdkDragHandle class="ocr-result-window__title">
