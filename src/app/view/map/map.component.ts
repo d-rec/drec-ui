@@ -234,21 +234,19 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       this.map.on('zoom', () => this.repositionPin());
       this.map.on('moveend', () => this.repositionPin());
       this.map.on('zoomend', () => {
-        // The pin is CSS-anchored at viewport 50%/50%, which is
-        // also where leaflet's getCenter() reports after zoom. Push
-        // that coord up to the form so lat/lng always match the
-        // pin position (without this, +/- zoom drifted the displayed
-        // coords away from where the pin tip actually sits).
-        const c = this.map.getCenter();
-        this.pinLatLng = c;
-        this.centerPinMarker?.setLatLng(c);
+        // Pin is CSS-anchored at viewport 50%/50%. Force leaflet to
+        // re-center on the pre-zoom picked coord so the pin tip
+        // stays over the same geographic feature when the user
+        // zooms in / out (leaflet's +/- buttons sometimes drift
+        // the centre by a few pixels which translates to a noticeable
+        // geographic offset at high zoom levels).
+        if (this.pinLatLng) {
+          this.map.setView(this.pinLatLng, this.map.getZoom(), {
+            animate: false,
+          });
+        }
+        this.centerPinMarker?.setLatLng(this.pinLatLng!);
         this.repositionPin();
-        deferEmit(() =>
-          this.centerChanged.emit({
-            lat: +c.lat.toFixed(6),
-            lng: +c.lng.toFixed(6),
-          }),
-        );
       });
     }
 
