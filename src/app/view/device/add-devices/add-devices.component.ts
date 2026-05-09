@@ -3186,6 +3186,20 @@ export class AddDevicesComponent implements OnDestroy {
     this.explicitlyClearedFields[deviceIndex].add(name);
   }
 
+  /** Wire the "—" autocomplete option through clearCountry so the
+   *  explicit-clear marker fires (mat-autocomplete's default
+   *  optionSelected just setValues, bypassing our markCleared
+   *  bookkeeping → submitEdit drops the empty value and France
+   *  came back). */
+  onCountrySelected(
+    deviceIndex: number,
+    event: { option: { value: string } },
+  ): void {
+    if (event?.option?.value === '') {
+      this.clearCountry(deviceIndex);
+    }
+  }
+
   /** Clear the country autocomplete value. */
   clearCountry(deviceIndex: number): void {
     const ctl = this.deviceForms.at(deviceIndex).get('countryCodename');
