@@ -575,6 +575,13 @@ export class AddDevicesComponent implements OnDestroy {
               }
               this.existingDocs[0] = docsByType;
               this.autoSetMeterReadsShareable(0);
+              // Re-run extractors on every saved doc so
+              // sldExtractions[i] / codExtractions[i] / etc. are
+              // populated and the auto-regen provenance report can
+              // attribute each form field to its source. Cheap
+              // because ai_response_cache short-circuits the Haiku
+              // round-trip on a content-hash hit.
+              this.replayExtractorsOnExistingDocs(0, docsByType);
 
               // Probe each URL for 404s so the UI can flag broken links.
               this.brokenDocs[0] = {};
@@ -1582,6 +1589,61 @@ export class AddDevicesComponent implements OnDestroy {
         this.extractMeterIdsForDevice(f, deviceIndex);
       }
       this.autoSetMeterReadsShareable(deviceIndex);
+    }
+  }
+
+  /**
+   * Replay the appropriate extractor against every server-saved doc
+   * so the in-memory extraction state is populated for provenance
+   * generation. Each doc's content hash is the cache key — repeats
+   * are O(1) lookups on the API side.
+   */
+  private replayExtractorsOnExistingDocs(
+    deviceIndex: number,
+    docsByType: { [type: string]: Array<{ id: number; name: string }> },
+  ): void {
+    const fetchAsFile = async (
+      docId: number,
+      filename: string,
+    ): Promise<File> => {
+      const resp = await fetch(
+        `${environment.API_URL}document-uploads/${docId}/url`,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem('access-token') ?? ''}`,
+          },
+        },
+      );
+      const blob = await resp.blob();
+      return new File([blob], filename, { type: blob.type });
+    };
+    const oneOf = async (
+      type: string,
+      run: (file: File) => void,
+    ): Promise<void> => {
+      const docs = docsByType[type];
+      if (!docs?.length) return;
+      const file = await fetchAsFile(docs[0].id, docs[0].name);
+      run(file);
+    };
+    void oneOf(DocumentType.SINGLE_LINE_DIAGRAM, (f) =>
+      this.extractSldFieldsForDevice(f, deviceIndex),
+    );
+    void oneOf(DocumentType.SF_02C, (f) =>
+      this.extractSf02cFieldsForDevice(f, deviceIndex),
+    );
+    void oneOf(DocumentType.COD_PROOF, (f) =>
+      this.extractCodFieldsForDevice(f, deviceIndex),
+    );
+    void oneOf(DocumentType.FORM_SF_02, (f) =>
+      this.extractSf02FieldsForDevice(f, deviceIndex),
+    );
+    // Metering evidence: one extraction per file.
+    const meterDocs = docsByType[DocumentType.METERING_EVIDENCE] ?? [];
+    for (const d of meterDocs) {
+      void fetchAsFile(d.id, d.name).then((f) =>
+        this.extractMeterIdsForDevice(f, deviceIndex),
+      );
     }
   }
 
