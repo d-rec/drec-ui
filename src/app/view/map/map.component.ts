@@ -409,9 +409,9 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       html: svg,
       className: '',
       iconSize: [24, 36],
-      // Anchor at the SVG circle (12, 12) so the round head of the
-      // pin sits visually on the picked coord (= viewport centre).
-      iconAnchor: [12, 12],
+      // Standard map convention: tip (12, 36) marks the exact coord;
+      // body floats above. Crosshair sits at the tip.
+      iconAnchor: [12, 36],
     });
     this.centerPinMarker = L.marker(pos, {
       icon,
