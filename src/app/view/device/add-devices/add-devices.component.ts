@@ -2705,16 +2705,19 @@ export class AddDevicesComponent implements OnDestroy {
         if (!docs.length) {
           return `<li>${escape(name)}: <em style="color:#94a3b8">none</em></li>`;
         }
-        const links = docs
-          .map(
-            (d: any) =>
-              `<a href="${apiBase}/document-uploads/${d.id}/url" target="_blank" rel="noopener" style="color:#0f607f">${escape(d.label || d.name)} ↗</a>`,
-          )
-          .join(', ');
-        // Only show count for categories with >1 doc — "(1)" beside
-        // every single-file category was visual noise.
-        const countSuffix = docs.length > 1 ? ` (${docs.length})` : '';
-        return `<li>${escape(name)}${countSuffix}: ${links}</li>`;
+        // Multi-doc categories (Metering Evidence, Project Photos)
+        // get their links rendered as a stacked sub-list rather than
+        // a comma-soup that wraps over many rows. Single-doc
+        // categories stay inline.
+        const linkHtml = (d: any): string =>
+          `<a href="${apiBase}/document-uploads/${d.id}/url" target="_blank" rel="noopener" style="color:#0f607f">${escape(d.label || d.name)} ↗</a>`;
+        if (docs.length > 1) {
+          const rows = docs
+            .map((d: any) => `<li>${linkHtml(d)}</li>`)
+            .join('');
+          return `<li>${escape(name)} (${docs.length}):<ul style="margin:4px 0 0 18px;padding:0">${rows}</ul></li>`;
+        }
+        return `<li>${escape(name)}: ${linkHtml(docs[0])}</li>`;
       })
       .join('');
 
