@@ -253,6 +253,14 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       // Region select on map click (canvas stays pointer-events:none so
       // map drag works for centre-pin adjustment).
       this.map.on('click', (e: L.LeafletMouseEvent) => this.handleMapClick(e));
+
+      // Cursor feedback over detected-panel regions. The overlay
+      // canvas can't receive mouse events (pointer-events:none keeps
+      // Leaflet panning alive), so hit-test from Leaflet's mousemove
+      // and toggle the container cursor.
+      this.map.on('mousemove', (e: L.LeafletMouseEvent) =>
+        this.handleMapMouseMove(e),
+      );
     }
 
     this.update();
@@ -841,6 +849,39 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       this.deleteBtn = null;
       this.redrawDetections();
     }
+  }
+
+  /** Set the leaflet-container cursor to pointer when the mouse is
+   *  over a detected panel mask (or its delete ×), grab otherwise.
+   *  Called via Leaflet's 'mousemove' so it fires even though the
+   *  overlay canvas itself has pointer-events:none. */
+  private handleMapMouseMove(event: L.LeafletMouseEvent): void {
+    const container = this.map.getContainer();
+    if (!this.predictions.length || this.drawMode) {
+      // Let leaflet manage its own cursor in these cases.
+      if (container.style.cursor === 'pointer') container.style.cursor = '';
+      return;
+    }
+    const canvas = this.overlayCanvas?.nativeElement;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const cssToCanvasX = canvas.width / rect.width;
+    const cssToCanvasY = canvas.height / rect.height;
+    const x = event.containerPoint.x * cssToCanvasX;
+    const y = event.containerPoint.y * cssToCanvasY;
+
+    if (this.deleteBtn) {
+      const dx = x - this.deleteBtn.x;
+      const dy = y - this.deleteBtn.y;
+      if (dx * dx + dy * dy <= this.deleteBtn.r * this.deleteBtn.r) {
+        container.style.cursor = 'pointer';
+        return;
+      }
+    }
+    const hit = this.predictions.some((p: any) =>
+      this.regionHitTest(p, x, y),
+    );
+    container.style.cursor = hit ? 'pointer' : '';
   }
 
   onRegionHover(event: MouseEvent): void {
