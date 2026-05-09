@@ -12,6 +12,20 @@
 
   &--error { color: #b91c1c; }
 }
+.ep__age {
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #166534;
+  background: #f0fdf4;
+  border-bottom: 1px solid #d1fae5;
+
+  &--stale {
+    color: #854d0e;
+    background: #fefce8;
+    border-bottom-color: #fde68a;
+  }
+}
+.ep__age-iso { color: #94a3b8; font-size: 11px; }
 .ep__iframe {
   width: 100%;
   flex: 1 1 auto;

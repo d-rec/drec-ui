@@ -36,6 +36,8 @@ export class EvidenceProvenanceWindowComponent implements OnInit, OnDestroy {
   reportUrl: SafeUrl | null = null;
   deviceId: number | null = null;
   siteName: string | null = null;
+  reportGeneratedAt: string | null = null;
+  reportAgeMinutes: number | null = null;
   private objectUrl: string | null = null;
   private sub: Subscription | null = null;
 
@@ -78,6 +80,26 @@ export class EvidenceProvenanceWindowComponent implements OnInit, OnDestroy {
     this.error = null;
     this.loading = false;
     this.siteName = null;
+    this.reportGeneratedAt = null;
+    this.reportAgeMinutes = null;
+  }
+
+  /** Human-readable "5 minutes ago" / "3 hours ago" / "yesterday" so
+   *  reviewer sees stale reports at a glance. */
+  ageLabel(): string {
+    if (this.reportAgeMinutes == null) return '';
+    const m = this.reportAgeMinutes;
+    if (m < 1) return 'just now';
+    if (m < 60) return `${m} minute${m === 1 ? '' : 's'} ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h} hour${h === 1 ? '' : 's'} ago`;
+    const d = Math.floor(h / 24);
+    return `${d} day${d === 1 ? '' : 's'} ago`;
+  }
+
+  isStale(): boolean {
+    // > 24 h is stale-ish; reviewer should re-ping the registrant.
+    return (this.reportAgeMinutes ?? 0) > 24 * 60;
   }
 
   close(): void {
@@ -110,6 +132,13 @@ export class EvidenceProvenanceWindowComponent implements OnInit, OnDestroy {
             return;
           }
           const latest = [...provs].sort((a, b) => b.id - a.id)[0];
+          this.reportGeneratedAt = (latest as any).createdAt ?? null;
+          if (this.reportGeneratedAt) {
+            const ageMs = Date.now() - new Date(this.reportGeneratedAt).getTime();
+            this.reportAgeMinutes = Math.floor(ageMs / 60000);
+          } else {
+            this.reportAgeMinutes = null;
+          }
           this.http
             .get(
               `${environment.API_URL}document-uploads/${latest.id}/url`,

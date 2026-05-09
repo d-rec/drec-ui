@@ -4287,6 +4287,10 @@ export class AddDevicesComponent implements OnDestroy {
           const siteLabel =
             data?.siteName || this.initSiteName || this.editingExternalId;
           this.toastrService.success(`site "${siteLabel}" updated`);
+          // Auto-regenerate the EVIDENCE_PROVENANCE report so reviewers
+          // always see provenance reflecting the just-saved state.
+          // Fire-and-forget; failures don't block submit/navigation.
+          this.generateProvenanceReport(0);
           if (shouldRegenerateSf02) {
             // Regenerate the SF-02 from the now-updated device data,
             // then navigate. Failure to regenerate is non-fatal — the

@@ -14,6 +14,11 @@
         ("Generate evidence provenance" button).
       </div>
       <div *ngIf="error" class="ep__msg ep__msg--error">{{ error }}</div>
+      <div *ngIf="hasReport && reportGeneratedAt" class="ep__age"
+        [class.ep__age--stale]="isStale()">
+        Generated {{ ageLabel() }} <span class="ep__age-iso">({{ reportGeneratedAt | date:'dd/MM/yyyy HH:mm' }})</span>
+        <span *ngIf="isStale()"> — registrant has updated since; ask them to re-generate.</span>
+      </div>
       <iframe *ngIf="hasReport && reportUrl" [src]="reportUrl"
         class="ep__iframe"></iframe>
     </div>
