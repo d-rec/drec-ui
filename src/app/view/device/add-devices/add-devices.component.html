@@ -121,10 +121,15 @@
                       <button *ngIf="deviceForms.at(i).get('countryCodename')?.value"
                         type="button" matSuffix mat-icon-button
                         aria-label="Clear country"
-                        (click)="clearCountry(i); countryInput.focus()">
+                        (mousedown)="$event.preventDefault(); $event.stopPropagation()"
+                        (click)="$event.stopPropagation(); clearCountry(i)">
                         <mat-icon>close</mat-icon>
                       </button>
                       <mat-autocomplete #auto="matAutocomplete">
+                        <mat-option [value]="''" class="country-clear-option"
+                          *ngIf="deviceForms.at(i).get('countryCodename')?.value">
+                          —
+                        </mat-option>
                         <mat-option *ngFor="let code of filteredCountryList[i] | async" [value]="code.country"
                           test-id="country-options">
                           {{ code.country }}
