@@ -391,13 +391,23 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     // otherwise the pin briefly shows at the leaflet default centre
     // (Sahara) before update() / recenter() lands real coords.
     if (!latLng) return;
-    const icon = mapPinIcon();
-    // Override iconAnchor so the SVG's geometric centre (12, 18)
-    // sits on the latLng, not the tip (12, 36). For the centerPin
-    // use case the picked coord IS the viewport centre and we want
-    // the round body of the pin to read as "at the centre" rather
-    // than the tip with the body floating above.
-    (icon.options as any).iconAnchor = [12, 18];
+    // Build a centerPin icon from scratch with the geometric-centre
+    // anchor — mutating icon.options.iconAnchor after divIcon() is
+    // unreliable in some Leaflet versions, so construct fresh.
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36">
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 8.25 12 24 12 24S24 20.25 24 12C24 5.373 18.627 0 12 0z"
+              fill="#e53e3e" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="12" cy="12" r="5" fill="#fff" fill-opacity="0.85"/>
+      </svg>`;
+    const icon = L.divIcon({
+      html: svg,
+      className: '',
+      iconSize: [24, 36],
+      // Anchor at the SVG circle (12, 12) so the round head of the
+      // pin sits visually on the picked coord (= viewport centre).
+      iconAnchor: [12, 12],
+    });
     this.centerPinMarker = L.marker(pos, {
       icon,
       interactive: false,
