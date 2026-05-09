@@ -842,10 +842,7 @@
                   </div>
 
                   <div class="col-md-4 mb-3">
-                    <label>Form SF-02 - Production Facility Registration
-                      <span *ngIf="deviceForms.at(i).get('sf02EvidenceMode')?.value === 'upload'"
-                        class="badge-{{getDocRequirement('FORM_SF_02')}}">{{getDocRequirement('FORM_SF_02')}}</span>
-                    </label>
+                    <label>Form SF-02 - Production Facility Registration</label>
                     <mat-radio-group formControlName="sf02EvidenceMode" style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px">
                       <mat-radio-button value="self">Self-declaration (we generate it)</mat-radio-button>
                       <mat-radio-button value="upload">Upload your own SF-02</mat-radio-button>
@@ -921,7 +918,6 @@
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="(files[i]?.['PROJECT_PHOTOS']?.length || 0) < 3">
                     <label title="Please provide at least three photos that show the entire installation plus enough surrounding topography to match with a satellite image.">(43) Site Photos (min. 3)
-                      <span class="badge-{{getDocRequirement('PROJECT_PHOTOS')}}">{{getDocRequirement('PROJECT_PHOTOS')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('PROJECT_PHOTOS')">{{getDocHint('PROJECT_PHOTOS')}}</small>
                     <div class="d-flex justify-content-between align-items-center doc-box">
@@ -960,7 +956,6 @@
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SINGLE_LINE_DIAGRAM') === 'required' && !hasDocFor(i, 'SINGLE_LINE_DIAGRAM')">
                     <label>(45) Single Line Diagram
-                      <span class="badge-{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}">{{getDocRequirement('SINGLE_LINE_DIAGRAM')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('SINGLE_LINE_DIAGRAM')">{{getDocHint('SINGLE_LINE_DIAGRAM')}}</small>
                     <div class="d-flex justify-content-between align-items-center doc-box">
@@ -1014,7 +1009,6 @@
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('SF_02C') === 'required' && !hasDocFor(i, 'SF_02C')">
                     <label title="Please provide a signed copy of the attached template on your organization's letterhead. It must match this format, language, and site details exactly, and must include contact information for the person signing.">(46) SF-02c (Owner's Declaration letter)
-                      <span class="badge-{{getDocRequirement('SF_02C')}}">{{getDocRequirement('SF_02C')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('SF_02C')">{{getDocHint('SF_02C')}}</small>
                     <div class="d-flex justify-content-between align-items-center doc-box">
@@ -1065,7 +1059,6 @@
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('PROOF_OF_OWNERSHIP') === 'required' && !hasDocFor(i, 'PROOF_OF_OWNERSHIP')">
                     <label title="Please provide a copy of the contract with the PV system owner such as a PPA or lease agreement that clarifies who owns the facility and who has the legal right to trade the environmental attributes.">(47) Proof of Ownership
-                      <span class="badge-{{getDocRequirement('PROOF_OF_OWNERSHIP')}}">{{getDocRequirement('PROOF_OF_OWNERSHIP')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('PROOF_OF_OWNERSHIP')">{{getDocHint('PROOF_OF_OWNERSHIP')}}</small>
                     <div class="d-flex justify-content-between align-items-center doc-box">
@@ -1095,7 +1088,6 @@
 
                   <div class="col-md-4 mb-3">
                     <label title="Please provide an official document (such as a handover letter to the offtaker or a commissioning certificate from the utility) that confirms the commissioning date">(48) COD Proof
-                      <span class="badge-{{getDocRequirement('COD_PROOF')}}">{{getDocRequirement('COD_PROOF')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('COD_PROOF')">{{getDocHint('COD_PROOF')}}</small>
                     <div class="d-flex justify-content-between align-items-center doc-box">
@@ -1144,7 +1136,6 @@
 
                   <div class="col-md-4 mb-3" [class.doc-missing-required]="getDocRequirement('METERING_EVIDENCE') === 'required' && !hasDocFor(i, 'METERING_EVIDENCE')">
                     <label title="Please provide a sample of the metering evidence you will rely on for I-REC issuance (e.g. RMS screenshots, Excel spreadsheets)">(49) Metering Evidence
-                      <span class="badge-{{getDocRequirement('METERING_EVIDENCE')}}">{{getDocRequirement('METERING_EVIDENCE')}}</span>
                     </label>
                     <small class="doc-hint" *ngIf="getDocHint('METERING_EVIDENCE')">{{getDocHint('METERING_EVIDENCE')}}</small>
                     <div class="d-flex justify-content-between align-items-center doc-box">
