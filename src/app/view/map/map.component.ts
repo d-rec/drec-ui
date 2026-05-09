@@ -401,24 +401,27 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
 
   update(): void {
     if (this.centerPin) {
-      // Only set view once for initial positioning — after that the user controls the map
       this.markerGroup.clearLayers();
-      if (!this.centerPinInitialized && this.markers?.length) {
-        const m = this.markers[0];
-        if (!isNaN(m.latitude) && !isNaN(m.longitude)) {
-          this.map.setView([m.latitude, m.longitude], this.zoom, {
-            animate: false,
-          });
-          this.ensureCenterPin([m.latitude, m.longitude]);
-          this.centerPinMarker?.setLatLng([m.latitude, m.longitude]);
-          // Re-anchor the HTML pin to the recentered location so it's
-          // visible immediately on page load, not only after the user
-          // pans (whose drag handler also writes pinLatLng).
-          this.pinLatLng = L.latLng(m.latitude, m.longitude);
-          this.repositionPin();
-          this.centerPinInitialized = true;
-        }
+      // Only set view once for initial positioning — after that the
+      // user controls the map. The "once" only counts when we
+      // actually have valid coords; an empty / NaN markers[] on the
+      // first ngOnChanges otherwise locks us at leaflet's default
+      // (Sahara) and the real coords arriving later get ignored.
+      if (this.centerPinInitialized || !this.markers?.length) return;
+      const m = this.markers[0];
+      const lat = Number(m.latitude);
+      const lng = Number(m.longitude);
+      if (!isFinite(lat) || !isFinite(lng) || (lat === 0 && lng === 0)) {
+        // Treat (0,0) as "no real coord yet" — Null Island isn't a
+        // legitimate D-REC site location.
+        return;
       }
+      this.map.setView([lat, lng], this.zoom, { animate: false });
+      this.ensureCenterPin([lat, lng]);
+      this.centerPinMarker?.setLatLng([lat, lng]);
+      this.pinLatLng = L.latLng(lat, lng);
+      this.repositionPin();
+      this.centerPinInitialized = true;
       return;
     }
     this.addMarkers();
