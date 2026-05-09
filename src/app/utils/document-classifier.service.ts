@@ -64,6 +64,7 @@ export interface Sf02cExtractedFields {
 export interface SldExtractedFields {
   networkOwner?: ExtractedField<string>;
   hasNetworkMeter?: ExtractedField<boolean>;
+  gridExportType?: ExtractedField<string>;
   acCapacityKw?: ExtractedField<number>;
   dcCapacityKwp?: ExtractedField<number>;
   inverterCount?: ExtractedField<number>;

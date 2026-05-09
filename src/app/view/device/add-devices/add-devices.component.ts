@@ -1532,6 +1532,7 @@ export class AddDevicesComponent implements OnDestroy {
     patchIfEmpty('dataSourceBrand', fx.inverterMakeModel);
     patchIfEmpty('networkOwner', fx.networkOwner);
     patchIfEmpty('hasNetworkMeter', fx.hasNetworkMeter, (v) => (v ? 'Yes' : 'No'));
+    patchIfEmpty('gridExportType', fx.gridExportType);
     // SLD always describes inverter-side topology — if we read an
     // inverter make/model or count, the data source is the inverter.
     if (fx.inverterMakeModel || fx.inverterCount) {
@@ -1891,6 +1892,7 @@ export class AddDevicesComponent implements OnDestroy {
       add('hasNetworkMeter', 'SLD', sld.hasNetworkMeter, (v) =>
         v ? 'Yes' : 'No',
       );
+      add('gridExportType', 'SLD', sld.gridExportType);
     }
     const sf02c = this.sf02cExtractions[deviceIndex];
     if (sf02c) {
