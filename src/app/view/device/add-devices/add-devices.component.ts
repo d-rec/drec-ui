@@ -1030,6 +1030,9 @@ export class AddDevicesComponent implements OnDestroy {
           // tracked geocoder fields get cleared this way.
           this.setCoordDerivedField(deviceGroup, 'stateProvince', stateLike);
           this.setCoordDerivedField(deviceGroup, 'postcode', a.postcode ?? null);
+          // The geocoder also writes countryCodename — record it
+          // separately so the provenance picks up "Geocoder (lat/lng)"
+          // even when only the country was filled.
           // Country: geocoder beats extractor when they disagree.
           // Coords are unambiguous; certificate addresses sometimes
           // refer to a head office in another country (e.g. an EPC's
@@ -1046,6 +1049,12 @@ export class AddDevicesComponent implements OnDestroy {
             ) {
               ctl.setValue(c);
               ctl.markAsDirty();
+              this.recordInference(
+                idx,
+                'countryCodename',
+                'Geocoder (lat/lng)',
+                c,
+              );
             }
           }
         },
@@ -1081,6 +1090,10 @@ export class AddDevicesComponent implements OnDestroy {
       }
       ours.add(name);
       this.coordDerivedDirty.set(deviceGroup, ours);
+      const idx = this.deviceForms.controls.indexOf(deviceGroup);
+      if (next) {
+        this.recordInference(idx, name, 'Geocoder (lat/lng)', next);
+      }
     }
   }
 
@@ -1090,12 +1103,14 @@ export class AddDevicesComponent implements OnDestroy {
    * choice survives. Vocabulary matches the devicedescription enum.
    */
   private setupImpactStoryWatcher(deviceGroup: FormGroup): void {
+    const idx = this.deviceForms.controls.indexOf(deviceGroup);
     const apply = (text: string | null | undefined) => {
       const setIfEmpty = (name: string, val: any) => {
         const ctl = deviceGroup.get(name);
         if (!ctl || ctl.value || val == null) return;
         ctl.setValue(val);
         ctl.markAsDirty();
+        this.recordInference(idx, name, 'Impact story', val);
       };
       setIfEmpty('deviceDescription', this.inferDeviceDescription(text));
       setIfEmpty('offTaker', this.inferOffTaker(text));
@@ -1112,6 +1127,7 @@ export class AddDevicesComponent implements OnDestroy {
         if (inferred.length) {
           sdgCtl.setValue(inferred);
           sdgCtl.markAsDirty();
+          this.recordInference(idx, 'SDGBenefits', 'Impact story', inferred);
         }
       }
     };
@@ -1670,6 +1686,12 @@ export class AddDevicesComponent implements OnDestroy {
     if (!staged && !existing) return;
     ctl.setValue('Yes');
     ctl.markAsDirty();
+    this.recordInference(
+      deviceIndex,
+      'meterReadsShareable',
+      'Metering-evidence files attached',
+      'Yes',
+    );
   }
 
   /** Magic auto-sort: classify multiple files and dispatch them to slots. */
@@ -2508,6 +2530,17 @@ export class AddDevicesComponent implements OnDestroy {
       add('longitude', 'SF-02', sf02.longitude);
       add('generatingUnitCount', 'SF-02', sf02.inverterCount);
       add('networkOwner', 'SF-02', sf02.networkOwner);
+    }
+    // Synthetic-source claims from the inference helpers (geocoder,
+    // impact-story keyword scan, metering-evidence presence rule).
+    // These aren't doc-extractors but they're real provenance and
+    // would otherwise be reported as "MANUAL".
+    const inferences = this.inferenceClaims[deviceIndex] ?? {};
+    for (const [field, list] of Object.entries(inferences)) {
+      for (const c of list) {
+        if (!claims[field]) claims[field] = [];
+        claims[field].push(c);
+      }
     }
     // Inject the form's current value as a "Current" claim for any
     // field a doc weighed in on. Triggers the conflict block when
@@ -4004,6 +4037,52 @@ export class AddDevicesComponent implements OnDestroy {
     const cb = this.pendingFormVsDocCallback;
     this.pendingFormVsDocCallback = null;
     cb?.(false);
+  }
+
+  /**
+   * Per-device, per-field log of "synthetic source" events — values
+   * written by inference helpers that aren't doc-extractors but
+   * still represent provenance worth surfacing in the report
+   * (geocoder, impactStory keyword scan, metering-evidence presence
+   * rule). collectExtractionClaims merges these into the regular
+   * extractor claims so the per-field provenance table shows
+   * "Geocoder (lat/lng)" / "Impact story" instead of "MANUAL".
+   */
+  private inferenceClaims: {
+    [deviceIndex: number]: {
+      [field: string]: Array<{
+        source: string;
+        value: any;
+        confidence: number;
+      }>;
+    };
+  } = {};
+
+  private recordInference(
+    deviceIndex: number,
+    field: string,
+    source: string,
+    value: any,
+    confidence = 0.95,
+  ): void {
+    if (value == null || value === '') return;
+    if (!this.inferenceClaims[deviceIndex]) {
+      this.inferenceClaims[deviceIndex] = {};
+    }
+    if (!this.inferenceClaims[deviceIndex][field]) {
+      this.inferenceClaims[deviceIndex][field] = [];
+    }
+    // Replace any prior claim from the same source — re-runs of the
+    // inference (e.g. coords changed → new geocode) shouldn't pile
+    // up duplicates.
+    this.inferenceClaims[deviceIndex][field] = this.inferenceClaims[
+      deviceIndex
+    ][field].filter((c) => c.source !== source);
+    this.inferenceClaims[deviceIndex][field].push({
+      source,
+      value,
+      confidence,
+    });
   }
 
   /** Per-device set of fields the user explicitly cleared. submitEdit
