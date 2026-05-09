@@ -924,21 +924,18 @@ export class AddDevicesComponent implements OnDestroy {
    */
   private setupImpactStoryWatcher(deviceGroup: FormGroup): void {
     const apply = (text: string | null | undefined) => {
-      const dd = deviceGroup.get('deviceDescription');
-      if (dd && !dd.value) {
-        const inferred = this.inferDeviceDescription(text);
-        if (inferred) {
-          dd.setValue(inferred);
-          dd.markAsDirty();
-        }
-      }
-      const ot = deviceGroup.get('offTaker');
-      if (ot && !ot.value) {
-        const inferred = this.inferOffTaker(text);
-        if (inferred) {
-          ot.setValue(inferred);
-          ot.markAsDirty();
-        }
+      const setIfEmpty = (name: string, val: any) => {
+        const ctl = deviceGroup.get(name);
+        if (!ctl || ctl.value || val == null) return;
+        ctl.setValue(val);
+        ctl.markAsDirty();
+      };
+      setIfEmpty('deviceDescription', this.inferDeviceDescription(text));
+      setIfEmpty('offTaker', this.inferOffTaker(text));
+      const funding = this.inferFundingFlags(text);
+      if (funding) {
+        setIfEmpty('hasPublicFunding', funding.publicFunding);
+        setIfEmpty('hasSubsidy', funding.subsidy);
       }
     };
     // Run on initial value (covers edit-mode hydration) and on changes.
@@ -960,6 +957,43 @@ export class AddDevicesComponent implements OnDestroy {
    * Vocabulary mirrors the offtaker enum so the value drops straight
    * into the dropdown.
    */
+  /**
+   * Detect explicit mentions of public funding / subsidy in the
+   * impact story. Conservative — only fires "Yes" when the text
+   * explicitly names a programme/subsidy. Doesn't set "No" because
+   * absence of evidence isn't evidence of absence.
+   */
+  private inferFundingFlags(
+    text: string | null | undefined,
+  ): { publicFunding: 'Yes' | null; subsidy: 'Yes' | null } | null {
+    if (!text) return null;
+    const t = text.toLowerCase();
+    const publicSignals = [
+      // Multilateral / DFI funders
+      /\b(world\s*bank|ifc\b|afdb|adb\b|eib\b|undp|usaid|gef\b|green\s*climate\s*fund|gcf\b)/,
+      // Bilaterals
+      /\b(dfid|fcdo|giz\b|kfw|sida|norad|aecid|jica|gpe\b)/,
+      // EU / national grants
+      /\b(eu[-\s]funded|european\s*union\s*funded|horizon\s*europe|nepa\b|nigeria\s*electrification\s*project)/,
+      // Generic
+      /\bgrant[-\s]?funded\b|\bgovernment\s*grant\b|\bpublic\s*funding\b|\bgrant\s*from\b/,
+    ];
+    const subsidySignals = [
+      /\bsubsid(y|ies|ised|ized)\b/,
+      /\btariff\s*support\b/,
+      /\bresult[-\s]based\s*financing\b|\brbf\b/,
+      /\bfeed[-\s]in\s*tariff\b/,
+      /\bcapex\s*grant\b|\bcapital\s*subsidy\b/,
+    ];
+    const hasPub = publicSignals.some((re) => re.test(t));
+    const hasSub = subsidySignals.some((re) => re.test(t));
+    if (!hasPub && !hasSub) return null;
+    return {
+      publicFunding: hasPub ? 'Yes' : null,
+      subsidy: hasSub ? 'Yes' : null,
+    };
+  }
+
   private inferOffTaker(text: string | null | undefined): string | null {
     if (!text) return null;
     const t = text.toLowerCase();
@@ -1590,6 +1624,8 @@ export class AddDevicesComponent implements OnDestroy {
     patchIfEmpty('networkOwner', fx.networkOwner);
     patchIfEmpty('hasNetworkMeter', fx.hasNetworkMeter, (v) => (v ? 'Yes' : 'No'));
     patchIfEmpty('gridExportType', fx.gridExportType);
+    patchIfEmpty('hasAuxiliaryEnergySources', fx.hasAuxiliaryEnergySources, (v) => (v ? 'Yes' : 'No'));
+    patchIfEmpty('auxiliaryEnergySourceDetails', fx.auxiliaryEnergySourceDetails);
     // SLD always describes inverter-side topology — if we read an
     // inverter make/model or count, the data source is the inverter.
     if (fx.inverterMakeModel || fx.inverterCount) {
@@ -1653,6 +1689,7 @@ export class AddDevicesComponent implements OnDestroy {
     patchIfEmpty('pvSystemOwner', fx.ownerLegalName);
     patchIfEmpty('address', fx.ownerAddress);
     patchIfEmpty('countryCodename', fx.ownerCountry);
+    patchIfEmpty('signatoryName', fx.signatoryName);
     this.toastrService.success('SF-02c fields applied to the form');
   }
 
@@ -1950,6 +1987,10 @@ export class AddDevicesComponent implements OnDestroy {
         v ? 'Yes' : 'No',
       );
       add('gridExportType', 'SLD', sld.gridExportType);
+      add('hasAuxiliaryEnergySources', 'SLD', sld.hasAuxiliaryEnergySources, (v) =>
+        v ? 'Yes' : 'No',
+      );
+      add('auxiliaryEnergySourceDetails', 'SLD', sld.auxiliaryEnergySourceDetails);
     }
     const sf02c = this.sf02cExtractions[deviceIndex];
     if (sf02c) {
