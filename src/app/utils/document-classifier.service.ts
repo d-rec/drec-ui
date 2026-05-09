@@ -46,6 +46,7 @@ export interface Sf02ExtractedFields {
   longitude?: ExtractedField<number>;
   inverterCount?: ExtractedField<number>;
   moduleCount?: ExtractedField<number>;
+  networkOwner?: ExtractedField<string>;
   reasoning: string;
 }
 

@@ -1613,10 +1613,11 @@ export class AddDevicesComponent implements OnDestroy {
     patchIfEmpty('siteName', fx.facilityName);
     patchIfEmpty('capacity', fx.acCapacityKw);
     patchIfEmpty('pvSystemOwner', fx.ownerName);
-    // The COD letter is typically signed by the DSO / network owner —
-    // map it through. If an EPC issues the COD instead, the user can
-    // overwrite (we only patch when the field is empty).
-    patchIfEmpty('networkOwner', fx.utilityOrIssuer);
+    // utilityOrIssuer is the COD signatory, NOT necessarily the DSO
+    // (EPC-led projects sign their own CODs — e.g. CrossBoundary
+    // Access). Don't auto-fill networkOwner from it; it still shows
+    // up as a candidate in the cross-doc conflict panel for the
+    // user to accept manually if appropriate.
     this.toastrService.success('COD proof fields applied to the form');
   }
 
@@ -1668,6 +1669,7 @@ export class AddDevicesComponent implements OnDestroy {
     patchIfEmpty('latitude', fx.latitude);
     patchIfEmpty('longitude', fx.longitude);
     patchIfEmpty('generatingUnitCount', fx.inverterCount);
+    patchIfEmpty('networkOwner', fx.networkOwner);
     if (fx.inverterCount) {
       this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
     }
@@ -1858,7 +1860,9 @@ export class AddDevicesComponent implements OnDestroy {
       add('siteName', 'COD', cod.facilityName);
       add('capacity', 'COD', cod.acCapacityKw);
       add('pvSystemOwner', 'COD', cod.ownerName);
-      add('networkOwner', 'COD', cod.utilityOrIssuer);
+      // utilityOrIssuer dropped from networkOwner candidates — it's
+      // the COD signatory (often the EPC), not the DSO. The
+      // dedicated networkOwner field on SF-02 is the reliable source.
     }
     const sf02 = this.sf02Extractions[deviceIndex];
     if (sf02) {
@@ -1872,6 +1876,7 @@ export class AddDevicesComponent implements OnDestroy {
       add('latitude', 'SF-02', sf02.latitude);
       add('longitude', 'SF-02', sf02.longitude);
       add('generatingUnitCount', 'SF-02', sf02.inverterCount);
+      add('networkOwner', 'SF-02', sf02.networkOwner);
     }
     return claims;
   }
