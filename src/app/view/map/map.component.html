@@ -15,11 +15,7 @@
     -->
     <!-- Centre pin is rendered as a real Leaflet marker — leaflet
          handles the projection so the pin tip stays glued to its
-         lat/lng through pan/zoom/invalidateSize. Crosshair below is
-         a debug aid: a CSS-anchored target at viewport 50%/50%, so
-         the user can see whether the leaflet marker's actual
-         position lines up with the geometric centre. -->
-    <div *ngIf="centerPin" class="center-crosshair" aria-hidden="true"></div>
+         lat/lng through pan/zoom/invalidateSize. -->
     <canvas
       #overlayCanvas
       class="detect-overlay"
