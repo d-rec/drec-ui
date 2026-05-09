@@ -21,15 +21,18 @@
 }
 
 .center-pin {
-  // Position is set live via [style.left.px]/[style.top.px] from the
-  // component (driven by latLngToContainerPoint(pinLatLng)). The
-  // bottom-anchor below offsets the visual center of the SVG so the
-  // pin's TIP lands at the map center — i.e. on the actual picked
-  // coordinate. The 24×36 SVG has its tip at (12,36); translate
-  // (-50%, -100%) puts that point exactly at (pinX, pinY).
-  // z-index 700 sits above .detect-overlay (500) and Leaflet's marker
-  // pane (600) but below modal/dialog tiers (cdk-overlay ≥1000).
+  // CenterPin mode pins the picked coord to the map's geometric
+  // viewport centre (panning shifts the coord with the map). Anchor
+  // the pin's tip at 50%/50% of the .map-container — guaranteed to
+  // match the leaflet container's centre without depending on
+  // latLngToContainerPoint projection (which drifted when the
+  // leaflet container was inset relative to .map-container).
+  // z-index 700 sits above .detect-overlay (500) and Leaflet's
+  // marker pane (600) but below modal/dialog tiers (cdk-overlay
+  // ≥1000).
   position: absolute;
+  left: 50%;
+  top: 50%;
   transform: translate(-50%, -100%);
   z-index: 700;
   pointer-events: none;
