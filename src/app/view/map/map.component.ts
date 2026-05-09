@@ -392,6 +392,12 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     // (Sahara) before update() / recenter() lands real coords.
     if (!latLng) return;
     const icon = mapPinIcon();
+    // Override iconAnchor so the SVG's geometric centre (12, 18)
+    // sits on the latLng, not the tip (12, 36). For the centerPin
+    // use case the picked coord IS the viewport centre and we want
+    // the round body of the pin to read as "at the centre" rather
+    // than the tip with the body floating above.
+    (icon.options as any).iconAnchor = [12, 18];
     this.centerPinMarker = L.marker(pos, {
       icon,
       interactive: false,
