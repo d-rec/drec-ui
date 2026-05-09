@@ -902,6 +902,11 @@ tr.mat-row:nth-child(even) {
 // Multi-line tooltip for the "missing required fields" footer.
 // Default mat-tooltip collapses whitespace; preserve newlines + bump
 // width so the bullet list is readable.
+// matTooltipClass attaches to the surface element directly in
+// Angular Material 19, not to the wrapper. Cover both selectors so
+// the override fires regardless of internal markup tweaks.
+.missing-fields-tooltip,
+.missing-fields-tooltip .mdc-tooltip__surface,
 .mat-mdc-tooltip.missing-fields-tooltip .mdc-tooltip__surface {
   white-space: pre-line !important;
   text-align: left !important;
