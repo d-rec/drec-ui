@@ -2039,7 +2039,10 @@ export class AddDevicesComponent implements OnDestroy {
     const form = this.deviceForms.at(deviceIndex);
     let filled = 0;
     const conflicts: typeof this.pendingOverwriteCandidates = [];
+    const unchecked = this.uncheckedExtractedFields[deviceIndex] ?? new Set<string>();
+    const prefix = source.toLowerCase().replace(/-/g, '');
     for (const c of candidates) {
+      if (unchecked.has(`${prefix}:${c.name}`)) continue;
       if (!c.field || c.field.value == null || c.field.confidence < 0.7) continue;
       const ctl = form.get(c.name);
       if (!ctl) continue;

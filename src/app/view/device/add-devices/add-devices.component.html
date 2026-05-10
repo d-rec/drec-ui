@@ -816,51 +816,109 @@
                         <div class="magic-extract-results" *ngIf="hasAnyExtractionResult(i)">
                           <div class="magic-extract-section" *ngIf="sldExtractions[i] as fx">
                             <div class="magic-extract-section__header">From SLD</div>
-                            <ul>
-                              <li *ngIf="fx.acCapacityKw">AC capacity: {{ fx.acCapacityKw.value }} kW <small>({{ (fx.acCapacityKw.confidence * 100) | number:'1.0-0' }}%)</small></li>
-                              <li *ngIf="fx.dcCapacityKwp">DC capacity: {{ fx.dcCapacityKwp.value }} kWp</li>
-                              <li *ngIf="fx.inverterCount">Inverters: {{ fx.inverterCount.value }}<span *ngIf="fx.inverterCapacityKw"> × {{ fx.inverterCapacityKw.value }} kW</span><span *ngIf="fx.inverterMakeModel"> ({{ fx.inverterMakeModel.value }})</span></li>
-                              <li *ngIf="fx.moduleCount">Modules: {{ fx.moduleCount.value }}<span *ngIf="fx.moduleWattage"> × {{ fx.moduleWattage.value }} W</span></li>
-                              <li *ngIf="fx.gridVoltage">Grid voltage: {{ fx.gridVoltage.value }}</li>
-                              <li *ngIf="fx.gridTied">Grid-tied: {{ fx.gridTied.value ? 'yes' : 'no' }}</li>
-                              <li *ngIf="fx.zeroExport">Zero-export: {{ fx.zeroExport.value ? 'yes' : 'no' }}</li>
-                              <li *ngIf="fx.transformerKva">Transformer: {{ fx.transformerKva.value }} kVA</li>
+                            <ul class="fx-list">
+                              <li *ngIf="fx.acCapacityKw" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sld:acCapacityKw')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sld:acCapacityKw')" (change)="toggleFieldChecked(i, 'sld:acCapacityKw', $any($event.target).checked)" /><span class="fx-row__text">AC capacity: {{ fx.acCapacityKw.value }} kW <small>({{ (fx.acCapacityKw.confidence * 100) | number:'1.0-0' }}%)</small></span></label>
+                              </li>
+                              <li *ngIf="fx.dcCapacityKwp" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sld:dcCapacityKwp')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sld:dcCapacityKwp')" (change)="toggleFieldChecked(i, 'sld:dcCapacityKwp', $any($event.target).checked)" /><span class="fx-row__text">DC capacity: {{ fx.dcCapacityKwp.value }} kWp</span></label>
+                              </li>
+                              <li *ngIf="fx.inverterCount" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sld:inverterCount')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sld:inverterCount')" (change)="toggleFieldChecked(i, 'sld:inverterCount', $any($event.target).checked)" /><span class="fx-row__text">Inverters: {{ fx.inverterCount.value }}<span *ngIf="fx.inverterCapacityKw"> × {{ fx.inverterCapacityKw.value }} kW</span><span *ngIf="fx.inverterMakeModel"> ({{ fx.inverterMakeModel.value }})</span></span></label>
+                              </li>
+                              <li *ngIf="fx.moduleCount" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sld:moduleCount')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sld:moduleCount')" (change)="toggleFieldChecked(i, 'sld:moduleCount', $any($event.target).checked)" /><span class="fx-row__text">Modules: {{ fx.moduleCount.value }}<span *ngIf="fx.moduleWattage"> × {{ fx.moduleWattage.value }} W</span></span></label>
+                              </li>
+                              <li *ngIf="fx.gridVoltage" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sld:gridVoltage')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sld:gridVoltage')" (change)="toggleFieldChecked(i, 'sld:gridVoltage', $any($event.target).checked)" /><span class="fx-row__text">Grid voltage: {{ fx.gridVoltage.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.gridTied" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sld:gridTied')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sld:gridTied')" (change)="toggleFieldChecked(i, 'sld:gridTied', $any($event.target).checked)" /><span class="fx-row__text">Grid-tied: {{ fx.gridTied.value ? 'yes' : 'no' }}</span></label>
+                              </li>
+                              <li *ngIf="fx.zeroExport" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sld:zeroExport')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sld:zeroExport')" (change)="toggleFieldChecked(i, 'sld:zeroExport', $any($event.target).checked)" /><span class="fx-row__text">Zero-export: {{ fx.zeroExport.value ? 'yes' : 'no' }}</span></label>
+                              </li>
+                              <li *ngIf="fx.transformerKva" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sld:transformerKva')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sld:transformerKva')" (change)="toggleFieldChecked(i, 'sld:transformerKva', $any($event.target).checked)" /><span class="fx-row__text">Transformer: {{ fx.transformerKva.value }} kVA</span></label>
+                              </li>
                             </ul>
                           </div>
                           <div class="magic-extract-section" *ngIf="sf02cExtractions[i] as fx">
                             <div class="magic-extract-section__header">From SF-02c</div>
-                            <ul>
-                              <li *ngIf="fx.projectName">Project: {{ fx.projectName.value }}</li>
-                              <li *ngIf="fx.ownerLegalName">Owner: {{ fx.ownerLegalName.value }}</li>
-                              <li *ngIf="fx.ownerAddress">Address: {{ fx.ownerAddress.value }}</li>
-                              <li *ngIf="fx.ownerCountry">Country: {{ fx.ownerCountry.value }}</li>
-                              <li *ngIf="fx.signingDate">Signed: {{ fx.signingDate.value }}</li>
-                              <li *ngIf="fx.signatoryName">Signatory: {{ fx.signatoryName.value }}<span *ngIf="fx.signatoryEmail"> &lt;{{ fx.signatoryEmail.value }}&gt;</span></li>
+                            <ul class="fx-list">
+                              <li *ngIf="fx.projectName" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02c:projectName')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02c:projectName')" (change)="toggleFieldChecked(i, 'sf02c:projectName', $any($event.target).checked)" /><span class="fx-row__text">Project: {{ fx.projectName.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.ownerLegalName" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02c:ownerLegalName')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02c:ownerLegalName')" (change)="toggleFieldChecked(i, 'sf02c:ownerLegalName', $any($event.target).checked)" /><span class="fx-row__text">Owner: {{ fx.ownerLegalName.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.ownerAddress" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02c:ownerAddress')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02c:ownerAddress')" (change)="toggleFieldChecked(i, 'sf02c:ownerAddress', $any($event.target).checked)" /><span class="fx-row__text">Address: {{ fx.ownerAddress.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.ownerCountry" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02c:ownerCountry')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02c:ownerCountry')" (change)="toggleFieldChecked(i, 'sf02c:ownerCountry', $any($event.target).checked)" /><span class="fx-row__text">Country: {{ fx.ownerCountry.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.signingDate" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02c:signingDate')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02c:signingDate')" (change)="toggleFieldChecked(i, 'sf02c:signingDate', $any($event.target).checked)" /><span class="fx-row__text">Signed: {{ fx.signingDate.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.signatoryName" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02c:signatoryName')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02c:signatoryName')" (change)="toggleFieldChecked(i, 'sf02c:signatoryName', $any($event.target).checked)" /><span class="fx-row__text">Signatory: {{ fx.signatoryName.value }}<span *ngIf="fx.signatoryEmail"> &lt;{{ fx.signatoryEmail.value }}&gt;</span></span></label>
+                              </li>
                             </ul>
                           </div>
                           <div class="magic-extract-section" *ngIf="codExtractions[i] as fx">
                             <div class="magic-extract-section__header">From COD proof</div>
-                            <ul>
-                              <li *ngIf="fx.commissioningDate">COD: {{ fx.commissioningDate.value }}</li>
-                              <li *ngIf="fx.facilityName">Site: {{ fx.facilityName.value }}</li>
-                              <li *ngIf="fx.acCapacityKw">Capacity: {{ fx.acCapacityKw.value }} kW</li>
-                              <li *ngIf="fx.ownerName">Owner: {{ fx.ownerName.value }}</li>
-                              <li *ngIf="fx.utilityOrIssuer">Issued by: {{ fx.utilityOrIssuer.value }}</li>
+                            <ul class="fx-list">
+                              <li *ngIf="fx.commissioningDate" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'cod:commissioningDate')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'cod:commissioningDate')" (change)="toggleFieldChecked(i, 'cod:commissioningDate', $any($event.target).checked)" /><span class="fx-row__text">COD: {{ fx.commissioningDate.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.facilityName" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'cod:facilityName')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'cod:facilityName')" (change)="toggleFieldChecked(i, 'cod:facilityName', $any($event.target).checked)" /><span class="fx-row__text">Site: {{ fx.facilityName.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.acCapacityKw" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'cod:acCapacityKw')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'cod:acCapacityKw')" (change)="toggleFieldChecked(i, 'cod:acCapacityKw', $any($event.target).checked)" /><span class="fx-row__text">Capacity: {{ fx.acCapacityKw.value }} kW</span></label>
+                              </li>
+                              <li *ngIf="fx.ownerName" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'cod:ownerName')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'cod:ownerName')" (change)="toggleFieldChecked(i, 'cod:ownerName', $any($event.target).checked)" /><span class="fx-row__text">Owner: {{ fx.ownerName.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.utilityOrIssuer" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'cod:utilityOrIssuer')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'cod:utilityOrIssuer')" (change)="toggleFieldChecked(i, 'cod:utilityOrIssuer', $any($event.target).checked)" /><span class="fx-row__text">Issued by: {{ fx.utilityOrIssuer.value }}</span></label>
+                              </li>
                             </ul>
                           </div>
                           <div class="magic-extract-section" *ngIf="sf02Extractions[i] as fx">
                             <div class="magic-extract-section__header">From SF-02</div>
-                            <ul>
-                              <li *ngIf="fx.facilityName">Site: {{ fx.facilityName.value }}</li>
-                              <li *ngIf="fx.acCapacityKw">Capacity: {{ fx.acCapacityKw.value }} kW</li>
-                              <li *ngIf="fx.commissioningDate">COD: {{ fx.commissioningDate.value }}</li>
-                              <li *ngIf="fx.deviceTypeCode">Type: {{ fx.deviceTypeCode.value }}</li>
-                              <li *ngIf="fx.ownerLegalName">Owner: {{ fx.ownerLegalName.value }}</li>
-                              <li *ngIf="fx.ownerAddress">Address: {{ fx.ownerAddress.value }}</li>
-                              <li *ngIf="fx.ownerCountry">Country: {{ fx.ownerCountry.value }}</li>
-                              <li *ngIf="fx.latitude && fx.longitude">Coords: {{ fx.latitude.value }}, {{ fx.longitude.value }}</li>
-                              <li *ngIf="fx.inverterCount">Inverters: {{ fx.inverterCount.value }}</li>
-                              <li *ngIf="fx.moduleCount">Modules: {{ fx.moduleCount.value }}</li>
+                            <ul class="fx-list">
+                              <li *ngIf="fx.facilityName" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:facilityName')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:facilityName')" (change)="toggleFieldChecked(i, 'sf02:facilityName', $any($event.target).checked)" /><span class="fx-row__text">Site: {{ fx.facilityName.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.acCapacityKw" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:acCapacityKw')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:acCapacityKw')" (change)="toggleFieldChecked(i, 'sf02:acCapacityKw', $any($event.target).checked)" /><span class="fx-row__text">Capacity: {{ fx.acCapacityKw.value }} kW</span></label>
+                              </li>
+                              <li *ngIf="fx.commissioningDate" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:commissioningDate')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:commissioningDate')" (change)="toggleFieldChecked(i, 'sf02:commissioningDate', $any($event.target).checked)" /><span class="fx-row__text">COD: {{ fx.commissioningDate.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.deviceTypeCode" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:deviceTypeCode')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:deviceTypeCode')" (change)="toggleFieldChecked(i, 'sf02:deviceTypeCode', $any($event.target).checked)" /><span class="fx-row__text">Type: {{ fx.deviceTypeCode.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.ownerLegalName" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:ownerLegalName')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:ownerLegalName')" (change)="toggleFieldChecked(i, 'sf02:ownerLegalName', $any($event.target).checked)" /><span class="fx-row__text">Owner: {{ fx.ownerLegalName.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.ownerAddress" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:ownerAddress')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:ownerAddress')" (change)="toggleFieldChecked(i, 'sf02:ownerAddress', $any($event.target).checked)" /><span class="fx-row__text">Address: {{ fx.ownerAddress.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.ownerCountry" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:ownerCountry')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:ownerCountry')" (change)="toggleFieldChecked(i, 'sf02:ownerCountry', $any($event.target).checked)" /><span class="fx-row__text">Country: {{ fx.ownerCountry.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.latitude && fx.longitude" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:latitude')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:latitude')" (change)="toggleFieldChecked(i, 'sf02:latitude', $any($event.target).checked)" /><span class="fx-row__text">Coords: {{ fx.latitude.value }}, {{ fx.longitude.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.inverterCount" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:inverterCount')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:inverterCount')" (change)="toggleFieldChecked(i, 'sf02:inverterCount', $any($event.target).checked)" /><span class="fx-row__text">Inverters: {{ fx.inverterCount.value }}</span></label>
+                              </li>
+                              <li *ngIf="fx.moduleCount" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:moduleCount')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:moduleCount')" (change)="toggleFieldChecked(i, 'sf02:moduleCount', $any($event.target).checked)" /><span class="fx-row__text">Modules: {{ fx.moduleCount.value }}</span></label>
+                              </li>
                             </ul>
                           </div>
                           <div class="magic-extract-section" *ngIf="meterIdsExtractions[i]?.length">
