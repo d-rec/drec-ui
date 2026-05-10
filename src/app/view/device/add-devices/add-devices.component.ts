@@ -4249,6 +4249,26 @@ export class AddDevicesComponent implements OnDestroy {
     }
   }
 
+  /** Cancel goes "back" — i.e. wherever the user came from
+   *  (admin's All_devices, registrant's All_devices, the search
+   *  result they clicked from) — instead of always punting to
+   *  /device/MyList. Falls back to the role-appropriate list when
+   *  there's no in-app history (e.g. user opened the edit URL
+   *  directly). */
+  cancelEdit(): void {
+    if (window.history.length > 1) {
+      window.history.back();
+      return;
+    }
+    if (this.user?.role === OrganizationType.Admin) {
+      this.router.navigate(['/admin/All_devices']);
+    } else if (this.user?.role === OrganizationType.Registrant) {
+      this.router.navigate(['/registrant/All_devices']);
+    } else {
+      this.router.navigate(['/device/MyList']);
+    }
+  }
+
   /** Clear the country autocomplete value. */
   clearCountry(deviceIndex: number): void {
     const ctl = this.deviceForms.at(deviceIndex).get('countryCodename');
