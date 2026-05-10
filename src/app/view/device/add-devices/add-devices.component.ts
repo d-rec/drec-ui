@@ -2590,6 +2590,35 @@ export class AddDevicesComponent implements OnDestroy {
         // would imply the user actively rejected something).
         claims[field].push({ source, value: cur, confidence: 0.9 });
       };
+      // (30) Operating configuration is derivable from the SLD's
+      // gridTied + gridExportType + the impactStory's mini-grid hint.
+      // Inferred string maps 1:1 to the form's enum values.
+      const sldFx = this.sldExtractions[deviceIndex];
+      const inferOpConfig = (): string | null => {
+        const isMiniGrid =
+          story && /\bmini[\s-]?grid\b/i.test(story);
+        const gridTied = sldFx?.gridTied?.value;
+        const exportType = sldFx?.gridExportType?.value;
+        if (isMiniGrid || gridTied === false) return 'Off-grid / islanded';
+        if (gridTied === true && typeof exportType === 'string') {
+          if (exportType.startsWith('No')) {
+            return 'Grid-connected, behind-the-meter, no export';
+          }
+          if (exportType.includes('partial')) {
+            return 'Grid-connected, behind-the-meter, with permitted export';
+          }
+          if (exportType.includes('full')) {
+            return 'Grid-connected, full export / open access';
+          }
+        }
+        return null;
+      };
+      addInferred(
+        'operatingConfiguration',
+        'SLD + Impact story',
+        inferOpConfig(),
+      );
+
       if (story) {
         addInferred(
           'deviceDescription',
