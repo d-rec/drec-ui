@@ -1175,3 +1175,140 @@ input.example-right-align {
   &:hover { background: #dbeafe; }
   &:disabled { opacity: 0.5; cursor: default; }
 }
+
+// ── auto-sort log (mirrors device-reviews scan-log palette) ─────────
+// Status colours match Verify Device's scan-log so the registrant
+// gets the same "barber-pole-while-running, green-when-done"
+// vocabulary as the reviewer flow downstream.
+$as-approved: #16a34a;
+$as-pending:  #f59e0b;
+$as-rejected: #dc2626;
+$as-accent:   #0F607F;
+$as-border:   #e2e8f0;
+$as-muted:    #64748b;
+$as-text:     #1e293b;
+$as-bg:       #f8fafc;
+
+.as-log__progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 0 10px;
+}
+.as-log__bar {
+  flex: 1;
+  height: 10px;
+  background: $as-border;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.as-log__fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+  background: repeating-linear-gradient(
+    -45deg,
+    $as-accent,
+    $as-accent 6px,
+    lighten($as-accent, 18%) 6px,
+    lighten($as-accent, 18%) 12px
+  );
+  background-size: 17px 17px;
+  animation: as-log-barber 0.6s linear infinite;
+}
+.as-log__fill--done {
+  animation: none;
+  background: $as-approved;
+}
+@keyframes as-log-barber {
+  0%   { background-position: 0 0; }
+  100% { background-position: 17px 0; }
+}
+.as-log__pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: $as-text;
+  min-width: 36px;
+  text-align: right;
+}
+.as-log__count {
+  font-size: 11px;
+  color: $as-muted;
+  font-variant-numeric: tabular-nums;
+}
+.as-log__body {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid $as-border;
+  border-radius: 6px;
+  background: $as-bg;
+  max-height: 320px;
+}
+.as-log__entry {
+  display: grid;
+  grid-template-columns: 24px 28px 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid $as-border;
+
+  &--pass    { --as-accent: #{$as-approved}; }
+  &--warn    { --as-accent: #{$as-pending}; }
+  &--fail    { --as-accent: #{$as-rejected}; }
+  &--running { --as-accent: #{$as-accent}; }
+  &--pending { --as-accent: #{$as-border}; }
+
+  &:last-child { border-bottom: none; }
+}
+.as-log__icon {
+  grid-row: 1;
+  grid-column: 1;
+  font-size: 14px;
+  color: var(--as-accent, #{$as-muted});
+  text-align: center;
+}
+.as-log__spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid $as-border;
+  border-top-color: $as-accent;
+  border-radius: 50%;
+  animation: as-log-spin 0.6s linear infinite;
+}
+@keyframes as-log-spin {
+  to { transform: rotate(360deg); }
+}
+.as-log__num {
+  grid-row: 1;
+  grid-column: 2;
+  font-size: 11px;
+  color: $as-muted;
+  font-variant-numeric: tabular-nums;
+}
+.as-log__label {
+  grid-row: 1;
+  grid-column: 3;
+  font-weight: 600;
+  color: var(--as-accent, #{$as-text});
+}
+.as-log__link {
+  cursor: pointer;
+  text-decoration: underline dotted;
+  &:hover { text-decoration: underline; }
+}
+.as-log__time {
+  grid-row: 1;
+  grid-column: 4;
+  font-size: 11px;
+  color: $as-muted;
+}
+.as-log__detail {
+  grid-row: 2;
+  grid-column: 3 / 5;
+  font-size: 12px;
+  color: $as-muted;
+  padding-top: 2px;
+  line-height: 1.4;
+}

@@ -661,46 +661,45 @@
                           (mousedown)="$event.stopPropagation()">&times;</button>
                       </div>
 
-                      <!-- Phase 1: classification -->
+                      <!-- Phase 1: classification (scan-log-style) -->
                       <ng-container *ngIf="!magicExtractMode[i]">
-                        <div class="magic-dialog__progress" *ngIf="magicRunning[i]">
-                          <div class="magic-dialog__bar">
-                            <div class="magic-dialog__fill"
-                              [style.width.%]="magicTotal[i] ? (magicDone[i] / magicTotal[i]) * 100 : 0"></div>
+                        <div class="as-log__progress">
+                          <div class="as-log__bar">
+                            <div class="as-log__fill" [class.as-log__fill--done]="!magicRunning[i]"
+                              [style.width.%]="magicTotal[i] ? (magicDone[i] / magicTotal[i]) * 100 : (magicRunning[i] ? 5 : 100)"></div>
                           </div>
-                          <span class="magic-dialog__count">{{ magicDone[i] }} / {{ magicTotal[i] }}</span>
+                          <span class="as-log__pct">{{ magicTotal[i] ? ((magicDone[i] / magicTotal[i]) * 100 | number:'1.0-0') + '%' : (magicRunning[i] ? '…' : '100%') }}</span>
+                          <span class="as-log__count" *ngIf="magicTotal[i]">{{ magicDone[i] }} / {{ magicTotal[i] }}</span>
                         </div>
-                        <div class="magic-dialog__current" *ngIf="magicRunning[i] && magicCurrentFile[i]">
-                          <span class="barber-pole" aria-hidden="true"></span>
-                          <span>
-                            <strong>{{ magicCurrentFile[i] }}</strong>
-                            <span class="magic-dialog__substep" *ngIf="magicCurrentStep[i]">
-                              — {{ magicCurrentStep[i] }}
+                        <div class="as-log__body">
+                          <div class="as-log__entry"
+                            *ngFor="let entry of magicLog[i]; let n = index"
+                            [class.as-log__entry--pass]="entry.type !== 'miss' && (entry.confidence ?? 0) >= 60"
+                            [class.as-log__entry--warn]="entry.type !== 'miss' && (entry.confidence ?? 0) < 60 && (entry.confidence ?? 0) > 0"
+                            [class.as-log__entry--fail]="entry.type === 'miss'">
+                            <span class="as-log__icon">
+                              <ng-container *ngIf="entry.type === 'miss'">&#x2718;</ng-container>
+                              <ng-container *ngIf="entry.type !== 'miss' && (entry.confidence ?? 0) >= 60">&#x2714;</ng-container>
+                              <ng-container *ngIf="entry.type !== 'miss' && (entry.confidence ?? 0) < 60">&#x26A0;</ng-container>
                             </span>
-                          </span>
+                            <span class="as-log__num">{{ n + 1 }}.</span>
+                            <span class="as-log__label">
+                              <span *ngIf="entry.file" class="as-log__link"
+                                (click)="viewMagicFile(entry.file, i)"
+                                (mousedown)="$event.stopPropagation()">{{ entry.filename }}</span>
+                              <span *ngIf="!entry.file">{{ entry.filename }}</span>
+                            </span>
+                            <span class="as-log__time">{{ entry.confidence ? entry.confidence + '%' : '—' }}</span>
+                            <div class="as-log__detail">{{ entry.target }}</div>
+                          </div>
+                          <div class="as-log__entry as-log__entry--running"
+                            *ngIf="magicRunning[i] && magicCurrentFile[i]">
+                            <span class="as-log__icon"><span class="as-log__spinner"></span></span>
+                            <span class="as-log__num">{{ (magicLog[i]?.length ?? 0) + 1 }}.</span>
+                            <span class="as-log__label">{{ magicCurrentFile[i] }}</span>
+                            <div class="as-log__detail" *ngIf="magicCurrentStep[i]">{{ magicCurrentStep[i] }}</div>
+                          </div>
                         </div>
-                        <div class="magic-dialog__done" *ngIf="!magicRunning[i]">
-                          Sorted {{ magicLog[i]?.length }} files
-                        </div>
-                        <table class="magic-table" *ngIf="magicLog[i]?.length">
-                          <thead>
-                            <tr><th>File</th><th>Classified as</th><th>Confidence</th></tr>
-                          </thead>
-                          <tbody>
-                            <tr *ngFor="let entry of magicLog[i]; let odd = odd"
-                              [class.magic-table__miss]="entry.type === 'miss'"
-                              [class.magic-table__dimmed]="odd">
-                              <td class="magic-table__file">
-                                <span *ngIf="entry.file" class="magic-table__link"
-                                  (click)="viewMagicFile(entry.file, i)"
-                                  (mousedown)="$event.stopPropagation()">{{ entry.filename }}</span>
-                                <span *ngIf="!entry.file">{{ entry.filename }}</span>
-                              </td>
-                              <td class="magic-table__target">{{ entry.target }}</td>
-                              <td class="magic-table__conf">{{ entry.confidence ? entry.confidence + '%' : '—' }}</td>
-                            </tr>
-                          </tbody>
-                        </table>
                         <div class="magic-dialog__footer">
                           <button type="button" class="btn btn-outline-secondary btn-sm"
                             (click)="cancelMagic(i)" (mousedown)="$event.stopPropagation()">Cancel</button>
@@ -728,34 +727,64 @@
                           </span>
                         </div>
 
-                        <!-- Per-extractor live status -->
-                        <ul class="magic-extract-status">
-                          <li *ngIf="sldExtracting[i] || sldExtractions[i]">
-                            <span class="barber-pole barber-pole--inline" *ngIf="sldExtracting[i]" aria-hidden="true"></span>
-                            <span class="magic-extract-status__check" *ngIf="!sldExtracting[i] && sldExtractions[i]">✓</span>
-                            SLD <span class="magic-extract-status__sub">{{ sldExtracting[i] ? 'reading…' : 'done' }}</span>
-                          </li>
-                          <li *ngIf="sf02cExtracting[i] || sf02cExtractions[i]">
-                            <span class="barber-pole barber-pole--inline" *ngIf="sf02cExtracting[i]" aria-hidden="true"></span>
-                            <span class="magic-extract-status__check" *ngIf="!sf02cExtracting[i] && sf02cExtractions[i]">✓</span>
-                            SF-02c <span class="magic-extract-status__sub">{{ sf02cExtracting[i] ? 'reading…' : 'done' }}</span>
-                          </li>
-                          <li *ngIf="codExtracting[i] || codExtractions[i]">
-                            <span class="barber-pole barber-pole--inline" *ngIf="codExtracting[i]" aria-hidden="true"></span>
-                            <span class="magic-extract-status__check" *ngIf="!codExtracting[i] && codExtractions[i]">✓</span>
-                            COD proof <span class="magic-extract-status__sub">{{ codExtracting[i] ? 'reading…' : 'done' }}</span>
-                          </li>
-                          <li *ngIf="sf02Extracting[i] || sf02Extractions[i]">
-                            <span class="barber-pole barber-pole--inline" *ngIf="sf02Extracting[i]" aria-hidden="true"></span>
-                            <span class="magic-extract-status__check" *ngIf="!sf02Extracting[i] && sf02Extractions[i]">✓</span>
-                            SF-02 <span class="magic-extract-status__sub">{{ sf02Extracting[i] ? 'reading…' : 'done' }}</span>
-                          </li>
-                          <li *ngIf="meterIdsExtracting[i] || meterIdsExtractions[i]?.length">
-                            <span class="barber-pole barber-pole--inline" *ngIf="meterIdsExtracting[i]" aria-hidden="true"></span>
-                            <span class="magic-extract-status__check" *ngIf="!meterIdsExtracting[i] && meterIdsExtractions[i]?.length">✓</span>
-                            Meter IDs <span class="magic-extract-status__sub">{{ meterIdsExtracting[i] ? 'reading…' : (meterIdsExtractions[i]?.length || 0) + ' found' }}</span>
-                          </li>
-                        </ul>
+                        <!-- Per-extractor live status (scan-log style) -->
+                        <div class="as-log__body" style="margin-top:8px">
+                          <div class="as-log__entry"
+                            *ngIf="sldExtracting[i] || sldExtractions[i]"
+                            [class.as-log__entry--pass]="!sldExtracting[i] && sldExtractions[i]"
+                            [class.as-log__entry--running]="sldExtracting[i]">
+                            <span class="as-log__icon">
+                              <span *ngIf="sldExtracting[i]" class="as-log__spinner"></span>
+                              <ng-container *ngIf="!sldExtracting[i]">&#x2714;</ng-container>
+                            </span>
+                            <span class="as-log__label">SLD</span>
+                            <span class="as-log__time">{{ sldExtracting[i] ? 'reading…' : 'done' }}</span>
+                          </div>
+                          <div class="as-log__entry"
+                            *ngIf="sf02cExtracting[i] || sf02cExtractions[i]"
+                            [class.as-log__entry--pass]="!sf02cExtracting[i] && sf02cExtractions[i]"
+                            [class.as-log__entry--running]="sf02cExtracting[i]">
+                            <span class="as-log__icon">
+                              <span *ngIf="sf02cExtracting[i]" class="as-log__spinner"></span>
+                              <ng-container *ngIf="!sf02cExtracting[i]">&#x2714;</ng-container>
+                            </span>
+                            <span class="as-log__label">SF-02c</span>
+                            <span class="as-log__time">{{ sf02cExtracting[i] ? 'reading…' : 'done' }}</span>
+                          </div>
+                          <div class="as-log__entry"
+                            *ngIf="codExtracting[i] || codExtractions[i]"
+                            [class.as-log__entry--pass]="!codExtracting[i] && codExtractions[i]"
+                            [class.as-log__entry--running]="codExtracting[i]">
+                            <span class="as-log__icon">
+                              <span *ngIf="codExtracting[i]" class="as-log__spinner"></span>
+                              <ng-container *ngIf="!codExtracting[i]">&#x2714;</ng-container>
+                            </span>
+                            <span class="as-log__label">COD proof</span>
+                            <span class="as-log__time">{{ codExtracting[i] ? 'reading…' : 'done' }}</span>
+                          </div>
+                          <div class="as-log__entry"
+                            *ngIf="sf02Extracting[i] || sf02Extractions[i]"
+                            [class.as-log__entry--pass]="!sf02Extracting[i] && sf02Extractions[i]"
+                            [class.as-log__entry--running]="sf02Extracting[i]">
+                            <span class="as-log__icon">
+                              <span *ngIf="sf02Extracting[i]" class="as-log__spinner"></span>
+                              <ng-container *ngIf="!sf02Extracting[i]">&#x2714;</ng-container>
+                            </span>
+                            <span class="as-log__label">SF-02</span>
+                            <span class="as-log__time">{{ sf02Extracting[i] ? 'reading…' : 'done' }}</span>
+                          </div>
+                          <div class="as-log__entry"
+                            *ngIf="meterIdsExtracting[i] || meterIdsExtractions[i]?.length"
+                            [class.as-log__entry--pass]="!meterIdsExtracting[i] && meterIdsExtractions[i]?.length"
+                            [class.as-log__entry--running]="meterIdsExtracting[i]">
+                            <span class="as-log__icon">
+                              <span *ngIf="meterIdsExtracting[i]" class="as-log__spinner"></span>
+                              <ng-container *ngIf="!meterIdsExtracting[i]">&#x2714;</ng-container>
+                            </span>
+                            <span class="as-log__label">Meter IDs</span>
+                            <span class="as-log__time">{{ meterIdsExtracting[i] ? 'reading…' : (meterIdsExtractions[i]?.length || 0) + ' found' }}</span>
+                          </div>
+                        </div>
 
                         <div class="magic-conflicts" *ngIf="hasConflicts(i)">
                           <div class="magic-conflicts__header">
