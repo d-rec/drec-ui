@@ -2363,14 +2363,26 @@ export class AddDevicesComponent implements OnDestroy {
       .map((s) => (s || '').trim())
       .filter(Boolean);
     const dismissed = this.dismissedSerialNumbers[deviceIndex] ?? new Set();
+    // Honour Phase-2 per-ID checkboxes: an unticked ID is treated as
+    // explicitly skipped (registers in dismissedSerialNumbers too so
+    // re-running extraction doesn't bring it back).
+    const unchecked = this.uncheckedExtractedFields[deviceIndex] ?? new Set();
     const merged: string[] = [];
     const seen = new Set<string>();
     for (const id of [...existing, ...ids]) {
       const k = id.toLowerCase();
       if (seen.has(k)) continue;
-      // Skip OCR/Haiku suggestions the user has already removed
-      // from the list — they shouldn't reappear after deletion.
       if (dismissed.has(k) && !existing.includes(id)) continue;
+      // Skip if user unticked this specific ID in the Reading-
+      // documents conclusion. Add to dismissed so the spurious
+      // value stays gone across subsequent extractor replays.
+      if (unchecked.has(`meterId:${id}`) && !existing.includes(id)) {
+        if (!this.dismissedSerialNumbers[deviceIndex]) {
+          this.dismissedSerialNumbers[deviceIndex] = new Set();
+        }
+        this.dismissedSerialNumbers[deviceIndex].add(k);
+        continue;
+      }
       seen.add(k);
       merged.push(id);
     }
