@@ -2800,6 +2800,27 @@ export class AddDevicesComponent implements OnDestroy {
    *  uploads when the user clicks Update without anything changing. */
   private lastProvenanceContentHash: Record<number, string> = {};
 
+  /** Per-device set of "extractor:fieldName" or "meterId:value" keys
+   *  the user has UNTICKED in the Reading-documents conclusion. The
+   *  apply paths consult this so e.g. a spurious meter-ID can be
+   *  skipped without removing it from the form list later. */
+  uncheckedExtractedFields: { [deviceIndex: number]: Set<string> } = {};
+
+  isFieldChecked(deviceIndex: number, key: string): boolean {
+    return !this.uncheckedExtractedFields[deviceIndex]?.has(key);
+  }
+
+  toggleFieldChecked(deviceIndex: number, key: string, checked: boolean): void {
+    if (!this.uncheckedExtractedFields[deviceIndex]) {
+      this.uncheckedExtractedFields[deviceIndex] = new Set();
+    }
+    if (checked) {
+      this.uncheckedExtractedFields[deviceIndex].delete(key);
+    } else {
+      this.uncheckedExtractedFields[deviceIndex].add(key);
+    }
+  }
+
   generateProvenanceReport(deviceIndex: number): void {
     const deviceId = this.editingDeviceId;
     if (!deviceId) {
