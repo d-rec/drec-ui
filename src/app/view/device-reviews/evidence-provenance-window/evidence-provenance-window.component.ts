@@ -2,8 +2,10 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   OnDestroy,
   OnInit,
+  ViewChild,
 } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -40,6 +42,7 @@ export class EvidenceProvenanceWindowComponent implements OnInit, OnDestroy {
   reportAgeMinutes: number | null = null;
   private objectUrl: string | null = null;
   private sub: Subscription | null = null;
+  @ViewChild('reportFrame') reportFrame?: ElementRef<HTMLIFrameElement>;
 
   constructor(
     public svc: AssetService,
@@ -104,6 +107,37 @@ export class EvidenceProvenanceWindowComponent implements OnInit, OnDestroy {
 
   close(): void {
     this.svc.viewProvenance(null);
+  }
+
+  /** Iframe load handler — intercept clicks on document links so
+   *  they open in the in-app viewers (picture-window / pdf-window)
+   *  instead of navigating the iframe to the API URL. */
+  onReportLoad(): void {
+    const ifr = this.reportFrame?.nativeElement;
+    const doc = ifr?.contentDocument;
+    if (!doc) return;
+    doc.addEventListener('click', (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      const anchor = target?.closest('a') as HTMLAnchorElement | null;
+      if (!anchor) return;
+      const href = anchor.getAttribute('href') ?? '';
+      // Only route document-uploads streaming URLs through the app
+      // viewers; let other links (if any) behave normally.
+      if (!/\/document-uploads\/\d+\/url\b/.test(href)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const isImage = /\.(jpe?g|png|gif|webp|bmp|svg)\b/i.test(
+        anchor.title || anchor.textContent || '',
+      );
+      if (isImage) {
+        // Picture-window opens an OpenPicture object — just feed
+        // the streaming URL straight through; the viewer fetches
+        // the image with the existing auth interceptor.
+        this.svc.viewPicture(href, false);
+      } else {
+        this.svc.viewPdf(href);
+      }
+    });
   }
 
   private load(deviceId: number): void {

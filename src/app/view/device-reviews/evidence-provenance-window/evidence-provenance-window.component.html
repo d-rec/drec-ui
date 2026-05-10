@@ -19,7 +19,9 @@
         Generated {{ ageLabel() }} <span class="ep__age-iso">({{ reportGeneratedAt | date:'dd/MM/yyyy HH:mm' }})</span>
         <span *ngIf="isStale()"> — registrant has updated since; ask them to re-generate.</span>
       </div>
-      <iframe *ngIf="hasReport && reportUrl" [src]="reportUrl"
+      <iframe *ngIf="hasReport && reportUrl" #reportFrame
+        [src]="reportUrl"
+        (load)="onReportLoad()"
         class="ep__iframe"></iframe>
     </div>
     <div class="ep__footer">
