@@ -1689,10 +1689,26 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       detail?: string;
     }> = [];
     for (const r of this.classifyResults) {
+      // Only treat as MISMATCH when the AI has reasonable confidence;
+      // a 25 % "I think it might be Metering Evidence" guess on a
+      // photo of detected panels shouldn't escalate to MISMATCH —
+      // the user's slot choice wins.
+      const lowConf = (r.confidence ?? 0) < 60;
+      const realMismatch = r.match === false && !lowConf;
+      const status: 'pass' | 'warn' | 'fail' | 'info' =
+        r.match === true ? 'pass' : realMismatch ? 'warn' : 'info';
+      const tail =
+        r.match === true
+          ? ' — match'
+          : realMismatch
+            ? ` — MISMATCH (expected ${r.expectedType})`
+            : r.match === false
+              ? ' — low-confidence guess, kept in slot'
+              : '';
       subItems.push({
         label: r.filename,
-        status: r.match === true ? 'pass' : r.match === false ? 'warn' : 'info',
-        detail: `Slot: ${r.slot} | AI: ${r.classifiedType}${r.confidence ? ' (' + r.confidence + '%)' : ''}${r.match === true ? ' — match' : r.match === false ? ' — MISMATCH (expected ' + r.expectedType + ')' : ''}`,
+        status,
+        detail: `Slot: ${r.slot} | AI: ${r.classifiedType}${r.confidence ? ' (' + r.confidence + '%)' : ''}${tail}`,
       });
     }
     if (total === 0) {

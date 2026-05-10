@@ -198,11 +198,11 @@ export class DocumentClassifierService {
         const hash = await this.sha256OfFile(file);
         const haiku = await this.classifyViaHaiku(file.name, text, hash);
         if (haiku && (!kwResult || haiku.confidence > kwResult.confidence)) {
-          return haiku;
+          return this.applyJpegMeteringGate(file, haiku);
         }
       }
 
-      return kwResult;
+      return this.applyJpegMeteringGate(file, kwResult);
     } catch (err) {
       console.warn('[DocumentClassifier] classification failed:', err);
       return null;
@@ -220,8 +220,57 @@ export class DocumentClassifierService {
    * heuristic still rejects substrings inside other words but matches
    * any non-alphanumeric separator.
    */
+  /**
+   * JPEG is essentially never a meter screenshot — meter portals
+   * export PNG / PDF, and JPEG's lossy encoding is what device-camera
+   * apps and aerial-imagery tools produce (i.e. site/project photos
+   * or installation shots). When the classifier comes back with
+   * METERING_EVIDENCE on a .jpg/.jpeg, downgrade to PROJECT_PHOTOS.
+   */
+  private applyJpegMeteringGate(
+    file: File,
+    result: ClassificationResult | null,
+  ): ClassificationResult | null {
+    if (!result) return result;
+    if (result.suggestedType !== DocumentType.METERING_EVIDENCE) return result;
+    const isJpeg =
+      file.type === 'image/jpeg' || /\.jpe?g$/i.test(file.name);
+    if (!isJpeg) return result;
+    return {
+      ...result,
+      suggestedType: DocumentType.PROJECT_PHOTOS,
+      confidence: Math.min(result.confidence ?? 0.5, 0.6),
+      alternatives: [
+        ...(result.alternatives ?? []),
+        {
+          type: DocumentType.METERING_EVIDENCE,
+          confidence: result.confidence ?? 0.5,
+        },
+      ],
+    };
+  }
+
   private classifyByFilename(name: string): ClassificationResult | null {
     const lower = name.toLowerCase();
+    const isImage = /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i.test(name);
+
+    // Strong filename hints that an image is a site / project photo —
+    // catches the common "detected panels.jpg", "site photo 2.jpg",
+    // "drone view.png" cases before the Haiku vision pass guesses
+    // wrong (e.g. nudges toward Metering Evidence at 25 % conf).
+    if (
+      isImage &&
+      /\b(panels?|site\b|photo|picture|drone|aerial|exterior|installation|view|setup)\b/i.test(
+        lower,
+      )
+    ) {
+      return {
+        suggestedType: DocumentType.PROJECT_PHOTOS,
+        confidence: 0.85,
+        method: 'keywords',
+        alternatives: [],
+      };
+    }
 
     if (/boundar/i.test(lower)) {
       return {
