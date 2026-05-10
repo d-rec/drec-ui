@@ -2725,6 +2725,11 @@ export class AddDevicesComponent implements OnDestroy {
    *
    * Edit-mode only: needs a persisted device id to attach the doc.
    */
+  /** Per-device hash of the last-uploaded provenance report's
+   *  *content* (Generated timestamp stripped). Used to skip redundant
+   *  uploads when the user clicks Update without anything changing. */
+  private lastProvenanceContentHash: Record<number, string> = {};
+
   generateProvenanceReport(deviceIndex: number): void {
     const deviceId = this.editingDeviceId;
     if (!deviceId) {
@@ -2732,36 +2737,57 @@ export class AddDevicesComponent implements OnDestroy {
       return;
     }
     if (this.isGeneratingProvenance[deviceIndex]) return;
-    this.isGeneratingProvenance[deviceIndex] = true;
     const html = this.buildProvenanceHtml(deviceIndex);
-    const blob = new Blob([html], { type: 'text/html' });
-    const file = new File([blob], 'evidence-provenance.html', {
-      type: 'text/html',
-    });
-    const fd = new FormData();
-    fd.append('file', file);
-    this.http
-      .post(
-        `${environment.API_URL}device/${deviceId}/documents/EVIDENCE_PROVENANCE`,
-        fd,
-      )
-      .subscribe({
-        next: () => {
-          this.isGeneratingProvenance[deviceIndex] = false;
-          this.provenanceGeneratedAt[deviceIndex] = new Date().toISOString();
-          this.toastrService.success(
-            'Evidence provenance report attached',
-            'Provenance',
-          );
-        },
-        error: (err) => {
-          this.isGeneratingProvenance[deviceIndex] = false;
-          this.toastrService.error(
-            err?.error?.message || err?.message || 'Failed to attach',
-            'Provenance',
-          );
-        },
+    // Hash the content sans the generated-at timestamp so identical
+    // reports don't upload a fresh doc on every Update.
+    const stableContent = html.replace(
+      /Generated: [^<]+/,
+      'Generated: <stripped>',
+    );
+    void this.sha256(stableContent).then((hash) => {
+      if (this.lastProvenanceContentHash[deviceIndex] === hash) {
+        // No structural change since last upload — skip.
+        return;
+      }
+      this.isGeneratingProvenance[deviceIndex] = true;
+      const blob = new Blob([html], { type: 'text/html' });
+      const file = new File([blob], 'evidence-provenance.html', {
+        type: 'text/html',
       });
+      const fd = new FormData();
+      fd.append('file', file);
+      this.http
+        .post(
+          `${environment.API_URL}device/${deviceId}/documents/EVIDENCE_PROVENANCE`,
+          fd,
+        )
+        .subscribe({
+          next: () => {
+            this.isGeneratingProvenance[deviceIndex] = false;
+            this.provenanceGeneratedAt[deviceIndex] = new Date().toISOString();
+            this.lastProvenanceContentHash[deviceIndex] = hash;
+            this.toastrService.success(
+              'Evidence provenance report attached',
+              'Provenance',
+            );
+          },
+          error: (err) => {
+            this.isGeneratingProvenance[deviceIndex] = false;
+            this.toastrService.error(
+              err?.error?.message || err?.message || 'Failed to attach',
+              'Provenance',
+            );
+          },
+        });
+    });
+  }
+
+  private async sha256(text: string): Promise<string> {
+    const enc = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
   }
 
   /** Render the HTML body of the provenance report for one device. */
