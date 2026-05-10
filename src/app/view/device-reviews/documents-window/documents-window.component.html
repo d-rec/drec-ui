@@ -788,7 +788,13 @@
             <span class="screen-section__badge">{{ s.status === 'skip' ? 'ERROR' : (s.status | uppercase) }}</span>
           </div>
           <ul class="screen-section__flags" *ngIf="s.flags.length > 0">
-            <li *ngFor="let f of s.flags">{{ f }}</li>
+            <li *ngFor="let f of s.flags">
+              <div>{{ f }}</div>
+              <div *ngIf="explainFlag(s.name, f) as plain"
+                   style="color:#475569;font-size:11.5px;font-style:italic;margin-top:3px;line-height:1.4">
+                {{ plain }}
+              </div>
+            </li>
           </ul>
         </div>
 

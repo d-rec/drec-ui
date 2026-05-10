@@ -3024,6 +3024,94 @@ trustUrl(url: string): SafeUrl {
 
   autoScreenCopied = false;
 
+  /** Translate a backend scan-flag string into a sentence the
+   *  registrant (or a non-D-REC reviewer) can act on. Returns null
+   *  when no humaniser exists for the flag — the original technical
+   *  message stays visible above. */
+  explainFlag(sectionName: string, flag: string): string | null {
+    const f = String(flag || '');
+    // -- Ownership ---------------------------------------------
+    if (sectionName === 'Ownership Verification') {
+      const miss = /Missing:\s*(.+)/.exec(f);
+      if (miss) {
+        return `The registrant hasn't uploaded ${miss[1]} yet — without it the I-REC issuance can't proceed. Ask them to attach via the edit-device page.`;
+      }
+      if (/flagged/i.test(f)) {
+        return 'The platform couldn\'t confirm the device owner against the documents on file. Either the SF-02C / Proof-of-Ownership name doesn\'t match the registered owner, or one of the docs is missing.';
+      }
+    }
+    // -- Production ceiling -----------------------------------
+    if (sectionName === 'Production Ceiling') {
+      const m = /Effective ceiling\s+([\d.,]+)\s*kWh\/kW\/yr/.exec(f);
+      if (m) {
+        return `D-REC caps the credible annual yield at ${m[1]} kWh per kW for this site's latitude / climate (Global Solar Atlas). Anything substantially above means a meter, capacity entry, or read-frequency is wrong — investigate before approving.`;
+      }
+      if (/exceeds/i.test(f)) {
+        return 'The reported energy production this year is higher than what is physically plausible for the site\'s solar resource. Double-check the AC capacity (13) and the metering reads.';
+      }
+    }
+    // -- Photo GPS --------------------------------------------
+    if (sectionName === 'Photo GPS') {
+      const m = /(\d+) photos: (\d+) with GPS, (\d+) within 300m, (\d+) flagged/.exec(f);
+      if (m) {
+        const total = +m[1], withGps = +m[2], near = +m[3], flagged = +m[4];
+        if (flagged > 0) {
+          return `${flagged} of ${total} site photos has GPS metadata that doesn't match the device coordinates (>300 m away). Ask the registrant whether the photo is mis-attributed or the coordinate is stale.`;
+        }
+        if (withGps === 0) {
+          return `None of the ${total} site photos carries GPS metadata — the platform can't cross-check that the photos really show this site. Ask the registrant to re-upload originals from the camera/phone (not screenshots, which strip EXIF).`;
+        }
+        if (near === withGps && withGps > 0) {
+          return `All ${withGps} GPS-tagged photos sit within 300 m of the device coordinates — strong evidence the photos really show this site.`;
+        }
+      }
+    }
+    // -- Duplicate Screening ----------------------------------
+    if (sectionName === 'Duplicate Screening') {
+      if (/0 potential duplicate/i.test(f)) {
+        return 'No other device on the platform shares this site\'s name, coordinates, serial number, or external ID — safe from a double-counting perspective.';
+      }
+      const m = /(\d+) potential duplicate/.exec(f);
+      if (m && +m[1] > 0) {
+        return `Found ${m[1]} other device(s) that look like this same site (matching siteName / coords / serial / externalId). Verify they aren't actually the same physical installation registered twice — that would double-count generation.`;
+      }
+    }
+    // -- Country Match ----------------------------------------
+    if (sectionName === 'Country Match') {
+      if (/coordinates land in/i.test(f) || /not match/i.test(f)) {
+        return 'The lat/long coordinates point to a different country than the one selected in (5). Either the coords are wrong, the country is wrong, or the site is on a disputed border. Confirm with the registrant.';
+      }
+    }
+    // -- Pathway classification -------------------------------
+    if (sectionName === 'Pathway' || /Pathway/.test(sectionName)) {
+      if (/Direct Off-Grid/i.test(f)) {
+        return 'D-REC has classified the site as off-grid with a directly-readable inverter. Issuance proceeds via inverter telemetry; no DSO data needed.';
+      }
+      if (/Direct Grid/i.test(f)) {
+        return 'Grid-connected with direct DSO/inverter access — issuance can proceed against the metered grid imports/exports.';
+      }
+      if (/Compensating/i.test(f)) {
+        return 'No primary data path; D-REC needs additional documentary evidence (compensating controls) for issuance. The registrant should provide signed statements + audit trails.';
+      }
+    }
+    // -- Source access mode -----------------------------------
+    if (sectionName === 'Source Access Mode') {
+      if (/no source access mode/i.test(f) || /not set/i.test(f)) {
+        return 'The registrant hasn\'t declared how D-REC will pull meter reads from this site (API / portal / file submission). Without this we can\'t establish the issuance pathway. Ask them to set (28).';
+      }
+    }
+    // -- SLD Capacity Compare ---------------------------------
+    if (sectionName === 'SLD Capacity Compare') {
+      if (/no SLD/i.test(f)) {
+        return 'No Single Line Diagram on file — the platform can\'t cross-check the registered capacity (13) against the system the registrant claims. Request an SLD upload.';
+      }
+      if (/exceeds|differs|mismatch/i.test(f)) {
+        return 'The SLD\'s nameplate doesn\'t match the registered AC capacity on the form. One of them is wrong — typically the form value when the registrant typed a rounded figure.';
+      }
+    }
+    return null;
+  }
+
   copyAutoScreenReport(): void {
     if (!this.autoScreenResult) return;
     const r = this.autoScreenResult;
