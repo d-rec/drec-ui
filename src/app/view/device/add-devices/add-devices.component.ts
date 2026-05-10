@@ -448,6 +448,10 @@ export class AddDevicesComponent implements OnDestroy {
                 .filter(Boolean)
             : [];
 
+          // Restore extractor provenance saved on prior edits so the
+          // conflict block can credit fields to their original source
+          // instead of falsely tagging them MANUAL on re-edit.
+          this.appliedProvenance[0] = { ...((data as any).fieldProvenance ?? {}) };
           firstRow.patchValue({
             siteName: data.siteName,
             serialNumber: data.serialNumber,
@@ -2061,6 +2065,7 @@ export class AddDevicesComponent implements OnDestroy {
       if (isEmpty) {
         ctl.setValue(next);
         ctl.markAsDirty();
+        this.recordProvenance(deviceIndex, c.name, source, c.field.confidence);
         filled++;
         continue;
       }
@@ -2108,6 +2113,7 @@ export class AddDevicesComponent implements OnDestroy {
 
   applyOverwriteConfirmed(): void {
     const form = this.deviceForms.at(0);
+    const source = this.pendingOverwriteSource;
     let applied = 0;
     for (const c of this.pendingOverwriteCandidates) {
       if (!c.selected) continue;
@@ -2115,6 +2121,7 @@ export class AddDevicesComponent implements OnDestroy {
       if (!ctl) continue;
       ctl.setValue(c.next);
       ctl.markAsDirty();
+      this.recordProvenance(c.deviceIndex, c.name, source, c.confidence);
       applied++;
     }
     this.pendingOverwriteAfter?.();
@@ -2395,6 +2402,7 @@ export class AddDevicesComponent implements OnDestroy {
     }
     this.serialNumberLists[deviceIndex] = merged.length ? merged : [''];
     this.syncSerialNumberControl(deviceIndex);
+    this.recordProvenance(deviceIndex, 'serialNumber', 'Meter IDs', 1);
     // SNs were read from a metering portal / nameplate — the data
     // source is the inverter.
     this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
@@ -2408,6 +2416,7 @@ export class AddDevicesComponent implements OnDestroy {
         if (!cur) {
           brandCtl.setValue(brand);
           brandCtl.markAsDirty();
+          this.recordProvenance(deviceIndex, 'dataSourceBrand', 'Meter IDs', 1);
         }
       }
     }
@@ -2662,6 +2671,27 @@ export class AddDevicesComponent implements OnDestroy {
     // submit-time form-vs-doc resolver dialog (a separate pass that
     // explicitly compares form to extractor claims). The conflict
     // block here is for doc-vs-doc disagreement only.
+
+    // Persisted provenance from prior edits — synthesise a "(saved)"
+    // claim for any field that has stored attribution but no live
+    // claim this session. Without this, every field Haiku populated
+    // before would re-appear as MANUAL on re-edit.
+    const persisted = this.appliedProvenance[deviceIndex] ?? {};
+    const formNow = this.deviceForms.at(deviceIndex);
+    for (const [field, prov] of Object.entries(persisted)) {
+      if (claims[field]?.length) continue;
+      const cur = formNow?.get(field)?.value;
+      if (cur == null || cur === '' || (Array.isArray(cur) && cur.length === 0)) {
+        continue;
+      }
+      claims[field] = [
+        {
+          source: `${prov.source} (saved)`,
+          value: cur,
+          confidence: prov.confidence,
+        },
+      ];
+    }
     return claims;
   }
 
@@ -2822,6 +2852,36 @@ export class AddDevicesComponent implements OnDestroy {
     } else {
       this.uncheckedExtractedFields[deviceIndex].add(key);
     }
+  }
+
+  /** Per-device map of `fieldName → { source, confidence, at }` recording
+   *  which extractor (SLD / SF-02 / SF-02c / COD / Meter IDs / Geocoder /
+   *  Impact-story / ...) populated each form value. Hydrated from
+   *  `device.fieldProvenance` on edit and persisted back on submit so
+   *  re-edits can distinguish doc-extracted values from manual ones —
+   *  otherwise the conflict block sees an empty live-claims array and
+   *  falsely tags every prior-session extraction as MANUAL. */
+  appliedProvenance: {
+    [deviceIndex: number]: Record<
+      string,
+      { source: string; confidence: number; at: string }
+    >;
+  } = {};
+
+  recordProvenance(
+    deviceIndex: number,
+    field: string,
+    source: string,
+    confidence: number,
+  ): void {
+    if (!this.appliedProvenance[deviceIndex]) {
+      this.appliedProvenance[deviceIndex] = {};
+    }
+    this.appliedProvenance[deviceIndex][field] = {
+      source,
+      confidence,
+      at: new Date().toISOString(),
+    };
   }
 
   generateProvenanceReport(deviceIndex: number): void {
@@ -4551,6 +4611,11 @@ export class AddDevicesComponent implements OnDestroy {
     formValue.countryCode = selectedCountry?.alpha3 ?? formValue.countryCodename;
     delete formValue.countryCodename;
     formValue.organizationId = this.organizationId ?? this.user?.organizationId;
+    // Persist extractor provenance recorded by Apply paths this session
+    // (merged with whatever was already on the device from prior edits).
+    if (this.appliedProvenance[0] && Object.keys(this.appliedProvenance[0]).length) {
+      formValue.fieldProvenance = { ...this.appliedProvenance[0] };
+    }
     if (formValue.serialNumber == null) {
       formValue.serialNumber = this.initSerialNumber;
     }

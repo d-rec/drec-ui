@@ -49,6 +49,10 @@ export interface Device {
   nonMeterImportDetails?: string;
   otherEacSchemeRegistration?: string;
   additionalInfo?: string;
+  fieldProvenance?: Record<
+    string,
+    { source: string; confidence: number; at: string }
+  > | null;
   // Facility technical (Evident checklist rows 32, 33, 35, 36)
   generatingUnitCount?: number;
   networkOwner?: string;
