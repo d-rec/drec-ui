@@ -174,7 +174,10 @@ export class AddDevicesComponent implements OnDestroy {
       filename: string;
       target: string;
       confidence: number | null;
-      type: 'hit' | 'miss';
+      // 'hit'  = classified successfully
+      // 'miss' = AI couldn't classify / wrong slot
+      // 'skip' = duplicate / explicitly skipped (informational, not error)
+      type: 'hit' | 'miss' | 'skip';
       file?: File;
       docType?: string; // populated for hit rows so post-sort extraction
                        // can route the file to the right extractor.
@@ -1765,7 +1768,7 @@ export class AddDevicesComponent implements OnDestroy {
                 filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
                 target: 'Skipped (duplicate)',
                 confidence: null,
-                type: 'miss',
+                type: 'skip',
                 file,
                 docType: rawType,
               });
@@ -1779,7 +1782,7 @@ export class AddDevicesComponent implements OnDestroy {
                 filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
                 target: 'Skipped (duplicate)',
                 confidence: null,
-                type: 'miss',
+                type: 'skip',
                 file,
               });
               this.magicDone[deviceIndex] = idx + 1;

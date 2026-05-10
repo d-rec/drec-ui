@@ -1258,6 +1258,18 @@ $as-bg:       #f8fafc;
   &--fail    { --as-accent: #{$as-rejected}; }
   &--running { --as-accent: #{$as-accent}; }
   &--pending { --as-accent: #{$as-border}; }
+  // 'skipped' = duplicate / no-op — informational, not an error.
+  // Mute everything: icon + label + detail in a quiet gray.
+  &--skipped {
+    --as-accent: #{$as-muted};
+    .as-log__label,
+    .as-log__link {
+      color: $as-muted;
+      font-weight: 400;
+      text-decoration: none;
+    }
+    .as-log__detail { color: lighten($as-muted, 10%); }
+  }
 
   &:last-child { border-bottom: none; }
 }

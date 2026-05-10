@@ -674,13 +674,15 @@
                         <div class="as-log__body">
                           <div class="as-log__entry"
                             *ngFor="let entry of magicLog[i]; let n = index"
-                            [class.as-log__entry--pass]="entry.type !== 'miss' && (entry.confidence ?? 0) >= 60"
-                            [class.as-log__entry--warn]="entry.type !== 'miss' && (entry.confidence ?? 0) < 60 && (entry.confidence ?? 0) > 0"
-                            [class.as-log__entry--fail]="entry.type === 'miss'">
+                            [class.as-log__entry--pass]="entry.type === 'hit' && (entry.confidence ?? 0) >= 60"
+                            [class.as-log__entry--warn]="entry.type === 'hit' && (entry.confidence ?? 0) < 60 && (entry.confidence ?? 0) > 0"
+                            [class.as-log__entry--fail]="entry.type === 'miss'"
+                            [class.as-log__entry--skipped]="entry.type === 'skip'">
                             <span class="as-log__icon">
                               <ng-container *ngIf="entry.type === 'miss'">&#x2718;</ng-container>
-                              <ng-container *ngIf="entry.type !== 'miss' && (entry.confidence ?? 0) >= 60">&#x2714;</ng-container>
-                              <ng-container *ngIf="entry.type !== 'miss' && (entry.confidence ?? 0) < 60">&#x26A0;</ng-container>
+                              <ng-container *ngIf="entry.type === 'skip'">&#x21BB;</ng-container>
+                              <ng-container *ngIf="entry.type === 'hit' && (entry.confidence ?? 0) >= 60">&#x2714;</ng-container>
+                              <ng-container *ngIf="entry.type === 'hit' && (entry.confidence ?? 0) < 60">&#x26A0;</ng-container>
                             </span>
                             <span class="as-log__num">{{ n + 1 }}.</span>
                             <span class="as-log__label">
