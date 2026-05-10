@@ -28,18 +28,51 @@ test('provenance HTML tabulates multi-doc categories', async ({ page, request })
     /atsawa/i,
     { timeout: 10_000 },
   );
+  // Wait long enough for hydration extractors to fire (cache hits,
+  // a couple of network round-trips). 5s is comfortable.
+  await page.waitForTimeout(5_000);
 
-  // Click the "Generate evidence provenance" button.
-  const genBtn = page
-    .locator('button', { hasText: /(Re-)?[Gg]enerate evidence provenance/i })
-    .first();
-  await genBtn.scrollIntoViewIfNeeded();
-  await genBtn.click();
+  // Provenance auto-regenerates on Update. Add a real character to
+  // siteName so hasUnsavedEditChanges returns true.
+  const siteInput = page.locator('input[formcontrolname="siteName"]');
+  const orig = await siteInput.inputValue();
+  await siteInput.fill(`${orig}-tmp`);
+  await page.waitForTimeout(500);
 
-  // Toast appears.
+  const submitBtn = page.locator('button[test-id="submit-device"]');
+  await submitBtn.scrollIntoViewIfNeeded();
+  await submitBtn.click();
+
+  // The submit may surface a form-vs-doc resolver dialog first
+  // (extractors disagree with the form value we just typed). Cancel
+  // it so the original submit returns.
+  const fvdDialog = page.locator('text=/Documents disagree with the form/i');
+  if (await fvdDialog.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    await page.locator('button', { hasText: 'Apply picks & continue' }).click();
+  }
+
+  // Wait for the success toast.
   await expect(
-    page.locator('text=/Evidence provenance report attached/i'),
+    page.locator('text=/site .* updated/i'),
   ).toBeVisible({ timeout: 15_000 });
+
+  // Restore the original siteName so the local DB stays clean.
+  // Wait for the post-update navigation, re-open, restore.
+  await page.waitForTimeout(1_500);
+  await page.goto('/device/edit/8b1fe0fb-0b55-40e7-9ff1-5c8907d5f9fa');
+  await expect(siteInput).toHaveValue(`${orig}-tmp`, { timeout: 10_000 });
+  await page.waitForTimeout(5_000);
+  await siteInput.fill(orig);
+  await page.waitForTimeout(500);
+  await submitBtn.scrollIntoViewIfNeeded();
+  await submitBtn.click();
+  if (await fvdDialog.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    await page.locator('button', { hasText: 'Apply picks & continue' }).click();
+  }
+  await expect(
+    page.locator('text=/site .* updated/i'),
+  ).toBeVisible({ timeout: 15_000 });
+  await page.waitForTimeout(2_000);
 
   // Now fetch the latest EVIDENCE_PROVENANCE doc via API and inspect
   // the body. URL pattern: /api/device/327/documents.
@@ -68,4 +101,15 @@ test('provenance HTML tabulates multi-doc categories', async ({ page, request })
   const photosSection = html.match(/Project Photos \(\d+\):.*?<\/li>/s);
   expect(photosSection, 'project photos section found').toBeTruthy();
   expect(photosSection![0]).toContain('<ul');
+
+  // Inference-helper sources should be credited (not "MANUAL").
+  // SDG benefits + device description + off-taker on Atsawa all
+  // come from the impact-story keyword scan.
+  expect(html, 'SDGBenefits row credits Impact story').toMatch(
+    /SDG Benefits[\s\S]*Impact story/i,
+  );
+  // Country comes from the Nominatim geocoder (Nigeria for Atsawa).
+  expect(html, 'Country row credits Geocoder').toMatch(
+    /Country[\s\S]*Geocoder/i,
+  );
 });

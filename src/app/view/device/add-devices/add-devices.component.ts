@@ -1049,13 +1049,16 @@ export class AddDevicesComponent implements OnDestroy {
             ) {
               ctl.setValue(c);
               ctl.markAsDirty();
-              this.recordInference(
-                idx,
-                'countryCodename',
-                'Geocoder (lat/lng)',
-                c,
-              );
             }
+            // Always record the geocoder's reading even when it
+            // matches the current value — the credit is "Geocoder
+            // confirmed this", regardless of who wrote first.
+            this.recordInference(
+              idx,
+              'countryCodename',
+              'Geocoder (lat/lng)',
+              c,
+            );
           }
         },
         error: () => {
@@ -2560,18 +2563,32 @@ export class AddDevicesComponent implements OnDestroy {
         if (inferredValue == null || inferredValue === '') return;
         if (Array.isArray(inferredValue) && inferredValue.length === 0) return;
         const cur = formAt.get(field)?.value;
-        const match =
-          Array.isArray(inferredValue) && Array.isArray(cur)
-            ? JSON.stringify([...inferredValue].sort()) ===
-              JSON.stringify([...cur].sort())
-            : String(cur).trim().toLowerCase() ===
-              String(inferredValue).trim().toLowerCase();
+        let match: boolean;
+        if (Array.isArray(inferredValue) && Array.isArray(cur)) {
+          // Multi-select fields: credit the inference if the user's
+          // current selection is a SUBSET of what the inference
+          // would produce. Catches the common case of the helper
+          // suggesting [SDG7, SDG2, SDG11, SDG13] and the user
+          // having pruned it to [SDG7, SDG11, SDG13]. Empty current
+          // is trivially a subset → reject that.
+          if (cur.length === 0) return;
+          const inferredSet = new Set(inferredValue.map((v) => String(v)));
+          match = cur.every((v: any) => inferredSet.has(String(v)));
+        } else {
+          match =
+            String(cur).trim().toLowerCase() ===
+            String(inferredValue).trim().toLowerCase();
+        }
         if (!match) return;
         if (!claims[field]) claims[field] = [];
         // Skip if the same source already weighed in (live capture
         // beat us to it).
         if (claims[field].some((c) => c.source === source)) return;
-        claims[field].push({ source, value: inferredValue, confidence: 0.9 });
+        // Claim the CURRENT value, not the inferred superset, so
+        // the conflict-detection layer marks the row DOC-BACKED
+        // (matches form) rather than RESOLVED CONFLICT (which
+        // would imply the user actively rejected something).
+        claims[field].push({ source, value: cur, confidence: 0.9 });
       };
       if (story) {
         addInferred(
