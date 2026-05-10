@@ -121,14 +121,15 @@ export class EvidenceProvenanceWindowComponent implements OnInit, OnDestroy {
       const anchor = target?.closest('a') as HTMLAnchorElement | null;
       if (!anchor) return;
       const href = anchor.getAttribute('href') ?? '';
-      // Only route document-uploads streaming URLs through the app
-      // viewers; let other links (if any) behave normally.
-      if (!/\/document-uploads\/\d+\/url\b/.test(href)) return;
+      if (!href) return;
       event.preventDefault();
       event.stopPropagation();
-      const isImage = /\.(jpe?g|png|gif|webp|bmp|svg)\b/i.test(
-        anchor.title || anchor.textContent || '',
-      );
+      // Picture-window for images, pdf-window for everything else
+      // (PDFs and the rest). Detect from the link text/title since
+      // presigned S3 URLs end in ?...sig which obscures the
+      // extension.
+      const hint = (anchor.title || anchor.textContent || '').toLowerCase();
+      const isImage = /\.(jpe?g|png|gif|webp|bmp|svg)\b/i.test(hint);
       if (isImage) {
         // Picture-window opens an OpenPicture object — just feed
         // the streaming URL straight through; the viewer fetches

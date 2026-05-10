@@ -2860,15 +2860,20 @@ export class AddDevicesComponent implements OnDestroy {
       'SF-02c': 'SF_02C',
       COD: 'COD_PROOF',
     };
-    const apiBase = environment.API_URL.replace(/\/+$/, '');
+    // Use the presigned S3 URL (existingDocs[i][type][n].url) so
+    // <img>/<iframe> tags can load the doc without going through
+    // the auth-bearing HttpClient interceptor. The streaming endpoint
+    // /api/document-uploads/N/url requires JWT, which native browser
+    // requests can't carry → broke the in-app picture-window.
     const docLink = (sourceTag: string): string | null => {
       const docType = sourceDocType[sourceTag];
       if (!docType) return null;
       const docs = this.existingDocs[deviceIndex]?.[docType];
       if (!docs?.length) return null;
-      const id = docs[0].id;
+      const url = (docs[0] as any).url;
+      if (!url) return null;
       const name = docs[0].label || docs[0].name || docType;
-      return `<a href="${apiBase}/document-uploads/${id}/url" target="_blank" rel="noopener" title="${escape(name)}" style="color:#0f607f;text-decoration:none;border-bottom:1px dotted #0f607f">${escape(sourceTag)} ↗</a>`;
+      return `<a href="${url}" target="_blank" rel="noopener" title="${escape(name)}" style="color:#0f607f;text-decoration:none;border-bottom:1px dotted #0f607f">${escape(sourceTag)} ↗</a>`;
     };
 
     const sourcesCell = (sources: Row['sources'], current: any): string => {
@@ -2909,8 +2914,9 @@ export class AddDevicesComponent implements OnDestroy {
         // get their links rendered as a stacked sub-list rather than
         // a comma-soup that wraps over many rows. Single-doc
         // categories stay inline.
+        // Same auth rationale as docLink above — use the presigned URL.
         const linkHtml = (d: any): string =>
-          `<a href="${apiBase}/document-uploads/${d.id}/url" target="_blank" rel="noopener" style="color:#0f607f">${escape(d.label || d.name)} ↗</a>`;
+          `<a href="${escape(d.url ?? '')}" target="_blank" rel="noopener" style="color:#0f607f">${escape(d.label || d.name)} ↗</a>`;
         if (docs.length > 1) {
           const rows = docs
             .map((d: any) => `<li>${linkHtml(d)}</li>`)
