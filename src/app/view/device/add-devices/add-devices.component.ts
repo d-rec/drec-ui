@@ -2659,16 +2659,89 @@ export class AddDevicesComponent implements OnDestroy {
     const out: typeof claims = {};
     for (const [field, list] of Object.entries(claims)) {
       if (list.length < 2) continue;
-      const norm = (v: any) => {
-        if (typeof v === 'number') return Number(v.toFixed(2));
-        if (typeof v === 'string') return v.trim().toLowerCase();
-        if (typeof v === 'boolean') return String(v);
-        return v;
+      // Detect "essentially same" pairs in long-text fields with
+      // token-overlap (Jaccard) so paraphrases don't escalate:
+      //   "Mikano 80 kVA + Victron Quattro 10 kVA battery inverter"
+      //   "Mikano 80 kVA + 6× Victron Quattro 10 kVA battery inverters"
+      // share 9/10 tokens — same description, just rephrased.
+      // Same trick handles legal-name variants:
+      //   "ENGIE Energy Access Nigeria Limited"
+      //   "CrossBoundary Energy Access Nigeria Assets Limited"
+      // share 4 tokens of 6/7 — recognise them as the same entity.
+      const valuesAllSimilar = (vs: any[]): boolean => {
+        for (let i = 0; i < vs.length; i++) {
+          for (let j = i + 1; j < vs.length; j++) {
+            if (!this.valuesEquivalent(vs[i], vs[j], field)) return false;
+          }
+        }
+        return true;
       };
-      const distinct = new Set(list.map((c) => JSON.stringify(norm(c.value))));
-      if (distinct.size > 1) out[field] = list;
+      if (valuesAllSimilar(list.map((c) => c.value))) continue;
+      out[field] = list;
     }
     return out;
+  }
+
+  /**
+   * Free-text description fields where paraphrasing is genuinely
+   * the same content (different word order, parenthetical asides,
+   * count prefixes). Loose Jaccard match here. Legal-entity / name
+   * fields stay strict — "ENGIE Energy Access" vs "CrossBoundary
+   * Energy Access" might share tokens but ARE different entities.
+   */
+  private static readonly LOOSE_MATCH_FIELDS = new Set([
+    'auxiliaryEnergySourceDetails',
+    'impactStory',
+    'address',
+  ]);
+
+  /**
+   * "Essentially the same value" — handles type quirks (numbers vs
+   * strings, arrays as sets). For free-text description fields
+   * (LOOSE_MATCH_FIELDS) treats values as matching when their token
+   * Jaccard similarity ≥ 0.6, so paraphrases don't escalate. All
+   * other fields use strict equality after lowercase-trim.
+   */
+  private valuesEquivalent(a: any, b: any, field?: string): boolean {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    if (typeof a === 'number' && typeof b === 'number') {
+      return Number(a.toFixed(2)) === Number(b.toFixed(2));
+    }
+    if (typeof a === 'boolean' || typeof b === 'boolean') {
+      return String(a) === String(b);
+    }
+    if (Array.isArray(a) && Array.isArray(b)) {
+      const sa = [...a].map(String).sort();
+      const sb = [...b].map(String).sort();
+      return JSON.stringify(sa) === JSON.stringify(sb);
+    }
+    const sa = String(a).trim().toLowerCase();
+    const sb = String(b).trim().toLowerCase();
+    if (sa === sb) return true;
+    if (
+      !field ||
+      !AddDevicesComponent.LOOSE_MATCH_FIELDS.has(field)
+    ) {
+      return false;
+    }
+    const tokenize = (s: string): Set<string> =>
+      new Set(
+        s
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, ' ')
+          .split(/\s+/)
+          .filter((t) => t.length >= 2),
+      );
+    const ta = tokenize(sa);
+    const tb = tokenize(sb);
+    if (!ta.size || !tb.size) return false;
+    let overlap = 0;
+    ta.forEach((t) => {
+      if (tb.has(t)) overlap++;
+    });
+    const jaccard = overlap / (ta.size + tb.size - overlap);
+    return jaccard >= 0.6;
   }
 
   hasConflicts(deviceIndex: number): boolean {
