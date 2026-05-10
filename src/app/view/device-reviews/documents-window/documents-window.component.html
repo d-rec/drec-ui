@@ -1019,6 +1019,10 @@
             <span class="scan-log__num">{{ i + 1 }}.</span>
             <span class="scan-log__label">{{ entry.label }}</span>
             <div class="scan-log__detail" *ngIf="entry.detail">{{ entry.detail }}</div>
+            <div class="scan-log__plain" *ngIf="entry.detail && explainFlag(entry.label, entry.detail) as plain"
+                 style="color:#475569;font-size:11.5px;font-style:italic;line-height:1.45;margin-top:4px">
+              {{ plain }}
+            </div>
             <div class="scan-log__subitems" *ngIf="entry.subItems?.length">
               <div class="scan-log__subitem" *ngFor="let sub of entry.subItems"
                    [class.scan-log__subitem--pass]="sub.status === 'pass'"
@@ -1035,6 +1039,10 @@
                 </span>
                 <span class="scan-log__sublabel">{{ sub.label }}</span>
                 <span class="scan-log__subdetail" *ngIf="sub.detail">{{ sub.detail }}</span>
+                <div class="scan-log__plain" *ngIf="sub.detail && explainFlag(sub.label, sub.detail) as plain"
+                     style="color:#475569;font-size:11px;font-style:italic;line-height:1.4;margin-top:2px;width:100%">
+                  {{ plain }}
+                </div>
               </div>
             </div>
           </div>
