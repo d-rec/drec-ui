@@ -2638,30 +2638,12 @@ export class AddDevicesComponent implements OnDestroy {
         addInferred('SDGBenefits', 'Impact story', this.inferSdgBenefits(story));
       }
     }
-    // Inject the form's current value as a "Current" claim for any
-    // field a doc weighed in on. Triggers the conflict block when
-    // a manually-typed (or geocoder-set) value disagrees with what
-    // the document says.
-    const form = this.deviceForms.at(deviceIndex);
-    if (form) {
-      for (const field of Object.keys(claims)) {
-        const v = form.get(field)?.value;
-        if (v == null) continue;
-        if (typeof v === 'string' && v.trim() === '') continue;
-        if (Array.isArray(v) && v.length === 0) continue;
-        // Skip if the current value is identical to one of the
-        // doc claims — no point listing the same value twice.
-        const norm = (x: any) =>
-          typeof x === 'number'
-            ? Number(x.toFixed(2))
-            : typeof x === 'string'
-              ? x.trim().toLowerCase()
-              : x;
-        const cur = norm(v);
-        if (claims[field].some((c) => norm(c.value) === cur)) continue;
-        claims[field].push({ source: 'Current', value: v, confidence: 1 });
-      }
-    }
+    // Don't inject the live form value as a synthetic claim — the
+    // form value isn't itself evidence (it's whatever's typed/picked
+    // right now). Doc-vs-form discrepancies still surface in the
+    // submit-time form-vs-doc resolver dialog (a separate pass that
+    // explicitly compares form to extractor claims). The conflict
+    // block here is for doc-vs-doc disagreement only.
     return claims;
   }
 
@@ -4080,7 +4062,7 @@ export class AddDevicesComponent implements OnDestroy {
       // and any source that already matches the form value.
       const curN = norm(cur);
       const docs = list.filter(
-        (c) => c.source !== 'Current' && c.confidence >= 0.7 && norm(c.value) !== curN,
+        (c) => c.confidence >= 0.7 && norm(c.value) !== curN,
       );
       if (!docs.length) continue;
       const label =
