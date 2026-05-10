@@ -4543,30 +4543,10 @@ export class AddDevicesComponent implements OnDestroy {
           // always see provenance reflecting the just-saved state.
           // Fire-and-forget; failures don't block submit/navigation.
           this.generateProvenanceReport(0);
-          if (shouldRegenerateSf02) {
-            // Regenerate the SF-02 from the now-updated device data,
-            // then navigate. Failure to regenerate is non-fatal — the
-            // user can re-trigger via the "Re-generate SF-02" button.
-            this.http
-              .post(
-                `${environment.API_URL}device-reviews/${this.editingDeviceId}/generate-sf02`,
-                {},
-              )
-              .subscribe({
-                next: () => {
-                  this.toastrService.success('SF-02 regenerated', 'SF-02');
-                  navigateAway();
-                },
-                error: (e) => {
-                  this.toastrService.warning(
-                    e?.error?.message || e?.message || 'Generation failed',
-                    'SF-02 — regenerate skipped',
-                  );
-                  navigateAway();
-                },
-              });
-            return;
-          }
+          // SF-02 regen happens server-side via
+          // device.controller's maybeRegenerateAutoSf02 hook on
+          // PATCH success — the previous explicit POST from here
+          // double-fired the audit (sf02_generated landed twice).
           navigateAway();
         },
         error: (err: any) => {
