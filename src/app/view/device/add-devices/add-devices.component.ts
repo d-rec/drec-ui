@@ -2542,6 +2542,56 @@ export class AddDevicesComponent implements OnDestroy {
         claims[field].push(c);
       }
     }
+    // Retroactive inference: a field saved in a prior session is
+    // already populated on hydration, so the live inference helpers
+    // never re-fire — they only write to empty controls. Recompute
+    // what each helper WOULD say given the current state and credit
+    // it when its output matches the form value. This catches
+    // SDGBenefits / impactStory-derived flags / geocoder values
+    // that were inferred before this edit session.
+    const formAt = this.deviceForms.at(deviceIndex);
+    if (formAt) {
+      const story = formAt.get('impactStory')?.value as string | null;
+      const addInferred = (
+        field: string,
+        source: string,
+        inferredValue: any,
+      ): void => {
+        if (inferredValue == null || inferredValue === '') return;
+        if (Array.isArray(inferredValue) && inferredValue.length === 0) return;
+        const cur = formAt.get(field)?.value;
+        const match =
+          Array.isArray(inferredValue) && Array.isArray(cur)
+            ? JSON.stringify([...inferredValue].sort()) ===
+              JSON.stringify([...cur].sort())
+            : String(cur).trim().toLowerCase() ===
+              String(inferredValue).trim().toLowerCase();
+        if (!match) return;
+        if (!claims[field]) claims[field] = [];
+        // Skip if the same source already weighed in (live capture
+        // beat us to it).
+        if (claims[field].some((c) => c.source === source)) return;
+        claims[field].push({ source, value: inferredValue, confidence: 0.9 });
+      };
+      if (story) {
+        addInferred(
+          'deviceDescription',
+          'Impact story',
+          this.inferDeviceDescription(story),
+        );
+        addInferred('offTaker', 'Impact story', this.inferOffTaker(story));
+        const fund = this.inferFundingFlags(story);
+        if (fund) {
+          addInferred(
+            'hasPublicFunding',
+            'Impact story',
+            fund.publicFunding,
+          );
+          addInferred('hasSubsidy', 'Impact story', fund.subsidy);
+        }
+        addInferred('SDGBenefits', 'Impact story', this.inferSdgBenefits(story));
+      }
+    }
     // Inject the form's current value as a "Current" claim for any
     // field a doc weighed in on. Triggers the conflict block when
     // a manually-typed (or geocoder-set) value disagrees with what
