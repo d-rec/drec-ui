@@ -2684,6 +2684,73 @@ export class AddDevicesComponent implements OnDestroy {
         addInferred('dataSource', dataSourceSource, 'Inverter');
       }
 
+      // version 1.0 is the form-builder's hard-coded default — every
+      // device starts there and almost nothing overrides it.
+      addInferred('version', 'Platform default', '1.0');
+
+      // evidence_pathway is mechanically derived from operating
+      // configuration + sourceAccessMode (per the D-REC §3.1 table).
+      // If the form value matches what the rule produces, credit it.
+      const opConfig = formAt.get('operatingConfiguration')?.value;
+      const sam = formAt.get('sourceAccessMode')?.value;
+      const offGrid =
+        typeof opConfig === 'string' && /off[\s-]?grid|islanded/i.test(opConfig);
+      const samMode =
+        typeof sam === 'string'
+          ? sam.startsWith('Mode 1')
+            ? 1
+            : sam.startsWith('Mode 2')
+              ? 2
+              : sam.startsWith('Mode 3')
+                ? 3
+                : sam.startsWith('Mode 4')
+                  ? 4
+                  : null
+          : null;
+      const inferEvidencePathway = (): string | null => {
+        if (samMode == null) return null;
+        if (offGrid) {
+          if (samMode === 1 || samMode === 2) return 'Direct Off-Grid';
+          return 'Compensating Off-Grid';
+        }
+        if (samMode === 1 || samMode === 2) return 'Direct Grid-Connected';
+        if (samMode === 3) return 'File-Based Grid-Connected';
+        return 'Compensating Grid-Connected';
+      };
+      addInferred(
+        'evidencePathway',
+        'opConfig × sourceAccessMode',
+        inferEvidencePathway(),
+      );
+
+      // state_province: the impactStory often names the locale
+      // verbatim (e.g. "Lokoja LGA of Kogi State"). If the form
+      // value appears in the story, credit the story as the source.
+      if (story) {
+        const sp = formAt.get('stateProvince')?.value as string | null;
+        if (
+          sp &&
+          story.toLowerCase().includes(sp.toLowerCase())
+        ) {
+          // addInferred matches via String-equal; pass the form value
+          // back as the inferred value so it always matches.
+          addInferred('stateProvince', 'Impact story', sp);
+        }
+
+        // off_taker_name: typically the community / customer label in
+        // the story. Credit when the form value is a verbatim
+        // substring (case-insensitive) of the story — conservative
+        // enough that "Atsawa Community" matches "Atsawa community"
+        // but a hand-typed off-taker that's not in the story won't.
+        const otn = formAt.get('offTakerName')?.value as string | null;
+        if (
+          otn &&
+          story.toLowerCase().includes(otn.toLowerCase())
+        ) {
+          addInferred('offTakerName', 'Impact story', otn);
+        }
+      }
+
       // sourceAccessMode 'Mode 1' is inferable when the device has an
       // api_user_id wired up — the platform is pulling data via API,
       // which is exactly what Mode 1 describes. Credit it retro-
