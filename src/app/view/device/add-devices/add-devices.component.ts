@@ -2998,7 +2998,12 @@ export class AddDevicesComponent implements OnDestroy {
           flag = 'conflict'; // current matches no source — manual override
         }
       }
-      rows.push({ label, value: cur, sources: list, flag });
+      rows.push({
+        label,
+        value: this.formatFieldValue(field, cur),
+        sources: list,
+        flag,
+      });
     }
     // Manual-only fields (filled by user, no extractor weighed in).
     if (form) {
@@ -3011,7 +3016,12 @@ export class AddDevicesComponent implements OnDestroy {
           continue;
         const label =
           AddDevicesComponent.FIELD_LABELS[name] ?? name;
-        rows.push({ label, value: v, sources: [], flag: 'manual' });
+        rows.push({
+          label,
+          value: this.formatFieldValue(name, v),
+          sources: [],
+          flag: 'manual',
+        });
       }
     }
 
@@ -4115,7 +4125,26 @@ export class AddDevicesComponent implements OnDestroy {
     hasPublicFunding: '(35) Has public funding?',
     hasSubsidy: '(36) Has subsidy?',
     labellingSchemeAccreditation: '(37) Labelling-scheme accreditation',
+    sf02EvidenceMode: 'SF-02 evidence mode',
   };
+
+  /** Per-field value translators for the provenance-report table:
+   *  raw form values (enum codes, radio-button keys) get rewritten
+   *  into the same human-readable phrasing the form shows in
+   *  selects/radios. Without this, fields like `sf02EvidenceMode`
+   *  appear in the report as bare codes ("self", "upload"). */
+  private static readonly VALUE_FORMATTERS: Record<
+    string,
+    (v: any) => string
+  > = {
+    sf02EvidenceMode: (v) =>
+      v === 'self' ? 'Self-generated' : v === 'upload' ? 'Uploaded' : String(v),
+  };
+
+  private formatFieldValue(name: string, value: any): any {
+    const fmt = AddDevicesComponent.VALUE_FORMATTERS[name];
+    return fmt ? fmt(value) : value;
+  }
 
   /** Walk the FormArray and collect labels for every invalid /
    *  required-but-empty control. Falls back to the raw control name
