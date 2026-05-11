@@ -2658,6 +2658,25 @@ export class AddDevicesComponent implements OnDestroy {
         inferOpConfig(),
       );
 
+      // (12) fuelCode defaults to 'ES100' (solar PV) in the form
+      // builder — every new device starts there unless something
+      // overrides it. If the form value matches the default, credit
+      // the platform rather than the user.
+      addInferred('fuelCode', 'Platform default (solar PV)', 'ES100');
+
+      // sourceAccessMode 'Mode 1' is inferable when the device has an
+      // api_user_id wired up — the platform is pulling data via API,
+      // which is exactly what Mode 1 describes. Credit it retro-
+      // actively so it stops reading MANUAL on API-ingested devices.
+      const apiUserId = (this.initialValues as any)?.api_user_id;
+      if (apiUserId) {
+        addInferred(
+          'sourceAccessMode',
+          'API-user inference',
+          'Mode 1 — Direct API-based source access',
+        );
+      }
+
       if (story) {
         addInferred(
           'deviceDescription',
