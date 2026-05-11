@@ -232,7 +232,7 @@ export class OcChecklistPanelComponent
   @Input() storageKey: string | null = '';
 
   rows = OC_ROWS;
-  collapsed = false;
+  collapsed = this.loadCollapsedPref();
   /** Checked item keys — top-level OC# as its numeric string (e.g. "45"), sub-items as "45.0", "45.1", … */
   checked = new Set<string>();
   /** When true, hide rows that have neither a cross-check nor sub-items. */
@@ -240,6 +240,7 @@ export class OcChecklistPanelComponent
   /** Free-text filter matching item name, cross-check hint, and sub-item labels. */
   filter = '';
   private static readonly HIDE_PREF_KEY = 'oc-checklist:hide-no-crosscheck';
+  private static readonly COLLAPSED_PREF_KEY = 'oc-checklist:collapsed';
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -284,8 +285,29 @@ export class OcChecklistPanelComponent
 
   toggleCollapsed(): void {
     this.collapsed = !this.collapsed;
+    try {
+      localStorage.setItem(
+        OcChecklistPanelComponent.COLLAPSED_PREF_KEY,
+        this.collapsed ? '1' : '0',
+      );
+    } catch {
+      /* noop */
+    }
     this.applyReserve();
     this.cdr.markForCheck();
+  }
+
+  /** Default collapsed; only opens on this device if the reviewer
+   *  has explicitly opened it at least once. */
+  private loadCollapsedPref(): boolean {
+    try {
+      return (
+        localStorage.getItem(OcChecklistPanelComponent.COLLAPSED_PREF_KEY) !==
+        '0'
+      );
+    } catch {
+      return true;
+    }
   }
 
   toggleRow(key: string): void {
