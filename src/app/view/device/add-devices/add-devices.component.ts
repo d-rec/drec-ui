@@ -65,6 +65,10 @@ import {
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
 import { environment } from '../../../../environments/environment';
 import {
+  DeviceReviewNote,
+  DeviceReviewNotesService,
+} from '../../device-reviews/device-review-notes.service';
+import {
   CodExtractedFields,
   DocumentClassifierService,
   MeterIdsExtractedFields,
@@ -356,6 +360,7 @@ export class AddDevicesComponent implements OnDestroy {
     private http: HttpClient,
     private documentClassifier: DocumentClassifierService,
     private ngZone: NgZone,
+    public reviewNotes: DeviceReviewNotesService,
   ) {
     this.user = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -417,6 +422,13 @@ export class AddDevicesComponent implements OnDestroy {
           this.initSerialNumber = data.serialNumber ?? null;
           this.initSiteName = data.siteName ?? null;
           this.initialValues = { ...data };
+          // Pull any open reviewer notes so the registrant sees what
+          // needs fixing the moment they land on the edit page.
+          if (data.id) {
+            this.reviewNotes.list(data.id).subscribe({
+              error: () => {/* silent; banner just stays empty */},
+            });
+          }
 
           const firstRow = this.deviceForms.at(0) as FormGroup;
           if (!firstRow) return;
@@ -3011,6 +3023,48 @@ export class AddDevicesComponent implements OnDestroy {
       { source: string; confidence: number; at: string }
     >;
   } = {};
+
+  /** Open reviewer notes for the device, newest-first. The template
+   *  reads this directly to render the per-field feedback banner. */
+  openReviewNotes(): DeviceReviewNote[] {
+    if (!this.editingDeviceId) return [];
+    return this.reviewNotes
+      .notesFor(this.editingDeviceId)
+      .filter((n) => n.status === 'open');
+  }
+
+  /** Registrant clicks "Go to field" — scroll the form control into
+   *  view and flash a highlight so it's obvious which row to fix. */
+  jumpToField(field: string | null): void {
+    if (!field) return;
+    const el = document.querySelector<HTMLElement>(
+      `[formControlName="${field}"]`,
+    );
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.add('field--flash');
+    setTimeout(() => el.classList.remove('field--flash'), 1600);
+  }
+
+  resolveReviewNote(note: DeviceReviewNote): void {
+    this.reviewNotes.resolve(note.deviceId, note.id).subscribe({
+      error: (e) =>
+        this.toastrService.error(
+          e?.error?.message ?? 'Failed to mark resolved',
+          'Review notes',
+        ),
+    });
+  }
+
+  /** Human label for a note's anchor — mirrors FIELD_LABELS so the
+   *  registrant sees the same numbering the reviewer typed against. */
+  labelForNoteField(field: string | null): string {
+    if (!field) return 'General';
+    return (
+      AddDevicesComponent.FIELD_LABELS[field] ??
+      field.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase())
+    );
+  }
 
   recordProvenance(
     deviceIndex: number,

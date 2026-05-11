@@ -49,6 +49,29 @@
               <hr *ngIf="deviceForms.controls.length > 1" />
               <mat-card-content>
 
+                <!-- ── Reviewer feedback banner (edit mode only) ─────────── -->
+                <div *ngIf="i === 0 && isEditMode && openReviewNotes().length"
+                     class="review-feedback">
+                  <div class="review-feedback__head">
+                    <strong>Reviewer feedback ({{ openReviewNotes().length }} open)</strong>
+                    <small>Address each item and mark resolved.</small>
+                  </div>
+                  <div *ngFor="let n of openReviewNotes()" class="review-feedback__row">
+                    <div class="review-feedback__main">
+                      <a *ngIf="n.fieldName" class="review-feedback__field"
+                         href="javascript:void(0)"
+                         (click)="jumpToField(n.fieldName)">
+                        {{ labelForNoteField(n.fieldName) }} ↗
+                      </a>
+                      <span *ngIf="!n.fieldName" class="review-feedback__field">General</span>
+                      <div class="review-feedback__body">{{ n.body }}</div>
+                      <div class="review-feedback__meta">{{ n.createdBy }} · {{ n.createdAt | date:'short' }}</div>
+                    </div>
+                    <button type="button" class="btn btn-outline-success btn-sm"
+                            (click)="resolveReviewNote(n)">Mark resolved</button>
+                  </div>
+                </div>
+
                 <!-- ── Site & Identification ────────────────────────────── -->
                 <div class="row">
                   <div class="row">

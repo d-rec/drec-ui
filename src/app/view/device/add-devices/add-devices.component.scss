@@ -1347,3 +1347,53 @@ $as-bg:       #f8fafc;
   padding-top: 2px;
   line-height: 1.4;
 }
+
+.review-feedback {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+
+  &__head {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    margin-bottom: 8px;
+    color: #7c2d12;
+    small { color: #9a3412; font-weight: normal; }
+  }
+  &__row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 6px 0;
+    border-top: 1px dashed #fed7aa;
+    &:first-of-type { border-top: 0; }
+  }
+  &__main { flex: 1; min-width: 0; }
+  &__field {
+    font-weight: 600;
+    color: #b45309;
+    font-size: 12px;
+    &[href] { text-decoration: none; border-bottom: 1px dotted #b45309; }
+  }
+  &__body {
+    color: #1f2937;
+    font-size: 13px;
+    margin: 2px 0;
+    white-space: pre-wrap;
+  }
+  &__meta {
+    color: #9a3412;
+    font-size: 11px;
+  }
+}
+
+@keyframes review-field-flash {
+  0%, 100% { box-shadow: none; }
+  35% { box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.55); }
+}
+.field--flash {
+  animation: review-field-flash 1.5s ease-in-out;
+}
