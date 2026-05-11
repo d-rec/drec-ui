@@ -1,10 +1,21 @@
+// The guest layout wraps us in a flex container locked to 100vh, so
+// `min-height` overflow gets clipped instead of scrolled. Make the
+// outer block size itself to the viewport and own the vertical scroll.
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .pp {
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
   display: flex;
   justify-content: center;
   padding: 32px 16px;
   background: #f8fafc;
   color: #1f2937;
+  box-sizing: border-box;
 }
 
 .pp__card {
@@ -15,6 +26,7 @@
   border-radius: 8px;
   padding: 32px 36px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  align-self: flex-start;
 }
 
 .pp__header {
