@@ -321,51 +321,9 @@
               </div>
             </div>
 
-            <!-- Per-field reviewer notes thread -->
-            <div class="field field--full review-notes" *ngIf="editingId">
-              <div class="review-notes__head">
-                <label class="field__label" style="margin:0">Field notes for registrant</label>
-                <label class="review-notes__toggle" *ngIf="resolvedReviewNoteCount() > 0">
-                  <input type="checkbox" [(ngModel)]="showResolvedNotes" [ngModelOptions]="{standalone:true}" />
-                  Show resolved ({{ resolvedReviewNoteCount() }})
-                </label>
-              </div>
-
-              <div class="review-notes__list">
-                <div *ngFor="let n of visibleReviewNotes()"
-                     class="review-note"
-                     [class.review-note--resolved]="n.status === 'resolved'">
-                  <div class="review-note__head">
-                    <span class="review-note__field">{{ labelForFieldKey(n.fieldName) }}</span>
-                    <span class="review-note__status review-note__status--{{ n.status }}">{{ n.status }}</span>
-                    <span class="review-note__meta">{{ n.createdBy }} · {{ n.createdAt | date:'short' }}</span>
-                    <span class="review-note__actions">
-                      <button *ngIf="n.status === 'open'" type="button" class="link-btn" (click)="resolveReviewNote(n)">resolve</button>
-                      <button *ngIf="n.status === 'resolved'" type="button" class="link-btn" (click)="reopenReviewNote(n)">reopen</button>
-                      <button type="button" class="link-btn link-btn--danger" (click)="deleteReviewNote(n)">delete</button>
-                    </span>
-                  </div>
-                  <div class="review-note__body">{{ n.body }}</div>
-                </div>
-                <div *ngIf="!visibleReviewNotes().length" class="review-notes__empty">
-                  No open notes. Add one below to flag a specific field for the registrant.
-                </div>
-              </div>
-
-              <div class="review-notes__add" *ngIf="detailForm.get('status')?.value !== 'approved'">
-                <select class="review-notes__select" [(ngModel)]="noteDraft.fieldName" [ngModelOptions]="{standalone:true}">
-                  <option *ngFor="let opt of NOTE_FIELD_OPTIONS" [value]="opt.key">{{ opt.label }}</option>
-                </select>
-                <textarea class="field__input review-notes__body"
-                          rows="2"
-                          placeholder="What does the registrant need to fix?"
-                          [(ngModel)]="noteDraft.body"
-                          [ngModelOptions]="{standalone:true}"></textarea>
-                <button type="button" class="btn btn-outline-primary btn-sm"
-                        [disabled]="!noteDraft.body.trim()"
-                        (click)="submitReviewNote()">Add note</button>
-              </div>
-            </div>
+            <!-- Per-field reviewer notes moved into chat 2026-05-11.
+                 Use the chat panel (click 💬 below) with the "Note for
+                 registrant" kind picker to flag a specific field. -->
           <div class="detail-actions">
             <button type="button" class="btn btn-outline-primary btn-sm" (click)="openScanDialog()" title="Run verification checks on this device">Verify Device</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" (click)="openDeviceInfo()" title="Open the floating device-info window with all fields">Details</button>

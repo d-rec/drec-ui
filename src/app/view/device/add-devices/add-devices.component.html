@@ -54,7 +54,7 @@
                      class="review-feedback">
                   <div class="review-feedback__head">
                     <strong>Reviewer feedback ({{ openReviewNotes().length }} open)</strong>
-                    <small>Address each item and mark resolved.</small>
+                    <small>Address each item and reply in chat. The reviewer resolves notes after re-checking.</small>
                   </div>
                   <div *ngFor="let n of openReviewNotes()" class="review-feedback__row">
                     <div class="review-feedback__main">
@@ -64,11 +64,11 @@
                         {{ labelForNoteField(n.fieldName) }} ↗
                       </a>
                       <span *ngIf="!n.fieldName" class="review-feedback__field">General</span>
-                      <div class="review-feedback__body">{{ n.body }}</div>
-                      <div class="review-feedback__meta">{{ n.createdBy }} · {{ n.createdAt | date:'short' }}</div>
+                      <div class="review-feedback__body">{{ n.chatEntry }}</div>
+                      <div class="review-feedback__meta">{{ n.username }} · {{ n.createdAt | date:'short' }}</div>
                     </div>
-                    <button type="button" class="btn btn-outline-success btn-sm"
-                            (click)="resolveReviewNote(n)">Mark resolved</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                            (click)="replyToReviewNote(n)">Reply in chat</button>
                   </div>
                 </div>
 

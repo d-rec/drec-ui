@@ -11,12 +11,21 @@ import {
 import { switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
+export type ChatKind = 'text' | 'note' | 'system' | 'doc-ref';
+export type ChatNoteStatus = 'open' | 'resolved';
+
 export interface ChatMessage {
   uuid: string;
   username: string;
   chatEntry: string;
   nextEntryUuid: string | null;
   createdAt: string;
+  kind: ChatKind;
+  fieldName: string | null;
+  status: ChatNoteStatus | null;
+  resolvedBy: string | null;
+  resolvedAt: string | null;
+  payload: Record<string, any> | null;
 }
 
 export interface ChatConversation {
@@ -180,24 +189,41 @@ export class ChatService implements OnDestroy {
     return this.http.get<ChatMessage[]>(`${this.apiUrl}chat/chain/${headUuid}`);
   }
 
-  sendMessage(username: string, chatEntry: string): Observable<ChatMessage> {
+  sendMessage(
+    username: string,
+    chatEntry: string,
+    opts: {
+      kind?: ChatKind;
+      fieldName?: string | null;
+      payload?: Record<string, any> | null;
+    } = {},
+  ): Observable<ChatMessage> {
     return this.http.post<ChatMessage>(
       `${this.apiUrl}chat/conversations/${this.currentConversationId}/messages`,
-      { username, chatEntry },
+      { username, chatEntry, ...opts },
     );
   }
 
-  deleteMessage(uuid: string): Observable<{
-    success: boolean;
-    conversationId: number | null;
-    headUuid: string | null;
-  }> {
-    return this.http.delete<{
-      success: boolean;
-      conversationId: number | null;
-      headUuid: string | null;
-    }>(`${this.apiUrl}chat/messages/${uuid}`);
+  /** Flip a note to status='resolved' (reviewer/admin only). Server
+   *  also appends a kind='system' audit marker — we just refetch the
+   *  chain to pick it up. */
+  resolveNote(uuid: string): Observable<ChatMessage> {
+    return this.http.patch<ChatMessage>(
+      `${this.apiUrl}chat/messages/${uuid}/resolve`,
+      {},
+    );
   }
+
+  reopenNote(uuid: string): Observable<ChatMessage> {
+    return this.http.patch<ChatMessage>(
+      `${this.apiUrl}chat/messages/${uuid}/reopen`,
+      {},
+    );
+  }
+
+  // Note: deleteMessage() was removed 2026-05-11. Chat is eternal
+  // audit material; resolve/reopen are the only mutations allowed
+  // and both append system markers rather than destroying.
 
   getAdminUser(): Observable<{
     id: number;

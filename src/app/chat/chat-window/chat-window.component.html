@@ -37,9 +37,16 @@
           *ngFor="let msg of filteredMessages"
           [class.own]="isOwnMessage(msg)"
           [class.unread-bold]="unreadUuids.has(msg.uuid)"
+          [class.bubble--note]="msg.kind === 'note'"
+          [class.bubble--note-open]="msg.kind === 'note' && msg.status === 'open'"
+          [class.bubble--note-resolved]="msg.kind === 'note' && msg.status === 'resolved'"
+          [class.bubble--system]="msg.kind === 'system'"
           class="bubble"
           (contextmenu)="onMessageContextMenu($event, msg)"
         >
+          <ng-container *ngIf="msg.kind === 'note'">
+            <span class="bubble__field-tag" title="Reviewer note">📌 {{ fieldLabel(msg.fieldName) }}</span>
+          </ng-container>
           <span class="sender-name">{{ msg.username }}</span>
           <span class="text" *ngIf="!isItalic(msg.chatEntry)" [innerHTML]="highlightText(msg.chatEntry)"></span>
           <span class="text text--italic" *ngIf="isItalic(msg.chatEntry)" [innerHTML]="highlightText(stripItalic(msg.chatEntry))"></span>
@@ -56,6 +63,15 @@
             <span class="report-card__arrow">›</span>
           </a>
           <span class="time">{{ msg.createdAt | date: 'd MMM, HH:mm' }}</span>
+          <span *ngIf="msg.kind === 'note'" class="bubble__note-actions">
+            <span *ngIf="msg.status === 'resolved'" class="bubble__status bubble__status--resolved">
+              ✓ resolved{{ msg.resolvedBy ? ' by ' + msg.resolvedBy : '' }}
+            </span>
+            <ng-container *ngIf="canResolveNotes">
+              <button *ngIf="msg.status === 'open'" type="button" class="bubble__resolve" (click)="resolveNote(msg.uuid)">Mark resolved</button>
+              <button *ngIf="msg.status === 'resolved'" type="button" class="bubble__resolve bubble__resolve--reopen" (click)="reopenNote(msg.uuid)">Reopen</button>
+            </ng-container>
+          </span>
         </div>
         <div *ngIf="messages.length === 0" class="no-messages">
           No messages yet. Say hello!
@@ -64,19 +80,34 @@
       <button class="scroll-arrow scroll-arrow--bottom" (click)="scrollToBottom()" title="Jump to bottom">&#9660;</button>
     </div>
 
-    <div class="input-bar" *ngIf="!(chatService.readOnly$ | async)">
-      <textarea
-        #messageInput
-        [(ngModel)]="draft"
-        (keydown)="onInputKeydown($event)"
-        (input)="autoResize($event.target)"
-        placeholder="Type a message…"
-        class="message-input"
-        rows="1"
-      ></textarea>
-      <button class="send-btn send-btn--svg" (click)="send()" [disabled]="!draft.trim()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-      </button>
+    <div class="input-bar input-bar--rich" *ngIf="!(chatService.readOnly$ | async)">
+      <div class="input-kind-row">
+        <label class="input-kind-pick">
+          <input type="radio" name="kind" value="text" [(ngModel)]="draftKind" />
+          Message
+        </label>
+        <label class="input-kind-pick" *ngIf="canResolveNotes">
+          <input type="radio" name="kind" value="note" [(ngModel)]="draftKind" />
+          Note for registrant
+        </label>
+        <select *ngIf="draftKind === 'note'" class="input-field-anchor" [(ngModel)]="draftFieldName">
+          <option *ngFor="let opt of NOTE_FIELD_OPTIONS" [value]="opt.key">{{ opt.label }}</option>
+        </select>
+      </div>
+      <div class="input-bar__row">
+        <textarea
+          #messageInput
+          [(ngModel)]="draft"
+          (keydown)="onInputKeydown($event)"
+          (input)="autoResize($event.target)"
+          [placeholder]="draftKind === 'note' ? 'What should the registrant fix?' : 'Type a message…'"
+          class="message-input"
+          rows="1"
+        ></textarea>
+        <button class="send-btn send-btn--svg" (click)="send()" [disabled]="!draft.trim()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
     </div>
 
   </ng-container>
@@ -91,15 +122,7 @@
     </div>
   </div>
 
-  <!-- Right-click context menu for own messages: delete -->
-  <div *ngIf="msgMenu"
-       class="msg-menu"
-       [style.left.px]="msgMenu.x"
-       [style.top.px]="msgMenu.y"
-       (click)="$event.stopPropagation()">
-    <button type="button" class="msg-menu__item" (click)="deleteMessageFromMenu()">
-      🗑 Delete message
-    </button>
-  </div>
-  <div *ngIf="msgMenu" class="msg-menu__backdrop" (click)="msgMenu = null"></div>
+  <!-- Right-click context menu intentionally empty for now — delete
+       was removed 2026-05-11 (chat is eternal audit material). Will
+       reappear with non-destructive options (reply / permalink). -->
 </div>

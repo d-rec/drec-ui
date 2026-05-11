@@ -23,6 +23,100 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
 
   messages: ChatMessage[] = [];
   draft = '';
+  /** Compose kind picker. 'note' adds a field-anchor select; the
+   *  send() one-shot resets back to 'text' so a follow-up doesn't
+   *  accidentally tag the same field. */
+  draftKind: 'text' | 'note' = 'text';
+  draftFieldName = '';
+
+  /** Field-anchor options for compose. Same list the reviewer thread
+   *  used; pinned 'General' on top, the rest sorted alpha-numerically
+   *  so (2)Site comes before (10)Commissioning. */
+  readonly NOTE_FIELD_OPTIONS: ReadonlyArray<{ key: string; label: string }> =
+    (() => {
+      const general = { key: '', label: 'General (not field-specific)' };
+      const fields = [
+        { key: 'siteName', label: '(2) Site name' },
+        { key: 'address', label: '(16) Address' },
+        { key: 'latitude', label: '(19) Latitude' },
+        { key: 'longitude', label: '(20) Longitude' },
+        { key: 'countryCodename', label: '(9) Country' },
+        { key: 'capacity', label: '(13) AC capacity (kW)' },
+        { key: 'commissioningDate', label: '(10) Commissioning date' },
+        { key: 'deviceTypeCode', label: '(11) Device type' },
+        { key: 'fuelCode', label: '(12) Fuel code' },
+        { key: 'gridInterconnection', label: '(32) Grid interconnection' },
+        { key: 'gridExportType', label: '(16) Exports to grid?' },
+        { key: 'hasNetworkMeter', label: '(18) Network meter' },
+        { key: 'networkOwner', label: '(17) Network owner' },
+        { key: 'interconnectionVoltage', label: '(31) Interconnection voltage' },
+        { key: 'generatingUnitCount', label: '(33) Generating unit count' },
+        { key: 'dataSourceBrand', label: '(22) Data source brand' },
+        { key: 'serialNumber', label: '(23) Serial number / meter ID' },
+        { key: 'pvSystemOwner', label: '(15) PV system owner' },
+        { key: 'pvSystemOwnerAddress', label: '(15a) Owner mailing address' },
+        { key: 'offTakerName', label: '(28) Off-taker name' },
+        { key: 'offTaker', label: '(29) Off-taker' },
+        { key: 'impactStory', label: '(29) Impact story' },
+        { key: 'hasAuxiliaryEnergySources', label: '(34) Auxiliary energy sources?' },
+        { key: 'auxiliaryEnergySourceDetails', label: '(34a) Auxiliary energy source details' },
+        { key: 'sourceAccessMode', label: 'Source-access mode' },
+        { key: 'operatingConfiguration', label: '(30) Operating configuration' },
+        { key: 'evidencePathway', label: 'Evidence pathway' },
+        { key: 'deviceDescription', label: '(8) Device description' },
+        { key: 'SDGBenefits', label: '(28) SDG benefits' },
+      ];
+      fields.sort((a, b) =>
+        a.label.localeCompare(b.label, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+        }),
+      );
+      return [general, ...fields];
+    })();
+
+  /** Translate field key to human label for the bubble's anchor tag. */
+  fieldLabel(key: string | null): string {
+    if (!key) return 'General';
+    return (
+      this.NOTE_FIELD_OPTIONS.find((o) => o.key === key)?.label ?? key
+    );
+  }
+
+  /** Reviewer/admin clicks Resolve on a note bubble. */
+  resolveNote(uuid: string): void {
+    this.chatService.resolveNote(uuid).subscribe({
+      next: () => {
+        if (this.chatService.currentHeadUuid) {
+          this.chatService
+            .getChain(this.chatService.currentHeadUuid)
+            .subscribe((msgs) => this.chatService.messages$.next(msgs));
+        }
+      },
+      error: (e) => console.error('[chat] resolveNote failed', e),
+    });
+  }
+
+  reopenNote(uuid: string): void {
+    this.chatService.reopenNote(uuid).subscribe({
+      next: () => {
+        if (this.chatService.currentHeadUuid) {
+          this.chatService
+            .getChain(this.chatService.currentHeadUuid)
+            .subscribe((msgs) => this.chatService.messages$.next(msgs));
+        }
+      },
+      error: (e) => console.error('[chat] reopenNote failed', e),
+    });
+  }
+
+  /** Is the current user a reviewer/admin (allowed to resolve notes)? */
+  get canResolveNotes(): boolean {
+    const role = (
+      JSON.parse(sessionStorage.getItem('loginuser') ?? '{}') as any
+    )?.role;
+    return role === 'Reviewer' || role === 'Admin' || role === 'SeniorReviewer';
+  }
   minimized = false;
   currentUsername = '';
   currentRole = '';
@@ -154,7 +248,15 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
   send(): void {
     const text = this.draft.trim();
     if (!text || !this.partnerEmail) return;
+    const kind = this.draftKind;
+    const fieldName = kind === 'note' ? this.draftFieldName || null : null;
     this.draft = '';
+    // Field anchor sticks for one shot, then resets so reviewers
+    // don't accidentally tag a follow-up text to the same field.
+    if (kind === 'note') {
+      this.draftKind = 'text';
+      this.draftFieldName = '';
+    }
     // Collapse the textarea back to single-line after sending
     if (this.messageInput?.nativeElement) {
       this.messageInput.nativeElement.style.height = 'auto';
@@ -167,12 +269,20 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
       chatEntry: text,
       nextEntryUuid: null,
       createdAt: new Date().toISOString(),
+      kind,
+      fieldName,
+      status: kind === 'note' ? 'open' : null,
+      resolvedBy: null,
+      resolvedAt: null,
+      payload: null,
     };
     this.chatService.messages$.next([...this.messages, optimistic]);
 
     if (this.chatService.currentConversationId) {
       // Append to existing conversation
-      this.chatService.sendMessage(this.currentUsername, text).subscribe({
+      this.chatService
+        .sendMessage(this.currentUsername, text, { kind, fieldName })
+        .subscribe({
         next: () => {
           this.chatService
             .getChain(this.chatService.currentHeadUuid!)
@@ -332,59 +442,18 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
    *  messages — others fall through to the native menu. */
   msgMenu: { x: number; y: number; uuid: string } | null = null;
 
-  onMessageContextMenu(event: MouseEvent, msg: ChatMessage): void {
-    if (!window.getSelection()?.isCollapsed) return;
-    event.preventDefault();
-    event.stopPropagation();
-    this.msgMenu = { x: event.clientX, y: event.clientY, uuid: msg.uuid };
+  onMessageContextMenu(_event: MouseEvent, _msg: ChatMessage): void {
+    // Right-click delete was removed 2026-05-11 — chat is eternal
+    // audit material. The context menu currently has nothing else
+    // to offer, so this is a no-op until we add e.g. "reply to
+    // this message" or "copy permalink".
   }
 
   deleteMessageFromMenu(): void {
-    const uuid = this.msgMenu?.uuid;
-    this.msgMenu = null;
-    if (!uuid) return;
-    console.log('[chat] deleting message', uuid);
-    this.chatService.deleteMessage(uuid).subscribe({
-      next: (res) => {
-        console.log('[chat] delete OK', res);
-        // Remove locally and refresh the chain from the *new* head — the
-        // backend may have advanced conversation.headUuid (when the
-        // deleted message was the head) or dropped the conversation
-        // entirely. Using the cached currentHeadUuid would have asked
-        // the server for a non-existent node and returned [], making it
-        // look like everything got deleted.
-        this.messages = this.messages.filter((m) => m.uuid !== uuid);
-        this.chatService.messages$.next(this.messages);
-        if (res.headUuid) {
-          this.chatService.currentHeadUuid = res.headUuid;
-          this.chatService
-            .getChain(res.headUuid)
-            .subscribe((msgs) => this.chatService.messages$.next(msgs));
-        } else {
-          // Conversation emptied — clear local state, no refetch needed.
-          this.chatService.currentHeadUuid = null;
-          this.chatService.messages$.next([]);
-        }
-      },
-      error: (err) => {
-        console.error('[chat] delete message failed', err);
-        const detail =
-          err?.error?.message || err?.message || 'unknown error';
-        const ref = this.snackBar.open(
-          `Delete failed — ${detail}`,
-          'Copy',
-          {
-            duration: 0,
-            horizontalPosition: 'center',
-            verticalPosition: 'bottom',
-          },
-        );
-        ref.onAction().subscribe(() => {
-          navigator.clipboard?.writeText(detail);
-          ref.dismiss();
-        });
-      },
-    });
+    // Endpoint and capability removed 2026-05-11 — chat is eternal
+    // audit material. Kept as a no-op so the legacy menu binding
+    // (and any external test that references this method) doesn't
+    // break before we tear out the menu HTML.
   }
 
   clearChat(): void {

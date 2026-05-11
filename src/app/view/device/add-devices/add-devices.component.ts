@@ -64,10 +64,7 @@ import {
 } from '../../../utils/file-upload.helper';
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
 import { environment } from '../../../../environments/environment';
-import {
-  DeviceReviewNote,
-  DeviceReviewNotesService,
-} from '../../device-reviews/device-review-notes.service';
+import { ChatService, ChatMessage } from '../../../chat/chat.service';
 import {
   CodExtractedFields,
   DocumentClassifierService,
@@ -360,7 +357,7 @@ export class AddDevicesComponent implements OnDestroy {
     private http: HttpClient,
     private documentClassifier: DocumentClassifierService,
     private ngZone: NgZone,
-    public reviewNotes: DeviceReviewNotesService,
+    public chatService: ChatService,
   ) {
     this.user = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -422,12 +419,24 @@ export class AddDevicesComponent implements OnDestroy {
           this.initSerialNumber = data.serialNumber ?? null;
           this.initSiteName = data.siteName ?? null;
           this.initialValues = { ...data };
-          // Pull any open reviewer notes so the registrant sees what
-          // needs fixing the moment they land on the edit page.
-          if (data.id) {
-            this.reviewNotes.list(data.id).subscribe({
-              error: () => {/* silent; banner just stays empty */},
-            });
+          // Pull reviewer notes for this device's chat so the banner
+          // shows them on landing. Notes are kind='note' messages in
+          // the device's chat conversation.
+          if (data.siteName) {
+            this.chatService
+              .getConversation(undefined, undefined, data.siteName)
+              .subscribe({
+                next: (conv) => {
+                  if (conv?.headUuid) {
+                    this.chatService.getChain(conv.headUuid).subscribe({
+                      next: (msgs) =>
+                        this.chatService.messages$.next(msgs ?? []),
+                      error: () => {/* silent */},
+                    });
+                  }
+                },
+                error: () => {/* silent; banner stays empty */},
+              });
           }
 
           const firstRow = this.deviceForms.at(0) as FormGroup;
@@ -3024,13 +3033,12 @@ export class AddDevicesComponent implements OnDestroy {
     >;
   } = {};
 
-  /** Open reviewer notes for the device, newest-first. The template
-   *  reads this directly to render the per-field feedback banner. */
-  openReviewNotes(): DeviceReviewNote[] {
-    if (!this.editingDeviceId) return [];
-    return this.reviewNotes
-      .notesFor(this.editingDeviceId)
-      .filter((n) => n.status === 'open');
+  /** Open reviewer notes for the device — pulled from the device's
+   *  chat (kind='note', status='open'). The template renders these
+   *  inline as the per-field feedback banner. */
+  openReviewNotes(): ChatMessage[] {
+    const all = this.chatService.messages$.value ?? [];
+    return all.filter((m) => m.kind === 'note' && m.status === 'open');
   }
 
   /** Registrant clicks "Go to field" — scroll the form control into
@@ -3046,14 +3054,12 @@ export class AddDevicesComponent implements OnDestroy {
     setTimeout(() => el.classList.remove('field--flash'), 1600);
   }
 
-  resolveReviewNote(note: DeviceReviewNote): void {
-    this.reviewNotes.resolve(note.deviceId, note.id).subscribe({
-      error: (e) =>
-        this.toastrService.error(
-          e?.error?.message ?? 'Failed to mark resolved',
-          'Review notes',
-        ),
-    });
+  /** Open the chat panel so the registrant can reply to a specific
+   *  reviewer note. */
+  replyToReviewNote(_note: ChatMessage): void {
+    if (!this.chatService.isChatOpen$.value) {
+      this.chatService.isChatOpen$.next(true);
+    }
   }
 
   /** Human label for a note's anchor — mirrors FIELD_LABELS so the

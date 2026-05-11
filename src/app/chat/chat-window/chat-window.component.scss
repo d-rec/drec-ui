@@ -512,3 +512,106 @@
     &:disabled { opacity: 0.3; cursor: default; }
   }
 }
+
+/* ── Typed messages: reviewer notes + system markers ──────────── */
+.bubble--note {
+  background: #fff7ed !important;
+  border: 1px solid #fdba74 !important;
+  border-left: 3px solid #f59e0b !important;
+  font-weight: 600;
+}
+.bubble--note-resolved {
+  font-weight: normal;
+  opacity: 0.7;
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  border-left-color: #94a3b8 !important;
+  .text { text-decoration: line-through; color: #475569; }
+}
+.bubble__field-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #fed7aa;
+  color: #7c2d12;
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  margin-right: 4px;
+}
+.bubble__note-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 4px;
+}
+.bubble__status {
+  font-size: 11px;
+  color: #166534;
+  font-weight: 600;
+  &--resolved { color: #166534; }
+}
+.bubble__resolve {
+  background: #fff;
+  border: 1px solid #b45309;
+  color: #b45309;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover { background: #b45309; color: #fff; }
+  &--reopen {
+    border-color: #475569;
+    color: #475569;
+    &:hover { background: #475569; }
+  }
+}
+.bubble--system {
+  background: #f8fafc !important;
+  border: 1px dashed #cbd5e1 !important;
+  font-size: 11px;
+  color: #64748b;
+  font-style: italic;
+  font-weight: normal;
+}
+
+/* ── Compose: kind picker row ──────────────────────────────── */
+.input-bar--rich {
+  flex-direction: column;
+  align-items: stretch !important;
+  gap: 4px;
+}
+.input-kind-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px 0;
+  font-size: 11px;
+  color: #64748b;
+}
+.input-kind-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  margin: 0;
+  font-weight: normal;
+  input[type="radio"] { margin: 0; }
+}
+.input-field-anchor {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 2px 4px;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  background: #fff;
+  max-width: 220px;
+}
+.input-bar__row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  width: 100%;
+}

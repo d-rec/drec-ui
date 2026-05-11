@@ -30,10 +30,9 @@ import { extractExt } from '../../../utils/file-ext';
 import { DocumentClassifierService } from '../../../utils/document-classifier.service';
 import { DocumentType } from '../../../utils/drec.enum';
 import { DOCUMENT_TYPE_LABELS } from '../../../utils/document-keywords';
-import {
-  DeviceReviewNote,
-  DeviceReviewNotesService,
-} from '../device-review-notes.service';
+// Per-field reviewer notes moved into chat (2026-05-11). The thread
+// UI in this component was replaced by the existing chat panel —
+// reviewer composes notes there via the kind picker.
 
 @Component({
   standalone: false,
@@ -1773,7 +1772,6 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
   constructor(
     readonly svc: AssetService,
     readonly chatService: ChatService,
-    readonly reviewNotes: DeviceReviewNotesService,
     private fb: FormBuilder,
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
@@ -1861,17 +1859,6 @@ trustUrl(url: string): SafeUrl {
           ? this.svc.assets$.value.find((a) => a.id === id)?.siteName ?? null
           : null;
         this.selId = id;
-        // Refresh per-device review notes so the thread + inline
-        // badges show the current state every time the reviewer
-        // switches devices.
-        if (id) {
-          const n = parseInt(id, 10);
-          if (!isNaN(n)) {
-            this.reviewNotes.list(n).subscribe({
-              error: () => {/* fetch failures don't block the UI */},
-            });
-          }
-        }
       }),
     );
 
@@ -2754,142 +2741,14 @@ trustUrl(url: string): SafeUrl {
     'Duplicate device',
   ];
 
-  // ─── Per-field reviewer notes (thread) ───────────────────────────
-  /** Form-field options for the anchor dropdown. Mirrors the labels
-   *  the registrant sees on add-devices so reviewer + registrant
-   *  share vocabulary. "" = General (not anchored to a field). */
-  readonly NOTE_FIELD_OPTIONS: ReadonlyArray<{ key: string; label: string }> =
-    (() => {
-      const general = { key: '', label: 'General (not field-specific)' };
-      const fields = [
-        { key: 'siteName', label: '(2) Site name' },
-        { key: 'address', label: '(16) Address' },
-        { key: 'latitude', label: '(19) Latitude' },
-        { key: 'longitude', label: '(20) Longitude' },
-        { key: 'countryCodename', label: '(9) Country' },
-        { key: 'capacity', label: '(13) AC capacity (kW)' },
-        { key: 'commissioningDate', label: '(10) Commissioning date' },
-        { key: 'deviceTypeCode', label: '(11) Device type' },
-        { key: 'fuelCode', label: '(12) Fuel code' },
-        { key: 'gridInterconnection', label: '(32) Grid interconnection' },
-        { key: 'gridExportType', label: '(16) Exports to grid?' },
-        { key: 'hasNetworkMeter', label: '(18) Network meter' },
-        { key: 'networkOwner', label: '(17) Network owner' },
-        { key: 'interconnectionVoltage', label: '(31) Interconnection voltage' },
-        { key: 'generatingUnitCount', label: '(33) Generating unit count' },
-        { key: 'dataSourceBrand', label: '(22) Data source brand' },
-        { key: 'serialNumber', label: '(23) Serial number / meter ID' },
-        { key: 'pvSystemOwner', label: '(15) PV system owner' },
-        { key: 'pvSystemOwnerAddress', label: '(15a) Owner mailing address' },
-        { key: 'offTakerName', label: '(28) Off-taker name' },
-        { key: 'offTaker', label: '(29) Off-taker' },
-        { key: 'impactStory', label: '(29) Impact story' },
-        { key: 'hasAuxiliaryEnergySources', label: '(34) Auxiliary energy sources?' },
-        { key: 'auxiliaryEnergySourceDetails', label: '(34a) Auxiliary energy source details' },
-        { key: 'sourceAccessMode', label: 'Source-access mode' },
-        { key: 'operatingConfiguration', label: '(30) Operating configuration' },
-        { key: 'evidencePathway', label: 'Evidence pathway' },
-        { key: 'deviceDescription', label: '(8) Device description' },
-        { key: 'SDGBenefits', label: '(28) SDG benefits' },
-      ];
-      // Natural-numeric sort so "(2)" comes before "(10)" and "(34a)"
-      // comes right after "(34)". General stays pinned at the top.
-      fields.sort((a, b) =>
-        a.label.localeCompare(b.label, undefined, {
-          numeric: true,
-          sensitivity: 'base',
-        }),
-      );
-      return [general, ...fields];
-    })();
+  // ─── Per-field reviewer notes ──────────────────────────────────
+  // Folded into chat (kind='note') 2026-05-11. Reviewer composes
+  // notes via the chat panel's kind picker; the in-page thread that
+  // briefly lived here has been removed.
 
-  /** Working state for the "add note" row. */
-  noteDraft: { fieldName: string; body: string } = { fieldName: '', body: '' };
-  /** When true the resolved notes appear in the thread; otherwise
-   *  only open notes show (default — keeps the thread focused). */
-  showResolvedNotes = false;
-
-  private currentDeviceIdNum(): number | null {
-    if (!this.editingId) return null;
-    const n = parseInt(this.editingId, 10);
-    return isNaN(n) ? null : n;
-  }
-
-  /** Notes for the current device, filtered by `showResolvedNotes`
-   *  toggle. Used directly by the template. */
-  visibleReviewNotes(): DeviceReviewNote[] {
-    const id = this.currentDeviceIdNum();
-    if (id == null) return [];
-    const all = this.reviewNotes.notesFor(id);
-    return this.showResolvedNotes
-      ? all
-      : all.filter((n) => n.status === 'open');
-  }
-
-  resolvedReviewNoteCount(): number {
-    const id = this.currentDeviceIdNum();
-    if (id == null) return 0;
-    return this.reviewNotes.notesFor(id).filter((n) => n.status === 'resolved')
-      .length;
-  }
-
-  labelForFieldKey(key: string | null): string {
-    if (!key) return 'General';
-    const opt = this.NOTE_FIELD_OPTIONS.find((o) => o.key === key);
-    return opt?.label ?? key;
-  }
-
-  submitReviewNote(): void {
-    const id = this.currentDeviceIdNum();
-    const body = this.noteDraft.body.trim();
-    if (id == null || !body) return;
-    this.reviewNotes.create(id, this.noteDraft.fieldName || null, body).subscribe({
-      next: () => {
-        this.noteDraft = { fieldName: '', body: '' };
-        this.cdr.markForCheck();
-      },
-      error: (e) =>
-        this.toastr.error(
-          e?.error?.message ?? 'Failed to add note',
-          'Review notes',
-        ),
-    });
-  }
-
-  resolveReviewNote(note: DeviceReviewNote): void {
-    this.reviewNotes.resolve(note.deviceId, note.id).subscribe({
-      error: (e) =>
-        this.toastr.error(
-          e?.error?.message ?? 'Failed to resolve note',
-          'Review notes',
-        ),
-    });
-  }
-
-  reopenReviewNote(note: DeviceReviewNote): void {
-    this.reviewNotes.reopen(note.deviceId, note.id).subscribe({
-      error: (e) =>
-        this.toastr.error(
-          e?.error?.message ?? 'Failed to re-open note',
-          'Review notes',
-        ),
-    });
-  }
-
-  deleteReviewNote(note: DeviceReviewNote): void {
-    if (!confirm('Delete this note? This cannot be undone.')) return;
-    this.reviewNotes.delete(note.deviceId, note.id).subscribe({
-      error: (e) =>
-        this.toastr.error(
-          e?.error?.message ?? 'Failed to delete note',
-          'Review notes',
-        ),
-    });
-  }
-
-  /** Prepend "- <chip>: " to the notes textarea on a new line.
-   *  Existing free text stays; cursor lands after the colon so the
-   *  reviewer can immediately add detail. */
+  /** Prepend "- <chip>: " to the legacy free-text notes textarea on a
+   *  new line. Existing free text stays; cursor lands after the colon
+   *  so the reviewer can immediately add detail. */
   insertNoteChip(chip: string): void {
     const ctl = this.detailForm?.get('notes');
     if (!ctl) return;
