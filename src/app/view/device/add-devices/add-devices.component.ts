@@ -2194,7 +2194,9 @@ export class AddDevicesComponent implements OnDestroy {
     this.applyExtractionWithPrompt(deviceIndex, 'SF-02c', [
       { name: 'siteName', field: fx.projectName },
       { name: 'pvSystemOwner', field: fx.ownerLegalName },
-      { name: 'address', field: fx.ownerAddress },
+      // ownerAddress is the registrant org's mailing/HQ address — NOT
+      // the device's site address (form field "(16) Address"
+      // is the facility location). Intentionally not mapped.
       { name: 'countryCodename', field: fx.ownerCountry },
       { name: 'signatoryName', field: fx.signatoryName },
     ], () => {
@@ -2317,7 +2319,9 @@ export class AddDevicesComponent implements OnDestroy {
       { name: 'commissioningDate', field: fx.commissioningDate },
       { name: 'deviceTypeCode', field: fx.deviceTypeCode },
       { name: 'pvSystemOwner', field: fx.ownerLegalName },
-      { name: 'address', field: fx.ownerAddress },
+      // ownerAddress is the participant/owner mailing address from
+      // SF-02 — not the device's site address. Site coords (lat/lng)
+      // capture the facility location instead. Intentionally not mapped.
       { name: 'countryCodename', field: fx.ownerCountry },
       { name: 'latitude', field: fx.latitude },
       { name: 'longitude', field: fx.longitude },
@@ -2533,7 +2537,8 @@ export class AddDevicesComponent implements OnDestroy {
     if (sf02c) {
       add('siteName', 'SF-02c', sf02c.projectName);
       add('pvSystemOwner', 'SF-02c', sf02c.ownerLegalName);
-      add('address', 'SF-02c', sf02c.ownerAddress);
+      // ownerAddress on SF-02c is the registrant's HQ/mailing address,
+      // not the device's site address. Don't claim form field "address".
       add('countryCodename', 'SF-02c', sf02c.ownerCountry);
     }
     const cod = this.codExtractions[deviceIndex];
@@ -2554,7 +2559,8 @@ export class AddDevicesComponent implements OnDestroy {
       add('commissioningDate', 'SF-02', sf02.commissioningDate);
       add('deviceTypeCode', 'SF-02', sf02.deviceTypeCode);
       add('pvSystemOwner', 'SF-02', sf02.ownerLegalName);
-      add('address', 'SF-02', sf02.ownerAddress);
+      // SF-02 ownerAddress = participant address, not the site location.
+      // Site address is form field (16); SF-02 contributes lat/lng instead.
       add('countryCodename', 'SF-02', sf02.ownerCountry);
       add('latitude', 'SF-02', sf02.latitude);
       add('longitude', 'SF-02', sf02.longitude);
@@ -3205,7 +3211,7 @@ export class AddDevicesComponent implements OnDestroy {
       const f = (l: string, x: any) => x && lines.push(`  ${l}: ${x.value}`);
       f('Project', sf02c.projectName);
       f('Owner', sf02c.ownerLegalName);
-      f('Address', sf02c.ownerAddress);
+      f('Owner address', sf02c.ownerAddress);
       f('Country', sf02c.ownerCountry);
       f('Signed', sf02c.signingDate);
       f('Signatory', sf02c.signatoryName);
@@ -3230,7 +3236,7 @@ export class AddDevicesComponent implements OnDestroy {
       f('AC capacity (kW)', sf02.acCapacityKw);
       f('COD', sf02.commissioningDate);
       f('Owner', sf02.ownerLegalName);
-      f('Address', sf02.ownerAddress);
+      f('Owner address', sf02.ownerAddress);
       f('Country', sf02.ownerCountry);
       f('Lat', sf02.latitude);
       f('Lng', sf02.longitude);
