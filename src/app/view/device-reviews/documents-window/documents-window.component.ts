@@ -2701,6 +2701,42 @@ trustUrl(url: string): SafeUrl {
     this.svc.select(null);
   }
 
+  /** Canned reviewer-note phrases. Each click prepends a labelled
+   *  bullet line to the notes textarea so reviewers don't have to
+   *  hand-type common issues every time. Kept short — anything
+   *  beyond this list goes in free text below the chip. */
+  readonly NOTE_CHIPS: ReadonlyArray<string> = [
+    'Missing SLD',
+    'Missing SF-02',
+    'Missing SF-02C',
+    'Missing COD proof',
+    'Missing metering evidence',
+    'Site photos insufficient',
+    'Coords too imprecise',
+    'Country mismatch',
+    'Capacity mismatch',
+    'Commissioning date issue',
+    'Owner mismatch',
+    'Site address mismatch',
+    'Off-taker mismatch',
+    'Impact story too thin',
+    'Duplicate device',
+  ];
+
+  /** Prepend "- <chip>: " to the notes textarea on a new line.
+   *  Existing free text stays; cursor lands after the colon so the
+   *  reviewer can immediately add detail. */
+  insertNoteChip(chip: string): void {
+    const ctl = this.detailForm?.get('notes');
+    if (!ctl) return;
+    const cur = String(ctl.value ?? '');
+    const prefix = `- ${chip}: `;
+    if (cur.includes(prefix)) return; // already added
+    const next = cur ? `${cur.replace(/\s+$/, '')}\n${prefix}` : prefix;
+    ctl.setValue(next);
+    ctl.markAsDirty();
+  }
+
   private confirmDiscard(): boolean {
     if (!this.detailForm?.dirty) return true;
     return confirm('You have unsaved changes. Discard them?');

@@ -294,8 +294,17 @@
             </div>
             <div class="field field--full">
               <label class="field__label">Notes</label>
+              <div class="notes-chips" *ngIf="detailForm.get('status')?.value !== 'approved'">
+                <button
+                  *ngFor="let chip of NOTE_CHIPS"
+                  type="button"
+                  class="notes-chip"
+                  (click)="insertNoteChip(chip)"
+                  [title]="'Prepend &quot;' + chip + '&quot; to the notes'"
+                >+ {{ chip }}</button>
+              </div>
               <div class="notes-row">
-                <textarea class="field__input field__textarea" formControlName="notes" rows="2"></textarea>
+                <textarea class="field__input field__textarea" formControlName="notes" rows="3" #notesTextarea></textarea>
                 <div class="notes-row__actions">
                   <button type="submit" class="btn btn-outline-secondary btn-sm" [disabled]="detailForm.invalid || detailForm.get('status')?.value === 'approved'">Save</button>
                   <button type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelDetail()" [disabled]="detailForm.get('status')?.value === 'approved'">Cancel</button>

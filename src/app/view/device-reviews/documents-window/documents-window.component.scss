@@ -715,6 +715,34 @@ $legacy:   #a0845c;
   &--legacy   { background: #fdf6ec; color: #6b4e2a; border-color: #a0845c; }
 }
 
+.notes-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.notes-chip {
+  background: #eef2f7;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 11px;
+  cursor: pointer;
+  line-height: 1.4;
+  white-space: nowrap;
+
+  &:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #1e3a8a;
+  }
+  &:active {
+    background: #bfdbfe;
+  }
+}
+
 .notes-row {
   display: flex;
   gap: 8px;
