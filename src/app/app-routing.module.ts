@@ -12,6 +12,7 @@ import { CertificateDetailsComponent } from './view/certificate-details/certific
 import { DeviceGroups } from './view/device-groups/device-groups.component';
 import { AddDeviceGroupComponent } from './view/add-device-group/add-device-group.component';
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
+import { PrivacyComponent } from './view/privacy/privacy.component';
 import { ResetPasswordComponent } from './view/reset-password/reset-password.component';
 import { UserProfileComponent } from './view/user-profile/user-profile.component';
 import { UserAcceptInvitationComponent } from './view/user-accept-invitation/user-accept-invitation.component';
@@ -60,6 +61,7 @@ const routes: Routes = [
       { path: 'login', component: LoginComponent },
       { path: 'register', component: RegisterComponent },
       { path: 'forgot-password', component: ForgetPasswordComponent },
+      { path: 'privacy', component: PrivacyComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
       {
         path: 'confirm-email',

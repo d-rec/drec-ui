@@ -26,6 +26,7 @@ import { CertifiedDevicesDeveloperComponent } from './view/certified-devices-dev
 import { PipesModule } from './pipes.module';
 import { ConfirmEmailComponent } from './view/confirm-email/confirm-email.component';
 import { ForgetPasswordComponent } from './view/forget-password/forget-password.component';
+import { PrivacyComponent } from './view/privacy/privacy.component';
 import { ResetPasswordComponent } from './view/reset-password/reset-password.component';
 import { AllUsersComponent } from './view/all-users/all-users.component';
 import { ConfirmDialogComponent } from './view/confirm-dialog/confirm-dialog.component';
@@ -81,6 +82,7 @@ import { WorldGlobeComponent } from './view/login/world-globe/world-globe.compon
     CertifiedDevicesDeveloperComponent,
     ConfirmEmailComponent,
     ForgetPasswordComponent,
+    PrivacyComponent,
     ResetPasswordComponent,
     AllUsersComponent,
     ConfirmDialogComponent,

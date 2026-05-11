@@ -1,0 +1,159 @@
+<div class="pp">
+  <div class="pp__card">
+    <div class="pp__header">
+      <img src="assets/images/d-rec-beta-logo.svg" alt="D-REC" class="pp__logo" />
+      <h1 class="pp__title">Privacy Policy</h1>
+      <p class="pp__subtitle">Last updated {{ lastUpdated }}</p>
+    </div>
+
+    <section class="pp__section">
+      <h2>What we collect</h2>
+      <p>
+        D-REC is a platform for registering renewable-energy production
+        facilities and issuing distributed renewable-energy certificates
+        (D-RECs). To do that, we collect:
+      </p>
+      <ul>
+        <li>
+          <strong>Account information</strong> — name, email, organization,
+          role, and (where required) phone number, used to authenticate
+          you and route notifications.
+        </li>
+        <li>
+          <strong>Facility documentation</strong> — the documents you upload
+          for each device or site, including Form SF-02 / SF-02C, single-line
+          diagrams (SLDs), commissioning / COD proofs, ownership declarations,
+          metering evidence, project photos, and any supporting attachments.
+        </li>
+        <li>
+          <strong>Production data</strong> — meter readings and time-series
+          generation data submitted via API or manual upload.
+        </li>
+        <li>
+          <strong>Usage data</strong> — basic technical logs (timestamps,
+          IP address, browser, error traces) needed to operate and secure
+          the service.
+        </li>
+      </ul>
+    </section>
+
+    <section class="pp__section">
+      <h2>How we use it</h2>
+      <ul>
+        <li>To register, verify, and audit your facilities.</li>
+        <li>To issue and account for D-REC certificates.</li>
+        <li>To make data available to authorised reviewers, registrants,
+            and buyers who participate in the same workflow.</li>
+        <li>To operate, debug, and secure the platform.</li>
+      </ul>
+      <p>
+        We do not sell your data, and we do not use it for advertising.
+      </p>
+    </section>
+
+    <section class="pp__section">
+      <h2>AI-assisted auto-fill</h2>
+      <p>
+        Some platform features use AI to read documents you upload and
+        pre-fill fields (site name, capacity, commissioning date, etc.)
+        to save reviewer and registrant time. To do this, we send the
+        content of the relevant document (e.g. an SLD, SF-02, or COD
+        proof) to <strong>Anthropic</strong>, the provider of the
+        Claude language model used by the extractor.
+      </p>
+      <p>
+        Anthropic processes that content solely to return the extracted
+        fields to us. Under Anthropic's terms, the content is
+        <strong>not used to train Anthropic's models</strong>, and is
+        retained only briefly (typically up to 30 days) for trust and
+        safety review before being deleted. Where required, we have a
+        Data Processing Agreement in place with Anthropic.
+      </p>
+      <p>
+        AI-assisted auto-fill suggestions are reviewed by a human
+        before they are written to the official record. You can also
+        upload your documents and fill the fields manually instead.
+      </p>
+    </section>
+
+    <section class="pp__section">
+      <h2>Who can see what you upload</h2>
+      <ul>
+        <li>
+          <strong>Your own organisation</strong> sees the devices and
+          documents you create.
+        </li>
+        <li>
+          <strong>D-REC reviewers</strong> see the devices and supporting
+          documents they are asked to review, in order to verify them.
+        </li>
+        <li>
+          <strong>Buyers</strong> see only the registry-level information
+          needed to evaluate and retire certificates (project name,
+          country, capacity, generation totals); they do not get access
+          to your raw source documents.
+        </li>
+        <li>
+          <strong>D-REC operations and engineering staff</strong> may
+          access data as needed to operate, debug, or audit the platform.
+        </li>
+      </ul>
+    </section>
+
+    <section class="pp__section">
+      <h2>Sub-processors</h2>
+      <p>
+        We use a small number of trusted vendors to run the service:
+      </p>
+      <ul>
+        <li><strong>Amazon Web Services (AWS)</strong> — hosting,
+            object storage, and backups.</li>
+        <li><strong>Anthropic</strong> — AI document extraction
+            (auto-fill), as described above.</li>
+        <li><strong>Transactional email provider</strong> — to send
+            sign-in and notification emails.</li>
+      </ul>
+      <p>
+        Each sub-processor is bound by confidentiality and data-protection
+        terms appropriate to its role.
+      </p>
+    </section>
+
+    <section class="pp__section">
+      <h2>Retention</h2>
+      <p>
+        Account and facility records are retained for as long as your
+        account is active and for a reasonable period after closure to
+        comply with audit, legal, and certificate-traceability
+        requirements. You may request deletion of personal data by
+        contacting us at the address below; some records may need to be
+        retained in pseudonymised form to preserve the integrity of
+        already-issued certificates.
+      </p>
+    </section>
+
+    <section class="pp__section">
+      <h2>Your rights</h2>
+      <p>
+        Depending on where you live, you may have the right to access,
+        correct, export, or delete your personal data, and to object to
+        certain processing. To exercise these rights — or to ask any
+        question about this policy — write to
+        <a href="mailto:privacy@drec.energy">privacy&#64;drec.energy</a>.
+      </p>
+    </section>
+
+    <section class="pp__section">
+      <h2>Changes</h2>
+      <p>
+        We will update this page when the way we handle data changes
+        materially. The "Last updated" date at the top reflects the most
+        recent change.
+      </p>
+    </section>
+
+    <div class="pp__back">
+      <a routerLink="/login" class="pp__link">← Back to sign in</a>
+    </div>
+  </div>
+</div>
