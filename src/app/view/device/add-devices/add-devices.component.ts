@@ -4283,9 +4283,14 @@ export class AddDevicesComponent implements OnDestroy {
       // Filter to extractor-only sources (not the synthetic "Current"
       // entry collectExtractionClaims injects), drop low-confidence
       // and any source that already matches the form value.
-      const curN = norm(cur);
+      // Free-text description fields (auxiliaryEnergySourceDetails,
+      // impactStory, address, ...) go through valuesEquivalent so
+      // paraphrases — "6× Victron Quattro 10 kVA battery inverters"
+      // vs "Victron Quattro 10 kVA battery inverter" — don't get
+      // flagged as a discrepancy and bother the reviewer.
       const docs = list.filter(
-        (c) => c.confidence >= 0.7 && norm(c.value) !== curN,
+        (c) =>
+          c.confidence >= 0.7 && !this.valuesEquivalent(c.value, cur, field),
       );
       if (!docs.length) continue;
       const label =
