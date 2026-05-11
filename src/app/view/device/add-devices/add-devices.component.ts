@@ -4139,6 +4139,28 @@ export class AddDevicesComponent implements OnDestroy {
   > = {
     sf02EvidenceMode: (v) =>
       v === 'self' ? 'Self-generated' : v === 'upload' ? 'Uploaded' : String(v),
+    // mat-select stores the long form ("No (zero-export)"); Haiku may
+    // emit the short token ("zero-export"). Normalise both to a single
+    // short label for the report.
+    gridExportType: (v) => {
+      const s = String(v ?? '').toLowerCase();
+      if (!s) return '';
+      if (s.includes('zero')) return 'Zero-export (no grid export)';
+      if (s.includes('partial')) return 'Partial export';
+      if (s.includes('full')) return 'Full export';
+      return String(v);
+    },
+    // YesNo enum from the form / 'Yes'|'No' from the SLD apply path /
+    // raw boolean from Haiku — all collapse to the same phrasing.
+    hasNetworkMeter: (v) => {
+      if (v === true || v === 'Yes' || v === 'yes' || v === 'true') {
+        return 'Yes — network meter present';
+      }
+      if (v === false || v === 'No' || v === 'no' || v === 'false') {
+        return 'No — no network meter';
+      }
+      return String(v ?? '');
+    },
   };
 
   private formatFieldValue(name: string, value: any): any {
