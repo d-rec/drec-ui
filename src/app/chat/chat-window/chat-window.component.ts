@@ -391,44 +391,6 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
-  /** Manual header drag (replaced cdkDrag 2026-05-11 — CDK forces
-   *  -webkit-user-select:none on the drag root, which made chat
-   *  bubble text unselectable). Sets dragX/Y to absolute viewport
-   *  pixels; when null we fall back to the original right/bottom
-   *  anchoring so first paint and Reset-position keep working. */
-  dragX: number | null = null;
-  dragY: number | null = null;
-  private dragOffsetX = 0;
-  private dragOffsetY = 0;
-  private dragging = false;
-
-  onHeaderDragStart(event: MouseEvent): void {
-    // Ignore clicks on header buttons (close/minimize) — those
-    // already stopPropagation, but cheap to guard anyway.
-    if ((event.target as HTMLElement).closest('button')) return;
-    event.preventDefault();
-    this.dragging = true;
-    const rect = (
-      event.currentTarget as HTMLElement
-    ).parentElement!.getBoundingClientRect();
-    this.dragOffsetX = event.clientX - rect.left;
-    this.dragOffsetY = event.clientY - rect.top;
-    document.addEventListener('mousemove', this.onHeaderDragMove);
-    document.addEventListener('mouseup', this.onHeaderDragEnd);
-  }
-
-  private onHeaderDragMove = (event: MouseEvent): void => {
-    if (!this.dragging) return;
-    this.dragX = Math.max(0, event.clientX - this.dragOffsetX);
-    this.dragY = Math.max(0, event.clientY - this.dragOffsetY);
-  };
-
-  private onHeaderDragEnd = (): void => {
-    this.dragging = false;
-    document.removeEventListener('mousemove', this.onHeaderDragMove);
-    document.removeEventListener('mouseup', this.onHeaderDragEnd);
-  };
-
   onResizeStart(event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
