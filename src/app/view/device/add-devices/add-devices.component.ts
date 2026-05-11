@@ -3055,11 +3055,30 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   /** Open the chat panel so the registrant can reply to a specific
-   *  reviewer note. */
+   *  reviewer note. Wires openForDevice$ with (admin email, siteName)
+   *  the same way the My-Devices page does — without that the
+   *  chat-window component never learns its partner email and
+   *  silently drops the registrant's send() calls. */
   replyToReviewNote(_note: ChatMessage): void {
-    if (!this.chatService.isChatOpen$.value) {
-      this.chatService.isChatOpen$.next(true);
-    }
+    const siteName =
+      (this.deviceForms.at(0)?.get('siteName')?.value as string | null) ??
+      this.initSiteName ??
+      '';
+    this.chatService.getAdminUser().subscribe({
+      next: (admin) => {
+        if (!admin?.email) return;
+        this.chatService.siteName$.next(siteName);
+        this.chatService.openForDevice$.next({
+          submitterEmail: admin.email,
+          siteName,
+        });
+        if (!this.chatService.isChatOpen$.value) {
+          this.chatService.isChatOpen$.next(true);
+        }
+      },
+      error: (err) =>
+        console.error('Could not get admin user for chat', err),
+    });
   }
 
   /** Human label for a note's anchor — mirrors FIELD_LABELS so the
