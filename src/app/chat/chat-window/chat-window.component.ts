@@ -324,7 +324,19 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     return m ? { url: m[0], id: m[1] } : null;
   }
 
+  /** Cache so each CD tick returns the same SafeHtml reference for a
+   *  given (text, search-term) — without this, [innerHTML] gets re-set
+   *  on every 4s poll, wiping the inner text nodes and any selection
+   *  the user just made. Key includes the search term so highlight
+   *  changes still propagate. */
+  private highlightCache = new Map<string, SafeHtml>();
+
   highlightText(text: string): string | SafeHtml {
+    const term = this.chatSearch.trim();
+    const key = term + ' ' + text;
+    const cached = this.highlightCache.get(key);
+    if (cached) return cached;
+
     const safe = text.replace(
       /[&<>"']/g,
       (c) =>
@@ -338,21 +350,25 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     );
 
     // Auto-linkify any URL so the registrant can click instead of copy/pasting.
-    // Auto-linkify every URL — keep the URL visible AND clickable. The
-    // /r/<ref> ones also get a richer card rendered below the bubble text.
     const linked = safe.replace(this.URL_RE, (u) => {
       return `<a href="${u}" target="_blank" rel="noopener" class="chat-link">${u}</a>`;
     });
 
-    const term = this.chatSearch.trim();
-    if (!term) return this.sanitizer.bypassSecurityTrustHtml(linked); // nosemgrep: angular-bypasssecuritytrust
-    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const re = new RegExp(escaped, 'gi'); // nosemgrep: detect-non-literal-regexp -- term is regex-escaped above
-    const highlighted = linked.replace(
-      re,
-      (m) => `<mark class="chat-highlight">${m}</mark>`,
-    );
-    return this.sanitizer.bypassSecurityTrustHtml(highlighted); // nosemgrep: angular-bypasssecuritytrust
+    let html: string;
+    if (!term) {
+      html = linked;
+    } else {
+      const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(escaped, 'gi'); // nosemgrep: detect-non-literal-regexp -- term is regex-escaped above
+      html = linked.replace(re, (m) => `<mark class="chat-highlight">${m}</mark>`);
+    }
+    const out = this.sanitizer.bypassSecurityTrustHtml(html); // nosemgrep: angular-bypasssecuritytrust
+    // Keep the cache bounded so a busy chat doesn't leak memory.
+    if (this.highlightCache.size > 512) {
+      this.highlightCache.clear();
+    }
+    this.highlightCache.set(key, out);
+    return out;
   }
 
   isItalic(text: string): boolean {
