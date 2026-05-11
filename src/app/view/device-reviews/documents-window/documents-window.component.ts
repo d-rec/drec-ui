@@ -2743,38 +2743,50 @@ trustUrl(url: string): SafeUrl {
   /** Form-field options for the anchor dropdown. Mirrors the labels
    *  the registrant sees on add-devices so reviewer + registrant
    *  share vocabulary. "" = General (not anchored to a field). */
-  readonly NOTE_FIELD_OPTIONS: ReadonlyArray<{ key: string; label: string }> = [
-    { key: '', label: 'General (not field-specific)' },
-    { key: 'siteName', label: '(2) Site name' },
-    { key: 'address', label: '(16) Address' },
-    { key: 'latitude', label: '(19) Latitude' },
-    { key: 'longitude', label: '(20) Longitude' },
-    { key: 'countryCodename', label: '(9) Country' },
-    { key: 'capacity', label: '(13) AC capacity (kW)' },
-    { key: 'commissioningDate', label: '(10) Commissioning date' },
-    { key: 'deviceTypeCode', label: '(11) Device type' },
-    { key: 'fuelCode', label: '(12) Fuel code' },
-    { key: 'gridInterconnection', label: '(32) Grid interconnection' },
-    { key: 'gridExportType', label: '(16) Exports to grid?' },
-    { key: 'hasNetworkMeter', label: '(18) Network meter' },
-    { key: 'networkOwner', label: '(17) Network owner' },
-    { key: 'interconnectionVoltage', label: '(31) Interconnection voltage' },
-    { key: 'generatingUnitCount', label: '(33) Generating unit count' },
-    { key: 'dataSourceBrand', label: '(22) Data source brand' },
-    { key: 'serialNumber', label: '(23) Serial number / meter ID' },
-    { key: 'pvSystemOwner', label: '(15) PV system owner' },
-    { key: 'pvSystemOwnerAddress', label: '(15a) Owner mailing address' },
-    { key: 'offTakerName', label: '(28) Off-taker name' },
-    { key: 'offTaker', label: '(29) Off-taker' },
-    { key: 'impactStory', label: '(29) Impact story' },
-    { key: 'hasAuxiliaryEnergySources', label: '(34) Auxiliary energy sources?' },
-    { key: 'auxiliaryEnergySourceDetails', label: '(34a) Auxiliary energy source details' },
-    { key: 'sourceAccessMode', label: 'Source-access mode' },
-    { key: 'operatingConfiguration', label: '(30) Operating configuration' },
-    { key: 'evidencePathway', label: 'Evidence pathway' },
-    { key: 'deviceDescription', label: '(8) Device description' },
-    { key: 'SDGBenefits', label: '(28) SDG benefits' },
-  ];
+  readonly NOTE_FIELD_OPTIONS: ReadonlyArray<{ key: string; label: string }> =
+    (() => {
+      const general = { key: '', label: 'General (not field-specific)' };
+      const fields = [
+        { key: 'siteName', label: '(2) Site name' },
+        { key: 'address', label: '(16) Address' },
+        { key: 'latitude', label: '(19) Latitude' },
+        { key: 'longitude', label: '(20) Longitude' },
+        { key: 'countryCodename', label: '(9) Country' },
+        { key: 'capacity', label: '(13) AC capacity (kW)' },
+        { key: 'commissioningDate', label: '(10) Commissioning date' },
+        { key: 'deviceTypeCode', label: '(11) Device type' },
+        { key: 'fuelCode', label: '(12) Fuel code' },
+        { key: 'gridInterconnection', label: '(32) Grid interconnection' },
+        { key: 'gridExportType', label: '(16) Exports to grid?' },
+        { key: 'hasNetworkMeter', label: '(18) Network meter' },
+        { key: 'networkOwner', label: '(17) Network owner' },
+        { key: 'interconnectionVoltage', label: '(31) Interconnection voltage' },
+        { key: 'generatingUnitCount', label: '(33) Generating unit count' },
+        { key: 'dataSourceBrand', label: '(22) Data source brand' },
+        { key: 'serialNumber', label: '(23) Serial number / meter ID' },
+        { key: 'pvSystemOwner', label: '(15) PV system owner' },
+        { key: 'pvSystemOwnerAddress', label: '(15a) Owner mailing address' },
+        { key: 'offTakerName', label: '(28) Off-taker name' },
+        { key: 'offTaker', label: '(29) Off-taker' },
+        { key: 'impactStory', label: '(29) Impact story' },
+        { key: 'hasAuxiliaryEnergySources', label: '(34) Auxiliary energy sources?' },
+        { key: 'auxiliaryEnergySourceDetails', label: '(34a) Auxiliary energy source details' },
+        { key: 'sourceAccessMode', label: 'Source-access mode' },
+        { key: 'operatingConfiguration', label: '(30) Operating configuration' },
+        { key: 'evidencePathway', label: 'Evidence pathway' },
+        { key: 'deviceDescription', label: '(8) Device description' },
+        { key: 'SDGBenefits', label: '(28) SDG benefits' },
+      ];
+      // Natural-numeric sort so "(2)" comes before "(10)" and "(34a)"
+      // comes right after "(34)". General stays pinned at the top.
+      fields.sort((a, b) =>
+        a.label.localeCompare(b.label, undefined, {
+          numeric: true,
+          sensitivity: 'base',
+        }),
+      );
+      return [general, ...fields];
+    })();
 
   /** Working state for the "add note" row. */
   noteDraft: { fieldName: string; body: string } = { fieldName: '', body: '' };
