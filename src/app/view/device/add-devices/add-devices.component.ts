@@ -2666,6 +2666,24 @@ export class AddDevicesComponent implements OnDestroy {
       // the platform rather than the user.
       addInferred('fuelCode', 'Platform default (solar PV)', 'ES100');
 
+      // (21) Data source. When the form holds 'Inverter' AND any of
+      // SLD / SF-02 / METERING_EVIDENCE are attached, the platform
+      // (or a prior Apply) set it from one of those — never the user.
+      // Pick the most specific source available; on re-edit the
+      // original-attribution doc isn't recoverable, so this is a
+      // best-effort post-hoc credit.
+      const docs = this.existingDocs[deviceIndex] ?? {};
+      const dataSourceSource = docs['SINGLE_LINE_DIAGRAM']?.length
+        ? 'SLD'
+        : docs['FORM_SF_02']?.length
+          ? 'SF-02'
+          : docs['METERING_EVIDENCE']?.length
+            ? 'Meter IDs'
+            : null;
+      if (dataSourceSource) {
+        addInferred('dataSource', dataSourceSource, 'Inverter');
+      }
+
       // sourceAccessMode 'Mode 1' is inferable when the device has an
       // api_user_id wired up — the platform is pulling data via API,
       // which is exactly what Mode 1 describes. Credit it retro-
