@@ -1964,7 +1964,7 @@ export class AddDevicesComponent implements OnDestroy {
       // SLD always describes inverter-side topology — if we read an
       // inverter make/model or count, the data source is the inverter.
       if (fx.inverterMakeModel || fx.inverterCount) {
-        this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
+        this.setDataSourceIfEmpty(deviceIndex, 'Inverter', 'SLD');
       }
     });
   }
@@ -2158,16 +2158,18 @@ export class AddDevicesComponent implements OnDestroy {
   /** Set `dataSource` to a specific enum value only if the form
    *  control is currently empty. Used by SLD / SF-02 / meter-ids
    *  applies when an inverter signal is present. */
-  private setDataSourceIfEmpty(deviceIndex: number, value: string): void {
+  private setDataSourceIfEmpty(
+    deviceIndex: number,
+    value: string,
+    source = 'Meter IDs',
+  ): void {
     const ctl = this.deviceForms.at(deviceIndex).get('dataSource');
     if (!ctl) return;
     if (ctl.value !== null && ctl.value !== undefined && ctl.value !== '') return;
     ctl.setValue(value);
     ctl.markAsDirty();
-    // Credit the inverter-detection rule that fired this. Without
-    // this, dataSource shows up as MANUAL on the provenance report
-    // even though the platform set it from meter-IDs / SLD signals.
-    this.recordProvenance(deviceIndex, 'dataSource', 'Meter IDs', 0.9);
+    // Credit whichever rule fired this — SLD / SF-02 / Meter IDs.
+    this.recordProvenance(deviceIndex, 'dataSource', source, 0.9);
   }
 
   dismissSldExtraction(deviceIndex: number): void {
@@ -2337,7 +2339,7 @@ export class AddDevicesComponent implements OnDestroy {
       { name: 'networkOwner', field: fx.networkOwner },
     ], () => {
       if (fx.inverterCount) {
-        this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
+        this.setDataSourceIfEmpty(deviceIndex, 'Inverter', 'SF-02');
       }
       this.deriveOffTakerSameAsOwner(deviceIndex);
     });
@@ -3332,12 +3334,15 @@ export class AddDevicesComponent implements OnDestroy {
       ctl.setValue(chosen.value);
       ctl.markAsDirty();
     }
-    // Inverter signal → dataSource = Inverter
-    if (
-      claims['generatingUnitCount']?.length ||
-      claims['dataSourceBrand']?.length
-    ) {
-      this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
+    // Inverter signal → dataSource = Inverter. Credit whichever doc
+    // (highest-confidence) provided the inverter evidence.
+    const inverterClaim =
+      [
+        ...(claims['dataSourceBrand'] ?? []),
+        ...(claims['generatingUnitCount'] ?? []),
+      ].sort((a, b) => b.confidence - a.confidence)[0];
+    if (inverterClaim) {
+      this.setDataSourceIfEmpty(deviceIndex, 'Inverter', inverterClaim.source);
     }
     // Meter IDs (list union) and meter-ids-extracted brand still
     // route through the existing single-source apply path.
