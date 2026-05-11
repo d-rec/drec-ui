@@ -1,7 +1,12 @@
-<div class="chat-window" [class.minimized]="minimized" cdkDrag
-     [style.width.px]="width" [style.height.px]="minimized ? 52 : height">
+<div class="chat-window" [class.minimized]="minimized"
+     [style.width.px]="width" [style.height.px]="minimized ? 52 : height"
+     [style.left.px]="dragX !== null ? dragX : null"
+     [style.top.px]="dragY !== null ? dragY : null"
+     [style.right.px]="dragX !== null ? null : 24"
+     [style.bottom.px]="dragY !== null ? null : 80">
   <div class="resize-grip" (mousedown)="onResizeStart($event)"></div>
-  <div class="chat-header" [class.chat-header--flash]="headerFlash" cdkDragHandle>
+  <div class="chat-header" [class.chat-header--flash]="headerFlash"
+       (mousedown)="onHeaderDragStart($event)">
     <span class="partner-name" *ngIf="chatService.siteName$ | async as siteName; else chatFallback">Site: <strong>{{ siteName }}</strong></span>
     <ng-template #chatFallback><span class="partner-name">Chat</span></ng-template>
     <div class="header-actions">
@@ -27,9 +32,7 @@
     </div>
 
     <!-- Messages -->
-    <div class="messages-scroll-wrap"
-         (contextmenu)="onContextMenu($event)"
-         (mousedown)="$event.stopPropagation()">
+    <div class="messages-scroll-wrap" (contextmenu)="onContextMenu($event)">
       <div class="chat-context-menu" *ngIf="showContextMenu" [style.top.px]="contextMenuY" [style.left.px]="contextMenuX">
         <button class="chat-context-menu__item" (click)="clearChat()">Clear chat</button>
       </div>
