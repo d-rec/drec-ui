@@ -2989,7 +2989,14 @@ export class AddDevicesComponent implements OnDestroy {
       if (cur == null || cur === '') {
         flag = 'empty';
       } else {
-        const matchingSources = list.filter((c) => norm(c.value) === curN);
+        // Free-text description fields (auxiliaryEnergySourceDetails,
+        // impactStory, address) use valuesEquivalent so paraphrases
+        // ("6× Victron Quattro 10 kVA battery inverters" vs
+        // "Victron Quattro 10 kVA battery inverter") count as
+        // auto-confirmed instead of DISAGREES WITH DOCS.
+        const matchingSources = list.filter((c) =>
+          this.valuesEquivalent(c.value, cur, field),
+        );
         const distinctValues = new Set(list.map((c) => norm(c.value)));
         if (matchingSources.length && distinctValues.size === 1) {
           flag = 'auto-confirmed';
@@ -4129,6 +4136,8 @@ export class AddDevicesComponent implements OnDestroy {
     gridInterconnection: '(32) Grid interconnection',
     generatingUnitCount: '(33) Generating unit count',
     hasAuxiliaryEnergySources: '(34) Auxiliary energy sources?',
+    auxiliaryEnergySourceDetails: '(34a) Auxiliary energy source details',
+    gridExportType: '(16) Exports to grid?',
     hasPublicFunding: '(35) Has public funding?',
     hasSubsidy: '(36) Has subsidy?',
     labellingSchemeAccreditation: '(37) Labelling-scheme accreditation',
