@@ -2164,6 +2164,10 @@ export class AddDevicesComponent implements OnDestroy {
     if (ctl.value !== null && ctl.value !== undefined && ctl.value !== '') return;
     ctl.setValue(value);
     ctl.markAsDirty();
+    // Credit the inverter-detection rule that fired this. Without
+    // this, dataSource shows up as MANUAL on the provenance report
+    // even though the platform set it from meter-IDs / SLD signals.
+    this.recordProvenance(deviceIndex, 'dataSource', 'Meter IDs', 0.9);
   }
 
   dismissSldExtraction(deviceIndex: number): void {
