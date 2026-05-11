@@ -421,10 +421,14 @@
 
   // The chat-window is a cdkDrag element; CDK forces
   // -webkit-user-select:none on the entire drag root which kills
-  // text-copy inside bubbles. Re-enable selection here so reviewers
-  // and registrants can copy snippets out of messages.
-  user-select: text;
-  -webkit-user-select: text;
+  // text-copy inside bubbles. Re-enable selection here AND on
+  // every child span (Firefox honours -moz-user-select; the !important
+  // is needed because CDK uses inline style which beats specificity).
+  &, & * {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+  }
 
   &.unread-bold .text {
     font-weight: 700;

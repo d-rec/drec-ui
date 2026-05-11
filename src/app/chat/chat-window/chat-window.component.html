@@ -27,7 +27,9 @@
     </div>
 
     <!-- Messages -->
-    <div class="messages-scroll-wrap" (contextmenu)="onContextMenu($event)">
+    <div class="messages-scroll-wrap"
+         (contextmenu)="onContextMenu($event)"
+         (mousedown)="$event.stopPropagation()">
       <div class="chat-context-menu" *ngIf="showContextMenu" [style.top.px]="contextMenuY" [style.left.px]="contextMenuX">
         <button class="chat-context-menu__item" (click)="clearChat()">Clear chat</button>
       </div>
