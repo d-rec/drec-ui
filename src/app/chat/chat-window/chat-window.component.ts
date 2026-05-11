@@ -391,29 +391,82 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
-  onResizeStart(event: MouseEvent): void {
+  /** Which corner the user grabbed for the current resize. Drives the
+   *  delta math in onResizeMove — top/left deltas move the anchored
+   *  edge, bottom/right deltas only change width/height. */
+  private resizeCorner: 'tl' | 'tr' | 'bl' | 'br' = 'tl';
+  private resizeStartLeft = 0;
+  private resizeStartTop = 0;
+
+  /** Becomes non-null on the first resize from any non-top-left corner
+   *  (or any corner once the window has moved). We switch the chat
+   *  window from its default right/bottom anchor to absolute left/top
+   *  so all four edges can move independently. */
+  resizedPos: { left: number; top: number } | null = null;
+
+  onResizeStart(event: MouseEvent, corner: 'tl' | 'tr' | 'bl' | 'br'): void {
     event.preventDefault();
     event.stopPropagation();
     this.resizing = true;
+    this.resizeCorner = corner;
     this.resizeStartX = event.clientX;
     this.resizeStartY = event.clientY;
     this.resizeStartW = this.width;
     this.resizeStartH = this.height;
+    // Capture current viewport position so we can switch from
+    // right/bottom anchoring to absolute left/top — needed because
+    // non-top-left corners move the right or bottom edges, which
+    // an anchored window can't do without re-pinning.
+    const cw = (
+      event.currentTarget as HTMLElement
+    ).parentElement!.getBoundingClientRect();
+    this.resizeStartLeft = cw.left;
+    this.resizeStartTop = cw.top;
+    if (!this.resizedPos) {
+      this.resizedPos = { left: cw.left, top: cw.top };
+    }
     document.addEventListener('mousemove', this.onResizeMove);
     document.addEventListener('mouseup', this.onResizeEnd);
   }
 
   private onResizeMove = (event: MouseEvent): void => {
-    if (!this.resizing) return;
-    // Grip is top-left: dragging left = wider, dragging up = taller
-    this.width = Math.max(
-      280,
-      this.resizeStartW - (event.clientX - this.resizeStartX),
-    );
-    this.height = Math.max(
-      200,
-      this.resizeStartH - (event.clientY - this.resizeStartY),
-    );
+    if (!this.resizing || !this.resizedPos) return;
+    const dx = event.clientX - this.resizeStartX;
+    const dy = event.clientY - this.resizeStartY;
+    const minW = 280;
+    const minH = 200;
+    let nextW = this.resizeStartW;
+    let nextH = this.resizeStartH;
+    let nextL = this.resizeStartLeft;
+    let nextT = this.resizeStartTop;
+    switch (this.resizeCorner) {
+      case 'tl':
+        nextW = Math.max(minW, this.resizeStartW - dx);
+        nextH = Math.max(minH, this.resizeStartH - dy);
+        nextL = this.resizeStartLeft + (this.resizeStartW - nextW);
+        nextT = this.resizeStartTop + (this.resizeStartH - nextH);
+        break;
+      case 'tr':
+        nextW = Math.max(minW, this.resizeStartW + dx);
+        nextH = Math.max(minH, this.resizeStartH - dy);
+        nextT = this.resizeStartTop + (this.resizeStartH - nextH);
+        break;
+      case 'bl':
+        nextW = Math.max(minW, this.resizeStartW - dx);
+        nextH = Math.max(minH, this.resizeStartH + dy);
+        nextL = this.resizeStartLeft + (this.resizeStartW - nextW);
+        break;
+      case 'br':
+        nextW = Math.max(minW, this.resizeStartW + dx);
+        nextH = Math.max(minH, this.resizeStartH + dy);
+        break;
+    }
+    // Clamp to viewport so the window doesn't escape on-screen.
+    nextL = Math.max(0, nextL);
+    nextT = Math.max(0, nextT);
+    this.width = nextW;
+    this.height = nextH;
+    this.resizedPos = { left: nextL, top: nextT };
   };
 
   private onResizeEnd = (): void => {

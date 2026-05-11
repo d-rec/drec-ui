@@ -140,14 +140,17 @@
 
 .resize-grip {
   position: absolute;
-  top: 0;
-  left: 0;
   width: 16px;
   height: 16px;
-  cursor: nwse-resize;
-  z-index: 2;
+  z-index: 5;
 
-  &::after {
+  &--tl { top: 0; left: 0; cursor: nwse-resize; }
+  &--tr { top: 0; right: 0; cursor: nesw-resize; }
+  &--bl { bottom: 0; left: 0; cursor: nesw-resize; }
+  &--br { bottom: 0; right: 0; cursor: nwse-resize; }
+
+  // Small visual hint at top-left only (kept subtle for the others).
+  &--tl::after {
     content: '';
     position: absolute;
     top: 3px;
@@ -157,6 +160,17 @@
     border-top: 2px solid rgba(0, 0, 0, 0.3);
     border-left: 2px solid rgba(0, 0, 0, 0.3);
     border-radius: 3px 0 0 0;
+  }
+  &--br::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    width: 8px;
+    height: 8px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+    border-right: 2px solid rgba(0, 0, 0, 0.3);
+    border-radius: 0 0 3px 0;
   }
 }
 

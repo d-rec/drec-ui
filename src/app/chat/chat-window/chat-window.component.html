@@ -1,6 +1,13 @@
 <div class="chat-window" [class.minimized]="minimized"
-     [style.width.px]="width" [style.height.px]="minimized ? 52 : height">
-  <div class="resize-grip" (mousedown)="onResizeStart($event)"></div>
+     [style.width.px]="width" [style.height.px]="minimized ? 52 : height"
+     [style.left.px]="resizedPos ? resizedPos.left : null"
+     [style.top.px]="resizedPos ? resizedPos.top : null"
+     [style.right.px]="resizedPos ? null : 24"
+     [style.bottom.px]="resizedPos ? null : 80">
+  <div class="resize-grip resize-grip--tl" (mousedown)="onResizeStart($event, 'tl')"></div>
+  <div class="resize-grip resize-grip--tr" (mousedown)="onResizeStart($event, 'tr')"></div>
+  <div class="resize-grip resize-grip--bl" (mousedown)="onResizeStart($event, 'bl')"></div>
+  <div class="resize-grip resize-grip--br" (mousedown)="onResizeStart($event, 'br')"></div>
   <div class="chat-header" [class.chat-header--flash]="headerFlash">
     <span class="partner-name" *ngIf="chatService.siteName$ | async as siteName; else chatFallback">Site: <strong>{{ siteName }}</strong></span>
     <ng-template #chatFallback><span class="partner-name">Chat</span></ng-template>
