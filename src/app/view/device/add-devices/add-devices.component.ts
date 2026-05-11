@@ -2688,6 +2688,31 @@ export class AddDevicesComponent implements OnDestroy {
       // device starts there and almost nothing overrides it.
       addInferred('version', 'Platform default', '1.0');
 
+      // sf02EvidenceMode defaults to 'self' (Self-generated SF-02).
+      // The form-builder hard-codes this; it only changes if the
+      // registrant explicitly switches the radio to "upload".
+      addInferred('sf02EvidenceMode', 'Platform default', 'self');
+
+      // labellingSchemeAccreditation: every facility on this platform
+      // carries the D-REC Label by definition. Credit the platform.
+      const lsa = formAt.get('labellingSchemeAccreditation')?.value;
+      if (Array.isArray(lsa) && lsa.includes('The D-REC Label')) {
+        addInferred('labellingSchemeAccreditation', 'Platform default', lsa);
+      }
+
+      // meterReadsShareable = 'Yes' is reasonable to infer when the
+      // SLD found a network meter (hasNetworkMeter='Yes') OR a
+      // METERING_EVIDENCE doc is attached. Credit accordingly.
+      const mrs = formAt.get('meterReadsShareable')?.value;
+      const hnm = formAt.get('hasNetworkMeter')?.value;
+      if (mrs === 'Yes') {
+        if (hnm === 'Yes' && docs['SINGLE_LINE_DIAGRAM']?.length) {
+          addInferred('meterReadsShareable', 'SLD', 'Yes');
+        } else if (docs['METERING_EVIDENCE']?.length) {
+          addInferred('meterReadsShareable', 'Meter IDs', 'Yes');
+        }
+      }
+
       // evidence_pathway is mechanically derived from operating
       // configuration + sourceAccessMode (per the D-REC §3.1 table).
       // If the form value matches what the rule produces, credit it.
