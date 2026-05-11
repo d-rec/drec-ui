@@ -3054,6 +3054,42 @@ export class AddDevicesComponent implements OnDestroy {
     setTimeout(() => el.classList.remove('field--flash'), 1600);
   }
 
+  /** After a registrant submit, if there were open reviewer notes on
+   *  this device, post a system message to the device's chat so the
+   *  reviewer gets a concrete "I addressed this — please re-check"
+   *  ping. No-op when there are no open notes (no need to noise the
+   *  reviewer when nothing was flagged). */
+  private notifyReviewerOfUpdate(siteLabel: string): void {
+    const openCount = this.openReviewNotes().length;
+    if (openCount === 0) return;
+    const siteName =
+      (this.deviceForms.at(0)?.get('siteName')?.value as string | null) ??
+      this.initSiteName ??
+      siteLabel;
+    if (!siteName) return;
+    const me = this.user?.email ?? '';
+    if (!me) return;
+    const body = `Registrant updated the device — please re-check ${openCount} open note${openCount === 1 ? '' : 's'}.`;
+    this.chatService
+      .getConversation(undefined, undefined, siteName)
+      .subscribe({
+        next: (conv) => {
+          if (!conv) return; // no chat means no reviewer note path either
+          this.chatService
+            .postToConversation(conv.id, me, body, {
+              kind: 'system',
+              payload: { action: 'registrant-updated', openNoteCount: openCount },
+            })
+            .subscribe({
+              error: (err) =>
+                console.warn('[chat] notify reviewer failed', err),
+            });
+        },
+        error: (err) =>
+          console.warn('[chat] lookup conv for notify failed', err),
+      });
+  }
+
   /** Open the chat panel so the registrant can reply to a specific
    *  reviewer note. Wires openForDevice$ with (admin email, siteName)
    *  the same way the My-Devices page does — without that the
@@ -5050,6 +5086,12 @@ export class AddDevicesComponent implements OnDestroy {
           // always see provenance reflecting the just-saved state.
           // Fire-and-forget; failures don't block submit/navigation.
           this.generateProvenanceReport(0);
+          // If there were open reviewer notes when we landed on this
+          // page, drop a system message into the device chat so the
+          // reviewer gets an unread badge and a concrete "registrant
+          // addressed this — please re-check" signal. Otherwise the
+          // reviewer would have to keep refreshing.
+          this.notifyReviewerOfUpdate(siteLabel);
           // SF-02 regen happens server-side via
           // device.controller's maybeRegenerateAutoSf02 hook on
           // PATCH success — the previous explicit POST from here

@@ -250,6 +250,26 @@ export class ChatService implements OnDestroy {
     );
   }
 
+  /** Post a message into an existing conversation by id — for
+   *  side-channel notifications (e.g. "registrant updated this
+   *  device, please re-check open notes") that should drop into
+   *  the device's chat without opening the chat window. */
+  postToConversation(
+    conversationId: number,
+    username: string,
+    chatEntry: string,
+    opts: {
+      kind?: ChatKind;
+      fieldName?: string | null;
+      payload?: Record<string, any> | null;
+    } = {},
+  ): Observable<ChatMessage> {
+    return this.http.post<ChatMessage>(
+      `${this.apiUrl}chat/conversations/${conversationId}/messages`,
+      { username, chatEntry, ...opts },
+    );
+  }
+
   /** Flip a note to status='resolved' (reviewer/admin only). Server
    *  also appends a kind='system' audit marker — we just refetch the
    *  chain to pick it up. */
