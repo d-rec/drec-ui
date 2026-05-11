@@ -287,6 +287,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
           this.chatService
             .getChain(this.chatService.currentHeadUuid!)
             .subscribe((msgs) => this.chatService.messages$.next(msgs));
+          // The server already cleared this user's unread slot when
+          // appending — pull fresh badges so the indicator stops
+          // pinging without waiting for the 10s unread-poll tick.
+          this.chatService.refreshUnread();
         },
         error: (err) => console.error('Chat: failed to send message', err),
       });

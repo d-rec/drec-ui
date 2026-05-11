@@ -82,6 +82,15 @@ export class ChatService implements OnDestroy {
     }
   }
 
+  /** Public entrypoint to force-refresh unread badges immediately —
+   *  call this after any action that should clear the user's "you
+   *  have unread" indicator (sending a message, marking read,
+   *  resolving a note) instead of waiting for the 10s poll. */
+  refreshUnread(): void {
+    const email = this.getCurrentUserEmail();
+    if (email) this.fetchUnreadCount(email);
+  }
+
   private fetchUnreadCount(email: string): void {
     this.getUnreadCount(email).subscribe({
       next: (res) => this.unreadCount$.next(res.count),
@@ -143,6 +152,14 @@ export class ChatService implements OnDestroy {
     this.currentConversationId = null;
   }
 
+  /** Pending "mark-as-read" timer. When the chat is open and a new
+   *  message arrives via polling, we wait 10 seconds before pinging
+   *  the server to mark the conversation read — long enough for the
+   *  user to actually see it, short enough that the unread badge
+   *  stops blinking once they've clearly noticed. */
+  private autoReadTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastSeenTailUuid: string | null = null;
+
   private startPolling(_headUuid: string): void {
     this.stopPolling();
     // Read currentHeadUuid live each tick — if a delete advances the
@@ -158,7 +175,31 @@ export class ChatService implements OnDestroy {
       )
       .subscribe((messages) => {
         this.messages$.next(messages as any);
+        this.scheduleAutoMarkRead(messages as any);
       });
+  }
+
+  /** Re-arm the 10s mark-read timer whenever a new message tail
+   *  arrives. The chat window has to be open for this to fire — if
+   *  the user closes it, closeChat clears the timer. */
+  private scheduleAutoMarkRead(messages: ChatMessage[]): void {
+    const last = messages.length ? messages[messages.length - 1] : null;
+    const tail = last?.uuid ?? null;
+    if (!tail || tail === this.lastSeenTailUuid) return;
+    this.lastSeenTailUuid = tail;
+    // Skip if the user themselves sent the last message — server
+    // already marked their slot read.
+    const me = this.getCurrentUserEmail();
+    if (last && me && last.username === me) return;
+    if (this.autoReadTimer) clearTimeout(this.autoReadTimer);
+    const convId = this.currentConversationId;
+    if (convId == null) return;
+    this.autoReadTimer = setTimeout(() => {
+      this.autoReadTimer = null;
+      if (this.isChatOpen$.value && this.currentConversationId === convId) {
+        this.markConversationRead(convId);
+      }
+    }, 10_000);
   }
 
   stopPolling(): void {
@@ -166,6 +207,11 @@ export class ChatService implements OnDestroy {
       this.pollingSubscription.unsubscribe();
       this.pollingSubscription = null;
     }
+    if (this.autoReadTimer) {
+      clearTimeout(this.autoReadTimer);
+      this.autoReadTimer = null;
+    }
+    this.lastSeenTailUuid = null;
   }
 
   private loadChain(headUuid: string): void {
