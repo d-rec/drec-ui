@@ -2491,10 +2491,10 @@ export class AddDevicesComponent implements OnDestroy {
   collectExtractionClaims(
     deviceIndex: number,
   ): {
-    [field: string]: Array<{ source: string; value: any; confidence: number }>;
+    [field: string]: Array<{ source: string; value: any; confidence: number; at?: string }>;
   } {
     const claims: {
-      [field: string]: Array<{ source: string; value: any; confidence: number }>;
+      [field: string]: Array<{ source: string; value: any; confidence: number; at?: string }>;
     } = {};
     const add = (
       field: string,
@@ -2689,6 +2689,7 @@ export class AddDevicesComponent implements OnDestroy {
           source: `${prov.source} (saved)`,
           value: cur,
           confidence: prov.confidence,
+          at: prov.at,
         },
       ];
     }
@@ -2701,7 +2702,7 @@ export class AddDevicesComponent implements OnDestroy {
   getConflicts(
     deviceIndex: number,
   ): {
-    [field: string]: Array<{ source: string; value: any; confidence: number }>;
+    [field: string]: Array<{ source: string; value: any; confidence: number; at?: string }>;
   } {
     const claims = this.collectExtractionClaims(deviceIndex);
     const out: typeof claims = {};
@@ -2964,7 +2965,7 @@ export class AddDevicesComponent implements OnDestroy {
     type Row = {
       label: string;
       value: any;
-      sources: Array<{ source: string; value: any; confidence: number }>;
+      sources: Array<{ source: string; value: any; confidence: number; at?: string }>;
       flag: 'auto-confirmed' | 'overwrote' | 'conflict' | 'manual' | 'empty';
     };
 
@@ -3074,9 +3075,15 @@ export class AddDevicesComponent implements OnDestroy {
         .map((s) => {
           const tick = norm(s.value) === curN ? ' ✓' : '';
           const tag = docLink(s.source) ?? `<strong>${escape(s.source)}</strong>`;
+          // Provenance timestamp (YYYY-MM-DD) — present on persisted /
+          // session-recorded claims. Skip for live extractor runs where
+          // it'd just say "today" and add noise.
+          const when = s.at
+            ? ` <small style="color:#94a3b8">${escape(s.at.slice(0, 10))}</small>`
+            : '';
           return `<div>${tag}${tick}: ${escape(s.value)} <small style="color:#64748b">(${Math.round(
             s.confidence * 100,
-          )}%)</small></div>`;
+          )}%)</small>${when}</div>`;
         })
         .join('');
     };
@@ -4421,6 +4428,10 @@ export class AddDevicesComponent implements OnDestroy {
       value,
       confidence,
     });
+    // Inferences are real provenance — persist them so re-edits don't
+    // see geocoder/impactStory/metering-evidence-derived values as
+    // MANUAL. Same mechanism as the doc-extractor apply paths.
+    this.recordProvenance(deviceIndex, field, source, confidence);
   }
 
   /** Per-device set of fields the user explicitly cleared. submitEdit
