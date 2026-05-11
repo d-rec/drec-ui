@@ -59,6 +59,7 @@ export interface Device {
   interconnectionVoltage?: string;
   // Ownership & off-taker (Evident checklist rows 76, 77, 81)
   pvSystemOwner?: string;
+  pvSystemOwnerAddress?: string;
   offTakerName?: string;
   offTakerSameCompanyAsOwner?: 'Yes' | 'No';
   // Subsidies & incentives (rows 78, 79, 80)

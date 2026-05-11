@@ -490,6 +490,7 @@ export class AddDevicesComponent implements OnDestroy {
             networkOwner: data.networkOwner,
             interconnectionVoltage: data.interconnectionVoltage,
             pvSystemOwner: data.pvSystemOwner,
+            pvSystemOwnerAddress: data.pvSystemOwnerAddress,
             offTakerName: data.offTakerName,
             offTakerSameCompanyAsOwner: data.offTakerSameCompanyAsOwner,
             hasSubsidy: data.hasSubsidy,
@@ -782,6 +783,7 @@ export class AddDevicesComponent implements OnDestroy {
       networkOwner: [null],
       interconnectionVoltage: [null],
       pvSystemOwner: [null],
+      pvSystemOwnerAddress: [null],
       offTakerName: [null],
       offTakerSameCompanyAsOwner: [null],
       hasSubsidy: [null],
@@ -920,6 +922,7 @@ export class AddDevicesComponent implements OnDestroy {
       networkOwner: [null],
       interconnectionVoltage: [null],
       pvSystemOwner: [null],
+      pvSystemOwnerAddress: [null],
       offTakerName: [null],
       offTakerSameCompanyAsOwner: [null],
       hasSubsidy: [null],
@@ -2194,9 +2197,10 @@ export class AddDevicesComponent implements OnDestroy {
     this.applyExtractionWithPrompt(deviceIndex, 'SF-02c', [
       { name: 'siteName', field: fx.projectName },
       { name: 'pvSystemOwner', field: fx.ownerLegalName },
-      // ownerAddress is the registrant org's mailing/HQ address — NOT
-      // the device's site address (form field "(16) Address"
-      // is the facility location). Intentionally not mapped.
+      // SF-02c "ownerAddress" is the registrant org's mailing address;
+      // route it to pvSystemOwnerAddress, NOT to form field "(16) Address"
+      // (which is the device's site location).
+      { name: 'pvSystemOwnerAddress', field: fx.ownerAddress },
       { name: 'countryCodename', field: fx.ownerCountry },
       { name: 'signatoryName', field: fx.signatoryName },
     ], () => {
@@ -2319,9 +2323,9 @@ export class AddDevicesComponent implements OnDestroy {
       { name: 'commissioningDate', field: fx.commissioningDate },
       { name: 'deviceTypeCode', field: fx.deviceTypeCode },
       { name: 'pvSystemOwner', field: fx.ownerLegalName },
-      // ownerAddress is the participant/owner mailing address from
-      // SF-02 — not the device's site address. Site coords (lat/lng)
-      // capture the facility location instead. Intentionally not mapped.
+      // SF-02 ownerAddress = participant mailing address; route to
+      // pvSystemOwnerAddress. Site location comes from lat/lng below.
+      { name: 'pvSystemOwnerAddress', field: fx.ownerAddress },
       { name: 'countryCodename', field: fx.ownerCountry },
       { name: 'latitude', field: fx.latitude },
       { name: 'longitude', field: fx.longitude },
@@ -2537,8 +2541,7 @@ export class AddDevicesComponent implements OnDestroy {
     if (sf02c) {
       add('siteName', 'SF-02c', sf02c.projectName);
       add('pvSystemOwner', 'SF-02c', sf02c.ownerLegalName);
-      // ownerAddress on SF-02c is the registrant's HQ/mailing address,
-      // not the device's site address. Don't claim form field "address".
+      add('pvSystemOwnerAddress', 'SF-02c', sf02c.ownerAddress);
       add('countryCodename', 'SF-02c', sf02c.ownerCountry);
     }
     const cod = this.codExtractions[deviceIndex];
@@ -2559,8 +2562,7 @@ export class AddDevicesComponent implements OnDestroy {
       add('commissioningDate', 'SF-02', sf02.commissioningDate);
       add('deviceTypeCode', 'SF-02', sf02.deviceTypeCode);
       add('pvSystemOwner', 'SF-02', sf02.ownerLegalName);
-      // SF-02 ownerAddress = participant address, not the site location.
-      // Site address is form field (16); SF-02 contributes lat/lng instead.
+      add('pvSystemOwnerAddress', 'SF-02', sf02.ownerAddress);
       add('countryCodename', 'SF-02', sf02.ownerCountry);
       add('latitude', 'SF-02', sf02.latitude);
       add('longitude', 'SF-02', sf02.longitude);
@@ -4127,6 +4129,7 @@ export class AddDevicesComponent implements OnDestroy {
     fuelCode: '(12) Fuel code',
     capacity: '(13) AC capacity (kW)',
     pvSystemOwner: '(15) PV system owner',
+    pvSystemOwnerAddress: '(15a) Owner mailing address',
     address: '(16) Address',
     networkOwner: '(17) Network owner',
     hasNetworkMeter: '(18) Network meter',

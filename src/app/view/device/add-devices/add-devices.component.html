@@ -413,6 +413,14 @@
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
+                      <mat-label>(27a) Owner mailing address</mat-label>
+                      <input matInput formControlName="pvSystemOwnerAddress"
+                        matTooltip="Mailing/HQ address of the PV System Owner (legal entity). Distinct from the device site address."
+                        matTooltipPosition="above" />
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
                       <mat-label>(28) Off-taker Name</mat-label>
                       <input matInput formControlName="offTakerName"
                         matTooltip="Please provide the legal name of the electricity off-taker"
@@ -852,8 +860,8 @@
                               <li *ngIf="fx.ownerLegalName" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02c:ownerLegalName')">
                                 <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02c:ownerLegalName')" (change)="toggleFieldChecked(i, 'sf02c:ownerLegalName', $any($event.target).checked)" /><span class="fx-row__text">Owner: {{ fx.ownerLegalName.value }}</span></label>
                               </li>
-                              <li *ngIf="fx.ownerAddress" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02c:ownerAddress')">
-                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02c:ownerAddress')" (change)="toggleFieldChecked(i, 'sf02c:ownerAddress', $any($event.target).checked)" /><span class="fx-row__text">Address: {{ fx.ownerAddress.value }}</span></label>
+                              <li *ngIf="fx.ownerAddress" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02c:pvSystemOwnerAddress')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02c:pvSystemOwnerAddress')" (change)="toggleFieldChecked(i, 'sf02c:pvSystemOwnerAddress', $any($event.target).checked)" /><span class="fx-row__text">Owner address: {{ fx.ownerAddress.value }}</span></label>
                               </li>
                               <li *ngIf="fx.ownerCountry" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02c:ownerCountry')">
                                 <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02c:ownerCountry')" (change)="toggleFieldChecked(i, 'sf02c:ownerCountry', $any($event.target).checked)" /><span class="fx-row__text">Country: {{ fx.ownerCountry.value }}</span></label>
@@ -904,8 +912,8 @@
                               <li *ngIf="fx.ownerLegalName" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:ownerLegalName')">
                                 <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:ownerLegalName')" (change)="toggleFieldChecked(i, 'sf02:ownerLegalName', $any($event.target).checked)" /><span class="fx-row__text">Owner: {{ fx.ownerLegalName.value }}</span></label>
                               </li>
-                              <li *ngIf="fx.ownerAddress" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:ownerAddress')">
-                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:ownerAddress')" (change)="toggleFieldChecked(i, 'sf02:ownerAddress', $any($event.target).checked)" /><span class="fx-row__text">Address: {{ fx.ownerAddress.value }}</span></label>
+                              <li *ngIf="fx.ownerAddress" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:pvSystemOwnerAddress')">
+                                <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:pvSystemOwnerAddress')" (change)="toggleFieldChecked(i, 'sf02:pvSystemOwnerAddress', $any($event.target).checked)" /><span class="fx-row__text">Owner address: {{ fx.ownerAddress.value }}</span></label>
                               </li>
                               <li *ngIf="fx.ownerCountry" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02:ownerCountry')">
                                 <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02:ownerCountry')" (change)="toggleFieldChecked(i, 'sf02:ownerCountry', $any($event.target).checked)" /><span class="fx-row__text">Country: {{ fx.ownerCountry.value }}</span></label>
