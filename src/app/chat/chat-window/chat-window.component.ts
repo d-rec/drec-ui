@@ -381,6 +381,12 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     return theirs === my || theirs === myLocal;
   }
 
+  /** *ngFor trackBy — without this the 4-second poll replaces every
+   *  bubble's DOM on each tick, which silently wipes any text the
+   *  user just selected. Track by uuid so Angular reuses the bubble
+   *  element when the server returns the same message. */
+  trackByUuid = (_i: number, m: ChatMessage): string => m.uuid;
+
   get filteredMessages(): ChatMessage[] {
     const term = this.chatSearch.trim().toLowerCase();
     if (!term) return this.messages;

@@ -41,7 +41,7 @@
       <button class="scroll-arrow scroll-arrow--top" (click)="scrollToTop()" title="Jump to top">&#9650;</button>
       <div class="messages-container" #messagesContainer>
         <div
-          *ngFor="let msg of filteredMessages"
+          *ngFor="let msg of filteredMessages; trackBy: trackByUuid"
           [class.own]="isOwnMessage(msg)"
           [class.unread-bold]="unreadUuids.has(msg.uuid)"
           [class.bubble--note]="msg.kind === 'note'"
