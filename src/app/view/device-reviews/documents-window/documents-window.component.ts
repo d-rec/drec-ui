@@ -2682,6 +2682,21 @@ trustUrl(url: string): SafeUrl {
     this.svc.select(asset.id);
   }
 
+  /** "Return to list" exit from focused review mode. Drops the
+   *  selection so every device row reappears. */
+  returnToList(): void {
+    if (!this.confirmDiscard()) return;
+    this.svc.select(null);
+  }
+
+  /** Filter the rendered list to ONLY the selected device when a
+   *  selection is active. Avoids the surrounding sites jangling
+   *  the reviewer's focus while they work one device. */
+  visibleAssets<T extends { id: string }>(all: T[]): T[] {
+    if (!this.selId) return all;
+    return all.filter((a) => a.id === this.selId);
+  }
+
   saveDetail(): void {
     if (!this.editingId) return;
     const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);
