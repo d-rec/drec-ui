@@ -68,6 +68,7 @@
           [class.ocp__row--match]="isMatch(r)"
           [class.ocp__row--doc-backed]="rowStatus(r) === 'doc-backed'"
           [class.ocp__row--manual]="rowStatus(r) === 'manual'"
+          [class.ocp__row--glow]="isGlowing(r)"
         >
           <label
             class="ocp__label"
@@ -92,6 +93,14 @@
                 >{{ r.compare }}</span
               >
             </span>
+            <a
+              *ngIf="rowDocBadge(r) as badge"
+              class="ocp__doc-badge"
+              href="javascript:void(0)"
+              [title]="'Open ' + badge.token"
+              (click)="onBadgeClick($event, badge)"
+              (mousedown)="$event.stopPropagation()"
+            >{{ badge.token }} ↗</a>
           </label>
         </li>
         <li

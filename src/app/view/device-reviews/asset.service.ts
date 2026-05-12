@@ -31,6 +31,11 @@ export class AssetService {
   readonly viewPdfUrl$ = new BehaviorSubject<string | null>(null);
   /** When non-null, the PDF window should show SLD capacity compare for this device. */
   readonly sldDeviceId$ = new BehaviorSubject<number | null>(null);
+  /** Doc-token currently hovered in documents-window. The OC# panel
+   *  glows every row whose provenance source matches this token —
+   *  so when the reviewer mouses over the SLD line, every OC# row
+   *  the SLD attested to lights up at once. */
+  readonly hoveredDocSource$ = new BehaviorSubject<string | null>(null);
   /** When non-null, the device-info floating window should load & show this device. */
   readonly viewDeviceInfoId$ = new BehaviorSubject<number | null>(null);
 

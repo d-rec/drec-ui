@@ -91,7 +91,9 @@
         <div class="expanded-block" *ngIf="expanded[item.id]">
 
           <!-- ── SLD ─────────────────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--doc" tabindex="0">
+          <div class="dr-row dr-row--doc" tabindex="0"
+               (mouseenter)="svc.hoveredDocSource$.next('SLD')"
+               (mouseleave)="svc.hoveredDocSource$.next(null)">
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sld']" [class.review-check--disabled]="!item.sldUrl" role="checkbox" [attr.tabindex]="item.sldUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sld']" [attr.aria-disabled]="!item.sldUrl" (click)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" (keydown.enter)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sld']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
@@ -106,7 +108,9 @@
           </div>
 
           <!-- ── SF-02 ───────────────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--doc" tabindex="0">
+          <div class="dr-row dr-row--doc" tabindex="0"
+               (mouseenter)="svc.hoveredDocSource$.next('SF-02')"
+               (mouseleave)="svc.hoveredDocSource$.next(null)">
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02']" [class.review-check--disabled]="!item.sf02Url" role="checkbox" [attr.tabindex]="item.sf02Url ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02']" [attr.aria-disabled]="!item.sf02Url" (click)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" (keydown.enter)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
@@ -121,7 +125,9 @@
           </div>
 
           <!-- ── SF-02C ──────────────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--doc" tabindex="0">
+          <div class="dr-row dr-row--doc" tabindex="0"
+               (mouseenter)="svc.hoveredDocSource$.next('SF-02c')"
+               (mouseleave)="svc.hoveredDocSource$.next(null)">
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02c']" [class.review-check--disabled]="!item.sf02cUrl" role="checkbox" [attr.tabindex]="item.sf02cUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02c']" [attr.aria-disabled]="!item.sf02cUrl" (click)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" (keydown.enter)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02c']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
@@ -151,7 +157,9 @@
           </div>
 
           <!-- ── COD Proof ────────────────────────────────────────────────────── -->
-          <div class="dr-row dr-row--doc" tabindex="0">
+          <div class="dr-row dr-row--doc" tabindex="0"
+               (mouseenter)="svc.hoveredDocSource$.next('COD')"
+               (mouseleave)="svc.hoveredDocSource$.next(null)">
             <span class="review-check" [class.review-check--done]="reviewed[item.id + ':codProof']" [class.review-check--disabled]="!item.codProofUrl" role="checkbox" [attr.tabindex]="item.codProofUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':codProof']" [attr.aria-disabled]="!item.codProofUrl" (click)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" (keydown.enter)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" title="Mark as reviewed">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':codProof']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
@@ -166,7 +174,11 @@
           </div>
 
           <!-- ── Metering Evidence section ────────────────────────────────────── -->
-          <div class="dr-row dr-row--section" role="button" tabindex="0" (click)="toggleSection(item.id, 'meteringEvidence')" (keydown.enter)="toggleSection(item.id, 'meteringEvidence')">
+          <div class="dr-row dr-row--section" role="button" tabindex="0"
+               (click)="toggleSection(item.id, 'meteringEvidence')"
+               (keydown.enter)="toggleSection(item.id, 'meteringEvidence')"
+               (mouseenter)="svc.hoveredDocSource$.next('Meter IDs')"
+               (mouseleave)="svc.hoveredDocSource$.next(null)">
             <span class="section-chevron" [class.section-chevron--open]="isSectionOpen(item.id, 'meteringEvidence')">&#8250;</span>
             <span class="section-label">Metering Evidence <span class="fn">(49)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('METERING_EVIDENCE', item.operatingConfiguration, item.meteringEvidenceUrls.length > 0) }}" [title]="getDocHint('METERING_EVIDENCE', item.operatingConfiguration) || ''">{{ getReqStatus('METERING_EVIDENCE', item.operatingConfiguration, item.meteringEvidenceUrls.length > 0) }}</span>

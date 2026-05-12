@@ -4,10 +4,12 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
+  Output,
   SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -283,6 +285,64 @@ export class OcChecklistPanelComponent
   provenanceSource(r: OcRow): string | null {
     if (!r.field || !this.fieldProvenance) return null;
     return this.fieldProvenance[r.field]?.source ?? null;
+  }
+
+  /** Doc URLs the reviewer can jump to from a row badge. Keyed by
+   *  the source token we extract from a provenance string —
+   *  'SLD' / 'SF-02' / 'SF-02c' / 'COD' / 'Meter IDs' / 'Project photos'.
+   *  Page component passes the asset's signed URLs. */
+  @Input() docUrlBySource: Record<string, string | null> | null = {};
+
+  /** Doc-token being hovered (the device-reviews page broadcasts this
+   *  from documents-window's doc-row mouseenter). Every OC# row whose
+   *  provenance source begins with this token gets a glow class so the
+   *  reviewer can see at a glance what an attached doc covers. */
+  @Input() hoveredDocSource: string | null = null;
+
+  /** Click on a row's doc badge → open the source document. */
+  @Output() openDoc = new EventEmitter<string>();
+
+  /** Parse a provenance.source string like "SLD (backfill)" or
+   *  "SF-02c (saved)" or "SF-02" into a token we can match against
+   *  doc URLs / hover state. Returns null for non-doc inferences
+   *  (Geocoder, Platform default, Impact story, API-user inference,
+   *  opConfig × …). */
+  private sourceToken(source: string | null | undefined): string | null {
+    if (!source) return null;
+    const s = source.trim();
+    if (s.startsWith('SLD')) return 'SLD';
+    if (s.startsWith('SF-02c')) return 'SF-02c';
+    if (s.startsWith('SF-02')) return 'SF-02';
+    if (s.startsWith('COD')) return 'COD';
+    if (s.startsWith('Meter IDs')) return 'Meter IDs';
+    if (s.startsWith('Project photos')) return 'Project photos';
+    return null;
+  }
+
+  /** Doc-jump badge for a row. Returns null when the row's source
+   *  isn't a real document (inferences/defaults). */
+  rowDocBadge(r: OcRow): { token: string; url: string } | null {
+    const source = this.provenanceSource(r);
+    const token = this.sourceToken(source);
+    if (!token) return null;
+    const url = this.docUrlBySource?.[token];
+    if (!url) return null;
+    return { token, url };
+  }
+
+  /** True when the row's source token matches the currently-hovered
+   *  doc-row in documents-window. Used to glow rows covered by the
+   *  doc the reviewer is mousing over. */
+  isGlowing(r: OcRow): boolean {
+    if (!this.hoveredDocSource) return false;
+    const token = this.sourceToken(this.provenanceSource(r));
+    return token === this.hoveredDocSource;
+  }
+
+  onBadgeClick(event: MouseEvent, badge: { url: string }): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.openDoc.emit(badge.url);
   }
 
   rows = OC_ROWS;
