@@ -47,4 +47,11 @@ export interface Asset {
   lastScreenedAt: string | null;
   sf02Ready: boolean;
   docMeta: Record<string, DocMeta>;
+  /** Per-field source/confidence/at map produced by the registrant's
+   *  auto-fill pipeline. Drives OC# row tinting on the reviewer side
+   *  (green = a platform source set it, grey = manually entered). */
+  fieldProvenance: Record<
+    string,
+    { source: string; confidence: number; at: string }
+  > | null;
 }

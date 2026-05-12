@@ -20,6 +20,9 @@ interface OcRow {
   compare: string;
   /** Optional sub-checklist. Each string becomes its own checkable child row. */
   subItems?: string[];
+  /** Form-field key on the device for OC# rows that map 1:1 to a
+   *  registration field. Drives provenance-based row tinting. */
+  field?: string;
 }
 
 const OC_ROWS: OcRow[] = [
@@ -27,79 +30,92 @@ const OC_ROWS: OcRow[] = [
     n: 1,
     item: 'Site Name',
     compare: 'Cross check with: RMS, SLD, Proof of Ownership, OD letter',
+    field: 'siteName',
   },
-  { n: 2, item: 'Address', compare: '' },
-  { n: 3, item: 'State/Province', compare: 'Cross check with: coordinates' },
-  { n: 4, item: 'Postcode', compare: '' },
-  { n: 5, item: 'Country', compare: 'Cross check with: coordinates' },
-  { n: 6, item: 'Latitude', compare: 'Cross check with: site photos' },
-  { n: 7, item: 'Longitude', compare: 'Cross check with: site photos' },
-  { n: 8, item: 'Installation Type', compare: 'Cross check with: site photos' },
-  { n: 9, item: 'Total AC Capacity', compare: 'Cross check with: RMS, SLD' },
+  { n: 2, item: 'Address', compare: '', field: 'address' },
+  { n: 3, item: 'State/Province', compare: 'Cross check with: coordinates', field: 'stateProvince' },
+  { n: 4, item: 'Postcode', compare: '', field: 'postcode' },
+  { n: 5, item: 'Country', compare: 'Cross check with: coordinates', field: 'countryCodename' },
+  { n: 6, item: 'Latitude', compare: 'Cross check with: site photos', field: 'latitude' },
+  { n: 7, item: 'Longitude', compare: 'Cross check with: site photos', field: 'longitude' },
+  { n: 8, item: 'Installation Type', compare: 'Cross check with: site photos', field: 'deviceDescription' },
+  { n: 9, item: 'Total AC Capacity', compare: 'Cross check with: RMS, SLD', field: 'capacity' },
   {
     n: 10,
     item: 'Commissioning Date',
     compare: 'Cross check with: Proof of COD, 1st day of generation data',
+    field: 'commissioningDate',
   },
-  { n: 11, item: 'Requested Effective Registration Date', compare: '' },
-  { n: 12, item: 'Default Evident Account Code', compare: '' },
+  { n: 11, item: 'Requested Effective Registration Date', compare: '', field: 'requestedEffectiveRegDate' },
+  { n: 12, item: 'Default Evident Account Code', compare: '', field: 'defaultAccountCode' },
   {
     n: 13,
     item: 'Number of generating units',
     compare: 'Cross check with: RMS, SLD',
+    field: 'generatingUnitCount',
   },
   {
     n: 14,
     item: 'Meter or Measurement ID(s)',
     compare: 'Cross check with: RMS, SLD',
+    field: 'serialNumber',
   },
   {
     n: 15,
     item: 'Is this facility connected to the grid?',
     compare: 'Cross check with: SLD',
+    field: 'gridInterconnection',
   },
   {
     n: 16,
     item: 'Does this facility export to the grid?',
     compare: 'Cross check with: SLD',
+    field: 'gridExportType',
   },
   {
     n: 17,
     item: 'Owner of the network to which the Production Device is connected',
     compare: 'Cross check with: SLD',
+    field: 'networkOwner',
   },
-  { n: 18, item: 'Interconnection voltage', compare: '' },
+  { n: 18, item: 'Interconnection voltage', compare: '', field: 'interconnectionVoltage' },
   {
     n: 19,
     item: 'If this facility is grid-connected, is there a utility or network meter installed at this site?',
     compare: 'Cross check with: SLD',
+    field: 'hasNetworkMeter',
   },
   {
     n: 20,
     item: 'If yes, can you share the meter reads from the network or utility meter via an official document (e.g. a utility bill or online dashboard)?',
     compare: 'Cross check with: sample metering evidence',
+    field: 'meterReadsShareable',
   },
   {
     n: 21,
     item: 'Please give details of how the site can import electricity by means other than through the meter(s) specified above',
     compare: 'Cross check with: SLD',
+    field: 'nonMeterImportDetails',
   },
   {
     n: 22,
     item: 'How will you share metering evidence for this site?',
     compare: 'Cross check with: sample metering evidence',
+    field: 'sourceAccessMode',
   },
   {
     n: 23,
     item: 'Is there an on-site (captive) consumer present?',
     compare: 'Cross check with: Proof of ownership',
+    field: 'hasCaptiveConsumer',
   },
   {
     n: 24,
     item: 'Are there any auxiliary or standby energy sources present?',
     compare: 'Cross check with: SLD',
+    field: 'hasAuxiliaryEnergySources',
   },
-  { n: 25, item: 'If yes, provide details', compare: 'Cross check with: SLD' },
+  { n: 25, item: 'If yes, provide details', compare: 'Cross check with: SLD', field: 'auxiliaryEnergySourceDetails' },
   {
     n: 26,
     item: 'Is the Registrant also the owner of the Production Facility?',
@@ -109,62 +125,73 @@ const OC_ROWS: OcRow[] = [
     n: 27,
     item: 'PV System Owner',
     compare: 'Cross check with: Proof of ownership',
+    field: 'pvSystemOwner',
   },
   {
     n: 28,
     item: 'Off-taker Name',
     compare: 'Cross check with: Proof of ownership',
+    field: 'offTakerName',
   },
-  { n: 29, item: 'Off-taker Type', compare: '' },
+  { n: 29, item: 'Off-taker Type', compare: '', field: 'offTaker' },
   {
     n: 30,
     item: 'Is the Electricity Off-taker part of the same company (or at least 51% part of the same company group) as the PV system owner?',
     compare: '',
+    field: 'offTakerSameCompanyAsOwner',
   },
   {
     n: 31,
     item: 'Please give details (including registration id) of any carbon offset or energy tracking scheme for which the Production Facility is registered. State "None" if that is the case',
     compare:
       'If anything other than "None" is specified, registration cannot be approved',
+    field: 'otherEacSchemeRegistration',
   },
   {
     n: 32,
     item: 'Has the Production Facility ever received public (government) funding (e.g. Feed in Tariff)?',
     compare: '',
+    field: 'hasPublicFunding',
   },
   {
     n: 33,
     item: 'If public (government) funding has been received when did/will it finish?',
     compare: '',
+    field: 'publicFundingEndDate',
   },
   {
     n: 34,
     item: 'Has this facility ever received any form of subsidy or incentive?',
     compare: '"Yes" means individual senior review required',
+    field: 'hasSubsidy',
   },
   {
     n: 35,
     item: 'If yes, provide details',
     compare: 'All items mean individual senior review required',
+    field: 'subsidyTypes',
   },
   {
     n: 36,
     item: 'Do any applicable subsidies or incentives create a claim on the environmental attributes?',
     compare: '"Yes" means facility cannot be approved',
+    field: 'subsidyClaimsEacs',
   },
   {
     n: 37,
     item: 'Other Labelling Scheme',
     compare: 'If more labels are chosen, D-REC to pass on to relevant party',
+    field: 'labellingSchemeAccreditation',
   },
-  { n: 38, item: 'SDG Benefits', compare: '' },
-  { n: 39, item: 'Impact Story', compare: '' },
+  { n: 38, item: 'SDG Benefits', compare: '', field: 'SDGBenefits' },
+  { n: 39, item: 'Impact Story', compare: '', field: 'impactStory' },
   {
     n: 40,
     item: 'Additional Information',
     compare: 'Individual review may be required depending on response',
+    field: 'additionalInfo',
   },
-  { n: 41, item: 'Name', compare: '' },
+  { n: 41, item: 'Name', compare: '', field: 'signatoryName' },
   { n: 42, item: 'Signature', compare: '' },
   { n: 43, item: 'Site photos', compare: 'Cross check with: coordinates, SLD' },
   {
@@ -230,6 +257,33 @@ export class OcChecklistPanelComponent
 {
   /** localStorage key for persisting the checked set. If empty/null, state is session-only. */
   @Input() storageKey: string | null = '';
+
+  /** Per-field provenance from the device the reviewer is looking at.
+   *  Each row whose `.field` is present here gets a green tint
+   *  (platform-derived). Rows whose `.field` is set but missing from
+   *  this map are tinted grey (manually entered by the registrant).
+   *  Rows without a `.field` mapping render normally — they're
+   *  document checklist items, not form fields. */
+  @Input() fieldProvenance: Record<
+    string,
+    { source: string; confidence: number; at: string }
+  > | null = null;
+
+  /** Compute the row's tint bucket. Used by the template to apply
+   *  a CSS modifier class. */
+  rowStatus(r: OcRow): 'doc-backed' | 'manual' | 'na' {
+    if (!r.field) return 'na';
+    if (this.fieldProvenance && this.fieldProvenance[r.field]) {
+      return 'doc-backed';
+    }
+    return 'manual';
+  }
+
+  /** Human-readable source for the tooltip on green rows. */
+  provenanceSource(r: OcRow): string | null {
+    if (!r.field || !this.fieldProvenance) return null;
+    return this.fieldProvenance[r.field]?.source ?? null;
+  }
 
   rows = OC_ROWS;
   collapsed = this.loadCollapsedPref();

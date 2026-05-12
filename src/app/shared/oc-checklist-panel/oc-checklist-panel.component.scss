@@ -265,6 +265,22 @@
   }
 }
 
+/* Provenance tint — drives the reviewer's eye to the rows that need
+   verification (grey) vs those that were already filled by an
+   extractor or platform default (green). Doesn't auto-tick — the
+   reviewer still has to confirm each row. */
+.ocp__row--doc-backed {
+  border-left: 3px solid #16a34a;
+  background: rgba(220, 252, 231, 0.35);
+
+  &.ocp__row--checked {
+    background: rgba(220, 252, 231, 0.65);
+  }
+}
+.ocp__row--manual {
+  border-left: 3px solid #cbd5e1;
+}
+
 .ocp__item-wrap {
   display: flex;
   flex-direction: column;

@@ -30,6 +30,13 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
   checklistStorageKey$: Observable<string | null>;
   openPictures$: Observable<OpenPicture[]>;
 
+  /** Provenance map of the currently-focused device — feeds the OC#
+   *  panel so each row is tinted green (platform-derived) or grey
+   *  (manually entered) without auto-ticking anything. */
+  selectedFieldProvenance$: Observable<
+    Record<string, { source: string; confidence: number; at: string }> | null
+  >;
+
   private sub!: Subscription;
 
   constructor(private svc: AssetService) {
@@ -37,6 +44,14 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
       map((id) => (id != null ? `oc-checklist-device-${id}` : null)),
     );
     this.openPictures$ = this.svc.openPictures$;
+    this.selectedFieldProvenance$ = this.svc.viewDeviceInfoId$.pipe(
+      map((id) => {
+        if (id == null) return null;
+        const key = String(id);
+        const asset = this.svc.assets$.value.find((a) => a.id === key);
+        return asset?.fieldProvenance ?? null;
+      }),
+    );
   }
 
   trackPictureId = (_: number, p: OpenPicture) => p.id;

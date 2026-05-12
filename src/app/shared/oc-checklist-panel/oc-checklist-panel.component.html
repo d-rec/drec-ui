@@ -66,11 +66,13 @@
           class="ocp__row"
           [class.ocp__row--checked]="isRowComplete(r)"
           [class.ocp__row--match]="isMatch(r)"
+          [class.ocp__row--doc-backed]="rowStatus(r) === 'doc-backed'"
+          [class.ocp__row--manual]="rowStatus(r) === 'manual'"
         >
           <label
             class="ocp__label"
-            [matTooltip]="r.compare"
-            [matTooltipDisabled]="!r.compare || !!r.subItems"
+            [matTooltip]="r.compare ? r.compare : (provenanceSource(r) ? 'Source: ' + provenanceSource(r) : '')"
+            [matTooltipDisabled]="(!r.compare && !provenanceSource(r)) || !!r.subItems"
             matTooltipPosition="left"
             matTooltipShowDelay="200"
           >
