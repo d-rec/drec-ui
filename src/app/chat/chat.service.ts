@@ -180,15 +180,19 @@ export class ChatService implements OnDestroy {
   }
 
   /** Re-arm the 10s mark-read timer whenever a new message tail
-   *  arrives. The chat window has to be open for this to fire — if
-   *  the user closes it, closeChat clears the timer. */
+   *  arrives. Three conditions to actually fire:
+   *   - chat window is open
+   *   - browser tab is visible (visibilityState === 'visible')
+   *   - document has OS focus (user is actually looking at us, not
+   *     in another window with our tab visible behind it)
+   *  If any of those is false at fire time, we DON'T mark read — the
+   *  user hasn't seen the new message, so the unread badge has to
+   *  keep pinging. */
   private scheduleAutoMarkRead(messages: ChatMessage[]): void {
     const last = messages.length ? messages[messages.length - 1] : null;
     const tail = last?.uuid ?? null;
     if (!tail || tail === this.lastSeenTailUuid) return;
     this.lastSeenTailUuid = tail;
-    // Skip if the user themselves sent the last message — server
-    // already marked their slot read.
     const me = this.getCurrentUserEmail();
     if (last && me && last.username === me) return;
     if (this.autoReadTimer) clearTimeout(this.autoReadTimer);
@@ -196,7 +200,15 @@ export class ChatService implements OnDestroy {
     if (convId == null) return;
     this.autoReadTimer = setTimeout(() => {
       this.autoReadTimer = null;
-      if (this.isChatOpen$.value && this.currentConversationId === convId) {
+      const focused =
+        typeof document !== 'undefined' &&
+        document.visibilityState === 'visible' &&
+        document.hasFocus();
+      if (
+        focused &&
+        this.isChatOpen$.value &&
+        this.currentConversationId === convId
+      ) {
         this.markConversationRead(convId);
       }
     }, 10_000);
