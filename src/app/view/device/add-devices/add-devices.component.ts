@@ -3389,6 +3389,21 @@ export class AddDevicesComponent implements OnDestroy {
       })
       .join('');
 
+    // Sort rows by OC# extracted from the leading "(N)" / "(34a)"
+    // marker on the label. Rows without an OC# (the few raw-key
+    // labels like "sourceAccessMode") sort to the end alphabetically.
+    const ocNum = (label: string): { n: number; suffix: string } => {
+      const m = /^\((\d+)([a-z]?)\)/i.exec(label);
+      if (!m) return { n: Number.POSITIVE_INFINITY, suffix: '' };
+      return { n: parseInt(m[1], 10), suffix: m[2] };
+    };
+    rows.sort((a, b) => {
+      const oa = ocNum(a.label);
+      const ob = ocNum(b.label);
+      if (oa.n !== ob.n) return oa.n - ob.n;
+      if (oa.suffix !== ob.suffix) return oa.suffix.localeCompare(ob.suffix);
+      return a.label.localeCompare(b.label);
+    });
     const tableRows = rows
       .map(
         (r) => `
