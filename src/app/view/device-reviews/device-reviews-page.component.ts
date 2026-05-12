@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
+import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AssetService, OpenPicture } from './asset.service';
 
@@ -44,11 +44,18 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
       map((id) => (id != null ? `oc-checklist-device-${id}` : null)),
     );
     this.openPictures$ = this.svc.openPictures$;
-    this.selectedFieldProvenance$ = this.svc.viewDeviceInfoId$.pipe(
-      map((id) => {
+    // selectedId$ fires whenever the reviewer clicks a row in the
+    // reviews table — that's the moment we know which device's
+    // provenance map to feed into the OC# panel. viewDeviceInfoId$
+    // only fires when the floating device-info window is opened,
+    // which is too late.
+    this.selectedFieldProvenance$ = combineLatest([
+      this.svc.selectedId$,
+      this.svc.assets$,
+    ]).pipe(
+      map(([id, assets]) => {
         if (id == null) return null;
-        const key = String(id);
-        const asset = this.svc.assets$.value.find((a) => a.id === key);
+        const asset = assets.find((a) => a.id === id);
         return asset?.fieldProvenance ?? null;
       }),
     );
