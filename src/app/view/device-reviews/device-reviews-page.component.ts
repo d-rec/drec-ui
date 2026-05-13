@@ -34,7 +34,7 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
    *  panel so each row is tinted green (platform-derived) or grey
    *  (manually entered) without auto-ticking anything. */
   selectedFieldProvenance$: Observable<
-    Record<string, { source: string; confidence: number; at: string }> | null
+    Record<string, { source: string; confidence: number; at: string; value?: any }> | null
   >;
 
   /** Doc-token → signed URL for the currently-focused device. Feeds

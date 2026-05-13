@@ -52,6 +52,6 @@ export interface Asset {
    *  (green = a platform source set it, grey = manually entered). */
   fieldProvenance: Record<
     string,
-    { source: string; confidence: number; at: string }
+    { source: string; confidence: number; at: string; value?: any }
   > | null;
 }

@@ -2093,7 +2093,7 @@ export class AddDevicesComponent implements OnDestroy {
       if (isEmpty) {
         ctl.setValue(next);
         ctl.markAsDirty();
-        this.recordProvenance(deviceIndex, c.name, source, c.field.confidence);
+        this.recordProvenance(deviceIndex, c.name, source, c.field.confidence, next);
         filled++;
         continue;
       }
@@ -2149,7 +2149,7 @@ export class AddDevicesComponent implements OnDestroy {
       if (!ctl) continue;
       ctl.setValue(c.next);
       ctl.markAsDirty();
-      this.recordProvenance(c.deviceIndex, c.name, source, c.confidence);
+      this.recordProvenance(c.deviceIndex, c.name, source, c.confidence, c.next);
       applied++;
     }
     this.pendingOverwriteAfter?.();
@@ -2194,7 +2194,7 @@ export class AddDevicesComponent implements OnDestroy {
     ctl.setValue(value);
     ctl.markAsDirty();
     // Credit whichever rule fired this — SLD / SF-02 / Meter IDs.
-    this.recordProvenance(deviceIndex, 'dataSource', source, 0.9);
+    this.recordProvenance(deviceIndex, 'dataSource', source, 0.9, value);
   }
 
   dismissSldExtraction(deviceIndex: number): void {
@@ -2441,7 +2441,13 @@ export class AddDevicesComponent implements OnDestroy {
     }
     this.serialNumberLists[deviceIndex] = merged.length ? merged : [''];
     this.syncSerialNumberControl(deviceIndex);
-    this.recordProvenance(deviceIndex, 'serialNumber', 'Meter IDs', 1);
+    this.recordProvenance(
+      deviceIndex,
+      'serialNumber',
+      'Meter IDs',
+      1,
+      merged.join(';'),
+    );
     // SNs were read from a metering portal / nameplate — the data
     // source is the inverter.
     this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
@@ -2455,7 +2461,7 @@ export class AddDevicesComponent implements OnDestroy {
         if (!cur) {
           brandCtl.setValue(brand);
           brandCtl.markAsDirty();
-          this.recordProvenance(deviceIndex, 'dataSourceBrand', 'Meter IDs', 1);
+          this.recordProvenance(deviceIndex, 'dataSourceBrand', 'Meter IDs', 1, brand);
         }
       }
     }
@@ -2662,7 +2668,7 @@ export class AddDevicesComponent implements OnDestroy {
         // saw it as MANUAL because field_provenance didn't have it.
         const existing = this.appliedProvenance[deviceIndex]?.[field];
         if (!existing) {
-          this.recordProvenance(deviceIndex, field, source, 0.9);
+          this.recordProvenance(deviceIndex, field, source, 0.9, cur);
         }
       };
       // (30) Operating configuration is derivable from the SLD's
@@ -3042,7 +3048,7 @@ export class AddDevicesComponent implements OnDestroy {
   appliedProvenance: {
     [deviceIndex: number]: Record<
       string,
-      { source: string; confidence: number; at: string }
+      { source: string; confidence: number; at: string; value?: any }
     >;
   } = {};
 
@@ -3326,19 +3332,37 @@ export class AddDevicesComponent implements OnDestroy {
       return out;
     };
     const candidates = collect();
-    if (!candidates.length) return null;
-    candidates.sort((a, b) => b.confidence - a.confidence);
-    const best = candidates[0];
     const docTypeBySource: Record<string, string> = {
       SLD: 'SINGLE_LINE_DIAGRAM',
       'SF-02c': 'SF_02C',
       'SF-02': 'FORM_SF_02',
       COD: 'COD_PROOF',
     };
-    const docType = docTypeBySource[best.source];
-    const url =
-      (this.existingDocs[deviceIndex]?.[docType]?.[0] as any)?.url ?? null;
-    return { source: best.source, value: best.value, url };
+    if (candidates.length) {
+      candidates.sort((a, b) => b.confidence - a.confidence);
+      const best = candidates[0];
+      const docType = docTypeBySource[best.source];
+      const url =
+        (this.existingDocs[deviceIndex]?.[docType]?.[0] as any)?.url ?? null;
+      return { source: best.source, value: best.value, url };
+    }
+    // Fallback: no live extraction this session, but the registrant's
+    // last save persisted a value into field_provenance — show that
+    // so hints hydrate on edit-page open without re-running Haiku.
+    const persisted = this.appliedProvenance[deviceIndex]?.[field];
+    if (persisted?.value !== undefined && persisted.value !== null) {
+      // Source labels can carry " (backfill)" / " (saved)" suffixes;
+      // strip for a cleaner pill, but only when looking up the doc URL.
+      const rawSource = persisted.source.replace(
+        /\s*\((?:backfill|saved)\)\s*$/i,
+        '',
+      );
+      const docType = docTypeBySource[rawSource];
+      const url =
+        (this.existingDocs[deviceIndex]?.[docType]?.[0] as any)?.url ?? null;
+      return { source: persisted.source, value: persisted.value, url };
+    }
+    return null;
   }
 
   /** Click the hint → open the doc in a new tab. Signed URL was
@@ -3453,6 +3477,7 @@ export class AddDevicesComponent implements OnDestroy {
     field: string,
     source: string,
     confidence: number,
+    value?: any,
   ): void {
     if (!this.appliedProvenance[deviceIndex]) {
       this.appliedProvenance[deviceIndex] = {};
@@ -3461,6 +3486,11 @@ export class AddDevicesComponent implements OnDestroy {
       source,
       confidence,
       at: new Date().toISOString(),
+      // Storing the extracted value alongside the source label lets
+      // edit-page hints hydrate without re-running extractors. Older
+      // entries from before this commit won't have a value; the hint
+      // helper falls through cleanly when value is undefined.
+      ...(value !== undefined ? { value } : {}),
     };
   }
 
@@ -5062,8 +5092,10 @@ export class AddDevicesComponent implements OnDestroy {
     });
     // Inferences are real provenance — persist them so re-edits don't
     // see geocoder/impactStory/metering-evidence-derived values as
-    // MANUAL. Same mechanism as the doc-extractor apply paths.
-    this.recordProvenance(deviceIndex, field, source, confidence);
+    // MANUAL. Same mechanism as the doc-extractor apply paths. Value
+    // is captured too so the registrant's edit-page hint can hydrate
+    // without re-running the inference.
+    this.recordProvenance(deviceIndex, field, source, confidence, value);
   }
 
   /** Per-device set of fields the user explicitly cleared. submitEdit
