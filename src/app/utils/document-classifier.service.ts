@@ -69,6 +69,7 @@ export interface SldExtractedFields {
   gridExportType?: ExtractedField<string>;
   hasAuxiliaryEnergySources?: ExtractedField<boolean>;
   auxiliaryEnergySourceDetails?: ExtractedField<string>;
+  hasCaptiveConsumer?: ExtractedField<boolean>;
   acCapacityKw?: ExtractedField<number>;
   dcCapacityKwp?: ExtractedField<number>;
   inverterCount?: ExtractedField<number>;

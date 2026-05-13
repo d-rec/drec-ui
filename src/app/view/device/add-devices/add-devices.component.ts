@@ -1985,6 +1985,7 @@ export class AddDevicesComponent implements OnDestroy {
       { name: 'gridExportType', field: fx.gridExportType },
       { name: 'hasAuxiliaryEnergySources', field: fx.hasAuxiliaryEnergySources, transform: (v) => (v ? 'Yes' : 'No') },
       { name: 'auxiliaryEnergySourceDetails', field: fx.auxiliaryEnergySourceDetails },
+      { name: 'hasCaptiveConsumer', field: fx.hasCaptiveConsumer, transform: (v) => (v ? 'Yes' : 'No') },
     ], () => {
       // SLD always describes inverter-side topology — if we read an
       // inverter make/model or count, the data source is the inverter.
@@ -2573,6 +2574,9 @@ export class AddDevicesComponent implements OnDestroy {
         v ? 'Yes' : 'No',
       );
       add('auxiliaryEnergySourceDetails', 'SLD', sld.auxiliaryEnergySourceDetails);
+      add('hasCaptiveConsumer', 'SLD', sld.hasCaptiveConsumer, (v) =>
+        v ? 'Yes' : 'No',
+      );
     }
     const sf02c = this.sf02cExtractions[deviceIndex];
     if (sf02c) {
