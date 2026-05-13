@@ -3042,6 +3042,155 @@ export class AddDevicesComponent implements OnDestroy {
     >;
   } = {};
 
+  /** Pre-submit review modal state. */
+  presubmitIssues: {
+    empty: Array<{ field: string; label: string }>;
+    disagrees: Array<{ field: string; label: string }>;
+    unextracted: Array<{ field: string; label: string; via: string }>;
+  } = { empty: [], disagrees: [], unextracted: [] };
+  @ViewChild('presubmitDialog') presubmitDialog?: TemplateRef<any>;
+  private presubmitDialogRef: MatDialogRef<any> | null = null;
+  /** Set to true when the registrant clicks "Submit anyway" so the
+   *  next submitEdit re-entry skips the issues check. */
+  presubmitOverride = false;
+
+  /** Which form fields each attached doc could populate. Drives the
+   *  "unextracted" list — if a doc is present but the corresponding
+   *  field is empty/manual, surface it as something to extract. */
+  private static readonly DOC_FIELD_MAP: Record<string, string[]> = {
+    SINGLE_LINE_DIAGRAM: [
+      'capacity',
+      'generatingUnitCount',
+      'interconnectionVoltage',
+      'gridInterconnection',
+      'gridExportType',
+      'hasNetworkMeter',
+      'hasAuxiliaryEnergySources',
+      'auxiliaryEnergySourceDetails',
+      'dataSourceBrand',
+      'networkOwner',
+    ],
+    FORM_SF_02: [
+      'siteName',
+      'capacity',
+      'commissioningDate',
+      'deviceTypeCode',
+      'pvSystemOwner',
+      'pvSystemOwnerAddress',
+      'latitude',
+      'longitude',
+      'generatingUnitCount',
+      'networkOwner',
+    ],
+    SF_02C: [
+      'siteName',
+      'pvSystemOwner',
+      'pvSystemOwnerAddress',
+      'countryCodename',
+      'signatoryName',
+    ],
+    COD_PROOF: ['commissioningDate', 'siteName', 'capacity', 'pvSystemOwner'],
+    METERING_EVIDENCE: ['serialNumber', 'dataSourceBrand'],
+  };
+
+  /** Friendly doc-type names for the unextracted list. */
+  private static readonly DOC_FRIENDLY: Record<string, string> = {
+    SINGLE_LINE_DIAGRAM: 'SLD',
+    FORM_SF_02: 'SF-02',
+    SF_02C: 'SF-02c',
+    COD_PROOF: 'COD proof',
+    METERING_EVIDENCE: 'Metering evidence',
+  };
+
+  private collectPresubmitIssues(deviceIndex: number): {
+    empty: Array<{ field: string; label: string }>;
+    disagrees: Array<{ field: string; label: string }>;
+    unextracted: Array<{ field: string; label: string; via: string }>;
+  } {
+    const form = this.deviceForms.at(deviceIndex) as FormGroup;
+    const labelOf = (name: string) =>
+      AddDevicesComponent.FIELD_LABELS[name] ??
+      name.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
+    const isEmpty = (v: any): boolean =>
+      v === null ||
+      v === undefined ||
+      v === '' ||
+      (Array.isArray(v) && v.length === 0);
+
+    // (a) empty required fields — walk controls flagged required
+    const empty: Array<{ field: string; label: string }> = [];
+    for (const name of Object.keys(form.controls)) {
+      const ctl = form.get(name);
+      if (!ctl) continue;
+      const required = ctl.errors?.['required'];
+      if (required && isEmpty(ctl.value)) {
+        empty.push({ field: name, label: labelOf(name) });
+      }
+    }
+
+    // (b) doc-vs-form disagreements — reuse collectFormVsDocConflicts
+    const disagrees: Array<{ field: string; label: string }> = this
+      .collectFormVsDocConflicts(deviceIndex)
+      .map((c) => ({ field: c.name, label: c.label }));
+
+    // (c) unextracted: doc is attached but a field that doc could
+    //     populate is empty AND has no provenance entry yet.
+    const provenance = this.appliedProvenance[deviceIndex] ?? {};
+    const docs = this.existingDocs[deviceIndex] ?? {};
+    const seenFields = new Set<string>();
+    const unextracted: Array<{ field: string; label: string; via: string }> = [];
+    for (const [docType, fields] of Object.entries(
+      AddDevicesComponent.DOC_FIELD_MAP,
+    )) {
+      if (!(docs as any)[docType]?.length) continue;
+      const friendly = AddDevicesComponent.DOC_FRIENDLY[docType] ?? docType;
+      for (const f of fields) {
+        if (seenFields.has(f)) continue;
+        const cur = form.get(f)?.value;
+        if (!isEmpty(cur)) continue;
+        if (provenance[f]) continue;
+        seenFields.add(f);
+        unextracted.push({ field: f, label: labelOf(f), via: friendly });
+      }
+    }
+
+    return { empty, disagrees, unextracted };
+  }
+
+  private openPresubmitDialog(issues: ReturnType<typeof this.collectPresubmitIssues>): void {
+    this.presubmitIssues = issues;
+    this.isSubmitting = false;
+    this.submitButtonText = 'Submit';
+    this.presubmitDialogRef = this.dialog.open(this.presubmitDialog!, {
+      width: '640px',
+      maxWidth: '95vw',
+    });
+  }
+
+  /** Registrant clicks "Submit anyway" — close the modal, set the
+   *  override flag, and re-enter submitEdit which will skip the
+   *  pre-submit check this time. */
+  submitAnyway(): void {
+    this.presubmitOverride = true;
+    this.presubmitDialogRef?.close();
+    this.presubmitDialogRef = null;
+    this.isSubmitting = true;
+    this.submitEdit();
+  }
+
+  /** Cancel the modal and stay on the form so the registrant can fix
+   *  the issues. */
+  cancelPresubmit(): void {
+    this.presubmitDialogRef?.close();
+    this.presubmitDialogRef = null;
+    this.isSubmitting = false;
+  }
+
+  jumpToFormField(field: string): void {
+    this.cancelPresubmit();
+    setTimeout(() => this.jumpToField(field), 50);
+  }
+
   /** Open reviewer notes for the device — pulled from the device's
    *  chat (kind='note', status='open'). The template renders these
    *  inline as the per-field feedback banner. */
@@ -4949,6 +5098,21 @@ export class AddDevicesComponent implements OnDestroy {
     // Mode, …) get persisted into appliedProvenance and ship with
     // this PATCH instead of waiting for a second save round-trip.
     this.collectExtractionClaims(0);
+
+    // Pre-submit completeness check: if there are empty required
+    // fields, doc-vs-form disagreements, or fields the registrant
+    // could have extracted from an attached doc but left manual,
+    // pop a single review modal so the registrant can fix them in
+    // one pass instead of bouncing through the reviewer's chat.
+    if (!this.presubmitOverride && this.isEditMode) {
+      const issues = this.collectPresubmitIssues(0);
+      if (issues.empty.length + issues.disagrees.length + issues.unextracted.length > 0) {
+        this.openPresubmitDialog(issues);
+        return;
+      }
+    }
+    // Reset the override flag so future submits re-evaluate.
+    this.presubmitOverride = false;
 
     // Last-chance discrepancy check: any form field whose current
     // value disagrees with at least one extractor source pops a

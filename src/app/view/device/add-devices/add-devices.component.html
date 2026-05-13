@@ -1442,6 +1442,49 @@
   </div>
 </ng-template>
 
+<ng-template #presubmitDialog>
+  <h2 mat-dialog-title>Before you submit — please review</h2>
+  <div mat-dialog-content style="max-height:60vh;overflow:auto;padding-bottom:8px">
+    <p class="text-muted small mb-3" style="font-size:12px">
+      A few items on this device need attention. Each one will save the reviewer a chat ping — fix what you can, then re-submit.
+    </p>
+
+    <div *ngIf="presubmitIssues.empty.length" class="ps-block">
+      <div class="ps-block__title">⚠ {{ presubmitIssues.empty.length }} required field{{ presubmitIssues.empty.length === 1 ? '' : 's' }} empty</div>
+      <ul class="ps-list">
+        <li *ngFor="let i of presubmitIssues.empty">
+          <a href="javascript:void(0)" (click)="jumpToFormField(i.field)">{{ i.label }} ↗</a>
+        </li>
+      </ul>
+    </div>
+
+    <div *ngIf="presubmitIssues.disagrees.length" class="ps-block">
+      <div class="ps-block__title">⚠ {{ presubmitIssues.disagrees.length }} field{{ presubmitIssues.disagrees.length === 1 ? '' : 's' }} disagree with the docs</div>
+      <p class="ps-block__hint">A document attached to this device says something different from what's in the form.</p>
+      <ul class="ps-list">
+        <li *ngFor="let i of presubmitIssues.disagrees">
+          <a href="javascript:void(0)" (click)="jumpToFormField(i.field)">{{ i.label }} ↗</a>
+        </li>
+      </ul>
+    </div>
+
+    <div *ngIf="presubmitIssues.unextracted.length" class="ps-block">
+      <div class="ps-block__title">💡 {{ presubmitIssues.unextracted.length }} field{{ presubmitIssues.unextracted.length === 1 ? '' : 's' }} look extractable</div>
+      <p class="ps-block__hint">These are empty but the attached document could fill them. Open "Reading documents" to re-run the extractor.</p>
+      <ul class="ps-list">
+        <li *ngFor="let i of presubmitIssues.unextracted">
+          <a href="javascript:void(0)" (click)="jumpToFormField(i.field)">{{ i.label }} ↗</a>
+          <small style="color:#64748b">— would come from {{ i.via }}</small>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-end gap-2 pt-2">
+    <button mat-button class="btn-default" (click)="cancelPresubmit()">Stay & fix</button>
+    <button mat-button class="btn-warning" (click)="submitAnyway()">Submit anyway</button>
+  </div>
+</ng-template>
+
 <ng-template #formVsDocDialog>
   <h2 mat-dialog-title>Documents disagree with the form</h2>
   <div mat-dialog-content style="max-height:60vh;overflow:auto;padding-bottom:8px">

@@ -1397,3 +1397,41 @@ $as-bg:       #f8fafc;
 .field--flash {
   animation: review-field-flash 1.5s ease-in-out;
 }
+
+/* Pre-submit review modal */
+.ps-block {
+  margin-bottom: 16px;
+  padding: 10px 12px;
+  border-left: 3px solid #f59e0b;
+  background: #fffbeb;
+  border-radius: 4px;
+
+  &__title {
+    font-weight: 700;
+    color: #7c2d12;
+    margin-bottom: 4px;
+    font-size: 13px;
+  }
+  &__hint {
+    font-size: 11px;
+    color: #92400e;
+    margin: 0 0 6px;
+  }
+}
+.ps-list {
+  list-style: none;
+  padding-left: 4px;
+  margin: 0;
+
+  li {
+    margin: 2px 0;
+    font-size: 12px;
+  }
+  a {
+    color: #b45309;
+    text-decoration: none;
+    border-bottom: 1px dotted #b45309;
+    font-weight: 600;
+    &:hover { color: #7c2d12; }
+  }
+}
