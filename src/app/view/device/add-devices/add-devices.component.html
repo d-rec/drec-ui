@@ -435,7 +435,9 @@
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label>(21) Non-meter import details</mat-label>
-                      <input matInput formControlName="nonMeterImportDetails" />
+                      <input matInput formControlName="nonMeterImportDetails"
+                        matTooltip="Describe any way the site can import electricity OTHER than through the meter(s) named in (14) — e.g. backup diesel generator (Mikano 80 kVA), shared connection with a neighbour, generator-set during outages, battery storage charged from off-site. Leave blank if the only inbound electricity is via the listed meter(s)."
+                        matTooltipPosition="above" />
                     </mat-form-field>
                   </div>
                   <div class="col-md-3">
