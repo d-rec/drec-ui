@@ -2583,7 +2583,9 @@ export class AddDevicesComponent implements OnDestroy {
       add('siteName', 'SF-02c', sf02c.projectName);
       add('pvSystemOwner', 'SF-02c', sf02c.ownerLegalName);
       add('pvSystemOwnerAddress', 'SF-02c', sf02c.ownerAddress);
-      add('countryCodename', 'SF-02c', sf02c.ownerCountry);
+      add('countryCodename', 'SF-02c', sf02c.ownerCountry, (v) =>
+        this.normalizeCountry(v),
+      );
     }
     const cod = this.codExtractions[deviceIndex];
     if (cod) {
@@ -2591,7 +2593,9 @@ export class AddDevicesComponent implements OnDestroy {
       add('siteName', 'COD', cod.facilityName);
       add('capacity', 'COD', cod.acCapacityKw);
       add('pvSystemOwner', 'COD', cod.ownerName);
-      add('countryCodename', 'COD', cod.country);
+      add('countryCodename', 'COD', cod.country, (v) =>
+        this.normalizeCountry(v),
+      );
       // utilityOrIssuer dropped from networkOwner candidates — it's
       // the COD signatory (often the EPC), not the DSO. The
       // dedicated networkOwner field on SF-02 is the reliable source.
@@ -2604,7 +2608,9 @@ export class AddDevicesComponent implements OnDestroy {
       add('deviceTypeCode', 'SF-02', sf02.deviceTypeCode);
       add('pvSystemOwner', 'SF-02', sf02.ownerLegalName);
       add('pvSystemOwnerAddress', 'SF-02', sf02.ownerAddress);
-      add('countryCodename', 'SF-02', sf02.ownerCountry);
+      add('countryCodename', 'SF-02', sf02.ownerCountry, (v) =>
+        this.normalizeCountry(v),
+      );
       add('latitude', 'SF-02', sf02.latitude);
       add('longitude', 'SF-02', sf02.longitude);
       add('generatingUnitCount', 'SF-02', sf02.inverterCount);
@@ -2913,7 +2919,25 @@ export class AddDevicesComponent implements OnDestroy {
         return true;
       };
       if (valuesAllSimilar(list.map((c) => c.value))) continue;
-      out[field] = list;
+      // Dedupe candidates that normalise to the same value (e.g.
+      // "VN" + "Vietnam" both → "Vietnam" after the country
+      // transform). Keep the highest-confidence representative;
+      // the picker then shows one row per distinct value, not one
+      // row per source repeating itself.
+      const dedup: typeof list = [];
+      for (const c of list) {
+        const existing = dedup.find((d) =>
+          this.valuesEquivalent(d.value, c.value, field),
+        );
+        if (!existing) {
+          dedup.push(c);
+        } else if (c.confidence > existing.confidence) {
+          existing.source = c.source;
+          existing.value = c.value;
+          existing.confidence = c.confidence;
+        }
+      }
+      out[field] = dedup;
     }
     return out;
   }
