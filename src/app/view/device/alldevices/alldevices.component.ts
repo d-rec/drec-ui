@@ -46,7 +46,6 @@ export class AlldevicesComponent {
   dataFromDialog: any;
   displayedColumns = [
     'select',
-    'chat',
     'index',
     'siteName',
     'externalId',
@@ -55,6 +54,7 @@ export class AlldevicesComponent {
     'reviewStatus',
     'commissioningDate',
     'onboarding_date',
+    'chat',
     'actions',
   ];
   @ViewChild(MatPaginator) paginator: MatPaginator;
