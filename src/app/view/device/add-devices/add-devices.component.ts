@@ -3055,7 +3055,12 @@ export class AddDevicesComponent implements OnDestroy {
   /** Pre-submit review modal state. */
   presubmitIssues: {
     empty: Array<{ field: string; label: string }>;
-    disagrees: Array<{ field: string; label: string }>;
+    disagrees: Array<{
+      field: string;
+      label: string;
+      current: any;
+      candidates: Array<{ source: string; value: any }>;
+    }>;
     unextracted: Array<{ field: string; label: string; via: string }>;
   } = { empty: [], disagrees: [], unextracted: [] };
 
@@ -3064,7 +3069,12 @@ export class AddDevicesComponent implements OnDestroy {
    *  registrant clicks a field name to jump to it. */
   liveIssues: {
     empty: Array<{ field: string; label: string }>;
-    disagrees: Array<{ field: string; label: string }>;
+    disagrees: Array<{
+      field: string;
+      label: string;
+      current: any;
+      candidates: Array<{ source: string; value: any }>;
+    }>;
     unextracted: Array<{ field: string; label: string; via: string }>;
   } = { empty: [], disagrees: [], unextracted: [] };
 
@@ -3158,7 +3168,12 @@ export class AddDevicesComponent implements OnDestroy {
 
   private collectPresubmitIssues(deviceIndex: number): {
     empty: Array<{ field: string; label: string }>;
-    disagrees: Array<{ field: string; label: string }>;
+    disagrees: Array<{
+      field: string;
+      label: string;
+      current: any;
+      candidates: Array<{ source: string; value: any }>;
+    }>;
     unextracted: Array<{ field: string; label: string; via: string }>;
   } {
     const form = this.deviceForms.at(deviceIndex) as FormGroup;
@@ -3182,10 +3197,20 @@ export class AddDevicesComponent implements OnDestroy {
       }
     }
 
-    // (b) doc-vs-form disagreements — reuse collectFormVsDocConflicts
-    const disagrees: Array<{ field: string; label: string }> = this
+    // (b) doc-vs-form disagreements — reuse collectFormVsDocConflicts.
+    // Carry the candidates through so the modal / sidebar can show
+    // *what* the docs say, not just *that* there's a disagreement.
+    const disagrees = this
       .collectFormVsDocConflicts(deviceIndex)
-      .map((c) => ({ field: c.name, label: c.label }));
+      .map((c) => ({
+        field: c.name,
+        label: c.label,
+        current: c.current,
+        candidates: c.candidates.map((k) => ({
+          source: k.source,
+          value: k.value,
+        })),
+      }));
 
     // (c) unextracted: doc is attached but a field that doc could
     //     populate is empty AND has no provenance entry yet.

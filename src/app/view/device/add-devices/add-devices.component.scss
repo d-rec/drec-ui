@@ -1587,3 +1587,60 @@ $as-bg:       #f8fafc;
     color: #064e3b;
   }
 }
+
+/* Pre-submit modal: conflict breakdown rows */
+.ps-conflict {
+  margin: 4px 0 6px;
+  background: #fff;
+  border: 1px solid #fde68a;
+  border-radius: 4px;
+  padding: 4px 8px;
+
+  &__row {
+    display: flex;
+    gap: 8px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #1f2937;
+    &--current {
+      font-weight: 700;
+      color: #7c2d12;
+      border-bottom: 1px dashed #fcd34d;
+      padding-bottom: 2px;
+      margin-bottom: 2px;
+    }
+  }
+  &__src {
+    flex: 0 0 80px;
+    color: #92400e;
+    font-weight: 600;
+  }
+  &__val {
+    flex: 1;
+    word-break: break-word;
+  }
+}
+
+/* Live sidebar: same shape, tighter */
+.live-issues__conflict {
+  margin: 2px 0 4px 4px;
+  border-left: 2px solid #fcd34d;
+  padding-left: 6px;
+
+  &-row {
+    display: flex;
+    gap: 6px;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  &-src {
+    flex: 0 0 56px;
+    color: #92400e;
+    font-weight: 600;
+  }
+  &-val {
+    flex: 1;
+    color: #1f2937;
+    word-break: break-word;
+  }
+}
