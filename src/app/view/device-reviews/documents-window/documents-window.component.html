@@ -185,12 +185,6 @@
             <span *ngIf="item.meteringEvidenceUrls.length" class="section-count">({{ item.meteringEvidenceUrls.length }})</span>
           </div>
           <ng-container *ngIf="isSectionOpen(item.id, 'meteringEvidence')">
-            <div *ngIf="item.meteringEvidenceUrls.length" class="dr-row dr-row--me-header">
-              <span class="me-col-check"></span>
-              <span class="me-col-idx">#</span>
-              <span class="me-col-name">Filename</span>
-              <span class="me-col-type">Type</span>
-            </div>
             <div
               *ngFor="let url of item.meteringEvidenceUrls; let i = index; trackBy: trackByIndex"
               class="dr-row dr-row--file dr-row--me-file"
