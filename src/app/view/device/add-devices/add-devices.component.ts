@@ -3247,6 +3247,108 @@ export class AddDevicesComponent implements OnDestroy {
     return all.filter((m) => m.kind === 'note' && m.status === 'open');
   }
 
+  /** Per-input "what the doc says" hint. Walks the live extraction
+   *  results for the field; returns the highest-confidence claim
+   *  that's NOT the synthetic Current/(saved) entry, plus a doc URL
+   *  to jump to. Renders under the input so the registrant sees
+   *  what their attached doc reports next to what they typed. */
+  extractorHintFor(
+    deviceIndex: number,
+    field: string,
+  ): {
+    source: string;
+    value: any;
+    url: string | null;
+  } | null {
+    const collect = (): Array<{ source: string; value: any; confidence: number }> => {
+      const out: Array<{ source: string; value: any; confidence: number }> = [];
+      const sld = this.sldExtractions[deviceIndex];
+      const sf02c = this.sf02cExtractions[deviceIndex];
+      const cod = this.codExtractions[deviceIndex];
+      const sf02 = this.sf02Extractions[deviceIndex];
+      // Map form-field → which extractor field on each doc.
+      const sldFieldMap: Record<string, string> = {
+        capacity: 'acCapacityKw',
+        generatingUnitCount: 'inverterCount',
+        interconnectionVoltage: 'gridVoltage',
+        gridInterconnection: 'gridTied',
+        dataSourceBrand: 'inverterMakeModel',
+        networkOwner: 'networkOwner',
+        hasNetworkMeter: 'hasNetworkMeter',
+        gridExportType: 'gridExportType',
+        hasAuxiliaryEnergySources: 'hasAuxiliaryEnergySources',
+        auxiliaryEnergySourceDetails: 'auxiliaryEnergySourceDetails',
+      };
+      const sf02cFieldMap: Record<string, string> = {
+        siteName: 'projectName',
+        pvSystemOwner: 'ownerLegalName',
+        pvSystemOwnerAddress: 'ownerAddress',
+        countryCodename: 'ownerCountry',
+        signatoryName: 'signatoryName',
+      };
+      const codFieldMap: Record<string, string> = {
+        commissioningDate: 'commissioningDate',
+        siteName: 'facilityName',
+        capacity: 'acCapacityKw',
+        pvSystemOwner: 'ownerName',
+      };
+      const sf02FieldMap: Record<string, string> = {
+        siteName: 'facilityName',
+        capacity: 'acCapacityKw',
+        commissioningDate: 'commissioningDate',
+        deviceTypeCode: 'deviceTypeCode',
+        pvSystemOwner: 'ownerLegalName',
+        pvSystemOwnerAddress: 'ownerAddress',
+        countryCodename: 'ownerCountry',
+        latitude: 'latitude',
+        longitude: 'longitude',
+        generatingUnitCount: 'inverterCount',
+        networkOwner: 'networkOwner',
+      };
+      const push = (
+        source: string,
+        fx: any,
+        key: string | undefined,
+      ): void => {
+        if (!fx || !key) return;
+        const c = fx[key];
+        if (!c || c.value == null || c.value === '') return;
+        out.push({
+          source,
+          value: c.value,
+          confidence: c.confidence ?? 0.5,
+        });
+      };
+      push('SLD', sld, sldFieldMap[field]);
+      push('SF-02c', sf02c, sf02cFieldMap[field]);
+      push('COD', cod, codFieldMap[field]);
+      push('SF-02', sf02, sf02FieldMap[field]);
+      return out;
+    };
+    const candidates = collect();
+    if (!candidates.length) return null;
+    candidates.sort((a, b) => b.confidence - a.confidence);
+    const best = candidates[0];
+    const docTypeBySource: Record<string, string> = {
+      SLD: 'SINGLE_LINE_DIAGRAM',
+      'SF-02c': 'SF_02C',
+      'SF-02': 'FORM_SF_02',
+      COD: 'COD_PROOF',
+    };
+    const docType = docTypeBySource[best.source];
+    const url =
+      (this.existingDocs[deviceIndex]?.[docType]?.[0] as any)?.url ?? null;
+    return { source: best.source, value: best.value, url };
+  }
+
+  /** Click the hint → open the doc in a new tab. Signed URL was
+   *  produced when the page loaded; for short-lived devices we just
+   *  let the browser request it directly. */
+  openHintDoc(url: string | null): void {
+    if (!url) return;
+    window.open(url, '_blank', 'noopener');
+  }
+
   /** Registrant clicks "Go to field" — scroll the form control into
    *  view and pulse an amber halo around it so it's obvious which
    *  row to fix. The halo goes on the wrapping mat-form-field (or

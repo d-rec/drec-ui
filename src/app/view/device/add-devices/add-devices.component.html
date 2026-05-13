@@ -129,6 +129,7 @@
                       <mat-label test-id="project-name">(1) Site Name</mat-label>
                       <input matInput autocomplete="off" formControlName="siteName" />
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'siteName') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                     <div *ngIf="siteNameExists[i]" class="text-danger" style="font-size:11px;margin-top:-4px">
                       Site name already exists
                     </div>
@@ -155,6 +156,7 @@
                       <mat-label>{{ dataSourceBrandLabel(i) }}</mat-label>
                       <input matInput formControlName="dataSourceBrand" />
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'dataSourceBrand') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                 </div>
 
@@ -169,6 +171,7 @@
                       <input autocomplete="off" matInput formControlName="address" />
                       <mat-error>Address is required</mat-error>
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'address') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -199,6 +202,7 @@
                         </mat-option>
                       </mat-autocomplete>
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'countryCodename') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                     <mat-error *ngIf="showerror[i]" style="margin-top: -15px" test-id="invalid-country">
                       Invalid Country Selected
                     </mat-error>
@@ -212,6 +216,7 @@
                         matTooltipPosition="above" />
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'latitude') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline" [class.coord-adjusting]="mapAdjusting">
@@ -222,6 +227,7 @@
                         matTooltipPosition="above" />
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'longitude') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                 </div>
                 <div class="row map-row">
@@ -262,6 +268,7 @@
                       <mat-datepicker #commPicker></mat-datepicker>
                       <mat-error>Commissioning date is required</mat-error>
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'commissioningDate') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -273,6 +280,7 @@
                       </mat-select>
                       <mat-error>Device type is required</mat-error>
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'deviceTypeCode') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -280,6 +288,7 @@
                       <input matInput type="number" formControlName="capacity" [min]="1" autocomplete="off" />
                       <mat-error>Capacity is required</mat-error>
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'capacity') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                 </div>
 
@@ -314,6 +323,7 @@
                         matTooltip="Please provide the number of devices that output useable electricity at this facility (typically the inverters)"
                         matTooltipPosition="above" />
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'generatingUnitCount') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <div class="serial-list" test-id="serial-number">
@@ -369,6 +379,7 @@
                         <mat-option value="Yes (full-export)">Yes (full-export)</mat-option>
                       </mat-select>
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'gridExportType') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -377,6 +388,7 @@
                         matTooltip="If the facility is grid-connected, please provide the name of the utility or distribution network"
                         matTooltipPosition="above" />
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'networkOwner') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -385,6 +397,7 @@
                         matTooltip="If the facility is grid-connected, please provide the interconnection voltage"
                         matTooltipPosition="above" />
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'interconnectionVoltage') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('gridInterconnection')?.value === true">
                     <mat-form-field appearance="outline">
@@ -395,6 +408,7 @@
                         <mat-option value="No">No</mat-option>
                       </mat-select>
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'hasNetworkMeter') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasNetworkMeter')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
@@ -464,6 +478,7 @@
                         <mat-option value="No">No</mat-option>
                       </mat-select>
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'hasAuxiliaryEnergySources') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasAuxiliaryEnergySources')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
@@ -472,6 +487,7 @@
                         matTooltip="Describe the number of units, capacity per unit, and fuel source (e.g. 1 x 250kVA diesel generator)"
                         matTooltipPosition="above" />
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'auxiliaryEnergySourceDetails') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -480,6 +496,7 @@
                         matTooltip='Please provide the legal name of the PV System Owner. This must match the "Proof of Ownership" documentation shared.'
                         matTooltipPosition="above" />
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'pvSystemOwner') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -488,6 +505,7 @@
                         matTooltip="Mailing/HQ address of the PV System Owner (legal entity). Distinct from the device site address."
                         matTooltipPosition="above" />
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'pvSystemOwnerAddress') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -630,6 +648,7 @@
                       <mat-label>(41) Signatory name</mat-label>
                       <input matInput formControlName="signatoryName" />
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'signatoryName') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                 </div>
                 <!-- ── Legacy / non-OC# fields (collapsed by default) ─────
