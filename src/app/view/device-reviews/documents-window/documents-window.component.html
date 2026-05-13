@@ -94,9 +94,6 @@
           <div class="dr-row dr-row--doc" tabindex="0"
                (mouseenter)="svc.hoveredDocSource$.next('SLD')"
                (mouseleave)="svc.hoveredDocSource$.next(null)">
-            <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sld']" [class.review-check--disabled]="!item.sldUrl" role="checkbox" [attr.tabindex]="item.sldUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sld']" [attr.aria-disabled]="!item.sldUrl" (click)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" (keydown.enter)="item.sldUrl && toggleReviewed(item.id + ':sld', $event)" title="Mark as reviewed">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sld']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
             <span class="doc-label">SLD <span class="fn">(45)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}" [title]="getDocHint('SINGLE_LINE_DIAGRAM', item.operatingConfiguration) || ''">{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}</span>
             <ng-container *ngIf="item.sldUrl">
@@ -111,9 +108,6 @@
           <div class="dr-row dr-row--doc" tabindex="0"
                (mouseenter)="svc.hoveredDocSource$.next('SF-02')"
                (mouseleave)="svc.hoveredDocSource$.next(null)">
-            <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02']" [class.review-check--disabled]="!item.sf02Url" role="checkbox" [attr.tabindex]="item.sf02Url ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02']" [attr.aria-disabled]="!item.sf02Url" (click)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" (keydown.enter)="item.sf02Url && toggleReviewed(item.id + ':sf02', $event)" title="Mark as reviewed">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
             <span class="doc-label">SF-02</span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}" [title]="getDocHint('FORM_SF_02', item.operatingConfiguration) || ''">{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}</span>
             <ng-container *ngIf="item.sf02Url">
@@ -128,9 +122,6 @@
           <div class="dr-row dr-row--doc" tabindex="0"
                (mouseenter)="svc.hoveredDocSource$.next('SF-02c')"
                (mouseleave)="svc.hoveredDocSource$.next(null)">
-            <span class="review-check" [class.review-check--done]="reviewed[item.id + ':sf02c']" [class.review-check--disabled]="!item.sf02cUrl" role="checkbox" [attr.tabindex]="item.sf02cUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':sf02c']" [attr.aria-disabled]="!item.sf02cUrl" (click)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" (keydown.enter)="item.sf02cUrl && toggleReviewed(item.id + ':sf02c', $event)" title="Mark as reviewed">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':sf02c']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
             <span class="doc-label">SF-02C <span class="fn">(46)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}" [title]="getDocHint('SF_02C', item.operatingConfiguration) || ''">{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}</span>
             <ng-container *ngIf="item.sf02cUrl">
@@ -143,9 +134,6 @@
 
           <!-- ── Proof of Ownership (deed / lease / PPA) ──────────────────── -->
           <div class="dr-row dr-row--doc" tabindex="0">
-            <span class="review-check" [class.review-check--done]="reviewed[item.id + ':proofOfOwnership']" [class.review-check--disabled]="!item.proofOfOwnershipUrl" role="checkbox" [attr.tabindex]="item.proofOfOwnershipUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':proofOfOwnership']" [attr.aria-disabled]="!item.proofOfOwnershipUrl" (click)="item.proofOfOwnershipUrl && toggleReviewed(item.id + ':proofOfOwnership', $event)" (keydown.enter)="item.proofOfOwnershipUrl && toggleReviewed(item.id + ':proofOfOwnership', $event)" title="Mark as reviewed">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':proofOfOwnership']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
             <span class="doc-label" title="Proof of Ownership: deed / lease / PPA / purchase contract">Proof of Ownership <span class="fn">(47)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('PROOF_OF_OWNERSHIP', item.operatingConfiguration, !!item.proofOfOwnershipUrl) }}" [title]="getDocHint('PROOF_OF_OWNERSHIP', item.operatingConfiguration) || ''">{{ getReqStatus('PROOF_OF_OWNERSHIP', item.operatingConfiguration, !!item.proofOfOwnershipUrl) }}</span>
             <ng-container *ngIf="item.proofOfOwnershipUrl">
@@ -160,9 +148,6 @@
           <div class="dr-row dr-row--doc" tabindex="0"
                (mouseenter)="svc.hoveredDocSource$.next('COD')"
                (mouseleave)="svc.hoveredDocSource$.next(null)">
-            <span class="review-check" [class.review-check--done]="reviewed[item.id + ':codProof']" [class.review-check--disabled]="!item.codProofUrl" role="checkbox" [attr.tabindex]="item.codProofUrl ? 0 : -1" [attr.aria-checked]="!!reviewed[item.id + ':codProof']" [attr.aria-disabled]="!item.codProofUrl" (click)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" (keydown.enter)="item.codProofUrl && toggleReviewed(item.id + ':codProof', $event)" title="Mark as reviewed">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':codProof']" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
             <span class="doc-label" title="Commercial Operation Date">COD Proof <span class="fn">(48)</span></span>
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}" [title]="getDocHint('COD_PROOF', item.operatingConfiguration) || ''">{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}</span>
             <ng-container *ngIf="item.codProofUrl">
@@ -189,9 +174,6 @@
               *ngFor="let url of item.meteringEvidenceUrls; let i = index; trackBy: trackByIndex"
               class="dr-row dr-row--file dr-row--me-file"
             >
-              <span class="review-check me-col-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':me:' + i]" [class.review-check--done]="reviewed[item.id + ':me:' + i]" (click)="toggleReviewed(item.id + ':me:' + i, $event)" (keydown.enter)="toggleReviewed(item.id + ':me:' + i, $event)" title="Mark as reviewed">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':me:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
               <span class="me-col-idx">{{ i + 1 }}</span>
               <span class="me-col-name">
                 <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
@@ -215,9 +197,6 @@
               *ngFor="let url of item.pictureUrls; let i = index; trackBy: trackByIndex"
               class="dr-row dr-row--file"
             >
-              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':pic:' + i]" [class.review-check--done]="reviewed[item.id + ':pic:' + i]" (click)="toggleReviewed(item.id + ':pic:' + i, $event)" (keydown.enter)="toggleReviewed(item.id + ':pic:' + i, $event)" title="Mark as reviewed">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':pic:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
               <img class="thumb" [src]="url" alt="" loading="lazy" referrerpolicy="no-referrer" (error)="$any($event.target).style.display='none'" />
               <a class="file-name file-name--link" [innerHTML]="hl(fileDisplayName(item, 'pic:' + i, url), result.searchTerm)" (click)="openFile(url, $event)" (mousedown)="$event.stopPropagation()"></a>
             </div>
@@ -235,9 +214,6 @@
               *ngFor="let url of item.otherDocumentUrls; let i = index; trackBy: trackByIndex"
               class="dr-row dr-row--file"
             >
-              <span class="review-check" role="checkbox" tabindex="0" [attr.aria-checked]="!!reviewed[item.id + ':otherDoc:' + i]" [class.review-check--done]="reviewed[item.id + ':otherDoc:' + i]" (click)="toggleReviewed(item.id + ':otherDoc:' + i, $event)" (keydown.enter)="toggleReviewed(item.id + ':otherDoc:' + i, $event)" title="Mark as reviewed">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path *ngIf="reviewed[item.id + ':otherDoc:' + i]" d="M6 12l4 4 8-8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </span>
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
               <a class="file-name file-name--link" [innerHTML]="hl(fileName(url), result.searchTerm)" (click)="openFile(url, $event)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(url)" class="missing-tag">(missing)</span>
