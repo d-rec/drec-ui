@@ -1567,6 +1567,8 @@ $as-bg:       #f8fafc;
    click handlers (cdkDrag etc. on parent components). */
 .extractor-hint {
   display: inline-block;
+  position: relative;
+  z-index: 2;             /* above mat-form-field's subscript wrapper, which eats clicks */
   font-size: 11px;
   color: #166534;
   background: #ecfdf5;

@@ -42,7 +42,7 @@
           </ul>
         </div>
         <div *ngIf="liveIssues.disagrees.length" class="live-issues__block">
-          <div class="live-issues__block-title">{{ liveIssues.disagrees.length }} disagree with docs</div>
+          <div class="live-issues__block-title">{{ liveIssues.disagrees.length }} disagree with user form</div>
           <ul>
             <li *ngFor="let i of liveIssues.disagrees">
               <a href="javascript:void(0)" (click)="jumpToField(i.field)">{{ i.label }} ↗</a>
@@ -64,7 +64,7 @@
           <ul>
             <li *ngFor="let i of liveIssues.unextracted">
               <a href="javascript:void(0)" (click)="jumpToField(i.field)">{{ i.label }} ↗</a>
-              <small>— {{ i.via }}</small>
+              <small>— {{ i.via }}<ng-container *ngIf="i.value !== undefined && i.value !== null && i.value !== ''">: <strong>{{ i.value }}</strong></ng-container></small>
             </li>
           </ul>
         </div>
@@ -1555,7 +1555,7 @@
     </div>
 
     <div *ngIf="presubmitIssues.disagrees.length" class="ps-block">
-      <div class="ps-block__title">⚠ {{ presubmitIssues.disagrees.length }} field{{ presubmitIssues.disagrees.length === 1 ? '' : 's' }} disagree with the docs</div>
+      <div class="ps-block__title">⚠ {{ presubmitIssues.disagrees.length }} field{{ presubmitIssues.disagrees.length === 1 ? '' : 's' }} disagree with the user form</div>
       <p class="ps-block__hint">Form value vs. what each attached document reports — pick whichever is right.</p>
       <ul class="ps-list">
         <li *ngFor="let i of presubmitIssues.disagrees">
@@ -1580,7 +1580,7 @@
       <ul class="ps-list">
         <li *ngFor="let i of presubmitIssues.unextracted">
           <a href="javascript:void(0)" (click)="jumpToFormField(i.field)">{{ i.label }} ↗</a>
-          <small style="color:#64748b">— would come from {{ i.via }}</small>
+          <small style="color:#64748b">— would come from {{ i.via }}<ng-container *ngIf="i.value !== undefined && i.value !== null && i.value !== ''">: <strong>{{ i.value }}</strong></ng-container></small>
         </li>
       </ul>
     </div>
@@ -1616,6 +1616,7 @@
             (change)="pickDoc(row, c)" />
           Switch to: <strong>{{ c.value }}</strong>
           <small style="color:#64748b">— from {{ c.source }} ({{ (c.confidence * 100) | number:'1.0-0' }}%)</small>
+          <small *ngIf="c.agreesWithForm" style="color:#16a34a">— agrees with form</small>
         </label>
       </div>
     </div>

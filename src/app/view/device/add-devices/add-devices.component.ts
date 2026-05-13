@@ -1077,17 +1077,22 @@ export class AddDevicesComponent implements OnDestroy {
             const c = this.normalizeCountry(a.country);
             const ctl = deviceGroup.get('countryCodename');
             const idx = this.deviceForms.controls.indexOf(deviceGroup);
-            if (
-              ctl &&
-              !this.userPickedCountry[idx] &&
-              ctl.value !== c
-            ) {
+            // Only auto-fill the country if the form is empty.
+            // Tracking userPickedCountry via the autocomplete pick
+            // missed every other write path (extractor apply,
+            // conflict picker, direct typing) and the geocoder
+            // would keep stomping on the user's choice. Once any
+            // country is in the field, the user owns it.
+            const cur = ctl?.value;
+            const empty = cur == null || cur === '';
+            if (ctl && empty) {
               ctl.setValue(c);
               ctl.markAsDirty();
             }
             // Always record the geocoder's reading even when it
-            // matches the current value — the credit is "Geocoder
-            // confirmed this", regardless of who wrote first.
+            // didn't write — the credit is "Geocoder said X",
+            // regardless of whether we applied it. The pre-submit
+            // sidebar uses this to surface disagreements.
             this.recordInference(
               idx,
               'countryCodename',
@@ -2094,6 +2099,9 @@ export class AddDevicesComponent implements OnDestroy {
       if (isEmpty) {
         ctl.setValue(next);
         ctl.markAsDirty();
+        if (c.name === 'countryCodename') {
+          this.userPickedCountry[deviceIndex] = true;
+        }
         this.recordProvenance(deviceIndex, c.name, source, c.field.confidence, next);
         filled++;
         continue;
@@ -2150,6 +2158,9 @@ export class AddDevicesComponent implements OnDestroy {
       if (!ctl) continue;
       ctl.setValue(c.next);
       ctl.markAsDirty();
+      if (c.name === 'countryCodename') {
+        this.userPickedCountry[c.deviceIndex] = true;
+      }
       this.recordProvenance(c.deviceIndex, c.name, source, c.confidence, c.next);
       applied++;
     }
@@ -3089,7 +3100,7 @@ export class AddDevicesComponent implements OnDestroy {
       current: any;
       candidates: Array<{ source: string; value: any }>;
     }>;
-    unextracted: Array<{ field: string; label: string; via: string }>;
+    unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
   } = { empty: [], disagrees: [], unextracted: [] };
 
   /** Always-on sidebar issue tally. Computed on a debounced cadence
@@ -3103,7 +3114,7 @@ export class AddDevicesComponent implements OnDestroy {
       current: any;
       candidates: Array<{ source: string; value: any }>;
     }>;
-    unextracted: Array<{ field: string; label: string; via: string }>;
+    unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
   } = { empty: [], disagrees: [], unextracted: [] };
 
   /** Collapsed state for the sidebar — registrants who hate it can
@@ -3186,11 +3197,14 @@ export class AddDevicesComponent implements OnDestroy {
   };
 
   /** Friendly doc-type names for the unextracted list. */
+  // Must match the `source` strings used in collectExtractionClaims
+  // — claims[field].find(c => c.source === friendly) is how the
+  // unextracted list looks up the actual extracted value.
   private static readonly DOC_FRIENDLY: Record<string, string> = {
     SINGLE_LINE_DIAGRAM: 'SLD',
     FORM_SF_02: 'SF-02',
     SF_02C: 'SF-02c',
-    COD_PROOF: 'COD proof',
+    COD_PROOF: 'COD',
     METERING_EVIDENCE: 'Metering evidence',
   };
 
@@ -3202,7 +3216,7 @@ export class AddDevicesComponent implements OnDestroy {
       current: any;
       candidates: Array<{ source: string; value: any }>;
     }>;
-    unextracted: Array<{ field: string; label: string; via: string }>;
+    unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
   } {
     const form = this.deviceForms.at(deviceIndex) as FormGroup;
     const labelOf = (name: string) =>
@@ -3244,8 +3258,12 @@ export class AddDevicesComponent implements OnDestroy {
     //     populate is empty AND has no provenance entry yet.
     const provenance = this.appliedProvenance[deviceIndex] ?? {};
     const docs = this.existingDocs[deviceIndex] ?? {};
+    const claims = this.collectExtractionClaims(deviceIndex);
     const seenFields = new Set<string>();
-    const unextracted: Array<{ field: string; label: string; via: string }> = [];
+    const unextracted: Array<{ field: string; label: string; via: string; value?: any }> = [];
+    // Surface the extractor's actual value (if any) next to the
+    // source name so the registrant sees WHAT the doc says, not just
+    // WHICH doc could fill the field.
     for (const [docType, fields] of Object.entries(
       AddDevicesComponent.DOC_FIELD_MAP,
     )) {
@@ -3256,8 +3274,29 @@ export class AddDevicesComponent implements OnDestroy {
         const cur = form.get(f)?.value;
         if (!isEmpty(cur)) continue;
         if (provenance[f]) continue;
+        const claim = claims[f]?.find((c) => c.source === friendly);
+        // Only surface as extractable if the extractor actually has
+        // a real applicable value for the registrant to apply.
+        // Suppress when:
+        //   - no claim at all (extractor didn't return this field)
+        //   - claim value is null / empty / "n/a"-like sentinel
+        // In all those cases there's no actionable value to one-click
+        // apply, so the entry would be noise.
+        if (!claim) {
+          seenFields.add(f);
+          continue;
+        }
+        const v = claim.value;
+        const sentinel =
+          v == null ||
+          v === '' ||
+          (typeof v === 'string' && /^n\/?a$/i.test(v.trim()));
+        if (sentinel) {
+          seenFields.add(f);
+          continue;
+        }
         seenFields.add(f);
-        unextracted.push({ field: f, label: labelOf(f), via: friendly });
+        unextracted.push({ field: f, label: labelOf(f), via: friendly, value: v });
       }
     }
 
@@ -4986,7 +5025,8 @@ export class AddDevicesComponent implements OnDestroy {
     name: string;
     label: string;
     current: any;
-    candidates: Array<{ source: string; value: any; confidence: number; selected?: boolean }>;
+    agreeSources: string[];
+    candidates: Array<{ source: string; value: any; confidence: number; selected?: boolean; agreesWithForm?: boolean }>;
   }> {
     const claims = this.collectExtractionClaims(deviceIndex);
     const form = this.deviceForms.at(deviceIndex);
@@ -5010,11 +5050,46 @@ export class AddDevicesComponent implements OnDestroy {
       // paraphrases — "6× Victron Quattro 10 kVA battery inverters"
       // vs "Victron Quattro 10 kVA battery inverter" — don't get
       // flagged as a discrepancy and bother the reviewer.
-      const docs = list.filter(
-        (c) =>
-          c.confidence >= 0.7 && !this.valuesEquivalent(c.value, cur, field),
+      const trusted = list.filter((c) => c.confidence >= 0.7);
+      const hasDisagreement = trusted.some(
+        (c) => !this.valuesEquivalent(c.value, cur, field),
       );
-      if (!docs.length) continue;
+      if (!hasDisagreement) continue;
+      // Dedupe candidates by value so two docs that agree
+      // (SF-02c "Viet Nam" + COD "Viet Nam") collapse into one row
+      // labelled "SF-02c, COD: Viet Nam" instead of two identical
+      // rows that just clutter the conflict view.
+      const grouped = new Map<
+        string,
+        { sources: string[]; value: any; confidence: number }
+      >();
+      for (const c of trusted) {
+        const key = norm(c.value);
+        const g = grouped.get(key);
+        if (g) {
+          if (!g.sources.includes(c.source)) g.sources.push(c.source);
+          g.confidence = Math.max(g.confidence, c.confidence);
+        } else {
+          grouped.set(key, {
+            sources: [c.source],
+            value: c.value,
+            confidence: c.confidence,
+          });
+        }
+      }
+      // Keep EVERY dedupe-group as a visible candidate, even when
+      // one happens to match the form value. Folding form-matching
+      // sources into a "supported by …" sidebar hides the
+      // doc-vs-doc split — e.g. Form=250, SLD=250, COD=300.12
+      // wants to make clear that SLD also weighed in (agrees) AND
+      // COD disagrees, not just "form vs COD".
+      const cands = Array.from(grouped.values()).map((g) => ({
+        source: g.sources.join(', '),
+        value: g.value,
+        confidence: g.confidence,
+        selected: false,
+        agreesWithForm: this.valuesEquivalent(g.value, cur, field),
+      }));
       const label =
         AddDevicesComponent.FIELD_LABELS[field] ??
         field.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
@@ -5022,7 +5097,8 @@ export class AddDevicesComponent implements OnDestroy {
         name: field,
         label,
         current: cur,
-        candidates: docs.map((d) => ({ ...d, selected: false })),
+        agreeSources: [] as string[],
+        candidates: cands,
       });
     }
     return out;
@@ -5081,10 +5157,22 @@ export class AddDevicesComponent implements OnDestroy {
       if (!ctl) continue;
       ctl.setValue(pick.value);
       ctl.markAsDirty();
+      if (row.name === 'countryCodename') {
+        // Pin against the geocoder so the user's explicit pick
+        // isn't reverted on the next coord recompute (was causing
+        // "I picked Vietnam, geocoder reset it to India" loop).
+        this.userPickedCountry[0] = true;
+      }
     }
     this.pendingFormVsDocConflicts = [];
     this.formVsDocDialogRef?.close();
     this.formVsDocDialogRef = null;
+    // User has resolved both classes of pre-submit gates (made the
+    // explicit picks here AFTER passing through the pre-submit
+    // "Submit anyway" gate). Keep the override on so the re-entered
+    // submitEdit doesn't re-open the pre-submit dialog and trap the
+    // user in a presubmit ↔ conflict-picker loop.
+    this.presubmitOverride = true;
     const cb = this.pendingFormVsDocCallback;
     this.pendingFormVsDocCallback = null;
     cb?.(true);
@@ -5717,17 +5805,23 @@ export class AddDevicesComponent implements OnDestroy {
 
   updateMapMarkers(latitude: any, longitude: any) {
     if (latitude && longitude) {
-      const markers = [
-        {
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude),
-        },
-      ];
+      const lat = parseFloat(latitude);
+      const lng = parseFloat(longitude);
+      if (!isFinite(lat) || !isFinite(lng)) return;
+      const markers = [{ latitude: lat, longitude: lng }];
 
       if (this.mapComponent) {
         this.mapComponent.markers = [...markers];
         if (this.mapComponent.isMapInitialized) {
           this.mapComponent.update();
+          // Recenter so the user's new coords actually come into
+          // view — placing a marker without recentring leaves the
+          // map sitting on whatever it was last centred on (the
+          // hydrated coords, the default, or the last edit), and
+          // the registrant has to pan manually. The satellite
+          // view is the verification surface so it especially
+          // needs to stay in sync with the typed coords.
+          this.mapComponent.recenter(lat, lng);
         }
       }
 
@@ -5735,6 +5829,7 @@ export class AddDevicesComponent implements OnDestroy {
         this.satelliteMapComponent.markers = [...markers];
         if (this.satelliteMapComponent.isMapInitialized) {
           this.satelliteMapComponent.update();
+          this.satelliteMapComponent.recenter(lat, lng);
         }
       }
     }

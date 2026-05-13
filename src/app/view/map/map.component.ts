@@ -363,7 +363,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  private centerPinInitialized = false;
+  centerPinInitialized = false;
 
   /** Reposition the map center (for use with centerPin mode, e.g. reverting coords) */
   recenter(lat: number, lng: number): void {
@@ -407,7 +407,13 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       </svg>`;
     const icon = L.divIcon({
       html: svg,
-      className: '',
+      // Hide the actual Leaflet marker — the HTML .center-pin sibling
+      // of the canvas does the live rendering above the detect
+      // overlay (Leaflet's container is its own stacking context so
+      // a marker inside it can't z-index above the sibling canvas).
+      // Marker stays in the DOM so captureScreenshot can serialise
+      // its SVG into the saved image.
+      className: 'leaflet-center-pin-hidden',
       iconSize: [24, 36],
       // Standard map convention: tip (12, 36) marks the exact coord;
       // body floats above. Crosshair sits at the tip.
