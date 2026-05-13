@@ -46,6 +46,7 @@ export class AlldevicesComponent {
   dataFromDialog: any;
   displayedColumns = [
     'select',
+    'chat',
     'index',
     'siteName',
     'externalId',
