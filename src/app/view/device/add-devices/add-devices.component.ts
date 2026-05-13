@@ -2651,6 +2651,15 @@ export class AddDevicesComponent implements OnDestroy {
         // (matches form) rather than RESOLVED CONFLICT (which
         // would imply the user actively rejected something).
         claims[field].push({ source, value: cur, confidence: 0.9 });
+        // Also persist into appliedProvenance so the reviewer's OC#
+        // panel can credit retroactive inferences (deviceDescription,
+        // offTaker, evidencePathway, …). Without this the field
+        // showed up in the report as DOC-BACKED but the reviewer
+        // saw it as MANUAL because field_provenance didn't have it.
+        const existing = this.appliedProvenance[deviceIndex]?.[field];
+        if (!existing) {
+          this.recordProvenance(deviceIndex, field, source, 0.9);
+        }
       };
       // (30) Operating configuration is derivable from the SLD's
       // gridTied + gridExportType + the impactStory's mini-grid hint.
@@ -4933,6 +4942,13 @@ export class AddDevicesComponent implements OnDestroy {
       this.isSubmitting = false;
       return;
     }
+
+    // Run the inference matchers before we build the payload so any
+    // retroactively-credited fields (deviceDescription = "Mini Grid"
+    // from impactStory, evidencePathway from opConfig × sourceAccess
+    // Mode, …) get persisted into appliedProvenance and ship with
+    // this PATCH instead of waiting for a second save round-trip.
+    this.collectExtractionClaims(0);
 
     // Last-chance discrepancy check: any form field whose current
     // value disagrees with at least one extractor source pops a
