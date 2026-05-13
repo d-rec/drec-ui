@@ -602,6 +602,33 @@
   font-weight: normal;
 }
 
+/* System markers that link back to a note become clickable; show a
+   cursor + subtle hover affordance so the reviewer knows tap-able. */
+.bubble--clickable {
+  cursor: pointer;
+  &:hover {
+    background: #e0f2fe !important;
+    border-color: #38bdf8 !important;
+    color: #075985;
+  }
+  &::after {
+    content: '  ↗';
+    color: #0284c7;
+    font-style: normal;
+  }
+}
+
+/* Flash applied when a system marker scrolls to its target note —
+   amber ring + brief background pulse for ~1.5s. */
+@keyframes bubble-flash {
+  0%   { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0); }
+  20%  { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.85); }
+  100% { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0); }
+}
+.bubble--flash {
+  animation: bubble-flash 1.6s ease-out;
+}
+
 /* ── Compose: kind picker row ──────────────────────────────── */
 .input-bar--rich {
   flex-direction: column;

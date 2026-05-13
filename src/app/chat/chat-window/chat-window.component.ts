@@ -110,6 +110,47 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  /** For a kind='system' marker, return the uuid of the note bubble
+   *  it points at — so the marker becomes a one-click jump. Three
+   *  shapes recognised:
+   *   - payload.noteUuid (set by /resolve and /reopen markers)
+   *   - payload.action='registrant-updated' → most recent OPEN note
+   *     in this conversation
+   *   - generic system: no target, returns null
+   *  Returns null when there's nothing to jump to (note already
+   *  scrolled off or the linked uuid no longer exists). */
+  systemMarkerTargetUuid(msg: ChatMessage): string | null {
+    if (msg.kind !== 'system') return null;
+    const payload = msg.payload ?? {};
+    const explicit = payload['noteUuid'];
+    if (typeof explicit === 'string' && this.messages.some((m) => m.uuid === explicit)) {
+      return explicit;
+    }
+    if (payload['action'] === 'registrant-updated') {
+      // Most recent OPEN note in the conversation; null if none.
+      const open = this.messages.filter(
+        (m) => m.kind === 'note' && m.status === 'open',
+      );
+      if (open.length) return open[open.length - 1].uuid;
+    }
+    return null;
+  }
+
+  /** Click a system marker → scroll to and flash the target note. */
+  onBubbleClick(msg: ChatMessage): void {
+    const target = this.systemMarkerTargetUuid(msg);
+    if (!target) return;
+    const el = document.querySelector<HTMLElement>(
+      `[data-msg-uuid="${target}"]`,
+    );
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.classList.remove('bubble--flash');
+    void el.offsetWidth;
+    el.classList.add('bubble--flash');
+    setTimeout(() => el.classList.remove('bubble--flash'), 1600);
+  }
+
   /** Is the current user a reviewer/admin (allowed to resolve notes)? */
   get canResolveNotes(): boolean {
     const role = (

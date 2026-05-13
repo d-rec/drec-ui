@@ -42,14 +42,17 @@
       <div class="messages-container" #messagesContainer>
         <div
           *ngFor="let msg of filteredMessages; trackBy: trackByUuid"
+          [attr.data-msg-uuid]="msg.uuid"
           [class.own]="isOwnMessage(msg)"
           [class.unread-bold]="unreadUuids.has(msg.uuid)"
           [class.bubble--note]="msg.kind === 'note'"
           [class.bubble--note-open]="msg.kind === 'note' && msg.status === 'open'"
           [class.bubble--note-resolved]="msg.kind === 'note' && msg.status === 'resolved'"
           [class.bubble--system]="msg.kind === 'system'"
+          [class.bubble--clickable]="systemMarkerTargetUuid(msg)"
           class="bubble"
           (contextmenu)="onMessageContextMenu($event, msg)"
+          (click)="onBubbleClick(msg)"
         >
           <ng-container *ngIf="msg.kind === 'note'">
             <span class="bubble__field-tag" title="Reviewer note">📌 {{ fieldLabel(msg.fieldName) }}</span>
