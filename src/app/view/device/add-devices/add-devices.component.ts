@@ -419,6 +419,10 @@ export class AddDevicesComponent implements OnDestroy {
           this.initSerialNumber = data.serialNumber ?? null;
           this.initSiteName = data.siteName ?? null;
           this.initialValues = { ...data };
+          // Compute the live-issues sidebar once the hydrated form
+          // and provenance are settled.
+          setTimeout(() => this.refreshLiveIssues(), 400);
+
           // Pull reviewer notes for this device's chat so the banner
           // shows them on landing. Notes are kind='note' messages in
           // the device's chat conversation.
@@ -760,7 +764,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.myform = this.fb.group({
       devices: this.fb.array([]),
     });
-    this.myform.valueChanges.subscribe();
+    this.myform.valueChanges.subscribe(() => this.refreshLiveIssues());
 
     const device = this.fb.group({
       siteName: [null],
@@ -3048,6 +3052,43 @@ export class AddDevicesComponent implements OnDestroy {
     disagrees: Array<{ field: string; label: string }>;
     unextracted: Array<{ field: string; label: string; via: string }>;
   } = { empty: [], disagrees: [], unextracted: [] };
+
+  /** Always-on sidebar issue tally. Computed on a debounced cadence
+   *  so we're not re-walking the form on every keystroke. The
+   *  registrant clicks a field name to jump to it. */
+  liveIssues: {
+    empty: Array<{ field: string; label: string }>;
+    disagrees: Array<{ field: string; label: string }>;
+    unextracted: Array<{ field: string; label: string; via: string }>;
+  } = { empty: [], disagrees: [], unextracted: [] };
+
+  /** Collapsed state for the sidebar — registrants who hate it can
+   *  shrink it to a chip showing just the total count. */
+  liveIssuesCollapsed = false;
+
+  private liveIssuesTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Debounced re-tally of liveIssues — called from form value
+   *  changes + apply paths + hydration. */
+  refreshLiveIssues(): void {
+    if (!this.isEditMode || !this.deviceForms.controls.length) return;
+    if (this.liveIssuesTimer) clearTimeout(this.liveIssuesTimer);
+    this.liveIssuesTimer = setTimeout(() => {
+      this.liveIssuesTimer = null;
+      try {
+        this.liveIssues = this.collectPresubmitIssues(0);
+      } catch {
+        /* ignore — refresh on next event */
+      }
+    }, 300);
+  }
+
+  liveIssueCount(): number {
+    return (
+      this.liveIssues.empty.length +
+      this.liveIssues.disagrees.length +
+      this.liveIssues.unextracted.length
+    );
+  }
   @ViewChild('presubmitDialog') presubmitDialog?: TemplateRef<any>;
   private presubmitDialogRef: MatDialogRef<any> | null = null;
   /** Set to true when the registrant clicks "Submit anyway" so the

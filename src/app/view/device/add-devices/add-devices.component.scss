@@ -1435,3 +1435,80 @@ $as-bg:       #f8fafc;
     &:hover { color: #7c2d12; }
   }
 }
+
+/* Live-issues sidebar — sticky panel on the registrant's edit page
+   that tallies empty / disagrees / unextracted fields in real time.
+   Anchored top-right so it doesn't fight the form layout. */
+.live-issues {
+  position: fixed;
+  top: 80px;
+  right: 16px;
+  width: 280px;
+  z-index: 700;
+  background: #fff;
+  border: 1px solid #fdba74;
+  border-left: 4px solid #f59e0b;
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  font-size: 12px;
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+
+  &--clean {
+    border-color: #86efac;
+    border-left-color: #16a34a;
+    .live-issues__title { color: #166534; }
+  }
+  &--collapsed {
+    width: auto;
+    .live-issues__body { display: none; }
+  }
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+  &__title {
+    font-weight: 700;
+    color: #7c2d12;
+  }
+  &__toggle {
+    color: #94a3b8;
+    font-size: 14px;
+  }
+  &__body {
+    padding: 4px 10px 10px;
+    border-top: 1px solid #fed7aa;
+  }
+  &__block {
+    margin-bottom: 8px;
+  }
+  &__block-title {
+    font-weight: 600;
+    color: #b45309;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 3px;
+  }
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+  li {
+    padding: 2px 0;
+    line-height: 1.4;
+    small { color: #64748b; }
+  }
+  a {
+    color: #0f607f;
+    text-decoration: none;
+    border-bottom: 1px dotted #0f607f;
+    &:hover { color: #1e40af; }
+  }
+}

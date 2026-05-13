@@ -13,6 +13,53 @@
       </div>
     </mat-card-header>
     <hr class="mb-0 pb-0" />
+    <!-- Always-on registrant-side issue panel. Only renders in edit
+         mode (new-device path can be filled out without the noise);
+         collapses to a chip showing just the total count when the
+         registrant doesn't want to see the full list. -->
+    <div
+      class="live-issues"
+      *ngIf="isEditMode"
+      [class.live-issues--collapsed]="liveIssuesCollapsed"
+      [class.live-issues--clean]="liveIssueCount() === 0"
+    >
+      <div class="live-issues__head" (click)="liveIssuesCollapsed = !liveIssuesCollapsed">
+        <span class="live-issues__title" *ngIf="liveIssueCount() > 0">
+          ⚠ {{ liveIssueCount() }} issue{{ liveIssueCount() === 1 ? '' : 's' }} to address
+        </span>
+        <span class="live-issues__title" *ngIf="liveIssueCount() === 0">
+          ✓ Looks ready to submit
+        </span>
+        <span class="live-issues__toggle">{{ liveIssuesCollapsed ? '‹' : '›' }}</span>
+      </div>
+      <div class="live-issues__body" *ngIf="!liveIssuesCollapsed && liveIssueCount() > 0">
+        <div *ngIf="liveIssues.empty.length" class="live-issues__block">
+          <div class="live-issues__block-title">{{ liveIssues.empty.length }} required empty</div>
+          <ul>
+            <li *ngFor="let i of liveIssues.empty">
+              <a href="javascript:void(0)" (click)="jumpToField(i.field)">{{ i.label }} ↗</a>
+            </li>
+          </ul>
+        </div>
+        <div *ngIf="liveIssues.disagrees.length" class="live-issues__block">
+          <div class="live-issues__block-title">{{ liveIssues.disagrees.length }} disagree with docs</div>
+          <ul>
+            <li *ngFor="let i of liveIssues.disagrees">
+              <a href="javascript:void(0)" (click)="jumpToField(i.field)">{{ i.label }} ↗</a>
+            </li>
+          </ul>
+        </div>
+        <div *ngIf="liveIssues.unextracted.length" class="live-issues__block">
+          <div class="live-issues__block-title">{{ liveIssues.unextracted.length }} extractable</div>
+          <ul>
+            <li *ngFor="let i of liveIssues.unextracted">
+              <a href="javascript:void(0)" (click)="jumpToField(i.field)">{{ i.label }} ↗</a>
+              <small>— {{ i.via }}</small>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <form [formGroup]="myform" (ngSubmit)="onSubmit()">
       <mat-card-content>
         <div class="col-md-3" *ngIf="user.role === 'Admin' || user.role === 'Registrant'">
