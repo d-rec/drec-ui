@@ -3248,16 +3248,29 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   /** Registrant clicks "Go to field" — scroll the form control into
-   *  view and flash a highlight so it's obvious which row to fix. */
+   *  view and pulse an amber halo around it so it's obvious which
+   *  row to fix. The halo goes on the wrapping mat-form-field (or
+   *  the closest col-md-* container) so it actually frames the
+   *  visible control instead of just the raw <input> deep inside
+   *  Material's DOM. */
   jumpToField(field: string | null): void {
     if (!field) return;
-    const el = document.querySelector<HTMLElement>(
+    const ctl = document.querySelector<HTMLElement>(
       `[formControlName="${field}"]`,
     );
-    if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    el.classList.add('field--flash');
-    setTimeout(() => el.classList.remove('field--flash'), 1600);
+    if (!ctl) return;
+    const target =
+      ctl.closest<HTMLElement>('.mat-mdc-form-field') ??
+      ctl.closest<HTMLElement>('[class*="col-md-"]') ??
+      ctl;
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Remove first so re-clicking the same field restarts the
+    // animation instead of being a no-op.
+    target.classList.remove('field--flash');
+    // Force reflow so the next class add starts a fresh animation.
+    void target.offsetWidth;
+    target.classList.add('field--flash');
+    setTimeout(() => target.classList.remove('field--flash'), 2200);
   }
 
   /** After a registrant submit, if there were open reviewer notes on

@@ -1391,11 +1391,16 @@ $as-bg:       #f8fafc;
 }
 
 @keyframes review-field-flash {
-  0%, 100% { box-shadow: none; }
-  35% { box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.55); }
+  0%   { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0);   background: transparent; }
+  20%  { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.8); background: rgba(254, 243, 199, 0.85); }
+  60%  { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.45); background: rgba(254, 243, 199, 0.45); }
+  100% { box-shadow: 0 0 0 0   rgba(245, 158, 11, 0);   background: transparent; }
 }
 .field--flash {
-  animation: review-field-flash 1.5s ease-in-out;
+  animation: review-field-flash 2s ease-out;
+  border-radius: 6px;
+  position: relative;
+  z-index: 1;
 }
 
 /* Pre-submit review modal */
