@@ -92,11 +92,13 @@
 
     <div class="input-bar input-bar--rich" *ngIf="!(chatService.readOnly$ | async)">
       <div class="input-kind-row">
-        <label class="input-kind-pick">
+        <label class="input-kind-pick"
+               title="Plain chat message — visible to everyone in this conversation. Use for back-and-forth chatter. Not tracked as an action item.">
           <input type="radio" name="kind" value="text" [(ngModel)]="draftKind" />
           Message
         </label>
-        <label class="input-kind-pick" *ngIf="canResolveNotes">
+        <label class="input-kind-pick" *ngIf="canResolveNotes"
+               title="Field-anchored reviewer note. Becomes an orange bubble + an open action item on the registrant's edit page (with a jump-to-field link). Only reviewers can resolve. Never deleted — kept as audit trail.">
           <input type="radio" name="kind" value="note" [(ngModel)]="draftKind" />
           Note for registrant
         </label>
