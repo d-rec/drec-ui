@@ -3095,6 +3095,13 @@ export class AddDevicesComponent implements OnDestroy {
    *  next submitEdit re-entry skips the issues check. */
   presubmitOverride = false;
 
+  /** Hide the four non-OC# legacy form fields (registrationType,
+   *  volumeEvidenceType, verificationAgentName, offGridCircumstances)
+   *  behind a collapsed expander so they don't distract registrants
+   *  doing the normal flow. They're scheduled for removal in Phase 3
+   *  once the SF-02 generator path exists. */
+  legacyExpanded = false;
+
   /** Which form fields each attached doc could populate. Drives the
    *  "unextracted" list — if a doc is present but the corresponding
    *  field is empty/manual, surface it as something to extract. */

@@ -631,37 +631,53 @@
                       <input matInput formControlName="signatoryName" />
                     </mat-form-field>
                   </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label>Registration Type</mat-label>
-                      <mat-select formControlName="registrationType">
-                        <mat-option *ngFor="let rt of registrationTypes" [value]="rt">
-                          {{ rt }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label>Volume Evidence Type</mat-label>
-                      <mat-select formControlName="volumeEvidenceType">
-                        <mat-option *ngFor="let ve of volumeEvidenceTypes" [value]="ve">
-                          {{ ve }}
-                        </mat-option>
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label>Verification Agent</mat-label>
-                      <input matInput formControlName="verificationAgentName" />
-                    </mat-form-field>
-                  </div>
-                  <div class="col-md-3">
-                    <mat-form-field appearance="outline">
-                      <mat-label>Off-Grid Circumstances</mat-label>
-                      <input matInput formControlName="offGridCircumstances" />
-                    </mat-form-field>
+                </div>
+                <!-- ── Legacy / non-OC# fields (collapsed by default) ─────
+                     Not on the I-REC Registration Checklist; scheduled
+                     for removal once the SF-02 generator path is built.
+                     Hidden behind an expander so they don't distract
+                     registrants doing the normal flow. -->
+                <div class="legacy-fields">
+                  <button type="button" class="legacy-fields__toggle"
+                    (click)="legacyExpanded = !legacyExpanded">
+                    <span class="legacy-fields__chevron"
+                      [class.legacy-fields__chevron--open]="legacyExpanded">›</span>
+                    Advanced / legacy fields
+                    <small class="legacy-fields__hint">not on the OC# checklist</small>
+                  </button>
+                  <div class="row legacy-fields__row" *ngIf="legacyExpanded">
+                    <div class="col-md-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Registration Type (legacy)</mat-label>
+                        <mat-select formControlName="registrationType">
+                          <mat-option *ngFor="let rt of registrationTypes" [value]="rt">
+                            {{ rt }}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Volume Evidence Type (legacy)</mat-label>
+                        <mat-select formControlName="volumeEvidenceType">
+                          <mat-option *ngFor="let ve of volumeEvidenceTypes" [value]="ve">
+                            {{ ve }}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Verification Agent (legacy)</mat-label>
+                        <input matInput formControlName="verificationAgentName" />
+                      </mat-form-field>
+                    </div>
+                    <div class="col-md-3">
+                      <mat-form-field appearance="outline">
+                        <mat-label>Off-Grid Circumstances (legacy)</mat-label>
+                        <input matInput formControlName="offGridCircumstances" />
+                      </mat-form-field>
+                    </div>
                   </div>
                 </div>
 
