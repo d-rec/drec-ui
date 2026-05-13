@@ -283,7 +283,9 @@
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
                       <mat-label class="text-capitalize" test-id="device-type">Device Type Code</mat-label>
-                      <mat-select formControlName="deviceTypeCode">
+                      <mat-select formControlName="deviceTypeCode"
+                        matTooltip="I-REC technology code (TC100 = solar PV generic, TC110 = ground-mounted, TC120 = rooftop, …). Derivable from (12) Fuel code; kept here for back-compat with the I-REC registry. Not on the D-REC OC# checklist, which is why it has no number."
+                        matTooltipPosition="above">
                         <mat-option *ngFor="let code of devicetypelist" [value]="code.code" test-id="type-code-option">
                           {{ code.name }}
                         </mat-option>
