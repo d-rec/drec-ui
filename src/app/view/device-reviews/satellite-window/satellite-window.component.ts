@@ -313,17 +313,32 @@ export class SatelliteWindowComponent
       minZoom: 3,
     }).setView([20, 0], 3);
 
-    // Keep detected panel masks visually anchored to the imagery as the
-    // reviewer pans/zooms.
-    const reproject = () => {
-      if (!this.showOverlay) return;
-      const canvas = this.overlayCanvas.nativeElement;
+    // Host the overlay canvas in a custom Leaflet pane below markerPane
+    // (z 600) so the device pin renders cleanly above any detected-panel
+    // mask strokes. tilePane is z 200, overlayPane z 400 — we sit at 300.
+    const detectPane = this.map.createPane('detect-overlay-pane');
+    detectPane.style.zIndex = '300';
+    detectPane.style.pointerEvents = 'none';
+    detectPane.appendChild(this.overlayCanvas.nativeElement);
+
+    const sizeCanvas = (canvas: HTMLCanvasElement) => {
       const w = this.mapEl.nativeElement.clientWidth;
       const h = this.mapEl.nativeElement.clientHeight;
       if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w;
         canvas.height = h;
       }
+      // Leaflet panes are children of .leaflet-map-pane which is 0×0;
+      // give the canvas explicit pixel dimensions so it doesn't collapse.
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+    };
+
+    // Keep detected panel masks visually anchored to the imagery as the
+    // reviewer pans/zooms.
+    const reproject = () => {
+      if (!this.showOverlay) return;
+      sizeCanvas(this.overlayCanvas.nativeElement);
       this.satRedraw();
     };
     // moveend/zoomend only: during the drag/zoom animation Leaflet
@@ -799,6 +814,10 @@ export class SatelliteWindowComponent
     const canvas = this.overlayCanvas.nativeElement;
     canvas.width = w;
     canvas.height = h;
+    // Canvas lives in a Leaflet pane whose parent is 0×0; explicit pixel
+    // dimensions stop the displayed area from collapsing.
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
 
     const outputs = data?.outputs?.[0];
     const preds = outputs?.predictions?.predictions ?? [];
