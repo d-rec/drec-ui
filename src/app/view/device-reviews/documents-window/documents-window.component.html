@@ -113,7 +113,7 @@
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}" [title]="getDocHint('SINGLE_LINE_DIAGRAM', item.operatingConfiguration) || ''">{{ getReqStatus('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl) }}</span>
             <ng-container *ngIf="item.sldUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <a class="file-name file-name--link" [innerHTML]="hl(fileName(item.sldUrl!), result.searchTerm)" (click)="openFile(item.sldUrl!, $event, true)" (mousedown)="$event.stopPropagation()"></a>
+              <a class="file-name file-name--link" [href]="item.sldUrl!" target="_blank" [innerHTML]="hl(fileName(item.sldUrl!), result.searchTerm)" (click)="openFile(item.sldUrl!, $event, true)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(item.sldUrl)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="showMissingTag('SINGLE_LINE_DIAGRAM', item.operatingConfiguration, !!item.sldUrl)" class="missing-tag">missing</span>
@@ -127,7 +127,7 @@
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}" [title]="getDocHint('FORM_SF_02', item.operatingConfiguration) || ''">{{ getReqStatus('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url) }}</span>
             <ng-container *ngIf="item.sf02Url">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <a class="file-name file-name--link" [innerHTML]="hl(fileName(item.sf02Url!), result.searchTerm)" (click)="openFile(item.sf02Url!, $event)" (mousedown)="$event.stopPropagation()"></a>
+              <a class="file-name file-name--link" [href]="item.sf02Url!" target="_blank" [innerHTML]="hl(fileName(item.sf02Url!), result.searchTerm)" (click)="openFile(item.sf02Url!, $event)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(item.sf02Url)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="showMissingTag('FORM_SF_02', item.operatingConfiguration, !!item.sf02Url)" class="missing-tag">missing</span>
@@ -141,7 +141,7 @@
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}" [title]="getDocHint('SF_02C', item.operatingConfiguration) || ''">{{ getReqStatus('SF_02C', item.operatingConfiguration, !!item.sf02cUrl) }}</span>
             <ng-container *ngIf="item.sf02cUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <a class="file-name file-name--link" [innerHTML]="hl(fileName(item.sf02cUrl!), result.searchTerm)" (click)="openFile(item.sf02cUrl!, $event)" (mousedown)="$event.stopPropagation()"></a>
+              <a class="file-name file-name--link" [href]="item.sf02cUrl!" target="_blank" [innerHTML]="hl(fileName(item.sf02cUrl!), result.searchTerm)" (click)="openFile(item.sf02cUrl!, $event)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(item.sf02cUrl)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="showMissingTag('SF_02C', item.operatingConfiguration, !!item.sf02cUrl)" class="missing-tag">missing</span>
@@ -153,7 +153,7 @@
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('PROOF_OF_OWNERSHIP', item.operatingConfiguration, !!item.proofOfOwnershipUrl) }}" [title]="getDocHint('PROOF_OF_OWNERSHIP', item.operatingConfiguration) || ''">{{ getReqStatus('PROOF_OF_OWNERSHIP', item.operatingConfiguration, !!item.proofOfOwnershipUrl) }}</span>
             <ng-container *ngIf="item.proofOfOwnershipUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <a class="file-name file-name--link" [innerHTML]="hl(fileName(item.proofOfOwnershipUrl!), result.searchTerm)" (click)="openFile(item.proofOfOwnershipUrl!, $event)" (mousedown)="$event.stopPropagation()"></a>
+              <a class="file-name file-name--link" [href]="item.proofOfOwnershipUrl!" target="_blank" [innerHTML]="hl(fileName(item.proofOfOwnershipUrl!), result.searchTerm)" (click)="openFile(item.proofOfOwnershipUrl!, $event)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(item.proofOfOwnershipUrl)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="showMissingTag('PROOF_OF_OWNERSHIP', item.operatingConfiguration, !!item.proofOfOwnershipUrl)" class="missing-tag">missing</span>
@@ -167,7 +167,7 @@
             <span *ngIf="item.operatingConfiguration" class="req-tag req-tag--{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}" [title]="getDocHint('COD_PROOF', item.operatingConfiguration) || ''">{{ getReqStatus('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl) }}</span>
             <ng-container *ngIf="item.codProofUrl">
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <a class="file-name file-name--link" [innerHTML]="hl(fileName(item.codProofUrl!), result.searchTerm)" (click)="openFile(item.codProofUrl!, $event)" (mousedown)="$event.stopPropagation()"></a>
+              <a class="file-name file-name--link" [href]="item.codProofUrl!" target="_blank" [innerHTML]="hl(fileName(item.codProofUrl!), result.searchTerm)" (click)="openFile(item.codProofUrl!, $event)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(item.codProofUrl)" class="missing-tag">(missing)</span>
             </ng-container>
             <span *ngIf="showMissingTag('COD_PROOF', item.operatingConfiguration, !!item.codProofUrl)" class="missing-tag">missing</span>
@@ -192,7 +192,7 @@
               <span class="me-col-idx">{{ i + 1 }}</span>
               <span class="me-col-name">
                 <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-                <a class="file-name file-name--link" [innerHTML]="hl(fileDisplayName(item, 'me:' + i, url), result.searchTerm)" (click)="openFile(url, $event, false, true)" (mousedown)="$event.stopPropagation()"></a>
+                <a class="file-name file-name--link" [href]="url" target="_blank" [innerHTML]="hl(fileDisplayName(item, 'me:' + i, url), result.searchTerm)" (click)="openFile(url, $event, false, true)" (mousedown)="$event.stopPropagation()"></a>
                 <span *ngIf="isBroken(url)" class="missing-tag">(missing)</span>
               </span>
               <span class="me-col-type">{{ fileExt(url) || '—' }}</span>
@@ -213,7 +213,7 @@
               class="dr-row dr-row--file"
             >
               <img class="thumb" [src]="url" alt="" loading="lazy" referrerpolicy="no-referrer" (error)="$any($event.target).style.display='none'" />
-              <a class="file-name file-name--link" [innerHTML]="hl(fileDisplayName(item, 'pic:' + i, url), result.searchTerm)" (click)="openFile(url, $event)" (mousedown)="$event.stopPropagation()"></a>
+              <a class="file-name file-name--link" [href]="url" target="_blank" [innerHTML]="hl(fileDisplayName(item, 'pic:' + i, url), result.searchTerm)" (click)="openFile(url, $event)" (mousedown)="$event.stopPropagation()"></a>
             </div>
             <div *ngIf="showMissingTag('PROJECT_PHOTOS', item.operatingConfiguration, item.pictureUrls.length >= 3)" class="dr-row dr-row--empty"><span class="missing-tag">only {{ item.pictureUrls.length }} photo(s) — at least 3 required</span></div>
           </ng-container>
@@ -230,7 +230,7 @@
               class="dr-row dr-row--file"
             >
               <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z" fill="#64748b"/></svg>
-              <a class="file-name file-name--link" [innerHTML]="hl(fileName(url), result.searchTerm)" (click)="openFile(url, $event)" (mousedown)="$event.stopPropagation()"></a>
+              <a class="file-name file-name--link" [href]="url" target="_blank" [innerHTML]="hl(fileName(url), result.searchTerm)" (click)="openFile(url, $event)" (mousedown)="$event.stopPropagation()"></a>
               <span *ngIf="isBroken(url)" class="missing-tag">(missing)</span>
             </div>
             <div *ngIf="!item.otherDocumentUrls.length" class="dr-row dr-row--empty">None</div>

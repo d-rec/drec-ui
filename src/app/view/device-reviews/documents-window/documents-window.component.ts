@@ -2183,6 +2183,10 @@ trustUrl(url: string): SafeUrl {
     enableOcr = false,
   ): Promise<void> {
     event.stopPropagation();
+    // The <a> now carries [href][target=_blank] so right-click →
+    // Copy Link Address works. Suppress the default navigation —
+    // openFile handles in-app viewing instead.
+    event.preventDefault();
     if (!url || this.isBroken(url)) {
       alert('File is missing\n\n' + url);
       return;
@@ -2201,6 +2205,7 @@ trustUrl(url: string): SafeUrl {
 
   async openPicture(url: string, event: Event): Promise<void> {
     event.stopPropagation();
+    event.preventDefault();
     if (!url || this.isBroken(url)) {
       alert('File is missing\n\n' + url);
       return;

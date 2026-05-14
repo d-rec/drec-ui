@@ -519,6 +519,12 @@ $legacy:   #a0845c;
     text-underline-offset: 2px;
     cursor: pointer;
     display: inline;
+    // Parent .dr-row sets user-select:none to keep row-clicks from
+    // bleeding into text-drag-selection — but on the link itself
+    // the reviewer wants to copy filenames + addresses. Re-enable
+    // selection here.
+    user-select: text;
+    -webkit-user-select: text;
 
     &:hover {
       color: darken($accent, 12%);
