@@ -50,7 +50,6 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
           [class.hover-panel]="hoverPanelIdx >= 0"
           (click)="onCanvasClick($event)"
         ></canvas>
-        <div #pinLayer class="pin-layer"></div>
         <div class="detect-toolbar">
           <button
             class="detect-btn"
@@ -135,7 +134,7 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
         z-index: 450;
       }
       .detect-overlay.visible {
-        opacity: 0.75;
+        opacity: 1;
         /* Default: let mouse events fall through to Leaflet so the user
            can still pan the map (adjusts lat/long). The wrapper's
            mousemove handler flips pointer-events to 'auto' below when
@@ -145,23 +144,6 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
       .detect-overlay.visible.hover-panel {
         pointer-events: auto;
         cursor: pointer;
-      }
-      /* Shadow layer that mirrors the real Leaflet marker. Sits above the
-         detect-overlay canvas (z-index 450) so the device pin is never
-         hidden behind detected-panel masks. */
-      .pin-layer {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 460;
-      }
-      .pin-layer .shadow-pin {
-        position: absolute;
-        transform: translate(-50%, -100%);
-        pointer-events: none;
       }
       .detect-toolbar {
         position: absolute;
@@ -289,7 +271,6 @@ export class SatelliteWindowComponent
   @Output() close = new EventEmitter<void>();
 
   @ViewChild('mapEl', { static: true }) mapEl!: ElementRef<HTMLDivElement>;
-  @ViewChild('pinLayer', { static: true }) pinLayer!: ElementRef<HTMLDivElement>;
   @ViewChild('overlayCanvas', { static: true })
   overlayCanvas!: ElementRef<HTMLCanvasElement>;
 
@@ -332,10 +313,9 @@ export class SatelliteWindowComponent
       minZoom: 3,
     }).setView([20, 0], 3);
 
-    // Keep detected panel masks + shadow pins visually anchored to the
-    // imagery as the reviewer pans/zooms.
+    // Keep detected panel masks visually anchored to the imagery as the
+    // reviewer pans/zooms.
     const reproject = () => {
-      this.renderShadowPins();
       if (!this.showOverlay) return;
       const canvas = this.overlayCanvas.nativeElement;
       const w = this.mapEl.nativeElement.clientWidth;
@@ -618,12 +598,12 @@ export class SatelliteWindowComponent
     for (let i = 0; i < this.predictions.length; i++) {
       const pred = this.predictions[i];
       const selected = i === this.selectedRegion;
-      const fill = selected
-        ? 'rgba(239, 68, 68, 0.4)'
-        : 'rgba(0, 255, 180, 0.12)';
       const stroke = selected ? '#ef4444' : '#00ffb4';
       const shape = this.satShape(pred);
 
+      // Outline-only: no translucent fill so the device pin (and the
+      // panel imagery itself) stay fully visible underneath. Selected
+      // region gets a subtle red fill purely as a hit-confirmation.
       if (shape.polygon.length > 2) {
         ctx.beginPath();
         ctx.moveTo(shape.polygon[0].x, shape.polygon[0].y);
@@ -631,14 +611,18 @@ export class SatelliteWindowComponent
           ctx.lineTo(shape.polygon[j].x, shape.polygon[j].y);
         }
         ctx.closePath();
-        ctx.fillStyle = fill;
-        ctx.fill();
+        if (selected) {
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+          ctx.fill();
+        }
         ctx.strokeStyle = stroke;
         ctx.lineWidth = selected ? 3 : 2;
         ctx.stroke();
       } else {
-        ctx.fillStyle = fill;
-        ctx.fillRect(shape.bbox.x, shape.bbox.y, shape.bbox.w, shape.bbox.h);
+        if (selected) {
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+          ctx.fillRect(shape.bbox.x, shape.bbox.y, shape.bbox.w, shape.bbox.h);
+        }
         ctx.strokeStyle = stroke;
         ctx.lineWidth = selected ? 3 : 2;
         ctx.strokeRect(shape.bbox.x, shape.bbox.y, shape.bbox.w, shape.bbox.h);
@@ -870,14 +854,9 @@ export class SatelliteWindowComponent
     this.cdr.markForCheck();
   }
 
-  /** Lat/lngs of the device pins, mirrored as shadow DOM elements so they
-   *  render above the detect-overlay canvas. */
-  private shadowPinLatLngs: { lat: number; lng: number }[] = [];
-
   private updateMarkers(): void {
     this.markers.forEach((m) => m.remove());
     this.markers = [];
-    this.shadowPinLatLngs = [];
 
     const selectedId = this.svc.selectedId$.value;
     const assets = selectedId
@@ -893,7 +872,7 @@ export class SatelliteWindowComponent
 
       const lat = asset.lat;
       const lng = asset.long;
-      const marker = L.marker([lat, lng], { icon: mapPinIcon(color), opacity: 0 })
+      const marker = L.marker([lat, lng], { icon: mapPinIcon(color) })
         .on('mouseover', () => {
           this.removePinOverlay();
           this.pinOverlay = SatellitePreviewComponent.createOverlay(
@@ -913,32 +892,6 @@ export class SatelliteWindowComponent
         .addTo(this.map!);
 
       this.markers.push(marker);
-      this.shadowPinLatLngs.push({ lat, lng });
-    }
-
-    this.renderShadowPins();
-  }
-
-  /** Re-render the shadow pin DOM. Called on init and on each map move so
-   *  the shadow stays glued to the Leaflet marker. */
-  private renderShadowPins(): void {
-    const layer = this.pinLayer?.nativeElement;
-    if (!layer || !this.map) return;
-    layer.innerHTML = '';
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36">
-        <path d="M12 0C5.373 0 0 5.373 0 12c0 8.25 12 24 12 24S24 20.25 24 12C24 5.373 18.627 0 12 0z"
-              fill="#e53e3e" stroke="#fff" stroke-width="1.5"/>
-        <circle cx="12" cy="12" r="5" fill="#fff" fill-opacity="0.85"/>
-      </svg>`;
-    for (const { lat, lng } of this.shadowPinLatLngs) {
-      const pt = this.map.latLngToContainerPoint([lat, lng]);
-      const wrap = document.createElement('div');
-      wrap.className = 'shadow-pin';
-      wrap.style.left = `${pt.x}px`;
-      wrap.style.top = `${pt.y}px`;
-      wrap.innerHTML = svg;
-      layer.appendChild(wrap);
     }
   }
 
