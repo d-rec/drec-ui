@@ -1011,13 +1011,13 @@
         </div>
         <div class="scan-log__body">
           <div class="scan-log__entry" *ngFor="let entry of scanLog; let i = index"
+               [hidden]="entry.status === 'pending'"
                [class.scan-log__entry--pass]="entry.status === 'pass'"
                [class.scan-log__entry--warn]="entry.status === 'warn'"
                [class.scan-log__entry--fail]="entry.status === 'fail'"
                [class.scan-log__entry--error]="entry.status === 'error'"
                [class.scan-log__entry--running]="entry.status === 'running'"
-               [class.scan-log__entry--skipped]="entry.status === 'skipped'"
-               [class.scan-log__entry--pending]="entry.status === 'pending'">
+               [class.scan-log__entry--skipped]="entry.status === 'skipped'">
             <span class="scan-log__icon">
               <ng-container [ngSwitch]="entry.status">
                 <span *ngSwitchCase="'pass'">&#x2714;</span>
@@ -1048,12 +1048,20 @@
                    [class.scan-log__subitem--pass]="sub.status === 'pass'"
                    [class.scan-log__subitem--warn]="sub.status === 'warn'"
                    [class.scan-log__subitem--fail]="sub.status === 'fail'"
-                   [class.scan-log__subitem--info]="sub.status === 'info'">
+                   [class.scan-log__subitem--info]="sub.status === 'info'"
+                   [class.scan-log__subitem--skipped]="sub.status === 'skip'">
                 <span class="scan-log__subicon">
                   <ng-container [ngSwitch]="sub.status">
                     <span *ngSwitchCase="'pass'">&#x2714;</span>
                     <span *ngSwitchCase="'warn'">&#x26A0;</span>
                     <span *ngSwitchCase="'fail'">&#x2718;</span>
+                    <span *ngSwitchCase="'skip'" title="Skipped (no data)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">
+                        <path d="M3 6 Q8 0.5 13 6" />
+                        <polyline points="13,3.5 13,6 10.5,6" />
+                        <circle cx="8" cy="13" r="1.5" fill="currentColor" />
+                      </svg>
+                    </span>
                     <span *ngSwitchDefault>&#x2022;</span>
                   </ng-container>
                 </span>

@@ -228,11 +228,9 @@
     <div *ngIf="!ceilingResult && !ceilingError" class="modal__loading">Checking…</div>
     <div *ngIf="ceilingError" class="modal__error">{{ ceilingError }}</div>
     <div *ngIf="ceilingResult">
-      <p><strong>Configured yield:</strong> {{ ceilingResult.configuredYield }} kWh/kW/yr</p>
+      <p><strong>Effective ceiling:</strong> {{ ceilingResult.effectiveCeiling }} kWh/kW/yr</p>
       <p *ngIf="ceilingResult.irradiance"><strong>Estimated range:</strong> {{ ceilingResult.irradiance.yieldLow }}–{{ ceilingResult.irradiance.yieldHigh }} kWh/kW/yr</p>
-      <p [class.modal__flag]="ceilingResult.yieldMismatch">
-        <strong>Yield mismatch:</strong> {{ ceilingResult.yieldMismatch ? 'Yes' : 'No' }}
-      </p>
+      <p *ngIf="ceilingResult.gsaYieldPerKw"><strong>Solar GSA:</strong> {{ ceilingResult.gsaYieldPerKw }} kWh/kW/yr</p>
     </div>
     <div class="modal__footer">
       <button class="btn btn--save" (click)="showCeilingModal = false">OK</button>

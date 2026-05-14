@@ -139,11 +139,22 @@ export class LoginComponent implements OnInit {
         this.loggingIn = false;
         clearInterval(this.loginTimer);
         console.error('error caught in component', error);
-        if (error.status === 403 && error.error?.message) {
-          this.loginError = error.error.message;
-        } else {
-          const user = this.loginForm.value.username || '';
+        const user = this.loginForm.value.username || '';
+        if (error.status === 0) {
+          this.loginError =
+            'Cannot reach the D-REC server. Check your network connection or try again in a moment.';
+        } else if (error.status === 401) {
           this.loginError = `Login failed for "${user}". Please check your username and password.`;
+        } else if (error.status === 403 && error.error?.message) {
+          this.loginError = error.error.message;
+        } else if (error.status >= 500) {
+          const detail = error.error?.message ? ` (${error.error.message})` : '';
+          this.loginError = `The D-REC server returned an error${detail}. Please try again shortly.`;
+        } else {
+          const detail = error.error?.message
+            ? `: ${error.error.message}`
+            : ` (HTTP ${error.status || 'unknown'})`;
+          this.loginError = `Login failed for "${user}"${detail}.`;
         }
       },
     });

@@ -397,7 +397,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     detail?: string;
     subItems?: Array<{
       label: string;
-      status: 'pass' | 'warn' | 'fail' | 'info';
+      status: 'pass' | 'warn' | 'fail' | 'info' | 'skip';
       detail?: string;
     }>;
     duration?: number;
@@ -864,7 +864,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     detail: string;
     subItems?: Array<{
       label: string;
-      status: 'pass' | 'warn' | 'fail' | 'info';
+      status: 'pass' | 'warn' | 'fail' | 'info' | 'skip';
       detail?: string;
     }>;
   }> {
@@ -1040,7 +1040,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                   .length || 0;
               const subItems: Array<{
                 label: string;
-                status: 'pass' | 'warn' | 'fail' | 'info';
+                status: 'pass' | 'warn' | 'fail' | 'info' | 'skip';
                 detail?: string;
               }> = [];
               subItems.push({
@@ -1085,9 +1085,8 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                 });
               }
               const sources: string[] = [];
-              if (res.irradiance?.yieldHigh) sources.push('irradiance');
-              else if (res.gsaYieldPerKw || res.solarGsa)
-                sources.push('Solar GSA');
+              if (res.gsaYieldPerKw || res.solarGsa) sources.push('Solar GSA');
+              else if (res.irradiance?.yieldHigh) sources.push('irradiance');
               else sources.push('default (1500)');
               subItems.push({
                 label: 'Effective ceiling yield',
@@ -1111,7 +1110,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
               } else {
                 subItems.push({
                   label: 'Readings',
-                  status: 'info',
+                  status: 'skip',
                   detail: 'No recent meter readings found',
                 });
               }
@@ -1133,14 +1132,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                 return;
               }
               resolve({
-                status: res.yieldMismatch
-                  ? 'fail'
-                  : exceeded > 0
-                    ? 'warn'
-                    : 'pass',
-                detail: res.yieldMismatch
-                  ? `Yield mismatch: configured ${res.configuredYield} vs estimated ${res.irradiance?.yieldHigh} kWh/kW/yr`
-                  : exceeded > 0
+                status: exceeded > 0 ? 'warn' : 'pass',
+                detail:
+                  exceeded > 0
                     ? `${exceeded} reading(s) exceed the production ceiling`
                     : `All ${res.recentReadings?.length || 0} readings within ceiling`,
                 subItems,
@@ -1507,8 +1501,12 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                 skip: 'skip',
               };
               const status = map[res?.status] || 'skip';
-              const declared = res?.declaredCountry || '—';
-              const resolved = res?.resolvedCountry || '—';
+              const declared = res?.declaredCountry
+                ? this.countryName(res.declaredCountry)
+                : '—';
+              const resolved = res?.resolvedCountry
+                ? this.countryName(res.resolvedCountry)
+                : '—';
               const reason = res?.reason || '';
               resolve({
                 status,
@@ -1606,7 +1604,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     detail: string;
     subItems?: Array<{
       label: string;
-      status: 'pass' | 'warn' | 'fail' | 'info';
+      status: 'pass' | 'warn' | 'fail' | 'info' | 'skip';
       detail?: string;
     }>;
   }> {
@@ -1691,17 +1689,38 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       status: 'pass' | 'warn' | 'fail' | 'info';
       detail?: string;
     }> = [];
+    // Detect the same file reused across slots — registrants sometimes
+    // upload one PDF into two slots (e.g. customer contract into both
+    // Proof of Ownership and COD Proof). Key by URL when available,
+    // otherwise fall back to filename.
+    const dupKey = (r: { url: string; filename: string }) =>
+      r.url || r.filename;
+    const dupCounts = new Map<string, string[]>();
     for (const r of this.classifyResults) {
-      // Only treat as MISMATCH when the AI has reasonable confidence;
-      // a 25 % "I think it might be Metering Evidence" guess on a
-      // photo of detected panels shouldn't escalate to MISMATCH —
-      // the user's slot choice wins.
+      const k = dupKey(r);
+      const slots = dupCounts.get(k) ?? [];
+      slots.push(r.slot);
+      dupCounts.set(k, slots);
+    }
+    let duplicateCount = 0;
+    for (const r of this.classifyResults) {
       const lowConf = (r.confidence ?? 0) < 60;
       const realMismatch = r.match === false && !lowConf;
-      const status: 'pass' | 'warn' | 'fail' | 'info' =
-        r.match === true ? 'pass' : realMismatch ? 'warn' : 'info';
-      const tail =
-        r.match === true
+      const otherSlots = (dupCounts.get(dupKey(r)) ?? []).filter(
+        (s) => s !== r.slot,
+      );
+      const isDuplicate = otherSlots.length > 0;
+      if (isDuplicate) duplicateCount++;
+      const status: 'pass' | 'warn' | 'fail' | 'info' = isDuplicate
+        ? 'fail'
+        : r.match === true
+          ? 'pass'
+          : realMismatch
+            ? 'fail'
+            : 'info';
+      const tail = isDuplicate
+        ? ` — DUPLICATE of ${otherSlots.join(', ')} slot${otherSlots.length > 1 ? 's' : ''}`
+        : r.match === true
           ? ' — match'
           : realMismatch
             ? ` — MISMATCH (expected ${r.expectedType})`
@@ -1722,12 +1741,18 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
       });
     }
 
+    const dupTail = duplicateCount > 0 ? `, ${duplicateCount} duplicate` : '';
     return {
-      status: mismatchCount > 0 ? 'warn' : total === 0 ? 'warn' : 'pass',
+      status:
+        duplicateCount > 0 || mismatchCount > 0
+          ? 'warn'
+          : total === 0
+            ? 'warn'
+            : 'pass',
       detail:
         total === 0
           ? 'No documents to classify'
-          : `${total} docs: ${matchCount} match, ${mismatchCount} mismatch, ${unknownCount} unknown`,
+          : `${total} docs: ${matchCount} match, ${mismatchCount} mismatch, ${unknownCount} unknown${dupTail}`,
       subItems,
     };
   }
@@ -3042,17 +3067,6 @@ trustUrl(url: string): SafeUrl {
         this.ceilingResult = res;
         this.ceilingError = null;
         this.showCeilingModal = true;
-        if (res.yieldMismatch) {
-          const asset = this.svc.assets$.value.find(
-            (a) => a.id === this.editingId,
-          );
-          if (asset) {
-            this.logChatEntry(
-              asset.siteName,
-              `_Production ceiling check: configured yield (${res.configuredYield} kWh/kW/yr) exceeds the location-based estimate (${res.irradiance?.yieldHigh} kWh/kW/yr). Please verify or correct the yield value._`,
-            );
-          }
-        }
       },
       error: (err: any) => {
         console.error('Production ceiling check failed:', err);
