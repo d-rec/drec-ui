@@ -126,7 +126,9 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
         pointer-events: none;
         opacity: 0;
         transition: opacity 0.3s;
-        z-index: 500;
+        /* Sits between Leaflet's tilePane (200) and markerPane (600), so
+           the device pin renders on top of the detected-panel mask. */
+        z-index: 450;
       }
       .detect-overlay.visible {
         opacity: 0.75;
@@ -308,16 +310,6 @@ export class SatelliteWindowComponent
       minZoom: 3,
     }).setView([20, 0], 3);
 
-    // Host the detect-panel canvas in a Leaflet pane whose z-index sits
-    // between tilePane (200) and markerPane (600). That way the device
-    // pin renders above the detected-panel mask overlay. The parent
-    // `.leaflet-map-pane` is 0×0, so the canvas needs explicit pixel
-    // dimensions — set in `reproject` below.
-    const detectPane = this.map.createPane('detect-overlay-pane');
-    detectPane.style.zIndex = '450';
-    detectPane.style.pointerEvents = 'none';
-    detectPane.appendChild(this.overlayCanvas.nativeElement);
-
     // Keep detected panel masks visually anchored to the imagery as the
     // reviewer pans/zooms to nudge the device's lat/lng.
     const reproject = () => {
@@ -329,8 +321,6 @@ export class SatelliteWindowComponent
         canvas.width = w;
         canvas.height = h;
       }
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
       this.satRedraw();
     };
     // moveend/zoomend only: during the drag/zoom animation Leaflet
@@ -776,10 +766,6 @@ export class SatelliteWindowComponent
     const canvas = this.overlayCanvas.nativeElement;
     canvas.width = w;
     canvas.height = h;
-    // Canvas lives in a Leaflet pane whose parent is 0×0; set explicit
-    // pixel dimensions so the displayed area matches the drawing buffer.
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
 
     const outputs = data?.outputs?.[0];
     const preds = outputs?.predictions?.predictions ?? [];
