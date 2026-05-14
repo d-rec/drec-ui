@@ -2065,7 +2065,11 @@ trustUrl(url: string): SafeUrl {
     } else {
       this.searchMatchIds = assets.map((a) => a.id);
       this.searchIndex = this.searchMatchIds.length > 0 ? 0 : -1;
-      if (this.searchIndex >= 0) this.svc.select(this.searchMatchIds[0]);
+      // Don't auto-select the first match on every keystroke — that
+      // flips the page into focus mode (which hides the search box
+      // itself in the new layout) before the user has finished
+      // typing. Selection still happens on Enter (searchNext) or by
+      // clicking a row.
     }
   }
 

@@ -176,6 +176,17 @@ export class DocumentClassifierService {
       }
       if (!text || text.trim().length < 10) {
         if (file.type.startsWith('image/')) {
+          // Even when OCR was thin, a screenshot of a meter portal
+          // sometimes leaks just enough characters to clear the
+          // meter-signal bar — re-check before defaulting to photos.
+          if (this.hasMeterSignals(text)) {
+            return {
+              suggestedType: DocumentType.METERING_EVIDENCE,
+              confidence: 0.55,
+              method: 'keywords',
+              alternatives: [],
+            };
+          }
           return {
             suggestedType: DocumentType.PROJECT_PHOTOS,
             confidence: 0.4,
@@ -193,6 +204,17 @@ export class DocumentClassifierService {
         kwResult.suggestedType === DocumentType.OTHER_DOCUMENTS &&
         file.type.startsWith('image/')
       ) {
+        // Same trapdoor as above: keyword classifier didn't strongly
+        // pick a category, but the OCR'd text has unambiguous meter-
+        // portal vocabulary. Don't silently file as Site Photo.
+        if (this.hasMeterSignals(text)) {
+          return {
+            suggestedType: DocumentType.METERING_EVIDENCE,
+            confidence: 0.6,
+            method: 'keywords',
+            alternatives: [],
+          };
+        }
         return {
           suggestedType: DocumentType.PROJECT_PHOTOS,
           confidence: 0.45,
@@ -255,17 +277,9 @@ export class DocumentClassifierService {
       file.type === 'image/jpeg' || /\.jpe?g$/i.test(file.name);
     if (!isJpeg) return result;
 
-    // Strong-meter signal: OCR'd text has the column-header
-    // vocabulary of a real meter spreadsheet/screenshot. If yes,
-    // skip the downgrade.
-    const t = ocrText.toLowerCase();
-    const meterHits =
-      (t.match(/\bkwh\b/g) || []).length +
-      (/\bpv\s*\(?kwh\)?/.test(t) ? 1 : 0) +
-      (/\b(sell|buy|import|export)\s*\(?kwh\)?/.test(t) ? 1 : 0) +
-      (/\bmonthly\s+report\b/.test(t) ? 1 : 0) +
-      (/\bmeter\s*(reading|id|sn|serial)/.test(t) ? 1 : 0);
-    if (meterHits >= 2) {
+    // Strong-meter signal in OCR text → keep METERING, skip the
+    // photo-downgrade.
+    if (this.hasMeterSignals(ocrText)) {
       return result;
     }
 
@@ -442,6 +456,28 @@ export class DocumentClassifierService {
     } finally {
       URL.revokeObjectURL(url);
     }
+  }
+
+  /**
+   * Strong meter-portal vocabulary check on OCR'd text. Used to
+   * keep JPEG/PNG screenshots of monthly reports from being
+   * silently filed under Site Photos. Matches >=2 of:
+   *   - "kWh" (column header, repeated in data rows)
+   *   - "PV(kWh)" / "PV kWh"
+   *   - "Sell(kWh)" / "Buy(kWh)" / "Import(kWh)" / "Export(kWh)"
+   *   - "Monthly Report"
+   *   - "Meter Reading" / "Meter ID" / "Meter SN" / "Meter Serial"
+   */
+  private hasMeterSignals(text: string): boolean {
+    if (!text) return false;
+    const t = text.toLowerCase();
+    const meterHits =
+      (t.match(/\bkwh\b/g) || []).length +
+      (/\bpv\s*\(?kwh\)?/.test(t) ? 1 : 0) +
+      (/\b(sell|buy|import|export)\s*\(?kwh\)?/.test(t) ? 1 : 0) +
+      (/\bmonthly\s+report\b/.test(t) ? 1 : 0) +
+      (/\bmeter\s*(reading|id|sn|serial)/.test(t) ? 1 : 0);
+    return meterHits >= 2;
   }
 
   /**
