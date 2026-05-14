@@ -1608,16 +1608,18 @@
             (change)="clearDocPick(row)" />
           Keep form value: <strong>{{ row.current }}</strong>
           <span style="color:#94a3b8;font-size:11px"> (current)</span>
+          <small *ngIf="agreeingSources(row) as ag" style="color:#16a34a">— supported by {{ ag }}</small>
         </label>
-        <label *ngFor="let c of row.candidates" style="display:block;padding:4px 0;cursor:pointer">
-          <input type="radio"
-            [name]="'fvd-' + row.name"
-            [checked]="c.selected"
-            (change)="pickDoc(row, c)" />
-          Switch to: <strong>{{ c.value }}</strong>
-          <small style="color:#64748b">— from {{ c.source }} ({{ (c.confidence * 100) | number:'1.0-0' }}%)</small>
-          <small *ngIf="c.agreesWithForm" style="color:#16a34a">— agrees with form</small>
-        </label>
+        <ng-container *ngFor="let c of row.candidates">
+          <label *ngIf="!c.agreesWithForm" style="display:block;padding:4px 0;cursor:pointer">
+            <input type="radio"
+              [name]="'fvd-' + row.name"
+              [checked]="c.selected"
+              (change)="pickDoc(row, c)" />
+            Switch to: <strong>{{ c.value }}</strong>
+            <small style="color:#64748b">— from {{ c.source }} ({{ (c.confidence * 100) | number:'1.0-0' }}%)</small>
+          </label>
+        </ng-container>
       </div>
     </div>
   </div>

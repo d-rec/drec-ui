@@ -1,7 +1,9 @@
 <div class="docw">
 
-    <!-- ── Toolbar ─────────────────────────────────────────────────────────── -->
-    <div class="docw__toolbar">
+    <!-- ── Toolbar ─ collapsed in focus mode (refresh / search /
+         status filters / Excel / sat-toggle aren't useful while
+         working a single device, free the vertical space) ────────── -->
+    <div *ngIf="!selId" class="docw__toolbar">
       <button class="icon-btn icon-btn--refresh" (click)="populateDevices()" title="Load devices from database" [disabled]="(svc.loading$ | async)">&#8635;</button>
       <span *ngIf="svc.loading$ | async" class="toolbar-status">Loading…</span>
       <span *ngIf="svc.error$ | async as err" class="toolbar-error" title="Click to retry" role="button" tabindex="0" (click)="populateDevices()" (keydown.enter)="populateDevices()">⚠ {{ err }}</span>
@@ -39,8 +41,10 @@
     <!-- ── Hierarchical table ──────────────────────────────────────────────── -->
     <div class="docw__table-wrap">
 
-      <!-- Column headers -->
-      <div class="dr-row dr-row--header">
+      <!-- Column headers — hidden in focus mode where the single
+           selected device's siteName lives in the Return-to-list
+           banner instead. -->
+      <div *ngIf="!selId" class="dr-row dr-row--header">
         <span class="chevron-spacer"></span>
         <span class="col-serial  th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='siteName'&&sortDir===1" [class.desc]="sortColumn==='siteName'&&sortDir===-1" (click)="sortBy('siteName')" (keydown.enter)="sortBy('siteName')">Site Name</span>
         <span class="col-country th-sort" role="columnheader" tabindex="0" [class.asc]="sortColumn==='countryCode'&&sortDir===1" [class.desc]="sortColumn==='countryCode'&&sortDir===-1" (click)="sortBy('countryCode')" (keydown.enter)="sortBy('countryCode')">Country</span>
@@ -51,17 +55,28 @@
       <ng-container *ngIf="filtered$ | async as result">
 
       <!-- Focus-mode banner: when a device is selected, hide the
-           rest of the list and let the reviewer exit cleanly. -->
+           rest of the list and let the reviewer exit cleanly. The
+           selected device's siteName + status live inline on this
+           bar so the device's own row can be hidden below, saving
+           vertical space. -->
       <div *ngIf="selId" class="focus-banner">
         <button type="button" class="focus-banner__back" (click)="returnToList()" title="Show all sites again">
           ← Return to list ({{ result.assets.length - 1 }} other site{{ result.assets.length - 1 === 1 ? '' : 's' }})
         </button>
+        <ng-container *ngFor="let sel of visibleAssets(result.assets)">
+          <span class="focus-banner__site">{{ sel.siteName }}</span>
+          <span class="status-icon status-icon--{{ sel.status }}">{{ sel.status === 'approved' ? '✓' : sel.status === 'rejected' ? '✗' : '●' }}</span>
+          <span class="status-label">{{ sel.status | titlecase }}</span>
+        </ng-container>
       </div>
 
       <ng-container *ngFor="let item of visibleAssets(result.assets); trackBy: trackById">
 
-        <!-- Device row -->
+        <!-- Device row — hidden in focus mode (the banner above
+             surfaces siteName + status; the per-doc rows below
+             carry the rest). -->
         <div
+          *ngIf="selId !== item.id"
           class="dr-row dr-row--device"
           role="row"
           tabindex="0"
@@ -258,8 +273,9 @@
                 <label class="field__label">Meter / Measurement ID(s) <span class="fn">(14)</span></label>
                 <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('serial')?.value ?? '', searchTerm)"></span>
               </div>
-            </div>
-            <div class="top-row">
+              <!-- Registrant / Date Added / Date Closed / Status
+                   merged into this row instead of a row of their
+                   own — saves one row in the detail panel. -->
               <div class="field field--auto">
                 <label class="field__label">Registrant</label>
                 <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('submitterName')?.value || detailForm.get('submitterEmail')?.value || '—', searchTerm)"></span>

@@ -1867,6 +1867,10 @@ trustUrl(url: string): SafeUrl {
         if (!id) return;
         this.expanded = { ...this.expanded, [id]: true };
         if (!this.sectionOpen[id]) {
+          const a = this.svc.assets$.value.find((x) => x.id === id);
+          // Other Documents starts collapsed when there's nothing
+          // in it — saves a row of visual noise.
+          const hasOther = (a?.otherDocumentUrls?.length ?? 0) > 0;
           this.sectionOpen[id] = {
             codProof: true,
             sld: true,
@@ -1876,7 +1880,7 @@ trustUrl(url: string): SafeUrl {
             meteringEvidence: true,
             pictures: true,
             screenshots: true,
-            otherDocuments: true,
+            otherDocuments: hasOther,
           };
         }
         this.cdr.detectChanges();
@@ -2096,6 +2100,8 @@ trustUrl(url: string): SafeUrl {
   toggleDevice(id: string): void {
     this.expanded = { ...this.expanded, [id]: !this.expanded[id] };
     if (!this.sectionOpen[id]) {
+      const a = this.svc.assets$.value.find((x) => x.id === id);
+      const hasOther = (a?.otherDocumentUrls?.length ?? 0) > 0;
       this.sectionOpen[id] = {
         codProof: true,
         sld: true,
@@ -2105,7 +2111,7 @@ trustUrl(url: string): SafeUrl {
         meteringEvidence: true,
         pictures: true,
         screenshots: true,
-        otherDocuments: true,
+        otherDocuments: hasOther,
       };
     }
     this.svc.select(id);
@@ -2125,6 +2131,8 @@ trustUrl(url: string): SafeUrl {
       | 'otherDocuments',
   ): void {
     if (!this.sectionOpen[id]) {
+      const a = this.svc.assets$.value.find((x) => x.id === id);
+      const hasOther = (a?.otherDocumentUrls?.length ?? 0) > 0;
       this.sectionOpen[id] = {
         codProof: true,
         sld: true,
@@ -2134,7 +2142,7 @@ trustUrl(url: string): SafeUrl {
         meteringEvidence: true,
         pictures: true,
         screenshots: true,
-        otherDocuments: true,
+        otherDocuments: hasOther,
       };
     }
     this.sectionOpen = {
@@ -2589,17 +2597,15 @@ trustUrl(url: string): SafeUrl {
       img.onerror = () => this.markBroken(url);
       img.src = url;
     } else {
-      const ctrl = new AbortController();
-      fetch(url, { method: 'GET', mode: 'cors', signal: ctrl.signal }).then(
-        (res) => {
-          ctrl.abort();
-          if (!res.ok) this.markBroken(url);
-        },
-        (err) => {
-          if (err?.name === 'AbortError') return;
-          this.markBroken(url);
-        },
-      );
+      // Non-image (PDF / Excel / etc.): skip the probe entirely.
+      // The previous behaviour was fetch+immediate-abort to check
+      // status, but Firefox surfaces the abort as NS_BINDING_ABORTED
+      // and the click-time pdf-window fetch on the same URL got
+      // coalesced with it — turning a perfectly good PDF into
+      // "Could not load this document inline". The click-time fetch
+      // already surfaces real errors with a friendly banner; the
+      // probe's value here doesn't outweigh the breakage it causes.
+      return;
     }
   }
 

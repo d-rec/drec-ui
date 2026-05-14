@@ -5148,6 +5148,20 @@ export class AddDevicesComponent implements OnDestroy {
     row.candidates.forEach((c) => (c.selected = c === target));
   }
 
+  /** Source list (comma-joined) of any extractor candidates whose
+   *  value already matches the form — surfaced inline next to the
+   *  "Keep form value" option as "— supported by …" instead of
+   *  cluttering the radio list with a "Switch to: same value" row
+   *  that's a no-op when picked. */
+  agreeingSources(row: {
+    candidates: Array<{ source: string; agreesWithForm?: boolean }>;
+  }): string {
+    return row.candidates
+      .filter((c) => c.agreesWithForm)
+      .map((c) => c.source)
+      .join(', ');
+  }
+
   applyFormVsDocPicks(): void {
     const form = this.deviceForms.at(0);
     for (const row of this.pendingFormVsDocConflicts) {

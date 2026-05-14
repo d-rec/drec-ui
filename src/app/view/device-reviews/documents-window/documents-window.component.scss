@@ -263,7 +263,10 @@ $legacy:   #a0845c;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 12px;
+  // 2px vertical padding (was 5px) — saves ~6px per row × N rows
+  // matters in focus mode where every row is a doc the reviewer
+  // wants to see at once.
+  padding: 2px 12px;
   border-bottom: 1px solid $border;
   font-size: 13px;
   color: $text;
@@ -722,7 +725,7 @@ $legacy:   #a0845c;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 10px;
+  padding: 4px 10px;
   background: #eef2ff;
   border-bottom: 1px solid #c7d2fe;
   margin-bottom: 4px;
@@ -737,6 +740,11 @@ $legacy:   #a0845c;
     font-weight: 600;
     cursor: pointer;
     &:hover { background: #4338ca; color: #fff; }
+  }
+  &__site {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1e293b;
   }
 }
 

@@ -55,6 +55,11 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
         this.blobUrl = null;
       }
       this.safeUrl = null;
+      // Reset the inline-load error so close() → viewPdf(null)
+      // actually hides the window. Without this, the template
+      // *ngIf="safeUrl || fetchError" stays truthy when only
+      // safeUrl is cleared, and the error banner sticks on screen.
+      this.fetchError = false;
       this.currentUrl = url;
       this.fileName = url
         ? decodeURIComponent(
