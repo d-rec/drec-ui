@@ -46,6 +46,59 @@
       <svg #dailyChart></svg>
     </div>
 
+    <div class="aiu__providers">
+      <!-- Anthropic spend is covered by the main gauge/donut above —
+           these two panels are for the other paid providers. -->
+      <div class="aiu__panel">
+        <div class="aiu__panel-title">Roboflow (panel detection)</div>
+        <div class="aiu__provider-body">
+          <div class="aiu__stat">
+            <div class="aiu__stat-label">Credits remaining</div>
+            <div class="aiu__stat-value">
+              {{ roboflowCredits !== null ? (roboflowCredits | number) : '—' }}
+            </div>
+          </div>
+          <ng-container *ngIf="byProviderRow('roboflow') as r">
+            <div class="aiu__stat">
+              <div class="aiu__stat-label">Calls (MTD)</div>
+              <div class="aiu__stat-value">{{ r.calls | number }}</div>
+            </div>
+            <div class="aiu__stat">
+              <div class="aiu__stat-label">Success rate</div>
+              <div class="aiu__stat-value">{{ (r.successRate * 100) | number:'1.0-1' }}%</div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="aiu__panel">
+        <div class="aiu__panel-title">DeepL (translation)</div>
+        <div class="aiu__provider-body" *ngIf="deeplQuota; else deeplFallback">
+          <div class="aiu__stat">
+            <div class="aiu__stat-label">Used / Quota ({{ deeplQuota.tier }})</div>
+            <div class="aiu__stat-value">
+              {{ deeplQuota.characterCount | number }}
+              <span class="aiu__stat-divider">/</span>
+              {{ deeplQuota.characterLimit | number }} chars
+            </div>
+          </div>
+          <div class="aiu__stat">
+            <div class="aiu__stat-label">Used</div>
+            <div class="aiu__stat-value">{{ deeplQuota.percentUsed }}%</div>
+          </div>
+          <ng-container *ngIf="byProviderRow('deepl') as r">
+            <div class="aiu__stat">
+              <div class="aiu__stat-label">Calls (MTD, this app)</div>
+              <div class="aiu__stat-value">{{ r.calls | number }}</div>
+            </div>
+          </ng-container>
+        </div>
+        <ng-template #deeplFallback>
+          <div class="aiu__provider-empty">{{ deeplQuotaError || 'DeepL key not configured.' }}</div>
+        </ng-template>
+      </div>
+    </div>
+
     <div class="aiu__panel aiu__panel--full">
       <div class="aiu__panel-title">Top organisations (this month)</div>
       <table class="aiu__table">

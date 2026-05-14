@@ -13,6 +13,7 @@ import { axisBottom, axisLeft } from 'd3-axis';
 import { line as d3Line, area as d3Area, arc as d3Arc, pie as d3Pie } from 'd3-shape';
 import { max as d3Max } from 'd3-array';
 import { environment } from '../../../../environments/environment';
+import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.service';
 
 interface UsageSummary {
   monthToDate: {
@@ -29,12 +30,26 @@ interface UsageSummary {
     outputTokens: number;
     estimatedUsd: number;
   }>;
+  byProvider: Array<{
+    provider: string;
+    calls: number;
+    inputTokens: number;
+    outputTokens: number;
+    successRate: number;
+  }>;
   daily: Array<{ day: string; calls: number; estimatedUsd: number }>;
   topOrgs: Array<{
     organizationId: number | null;
     calls: number;
     estimatedUsd: number;
   }>;
+}
+
+interface DeeplQuota {
+  characterCount: number;
+  characterLimit: number;
+  percentUsed: number;
+  tier: 'free' | 'pro';
 }
 
 @Component({
@@ -45,6 +60,9 @@ interface UsageSummary {
 })
 export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
   data: UsageSummary | null = null;
+  deeplQuota: DeeplQuota | null = null;
+  deeplQuotaError = '';
+  roboflowCredits: number | null = null;
   error = '';
   loading = false;
   monthlyCapUsd = 50;
@@ -68,7 +86,10 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
     '#475569',
   ];
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private licenses: OrgApiLicensesService,
+  ) {}
 
   ngOnInit(): void {
     this.refresh();
@@ -102,6 +123,40 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
           this.loading = false;
         },
       });
+
+    // DeepL: live provider-side quota (free endpoint, doesn't burn chars).
+    this.deeplQuotaError = '';
+    this.http
+      .get<DeeplQuota>(`${environment.API_URL}translate/deepl-quota`)
+      .subscribe({
+        next: (q) => { this.deeplQuota = q; },
+        error: (err) => {
+          this.deeplQuota = null;
+          this.deeplQuotaError =
+            err?.error?.message ?? err?.message ?? 'DeepL quota unavailable';
+        },
+      });
+
+    // Roboflow: local credit counter. D-REC is the sole consumer of these
+    // keys per Peter (no external drift), so this counter is authoritative.
+    this.licenses.getSettings().subscribe({
+      next: (s) => { this.roboflowCredits = s.roboflowCreditsRemaining; },
+      error: () => { this.roboflowCredits = null; },
+    });
+  }
+
+  byProviderRow(provider: string): UsageSummary['byProvider'][0] | undefined {
+    return this.data?.byProvider?.find((p) => p.provider === provider);
+  }
+
+  providerLabel(p: string): string {
+    return p === 'anthropic'
+      ? 'Anthropic (Claude)'
+      : p === 'roboflow'
+        ? 'Roboflow (panel detection)'
+        : p === 'deepl'
+          ? 'DeepL (translation)'
+          : p;
   }
 
   capPercent(): number {
