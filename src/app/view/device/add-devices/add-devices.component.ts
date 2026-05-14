@@ -72,6 +72,7 @@ import {
   Sf02ExtractedFields,
   Sf02cExtractedFields,
   SldExtractedFields,
+  OdTemplateVerification,
 } from '../../../utils/document-classifier.service';
 import {
   ClassificationResult,
@@ -132,6 +133,7 @@ export class AddDevicesComponent implements OnDestroy {
   /** SF-02c text/vision extraction state per device. */
   sf02cExtractions: { [deviceIndex: number]: Sf02cExtractedFields | null } = {};
   sf02cExtracting: { [deviceIndex: number]: boolean } = {};
+  sf02cTemplateMatch: { [deviceIndex: number]: OdTemplateVerification | null } = {};
 
   /** COD proof extraction state per device. */
   codExtractions: { [deviceIndex: number]: CodExtractedFields | null } = {};
@@ -2216,6 +2218,7 @@ export class AddDevicesComponent implements OnDestroy {
   private extractSf02cFieldsForDevice(file: File, deviceIndex: number): void {
     this.sf02cExtracting[deviceIndex] = true;
     this.sf02cExtractions[deviceIndex] = null;
+    this.sf02cTemplateMatch[deviceIndex] = null;
     if (this.extractionApplied[deviceIndex]) {
       this.extractionApplied[deviceIndex]['SF-02c'] = false;
     }
@@ -2232,6 +2235,19 @@ export class AddDevicesComponent implements OnDestroy {
           this.sf02cExtracting[deviceIndex] = false;
         }),
       );
+    // Auto-verify the OD against the canonical 3-clause template in
+    // parallel with field extraction. Result lands in
+    // sf02cTemplateMatch[deviceIndex] for the slot badge to render.
+    this.documentClassifier
+      .verifyOdTemplate(file)
+      .then((v) =>
+        this.ngZone.run(() => {
+          this.sf02cTemplateMatch[deviceIndex] = v;
+        }),
+      )
+      .catch(() => {
+        /* swallow — verification is best-effort, no badge if it fails */
+      });
   }
 
   applySf02cExtraction(deviceIndex: number): void {

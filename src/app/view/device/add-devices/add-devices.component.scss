@@ -1028,6 +1028,22 @@ input.example-right-align {
   margin: 8px 0;
   padding: 0 4px;
 }
+.od-tmpl-badge {
+  margin: 4px 0 6px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  &--ok   { background: #ecfdf5; color: #065f46; border-left: 3px solid #10b981; }
+  &--warn { background: #fef3c7; color: #92400e; border-left: 3px solid #f59e0b; }
+  &--fail { background: #fee2e2; color: #991b1b; border-left: 3px solid #ef4444; }
+  &__deviations {
+    margin: 4px 0 0; padding-left: 14px;
+    li { margin: 2px 0; }
+    li.is-fail { color: #991b1b; }
+    li.is-warn { color: #92400e; }
+  }
+}
+
 .magic-extract-section {
   margin-bottom: 10px;
   padding: 8px 10px;

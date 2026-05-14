@@ -63,6 +63,16 @@ export interface Sf02cExtractedFields {
   reasoning: string;
 }
 
+export interface OdTemplateVerification {
+  matchScore: number;
+  deviations: Array<{
+    clause: 'attribute_grant' | 'distinctness' | 'ownership_assigned';
+    severity: 'ok' | 'warn' | 'fail';
+    note: string;
+  }>;
+  reasoning: string;
+}
+
 export interface SldExtractedFields {
   networkOwner?: ExtractedField<string>;
   hasNetworkMeter?: ExtractedField<boolean>;
@@ -807,6 +817,48 @@ export class DocumentClassifierService {
       return res ?? null;
     } catch (err) {
       console.warn('[DocumentClassifier] SF-02c extract failed:', err);
+      return null;
+    }
+  }
+
+  /**
+   * Verify an SF-02c Owner's Declaration against the canonical
+   * three-clause template. Auto-runs alongside extractSf02cFields
+   * on doc upload — same input plumbing (PDF text layer when
+   * available, otherwise raster the first 2 pages).
+   */
+  async verifyOdTemplate(
+    file: File,
+    deviceId?: number,
+  ): Promise<OdTemplateVerification | null> {
+    try {
+      let text = '';
+      if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+        text = await this.extractPdfTextLayer(file);
+      }
+      const payload: any = { filename: file.name };
+      if (deviceId) payload.deviceId = deviceId;
+      if (text && text.trim().length >= 40) {
+        payload.text = text;
+      } else {
+        const canvases = await this.renderFirstNPages(file, 2);
+        payload.images = canvases.map((c) => {
+          const ds = this.downsampleToLongEdge(c, 2048);
+          return {
+            base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
+            mimeType: 'image/png' as const,
+          };
+        });
+      }
+      const res = await firstValueFrom(
+        this.http.post<OdTemplateVerification>(
+          `${environment.API_URL}ai/verify-od-template`,
+          payload,
+        ),
+      );
+      return res ?? null;
+    } catch (err) {
+      console.warn('[DocumentClassifier] OD verify failed:', err);
       return null;
     }
   }
