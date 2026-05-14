@@ -139,7 +139,7 @@
                       <mat-label test-id="project-name">(1) Site Name</mat-label>
                       <input matInput autocomplete="off" formControlName="siteName" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'siteName') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'siteName') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                     <div *ngIf="siteNameExists[i]" class="text-danger" style="font-size:11px;margin-top:-4px">
                       Site name already exists
                     </div>
@@ -166,7 +166,7 @@
                       <mat-label>{{ dataSourceBrandLabel(i) }}</mat-label>
                       <input matInput formControlName="dataSourceBrand" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'dataSourceBrand') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'dataSourceBrand') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                 </div>
 
@@ -181,7 +181,7 @@
                       <input autocomplete="off" matInput formControlName="address" />
                       <mat-error>Address is required</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'address') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'address') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -212,7 +212,7 @@
                         </mat-option>
                       </mat-autocomplete>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'countryCodename') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'countryCodename') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                     <mat-error *ngIf="showerror[i]" style="margin-top: -15px" test-id="invalid-country">
                       Invalid Country Selected
                     </mat-error>
@@ -226,7 +226,7 @@
                         matTooltipPosition="above" />
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'latitude') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'latitude') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline" [class.coord-adjusting]="mapAdjusting">
@@ -237,7 +237,7 @@
                         matTooltipPosition="above" />
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'longitude') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'longitude') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                 </div>
                 <div class="row map-row">
@@ -278,7 +278,7 @@
                       <mat-datepicker #commPicker></mat-datepicker>
                       <mat-error>Commissioning date is required</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'commissioningDate') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'commissioningDate') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -292,7 +292,7 @@
                       </mat-select>
                       <mat-error>Device type is required</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'deviceTypeCode') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'deviceTypeCode') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -300,7 +300,7 @@
                       <input matInput type="number" formControlName="capacity" [min]="1" autocomplete="off" />
                       <mat-error>Capacity is required</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'capacity') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'capacity') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                 </div>
 
@@ -335,7 +335,7 @@
                         matTooltip="Please provide the number of devices that output useable electricity at this facility (typically the inverters)"
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'generatingUnitCount') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'generatingUnitCount') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <div class="serial-list" test-id="serial-number">
@@ -391,7 +391,7 @@
                         <mat-option value="Yes (full-export)">Yes (full-export)</mat-option>
                       </mat-select>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'gridExportType') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'gridExportType') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -400,7 +400,7 @@
                         matTooltip="If the facility is grid-connected, please provide the name of the utility or distribution network"
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'networkOwner') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'networkOwner') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -409,7 +409,7 @@
                         matTooltip="If the facility is grid-connected, please provide the interconnection voltage"
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'interconnectionVoltage') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'interconnectionVoltage') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('gridInterconnection')?.value === true">
                     <mat-form-field appearance="outline">
@@ -420,7 +420,7 @@
                         <mat-option value="No">No</mat-option>
                       </mat-select>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'hasNetworkMeter') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'hasNetworkMeter') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasNetworkMeter')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
@@ -492,7 +492,7 @@
                         <mat-option value="No">No</mat-option>
                       </mat-select>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'hasAuxiliaryEnergySources') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'hasAuxiliaryEnergySources') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasAuxiliaryEnergySources')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
@@ -501,7 +501,7 @@
                         matTooltip="Describe the number of units, capacity per unit, and fuel source (e.g. 1 x 250kVA diesel generator)"
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'auxiliaryEnergySourceDetails') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'auxiliaryEnergySourceDetails') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -510,7 +510,7 @@
                         matTooltip='Please provide the legal name of the PV System Owner. This must match the "Proof of Ownership" documentation shared.'
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'pvSystemOwner') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'pvSystemOwner') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -519,7 +519,7 @@
                         matTooltip="Mailing/HQ address of the PV System Owner (legal entity). Distinct from the device site address."
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'pvSystemOwnerAddress') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'pvSystemOwnerAddress') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -662,7 +662,7 @@
                       <mat-label>(41) Signatory name</mat-label>
                       <input matInput formControlName="signatoryName" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'signatoryName') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [title]="'Open source doc — ' + h.source">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
+                      <small *ngIf="extractorHintFor(i, 'signatoryName') as h" class="extractor-hint" (click)="openHintDoc(h.url)" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click to open the source doc and type the value yourself.' : 'click to open the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><span *ngIf="h.url"> ↗</span></small>
                   </div>
                 </div>
                 <!-- ── Legacy / non-OC# fields (collapsed by default) ─────
@@ -1567,24 +1567,25 @@
       </ul>
     </div>
 
-    <div *ngIf="presubmitIssues.disagrees.length" class="ps-block">
-      <div class="ps-block__title">⚠ {{ presubmitIssues.disagrees.length }} field{{ presubmitIssues.disagrees.length === 1 ? '' : 's' }} disagree with the user form</div>
-      <p class="ps-block__hint">Form value vs. what each attached document reports — pick whichever is right.</p>
-      <ul class="ps-list">
-        <li *ngFor="let i of presubmitIssues.disagrees">
-          <a href="javascript:void(0)" (click)="jumpToFormField(i.field)">{{ i.label }} ↗</a>
-          <div class="ps-conflict">
-            <div class="ps-conflict__row ps-conflict__row--current">
-              <span class="ps-conflict__src">Form</span>
-              <span class="ps-conflict__val">{{ i.current }}</span>
-            </div>
-            <div *ngFor="let c of i.candidates" class="ps-conflict__row">
-              <span class="ps-conflict__src">{{ c.source }}</span>
-              <span class="ps-conflict__val">{{ c.value }}</span>
-            </div>
-          </div>
+    <!-- The doc-vs-form disagree block used to live here too — now
+         handled by the interactive picker dialog before this one
+         opens, so reviewers don't see the same conflict twice. -->
+
+    <div *ngFor="let t of presubmitIssues.templateFails" class="ps-tmpl-fail">
+      <div class="ps-tmpl-fail__title">
+        ✘ {{ t.doc }} — {{ t.deviationPct }}% deviation from canonical template
+      </div>
+      <ul class="ps-tmpl-fail__list">
+        <li *ngFor="let d of t.deviations" [class.is-fail]="d.status === 'fail'" [class.is-warn]="d.status === 'warn'">
+          <strong>{{ d.clause }}:</strong> {{ d.note }}
         </li>
       </ul>
+      <p class="ps-tmpl-fail__hint">
+        Re-upload an Owner's Declaration that matches the I-REC SF-02C
+        wording — a reviewer can't approve this device until the three
+        substantive clauses (attribute grant, distinctness, ownership
+        assigned) are present and exclusive.
+      </p>
     </div>
 
     <div *ngIf="presubmitIssues.unextracted.length" class="ps-block">
@@ -1598,9 +1599,15 @@
       </ul>
     </div>
   </div>
-  <div mat-dialog-actions class="d-flex justify-content-end gap-2 pt-2">
-    <button mat-button class="btn-default" (click)="cancelPresubmit()">Stay & fix</button>
-    <button mat-button class="btn-warning" (click)="submitAnyway()">Submit anyway</button>
+  <div mat-dialog-actions class="d-flex justify-content-between align-items-center gap-2 pt-2">
+    <button mat-button class="btn-default" (click)="copyPresubmitReport()"
+            title="Copy these issues as plain text — paste into an email to whoever needs to fix the documents.">
+      ⧉ Copy
+    </button>
+    <div class="d-flex gap-2">
+      <button mat-button class="btn-default" (click)="cancelPresubmit()">Stay & fix</button>
+      <button mat-button class="btn-warning" (click)="submitAnyway()">Submit anyway</button>
+    </div>
   </div>
 </ng-template>
 

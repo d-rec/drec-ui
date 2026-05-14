@@ -1965,6 +1965,12 @@ export class AddDevicesComponent implements OnDestroy {
         this.ngZone.run(() => {
           this.sldExtracting[deviceIndex] = false;
           this.sldExtractions[deviceIndex] = res;
+          // Auto-fill any currently-empty form fields; conflicts are
+          // left for the explicit "Apply to form" button (silent here).
+          this.applySldExtraction(deviceIndex, {
+            silentIfConflicts: true,
+            silentIfEmpty: true,
+          });
         }),
       )
       .catch(() =>
@@ -1978,7 +1984,10 @@ export class AddDevicesComponent implements OnDestroy {
    *  fields the user hasn't already filled in (don't overwrite manual
    *  input) and only when confidence ≥ 0.7. Reasoning: any false
    *  positive at this layer is a bug a registrant has to find and undo. */
-  applySldExtraction(deviceIndex: number): void {
+  applySldExtraction(
+    deviceIndex: number,
+    opts: { silentIfConflicts?: boolean; silentIfEmpty?: boolean } = {},
+  ): void {
     const fx = this.sldExtractions[deviceIndex];
     if (!fx) return;
     this.applyExtractionWithPrompt(deviceIndex, 'SLD', [
@@ -1999,7 +2008,7 @@ export class AddDevicesComponent implements OnDestroy {
       if (fx.inverterMakeModel || fx.inverterCount) {
         this.setDataSourceIfEmpty(deviceIndex, 'Inverter', 'SLD');
       }
-    });
+    }, opts);
   }
 
   /**
@@ -2075,6 +2084,7 @@ export class AddDevicesComponent implements OnDestroy {
       transform?: (v: any) => any;
     }>,
     after?: () => void,
+    opts: { silentIfConflicts?: boolean; silentIfEmpty?: boolean } = {},
   ): void {
     const form = this.deviceForms.at(deviceIndex);
     let filled = 0;
@@ -2127,11 +2137,20 @@ export class AddDevicesComponent implements OnDestroy {
     if (conflicts.length === 0) {
       after?.();
       this.markExtractionApplied(deviceIndex, source);
+      if (filled === 0 && opts.silentIfEmpty) return;
       this.toastrService.success(
         filled
           ? `${source}: ${filled} field${filled === 1 ? '' : 's'} applied`
           : `${source}: nothing new to apply`,
       );
+      return;
+    }
+    // Auto-apply path: extraction finished, but the form already has
+    // values for some fields. Don't pop a dialog the user didn't ask
+    // for — silently apply whatever WAS empty and leave the conflict
+    // resolution for the explicit "Apply to form" button.
+    if (opts.silentIfConflicts) {
+      if (filled > 0) this.markExtractionApplied(deviceIndex, source);
       return;
     }
     this.pendingOverwriteCandidates = conflicts;
@@ -2228,6 +2247,10 @@ export class AddDevicesComponent implements OnDestroy {
         this.ngZone.run(() => {
           this.sf02cExtracting[deviceIndex] = false;
           this.sf02cExtractions[deviceIndex] = res;
+          this.applySf02cExtraction(deviceIndex, {
+            silentIfConflicts: true,
+            silentIfEmpty: true,
+          });
         }),
       )
       .catch(() =>
@@ -2250,7 +2273,10 @@ export class AddDevicesComponent implements OnDestroy {
       });
   }
 
-  applySf02cExtraction(deviceIndex: number): void {
+  applySf02cExtraction(
+    deviceIndex: number,
+    opts: { silentIfConflicts?: boolean; silentIfEmpty?: boolean } = {},
+  ): void {
     const fx = this.sf02cExtractions[deviceIndex];
     if (!fx) return;
     this.applyExtractionWithPrompt(deviceIndex, 'SF-02c', [
@@ -2272,7 +2298,7 @@ export class AddDevicesComponent implements OnDestroy {
         ec.markAsDirty();
       }
       this.deriveOffTakerSameAsOwner(deviceIndex);
-    });
+    }, opts);
   }
 
   dismissSf02cExtraction(deviceIndex: number): void {
@@ -2305,6 +2331,10 @@ export class AddDevicesComponent implements OnDestroy {
             for (const id of res.measurementIds.value) existing.add(id);
             this.meterIdsExtractions[deviceIndex] = [...existing];
           }
+          this.applyCodExtraction(deviceIndex, {
+            silentIfConflicts: true,
+            silentIfEmpty: true,
+          });
         }),
       )
       .catch(() =>
@@ -2314,7 +2344,10 @@ export class AddDevicesComponent implements OnDestroy {
       );
   }
 
-  applyCodExtraction(deviceIndex: number): void {
+  applyCodExtraction(
+    deviceIndex: number,
+    opts: { silentIfConflicts?: boolean; silentIfEmpty?: boolean } = {},
+  ): void {
     const fx = this.codExtractions[deviceIndex];
     if (!fx) return;
     // utilityOrIssuer not auto-mapped to networkOwner — see SF-02
@@ -2328,7 +2361,7 @@ export class AddDevicesComponent implements OnDestroy {
       { name: 'offTakerName', field: fx.offTakerName },
     ], () => {
       this.deriveOffTakerSameAsOwner(deviceIndex);
-    });
+    }, opts);
   }
 
   /**
@@ -2364,6 +2397,10 @@ export class AddDevicesComponent implements OnDestroy {
         this.ngZone.run(() => {
           this.sf02Extracting[deviceIndex] = false;
           this.sf02Extractions[deviceIndex] = res;
+          this.applySf02Extraction(deviceIndex, {
+            silentIfConflicts: true,
+            silentIfEmpty: true,
+          });
         }),
       )
       .catch(() =>
@@ -2373,7 +2410,10 @@ export class AddDevicesComponent implements OnDestroy {
       );
   }
 
-  applySf02Extraction(deviceIndex: number): void {
+  applySf02Extraction(
+    deviceIndex: number,
+    opts: { silentIfConflicts?: boolean; silentIfEmpty?: boolean } = {},
+  ): void {
     const fx = this.sf02Extractions[deviceIndex];
     if (!fx) return;
     this.applyExtractionWithPrompt(deviceIndex, 'SF-02', [
@@ -2395,7 +2435,7 @@ export class AddDevicesComponent implements OnDestroy {
         this.setDataSourceIfEmpty(deviceIndex, 'Inverter', 'SF-02');
       }
       this.deriveOffTakerSameAsOwner(deviceIndex);
-    });
+    }, opts);
   }
 
   dismissSf02Extraction(deviceIndex: number): void {
@@ -3117,7 +3157,12 @@ export class AddDevicesComponent implements OnDestroy {
       candidates: Array<{ source: string; value: any }>;
     }>;
     unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
-  } = { empty: [], disagrees: [], unextracted: [] };
+    templateFails: Array<{
+      doc: string;
+      deviationPct: number;
+      deviations: Array<{ clause: string; status: 'warn' | 'fail'; note: string }>;
+    }>;
+  } = { empty: [], disagrees: [], unextracted: [], templateFails: [] };
 
   /** Always-on sidebar issue tally. Computed on a debounced cadence
    *  so we're not re-walking the form on every keystroke. The
@@ -3131,7 +3176,12 @@ export class AddDevicesComponent implements OnDestroy {
       candidates: Array<{ source: string; value: any }>;
     }>;
     unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
-  } = { empty: [], disagrees: [], unextracted: [] };
+    templateFails: Array<{
+      doc: string;
+      deviationPct: number;
+      deviations: Array<{ clause: string; status: 'warn' | 'fail'; note: string }>;
+    }>;
+  } = { empty: [], disagrees: [], unextracted: [], templateFails: [] };
 
   /** Collapsed state for the sidebar — registrants who hate it can
    *  shrink it to a chip showing just the total count. */
@@ -3233,6 +3283,11 @@ export class AddDevicesComponent implements OnDestroy {
       candidates: Array<{ source: string; value: any }>;
     }>;
     unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
+    templateFails: Array<{
+      doc: string;
+      deviationPct: number;
+      deviations: Array<{ clause: string; status: 'warn' | 'fail'; note: string }>;
+    }>;
   } {
     const form = this.deviceForms.at(deviceIndex) as FormGroup;
     const labelOf = (name: string) =>
@@ -3316,7 +3371,36 @@ export class AddDevicesComponent implements OnDestroy {
       }
     }
 
-    return { empty, disagrees, unextracted };
+    // (d) template-verification failures — SF-02c OD letter doesn't
+    // match the canonical 3-clause wording. We want this fixed BEFORE
+    // a reviewer ever sees it, so it goes into the presubmit dialog
+    // alongside everything else the registrant should clean up.
+    const templateFails: Array<{
+      doc: string;
+      deviationPct: number;
+      deviations: Array<{ clause: string; status: 'warn' | 'fail'; note: string }>;
+    }> = [];
+    const odMatch = this.sf02cTemplateMatch[deviceIndex];
+    if (odMatch && odMatch.matchScore < 0.85) {
+      const clauseLabel: Record<string, string> = {
+        attribute_grant: 'Attribute grant',
+        distinctness: 'Distinctness',
+        ownership_assigned: 'Ownership assigned',
+      };
+      templateFails.push({
+        doc: 'SF-02c (Owner’s Declaration)',
+        deviationPct: Math.round((1 - odMatch.matchScore) * 100),
+        deviations: (odMatch.deviations ?? [])
+          .filter((d) => d.severity !== 'ok')
+          .map((d) => ({
+            clause: clauseLabel[d.clause] ?? d.clause,
+            status: d.severity === 'fail' ? ('fail' as const) : ('warn' as const),
+            note: d.note,
+          })),
+      });
+    }
+
+    return { empty, disagrees, unextracted, templateFails };
   }
 
   private openPresubmitDialog(issues: ReturnType<typeof this.collectPresubmitIssues>): void {
@@ -3338,6 +3422,43 @@ export class AddDevicesComponent implements OnDestroy {
     this.presubmitDialogRef = null;
     this.isSubmitting = true;
     this.submitEdit();
+  }
+
+  /** Render the current presubmit issues as plain text and drop them
+   *  on the clipboard. Useful when the registrant has to forward the
+   *  fix list to whoever produced the offending document. */
+  copyPresubmitReport(): void {
+    const issues = this.presubmitIssues;
+    const lines: string[] = [];
+    const siteName = this.deviceForms.at(0)?.get('siteName')?.value || '(unnamed device)';
+    lines.push(`Pre-submit checklist — ${siteName}`);
+    lines.push('');
+    if (issues.empty.length) {
+      lines.push(`${issues.empty.length} required field${issues.empty.length === 1 ? '' : 's'} empty:`);
+      for (const e of issues.empty) lines.push(`  - ${e.label}`);
+      lines.push('');
+    }
+    for (const t of issues.templateFails) {
+      lines.push(`${t.doc} — ${t.deviationPct}% deviation from canonical template`);
+      for (const d of t.deviations) {
+        lines.push(`  - [${d.status.toUpperCase()}] ${d.clause}: ${d.note}`);
+      }
+      lines.push('  Action: re-upload an OD letter matching the I-REC SF-02C wording (attribute grant + distinctness + ownership assigned).');
+      lines.push('');
+    }
+    if (issues.unextracted.length) {
+      lines.push(`${issues.unextracted.length} field${issues.unextracted.length === 1 ? '' : 's'} look extractable from attached documents:`);
+      for (const u of issues.unextracted) {
+        const v = u.value === undefined || u.value === null || u.value === '' ? '' : `: ${u.value}`;
+        lines.push(`  - ${u.label} (via ${u.via})${v}`);
+      }
+      lines.push('');
+    }
+    const text = lines.join('\n').trimEnd();
+    navigator.clipboard.writeText(text).then(
+      () => this.toastrService.success('Pre-submit checklist copied to clipboard'),
+      () => this.toastrService.error('Copy failed — clipboard access denied'),
+    );
   }
 
   /** Cancel the modal and stay on the form so the registrant can fix
@@ -3373,6 +3494,11 @@ export class AddDevicesComponent implements OnDestroy {
     source: string;
     value: any;
     url: string | null;
+    confidence: number | null;
+    /** True when the extracted value didn't make it onto the form
+     *  because confidence was below the 0.7 auto-apply threshold. The
+     *  template uses this to give the chip a more informative tooltip. */
+    lowConfidence: boolean;
   } | null {
     const collect = (): Array<{ source: string; value: any; confidence: number }> => {
       const out: Array<{ source: string; value: any; confidence: number }> = [];
@@ -3452,7 +3578,13 @@ export class AddDevicesComponent implements OnDestroy {
       const docType = docTypeBySource[best.source];
       const url =
         (this.existingDocs[deviceIndex]?.[docType]?.[0] as any)?.url ?? null;
-      return { source: best.source, value: best.value, url };
+      return {
+        source: best.source,
+        value: best.value,
+        url,
+        confidence: best.confidence,
+        lowConfidence: best.confidence < 0.7,
+      };
     }
     // Fallback: no live extraction this session, but the registrant's
     // last save persisted a value into field_provenance — show that
@@ -3468,7 +3600,13 @@ export class AddDevicesComponent implements OnDestroy {
       const docType = docTypeBySource[rawSource];
       const url =
         (this.existingDocs[deviceIndex]?.[docType]?.[0] as any)?.url ?? null;
-      return { source: persisted.source, value: persisted.value, url };
+      return {
+        source: persisted.source,
+        value: persisted.value,
+        url,
+        confidence: persisted.confidence ?? null,
+        lowConfidence: (persisted.confidence ?? 1) < 0.7,
+      };
     }
     return null;
   }
@@ -5197,12 +5335,10 @@ export class AddDevicesComponent implements OnDestroy {
     this.pendingFormVsDocConflicts = [];
     this.formVsDocDialogRef?.close();
     this.formVsDocDialogRef = null;
-    // User has resolved both classes of pre-submit gates (made the
-    // explicit picks here AFTER passing through the pre-submit
-    // "Submit anyway" gate). Keep the override on so the re-entered
-    // submitEdit doesn't re-open the pre-submit dialog and trap the
-    // user in a presubmit ↔ conflict-picker loop.
-    this.presubmitOverride = true;
+    // Don't force the override on here — the conflict picker now runs
+    // BEFORE the pre-submit dialog, so the re-entered submitEdit
+    // should still surface empty-fields / unextracted hints. The
+    // formVsDocPromptShown flag is what prevents the picker re-opening.
     const cb = this.pendingFormVsDocCallback;
     this.pendingFormVsDocCallback = null;
     cb?.(true);
@@ -5490,42 +5626,56 @@ export class AddDevicesComponent implements OnDestroy {
     // this PATCH instead of waiting for a second save round-trip.
     this.collectExtractionClaims(0);
 
-    // Pre-submit completeness check: if there are empty required
-    // fields, doc-vs-form disagreements, or fields the registrant
-    // could have extracted from an attached doc but left manual,
-    // pop a single review modal so the registrant can fix them in
-    // one pass instead of bouncing through the reviewer's chat.
+    // Step 1: form-vs-doc disagreements get the interactive picker
+    // FIRST. Previously the pre-submit dialog showed the same conflicts
+    // as a read-only summary and then this picker opened next — two
+    // dialogs back-to-back saying the same thing. Now the picker runs
+    // first; once the user has resolved each conflict (keep-form or
+    // switch-to-doc), the pre-submit dialog only surfaces issues the
+    // picker can't address (empty fields, unextracted-but-extractable).
+    if (
+      !this.presubmitOverride &&
+      this.isEditMode &&
+      !this.formVsDocPromptShown
+    ) {
+      const conflicts = this.collectFormVsDocConflicts(0);
+      if (conflicts.length) {
+        this.formVsDocPromptShown = true;
+        this.openFormVsDocConflictDialog(conflicts, (proceed) => {
+          if (!proceed) {
+            this.isSubmitting = false;
+            this.formVsDocPromptShown = false;
+            return;
+          }
+          // User resolved conflicts (form values may have been
+          // updated). Re-enter submitEdit which will now skip Step 1
+          // (formVsDocPromptShown=true) and run Step 2.
+          this.submitEdit();
+        });
+        return;
+      }
+    }
+
+    // Step 2: empty required fields / extractable-but-empty hints.
+    // The disagrees bucket is empty here either because the user
+    // picked through Step 1 or because there were no conflicts to
+    // begin with. Reset the prompt flag for next submit.
     if (!this.presubmitOverride && this.isEditMode) {
       const issues = this.collectPresubmitIssues(0);
-      if (issues.empty.length + issues.disagrees.length + issues.unextracted.length > 0) {
+      issues.disagrees = [];
+      if (
+        issues.empty.length +
+          issues.unextracted.length +
+          issues.templateFails.length >
+        0
+      ) {
         this.openPresubmitDialog(issues);
         return;
       }
     }
-    // Reset the override flag so future submits re-evaluate.
+    // Reset both flags so future submits re-evaluate.
     this.presubmitOverride = false;
-
-    // Last-chance discrepancy check: any form field whose current
-    // value disagrees with at least one extractor source pops a
-    // dialog before we PATCH. User picks per-field whether to keep
-    // the form value or switch to the doc value. Cancel aborts
-    // submit so the user can fix things and try again.
-    const conflicts = this.collectFormVsDocConflicts(0);
-    if (conflicts.length && !this.formVsDocPromptShown) {
-      this.formVsDocPromptShown = true;
-      this.openFormVsDocConflictDialog(conflicts, (proceed) => {
-        if (!proceed) {
-          this.isSubmitting = false;
-          this.formVsDocPromptShown = false;
-          return;
-        }
-        // User resolved conflicts (form values may have been
-        // updated). Re-enter submitEdit to use the new values.
-        this.submitEdit();
-        this.formVsDocPromptShown = false;
-      });
-      return;
-    }
+    this.formVsDocPromptShown = false;
 
     const selectedCountry: CountryInfo | undefined = this.countrylist.find(
       (option) => option.country === firstRow.value.countryCodename,
