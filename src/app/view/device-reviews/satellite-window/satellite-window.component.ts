@@ -364,8 +364,8 @@ export class SatelliteWindowComponent
 
     this.sub = this.svc.flyTo$.subscribe(({ lat, lng }) => {
       this.clearOverlay();
-      this.updateMarkers();
       this.map?.setView([lat, lng], 19, { animate: false });
+      this.updateMarkers();
       this.satelliteDate = '';
       this.cdr.markForCheck();
       this.svc.getSatelliteDate(lat, lng).subscribe({
