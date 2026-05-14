@@ -925,14 +925,19 @@ export class SatelliteWindowComponent
     const layer = this.pinLayer?.nativeElement;
     if (!layer || !this.map) return;
     layer.innerHTML = '';
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="36" viewBox="0 0 24 36">
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 8.25 12 24 12 24S24 20.25 24 12C24 5.373 18.627 0 12 0z"
+              fill="#e53e3e" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="12" cy="12" r="5" fill="#fff" fill-opacity="0.85"/>
+      </svg>`;
     for (const { lat, lng } of this.shadowPinLatLngs) {
       const pt = this.map.latLngToContainerPoint([lat, lng]);
       const wrap = document.createElement('div');
       wrap.className = 'shadow-pin';
       wrap.style.left = `${pt.x}px`;
       wrap.style.top = `${pt.y}px`;
-      const html = mapPinIcon('#e53e3e').options.html;
-      if (typeof html === 'string') wrap.innerHTML = html;
+      wrap.innerHTML = svg;
       layer.appendChild(wrap);
     }
   }
