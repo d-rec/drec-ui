@@ -308,6 +308,32 @@ export class SatelliteWindowComponent
       minZoom: 3,
     }).setView([20, 0], 3);
 
+    // Host the detect-panel canvas in a Leaflet pane whose z-index sits
+    // between tilePane (200) and markerPane (600). That way the device
+    // pin renders above the detected-panel mask overlay.
+    const detectPane = this.map.createPane('detect-overlay-pane');
+    detectPane.style.zIndex = '450';
+    detectPane.style.pointerEvents = 'none';
+    detectPane.appendChild(this.overlayCanvas.nativeElement);
+
+    // Keep detected panel masks visually anchored to the imagery as the
+    // reviewer pans/zooms to nudge the device's lat/lng.
+    const reproject = () => {
+      if (!this.showOverlay) return;
+      const canvas = this.overlayCanvas.nativeElement;
+      const w = this.mapEl.nativeElement.clientWidth;
+      const h = this.mapEl.nativeElement.clientHeight;
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+      this.satRedraw();
+    };
+    // moveend/zoomend only: during the drag/zoom animation Leaflet
+    // translates the whole mapPane (canvas included), so the masks visually
+    // track the tiles for free. Listening on 'move' would double-translate.
+    this.map.on('moveend zoomend viewreset', reproject);
+
     L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
       attribution: '© Google',
       maxZoom: 21,
@@ -495,13 +521,59 @@ export class SatelliteWindowComponent
     this.cdr.markForCheck();
   }
 
-  private satHitTest(pred: any, mx: number, my: number): boolean {
+  /** Current container-pixel polygon for a prediction. Derived from the
+   *  frozen latLngs so the mask tracks pan/zoom; falls back to the legacy
+   *  image-pixel math for any prediction without latLngs (shouldn't
+   *  happen in practice — drawDetections populates them). */
+  private satShape(pred: any): { polygon: { x: number; y: number }[]; bbox: { x: number; y: number; w: number; h: number } } {
+    const map = this.map;
+    if (map && pred.latLngs?.length > 2) {
+      const polygon = pred.latLngs.map((ll: L.LatLng) => {
+        const p = map.latLngToContainerPoint(ll);
+        return { x: p.x, y: p.y };
+      });
+      const xs = polygon.map((p: { x: number }) => p.x);
+      const ys = polygon.map((p: { y: number }) => p.y);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      return {
+        polygon,
+        bbox: { x: minX, y: minY, w: maxX - minX, h: maxY - minY },
+      };
+    }
+    if (map && pred.bboxLatLng?.length === 4) {
+      const corners = pred.bboxLatLng.map((ll: L.LatLng) => map.latLngToContainerPoint(ll));
+      const xs = corners.map((p: { x: number }) => p.x);
+      const ys = corners.map((p: { y: number }) => p.y);
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      return {
+        polygon: [],
+        bbox: { x: minX, y: minY, w: maxX - minX, h: maxY - minY },
+      };
+    }
+    // Legacy fallback
     const points: { x: number; y: number }[] = pred.points ?? [];
-    if (points.length > 2) {
-      const scaled = points.map((p) => ({
-        x: p.x * this.satScaleX + this.satCropX,
-        y: p.y * this.satScaleY + this.satCropY,
-      }));
+    const polygon = points.map((p) => ({
+      x: p.x * this.satScaleX + this.satCropX,
+      y: p.y * this.satScaleY + this.satCropY,
+    }));
+    const bx = (pred.x - pred.width / 2) * this.satScaleX + this.satCropX;
+    const by = (pred.y - pred.height / 2) * this.satScaleY + this.satCropY;
+    return {
+      polygon,
+      bbox: { x: bx, y: by, w: pred.width * this.satScaleX, h: pred.height * this.satScaleY },
+    };
+  }
+
+  private satHitTest(pred: any, mx: number, my: number): boolean {
+    const shape = this.satShape(pred);
+    if (shape.polygon.length > 2) {
+      const scaled = shape.polygon;
       let inside = false;
       for (let i = 0, j = scaled.length - 1; i < scaled.length; j = i++) {
         const xi = scaled[i].x,
@@ -517,11 +589,8 @@ export class SatelliteWindowComponent
       }
       return inside;
     }
-    const bx = (pred.x - pred.width / 2) * this.satScaleX + this.satCropX;
-    const by = (pred.y - pred.height / 2) * this.satScaleY + this.satCropY;
-    const bw = pred.width * this.satScaleX;
-    const bh = pred.height * this.satScaleY;
-    return mx >= bx && mx <= bx + bw && my >= by && my <= by + bh;
+    const b = shape.bbox;
+    return mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h;
   }
 
   private satRedraw(): void {
@@ -536,19 +605,13 @@ export class SatelliteWindowComponent
         ? 'rgba(239, 68, 68, 0.4)'
         : 'rgba(0, 255, 180, 0.12)';
       const stroke = selected ? '#ef4444' : '#00ffb4';
-      const points: { x: number; y: number }[] = pred.points ?? [];
+      const shape = this.satShape(pred);
 
-      if (points.length > 2) {
+      if (shape.polygon.length > 2) {
         ctx.beginPath();
-        ctx.moveTo(
-          points[0].x * this.satScaleX + this.satCropX,
-          points[0].y * this.satScaleY + this.satCropY,
-        );
-        for (let j = 1; j < points.length; j++) {
-          ctx.lineTo(
-            points[j].x * this.satScaleX + this.satCropX,
-            points[j].y * this.satScaleY + this.satCropY,
-          );
+        ctx.moveTo(shape.polygon[0].x, shape.polygon[0].y);
+        for (let j = 1; j < shape.polygon.length; j++) {
+          ctx.lineTo(shape.polygon[j].x, shape.polygon[j].y);
         }
         ctx.closePath();
         ctx.fillStyle = fill;
@@ -557,28 +620,24 @@ export class SatelliteWindowComponent
         ctx.lineWidth = selected ? 3 : 2;
         ctx.stroke();
       } else {
-        const bx = (pred.x - pred.width / 2) * this.satScaleX + this.satCropX;
-        const by = (pred.y - pred.height / 2) * this.satScaleY + this.satCropY;
-        const bw = pred.width * this.satScaleX;
-        const bh = pred.height * this.satScaleY;
         ctx.fillStyle = fill;
-        ctx.fillRect(bx, by, bw, bh);
+        ctx.fillRect(shape.bbox.x, shape.bbox.y, shape.bbox.w, shape.bbox.h);
         ctx.strokeStyle = stroke;
         ctx.lineWidth = selected ? 3 : 2;
-        ctx.strokeRect(bx, by, bw, bh);
+        ctx.strokeRect(shape.bbox.x, shape.bbox.y, shape.bbox.w, shape.bbox.h);
       }
 
       // Red delete-hint dot at top-right corner of selected region
       if (selected) {
         let dotX: number, dotY: number;
-        if (points.length > 2) {
-          const xs = points.map((p) => p.x * this.satScaleX + this.satCropX);
-          const ys = points.map((p) => p.y * this.satScaleY + this.satCropY);
+        if (shape.polygon.length > 2) {
+          const xs = shape.polygon.map((p) => p.x);
+          const ys = shape.polygon.map((p) => p.y);
           dotX = Math.max(...xs);
           dotY = Math.min(...ys);
         } else {
-          dotX = (pred.x + pred.width / 2) * this.satScaleX + this.satCropX;
-          dotY = (pred.y - pred.height / 2) * this.satScaleY + this.satCropY;
+          dotX = shape.bbox.x + shape.bbox.w;
+          dotY = shape.bbox.y;
         }
         ctx.beginPath();
         ctx.arc(dotX, dotY, 8, 0, Math.PI * 2);
@@ -723,6 +782,34 @@ export class SatelliteWindowComponent
     this.satScaleY = cropH / imgH;
     this.satCropX = cropX;
     this.satCropY = cropY;
+
+    // Freeze each prediction's geographic footprint so it stays anchored
+    // to the imagery as the reviewer pans/zooms the map.
+    const map = this.map;
+    if (map) {
+      for (const p of preds) {
+        const points: { x: number; y: number }[] = p.points ?? [];
+        if (points.length > 2) {
+          p.latLngs = points.map((pt) =>
+            map.containerPointToLatLng([
+              pt.x * this.satScaleX + this.satCropX,
+              pt.y * this.satScaleY + this.satCropY,
+            ]),
+          );
+        } else {
+          const bx = (p.x - p.width / 2) * this.satScaleX + this.satCropX;
+          const by = (p.y - p.height / 2) * this.satScaleY + this.satCropY;
+          const bw = p.width * this.satScaleX;
+          const bh = p.height * this.satScaleY;
+          p.bboxLatLng = [
+            map.containerPointToLatLng([bx, by]),
+            map.containerPointToLatLng([bx + bw, by]),
+            map.containerPointToLatLng([bx + bw, by + bh]),
+            map.containerPointToLatLng([bx, by + bh]),
+          ];
+        }
+      }
+    }
 
     this.predictions = preds;
     this.selectedRegion = -1;
