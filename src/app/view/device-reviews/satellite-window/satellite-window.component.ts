@@ -753,6 +753,19 @@ export class SatelliteWindowComponent
 
     const base64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
 
+    // Guard against the stage ingress's body-size cap (~256 KB at the
+    // tightest). Roboflow itself accepts up to ~5 MB, but the request
+    // never reaches it if our own API gateway rejects it first.
+    const MAX_BASE64_KB = 250;
+    if (base64.length / 1024 > MAX_BASE64_KB) {
+      this.detecting = false;
+      this.detectError =
+        `Captured image is too large (${Math.round(base64.length / 1024)} KB; cap ${MAX_BASE64_KB} KB). ` +
+        `Shrink the satellite window and try again.`;
+      this.cdr.markForCheck();
+      return;
+    }
+
     // Map captured-image coords back onto the visible map's container.
     // The capture is centered on the current map center, so image pixel
     // (halfW, halfH) corresponds to the visible map's container point for
