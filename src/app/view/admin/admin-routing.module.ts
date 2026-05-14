@@ -10,6 +10,7 @@ import { EditUserComponent } from '../edit-user/edit-user.component';
 import { AllRegistrantComponent } from '../registrant/all-registrant/all-registrant.component';
 import { WebhooksComponent } from './webhooks/webhooks.component';
 import { ChatReviewComponent } from './chat-review/chat-review.component';
+import { ChatAdminComponent } from './chat-admin/chat-admin.component';
 import { AiUsageComponent } from './ai-usage/ai-usage.component';
 import { ChatReviewGuard } from '../../guards/chat-review.guard';
 import { NonReviewerGuard } from '../../guards/non-reviewer.guard';
@@ -44,14 +45,26 @@ const routes: Routes = [
     path: 'edit_user/:id',
     component: EditUserComponent,
   },
+  // Combined Chat admin — tabbed shell hosting both the conversation
+  // browser and the webhook configuration. Two legacy paths map onto
+  // the same component with route.data indicating the active tab so
+  // bookmarks survive and the URL still reflects the tab.
   {
-    path: 'webhooks',
-    component: WebhooksComponent,
+    path: 'chat',
+    component: ChatAdminComponent,
+    canActivate: [ChatReviewGuard],
   },
   {
     path: 'chat-review',
-    component: ChatReviewComponent,
+    component: ChatAdminComponent,
     canActivate: [ChatReviewGuard],
+    data: { tab: 'conversations' },
+  },
+  {
+    path: 'webhooks',
+    component: ChatAdminComponent,
+    canActivate: [ChatReviewGuard],
+    data: { tab: 'webhooks' },
   },
   {
     path: 'ai-usage',

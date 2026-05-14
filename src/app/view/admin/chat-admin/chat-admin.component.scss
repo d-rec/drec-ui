@@ -1,0 +1,13 @@
+.chat-admin {
+  padding: 8px 16px 24px;
+
+  &__tabs {
+    // Material 17 tab-header has its own background; nudge it onto the
+    // page so the body content visually inherits from the page bg.
+    ::ng-deep .mat-mdc-tab-header {
+      background: transparent;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 12px;
+    }
+  }
+}

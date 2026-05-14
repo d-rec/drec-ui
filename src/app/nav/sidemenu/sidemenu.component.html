@@ -90,21 +90,12 @@
             mat-button
             class="menu-button max-height-content inside-menu-button"
             routerLinkActive="active"
-            routerLink="/admin/webhooks"
-            *ngIf="loginuser.role === 'Admin'"
-          >
-            <span>Chat Webhooks</span>
-          </a>
-          <a
-            mat-button
-            class="menu-button max-height-content inside-menu-button"
-            routerLinkActive="active"
-            routerLink="/admin/chat-review"
+            routerLink="/admin/chat"
             *ngIf="
               loginuser.role === 'Admin' || loginuser.role === 'SeniorReviewer'
             "
           >
-            <span>Chat Review</span>
+            <span>Chat</span>
           </a>
           <a
             mat-button

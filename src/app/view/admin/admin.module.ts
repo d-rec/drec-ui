@@ -11,6 +11,7 @@ import { RegistrantComponent } from './registrant/registrant.component';
 import { WebhooksComponent } from './webhooks/webhooks.component';
 import { ChatReviewComponent } from './chat-review/chat-review.component';
 import { ChatTranscriptComponent } from './chat-review/chat-transcript.component';
+import { ChatAdminComponent } from './chat-admin/chat-admin.component';
 import { AiUsageComponent } from './ai-usage/ai-usage.component';
 import { SharedModule } from '../../shared.module';
 import { MapModule } from '../map/map.module';
@@ -25,6 +26,7 @@ import { SatellitePreviewComponent } from '../../shared/satellite-preview/satell
     WebhooksComponent,
     ChatReviewComponent,
     ChatTranscriptComponent,
+    ChatAdminComponent,
     AiUsageComponent,
   ],
   imports: [
