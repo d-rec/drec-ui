@@ -684,6 +684,17 @@ $legacy:   #a0845c;
     color: $muted;
     white-space: nowrap;
   }
+}
+
+.serial-chips {
+  // styling now lives in global styles.scss — override only the
+  // wrapping behavior that this field-row needs (no nowrap).
+  white-space: normal !important;
+
+  &__empty { color: $muted; }
+}
+
+.field {
 
   &__input {
     background: $bg;

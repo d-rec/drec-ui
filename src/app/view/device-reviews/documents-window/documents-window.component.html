@@ -271,7 +271,14 @@
               </div>
               <div class="field field--auto">
                 <label class="field__label">Meter / Measurement ID(s) <span class="fn">(14)</span></label>
-                <span class="field__input field__input--text" [innerHTML]="hl(detailForm.get('serial')?.value ?? '', searchTerm)"></span>
+                <span class="field__input field__input--text serial-chips">
+                  <ng-container *ngFor="let s of splitSerials(detailForm.get('serial')?.value); let i = index; let last = last">
+                    <span class="serial-chip"
+                          [class.serial-chip--alt]="i % 2 === 1"
+                          [innerHTML]="hl(s, searchTerm)"></span><span class="serial-sep" *ngIf="!last"> ; </span>
+                  </ng-container>
+                  <span *ngIf="!detailForm.get('serial')?.value" class="serial-chips__empty">—</span>
+                </span>
               </div>
               <!-- Registrant / Date Added / Date Closed / Status
                    merged into this row instead of a row of their

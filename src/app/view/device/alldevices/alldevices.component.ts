@@ -42,6 +42,12 @@ import { environment } from '../../../../environments/environment';
   styleUrls: ['./alldevices.component.scss'],
 })
 export class AlldevicesComponent {
+  splitSerials(value: string | null | undefined): string[] {
+    if (!value) return [];
+    return String(value)
+      .split(/\s*;\s*/)
+      .filter((s) => s.length > 0);
+  }
   title = 'matDialog';
   dataFromDialog: any;
   displayedColumns = [

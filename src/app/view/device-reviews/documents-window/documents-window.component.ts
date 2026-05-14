@@ -1812,6 +1812,13 @@ trustUrl(url: string): SafeUrl {
     return this.sanitizer.bypassSecurityTrustUrl(url);
   }
 
+  splitSerials(value: string | null | undefined): string[] {
+    if (!value) return [];
+    return String(value)
+      .split(/\s*;\s*/)
+      .filter((s) => s.length > 0);
+  }
+
   hl(value: string, term: string): string | SafeHtml {
     const safe = value.replace(
       /[&<>"']/g,

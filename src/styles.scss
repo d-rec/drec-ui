@@ -1319,3 +1319,25 @@ input[type='number']::-webkit-inner-spin-button {
   appearance: none;
   margin: 0;
 }
+
+.serial-chips {
+  // inline-block (not inline-flex) so the literal " ; " separator text
+  // copies to the clipboard as part of the rendered text run.
+  display: inline-block;
+
+  .serial-chip {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.05);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+
+    &--alt { background: rgba(0, 0, 0, 0.12); }
+  }
+
+  .serial-sep {
+    color: rgba(0, 0, 0, 0.35);
+    user-select: text;
+  }
+}
