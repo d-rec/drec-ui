@@ -13,7 +13,6 @@ import { axisBottom, axisLeft } from 'd3-axis';
 import { line as d3Line, area as d3Area, arc as d3Arc, pie as d3Pie } from 'd3-shape';
 import { max as d3Max } from 'd3-array';
 import { environment } from '../../../../environments/environment';
-import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.service';
 
 interface UsageSummary {
   monthToDate: {
@@ -40,6 +39,7 @@ interface UsageSummary {
   daily: Array<{ day: string; calls: number; estimatedUsd: number }>;
   topOrgs: Array<{
     organizationId: number | null;
+    organizationName: string | null;
     calls: number;
     estimatedUsd: number;
   }>;
@@ -62,7 +62,6 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
   data: UsageSummary | null = null;
   deeplQuota: DeeplQuota | null = null;
   deeplQuotaError = '';
-  roboflowCredits: number | null = null;
   error = '';
   loading = false;
   monthlyCapUsd = 50;
@@ -86,10 +85,7 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
     '#475569',
   ];
 
-  constructor(
-    private http: HttpClient,
-    private licenses: OrgApiLicensesService,
-  ) {}
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
     this.refresh();
@@ -137,12 +133,6 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
         },
       });
 
-    // Roboflow: local credit counter. D-REC is the sole consumer of these
-    // keys per Peter (no external drift), so this counter is authoritative.
-    this.licenses.getSettings().subscribe({
-      next: (s) => { this.roboflowCredits = s.roboflowCreditsRemaining; },
-      error: () => { this.roboflowCredits = null; },
-    });
   }
 
   byProviderRow(provider: string): UsageSummary['byProvider'][0] | undefined {
@@ -178,8 +168,8 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
     const svgEl = this.dailyChart.nativeElement;
     const rect = svgEl.getBoundingClientRect();
     const width = Math.max(rect.width, 320);
-    const height = 220;
-    const margin = { top: 12, right: 16, bottom: 28, left: 48 };
+    const height = 280;
+    const margin = { top: 12, right: 16, bottom: 56, left: 48 };
     const innerW = width - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
 
@@ -239,10 +229,11 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
       .append('title')
       .text((d) => `${d.day}\n$${d.usd.toFixed(4)}`);
 
-    // X axis: show every ~5th label, rotated 30° so they don't overlap.
-    // Format MM/DD instead of YYYY-MM-DD (year is implicit on a 30-day
-    // window).
-    const xTickEvery = Math.ceil(days.length / 6);
+    // X axis: tick density scales with chart width — wider = more labels.
+    // Format MM-DD instead of YYYY-MM-DD (year is implicit on a 30-day
+    // window). Rotated 45° so dates stay readable when packed.
+    const maxLabels = Math.max(6, Math.floor(innerW / 70));
+    const xTickEvery = Math.max(1, Math.ceil(days.length / maxLabels));
     g.append('g')
       .attr('transform', `translate(0, ${innerH})`)
       .call(
@@ -253,10 +244,10 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
           .tickFormat((d) => (d as string).slice(5)), // MM-DD
       )
       .selectAll('text')
-      .attr('font-size', '10px')
-      .attr('fill', '#64748b')
+      .attr('font-size', '12px')
+      .attr('fill', '#475569')
       .attr('text-anchor', 'end')
-      .attr('transform', 'translate(-2, 4) rotate(-30)');
+      .attr('transform', 'translate(-4, 6) rotate(-45)');
 
     // Y axis: dollar formatted
     g.append('g')

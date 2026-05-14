@@ -1,10 +1,17 @@
 <div class="aiu">
   <div class="aiu__header">
-    <h2>AI Usage</h2>
+    <h2>Haiku Usage</h2>
     <button class="btn btn-sm btn-outline-secondary" (click)="refresh()" [disabled]="loading">
       Refresh
     </button>
   </div>
+  <p class="aiu__intro">
+    Spend, calls and token counts for <strong>Anthropic Claude Haiku</strong>
+    — the model behind every document classifier and field extractor on
+    the platform. Other paid AI services we use (Roboflow for satellite
+    panel detection, DeepL for translation) are summarised in the
+    separate panels lower down.
+  </p>
 
   <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
   <div *ngIf="loading" class="aiu__loading">Loading…</div>
@@ -12,13 +19,14 @@
   <ng-container *ngIf="data && !loading">
     <div class="aiu__top">
       <div class="aiu__panel aiu__panel--gauge">
-        <div class="aiu__panel-title">Spend vs Cap</div>
+        <div class="aiu__panel-title">Haiku spend vs cap</div>
         <svg #capArc></svg>
       </div>
 
       <div class="aiu__panel aiu__panel--stats">
+        <div class="aiu__panel-title">Haiku month-to-date</div>
         <div class="aiu__stat">
-          <div class="aiu__stat-label">Calls (MTD)</div>
+          <div class="aiu__stat-label">Calls</div>
           <div class="aiu__stat-value">{{ data.monthToDate.calls | number }}</div>
         </div>
         <div class="aiu__stat">
@@ -36,39 +44,60 @@
       </div>
 
       <div class="aiu__panel aiu__panel--donut">
-        <div class="aiu__panel-title">Cost by endpoint</div>
+        <div class="aiu__panel-title">Haiku cost by endpoint</div>
         <svg #endpointChart></svg>
       </div>
     </div>
 
     <div class="aiu__panel aiu__panel--full">
-      <div class="aiu__panel-title">Daily spend (last 30 days)</div>
+      <div class="aiu__panel-title">Haiku daily spend (last 30 days)</div>
       <svg #dailyChart></svg>
     </div>
 
+    <h3 class="aiu__section-heading">Other AI providers</h3>
+    <p class="aiu__section-sub">
+      Roboflow and DeepL bill on their own schemes (inferences and
+      characters, not tokens), so they're tracked separately from the
+      Haiku spend above.
+    </p>
     <div class="aiu__providers">
       <!-- Anthropic spend is covered by the main gauge/donut above —
            these two panels are for the other paid providers. -->
       <div class="aiu__panel">
-        <div class="aiu__panel-title">Roboflow (panel detection)</div>
-        <div class="aiu__provider-body">
+        <div class="aiu__panel-title">Roboflow (solar-panel satellite detection)</div>
+        <div class="aiu__provider-body" *ngIf="byProviderRow('roboflow') as r; else roboflowEmpty">
           <div class="aiu__stat">
-            <div class="aiu__stat-label">Credits remaining</div>
-            <div class="aiu__stat-value">
-              {{ roboflowCredits !== null ? (roboflowCredits | number) : '—' }}
-            </div>
+            <div class="aiu__stat-label">Calls (MTD)</div>
+            <div class="aiu__stat-value">{{ r.calls | number }}</div>
           </div>
-          <ng-container *ngIf="byProviderRow('roboflow') as r">
-            <div class="aiu__stat">
-              <div class="aiu__stat-label">Calls (MTD)</div>
-              <div class="aiu__stat-value">{{ r.calls | number }}</div>
+          <div class="aiu__stat">
+            <div class="aiu__stat-label">
+              ≈ Credits used
+              <span class="aiu__stat-help"
+                    title="Estimate. Roboflow's published rate is 1 credit per 1,000 hosted-workflow inferences. SAM 3 (the model we actually use) isn't listed on the public rate sheet, so the real cost per call may be higher. The authoritative balance lives on your Roboflow workspace dashboard.">
+                ⓘ
+              </span>
             </div>
-            <div class="aiu__stat">
-              <div class="aiu__stat-label">Success rate</div>
-              <div class="aiu__stat-value">{{ (r.successRate * 100) | number:'1.0-1' }}%</div>
-            </div>
-          </ng-container>
+            <div class="aiu__stat-value">{{ (r.calls / 1000) | number:'1.0-3' }}</div>
+          </div>
+          <div class="aiu__stat">
+            <div class="aiu__stat-label">Success rate</div>
+            <div class="aiu__stat-value">{{ (r.successRate * 100) | number:'1.0-1' }}%</div>
+          </div>
         </div>
+        <ng-template #roboflowEmpty>
+          <div class="aiu__provider-empty">No detection runs this month yet.</div>
+        </ng-template>
+        <p class="aiu__provider-note">
+          Estimate uses Roboflow's
+          <a href="https://docs.roboflow.com/billing/credits" target="_blank" rel="noopener">published rate</a>
+          of 1 credit per 1,000 hosted-workflow inferences
+          (<a href="https://media.roboflow.com/roboflow-rate-table.pdf" target="_blank" rel="noopener">rate table PDF</a>).
+          SAM 3 isn't on the public rate sheet, so the true cost may
+          differ — check the
+          <a href="https://app.roboflow.com/" target="_blank" rel="noopener">Roboflow workspace dashboard</a>
+          for the authoritative balance.
+        </p>
       </div>
 
       <div class="aiu__panel">
@@ -100,18 +129,18 @@
     </div>
 
     <div class="aiu__panel aiu__panel--full">
-      <div class="aiu__panel-title">Top organisations (this month)</div>
+      <div class="aiu__panel-title">Top organisations by Haiku spend (this month)</div>
       <table class="aiu__table">
         <thead>
           <tr>
-            <th>Org ID</th>
+            <th>Organization</th>
             <th class="num">Calls</th>
             <th class="num">Cost (USD)</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let o of data.topOrgs">
-            <td>{{ o.organizationId ?? '(none)' }}</td>
+            <td>{{ o.organizationName || (o.organizationId != null ? '(org #' + o.organizationId + ')' : '(unassigned)') }}</td>
             <td class="num">{{ o.calls | number }}</td>
             <td class="num">${{ o.estimatedUsd | number:'1.2-4' }}</td>
           </tr>

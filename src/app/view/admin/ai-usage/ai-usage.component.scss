@@ -11,12 +11,33 @@
     h2 { margin: 0; font-size: 20px; font-weight: 600; color: #1e3a8a; }
   }
   &__loading { color: #64748b; padding: 24px 0; }
+  &__intro {
+    margin: -4px 0 16px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #475569;
+    max-width: 900px;
+  }
+  &__section-heading {
+    margin: 32px 0 6px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e3a8a;
+    letter-spacing: -0.01em;
+  }
+  &__section-sub {
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: #64748b;
+    max-width: 900px;
+  }
 
   &__top {
     display: grid;
-    grid-template-columns: 1fr 1.2fr 1.4fr;
+    grid-template-columns: 240px 1fr 280px;
     gap: 16px;
     margin-bottom: 16px;
+    align-items: start;
   }
 
   &__panel {
@@ -26,8 +47,10 @@
     padding: 14px 16px;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 
-    &--gauge svg, &--donut svg { display: block; max-width: 100%; }
+    &--gauge svg { display: block; max-width: 100%; max-height: 160px; margin: 0 auto; }
+    &--donut svg { display: block; max-width: 100%; max-height: 300px; margin: 0 auto; }
     &--full { margin-bottom: 16px; }
+    &--full svg { display: block; max-width: 100%; max-height: 320px; }
   }
   &__panel-title {
     font-size: 12px;
@@ -93,6 +116,18 @@
     color: #94a3b8;
     font-style: italic;
     padding: 8px 0;
+  }
+  &__provider-note {
+    margin: 12px 0 0;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: #64748b;
+  }
+  &__stat-help {
+    margin-left: 4px;
+    color: #94a3b8;
+    cursor: help;
+    font-size: 11px;
   }
   &__stat-divider { color: #cbd5e1; margin: 0 4px; }
 

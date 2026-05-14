@@ -5,6 +5,20 @@ import {
   LicenseSettings,
 } from '../../auth/services/org-api-licenses.service';
 import { ToastrService } from 'ngx-toastr';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+
+interface MyProviderUsage {
+  roboflow: { calls: number; successRate: number };
+  deepl: { calls: number; successRate: number; characterCount: number };
+}
+
+interface DeeplQuota {
+  characterCount: number;
+  characterLimit: number;
+  percentUsed: number;
+  tier: 'free' | 'pro';
+}
 
 @Component({
   standalone: false,
@@ -19,10 +33,17 @@ export class LicensesComponent implements OnInit {
   anthropicCredits = 50;
   isAdmin = false;
 
+  hasRoboflowKey = false;
+  hasDeeplKey = false;
+  myUsage: MyProviderUsage | null = null;
+  deeplQuota: DeeplQuota | null = null;
+  deeplQuotaError = '';
+
   constructor(
     private licensesService: OrgApiLicensesService,
     private toastrService: ToastrService,
     private fb: FormBuilder,
+    private http: HttpClient,
   ) {
     this.licensesForm = this.fb.group({
       roboflowApiKey: [''],
@@ -54,6 +75,9 @@ export class LicensesComponent implements OnInit {
           this.roboflowCredits = data.roboflowCreditsRemaining;
           this.deeplCredits = data.deeplCreditsRemaining;
           this.anthropicCredits = data.anthropicCreditsRemaining;
+          this.hasRoboflowKey = !!data.roboflowApiKey;
+          this.hasDeeplKey = !!data.deeplApiKey;
+          this.loadUsageStats();
         }
       },
       error: (err) => {
@@ -71,6 +95,35 @@ export class LicensesComponent implements OnInit {
         console.error('Failed to load license settings', err);
       },
     });
+  }
+
+  private loadUsageStats(): void {
+    if (!this.hasRoboflowKey && !this.hasDeeplKey) {
+      this.myUsage = null;
+      this.deeplQuota = null;
+      return;
+    }
+    this.http
+      .get<MyProviderUsage>(`${environment.API_URL}ai/my-usage`)
+      .subscribe({
+        next: (u) => { this.myUsage = u; },
+        error: () => { this.myUsage = null; },
+      });
+    if (this.hasDeeplKey) {
+      this.deeplQuotaError = '';
+      this.http
+        .get<DeeplQuota>(`${environment.API_URL}translate/deepl-quota`)
+        .subscribe({
+          next: (q) => { this.deeplQuota = q; },
+          error: (err) => {
+            this.deeplQuota = null;
+            this.deeplQuotaError =
+              err?.error?.message ?? err?.message ?? 'DeepL quota unavailable';
+          },
+        });
+    } else {
+      this.deeplQuota = null;
+    }
   }
 
   onSubmit(): void {

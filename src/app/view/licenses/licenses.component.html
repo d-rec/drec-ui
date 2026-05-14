@@ -44,6 +44,33 @@
               placeholder="Enter your Roboflow API key"
             />
           </div>
+
+          <!-- Per-org usage stats (only when this org has its own key) -->
+          <div *ngIf="hasRoboflowKey && myUsage" class="provider-usage mt-3">
+            <h6 class="fw-bold mb-2">Your usage this month</h6>
+            <div class="provider-usage__row">
+              <div class="provider-usage__stat">
+                <div class="provider-usage__label">Calls</div>
+                <div class="provider-usage__value">{{ myUsage.roboflow.calls | number }}</div>
+              </div>
+              <div class="provider-usage__stat">
+                <div class="provider-usage__label">≈ Credits used</div>
+                <div class="provider-usage__value">{{ (myUsage.roboflow.calls / 1000) | number:'1.0-3' }}</div>
+              </div>
+              <div class="provider-usage__stat">
+                <div class="provider-usage__label">Success rate</div>
+                <div class="provider-usage__value">{{ (myUsage.roboflow.successRate * 100) | number:'1.0-1' }}%</div>
+              </div>
+            </div>
+            <p class="provider-usage__note">
+              Estimate uses Roboflow's
+              <a href="https://docs.roboflow.com/billing/credits" target="_blank" rel="noopener">published rate</a>
+              of 1 credit per 1,000 hosted-workflow inferences
+              (<a href="https://media.roboflow.com/roboflow-rate-table.pdf" target="_blank" rel="noopener">rate table PDF</a>).
+              For the authoritative balance see your
+              <a href="https://app.roboflow.com/" target="_blank" rel="noopener">Roboflow workspace dashboard</a>.
+            </p>
+          </div>
         </div>
 
         <hr class="my-4" />
@@ -75,6 +102,35 @@
               formControlName="deeplApiKey"
               placeholder="Enter your DeepL API key"
             />
+          </div>
+
+          <!-- Per-org usage + live quota (only when this org has its own key) -->
+          <div *ngIf="hasDeeplKey" class="provider-usage mt-3">
+            <h6 class="fw-bold mb-2">Your usage this month</h6>
+            <div class="provider-usage__row" *ngIf="deeplQuota; else deeplQuotaErr">
+              <div class="provider-usage__stat">
+                <div class="provider-usage__label">Used / Quota ({{ deeplQuota.tier }})</div>
+                <div class="provider-usage__value">
+                  {{ deeplQuota.characterCount | number }} / {{ deeplQuota.characterLimit | number }} chars
+                </div>
+              </div>
+              <div class="provider-usage__stat">
+                <div class="provider-usage__label">Used</div>
+                <div class="provider-usage__value">{{ deeplQuota.percentUsed }}%</div>
+              </div>
+              <div class="provider-usage__stat" *ngIf="myUsage">
+                <div class="provider-usage__label">Calls (via D-REC)</div>
+                <div class="provider-usage__value">{{ myUsage.deepl.calls | number }}</div>
+              </div>
+            </div>
+            <ng-template #deeplQuotaErr>
+              <p class="text-muted small fst-italic">{{ deeplQuotaError || 'DeepL quota unavailable.' }}</p>
+            </ng-template>
+            <p class="provider-usage__note">
+              Quota numbers come straight from DeepL's
+              <a href="https://developers.deepl.com/api-reference/usage-and-quota" target="_blank" rel="noopener">/v2/usage</a>
+              endpoint — no characters are consumed by checking.
+            </p>
           </div>
         </div>
 
