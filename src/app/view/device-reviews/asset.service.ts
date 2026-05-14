@@ -348,15 +348,22 @@ export class AssetService {
     try {
       const url = new URL(presignedUrl);
       // Two URL flavours:
-      //   Virtual-hosted: <bucket>.s3[.<region>].amazonaws.com/<key>
-      //     → pathname IS the key (with leading slash to strip)
-      //   Path-style:     s3[.<region>].amazonaws.com/<bucket>/<key>
-      //     → pathname is /<bucket>/<key>, strip both
-      // Telltale: virtual-hosted has a hostname that starts with
-      // something other than "s3" (i.e. the bucket subdomain).
-      const isVirtualHosted = !/^s3[.-]/.test(url.hostname);
+      //   Virtual-hosted (AWS): <bucket>.s3[.<region>].amazonaws.com/<key>
+      //     → hostname has ".s3." and ends in "amazonaws.com";
+      //       pathname IS the key (just strip leading slash)
+      //   Path-style (MinIO localhost, S3 path-style):
+      //     <host>/<bucket>/<key>
+      //     → pathname is /<bucket>/<key>; strip both
+      // We default to PATH-STYLE so any non-AWS endpoint (MinIO,
+      // localstack, custom S3 gateway) routes correctly. Earlier
+      // virtual-hosted detection that just checked "host doesn't
+      // start with s3" was too eager — it ate the bucket prefix
+      // for localhost too.
+      const host = url.hostname;
+      const isVirtualHostedAws =
+        host.endsWith('.amazonaws.com') && host.includes('.s3.');
       const parts = url.pathname.split('/');
-      const startAt = isVirtualHosted ? 1 : 2;
+      const startAt = isVirtualHostedAws ? 1 : 2;
       return parts.slice(startAt).join('/') || null;
     } catch {
       return null;
