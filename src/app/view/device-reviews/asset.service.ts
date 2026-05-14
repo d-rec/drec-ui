@@ -347,10 +347,17 @@ export class AssetService {
   extractS3Key(presignedUrl: string): string | null {
     try {
       const url = new URL(presignedUrl);
-      // Path is like /bucket-name/subfolder/file.jpg — strip leading /bucket/
+      // Two URL flavours:
+      //   Virtual-hosted: <bucket>.s3[.<region>].amazonaws.com/<key>
+      //     → pathname IS the key (with leading slash to strip)
+      //   Path-style:     s3[.<region>].amazonaws.com/<bucket>/<key>
+      //     → pathname is /<bucket>/<key>, strip both
+      // Telltale: virtual-hosted has a hostname that starts with
+      // something other than "s3" (i.e. the bucket subdomain).
+      const isVirtualHosted = !/^s3[.-]/.test(url.hostname);
       const parts = url.pathname.split('/');
-      // Remove empty first element and bucket name
-      return parts.slice(2).join('/') || null;
+      const startAt = isVirtualHosted ? 1 : 2;
+      return parts.slice(startAt).join('/') || null;
     } catch {
       return null;
     }
