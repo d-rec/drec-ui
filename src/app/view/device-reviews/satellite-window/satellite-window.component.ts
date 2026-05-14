@@ -893,7 +893,7 @@ export class SatelliteWindowComponent
 
       const lat = asset.lat;
       const lng = asset.long;
-      const marker = L.marker([lat, lng], { icon: mapPinIcon(color) })
+      const marker = L.marker([lat, lng], { icon: mapPinIcon(color), opacity: 0 })
         .on('mouseover', () => {
           this.removePinOverlay();
           this.pinOverlay = SatellitePreviewComponent.createOverlay(
