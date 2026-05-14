@@ -84,6 +84,10 @@
             <div class="aiu__stat-label">Success rate</div>
             <div class="aiu__stat-value">{{ (r.successRate * 100) | number:'1.0-1' }}%</div>
           </div>
+          <div class="aiu__stat">
+            <div class="aiu__stat-label">Est. cost (MTD)</div>
+            <div class="aiu__stat-value">${{ r.estimatedUsd | number:'1.2-4' }}</div>
+          </div>
         </div>
         <ng-template #roboflowEmpty>
           <div class="aiu__provider-empty">No detection runs this month yet.</div>
@@ -119,6 +123,10 @@
             <div class="aiu__stat">
               <div class="aiu__stat-label">Calls (MTD, this app)</div>
               <div class="aiu__stat-value">{{ r.calls | number }}</div>
+            </div>
+            <div class="aiu__stat">
+              <div class="aiu__stat-label">Est. cost (MTD)</div>
+              <div class="aiu__stat-value">${{ r.estimatedUsd | number:'1.2-4' }}</div>
             </div>
           </ng-container>
         </div>

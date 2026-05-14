@@ -14,9 +14,9 @@ export interface LicenseSettings {
 }
 
 export interface CreditInfo {
-  roboflow: { credits: number; hasOwnKey: boolean };
-  deepl: { credits: number; hasOwnKey: boolean };
-  anthropic: { credits: number; hasOwnKey: boolean };
+  roboflow: { credits: number; hasOwnKey: boolean; platformKeyConfigured: boolean };
+  deepl: { credits: number; hasOwnKey: boolean; platformKeyConfigured: boolean };
+  anthropic: { credits: number; hasOwnKey: boolean; platformKeyConfigured: boolean };
 }
 
 @Injectable({

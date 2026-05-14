@@ -362,9 +362,15 @@ export class SatelliteWindowComponent
           this.captureAndDetect();
           return;
         }
+        if (!credits.roboflow.platformKeyConfigured) {
+          this.detectError =
+            'Solar panel detection is not configured on this environment. An admin must add a Roboflow API key in Organization > Licenses (or your org can supply its own).';
+          this.cdr.markForCheck();
+          return;
+        }
         if (credits.roboflow.credits <= 0) {
           this.detectError =
-            'Roboflow credits exhausted. Add your own API key in Organization > Licenses.';
+            'Your free Roboflow credits are used up. Add your own API key in Organization > Licenses to keep scanning.';
           this.cdr.markForCheck();
           return;
         }

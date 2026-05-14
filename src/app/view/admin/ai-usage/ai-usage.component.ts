@@ -35,6 +35,7 @@ interface UsageSummary {
     inputTokens: number;
     outputTokens: number;
     successRate: number;
+    estimatedUsd: number;
   }>;
   daily: Array<{ day: string; calls: number; estimatedUsd: number }>;
   topOrgs: Array<{

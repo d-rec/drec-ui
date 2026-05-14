@@ -378,11 +378,18 @@ export class PdfPreviewComponent implements OnChanges {
         ? null
         : await this.licensesService.getCredits().toPromise();
       if (credits && !credits.deepl.hasOwnKey) {
+        if (!credits.deepl.platformKeyConfigured) {
+          alert(
+            'Translation is not configured on this environment.\n\n' +
+              'An admin must add a DeepL API key in Organization > Licenses (or your org can supply its own).',
+          );
+          return;
+        }
         const remaining = credits.deepl.credits;
         if (remaining <= 0) {
           alert(
-            'DeepL credits exhausted.\n\n' +
-              'Please add your own DeepL API key in Organization > Licenses.',
+            'Your free DeepL translation credits are used up.\n\n' +
+              'Add your own DeepL API key in Organization > Licenses to keep translating.',
           );
           return;
         }
@@ -491,9 +498,15 @@ export class PdfPreviewComponent implements OnChanges {
           this.runDetection();
           return;
         }
+        if (!credits.roboflow.platformKeyConfigured) {
+          this.detectError =
+            'Solar panel detection is not configured on this environment. An admin must add a Roboflow API key in Organization > Licenses (or your org can supply its own).';
+          this.cdr.detectChanges();
+          return;
+        }
         if (credits.roboflow.credits <= 0) {
           this.detectError =
-            'Roboflow credits exhausted. Add your own API key in Organization > Licenses.';
+            'Your free Roboflow credits are used up. Add your own API key in Organization > Licenses to keep scanning.';
           this.cdr.detectChanges();
           return;
         }
