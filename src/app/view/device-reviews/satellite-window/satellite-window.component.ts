@@ -692,7 +692,7 @@ export class SatelliteWindowComponent
     // always sees the same ground area at the same resolution.
     const TILE = 256;
     const z = 19;
-    const MAX_DIM = 1280;
+    const MAX_DIM = 2560;
     const mapElNode = this.mapEl.nativeElement;
     const visW = mapElNode.offsetWidth;
     const visH = mapElNode.offsetHeight;
