@@ -19,6 +19,7 @@ import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.s
 import { SatellitePreviewComponent } from '../../../shared/satellite-preview/satellite-preview.component';
 import { mapPinIcon } from '../../../shared/map-pin';
 import { safeErrorMessage } from '../../../utils/safe-error-message';
+import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
 
 @Component({
   standalone: false,
@@ -342,6 +343,14 @@ export class SatelliteWindowComponent
 
   detectPanels(): void {
     if (!this.map || this.detecting) return;
+
+    if (currentUserIsInternalReviewer()) {
+      this.detecting = true;
+      this.detectError = '';
+      this.cdr.markForCheck();
+      this.captureAndDetect();
+      return;
+    }
 
     this.licensesService.getCredits().subscribe({
       next: (credits) => {

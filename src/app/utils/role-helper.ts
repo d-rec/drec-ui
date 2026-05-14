@@ -7,6 +7,19 @@ export function getRoleName(role: string): string {
   return role;
 }
 
+export function isInternalReviewerRole(role: string | undefined | null): boolean {
+  return role === 'Admin' || role === 'Reviewer' || role === 'SeniorReviewer';
+}
+
+export function currentUserIsInternalReviewer(): boolean {
+  try {
+    const u = JSON.parse(sessionStorage.getItem('loginuser') || '{}');
+    return isInternalReviewerRole(u?.role);
+  } catch {
+    return false;
+  }
+}
+
 export function getOrgTypeName(type: string): string {
   if (type === 'SiteOperator') return 'Site Operator';
   if (type === 'MarketIntermediary') return 'Registrant';

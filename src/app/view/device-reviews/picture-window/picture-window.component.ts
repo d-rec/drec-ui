@@ -13,6 +13,7 @@ import { OrgApiLicensesService } from '../../../auth/services/org-api-licenses.s
 import Tesseract from 'tesseract.js';
 import { ImageZoomPanDirective } from '../../../shared/directives/image-zoom-pan.directive';
 import { safeErrorMessage } from '../../../utils/safe-error-message';
+import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
 
 @Component({
   standalone: false,
@@ -123,6 +124,13 @@ export class PictureWindowComponent implements OnInit {
 
   detectPanels(): void {
     if (this.detecting) return;
+
+    if (currentUserIsInternalReviewer()) {
+      this.detecting = true;
+      this.detectError = '';
+      this.runDetection();
+      return;
+    }
 
     this.licensesService.getCredits().subscribe({
       next: (credits) => {
