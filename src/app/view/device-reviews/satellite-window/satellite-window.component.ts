@@ -47,6 +47,7 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
           [class.hover-panel]="hoverPanelIdx >= 0"
           (click)="onCanvasClick($event)"
         ></canvas>
+        <div #pinLayer class="pin-layer"></div>
         <div class="detect-toolbar">
           <button
             class="detect-btn"
@@ -141,6 +142,23 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
       .detect-overlay.visible.hover-panel {
         pointer-events: auto;
         cursor: pointer;
+      }
+      /* Shadow layer that mirrors the real Leaflet marker. Sits above the
+         detect-overlay canvas (z-index 450) so the device pin is never
+         hidden behind detected-panel masks. */
+      .pin-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 460;
+      }
+      .pin-layer .shadow-pin {
+        position: absolute;
+        transform: translate(-50%, -100%);
+        pointer-events: none;
       }
       .detect-toolbar {
         position: absolute;
@@ -268,6 +286,7 @@ export class SatelliteWindowComponent
   @Output() close = new EventEmitter<void>();
 
   @ViewChild('mapEl', { static: true }) mapEl!: ElementRef<HTMLDivElement>;
+  @ViewChild('pinLayer', { static: true }) pinLayer!: ElementRef<HTMLDivElement>;
   @ViewChild('overlayCanvas', { static: true })
   overlayCanvas!: ElementRef<HTMLCanvasElement>;
 
@@ -310,9 +329,10 @@ export class SatelliteWindowComponent
       minZoom: 3,
     }).setView([20, 0], 3);
 
-    // Keep detected panel masks visually anchored to the imagery as the
-    // reviewer pans/zooms to nudge the device's lat/lng.
+    // Keep detected panel masks + shadow pins visually anchored to the
+    // imagery as the reviewer pans/zooms.
     const reproject = () => {
+      this.renderShadowPins();
       if (!this.showOverlay) return;
       const canvas = this.overlayCanvas.nativeElement;
       const w = this.mapEl.nativeElement.clientWidth;
@@ -665,15 +685,22 @@ export class SatelliteWindowComponent
     // from where the masks get drawn.
     map.invalidateSize({ animate: false });
 
-    // Capture a fixed 512x512 image centered on the map center at zoom 19.
+    // Capture an image that covers the full visible map area at zoom 19,
+    // capped at MAX_DIM on the longer side so uploads stay reasonable.
     // Fetching tiles ourselves (instead of screenshotting the visible viewport)
-    // makes the capture independent of window size, devicePixelRatio, and OS,
-    // so Roboflow always sees the same ground area at the same resolution.
-    // 512 covers ~150 m of ground at zoom 19; PNG ≈ 500 KB after base64.
-    const SIZE = 512;
+    // makes the capture independent of devicePixelRatio + OS, so Roboflow
+    // always sees the same ground area at the same resolution.
     const TILE = 256;
-    const HALF = SIZE / 2;
     const z = 19;
+    const MAX_DIM = 1280;
+    const mapElNode = this.mapEl.nativeElement;
+    const visW = mapElNode.offsetWidth;
+    const visH = mapElNode.offsetHeight;
+    const scale = Math.min(1, MAX_DIM / Math.max(visW, visH));
+    const captureW = Math.max(256, Math.round(visW * scale));
+    const captureH = Math.max(256, Math.round(visH * scale));
+    const halfW = captureW / 2;
+    const halfH = captureH / 2;
 
     const center = map.getCenter();
     const lat = center.lat;
@@ -687,17 +714,17 @@ export class SatelliteWindowComponent
       Math.pow(2, z) *
       TILE;
 
-    const topLeftPx = px - HALF;
-    const topLeftPy = py - HALF;
+    const topLeftPx = px - halfW;
+    const topLeftPy = py - halfH;
 
     const tx0 = Math.floor(topLeftPx / TILE);
     const ty0 = Math.floor(topLeftPy / TILE);
-    const tx1 = Math.floor((topLeftPx + SIZE - 1) / TILE);
-    const ty1 = Math.floor((topLeftPy + SIZE - 1) / TILE);
+    const tx1 = Math.floor((topLeftPx + captureW - 1) / TILE);
+    const ty1 = Math.floor((topLeftPy + captureH - 1) / TILE);
 
     const canvas = document.createElement('canvas');
-    canvas.width = SIZE;
-    canvas.height = SIZE;
+    canvas.width = captureW;
+    canvas.height = captureH;
     const ctx = canvas.getContext('2d')!;
 
     const tasks: Promise<void>[] = [];
@@ -724,7 +751,7 @@ export class SatelliteWindowComponent
     await Promise.all(tasks);
 
     // Verify canvas isn't blank
-    const sample = ctx.getImageData(HALF, HALF, 1, 1).data;
+    const sample = ctx.getImageData(Math.floor(halfW), Math.floor(halfH), 1, 1).data;
     if (
       sample[0] === 0 &&
       sample[1] === 0 &&
@@ -741,18 +768,17 @@ export class SatelliteWindowComponent
 
     // Map captured-image coords back onto the visible map's container.
     // The capture is centered on the current map center, so image pixel
-    // (HALF, HALF) corresponds to the visible map's container point for
+    // (halfW, halfH) corresponds to the visible map's container point for
     // that center latLng. Robust to user panning (uses Leaflet projection).
-    const mapEl = this.mapEl.nativeElement;
-    const w = mapEl.offsetWidth;
-    const h = mapEl.offsetHeight;
+    const w = visW;
+    const h = visH;
     const centerPt = map.latLngToContainerPoint(center);
-    const cropX = centerPt.x - HALF;
-    const cropY = centerPt.y - HALF;
+    const cropX = centerPt.x - halfW;
+    const cropY = centerPt.y - halfH;
 
     this.svc.detectPanels(base64).subscribe({
       next: (data) =>
-        this.drawDetections(data, w, h, cropX, cropY, SIZE, SIZE),
+        this.drawDetections(data, w, h, cropX, cropY, captureW, captureH),
       error: (err) => {
         this.detectError = 'Detection failed: ' + safeErrorMessage(err);
         this.detecting = false;
@@ -841,9 +867,14 @@ export class SatelliteWindowComponent
     this.cdr.markForCheck();
   }
 
+  /** Lat/lngs of the device pins, mirrored as shadow DOM elements so they
+   *  render above the detect-overlay canvas. */
+  private shadowPinLatLngs: { lat: number; lng: number }[] = [];
+
   private updateMarkers(): void {
     this.markers.forEach((m) => m.remove());
     this.markers = [];
+    this.shadowPinLatLngs = [];
 
     const selectedId = this.svc.selectedId$.value;
     const assets = selectedId
@@ -879,6 +910,27 @@ export class SatelliteWindowComponent
         .addTo(this.map!);
 
       this.markers.push(marker);
+      this.shadowPinLatLngs.push({ lat, lng });
+    }
+
+    this.renderShadowPins();
+  }
+
+  /** Re-render the shadow pin DOM. Called on init and on each map move so
+   *  the shadow stays glued to the Leaflet marker. */
+  private renderShadowPins(): void {
+    const layer = this.pinLayer?.nativeElement;
+    if (!layer || !this.map) return;
+    layer.innerHTML = '';
+    for (const { lat, lng } of this.shadowPinLatLngs) {
+      const pt = this.map.latLngToContainerPoint([lat, lng]);
+      const wrap = document.createElement('div');
+      wrap.className = 'shadow-pin';
+      wrap.style.left = `${pt.x}px`;
+      wrap.style.top = `${pt.y}px`;
+      const html = mapPinIcon('#e53e3e').options.html;
+      if (typeof html === 'string') wrap.innerHTML = html;
+      layer.appendChild(wrap);
     }
   }
 
