@@ -154,6 +154,16 @@ export class DocumentClassifierService {
       if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
         tick('reading PDF text layer');
         text = await this.extractPdfTextLayer(file);
+      } else if (/\.(xlsx?|csv)$/i.test(file.name)) {
+        // Excel / CSV monthly meter reports were silently routed to
+        // PROJECT_PHOTOS because OCR on a non-renderable spreadsheet
+        // yielded nothing and the classifier had only the filename
+        // ("MM_YYYY_Plant_…xls") to work with. Pull the column
+        // headers + first ~15 rows so the keyword pass can latch on
+        // to "PV(kWh) / Sell(kWh) / Buy(kWh) / Meter / kWh / Plant"
+        // signals before falling back to Haiku.
+        tick('reading spreadsheet');
+        text = await this.extractSpreadsheetText(file);
       }
       if (!text || text.trim().length < 10) {
         tick(
@@ -199,11 +209,11 @@ export class DocumentClassifierService {
         const hash = await this.sha256OfFile(file);
         const haiku = await this.classifyViaHaiku(file.name, text, hash);
         if (haiku && (!kwResult || haiku.confidence > kwResult.confidence)) {
-          return this.applyJpegMeteringGate(file, haiku);
+          return this.applyJpegMeteringGate(file, haiku, text);
         }
       }
 
-      return this.applyJpegMeteringGate(file, kwResult);
+      return this.applyJpegMeteringGate(file, kwResult, text);
     } catch (err) {
       console.warn('[DocumentClassifier] classification failed:', err);
       return null;
@@ -222,21 +232,43 @@ export class DocumentClassifierService {
    * any non-alphanumeric separator.
    */
   /**
-   * JPEG is essentially never a meter screenshot — meter portals
-   * export PNG / PDF, and JPEG's lossy encoding is what device-camera
-   * apps and aerial-imagery tools produce (i.e. site/project photos
-   * or installation shots). When the classifier comes back with
-   * METERING_EVIDENCE on a .jpg/.jpeg, downgrade to PROJECT_PHOTOS.
+   * JPEG is USUALLY a site photo (camera/aerial) rather than a
+   * meter screenshot — meter portals typically export PNG/PDF. So
+   * when the classifier picks METERING_EVIDENCE on a .jpg/.jpeg we
+   * normally downgrade to PROJECT_PHOTOS.
+   *
+   * Exception: if the OCR'd text contains hard structural meter
+   * signals (column-header words like "kWh", "PV", "Sell", "Buy",
+   * "Meter", or a "Monthly Report" / "Plant" tabular header), trust
+   * the classifier. Real meter screenshots saved as JPEG (browser
+   * screenshot tools, mobile captures of inverter portals) DO exist
+   * and shouldn't get silently filed under Project Photos.
    */
   private applyJpegMeteringGate(
     file: File,
     result: ClassificationResult | null,
+    ocrText: string = '',
   ): ClassificationResult | null {
     if (!result) return result;
     if (result.suggestedType !== DocumentType.METERING_EVIDENCE) return result;
     const isJpeg =
       file.type === 'image/jpeg' || /\.jpe?g$/i.test(file.name);
     if (!isJpeg) return result;
+
+    // Strong-meter signal: OCR'd text has the column-header
+    // vocabulary of a real meter spreadsheet/screenshot. If yes,
+    // skip the downgrade.
+    const t = ocrText.toLowerCase();
+    const meterHits =
+      (t.match(/\bkwh\b/g) || []).length +
+      (/\bpv\s*\(?kwh\)?/.test(t) ? 1 : 0) +
+      (/\b(sell|buy|import|export)\s*\(?kwh\)?/.test(t) ? 1 : 0) +
+      (/\bmonthly\s+report\b/.test(t) ? 1 : 0) +
+      (/\bmeter\s*(reading|id|sn|serial)/.test(t) ? 1 : 0);
+    if (meterHits >= 2) {
+      return result;
+    }
+
     return {
       ...result,
       suggestedType: DocumentType.PROJECT_PHOTOS,
@@ -409,6 +441,39 @@ export class DocumentClassifierService {
       return canvas;
     } finally {
       URL.revokeObjectURL(url);
+    }
+  }
+
+  /**
+   * Read the first sheet of an .xls / .xlsx / .csv as a flat string
+   * — column headers + first ~15 rows — for the keyword classifier
+   * to scan. SheetJS already lives in the bundle for the Excel
+   * export feature.
+   */
+  private async extractSpreadsheetText(file: File): Promise<string> {
+    try {
+      const XLSX = await import('xlsx' as any);
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
+      const sheetName = wb.SheetNames[0];
+      if (!sheetName) return '';
+      const sheet = wb.Sheets[sheetName];
+      const rows: any[][] = XLSX.utils.sheet_to_json(sheet, {
+        header: 1,
+        blankrows: false,
+        defval: '',
+      }) as any[][];
+      // Cap at first 15 rows × 12 cols — enough for column headers
+      // ("PV(kWh)", "Sell(kWh)", "Plant", "Date", etc.) plus a few
+      // sample rows.
+      return rows
+        .slice(0, 15)
+        .map((r) => (r || []).slice(0, 12).map((c) => String(c ?? '')).join(' '))
+        .join('\n')
+        .trim();
+    } catch (err) {
+      console.warn('[DocumentClassifier] xlsx parse failed:', err);
+      return '';
     }
   }
 
