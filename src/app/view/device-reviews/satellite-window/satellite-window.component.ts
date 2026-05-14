@@ -679,7 +679,7 @@ export class SatelliteWindowComponent
     // always sees the same ground area at the same resolution.
     const TILE = 256;
     const z = 19;
-    const MAX_DIM = 1280;
+    const MAX_DIM = 768;
     const mapElNode = this.mapEl.nativeElement;
     const visW = mapElNode.offsetWidth;
     const visH = mapElNode.offsetHeight;
@@ -751,7 +751,7 @@ export class SatelliteWindowComponent
       return;
     }
 
-    const base64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+    const base64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
 
     // Map captured-image coords back onto the visible map's container.
     // The capture is centered on the current map center, so image pixel
