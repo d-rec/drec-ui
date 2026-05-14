@@ -35,12 +35,16 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
       (bringToFront)="bringToFront.emit()"
       (close)="close.emit()"
     >
-      <div style="position:relative;width:100%;height:100%">
+      <div
+        style="position:relative;width:100%;height:100%"
+        (mousemove)="onOverlayMouseMove($event)"
+      >
         <div #mapEl style="width:100%;height:100%"></div>
         <canvas
           #overlayCanvas
           class="detect-overlay"
           [class.visible]="showOverlay"
+          [class.hover-panel]="hoverPanelIdx >= 0"
           (click)="onCanvasClick($event)"
         ></canvas>
         <div class="detect-toolbar">
@@ -126,8 +130,15 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
       }
       .detect-overlay.visible {
         opacity: 0.75;
+        /* Default: let mouse events fall through to Leaflet so the user
+           can still pan the map (adjusts lat/long). The wrapper's
+           mousemove handler flips pointer-events to 'auto' below when
+           the cursor is over a detected panel. */
+        pointer-events: none;
+      }
+      .detect-overlay.visible.hover-panel {
         pointer-events: auto;
-        cursor: crosshair;
+        cursor: pointer;
       }
       .detect-toolbar {
         position: absolute;
@@ -268,6 +279,7 @@ export class SatelliteWindowComponent
   // Region selection state
   predictions: any[] = [];
   selectedRegion: number = -1;
+  hoverPanelIdx: number = -1;
   private satScaleX = 1;
   private satScaleY = 1;
   private satCropX = 0;
@@ -413,6 +425,38 @@ export class SatelliteWindowComponent
     const ctx = canvas.getContext('2d');
     ctx?.clearRect(0, 0, canvas.width, canvas.height);
     this.cdr.markForCheck();
+  }
+
+  /** Hit-test mouse position against detected panels. When over a panel,
+   *  the canvas captures the click (cursor: pointer); otherwise the canvas
+   *  becomes click-through so Leaflet receives the drag and shows its own
+   *  grab cursor — letting the reviewer pan the map to nudge lat/long. */
+  onOverlayMouseMove(event: MouseEvent): void {
+    if (!this.showOverlay || !this.predictions.length) {
+      if (this.hoverPanelIdx !== -1) {
+        this.hoverPanelIdx = -1;
+        this.cdr.markForCheck();
+      }
+      return;
+    }
+    const canvas = this.overlayCanvas.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const cssToCanvasX = canvas.width / rect.width;
+    const cssToCanvasY = canvas.height / rect.height;
+    const x = (event.clientX - rect.left) * cssToCanvasX;
+    const y = (event.clientY - rect.top) * cssToCanvasY;
+
+    let hit = -1;
+    for (let i = this.predictions.length - 1; i >= 0; i--) {
+      if (this.satHitTest(this.predictions[i], x, y)) {
+        hit = i;
+        break;
+      }
+    }
+    if (hit !== this.hoverPanelIdx) {
+      this.hoverPanelIdx = hit;
+      this.cdr.markForCheck();
+    }
   }
 
   onCanvasClick(event: MouseEvent): void {
