@@ -31,6 +31,8 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
       [initY]="390"
       [initWidth]="560"
       [initHeight]="500"
+      [maxWidth]="800"
+      [maxHeight]="800"
       [maxAspectRatio]="1.2"
       [zIndex]="zIndex"
       (bringToFront)="bringToFront.emit()"

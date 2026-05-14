@@ -32,6 +32,11 @@ export class FloatingWindowComponent
    *  satellite window uses this so detected-panel scans stay roughly
    *  square — Roboflow handles wide aspect ratios poorly. */
   @Input() maxAspectRatio: number | null = null;
+  /** Hard absolute caps in pixels. Defaults effectively allow growth up
+   *  to the viewport; set lower on specific windows that shouldn't be
+   *  extendable indefinitely (e.g. the satellite scan window). */
+  @Input() maxWidth = Number.POSITIVE_INFINITY;
+  @Input() maxHeight = Number.POSITIVE_INFINITY;
   @Input() zIndex = 100;
   @Output() bringToFront = new EventEmitter<void>();
   @Output() close = new EventEmitter<void>();
@@ -65,8 +70,8 @@ export class FloatingWindowComponent
     const maxBottom = window.innerHeight - padding;
     this.x = Math.max(0, Math.min(this.initX, maxRight - 320));
     this.y = Math.max(0, Math.min(this.initY, maxBottom - 240));
-    const maxW = Math.max(320, maxRight - this.x);
-    const maxH = Math.max(240, maxBottom - this.y);
+    const maxW = Math.min(this.maxWidth, Math.max(320, maxRight - this.x));
+    const maxH = Math.min(this.maxHeight, Math.max(240, maxBottom - this.y));
     this.width = Math.min(this.initWidth, maxW);
     this.height = Math.min(this.initHeight, maxH);
     if (this.maxAspectRatio !== null && this.maxAspectRatio > 0) {
@@ -126,8 +131,14 @@ export class FloatingWindowComponent
       // Clamp so the user can't drag the window wider/taller than the viewport.
       // Otherwise the bottom-right resize handle ends up off-screen and the
       // window becomes unreachable.
-      const maxW = Math.max(320, window.innerWidth - this.x - 8);
-      const maxH = Math.max(140, window.innerHeight - this.y - 8);
+      const maxW = Math.min(
+        this.maxWidth,
+        Math.max(320, window.innerWidth - this.x - 8),
+      );
+      const maxH = Math.min(
+        this.maxHeight,
+        Math.max(140, window.innerHeight - this.y - 8),
+      );
       let nextW = Math.min(
         maxW,
         Math.max(260, this.resizeStartW + (event.clientX - this.resizeStartX)),
