@@ -30,7 +30,8 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
       [initX]="600"
       [initY]="390"
       [initWidth]="560"
-      [initHeight]="360"
+      [initHeight]="500"
+      [maxAspectRatio]="1.2"
       [zIndex]="zIndex"
       (bringToFront)="bringToFront.emit()"
       (close)="close.emit()"
@@ -692,7 +693,7 @@ export class SatelliteWindowComponent
     // always sees the same ground area at the same resolution.
     const TILE = 256;
     const z = 19;
-    const MAX_DIM = 2560;
+    const MAX_DIM = 1280;
     const mapElNode = this.mapEl.nativeElement;
     const visW = mapElNode.offsetWidth;
     const visH = mapElNode.offsetHeight;

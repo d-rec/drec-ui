@@ -27,6 +27,11 @@ export class FloatingWindowComponent
   @Input() initY = 20;
   @Input() initWidth = 480;
   @Input() initHeight = 340;
+  /** Optional cap on width/height ratio. When set, resize clamps width to
+   *  height * maxAspectRatio (and height to width / maxAspectRatio). The
+   *  satellite window uses this so detected-panel scans stay roughly
+   *  square — Roboflow handles wide aspect ratios poorly. */
+  @Input() maxAspectRatio: number | null = null;
   @Input() zIndex = 100;
   @Output() bringToFront = new EventEmitter<void>();
   @Output() close = new EventEmitter<void>();
@@ -64,6 +69,9 @@ export class FloatingWindowComponent
     const maxH = Math.max(240, maxBottom - this.y);
     this.width = Math.min(this.initWidth, maxW);
     this.height = Math.min(this.initHeight, maxH);
+    if (this.maxAspectRatio !== null && this.maxAspectRatio > 0) {
+      this.width = Math.min(this.width, Math.round(this.height * this.maxAspectRatio));
+    }
   }
 
   /**
@@ -120,14 +128,20 @@ export class FloatingWindowComponent
       // window becomes unreachable.
       const maxW = Math.max(320, window.innerWidth - this.x - 8);
       const maxH = Math.max(140, window.innerHeight - this.y - 8);
-      this.width = Math.min(
+      let nextW = Math.min(
         maxW,
         Math.max(260, this.resizeStartW + (event.clientX - this.resizeStartX)),
       );
-      this.height = Math.min(
+      let nextH = Math.min(
         maxH,
         Math.max(140, this.resizeStartH + (event.clientY - this.resizeStartY)),
       );
+      if (this.maxAspectRatio !== null && this.maxAspectRatio > 0) {
+        nextW = Math.min(nextW, Math.round(nextH * this.maxAspectRatio));
+        nextH = Math.min(nextH, Math.round(nextW / this.maxAspectRatio));
+      }
+      this.width = nextW;
+      this.height = nextH;
       this.cdr.markForCheck();
     }
   }
