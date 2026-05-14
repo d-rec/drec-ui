@@ -658,6 +658,13 @@ export class SatelliteWindowComponent
       return;
     }
 
+    // If the user resized the floating window between captures, Leaflet's
+    // internal container size may still be stale (ResizeObserver runs
+    // async). Force a sync re-measure so getCenter / latLngToContainerPoint
+    // match the current DOM, otherwise the captured 512×512 ends up offset
+    // from where the masks get drawn.
+    map.invalidateSize({ animate: false });
+
     // Capture a fixed 512x512 image centered on the map center at zoom 19.
     // Fetching tiles ourselves (instead of screenshotting the visible viewport)
     // makes the capture independent of window size, devicePixelRatio, and OS,
