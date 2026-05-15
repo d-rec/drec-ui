@@ -47,6 +47,16 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   showUnreadList = false;
   unreadDeviceNames: string[] = [];
+  /** Auto-dismiss the unread dropdown 10s after it opens, so the bell
+   *  notification doesn't sit there forever after a user glances at it. */
+  private unreadListAutoCloseTimer: ReturnType<typeof setTimeout> | null = null;
+  private armAutoClose(): void {
+    if (this.unreadListAutoCloseTimer) clearTimeout(this.unreadListAutoCloseTimer);
+    this.unreadListAutoCloseTimer = setTimeout(() => {
+      this.showUnreadList = false;
+      this.unreadListAutoCloseTimer = null;
+    }, 10_000);
+  }
 
   onBellClick(): void {
     const email = this.chatService.getCurrentUserEmail();
@@ -65,6 +75,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
         } else {
           this.unreadDeviceNames = Array.from(devices);
           this.showUnreadList = !this.showUnreadList;
+          if (this.showUnreadList) {
+            this.armAutoClose();
+          } else if (this.unreadListAutoCloseTimer) {
+            clearTimeout(this.unreadListAutoCloseTimer);
+            this.unreadListAutoCloseTimer = null;
+          }
         }
       });
   }
@@ -96,6 +112,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.chatService.stopUnreadPolling();
+    if (this.unreadListAutoCloseTimer) {
+      clearTimeout(this.unreadListAutoCloseTimer);
+      this.unreadListAutoCloseTimer = null;
+    }
   }
   public onToggleSidenav = () => {
     this.sidenavToggle.emit();
