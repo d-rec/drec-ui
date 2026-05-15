@@ -1,5 +1,10 @@
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  HostListener,
+  ViewChild,
+} from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -48,6 +53,21 @@ export class AdminAlldevicesComponent {
   ];
   selection = new SelectionModel<number>(true, []);
   bulkDeleting = false;
+
+  /** Re-fetch the device list whenever the tab gets focus so a freshly
+   *  registered site shows up without the user knowing to refresh. */
+  @HostListener('window:focus')
+  onWindowFocus(): void {
+    if (!this.loading && this.showlist) {
+      this.getDeviceListData(this.p);
+    }
+  }
+  @HostListener('document:visibilitychange')
+  onVisibilityChange(): void {
+    if (document.visibilityState === 'visible' && !this.loading && this.showlist) {
+      this.getDeviceListData(this.p);
+    }
+  }
   satPreviewEnabled = false;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   private _sort: MatSort;
@@ -452,6 +472,29 @@ export class AdminAlldevicesComponent {
       });
 
       this.dataSource = new MatTableDataSource(this.data.devices);
+      // Explicit case-insensitive substring match over the columns a
+      // user is likely to search by — siteName, organization name,
+      // externalId, serial, country, IREC id. Default MatTableDataSource
+      // predicate stringifies every property including nested objects
+      // and `[object Object]` noise, which can give surprising results.
+      this.dataSource.filterPredicate = (row: any, filter: string) => {
+        const f = filter.trim().toLowerCase();
+        if (!f) return true;
+        const fields = [
+          row.siteName,
+          row.organizationname,
+          row.externalId,
+          row.serialNumber,
+          row.countryname,
+          row.countryCode,
+          row.IREC_ID,
+          row.IREC_Status,
+          row.reviewStatus,
+        ];
+        return fields.some(
+          (v) => v != null && String(v).toLowerCase().includes(f),
+        );
+      };
       this.totalRows = this.data.totalCount;
       this.totalPages = this.data.totalPages;
       // this.dataSource.paginator = this.paginator;
