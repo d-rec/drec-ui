@@ -53,8 +53,26 @@
             <th mat-header-cell *matHeaderCellDef>Created</th>
             <td mat-cell *matCellDef="let org">{{ org.createdAt | date:'medium':'UTC' }} UTC</td>
           </ng-container>
-          <tr mat-header-row *matHeaderRowDef="['name', 'organizationType', 'status', 'createdAt']"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['name', 'organizationType', 'status', 'createdAt']"></tr>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef style="width:56px;text-align:right;"></th>
+            <td mat-cell *matCellDef="let org" style="text-align:right;">
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="orgMenu"
+                [disabled]="org.id === currentOrgId"
+                [title]="org.id === currentOrgId ? 'Cannot remove your active organization' : 'More actions'">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #orgMenu="matMenu">
+                <button mat-menu-item (click)="confirmRemoveOrg(org)">
+                  <mat-icon style="color:#dc2626">link_off</mat-icon>
+                  <span>Remove from my organizations</span>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="['name', 'organizationType', 'status', 'createdAt', 'actions']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['name', 'organizationType', 'status', 'createdAt', 'actions']"></tr>
         </table>
         <p *ngIf="registrantOrgsError" class="text-danger mt-2">{{ registrantOrgsError }}</p>
         <p *ngIf="!registrantOrgsError && registrantOrganizations.length === 0" class="text-muted mt-2">
