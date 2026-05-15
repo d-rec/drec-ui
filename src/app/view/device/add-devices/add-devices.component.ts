@@ -73,7 +73,6 @@ import {
   Sf02ExtractedFields,
   Sf02cExtractedFields,
   SldExtractedFields,
-  OdTemplateVerification,
 } from '../../../utils/document-classifier.service';
 import {
   ClassificationResult,
@@ -134,7 +133,6 @@ export class AddDevicesComponent implements OnDestroy {
   /** SF-02c text/vision extraction state per device. */
   sf02cExtractions: { [deviceIndex: number]: Sf02cExtractedFields | null } = {};
   sf02cExtracting: { [deviceIndex: number]: boolean } = {};
-  sf02cTemplateMatch: { [deviceIndex: number]: OdTemplateVerification | null } = {};
 
   /** COD proof extraction state per device. */
   codExtractions: { [deviceIndex: number]: CodExtractedFields | null } = {};
@@ -2252,7 +2250,6 @@ export class AddDevicesComponent implements OnDestroy {
   private extractSf02cFieldsForDevice(file: File, deviceIndex: number): void {
     this.sf02cExtracting[deviceIndex] = true;
     this.sf02cExtractions[deviceIndex] = null;
-    this.sf02cTemplateMatch[deviceIndex] = null;
     if (this.extractionApplied[deviceIndex]) {
       this.extractionApplied[deviceIndex]['SF-02c'] = false;
     }
@@ -2273,10 +2270,6 @@ export class AddDevicesComponent implements OnDestroy {
           this.sf02cExtracting[deviceIndex] = false;
         }),
       );
-    // COD/OD template-comparison disabled — was failing on staging and
-    // is suspected of contributing to a silent submit-blocked state.
-    // Leaving the upload flow untouched; just skipping verification.
-    this.sf02cTemplateMatch[deviceIndex] = null;
   }
 
   applySf02cExtraction(
@@ -3161,12 +3154,7 @@ export class AddDevicesComponent implements OnDestroy {
       candidates: Array<{ source: string; value: any }>;
     }>;
     unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
-    templateFails: Array<{
-      doc: string;
-      deviationPct: number;
-      deviations: Array<{ clause: string; status: 'warn' | 'fail'; note: string }>;
-    }>;
-  } = { empty: [], disagrees: [], unextracted: [], templateFails: [] };
+  } = { empty: [], disagrees: [], unextracted: [] };
 
   /** Always-on sidebar issue tally. Computed on a debounced cadence
    *  so we're not re-walking the form on every keystroke. The
@@ -3180,12 +3168,7 @@ export class AddDevicesComponent implements OnDestroy {
       candidates: Array<{ source: string; value: any }>;
     }>;
     unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
-    templateFails: Array<{
-      doc: string;
-      deviationPct: number;
-      deviations: Array<{ clause: string; status: 'warn' | 'fail'; note: string }>;
-    }>;
-  } = { empty: [], disagrees: [], unextracted: [], templateFails: [] };
+  } = { empty: [], disagrees: [], unextracted: [] };
 
   /** Collapsed state for the sidebar — registrants who hate it can
    *  shrink it to a chip showing just the total count. */
@@ -3287,11 +3270,6 @@ export class AddDevicesComponent implements OnDestroy {
       candidates: Array<{ source: string; value: any }>;
     }>;
     unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
-    templateFails: Array<{
-      doc: string;
-      deviationPct: number;
-      deviations: Array<{ clause: string; status: 'warn' | 'fail'; note: string }>;
-    }>;
   } {
     const form = this.deviceForms.at(deviceIndex) as FormGroup;
     const labelOf = (name: string) =>
@@ -3375,36 +3353,7 @@ export class AddDevicesComponent implements OnDestroy {
       }
     }
 
-    // (d) template-verification failures — SF-02c OD letter doesn't
-    // match the canonical 3-clause wording. We want this fixed BEFORE
-    // a reviewer ever sees it, so it goes into the presubmit dialog
-    // alongside everything else the registrant should clean up.
-    const templateFails: Array<{
-      doc: string;
-      deviationPct: number;
-      deviations: Array<{ clause: string; status: 'warn' | 'fail'; note: string }>;
-    }> = [];
-    const odMatch = this.sf02cTemplateMatch[deviceIndex];
-    if (odMatch && odMatch.matchScore < 0.85) {
-      const clauseLabel: Record<string, string> = {
-        attribute_grant: 'Attribute grant',
-        distinctness: 'Distinctness',
-        ownership_assigned: 'Ownership assigned',
-      };
-      templateFails.push({
-        doc: 'SF-02c (Owner’s Declaration)',
-        deviationPct: Math.round((1 - odMatch.matchScore) * 100),
-        deviations: (odMatch.deviations ?? [])
-          .filter((d) => d.severity !== 'ok')
-          .map((d) => ({
-            clause: clauseLabel[d.clause] ?? d.clause,
-            status: d.severity === 'fail' ? ('fail' as const) : ('warn' as const),
-            note: d.note,
-          })),
-      });
-    }
-
-    return { empty, disagrees, unextracted, templateFails };
+    return { empty, disagrees, unextracted };
   }
 
   private openPresubmitDialog(issues: ReturnType<typeof this.collectPresubmitIssues>): void {
@@ -3440,14 +3389,6 @@ export class AddDevicesComponent implements OnDestroy {
     if (issues.empty.length) {
       lines.push(`${issues.empty.length} required field${issues.empty.length === 1 ? '' : 's'} empty:`);
       for (const e of issues.empty) lines.push(`  - ${e.label}`);
-      lines.push('');
-    }
-    for (const t of issues.templateFails) {
-      lines.push(`${t.doc} — ${t.deviationPct}% deviation from canonical template`);
-      for (const d of t.deviations) {
-        lines.push(`  - [${d.status.toUpperCase()}] ${d.clause}: ${d.note}`);
-      }
-      lines.push('  Action: re-upload an OD letter matching the I-REC SF-02C wording (attribute grant + distinctness + ownership assigned).');
       lines.push('');
     }
     if (issues.unextracted.length) {
@@ -5685,12 +5626,7 @@ export class AddDevicesComponent implements OnDestroy {
     if (!this.presubmitOverride && this.isEditMode) {
       const issues = this.collectPresubmitIssues(0);
       issues.disagrees = [];
-      if (
-        issues.empty.length +
-          issues.unextracted.length +
-          issues.templateFails.length >
-        0
-      ) {
+      if (issues.empty.length + issues.unextracted.length > 0) {
         this.openPresubmitDialog(issues);
         return;
       }

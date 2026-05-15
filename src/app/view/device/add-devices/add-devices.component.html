@@ -992,19 +992,6 @@
                           </div>
                           <div class="magic-extract-section" *ngIf="sf02cExtractions[i] as fx">
                             <div class="magic-extract-section__header">From SF-02c</div>
-                            <div *ngIf="sf02cTemplateMatch[i] as v" class="od-tmpl-badge"
-                                 [class.od-tmpl-badge--ok]="v.matchScore >= 0.85"
-                                 [class.od-tmpl-badge--warn]="v.matchScore >= 0.5 && v.matchScore < 0.85"
-                                 [class.od-tmpl-badge--fail]="v.matchScore < 0.5"
-                                 [title]="v.reasoning">
-                              <span *ngIf="v.matchScore >= 0.85">✓ Matches template</span>
-                              <span *ngIf="v.matchScore < 0.85">⚠ {{ ((1 - v.matchScore) * 100) | number:'1.0-0' }}% deviation from template</span>
-                              <ul class="od-tmpl-badge__deviations" *ngIf="v.matchScore < 0.85">
-                                <li *ngFor="let d of v.deviations" [class.is-fail]="d.severity === 'fail'" [class.is-warn]="d.severity === 'warn'">
-                                  <strong>{{ d.clause === 'attribute_grant' ? 'Attribute grant' : d.clause === 'distinctness' ? 'Distinctness' : 'Ownership assigned' }}:</strong> {{ d.note }}
-                                </li>
-                              </ul>
-                            </div>
                             <ul class="fx-list">
                               <li *ngIf="fx.projectName" class="fx-row" [class.is-unchecked]="!isFieldChecked(i, 'sf02c:projectName')">
                                 <label><input type="checkbox" [checked]="isFieldChecked(i, 'sf02c:projectName')" (change)="toggleFieldChecked(i, 'sf02c:projectName', $any($event.target).checked)" /><span class="fx-row__text">Project: {{ fx.projectName.value }}</span></label>
@@ -1591,24 +1578,7 @@
          handled by the interactive picker dialog before this one
          opens, so reviewers don't see the same conflict twice. -->
 
-    <div *ngFor="let t of presubmitIssues.templateFails" class="ps-tmpl-fail">
-      <div class="ps-tmpl-fail__title">
-        ✘ {{ t.doc }} — {{ t.deviationPct }}% deviation from canonical template
-      </div>
-      <ul class="ps-tmpl-fail__list">
-        <li *ngFor="let d of t.deviations" [class.is-fail]="d.status === 'fail'" [class.is-warn]="d.status === 'warn'">
-          <strong>{{ d.clause }}:</strong> {{ d.note }}
-        </li>
-      </ul>
-      <p class="ps-tmpl-fail__hint">
-        Re-upload an Owner's Declaration that matches the I-REC SF-02C
-        wording — a reviewer can't approve this device until the three
-        substantive clauses (attribute grant, distinctness, ownership
-        assigned) are present and exclusive.
-      </p>
-    </div>
-
-    <div *ngIf="presubmitIssues.unextracted.length" class="ps-block">
+<div *ngIf="presubmitIssues.unextracted.length" class="ps-block">
       <div class="ps-block__title">💡 {{ presubmitIssues.unextracted.length }} field{{ presubmitIssues.unextracted.length === 1 ? '' : 's' }} look extractable</div>
       <p class="ps-block__hint">These are empty but the attached document could fill them. Open "Reading documents" to re-run the extractor.</p>
       <ul class="ps-list">
