@@ -632,6 +632,45 @@
   <div mat-dialog-actions class="continue-button"></div>
 </ng-template>
 
+<ng-template #bulkDeleteResultsDialog>
+  <h2 mat-dialog-title style="color:#dc3545;">
+    <mat-icon style="vertical-align:middle;margin-right:8px;">warning</mat-icon>
+    Bulk delete — {{ bulkDeleteFailures.length }} failure{{ bulkDeleteFailures.length === 1 ? '' : 's' }}
+  </h2>
+  <div mat-dialog-content>
+    <p class="text-muted small" style="margin-top:0;font-size:12px;">
+      Each row below couldn't be deleted. Common reasons: device is part of an active reservation, has certified meter reads, or is referenced by another record. Copy the list to forward to support if anything is unexpected.
+    </p>
+    <div style="max-height:400px;overflow:auto;border:1px solid #e5e7eb;border-radius:4px;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead style="background:#f8fafc;position:sticky;top:0;">
+          <tr>
+            <th style="text-align:left;padding:6px 10px;font-weight:600;color:#475569;border-bottom:1px solid #e5e7eb;">ID</th>
+            <th style="text-align:left;padding:6px 10px;font-weight:600;color:#475569;border-bottom:1px solid #e5e7eb;">Serial</th>
+            <th style="text-align:left;padding:6px 10px;font-weight:600;color:#475569;border-bottom:1px solid #e5e7eb;">Site</th>
+            <th style="text-align:left;padding:6px 10px;font-weight:600;color:#475569;border-bottom:1px solid #e5e7eb;">Reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of bulkDeleteFailures" style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:6px 10px;font-variant-numeric:tabular-nums;color:#64748b;">{{ f.id }}</td>
+            <td style="padding:6px 10px;font-family:monospace;">{{ f.serialNumber }}</td>
+            <td style="padding:6px 10px;color:#334155;">{{ f.projectName || '—' }}</td>
+            <td style="padding:6px 10px;color:#b91c1c;">{{ f.error }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-end" style="gap:8px;">
+    <button mat-stroked-button (click)="copyBulkDeleteErrors()">
+      <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">content_copy</mat-icon>
+      Copy errors
+    </button>
+    <button mat-flat-button color="primary" (click)="closeBulkDeleteResults()">Close</button>
+  </div>
+</ng-template>
+
 <ng-template #deleteErrorDialog let-data>
   <h2 mat-dialog-title style="color:#dc3545;">
     <mat-icon style="vertical-align:middle;margin-right:8px;">error</mat-icon>

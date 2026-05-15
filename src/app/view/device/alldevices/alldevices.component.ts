@@ -128,6 +128,14 @@ export class AlldevicesComponent {
   deviceChats = new Set<string>();
   selection = new SelectionModel<any>(true, []);
   bulkDeleting: boolean = false;
+  bulkDeleteFailures: Array<{
+    id: number;
+    serialNumber: string;
+    projectName: string;
+    error: string;
+  }> = [];
+  @ViewChild('bulkDeleteResultsDialog') bulkDeleteResultsDialog?: TemplateRef<any>;
+  private bulkDeleteResultsDialogRef: MatDialogRef<any> | null = null;
   reviewStatusFilters: Set<string> = new Set(['pending']);
   readonly reviewStatusOptions = [
     { key: 'pending', label: 'Pending', icon: '●' },
@@ -634,23 +642,57 @@ export class AlldevicesComponent {
       forkJoin(calls).subscribe((results) => {
         this.bulkDeleting = false;
         const ok = results.filter((r: any) => r.ok).length;
-        const failed = results.length - ok;
+        const failures = (results as any[]).filter((r) => !r.ok);
         if (ok > 0) {
           this.toastrService.success(
             `Deleted ${ok} device${ok === 1 ? '' : 's'}`,
             'Bulk delete',
           );
         }
-        if (failed > 0) {
-          this.toastrService.warning(
-            `${failed} device${failed === 1 ? '' : 's'} could not be deleted (likely grouped or in-use)`,
-            'Partial failure',
-          );
+        if (failures.length > 0) {
+          // Open a proper dialog with per-device errors + copy button —
+          // the toastr-only message was a usability cul-de-sac (no
+          // detail, can't copy, dismissed itself).
+          this.bulkDeleteFailures = failures.map((r) => {
+            const row = rows.find((x) => x.id === r.id);
+            return {
+              id: r.id,
+              serialNumber: row?.serialNumber ?? '(no serial)',
+              projectName: row?.projectName ?? '',
+              error: r.msg ?? 'Unknown error',
+            };
+          });
+          if (this.bulkDeleteResultsDialog) {
+            this.bulkDeleteResultsDialogRef = this.dialog.open(
+              this.bulkDeleteResultsDialog,
+              { width: '720px', maxWidth: '95vw' },
+            );
+          }
         }
         this.selection.clear();
         this.getDeviceListData(this.p);
       });
     });
+  }
+
+  /** Plain-text dump of every per-device failure — copied to the
+   *  clipboard so the registrant can forward the list to support
+   *  instead of squinting at a toast that auto-dismissed. */
+  copyBulkDeleteErrors(): void {
+    const lines = this.bulkDeleteFailures.map(
+      (f) =>
+        `Device ${f.id} (${f.serialNumber}${f.projectName ? ' — ' + f.projectName : ''}): ${f.error}`,
+    );
+    const text = `Bulk delete — ${this.bulkDeleteFailures.length} failure${this.bulkDeleteFailures.length === 1 ? '' : 's'}\n\n${lines.join('\n')}`;
+    navigator.clipboard.writeText(text).then(
+      () => this.toastrService.success('Errors copied to clipboard'),
+      () => this.toastrService.error('Copy failed — clipboard access denied'),
+    );
+  }
+
+  closeBulkDeleteResults(): void {
+    this.bulkDeleteResultsDialogRef?.close();
+    this.bulkDeleteResultsDialogRef = null;
   }
 
   toggleMap() {
