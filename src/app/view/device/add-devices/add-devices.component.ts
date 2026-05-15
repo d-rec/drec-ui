@@ -2009,7 +2009,7 @@ export class AddDevicesComponent implements OnDestroy {
       { name: 'capacity', field: fx.acCapacityKw },
       { name: 'generatingUnitCount', field: fx.inverterCount },
       { name: 'interconnectionVoltage', field: fx.gridVoltage },
-      { name: 'gridInterconnection', field: fx.gridTied, transform: (v) => (v ? 'true' : 'false') },
+      { name: 'gridInterconnection', field: fx.gridTied, transform: (v) => !!v },
       { name: 'dataSourceBrand', field: fx.inverterMakeModel },
       { name: 'networkOwner', field: fx.networkOwner },
       { name: 'hasNetworkMeter', field: fx.hasNetworkMeter, transform: (v) => (v ? 'Yes' : 'No') },
@@ -2634,9 +2634,7 @@ export class AddDevicesComponent implements OnDestroy {
       add('capacity', 'SLD', sld.acCapacityKw);
       add('generatingUnitCount', 'SLD', sld.inverterCount);
       add('interconnectionVoltage', 'SLD', sld.gridVoltage);
-      add('gridInterconnection', 'SLD', sld.gridTied, (v) =>
-        v ? 'true' : 'false',
-      );
+      add('gridInterconnection', 'SLD', sld.gridTied, (v) => !!v);
       add('dataSourceBrand', 'SLD', sld.inverterMakeModel);
       add('networkOwner', 'SLD', sld.networkOwner);
       add('hasNetworkMeter', 'SLD', sld.hasNetworkMeter, (v) =>
