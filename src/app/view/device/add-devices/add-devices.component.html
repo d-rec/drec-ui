@@ -1,4 +1,11 @@
 <div class="body-bg">
+  <div *ngIf="isSubmitting" class="submit-overlay" role="status" aria-live="polite">
+    <div class="submit-overlay__panel">
+      <mat-progress-spinner mode="indeterminate" diameter="56" strokeWidth="4"></mat-progress-spinner>
+      <div class="submit-overlay__title">Uploading documents…</div>
+      <div class="submit-overlay__hint">Don't close this tab. This can take 15–30s with several attachments.</div>
+    </div>
+  </div>
   <mat-card>
     <mat-card-header class="d-flex justify-content-between mat-crd-hide align-items-center overlay">
       <div>
@@ -1519,10 +1526,16 @@
               (click)="cancelEdit()">
               Cancel
             </button>
-            <button type="submit" class="btn-primary btn text-capitalize px-4"
+            <button type="submit" class="btn-primary btn text-capitalize px-4 d-inline-flex align-items-center gap-2"
               [disabled]="isSubmitting || (isEditMode && !hasUnsavedEditChanges())"
               test-id="submit-device">
-              {{ isEditMode ? 'Update' : submitButtonText }}
+              <mat-progress-spinner
+                *ngIf="isSubmitting"
+                mode="indeterminate"
+                diameter="16"
+                strokeWidth="2"
+              ></mat-progress-spinner>
+              <span>{{ isSubmitting ? 'Submitting…' : (isEditMode ? 'Update' : submitButtonText) }}</span>
             </button>
           </div>
         </div>

@@ -4729,9 +4729,34 @@ export class AddDevicesComponent implements OnDestroy {
     // theirs to own. Reviewer-side automation flags low-precision
     // sites independently, so blocking submit here was paternalistic.
 
-    this.openPopupDialog();
+    // Flip isSubmitting FIRST so the overlay + spinner are rendered
+    // before the (possibly slow) submitForm path runs. The setTimeout
+    // yields the macrotask queue once, giving Angular a chance to do a
+    // change-detection pass and paint, so the user sees feedback even
+    // if the subsequent build / upload chain runs synchronously for
+    // several seconds.
     this.isSubmitting = true;
+    this.submitButtonText = 'Submitting…';
+    // Safety reset — if no callback path fires within 2min, we unlock
+    // the button so the user isn't trapped. A real submit error path
+    // (toastr.error etc) will have already reset; this catches the
+    // "pending forever" case where the response never comes.
+    if (this.submitSafetyTimer) clearTimeout(this.submitSafetyTimer);
+    this.submitSafetyTimer = setTimeout(() => {
+      if (this.isSubmitting) {
+        this.isSubmitting = false;
+        this.submitButtonText = 'Submit';
+        this.toastrService.error(
+          'Submission appears stuck. Try again, or refresh if the issue persists.',
+          'Timed out',
+        );
+      }
+      this.submitSafetyTimer = null;
+    }, 120_000);
+    setTimeout(() => this.openPopupDialog(), 0);
   }
+
+  private submitSafetyTimer: ReturnType<typeof setTimeout> | null = null;
 
   /**
    * Build the FormData payload for a single device row (deviceToRegister
