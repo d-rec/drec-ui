@@ -32,6 +32,12 @@ export class AuthbaseService {
     return this.httpClient.get(this.url + routePath);
   }
 
+  DeleteMethod(routePath: string, body?: any): Observable<any> {
+    return this.httpClient.request('DELETE', this.url + routePath, {
+      body,
+    });
+  }
+
   logout(routePath: string) {
     return this.httpClient.post<any>(this.url + routePath, {});
   }

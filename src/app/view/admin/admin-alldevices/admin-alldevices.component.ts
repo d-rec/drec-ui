@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
+import { SelectionModel } from '@angular/cdk/collections';
 import { AuthbaseService } from '../../../auth/authbase.service';
 import { DeviceService, AdminService } from '../../../auth/services';
 import { Router } from '@angular/router';
@@ -32,6 +33,7 @@ export class AdminAlldevicesComponent {
   title = 'matDialog';
   dataFromDialog: any;
   displayedColumns = [
+    'select',
     'rowIndex',
     'siteName',
     'organization',
@@ -39,12 +41,15 @@ export class AdminAlldevicesComponent {
     'externalId',
     'countryCode',
     'capacity',
+    'lastUsedAt',
     'reviewStatus',
     'IREC_Status',
     'IREC_ID',
     'actions',
   ];
-  satPreviewEnabled = true;
+  selection = new SelectionModel<number>(true, []);
+  bulkDeleting = false;
+  satPreviewEnabled = false;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   private _sort: MatSort;
   @ViewChild(MatSort) set sort(s: MatSort) {
@@ -345,6 +350,59 @@ export class AdminAlldevicesComponent {
       this.dataSource.filter = '';
     }
   }
+  isAllSelected(): boolean {
+    if (!this.dataSource) return false;
+    const rows = this.dataSource.filteredData ?? [];
+    return rows.length > 0 && rows.every((r: any) => this.selection.isSelected(r.id));
+  }
+
+  isIndeterminate(): boolean {
+    if (!this.dataSource) return false;
+    const rows = this.dataSource.filteredData ?? [];
+    const selectedInView = rows.filter((r: any) => this.selection.isSelected(r.id)).length;
+    return selectedInView > 0 && selectedInView < rows.length;
+  }
+
+  toggleAll(): void {
+    if (!this.dataSource) return;
+    const rows = this.dataSource.filteredData ?? [];
+    if (this.isAllSelected()) {
+      rows.forEach((r: any) => this.selection.deselect(r.id));
+    } else {
+      rows.forEach((r: any) => this.selection.select(r.id));
+    }
+  }
+
+  bulkDelete(): void {
+    const ids = this.selection.selected;
+    if (!ids.length || this.bulkDeleting) return;
+    const confirmed = window.confirm(
+      `Permanently delete ${ids.length} device${ids.length > 1 ? 's' : ''}?\n\n` +
+        `This removes the device row(s), all cached documents (S3), upload logs, ` +
+        `meter reads, certificate logs, verification reports, and review submissions.\n\n` +
+        `This cannot be undone.`,
+    );
+    if (!confirmed) return;
+    this.bulkDeleting = true;
+    this.authService.DeleteMethod('device/bulk', { ids }).subscribe({
+      next: (res: any) => {
+        this.bulkDeleting = false;
+        this.toastrService.success(
+          `Deleted ${res.deletedDevices} device(s), ${res.deletedDocuments} document(s)` +
+            (res.skipped?.length ? `; ${res.skipped.length} skipped` : ''),
+        );
+        this.selection.clear();
+        this.getDeviceListData(this.p);
+      },
+      error: (err) => {
+        this.bulkDeleting = false;
+        this.toastrService.error(
+          err?.error?.message || 'Bulk delete failed',
+        );
+      },
+    });
+  }
+
   getDeviceListData(_page: number | null) {
     // Pass null pagenumber so the API skips skip/take and returns the full
     // list. The all-devices admin table is searchable + sortable client-side
