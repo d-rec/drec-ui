@@ -102,5 +102,11 @@ mat-progress-spinner {
     .mat-mdc-row {
       height: 32px;
     }
+    // Legal Entity Name was wrapping to two lines on almost every row;
+    // let it grow and stay on one line.
+    .mat-column-organization {
+      min-width: 220px;
+      white-space: nowrap;
+    }
   }
 }
