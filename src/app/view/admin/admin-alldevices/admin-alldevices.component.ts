@@ -38,7 +38,6 @@ export class AdminAlldevicesComponent {
     'siteName',
     'organization',
     'developerExternalId',
-    'externalId',
     'countryCode',
     'capacity',
     'lastUsedAt',
