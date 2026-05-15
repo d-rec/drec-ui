@@ -71,6 +71,26 @@
       </div>
     </div>
     <form [formGroup]="myform" (ngSubmit)="onSubmit()">
+      <div
+        *ngIf="submitValidationErrors.length"
+        class="submit-validation-banner alert alert-danger d-flex align-items-start"
+        role="alert"
+      >
+        <mat-icon class="me-2" style="font-size:24px;height:24px;width:24px">error</mat-icon>
+        <div class="flex-grow-1">
+          <strong>Submission blocked — fix the following before continuing:</strong>
+          <ul class="mb-1 mt-1">
+            <li *ngFor="let e of submitValidationErrors">{{ e }}</li>
+          </ul>
+          <small>You cannot leave this page or submit until these are resolved.</small>
+        </div>
+        <button
+          type="button"
+          class="btn-close ms-2"
+          aria-label="Dismiss"
+          (click)="submitValidationErrors = []"
+        ></button>
+      </div>
       <mat-card-content>
         <div class="col-md-3" *ngIf="user.role === 'Admin' || user.role === 'Registrant'">
           <mat-form-field appearance="outline">

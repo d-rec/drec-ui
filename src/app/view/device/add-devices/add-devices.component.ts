@@ -6,6 +6,7 @@ import {
   Output,
   OnDestroy,
   NgZone,
+  HostListener,
 } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
@@ -279,6 +280,20 @@ export class AddDevicesComponent implements OnDestroy {
   allDocumentsUploaded: boolean = false;
   formValid: boolean = false;
   isSubmitting: boolean = false;
+  /** Populated when onSubmit is clicked while invalid — rendered in a
+   *  prominent banner above the form so the registrant cannot miss it. */
+  submitValidationErrors: string[] = [];
+
+  /** Block tab-close / refresh while the registrant has unresolved
+   *  submit-time validation errors. The route's CanDeactivate handles
+   *  in-app navigation; this covers the browser-level case. */
+  @HostListener('window:beforeunload', ['$event'])
+  protectAgainstAccidentalNavigation(e: BeforeUnloadEvent): void {
+    if (this.submitValidationErrors.length) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  }
   submitButtonText: string = 'Submit';
   // Per-row state for the Save & Generate SF-02 flow. After a row is
   // saved this way it carries the new device id and the timestamp of
@@ -2258,19 +2273,10 @@ export class AddDevicesComponent implements OnDestroy {
           this.sf02cExtracting[deviceIndex] = false;
         }),
       );
-    // Auto-verify the OD against the canonical 3-clause template in
-    // parallel with field extraction. Result lands in
-    // sf02cTemplateMatch[deviceIndex] for the slot badge to render.
-    this.documentClassifier
-      .verifyOdTemplate(file)
-      .then((v) =>
-        this.ngZone.run(() => {
-          this.sf02cTemplateMatch[deviceIndex] = v;
-        }),
-      )
-      .catch(() => {
-        /* swallow — verification is best-effort, no badge if it fails */
-      });
+    // COD/OD template-comparison disabled — was failing on staging and
+    // is suspected of contributing to a silent submit-blocked state.
+    // Leaving the upload flow untouched; just skipping verification.
+    this.sf02cTemplateMatch[deviceIndex] = null;
   }
 
   applySf02cExtraction(
@@ -4755,7 +4761,25 @@ export class AddDevicesComponent implements OnDestroy {
     if (this.isSubmitting) return;
     this.myform.markAllAsTouched();
     this.checkDocumentsUploaded();
-    if (!this.formValid) return;
+    if (!this.formValid) {
+      this.submitValidationErrors = this.getMissingFieldsList();
+      const count = this.submitValidationErrors.length;
+      this.toastrService.error(
+        count
+          ? `Cannot submit — ${count} field(s) need attention. See list at top of page.`
+          : 'Cannot submit — form is incomplete. Look for red borders on required fields.',
+        'Submission blocked',
+        { timeOut: 8000 },
+      );
+      setTimeout(() => {
+        const banner =
+          document.querySelector<HTMLElement>('.submit-validation-banner') ??
+          document.querySelector<HTMLElement>('.mat-form-field-invalid');
+        banner?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 50);
+      return;
+    }
+    this.submitValidationErrors = [];
 
     // D-REC requires ≥6 decimals on lat/lng (≈10cm) so the coords
     // pinpoint a specific facility, not a 1km cell. Rejected at

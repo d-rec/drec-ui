@@ -1,15 +1,24 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AddDevicesComponent } from './add-devices/add-devices.component';
+import { addDevicesCanDeactivate } from './add-devices/add-devices.guard';
 import { AlldevicesComponent } from './alldevices/alldevices.component';
 import { AddBulkDeviceComponent } from './add-bulk-device/add-bulk-device.component';
 import { CertifiedDevicesDeveloperComponent } from '../certified-devices-developer/certified-devices-developer.component';
 const routes: Routes = [
   { path: '', redirectTo: 'AllList', pathMatch: 'full' },
   { path: 'AllList', component: AlldevicesComponent },
-  { path: 'add', component: AddDevicesComponent },
+  {
+    path: 'add',
+    component: AddDevicesComponent,
+    canDeactivate: [addDevicesCanDeactivate],
+  },
   { path: 'bulk_upload', component: AddBulkDeviceComponent },
-  { path: 'edit/:id', component: AddDevicesComponent },
+  {
+    path: 'edit/:id',
+    component: AddDevicesComponent,
+    canDeactivate: [addDevicesCanDeactivate],
+  },
   {
     path: 'certifiedin_reservation',
     component: CertifiedDevicesDeveloperComponent,
