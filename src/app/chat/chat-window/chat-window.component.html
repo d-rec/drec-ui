@@ -38,6 +38,9 @@
       <div class="chat-context-menu" *ngIf="showContextMenu" [style.top.px]="contextMenuY" [style.left.px]="contextMenuX">
         <button class="chat-context-menu__item" (click)="clearChat()">Clear chat</button>
       </div>
+      <div class="chat-context-menu" *ngIf="msgMenu" [style.top.px]="msgMenu.y" [style.left.px]="msgMenu.x">
+        <button class="chat-context-menu__item" (click)="deleteMessageFromMenu()">Delete message</button>
+      </div>
       <button class="scroll-arrow scroll-arrow--top" (click)="scrollToTop()" title="Jump to top">&#9650;</button>
       <div class="messages-container" #messagesContainer>
         <div

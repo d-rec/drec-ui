@@ -299,9 +299,16 @@ export class ChatService implements OnDestroy {
     );
   }
 
-  // Note: deleteMessage() was removed 2026-05-11. Chat is eternal
-  // audit material; resolve/reopen are the only mutations allowed
-  // and both append system markers rather than destroying.
+  /** Delete a single chat message. Backend splices the linked list so
+   *  the conversation stays continuous. Returns the (possibly new) head
+   *  of the conversation, or null if the conversation was emptied. */
+  deleteMessage(
+    uuid: string,
+  ): Observable<{ conversationId: number | null; headUuid: string | null }> {
+    return this.http.delete<{ conversationId: number | null; headUuid: string | null }>(
+      `${this.apiUrl}chat/messages/${uuid}`,
+    );
+  }
 
   getAdminUser(): Observable<{
     id: number;

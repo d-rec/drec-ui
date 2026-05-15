@@ -194,6 +194,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private dismissContextMenu = () => {
     this.showContextMenu = false;
+    this.msgMenu = null;
   };
 
   ngOnInit(): void {
@@ -558,22 +559,47 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showContextMenu = true;
   }
 
-  /** Per-message right-click menu (Delete). Only fires for the user's own
-   *  messages — others fall through to the native menu. */
+  /** Per-message right-click menu (Delete message). */
   msgMenu: { x: number; y: number; uuid: string } | null = null;
 
-  onMessageContextMenu(_event: MouseEvent, _msg: ChatMessage): void {
-    // Right-click delete was removed 2026-05-11 — chat is eternal
-    // audit material. The context menu currently has nothing else
-    // to offer, so this is a no-op until we add e.g. "reply to
-    // this message" or "copy permalink".
+  onMessageContextMenu(event: MouseEvent, msg: ChatMessage): void {
+    if (!window.getSelection()?.isCollapsed) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const rect = (
+      this.messagesContainer.nativeElement as HTMLElement
+    ).getBoundingClientRect();
+    this.msgMenu = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+      uuid: msg.uuid,
+    };
+    // Hide the full-conversation menu if it was open from a prior click.
+    this.showContextMenu = false;
   }
 
   deleteMessageFromMenu(): void {
-    // Endpoint and capability removed 2026-05-11 — chat is eternal
-    // audit material. Kept as a no-op so the legacy menu binding
-    // (and any external test that references this method) doesn't
-    // break before we tear out the menu HTML.
+    const uuid = this.msgMenu?.uuid;
+    this.msgMenu = null;
+    if (!uuid) return;
+    this.chatService.deleteMessage(uuid).subscribe({
+      next: (res) => {
+        // Optimistic local prune; polling will reconcile.
+        const filtered = this.chatService.messages$.value.filter(
+          (m) => m.uuid !== uuid,
+        );
+        this.chatService.messages$.next(filtered);
+        if (res.headUuid !== null) {
+          this.chatService.currentHeadUuid = res.headUuid;
+        } else if (res.conversationId !== null) {
+          // Whole conversation was emptied by removing its last message.
+          this.chatService.currentConversationId = null;
+          this.chatService.currentHeadUuid = null;
+          this.chatService.stopPolling();
+        }
+      },
+      error: (err) => console.error('Failed to delete message', err),
+    });
   }
 
   clearChat(): void {
