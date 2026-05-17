@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
+import { BrowserConsolePipeService } from './utils/browser-console-pipe.service';
 
 @Component({
   standalone: false,
@@ -8,7 +9,12 @@ import { ToastrService } from 'ngx-toastr';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  constructor(private toastr: ToastrService) {
+  constructor(
+    private toastr: ToastrService,
+    // Injected purely for the side effect — its constructor installs the
+    // console pipe when staging + ?debug=1. The variable is unused.
+    private readonly _browserConsolePipe: BrowserConsolePipeService,
+  ) {
     this.connectWallet();
   }
   getWindowEthereumProperty(): Ethereum | undefined {
