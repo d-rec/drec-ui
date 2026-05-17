@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { Device } from '../../models/device.model';
@@ -177,8 +177,18 @@ export class DeviceService {
     );
   }
 
-  public create(data: FormData): Observable<any> {
-    return this.httpClient.post<any>(this.url + 'device', data);
+  /**
+   * Emits the full HttpEvent stream (Sent → UploadProgress → Response).
+   * Callers that just want the final body should filter on
+   * event.type === HttpEventType.Response and read .body. The stream form
+   * lets the add-device overlay show upload progress and reset its
+   * "stuck submission" safety timer while bytes are flowing.
+   */
+  public create(data: FormData): Observable<HttpEvent<any>> {
+    return this.httpClient.post<any>(this.url + 'device', data, {
+      reportProgress: true,
+      observe: 'events',
+    });
   }
   public update(
     id: any,

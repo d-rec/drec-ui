@@ -278,6 +278,12 @@ export class AddDevicesComponent implements OnDestroy {
   allDocumentsUploaded: boolean = false;
   formValid: boolean = false;
   isSubmitting: boolean = false;
+  /** 0–100; updated from HttpClient UploadProgress events so the overlay
+   *  shows actual upload state instead of an opaque "Uploading…" spinner. */
+  uploadProgressPct = 0;
+  /** 'uploading' while bytes are flowing, 'processing' once the server is
+   *  parsing the multipart body and writing rows. */
+  uploadPhase: 'uploading' | 'processing' = 'uploading';
   /** Populated when onSubmit is clicked while invalid — rendered in a
    *  prominent banner above the form so the registrant cannot miss it. */
   submitValidationErrors: string[] = [];
@@ -4737,26 +4743,32 @@ export class AddDevicesComponent implements OnDestroy {
     // several seconds.
     this.isSubmitting = true;
     this.submitButtonText = 'Submitting…';
+    this.uploadProgressPct = 0;
+    this.uploadPhase = 'uploading';
     // Safety reset — if no callback path fires within 2min, we unlock
-    // the button so the user isn't trapped. A real submit error path
-    // (toastr.error etc) will have already reset; this catches the
-    // "pending forever" case where the response never comes.
+    // the button so the user isn't trapped. The submit subscription
+    // resets this timer on every UploadProgress event, so a legitimate
+    // slow upload (17 files on a home connection) keeps it alive as long
+    // as bytes are flowing. Only fires when truly nothing happens.
     if (this.submitSafetyTimer) clearTimeout(this.submitSafetyTimer);
-    this.submitSafetyTimer = setTimeout(() => {
-      if (this.isSubmitting) {
-        this.isSubmitting = false;
-        this.submitButtonText = 'Submit';
-        this.toastrService.error(
-          'Submission appears stuck. Try again, or refresh if the issue persists.',
-          'Timed out',
-        );
-      }
-      this.submitSafetyTimer = null;
-    }, 120_000);
+    this.submitSafetyTimer = setTimeout(() => this.safetyTimerFire(), 120_000);
     setTimeout(() => this.openPopupDialog(), 0);
   }
 
   private submitSafetyTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private safetyTimerFire(): void {
+    if (this.isSubmitting) {
+      this.isSubmitting = false;
+      this.submitButtonText = 'Submit';
+      this.uploadProgressPct = 0;
+      this.toastrService.error(
+        'Submission appears stuck. Try again, or refresh if the issue persists.',
+        'Timed out',
+      );
+    }
+    this.submitSafetyTimer = null;
+  }
 
   /**
    * Build the FormData payload for a single device row (deviceToRegister
@@ -4887,7 +4899,46 @@ export class AddDevicesComponent implements OnDestroy {
       }
 
       this.deviceService.create(formData).subscribe({
-        next: (result: any) => {
+        next: (event: any) => {
+          // HttpEventType.UploadProgress = 1. Bytes are still going up;
+          // surface the percentage in the overlay and keep the safety
+          // timer alive so a slow uplink with 17 files doesn't trigger
+          // a false "stuck" timeout.
+          if (event?.type === 1) {
+            if (event.total) {
+              this.uploadProgressPct = Math.round(
+                (event.loaded / event.total) * 100,
+              );
+            }
+            this.uploadPhase =
+              this.uploadProgressPct >= 100
+                ? 'processing'
+                : 'uploading';
+            // Reset the 2-min safety timer as long as bytes are flowing.
+            if (this.submitSafetyTimer) {
+              clearTimeout(this.submitSafetyTimer);
+              this.submitSafetyTimer = setTimeout(
+                () => this.safetyTimerFire(),
+                120_000,
+              );
+            }
+            return;
+          }
+          // HttpEventType.Response = 4. The actual response we care about.
+          if (event?.type !== 4) return;
+          const result = event.body;
+          // Always reset isSubmitting on success — don't rely on the
+          // router.navigate below to unmount the component. That was the
+          // bug that left the overlay forever when navigation no-op'd.
+          if (this.submitSafetyTimer) {
+            clearTimeout(this.submitSafetyTimer);
+            this.submitSafetyTimer = null;
+          }
+          this.isSubmitting = false;
+          this.submitButtonText = 'Submit';
+          this.uploadProgressPct = 0;
+          this.uploadPhase = 'uploading';
+
           this.toastrService.success(
             'Added Successfully !!',
             'Device! ' + element.serialNumber,
@@ -4913,8 +4964,13 @@ export class AddDevicesComponent implements OnDestroy {
         },
         error: (err) => {
           console.error('error caught in component', err.error.message);
+          if (this.submitSafetyTimer) {
+            clearTimeout(this.submitSafetyTimer);
+            this.submitSafetyTimer = null;
+          }
           this.submitButtonText = 'Submit';
           this.isSubmitting = false;
+          this.uploadProgressPct = 0;
           const message =
             err.error?.message || err.message || 'Failed to register device';
           if (err.status === 409 || err.error?.statusCode === 409) {

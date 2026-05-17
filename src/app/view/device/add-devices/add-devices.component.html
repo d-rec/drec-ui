@@ -1,9 +1,32 @@
 <div class="body-bg">
   <div *ngIf="isSubmitting" class="submit-overlay" role="status" aria-live="polite">
     <div class="submit-overlay__panel">
-      <mat-progress-spinner mode="indeterminate" diameter="56" strokeWidth="4"></mat-progress-spinner>
-      <div class="submit-overlay__title">Uploading documents…</div>
-      <div class="submit-overlay__hint">Don't close this tab. This can take 15–30s with several attachments.</div>
+      <ng-container *ngIf="uploadPhase === 'uploading'">
+        <mat-progress-bar
+          mode="determinate"
+          [value]="uploadProgressPct"
+          class="submit-overlay__bar"
+        ></mat-progress-bar>
+        <div class="submit-overlay__title">
+          Uploading documents… {{ uploadProgressPct }}%
+        </div>
+        <div class="submit-overlay__hint">
+          Don't close this tab. With several attachments and a slow connection
+          this can take a few minutes.
+        </div>
+      </ng-container>
+      <ng-container *ngIf="uploadPhase === 'processing'">
+        <mat-progress-spinner
+          mode="indeterminate"
+          diameter="56"
+          strokeWidth="4"
+        ></mat-progress-spinner>
+        <div class="submit-overlay__title">Processing on server…</div>
+        <div class="submit-overlay__hint">
+          Upload complete. Waiting for the server to finish writing the device
+          and document records.
+        </div>
+      </ng-container>
     </div>
   </div>
   <mat-card>

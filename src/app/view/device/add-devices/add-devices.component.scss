@@ -1779,4 +1779,9 @@ $as-bg:       #f8fafc;
     font-size: 13px;
     color: #475569;
   }
+
+  &__bar {
+    width: 360px;
+    max-width: 80vw;
+  }
 }
