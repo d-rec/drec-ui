@@ -4654,8 +4654,14 @@ export class AddDevicesComponent implements OnDestroy {
 
     this.isGeneratingSf02ByIndex[index] = true;
     this.deviceService.create(formData).subscribe({
-      next: (result: any) => {
-        if (!result?.id) {
+      next: (event: any) => {
+        // deviceService.create now emits the full HttpEvent stream
+        // (Sent=0, UploadProgress=1, Response=4). Ignore everything
+        // but the final Response; otherwise the first emission has
+        // no body and we'd false-fire "no device id".
+        if (event?.type !== 4) return;
+        const body = event.body;
+        if (!body?.id) {
           this.isGeneratingSf02ByIndex[index] = false;
           this.toastrService.error(
             'Saved but no device id returned',
@@ -4663,9 +4669,9 @@ export class AddDevicesComponent implements OnDestroy {
           );
           return;
         }
-        this.savedDeviceIdByIndex[index] = result.id;
-        this.persistStagedLabels(result.id, index);
-        this.runGenerateSf02(index, result.id);
+        this.savedDeviceIdByIndex[index] = body.id;
+        this.persistStagedLabels(body.id, index);
+        this.runGenerateSf02(index, body.id);
       },
       error: (err) => {
         this.isGeneratingSf02ByIndex[index] = false;
