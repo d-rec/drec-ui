@@ -183,11 +183,24 @@ export class DeviceService {
    * event.type === HttpEventType.Response and read .body. The stream form
    * lets the add-device overlay show upload progress and reset its
    * "stuck submission" safety timer while bytes are flowing.
+   *
+   * `idempotencyKey` is forwarded as the `Idempotency-Key` header so the
+   * backend can deduplicate retries after network failures (status 0,
+   * 502 from a flapping ALB target, etc.). The caller is responsible
+   * for reusing the *same* key on retry and minting a fresh one only
+   * when starting a genuinely new submission — otherwise the server
+   * will return the cached response from the first attempt.
    */
-  public create(data: FormData): Observable<HttpEvent<any>> {
+  public create(
+    data: FormData,
+    idempotencyKey?: string,
+  ): Observable<HttpEvent<any>> {
+    const headers: Record<string, string> = {};
+    if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey;
     return this.httpClient.post<any>(this.url + 'device', data, {
       reportProgress: true,
       observe: 'events',
+      headers,
     });
   }
   public update(

@@ -303,6 +303,13 @@ export class AddDevicesComponent implements OnDestroy {
   // saved this way it carries the new device id and the timestamp of
   // the latest auto-generated SF-02; bulk Submit then skips it.
   savedDeviceIdByIndex: Record<number, number> = {};
+
+  /** Per-row idempotency keys. Minted lazily on the first POST attempt
+   *  for a given row, reused on retries so the backend recognises the
+   *  retry as a replay and returns the original device id instead of
+   *  creating a duplicate. Cleared when the row is successfully saved
+   *  or when the user edits the row (mintIdempotencyKey resets it). */
+  private idempotencyKeyByIndex: Record<number, string> = {};
   isGeneratingSf02ByIndex: Record<number, boolean> = {};
   isGeneratingProvenance: Record<number, boolean> = {};
   provenanceGeneratedAt: Record<number, string> = {};
@@ -4653,7 +4660,8 @@ export class AddDevicesComponent implements OnDestroy {
     if (!formData) return;
 
     this.isGeneratingSf02ByIndex[index] = true;
-    this.deviceService.create(formData).subscribe({
+    const idempotencyKey = this.idempotencyKeyFor(index);
+    this.deviceService.create(formData, idempotencyKey).subscribe({
       next: (event: any) => {
         // deviceService.create now emits the full HttpEvent stream
         // (Sent=0, UploadProgress=1, Response=4). Ignore everything
@@ -4670,6 +4678,7 @@ export class AddDevicesComponent implements OnDestroy {
           return;
         }
         this.savedDeviceIdByIndex[index] = body.id;
+        delete this.idempotencyKeyByIndex[index];
         this.persistStagedLabels(body.id, index);
         this.runGenerateSf02(index, body.id);
       },
@@ -4762,6 +4771,23 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   private submitSafetyTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /** Returns the idempotency key for a given row, minting one lazily on
+   *  first request. Same key is reused on retries (which is the point —
+   *  the backend recognises the replay and returns the original device
+   *  id rather than creating a duplicate). Cleared on successful save
+   *  so the next genuine submit attempt gets a fresh key. */
+  private idempotencyKeyFor(index: number): string {
+    let key = this.idempotencyKeyByIndex[index];
+    if (!key) {
+      key =
+        typeof crypto !== 'undefined' && (crypto as any).randomUUID
+          ? (crypto as any).randomUUID()
+          : `idk-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      this.idempotencyKeyByIndex[index] = key;
+    }
+    return key;
+  }
 
   private safetyTimerFire(): void {
     if (this.isSubmitting) {
@@ -4904,7 +4930,8 @@ export class AddDevicesComponent implements OnDestroy {
         return;
       }
 
-      this.deviceService.create(formData).subscribe({
+      const idempotencyKey = this.idempotencyKeyFor(index);
+      this.deviceService.create(formData, idempotencyKey).subscribe({
         next: (event: any) => {
           // HttpEventType.UploadProgress = 1. Bytes are still going up;
           // surface the percentage in the overlay and keep the safety
@@ -4953,6 +4980,7 @@ export class AddDevicesComponent implements OnDestroy {
           // Persist any per-file labels the registrant set in the rename dialog.
           if (result?.id) {
             this.persistStagedLabels(result.id, index);
+            delete this.idempotencyKeyByIndex[index];
           }
 
           const idx = deviceArray.indexOf(element);
