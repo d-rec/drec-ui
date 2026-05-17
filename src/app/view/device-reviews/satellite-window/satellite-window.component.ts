@@ -869,7 +869,18 @@ export class SatelliteWindowComponent
         : 'Unexpected model response (no `outputs[0].predictions`).';
       let raw = '';
       try {
-        raw = JSON.stringify(data, null, 2);
+        raw = JSON.stringify(data, (_k, v) => {
+          if (
+            v &&
+            typeof v === 'object' &&
+            v.type === 'base64' &&
+            typeof v.value === 'string'
+          ) {
+            const { value, ...rest } = v;
+            return { ...rest, value: `[${value.length} base64 chars omitted]` };
+          }
+          return v;
+        }, 2);
         if (raw.length > 1500) raw = raw.slice(0, 1500) + '\n…[truncated]';
       } catch {
         raw = String(data);
