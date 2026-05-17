@@ -551,6 +551,9 @@ export class AlldevicesComponent {
       next: (response) => {
         if (response.success) {
           this.toastrService.success(response.message, 'Successfully');
+          this.selection.deselect(
+            ...this.selection.selected.filter((r) => r?.id === id),
+          );
           this.getDeviceListData(this.p);
         } else {
           this.showCopyableError(response.message, `Delete device ${id}`);
