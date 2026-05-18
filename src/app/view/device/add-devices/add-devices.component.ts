@@ -2138,7 +2138,19 @@ export class AddDevicesComponent implements OnDestroy {
         continue;
       }
       if (this.normalizeForCompare(cur) === this.normalizeForCompare(next)) {
-        // Same value — nothing to do.
+        // Same value — no form patch needed, but DO record provenance.
+        // Otherwise a value the registrant typed *and* Haiku independently
+        // confirmed shows up later as MANUAL / "no extractor weighed in"
+        // even though the extractor agreed. Matching is the strongest
+        // possible signal that AI and human are aligned; we want it
+        // surfaced in the OC checklist, not silently dropped.
+        this.recordProvenance(
+          deviceIndex,
+          c.name,
+          source,
+          c.field.confidence,
+          next,
+        );
         continue;
       }
       conflicts.push({
