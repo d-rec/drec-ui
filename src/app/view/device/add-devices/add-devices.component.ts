@@ -636,6 +636,15 @@ export class AddDevicesComponent implements OnDestroy {
               // because ai_response_cache short-circuits the Haiku
               // round-trip on a content-hash hit.
               this.replayExtractorsOnExistingDocs(0, docsByType);
+              // Auto-regenerate the EVIDENCE_PROVENANCE report if its
+              // attached copy is older than the latest fieldProvenance
+              // entry. Catches out-of-band updates to field_provenance
+              // (server-side backfills, future cron jobs) so the report
+              // catches up without requiring a manual Save.
+              setTimeout(
+                () => this.maybeAutoRegenerateProvenanceReport(0),
+                2000,
+              );
 
               // Probe each URL for 404s so the UI can flag broken links.
               this.brokenDocs[0] = {};
@@ -3701,6 +3710,39 @@ export class AddDevicesComponent implements OnDestroy {
       // helper falls through cleanly when value is undefined.
       ...(value !== undefined ? { value } : {}),
     };
+  }
+
+  /** If the persisted fieldProvenance has entries newer than the most
+   *  recent EVIDENCE_PROVENANCE document, regenerate the report so it
+   *  reflects the latest state. Runs on edit-page load after
+   *  appliedProvenance + existingDocs are both hydrated, so a
+   *  server-side backfill (or any out-of-band field_provenance update)
+   *  surfaces in the report without requiring a manual Save.
+   *
+   *  Skips silently if: no provenance entries at all, no existing
+   *  report and no provenance to put in one, or report is already
+   *  current. */
+  private maybeAutoRegenerateProvenanceReport(deviceIndex: number): void {
+    if (!this.editingDeviceId) return;
+    if (this.isGeneratingProvenance[deviceIndex]) return;
+    const persisted = this.appliedProvenance[deviceIndex] ?? {};
+    const timestamps = Object.values(persisted)
+      .map((p) => (p as any)?.at)
+      .filter((t): t is string => typeof t === 'string')
+      .map((t) => new Date(t).getTime())
+      .filter((n) => Number.isFinite(n) && n > 0);
+    if (timestamps.length === 0) return;
+    const newestProvenanceAt = Math.max(...timestamps);
+
+    const existing =
+      this.existingDocs[deviceIndex]?.['EVIDENCE_PROVENANCE'] ?? [];
+    const newestReportAt = existing
+      .map((d) => (d.createdAt ? new Date(d.createdAt).getTime() : 0))
+      .reduce((a, b) => Math.max(a, b), 0);
+
+    if (newestReportAt >= newestProvenanceAt) return;
+
+    this.generateProvenanceReport(deviceIndex);
   }
 
   generateProvenanceReport(deviceIndex: number): void {
