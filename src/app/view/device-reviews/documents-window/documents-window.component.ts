@@ -3586,6 +3586,13 @@ trustUrl(url: string): SafeUrl {
     this.svc.populateFromDb();
   }
 
+  /** Refresh just the currently focused site — same network call as
+   *  populateDevices() under the hood, but the service preserves the
+   *  selectedId$ so the reviewer doesn't lose their place. */
+  refreshFocusedSite(): void {
+    this.svc.populateFromDb(true);
+  }
+
   flyToDevice(): void {
     if (!this.editingId) return;
     const asset = this.svc.assets$.value.find((a) => a.id === this.editingId);

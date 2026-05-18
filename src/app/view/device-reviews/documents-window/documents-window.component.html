@@ -65,6 +65,13 @@
         </button>
         <ng-container *ngFor="let sel of visibleAssets(result.assets)">
           <span class="focus-banner__site">{{ sel.siteName }}</span>
+          <button
+            type="button"
+            class="icon-btn icon-btn--refresh focus-banner__refresh"
+            (click)="refreshFocusedSite()"
+            [disabled]="(svc.loading$ | async)"
+            title="Refresh this site"
+          >&#8635;</button>
           <span class="status-icon status-icon--{{ sel.status }}">{{ sel.status === 'approved' ? '✓' : sel.status === 'rejected' ? '✗' : '●' }}</span>
           <span class="status-label">{{ sel.status | titlecase }}</span>
         </ng-container>

@@ -117,9 +117,14 @@ export class AssetService {
 
   constructor(private http: HttpClient) {}
 
-  populateFromDb(): void {
+  /** Reload the full device-reviews list from the API.
+   *  `retainSelection: true` keeps the current focused-site state so a
+   *  reviewer can click "refresh this site" from inside focus mode
+   *  without being kicked back out to the list view. */
+  populateFromDb(retainSelection = false): void {
     this.loading$.next(true);
     this.error$.next(null);
+    const previousSelection = this.selectedId$.value;
     this.http.get<Asset[]>(environment.API_URL + 'device-reviews').subscribe({
       next: (assets) => {
         const mapped = assets.map((a) => ({
@@ -130,7 +135,15 @@ export class AssetService {
         }));
         this.assets$.next(mapped);
         this.dataLoaded$.next(mapped);
-        this.selectedId$.next(null);
+        // Only drop selection on the full-list refresh path. The
+        // "refresh this site" button in the focus-mode banner sets
+        // retainSelection=true so the reviewer stays on the same site.
+        if (retainSelection && previousSelection &&
+            mapped.some((a) => a.id === previousSelection)) {
+          this.selectedId$.next(previousSelection);
+        } else {
+          this.selectedId$.next(null);
+        }
         this.loading$.next(false);
       },
       error: (err) => {

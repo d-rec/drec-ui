@@ -763,6 +763,11 @@ $legacy:   #a0845c;
     font-size: 14px;
     color: #1e293b;
   }
+  &__refresh {
+    margin-left: -6px;
+    font-size: 16px;
+    line-height: 1;
+  }
 }
 
 .notes-chips {
