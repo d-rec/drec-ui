@@ -216,6 +216,25 @@ p {
   padding: 10px 20px 20px 20px;
 }
 
+/* Footer of the edit-device card: collapse Material's default
+ * mat-card-footer spacing so the Cancel / Update row sits right
+ * under the form content. No separator line — none needed. */
+.device-form-footer {
+  padding: 8px 16px 12px !important;
+  margin: 0 !important;
+  border: none !important;
+}
+:host ::ng-deep mat-card .device-form-footer {
+  padding: 8px 16px 12px !important;
+  margin: 0 !important;
+  border: none !important;
+}
+:host ::ng-deep mat-card .mat-mdc-card-content:last-child,
+:host ::ng-deep mat-card .mat-card-content:last-of-type {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
 .example-container1 mat-form-field + mat-form-field {
   margin-left: 8px;
   padding: 10px 0px 0px 0px;

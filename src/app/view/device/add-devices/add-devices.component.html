@@ -1530,10 +1530,8 @@
           </div>
         </div>
       </mat-card-content>
-      <mat-card-footer>
-        <hr style="margin:16px 0 12px" />
-        <div class="example-container">
-          <div class="col-12 d-flex justify-content-end align-items-center gap-3">
+      <mat-card-footer class="device-form-footer">
+        <div class="col-12 d-flex justify-content-end align-items-center gap-3">
             <span *ngIf="myform.invalid && !isSubmitting" class="text-danger small missing-fields-trigger"
               [matTooltip]="missingFieldsTooltip()"
               matTooltipClass="missing-fields-tooltip"
@@ -1560,7 +1558,6 @@
               ></mat-progress-spinner>
               <span>{{ isSubmitting ? 'Submitting…' : (isEditMode ? 'Update' : submitButtonText) }}</span>
             </button>
-          </div>
         </div>
       </mat-card-footer>
     </form>
