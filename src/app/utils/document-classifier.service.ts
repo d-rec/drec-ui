@@ -237,6 +237,27 @@ export class DocumentClassifierService {
         };
       }
 
+      // Spreadsheet meter-signal trapdoor: same idea as the image one,
+      // but spreadsheets/CSVs aren't image types. A CSV with row after
+      // row of "kWh" column values (the Atsawa export shape:
+      // "timestamp,Solar Yield,PV to grid,…" with units "kWh,kWh,…")
+      // gets flagged as METERING_EVIDENCE rather than dropped into
+      // OTHER_DOCUMENTS or routed to Haiku as a coin flip.
+      if (
+        /\.(xlsx?|csv)$/i.test(file.name) &&
+        (!kwResult ||
+          kwResult.suggestedType === DocumentType.OTHER_DOCUMENTS ||
+          kwResult.confidence < 0.6) &&
+        this.hasMeterSignals(text)
+      ) {
+        return {
+          suggestedType: DocumentType.METERING_EVIDENCE,
+          confidence: 0.7,
+          method: 'keywords',
+          alternatives: [],
+        };
+      }
+
       if (
         !file.type.startsWith('image/') &&
         (!kwResult || kwResult.confidence < HAIKU_FALLBACK_THRESHOLD)
