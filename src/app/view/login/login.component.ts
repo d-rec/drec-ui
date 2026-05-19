@@ -140,6 +140,21 @@ export class LoginComponent implements OnInit {
         clearInterval(this.loginTimer);
         console.error('error caught in component', error);
         const user = this.loginForm.value.username || '';
+        // Pull a useful message out of every shape the API or HttpClient
+        // might hand us. Nested first (error.error.message / .error /
+        // .detail), then top-level error.message, then a stringified
+        // error.error as a last resort. Never end up showing the
+        // generic "server returned an error" without status info.
+        const fallbackDetail = (): string => {
+          const e = error?.error;
+          if (e?.message) return e.message;
+          if (typeof e?.error === 'string') return e.error;
+          if (typeof e?.detail === 'string') return e.detail;
+          if (typeof e === 'string' && e.length < 500) return e;
+          if (error?.message) return error.message;
+          if (error?.statusText) return error.statusText;
+          return `HTTP ${error?.status ?? 'unknown'}`;
+        };
         if (error.status === 0) {
           this.loginError =
             'Cannot reach the D-REC server. Check your network connection or try again in a moment.';
@@ -148,13 +163,10 @@ export class LoginComponent implements OnInit {
         } else if (error.status === 403 && error.error?.message) {
           this.loginError = error.error.message;
         } else if (error.status >= 500) {
-          const detail = error.error?.message ? ` (${error.error.message})` : '';
-          this.loginError = `The D-REC server returned an error${detail}. Please try again shortly.`;
+          this.loginError =
+            `The D-REC server returned an error (HTTP ${error.status}: ${fallbackDetail()}). Please try again shortly.`;
         } else {
-          const detail = error.error?.message
-            ? `: ${error.error.message}`
-            : ` (HTTP ${error.status || 'unknown'})`;
-          this.loginError = `Login failed for "${user}"${detail}.`;
+          this.loginError = `Login failed for "${user}" (HTTP ${error.status || 'unknown'}: ${fallbackDetail()}).`;
         }
       },
     });
