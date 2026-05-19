@@ -5767,6 +5767,10 @@ export class AddDevicesComponent implements OnDestroy {
     return /\.csv$/i.test(name);
   }
 
+  isCsvFile(name: string | null | undefined): boolean {
+    return /\.csv$/i.test(name || '');
+  }
+
   /** Ingest a server-saved CSV doc as meter readings. Fetches the file
    *  bytes via the document-uploads streaming endpoint (same path as
    *  replayExtractorsOnExistingDocs), POSTs it to /meter-reads/csv-
@@ -5838,26 +5842,46 @@ export class AddDevicesComponent implements OnDestroy {
     file: File,
     busyKey: string,
     displayName: string,
+    replaceExisting = false,
   ): void {
-    this.meterReadService.ingestCsv(externalId, file).subscribe({
-      next: (result) => {
-        this.csvIngesting[busyKey] = false;
-        this.toastrService.success(
-          `Inserted ${result.inserted} readings from ${displayName} ` +
-            `(${result.unit}, ${result.intervalMinutes}-min intervals, ` +
-            `column: ${result.parsedColumn}). ` +
-            `Skipped ${result.skippedEmpty} empty + ${result.skippedZero} zero rows.`,
-          'Readings ingested',
-          { timeOut: 8000 },
-        );
-      },
-      error: (err) => {
-        this.csvIngesting[busyKey] = false;
-        const detail =
-          err?.error?.message || err?.message || `HTTP ${err?.status}`;
-        this.toastrService.error(detail, 'Ingest failed', { timeOut: 8000 });
-      },
-    });
+    this.meterReadService
+      .ingestCsv(externalId, file, { replaceExisting })
+      .subscribe({
+        next: (result) => {
+          this.csvIngesting[busyKey] = false;
+          const replacedNote = result.deletedOverlapping
+            ? ` (replaced ${result.deletedOverlapping} overlapping)`
+            : '';
+          this.toastrService.success(
+            `Inserted ${result.inserted} readings from ${displayName}${replacedNote} ` +
+              `(${result.unit}, ${result.intervalMinutes}-min intervals, ` +
+              `column: ${result.parsedColumn}). ` +
+              `Skipped ${result.skippedEmpty} empty + ${result.skippedZero} zero rows.`,
+            'Readings ingested',
+            { timeOut: 8000 },
+          );
+        },
+        error: (err) => {
+          this.csvIngesting[busyKey] = false;
+          const detail =
+            err?.error?.message || err?.message || `HTTP ${err?.status}`;
+          const isOverlapConflict =
+            err?.status === 409 || /historical entries/i.test(detail);
+          if (isOverlapConflict && !replaceExisting) {
+            if (
+              confirm(
+                `${displayName}: existing readings overlap this CSV's date range.\n\n` +
+                  `Replace the overlapping reads and re-ingest?`,
+              )
+            ) {
+              this.csvIngesting[busyKey] = true;
+              this.runCsvIngest(externalId, file, busyKey, displayName, true);
+              return;
+            }
+          }
+          this.toastrService.error(detail, 'Ingest failed', { timeOut: 8000 });
+        },
+      });
   }
 
   /** Delete a server-saved doc; only invoked from edit mode. */

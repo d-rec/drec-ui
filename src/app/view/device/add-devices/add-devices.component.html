@@ -812,7 +812,7 @@
                         OCR
                       </button>
                       <button type="button" class="existing-doc-ingest"
-                        *ngIf="isEditMode && docType === 'METERING_EVIDENCE' && /\.csv$/i.test(f.name)"
+                        *ngIf="isEditMode && docType === 'METERING_EVIDENCE' && isCsvFile(f.name)"
                         (click)="ingestMeterCsvFromStagedFile(idx, f)"
                         [disabled]="csvIngesting[idx + ':staged:' + f.name]"
                         title="Parse this CSV as meter readings — adds rows to meter_reads for issuance. Save the device first if you want the readings persisted against it.">

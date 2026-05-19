@@ -31,6 +31,7 @@ export class MeterReadService {
       valueColumn?: string;
       sumColumns?: string[];
       intervalMinutes?: number;
+      replaceExisting?: boolean;
     } = {},
   ): Observable<{
     deviceExternalId: string;
@@ -41,6 +42,7 @@ export class MeterReadService {
     skippedEmpty: number;
     skippedZero: number;
     intervalMinutes: number;
+    deletedOverlapping?: number;
   }> {
     const fd = new FormData();
     fd.append('file', file, file.name);
@@ -50,6 +52,7 @@ export class MeterReadService {
       params.set('sumColumns', opts.sumColumns.join(','));
     if (opts.intervalMinutes != null)
       params.set('intervalMinutes', String(opts.intervalMinutes));
+    if (opts.replaceExisting) params.set('replaceExisting', 'true');
     const qs = params.toString() ? `?${params.toString()}` : '';
     return this.httpClient.post<any>(
       `${this.url}meter-reads/csv-ingest/${encodeURIComponent(externalId)}${qs}`,
