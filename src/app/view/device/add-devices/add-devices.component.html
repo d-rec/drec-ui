@@ -787,6 +787,13 @@
                   <ul class="existing-doc-list" *ngIf="existingDocs[idx]?.[docType]?.length">
                     <li *ngFor="let doc of existingDocs[idx][docType]; let di = index" class="existing-doc-item">
                       <span class="existing-doc-link" (click)="viewExistingDoc(doc, docType)" [title]="doc.label || doc.name">{{ doc.label || doc.name }}</span>
+                      <button type="button" class="existing-doc-ingest"
+                        *ngIf="isEditMode && docType === 'METERING_EVIDENCE' && isCsvDoc(doc)"
+                        (click)="ingestMeterCsvFromExistingDoc(idx, doc)"
+                        [disabled]="csvIngesting[idx + ':' + doc.id]"
+                        title="Parse this CSV as meter readings — adds rows to meter_reads for issuance">
+                        {{ csvIngesting[idx + ':' + doc.id] ? 'Ingesting…' : 'Ingest as readings' }}
+                      </button>
                       <button type="button" class="existing-doc-delete" (click)="deleteExistingDoc(idx, docType, di)" title="Delete">
                         <mat-icon style="font-size:14px;height:14px;width:14px">close</mat-icon>
                       </button>
@@ -803,6 +810,13 @@
                         (click)="runOcrOnStagedFile(f)"
                         title="Extract text via OCR">
                         OCR
+                      </button>
+                      <button type="button" class="existing-doc-ingest"
+                        *ngIf="isEditMode && docType === 'METERING_EVIDENCE' && /\.csv$/i.test(f.name)"
+                        (click)="ingestMeterCsvFromStagedFile(idx, f)"
+                        [disabled]="csvIngesting[idx + ':staged:' + f.name]"
+                        title="Parse this CSV as meter readings — adds rows to meter_reads for issuance. Save the device first if you want the readings persisted against it.">
+                        {{ csvIngesting[idx + ':staged:' + f.name] ? 'Ingesting…' : 'Ingest as readings' }}
                       </button>
                       <button type="button" class="existing-doc-delete" (click)="removeStagedFile(idx, docType, si)" title="Remove">
                         <mat-icon style="font-size:14px;height:14px;width:14px">close</mat-icon>

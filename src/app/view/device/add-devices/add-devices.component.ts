@@ -66,6 +66,7 @@ import {
 import { DOCUMENTS_EXTENSIONS } from '../../../constants/documents-extensions';
 import { environment } from '../../../../environments/environment';
 import { ChatService, ChatMessage } from '../../../chat/chat.service';
+import { MeterReadService } from '../../../auth/services/meter-read.service';
 import {
   CodExtractedFields,
   DocumentClassifierService,
@@ -379,6 +380,7 @@ export class AddDevicesComponent implements OnDestroy {
     private documentClassifier: DocumentClassifierService,
     private ngZone: NgZone,
     public chatService: ChatService,
+    private meterReadService: MeterReadService,
   ) {
     this.user = JSON.parse(sessionStorage.getItem('loginuser')!);
   }
@@ -5749,6 +5751,111 @@ export class AddDevicesComponent implements OnDestroy {
         // eslint-disable-next-line no-console
         console.error('viewExistingDoc error', { docId: doc.id, err });
         this.toastrService.error(text, '', { timeOut: 8000 });
+      },
+    });
+  }
+
+  /** Per-(deviceIndex, doc) in-flight flag for the "Ingest as readings"
+   *  button — keyed `<idx>:<docId>` for existing docs and
+   *  `<idx>:staged:<filename>` for not-yet-uploaded files. */
+  csvIngesting: Record<string, boolean> = {};
+
+  /** True when an existingDocs entry's name ends in .csv. Used by the
+   *  template's *ngIf for the "Ingest as readings" button. */
+  isCsvDoc(doc: { name?: string; label?: string | null }): boolean {
+    const name = doc?.name || doc?.label || '';
+    return /\.csv$/i.test(name);
+  }
+
+  /** Ingest a server-saved CSV doc as meter readings. Fetches the file
+   *  bytes via the document-uploads streaming endpoint (same path as
+   *  replayExtractorsOnExistingDocs), POSTs it to /meter-reads/csv-
+   *  ingest, and surfaces the result as a toast. */
+  ingestMeterCsvFromExistingDoc(
+    deviceIndex: number,
+    doc: { id: number; name: string; label?: string | null },
+  ): void {
+    if (!this.editingExternalId) {
+      this.toastrService.warning(
+        'Save the device first',
+        'Ingest as readings',
+      );
+      return;
+    }
+    const key = `${deviceIndex}:${doc.id}`;
+    if (this.csvIngesting[key]) return;
+    this.csvIngesting[key] = true;
+    this.fetchExistingDocAsFile(doc)
+      .then((file) =>
+        this.runCsvIngest(this.editingExternalId!, file, key, doc.name),
+      )
+      .catch((err) => {
+        this.csvIngesting[key] = false;
+        this.toastrService.error(
+          err?.message || 'Failed to fetch document',
+          'Ingest as readings',
+        );
+      });
+  }
+
+  /** Ingest a staged (not yet uploaded) CSV. Uses the File object
+   *  directly — no round-trip needed. */
+  ingestMeterCsvFromStagedFile(deviceIndex: number, file: File): void {
+    if (!this.editingExternalId) {
+      this.toastrService.warning(
+        'Save the device first',
+        'Ingest as readings',
+      );
+      return;
+    }
+    const key = `${deviceIndex}:staged:${file.name}`;
+    if (this.csvIngesting[key]) return;
+    this.csvIngesting[key] = true;
+    this.runCsvIngest(this.editingExternalId, file, key, file.name);
+  }
+
+  private async fetchExistingDocAsFile(doc: {
+    id: number;
+    name: string;
+  }): Promise<File> {
+    const resp = await fetch(
+      `${environment.API_URL}document-uploads/${doc.id}/url`,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('access-token') ?? ''}`,
+        },
+      },
+    );
+    if (!resp.ok) {
+      throw new Error(`Failed to fetch CSV (${resp.status})`);
+    }
+    const blob = await resp.blob();
+    return new File([blob], doc.name, { type: 'text/csv' });
+  }
+
+  private runCsvIngest(
+    externalId: string,
+    file: File,
+    busyKey: string,
+    displayName: string,
+  ): void {
+    this.meterReadService.ingestCsv(externalId, file).subscribe({
+      next: (result) => {
+        this.csvIngesting[busyKey] = false;
+        this.toastrService.success(
+          `Inserted ${result.inserted} readings from ${displayName} ` +
+            `(${result.unit}, ${result.intervalMinutes}-min intervals, ` +
+            `column: ${result.parsedColumn}). ` +
+            `Skipped ${result.skippedEmpty} empty + ${result.skippedZero} zero rows.`,
+          'Readings ingested',
+          { timeOut: 8000 },
+        );
+      },
+      error: (err) => {
+        this.csvIngesting[busyKey] = false;
+        const detail =
+          err?.error?.message || err?.message || `HTTP ${err?.status}`;
+        this.toastrService.error(detail, 'Ingest failed', { timeOut: 8000 });
       },
     });
   }

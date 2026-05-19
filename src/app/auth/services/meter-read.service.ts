@@ -18,6 +18,45 @@ export class MeterReadService {
     return this.httpClient.post<any>(addUrl, data);
   }
 
+  /** Upload a wide-format meter CSV and turn it into MeterRead rows
+   *  for the device. The parser auto-detects which columns carry
+   *  production volume (e.g. PV to battery + PV to consumers + PV to
+   *  grid for PowerHive-shape exports). Caller can override via the
+   *  optional valueColumn / sumColumns / intervalMinutes if the
+   *  auto-detect picks the wrong column. */
+  ingestCsv(
+    externalId: string,
+    file: File,
+    opts: {
+      valueColumn?: string;
+      sumColumns?: string[];
+      intervalMinutes?: number;
+    } = {},
+  ): Observable<{
+    deviceExternalId: string;
+    parsedColumn: string;
+    timezone: string;
+    unit: string;
+    inserted: number;
+    skippedEmpty: number;
+    skippedZero: number;
+    intervalMinutes: number;
+  }> {
+    const fd = new FormData();
+    fd.append('file', file, file.name);
+    const params = new URLSearchParams();
+    if (opts.valueColumn) params.set('valueColumn', opts.valueColumn);
+    if (opts.sumColumns?.length)
+      params.set('sumColumns', opts.sumColumns.join(','));
+    if (opts.intervalMinutes != null)
+      params.set('intervalMinutes', String(opts.intervalMinutes));
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return this.httpClient.post<any>(
+      `${this.url}meter-reads/csv-ingest/${encodeURIComponent(externalId)}${qs}`,
+      fd,
+    );
+  }
+
   PostReadByAdmin(
     exterenalId: string,
     data: any,
