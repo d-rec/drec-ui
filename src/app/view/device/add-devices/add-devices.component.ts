@@ -1676,6 +1676,10 @@ export class AddDevicesComponent implements OnDestroy {
       // time — extract from every newly-added file.
       for (const f of newFiles) {
         this.extractMeterIdsForDevice(f, deviceIndex);
+        // Pile the source-access-mode classifier on the same files —
+        // it reads the doc's *shape* (portal vs API vs CSV) to suggest
+        // the mode, independent of the meter-ID extraction above.
+        this.classifySourceAccessModeForDevice(f, deviceIndex);
       }
       this.autoSetMeterReadsShareable(deviceIndex);
     }
@@ -1736,12 +1740,15 @@ export class AddDevicesComponent implements OnDestroy {
         this.extractSf02FieldsForDevice(f, deviceIndex),
       );
     }
-    // Metering evidence: one extraction per file.
+    // Metering evidence: one extraction per file. The source-access-mode
+    // classifier runs on the same files; both calls use the response
+    // cache so re-replaying on edit-page load is cheap.
     const meterDocs = docsByType[DocumentType.METERING_EVIDENCE] ?? [];
     for (const d of meterDocs) {
-      void fetchAsFile(d.id, d.name).then((f) =>
-        this.extractMeterIdsForDevice(f, deviceIndex),
-      );
+      void fetchAsFile(d.id, d.name).then((f) => {
+        this.extractMeterIdsForDevice(f, deviceIndex);
+        this.classifySourceAccessModeForDevice(f, deviceIndex);
+      });
     }
   }
 
@@ -2468,6 +2475,68 @@ export class AddDevicesComponent implements OnDestroy {
     this.sf02Extractions[deviceIndex] = null;
   }
 
+  /** Classify a metering-evidence file's *shape* (portal screenshot →
+   *  Mode 2, API payload → Mode 1, source-linked CSV → Mode 3) and
+   *  auto-fill the source-access-mode form field if (a) confidence is
+   *  high enough, (b) the form field is currently empty, and (c) the
+   *  suggested mode maps cleanly to one of the three documentable
+   *  modes (Mode 4 is reviewer judgment, not a doc property).
+   *
+   *  Records provenance against 'Metering evidence' so the OC#22 row
+   *  reads "Metering evidence: Mode 2 ✓" instead of MANUAL. */
+  private classifySourceAccessModeForDevice(
+    file: File,
+    deviceIndex: number,
+  ): void {
+    const KEY_TO_DISPLAY: Record<string, SourceAccessMode> = {
+      Mode1_DirectAPI: SourceAccessMode.Mode1_DirectAPI,
+      Mode2_PortalAccess: SourceAccessMode.Mode2_PortalAccess,
+      Mode3_FileSubmission: SourceAccessMode.Mode3_FileSubmission,
+    };
+    this.documentClassifier
+      .classifySourceAccessMode(file, this.editingDeviceId ?? undefined)
+      .then((res) =>
+        this.ngZone.run(() => {
+          if (!res?.suggestedMode) return;
+          const sm = res.suggestedMode;
+          if (sm.value == null || sm.confidence < 0.7) return;
+          const display = KEY_TO_DISPLAY[sm.value as string];
+          if (!display) return; // Mode 4 (null) or unknown — leave it.
+
+          const ctrl = (this.deviceForms.at(deviceIndex) as FormGroup).get(
+            'sourceAccessMode',
+          );
+          const cur = ctrl?.value;
+          // Only auto-fill an empty field. Don't overwrite a registrant
+          // who already picked a mode — even Haiku-suggested values
+          // defer to explicit human input here.
+          if (cur == null || cur === '') {
+            ctrl?.setValue(display);
+            ctrl?.markAsDirty();
+          }
+          // Record provenance regardless of whether we patched — if the
+          // registrant's value matches our suggestion, that's still
+          // metering-evidence-backed.
+          if (
+            cur == null ||
+            cur === '' ||
+            String(cur).trim() === display
+          ) {
+            this.recordProvenance(
+              deviceIndex,
+              'sourceAccessMode',
+              'Metering evidence',
+              sm.confidence,
+              display,
+            );
+          }
+        }),
+      )
+      .catch((err) =>
+        console.warn('source-access-mode classify failed', err?.message),
+      );
+  }
+
   private extractMeterIdsForDevice(file: File, deviceIndex: number): void {
     this.meterIdsExtracting[deviceIndex] = true;
     if (!this.meterIdsExtractions[deviceIndex]) {
@@ -2597,6 +2666,7 @@ export class AddDevicesComponent implements OnDestroy {
           break;
         case DocumentType.METERING_EVIDENCE:
           this.extractMeterIdsForDevice(entry.file, deviceIndex);
+          this.classifySourceAccessModeForDevice(entry.file, deviceIndex);
           break;
       }
     }

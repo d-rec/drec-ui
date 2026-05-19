@@ -63,6 +63,20 @@ export interface Sf02cExtractedFields {
   reasoning: string;
 }
 
+export interface SourceAccessModeSuggestion {
+  /** One of the SourceAccessMode enum *keys* (Mode1_DirectAPI /
+   *  Mode2_PortalAccess / Mode3_FileSubmission) or null when Haiku
+   *  can't map the document to a mode (Mode 4 territory or
+   *  ambiguous). The caller is responsible for translating the key
+   *  into the display string the form expects. */
+  suggestedMode?: ExtractedField<string>;
+  /** Human-readable description of the document shape Haiku saw —
+   *  surfaced in the apply-to-form modal so the registrant can sanity
+   *  check the suggestion. */
+  evidenceShape?: ExtractedField<string>;
+  reasoning: string;
+}
+
 export interface SldExtractedFields {
   networkOwner?: ExtractedField<string>;
   hasNetworkMeter?: ExtractedField<boolean>;
@@ -635,6 +649,58 @@ export class DocumentClassifierService {
       return res ?? null;
     } catch (err) {
       console.warn('[DocumentClassifier] SLD extract failed:', err);
+      return null;
+    }
+  }
+
+  /** Send a METERING_EVIDENCE document to Haiku and ask which
+   *  SourceAccessMode the document's *shape* implies (portal
+   *  screenshot → Mode 2, API payload → Mode 1, source-linked CSV →
+   *  Mode 3, hand-compiled spreadsheet → null Mode-4-candidate).
+   *  Returns null on error so the upload flow doesn't break.
+   *
+   *  Renders the first 2 pages of a PDF; passes a single image
+   *  through unchanged for PNG/JPEG. CSV/XLSX render badly via pdf.js
+   *  so we bail early — those don't yield useful classifications. */
+  async classifySourceAccessMode(
+    file: File,
+    deviceId?: number,
+  ): Promise<SourceAccessModeSuggestion | null> {
+    try {
+      const ext = (file.name.split('.').pop() ?? '').toLowerCase();
+      if (['csv', 'xlsx', 'xls'].includes(ext)) {
+        // Tabular formats — the shape doesn't classify visually.
+        return null;
+      }
+      const canvases = await this.renderFirstNPages(file, SLD_MAX_PAGES);
+      if (!canvases.length) return null;
+      const images = canvases.map((c) => {
+        const ds = this.downsampleToLongEdge(c, SLD_MAX_LONG_EDGE_PX);
+        return {
+          base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
+          mimeType: 'image/png' as const,
+        };
+      });
+      let text = '';
+      if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+        text = await this.extractPdfTextLayer(file);
+      }
+      const contentHash = await this.sha256OfFile(file);
+      const res = await firstValueFrom(
+        this.http.post<SourceAccessModeSuggestion>(
+          `${environment.API_URL}ai/classify-source-access-mode`,
+          {
+            filename: file.name,
+            images,
+            ...(text && text.trim().length >= 20 ? { text } : {}),
+            ...(deviceId ? { deviceId } : {}),
+            ...(contentHash ? { contentHash } : {}),
+          },
+        ),
+      );
+      return res ?? null;
+    } catch (err) {
+      console.warn('[DocumentClassifier] source-access-mode classify failed:', err);
       return null;
     }
   }
