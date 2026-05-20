@@ -1951,7 +1951,7 @@ export class AddDevicesComponent implements OnDestroy {
               confidence,
               type: result && result.suggestedType !== DocumentType.OTHER_DOCUMENTS
                 ? 'hit'
-                : 'miss',
+                : 'other',
               file,
               docType: rawType,
             });
@@ -4894,6 +4894,13 @@ export class AddDevicesComponent implements OnDestroy {
       this.isSubmitting = false;
       this.submitButtonText = 'Submit';
       this.uploadProgressPct = 0;
+      // Reset the gating flags so the NEXT submit re-evaluates from
+      // scratch. Without this, a timed-out submit can leave the
+      // form-vs-doc resolver silently disabled (presubmitOverride /
+      // formVsDocPromptShown stuck true) — the user presses Submit
+      // again, no dialog appears, and they assume the picker is broken.
+      this.presubmitOverride = false;
+      this.formVsDocPromptShown = false;
       this.toastrService.error(
         'Submission appears stuck. Try again, or refresh if the issue persists.',
         'Timed out',
@@ -5760,6 +5767,36 @@ export class AddDevicesComponent implements OnDestroy {
    *  `<idx>:staged:<filename>` for not-yet-uploaded files. */
   csvIngesting: Record<string, boolean> = {};
 
+  /** Per-key elapsed-seconds counter for the in-flight ingest. Real
+   *  progress would need server-side streaming; this is the cheap
+   *  "is it still running?" cue. Driven by setInterval(1000). */
+  csvIngestElapsed: Record<string, number> = {};
+  private csvIngestTickers: Record<string, ReturnType<typeof setInterval>> = {};
+
+  startCsvIngestTicker(key: string): void {
+    this.csvIngestElapsed[key] = 0;
+    if (this.csvIngestTickers[key]) clearInterval(this.csvIngestTickers[key]);
+    this.csvIngestTickers[key] = setInterval(() => {
+      this.csvIngestElapsed[key] = (this.csvIngestElapsed[key] || 0) + 1;
+    }, 1000);
+  }
+
+  stopCsvIngestTicker(key: string): void {
+    if (this.csvIngestTickers[key]) {
+      clearInterval(this.csvIngestTickers[key]);
+      delete this.csvIngestTickers[key];
+    }
+    delete this.csvIngestElapsed[key];
+  }
+
+  /** "Ingesting… 0:42" style label. Public for the template binding. */
+  csvIngestLabel(key: string): string {
+    const s = this.csvIngestElapsed[key] || 0;
+    const mm = Math.floor(s / 60);
+    const ss = String(s % 60).padStart(2, '0');
+    return `Ingesting… ${mm}:${ss}`;
+  }
+
   /** True when an existingDocs entry's name ends in .csv. Used by the
    *  template's *ngIf for the "Ingest as readings" button. */
   isCsvDoc(doc: { name?: string; label?: string | null }): boolean {
@@ -5844,11 +5881,13 @@ export class AddDevicesComponent implements OnDestroy {
     displayName: string,
     replaceExisting = false,
   ): void {
+    this.startCsvIngestTicker(busyKey);
     this.meterReadService
       .ingestCsv(externalId, file, { replaceExisting })
       .subscribe({
         next: (result) => {
           this.csvIngesting[busyKey] = false;
+          this.stopCsvIngestTicker(busyKey);
           const replacedNote = result.deletedOverlapping
             ? ` (replaced ${result.deletedOverlapping} overlapping)`
             : '';
@@ -5863,6 +5902,7 @@ export class AddDevicesComponent implements OnDestroy {
         },
         error: (err) => {
           this.csvIngesting[busyKey] = false;
+          this.stopCsvIngestTicker(busyKey);
           const detail =
             err?.error?.message || err?.message || `HTTP ${err?.status}`;
           const isOverlapConflict =

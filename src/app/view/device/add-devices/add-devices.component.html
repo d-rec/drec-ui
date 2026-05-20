@@ -792,7 +792,7 @@
                         (click)="ingestMeterCsvFromExistingDoc(idx, doc)"
                         [disabled]="csvIngesting[idx + ':' + doc.id]"
                         title="Parse this CSV as meter readings — adds rows to meter_reads for issuance">
-                        {{ csvIngesting[idx + ':' + doc.id] ? 'Ingesting…' : 'Ingest as readings' }}
+                        {{ csvIngesting[idx + ':' + doc.id] ? csvIngestLabel(idx + ':' + doc.id) : 'Ingest as readings' }}
                       </button>
                       <button type="button" class="existing-doc-delete" (click)="deleteExistingDoc(idx, docType, di)" title="Delete">
                         <mat-icon style="font-size:14px;height:14px;width:14px">close</mat-icon>
@@ -816,7 +816,7 @@
                         (click)="ingestMeterCsvFromStagedFile(idx, f)"
                         [disabled]="csvIngesting[idx + ':staged:' + f.name]"
                         title="Parse this CSV as meter readings — adds rows to meter_reads for issuance. Save the device first if you want the readings persisted against it.">
-                        {{ csvIngesting[idx + ':staged:' + f.name] ? 'Ingesting…' : 'Ingest as readings' }}
+                        {{ csvIngesting[idx + ':staged:' + f.name] ? csvIngestLabel(idx + ':staged:' + f.name) : 'Ingest as readings' }}
                       </button>
                       <button type="button" class="existing-doc-delete" (click)="removeStagedFile(idx, docType, si)" title="Remove">
                         <mat-icon style="font-size:14px;height:14px;width:14px">close</mat-icon>
@@ -868,9 +868,11 @@
                             [class.as-log__entry--pass]="entry.type === 'hit' && (entry.confidence ?? 0) >= 60"
                             [class.as-log__entry--warn]="entry.type === 'hit' && (entry.confidence ?? 0) < 60 && (entry.confidence ?? 0) > 0"
                             [class.as-log__entry--fail]="entry.type === 'miss'"
+                            [class.as-log__entry--other]="entry.type === 'other'"
                             [class.as-log__entry--skipped]="entry.type === 'skip'">
                             <span class="as-log__icon">
                               <ng-container *ngIf="entry.type === 'miss'">&#x2718;</ng-container>
+                              <ng-container *ngIf="entry.type === 'other'" title="Routed to Other Documents">&#x2026;</ng-container>
                               <span *ngIf="entry.type === 'skip'" title="Skipped (duplicate)">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle">
                                   <!-- VS Code "Step Over" icon: curved arrow over a dot, same as device-reviews scan-log -->

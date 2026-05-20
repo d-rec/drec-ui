@@ -1356,6 +1356,17 @@ $as-bg:       #f8fafc;
   &--pass    { --as-accent: #{$as-approved}; }
   &--warn    { --as-accent: #{$as-pending}; }
   &--fail    { --as-accent: #{$as-rejected}; }
+  // 'other' = routed to OTHER_DOCUMENTS (catch-all bucket). Not a fail
+  // — the AI just didn't have a specific slot for it. Muted gray so
+  // it's visually distinct from real misses (red ✘) without alarming.
+  &--other {
+    --as-accent: #{$as-muted};
+    .as-log__label,
+    .as-log__link {
+      color: $as-muted;
+      font-weight: 400;
+    }
+  }
   &--running { --as-accent: #{$as-accent}; }
   &--pending { --as-accent: #{$as-border}; }
   // 'skipped' = duplicate / no-op — informational, not an error.
