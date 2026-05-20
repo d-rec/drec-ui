@@ -177,10 +177,11 @@ export class AddDevicesComponent implements OnDestroy {
       filename: string;
       target: string;
       confidence: number | null;
-      // 'hit'  = classified successfully
-      // 'miss' = AI couldn't classify / wrong slot
-      // 'skip' = duplicate / explicitly skipped (informational, not error)
-      type: 'hit' | 'miss' | 'skip';
+      // 'hit'   = classified successfully into a specific slot
+      // 'other' = routed to OTHER_DOCUMENTS catch-all (not an error)
+      // 'miss'  = actual classifier failure (network error etc.)
+      // 'skip'  = duplicate / explicitly skipped (informational)
+      type: 'hit' | 'other' | 'miss' | 'skip';
       file?: File;
       docType?: string; // populated for hit rows so post-sort extraction
                        // can route the file to the right extractor.
