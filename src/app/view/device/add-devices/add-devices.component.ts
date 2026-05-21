@@ -4660,6 +4660,10 @@ export class AddDevicesComponent implements OnDestroy {
       'auxiliaryEnergySourceDetails',
       'dataSourceBrand',
       'networkOwner',
+      // SLDs typically carry the site location (project name / address
+      // block) so they DO cover form field (16) Address. Surface the
+      // SLD link in the evidence-review dialog for that row.
+      'address',
     ],
     FORM_SF_02: [
       'siteName',
@@ -4668,6 +4672,7 @@ export class AddDevicesComponent implements OnDestroy {
       'deviceTypeCode',
       'pvSystemOwner',
       'pvSystemOwnerAddress',
+      'address',
       'latitude',
       'longitude',
       'generatingUnitCount',
@@ -4680,7 +4685,7 @@ export class AddDevicesComponent implements OnDestroy {
       'countryCodename',
       'signatoryName',
     ],
-    COD_PROOF: ['commissioningDate', 'siteName', 'capacity', 'pvSystemOwner'],
+    COD_PROOF: ['commissioningDate', 'siteName', 'capacity', 'pvSystemOwner', 'address'],
     METERING_EVIDENCE: ['serialNumber', 'dataSourceBrand'],
   };
 
