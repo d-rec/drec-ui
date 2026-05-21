@@ -170,7 +170,7 @@ export class AddDevicesComponent implements OnDestroy {
   codExtractionFile: { [deviceIndex: number]: File | null } = {};
   sf02ExtractionFile: { [deviceIndex: number]: File | null } = {};
   meterIdsExtractionDocs: {
-    [deviceIndex: number]: Record<string, { id?: number; name: string }>;
+    [deviceIndex: number]: Record<string, { id?: number; name: string; file?: File }>;
   } = {};
 
   /** Auto-classifier extraction phase. When true, the magic-overlay
@@ -2046,6 +2046,10 @@ export class AddDevicesComponent implements OnDestroy {
      *  approximate. */
     reasoning?: string;
     transform?: (v: any) => any;
+    /** Per-item File override — used by the meter-IDs queue where
+     *  different serials came from different uploads. When set, the
+     *  dialog renders this file instead of verifyQueueFile. */
+    fileOverride?: File;
   }> = [];
   verifyQueueIndex = 0;
   verifyQueueFile: File | null = null;
@@ -2310,6 +2314,67 @@ export class AddDevicesComponent implements OnDestroy {
     this.openVerifyQueue(deviceIndex, file, 'SLD', this.buildVerifySpecs(deviceIndex, 'SLD'));
   }
 
+  /** Count of extracted meter IDs that haven't been per-ID verified
+   *  yet. Drives the "Verify (N)" button in the meter IDs banner. */
+  pendingMeterIdsVerifyCount(deviceIndex: number): number {
+    const ids = this.meterIdsExtractions[deviceIndex] || [];
+    if (!ids.length) return 0;
+    const prov = this.appliedProvenance[deviceIndex]?.['serialNumber'] as any;
+    const verifiedByValue: Record<string, any> = prov?.verifiedByValue ?? {};
+    return ids.filter((id) => !verifiedByValue[id]).length;
+  }
+
+  /** Open a meter-IDs verify queue: one queue item per extracted serial
+   *  that hasn't been per-ID verified yet. Each item carries its own
+   *  fileOverride so the dialog renders the doc that contributed it.
+   *  Accept stamps a per-ID verifiedBy on the serialNumber provenance
+   *  AND ensures the ID is in the device's serial number list. */
+  openMeterIdsVerifyQueue(deviceIndex: number): void {
+    const ids = this.meterIdsExtractions[deviceIndex] || [];
+    if (!ids.length) {
+      this.toastrService.info('No extracted meter IDs to verify.');
+      return;
+    }
+    const prov = this.appliedProvenance[deviceIndex]?.['serialNumber'] as any;
+    const verifiedByValue: Record<string, any> = prov?.verifiedByValue ?? {};
+    const docsByValue = this.meterIdsExtractionDocs[deviceIndex] ?? {};
+    const items: typeof this.verifyQueue = [];
+    for (const id of ids) {
+      if (verifiedByValue[id]) continue;
+      const doc = docsByValue[id];
+      items.push({
+        deviceIndex,
+        // Synthetic field key — verifyAccept inspects the prefix to
+        // route to the meter-IDs per-ID path instead of setValue on a
+        // form control.
+        field: `meterId:${id}`,
+        label: `Meter ID: ${id}`,
+        source: 'Meter IDs',
+        value: id,
+        confidence: 1,
+        fileOverride: doc?.file,
+      });
+    }
+    if (!items.length) {
+      this.toastrService.info('All extracted meter IDs already verified.');
+      return;
+    }
+    this.verifyQueue = items;
+    this.verifyQueueIndex = 0;
+    // verifyQueueFile stays null; items carry per-item fileOverride.
+    this.verifyQueueFile = null;
+    if (!this.verifySourceDialog) return;
+    if (this.verifySourceDialogRef) {
+      this.verifySourceDialogRef.close();
+      this.verifySourceDialogRef = null;
+    }
+    this.verifySourceDialogRef = this.dialog.open(
+      this.verifySourceDialog,
+      { width: '900px', maxWidth: '95vw', disableClose: false },
+    );
+    setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 50);
+  }
+
   /** Render the current verify queue item's source page onto the
    *  dialog's canvas. Uses pdf.js for PDFs; for images, loads into
    *  an <img> and copies to the canvas. Captures the resulting CSS
@@ -2317,8 +2382,10 @@ export class AddDevicesComponent implements OnDestroy {
    *  bbox in screen pixels. */
   private async renderVerifyCanvas(opts?: { resetToItemPage?: boolean }): Promise<void> {
     const canvas = this.verifyCanvasEl?.nativeElement;
-    const file = this.verifyQueueFile;
     const item = this.verifyCurrent;
+    // Per-item file (e.g. meter IDs queue, one file per serial) wins;
+    // otherwise fall back to the queue-level file.
+    const file = item?.fileOverride ?? this.verifyQueueFile;
     if (!canvas || !file || !item) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -2511,19 +2578,57 @@ export class AddDevicesComponent implements OnDestroy {
   verifyAccept(): void {
     const item = this.verifyCurrent;
     if (!item) return;
+    const email = (this.user?.email ?? '').trim() || 'unknown';
+    // Meter IDs path: synthetic field key 'meterId:<id>' — add the ID
+    // to the device's serial number list (if missing) and stamp a per-
+    // ID verifiedBy on the serialNumber provenance entry.
+    if (typeof item.field === 'string' && item.field.startsWith('meterId:')) {
+      const id = String(item.value);
+      const list = this.serialNumberLists[item.deviceIndex] ?? [];
+      const norm = (s: string) => s.trim().toLowerCase();
+      if (!list.some((s) => norm(s) === norm(id))) {
+        this.serialNumberLists[item.deviceIndex] = [
+          ...list.filter((s) => s.trim()),
+          id,
+        ];
+        this.syncSerialNumberControl(item.deviceIndex);
+      }
+      // Ensure a serialNumber provenance entry exists; then layer the
+      // per-ID verifiedByValue map on top.
+      this.recordProvenance(
+        item.deviceIndex,
+        'serialNumber',
+        item.source,
+        item.confidence,
+        id,
+        item.fileOverride ? { name: item.fileOverride.name } : undefined,
+      );
+      const prov = this.appliedProvenance[item.deviceIndex]?.['serialNumber'] as any;
+      if (prov) {
+        if (!prov.verifiedByValue) prov.verifiedByValue = {};
+        prov.verifiedByValue[id] = { email, at: new Date().toISOString() };
+        if (item.region) {
+          if (!prov.regionByValue) prov.regionByValue = {};
+          prov.regionByValue[id] = item.region;
+        }
+      }
+      this.verifyAdvance();
+      return;
+    }
+    // Standard path: regular form control.
     const ctl = this.deviceForms.at(item.deviceIndex)?.get(item.field);
     if (ctl) {
       ctl.setValue(item.value);
       ctl.markAsDirty();
     }
-    const email = (this.user?.email ?? '').trim() || 'unknown';
+    const docName = item.fileOverride?.name ?? this.verifyQueueFile?.name;
     this.recordProvenance(
       item.deviceIndex,
       item.field,
       item.source,
       item.confidence,
       item.value,
-      this.verifyQueueFile ? { name: this.verifyQueueFile.name } : undefined,
+      docName ? { name: docName } : undefined,
     );
     const entry = this.appliedProvenance[item.deviceIndex]?.[item.field];
     if (entry) {
@@ -3092,7 +3197,7 @@ export class AddDevicesComponent implements OnDestroy {
               // is treated as authoritative (matches the existing-set
               // de-dupe semantics on line above).
               if (!this.meterIdsExtractionDocs[deviceIndex][id]) {
-                this.meterIdsExtractionDocs[deviceIndex][id] = { name: file.name };
+                this.meterIdsExtractionDocs[deviceIndex][id] = { name: file.name, file };
               }
             }
             this.meterIdsExtractions[deviceIndex] = [...existing];

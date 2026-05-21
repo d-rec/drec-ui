@@ -1599,6 +1599,13 @@
                       </ul>
                       <div class="sld-extract-banner__actions">
                         <button type="button" class="btn btn-sm btn-primary" (click)="applyMeterIdsExtraction(i)" (mousedown)="$event.stopPropagation()">Apply to (14)</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                          *ngIf="pendingMeterIdsVerifyCount(i) > 0"
+                          (click)="openMeterIdsVerifyQueue(i)" (mousedown)="$event.stopPropagation()"
+                          title="Walk through each extracted ID, see the doc it came from, and confirm or skip.">
+                          <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
+                          Verify ({{ pendingMeterIdsVerifyCount(i) }})
+                        </button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissMeterIdsExtraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
                       </div>
                     </div>
