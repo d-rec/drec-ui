@@ -7516,8 +7516,31 @@ export class AddDevicesComponent implements OnDestroy {
     formValue.countryCode = selectedCountry?.alpha3 ?? formValue.countryCodename;
     delete formValue.countryCodename;
     formValue.organizationId = this.organizationId ?? this.user?.organizationId;
-    // Persist extractor provenance recorded by Apply paths this session
-    // (merged with whatever was already on the device from prior edits).
+    // Auto-tag every dirty form value that doesn't already have a
+    // provenance entry as Manual:<email>. The user touched it, the
+    // value is being submitted — they're implicitly attesting. No
+    // more orphans saved to the backend that re-load as MANUAL
+    // mystery rows in the next session's evidence review.
+    const submitterEmail = (this.user?.email ?? '').trim() || 'unknown';
+    const submitterSource = `Manual: ${submitterEmail}`;
+    for (const name of Object.keys(firstRow.controls)) {
+      const ctl = firstRow.get(name);
+      if (!ctl || !ctl.dirty) continue;
+      const v = ctl.value;
+      if (v == null || v === '' || (Array.isArray(v) && !v.length)) continue;
+      if (this.appliedProvenance[0]?.[name]?.source) continue;
+      this.recordProvenance(0, name, submitterSource, 1, v);
+      const entry = this.appliedProvenance[0]?.[name];
+      if (entry) {
+        (entry as any).verifiedBy = {
+          email: submitterEmail,
+          at: new Date().toISOString(),
+        };
+      }
+    }
+    // Persist provenance recorded by Apply paths + the auto-tag pass
+    // above (merged with whatever was already on the device from
+    // prior edits).
     if (this.appliedProvenance[0] && Object.keys(this.appliedProvenance[0]).length) {
       formValue.fieldProvenance = { ...this.appliedProvenance[0] };
     }
