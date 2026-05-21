@@ -3501,6 +3501,78 @@ export class AddDevicesComponent implements OnDestroy {
     setTimeout(() => this.openEvidenceReview(), 0);
   }
 
+  /** Stamp every unattributed value with the current registrant as
+   *  the source. The principle: a field must be attributed either by
+   *  a document (extractor confidence ≥0.7 with docId/docName) OR by
+   *  a named human taking responsibility. This action does the
+   *  second — the registrant's email becomes the source label so
+   *  the audit trail has a defensible "<user> attested this value
+   *  on <date>" line for each previously-orphan entry. */
+  attestUnattributed(): void {
+    const i = 0;
+    const form = this.deviceForms.at(i) as FormGroup;
+    if (!form) return;
+    const email = (this.user?.email ?? '').trim();
+    if (!email) {
+      this.toastrService.error(
+        'No registrant email on this session — log out and back in.',
+        'Cannot attest',
+      );
+      return;
+    }
+    const fields = [...this.unattributedFields];
+    const serialProv = this.appliedProvenance[i]?.['serialNumber'];
+    const serials = this.serialNumberLists[i] ?? [];
+    const orphanedSerials = serials.filter((s) => {
+      const v = (s || '').trim();
+      if (!v) return false;
+      if (!serialProv || serialProv.value == null) return true;
+      const list = String(serialProv.value)
+        .split(';')
+        .map((x) => x.trim().toLowerCase());
+      return !list.includes(v.toLowerCase());
+    });
+    const total = fields.length + (orphanedSerials.length ? 1 : 0);
+    if (total === 0) {
+      this.toastrService.info('Nothing to attest — every value has a source.');
+      return;
+    }
+    const msg =
+      `Attest ${total} unattributed value${total === 1 ? '' : 's'} as ${email}?\n\n` +
+      `Form fields: ${fields.length}\n` +
+      `Meter ID chips: ${orphanedSerials.length}\n\n` +
+      `Your email + the current timestamp will be recorded as the source ` +
+      `for each. You're confirming you personally verified these values.`;
+    if (!confirm(msg)) return;
+    const source = `Manual: ${email}`;
+    for (const f of fields) {
+      const ctl = form.get(f);
+      if (!ctl) continue;
+      this.recordProvenance(i, f, source, 1, ctl.value);
+    }
+    if (orphanedSerials.length) {
+      // serialNumber provenance covers the full list (joined). Build
+      // the new value to include orphan chips so they're attested
+      // along with any previously-attributed ones.
+      const allSerials = serials.filter((s) => (s || '').trim());
+      this.recordProvenance(
+        i,
+        'serialNumber',
+        source,
+        1,
+        allSerials.join(';'),
+      );
+    }
+    this.toastrService.success(
+      `Attested ${fields.length} field${fields.length === 1 ? '' : 's'} ` +
+        `${orphanedSerials.length ? `and ${orphanedSerials.length} meter ID${orphanedSerials.length === 1 ? '' : 's'} ` : ''}` +
+        `as ${email}.`,
+    );
+    this.evidenceReviewDialogRef?.close();
+    this.evidenceReviewDialogRef = null;
+    setTimeout(() => this.openEvidenceReview(), 0);
+  }
+
   /** Build evidence rows from the current form state + appliedProvenance
    *  and pop the dialog. Edit-mode only (button is hidden otherwise).
    *  Skips empty fields and a handful of plumbing controls the
@@ -6332,6 +6404,37 @@ export class AddDevicesComponent implements OnDestroy {
         return;
       }
     }
+
+    // Step 3: attribution gate. Every value must be attributed to
+    // either a document (extractor ≥0.7 with docName) or a named
+    // registrant (Manual: <email>). The override path skips this
+    // for the rare case where a session is mid-recovery and we just
+    // need to ship — same flag the empty/unextracted check uses.
+    if (!this.presubmitOverride && this.isEditMode) {
+      this.openEvidenceReview();
+      const dialog = this.evidenceReviewDialogRef;
+      if (this.evidenceSummary.unattributed > 0) {
+        this.isSubmitting = false;
+        if (this.submitSafetyTimer) {
+          clearTimeout(this.submitSafetyTimer);
+          this.submitSafetyTimer = null;
+        }
+        this.toastrService.warning(
+          `${this.evidenceSummary.unattributed} value${this.evidenceSummary.unattributed === 1 ? '' : 's'} ` +
+            `have no source. Flush or Attest from the Review evidence dialog ` +
+            `before submitting.`,
+          'Submit blocked',
+          { timeOut: 8000 },
+        );
+        return;
+      }
+      // No unattributed values — close the just-opened dialog and
+      // continue. (openEvidenceReview opens the dialog even when
+      // the count is zero so the user can sanity-check; for the
+      // gate path that's not the intent.)
+      if (dialog) dialog.close();
+    }
+
     // Reset both flags so future submits re-evaluate.
     this.presubmitOverride = false;
     this.formVsDocPromptShown = false;
