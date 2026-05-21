@@ -1525,7 +1525,15 @@
                     <div class="sld-extract-banner" *ngIf="meterIdsExtractions[i]?.length">
                       <div class="sld-extract-banner__header"><strong>AI extracted meter / measurement IDs:</strong></div>
                       <ul class="sld-extract-banner__list">
-                        <li *ngFor="let id of meterIdsExtractions[i]">{{ id }}</li>
+                        <li *ngFor="let id of meterIdsExtractions[i]" class="d-flex justify-content-between align-items-center gap-2">
+                          <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px">{{ id }}</span>
+                          <small *ngIf="meterIdsExtractionDocs[i]?.[id]?.name as docName"
+                            class="text-muted"
+                            style="font-size:11px"
+                            [title]="'Extracted from ' + docName">
+                            from {{ docName }}
+                          </small>
+                        </li>
                       </ul>
                       <div class="sld-extract-banner__actions">
                         <button type="button" class="btn btn-sm btn-primary" (click)="applyMeterIdsExtraction(i)" (mousedown)="$event.stopPropagation()">Apply to (14)</button>
