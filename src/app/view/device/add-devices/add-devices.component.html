@@ -410,13 +410,13 @@
                         </mat-form-field>
                         <span class="serial-list__src"
                           *ngIf="meterIdSource(i, s) as src"
-                          [title]="'Source: ' + src">
-                          <mat-icon>description</mat-icon>{{ src }}
+                          [title]="src.doc ? ('From ' + src.doc.name) : ('Source: ' + src.source)">
+                          <mat-icon>description</mat-icon>{{ src.doc?.name || src.source }}
                         </span>
                         <span class="serial-list__src serial-list__src--manual"
                           *ngIf="!meterIdSource(i, s) && (s || '').trim()"
-                          title="No document source recorded — value was entered manually or has no provenance">
-                          Manual
+                          title="No source recorded — could be a previous extraction whose source wasn't tracked, or hand-entered. Click 'Apply to (14)' on a fresh metering doc extraction to attribute these to a specific file.">
+                          Unattributed
                         </span>
                       </div>
                       <button type="button"
@@ -1853,7 +1853,7 @@
   </h2>
   <div mat-dialog-content style="max-height:70vh">
     <p class="text-muted small mb-2">
-      Every filled field on this form, the value about to be submitted, and where the value came from. Manual rows have no document source — verify those carry the right value before you Update.
+      Every filled field on this form, the value about to be submitted, and where the value came from. "Unattributed" means the system has no record of the source — could be a prior extraction whose source wasn't tracked, or hand-entered. Verify those before you Update.
     </p>
     <table class="table table-sm evidence-table">
       <thead>
@@ -1868,11 +1868,13 @@
           <td>{{ r.label }}</td>
           <td class="evidence-table__val">{{ r.displayValue }}</td>
           <td>
-            <span *ngIf="r.source" class="evidence-pill evidence-pill--doc">
-              <mat-icon>description</mat-icon>{{ r.source }}
+            <span *ngIf="r.source" class="evidence-pill evidence-pill--doc" [title]="r.docName ? ('From ' + r.docName) : ('Source type: ' + r.source)">
+              <mat-icon>description</mat-icon>
+              <ng-container *ngIf="r.docName">{{ r.docName }}</ng-container>
+              <ng-container *ngIf="!r.docName">{{ r.source }}</ng-container>
               <span *ngIf="r.confidence != null" class="evidence-pill__conf">{{ (r.confidence * 100) | number:"1.0-0" }}%</span>
             </span>
-            <span *ngIf="!r.source" class="evidence-pill evidence-pill--manual">Manual</span>
+            <span *ngIf="!r.source" class="evidence-pill evidence-pill--manual" title="No source recorded — pre-existing data or hand-entered. Verify before submitting.">Unattributed</span>
             <a *ngIf="r.docUrl" [href]="r.docUrl" target="_blank" rel="noopener" class="ms-2 small">view ↗</a>
           </td>
         </tr>
@@ -1881,7 +1883,7 @@
     <p *ngIf="!evidenceRows.length" class="text-muted small">No filled fields yet.</p>
     <div class="evidence-summary small mt-3">
       <strong>{{ evidenceSummary.docBacked }}</strong> doc-backed,
-      <strong>{{ evidenceSummary.manual }}</strong> manual,
+      <strong>{{ evidenceSummary.unattributed }}</strong> unattributed,
       <strong>{{ evidenceSummary.total }}</strong> total.
     </div>
   </div>

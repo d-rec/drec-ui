@@ -150,6 +150,22 @@ export class AddDevicesComponent implements OnDestroy {
   meterIdsBrands: { [deviceIndex: number]: string } = {};
   meterIdsExtracting: { [deviceIndex: number]: boolean } = {};
 
+  /** Source-doc identity for each extraction state map above. Set
+   *  when an extraction runs so the apply* path can record which
+   *  specific file contributed each value into recordProvenance —
+   *  the bare source type ("SLD", "SF-02c", "Meter IDs") doesn't
+   *  identify the file when a device has multiple docs of the same
+   *  type. For meter IDs we keep a per-ID map because each upload
+   *  appends, so different IDs can come from different docs in the
+   *  same batch. */
+  sldExtractionDoc: { [deviceIndex: number]: { id?: number; name: string } | null } = {};
+  sf02cExtractionDoc: { [deviceIndex: number]: { id?: number; name: string } | null } = {};
+  codExtractionDoc: { [deviceIndex: number]: { id?: number; name: string } | null } = {};
+  sf02ExtractionDoc: { [deviceIndex: number]: { id?: number; name: string } | null } = {};
+  meterIdsExtractionDocs: {
+    [deviceIndex: number]: Record<string, { id?: number; name: string }>;
+  } = {};
+
   /** Auto-classifier extraction phase. When true, the magic-overlay
    *  dialog shows the consolidated extraction view (running spinner +
    *  preview list + single Apply All button) instead of the
@@ -1994,6 +2010,7 @@ export class AddDevicesComponent implements OnDestroy {
   private extractSldFieldsForDevice(file: File, deviceIndex: number): void {
     this.sldExtracting[deviceIndex] = true;
     this.sldExtractions[deviceIndex] = null;
+    this.sldExtractionDoc[deviceIndex] = { name: file.name };
     if (this.extractionApplied[deviceIndex]) {
       this.extractionApplied[deviceIndex]['SLD'] = false;
     }
@@ -2113,6 +2130,22 @@ export class AddDevicesComponent implements OnDestroy {
     this.extractionApplied[deviceIndex][source] = true;
   }
 
+  /** Look up the doc identity stashed at extraction time for the given
+   *  source label. Returns undefined when we don't have a record — the
+   *  apply path will fall through to no docId/docName and the badge
+   *  will read "Unattributed source: <type>" rather than claiming a
+   *  specific file. */
+  private docForSource(
+    deviceIndex: number,
+    source: string,
+  ): { id?: number; name: string } | undefined {
+    if (source === 'SLD') return this.sldExtractionDoc[deviceIndex] ?? undefined;
+    if (source === 'SF-02c') return this.sf02cExtractionDoc[deviceIndex] ?? undefined;
+    if (source === 'COD') return this.codExtractionDoc[deviceIndex] ?? undefined;
+    if (source === 'SF-02') return this.sf02ExtractionDoc[deviceIndex] ?? undefined;
+    return undefined;
+  }
+
   private applyExtractionWithPrompt(
     deviceIndex: number,
     source: string,
@@ -2125,6 +2158,7 @@ export class AddDevicesComponent implements OnDestroy {
     opts: { silentIfConflicts?: boolean; silentIfEmpty?: boolean } = {},
   ): void {
     const form = this.deviceForms.at(deviceIndex);
+    const sourceDoc = this.docForSource(deviceIndex, source);
     let filled = 0;
     const conflicts: typeof this.pendingOverwriteCandidates = [];
     const unchecked = this.uncheckedExtractedFields[deviceIndex] ?? new Set<string>();
@@ -2152,7 +2186,14 @@ export class AddDevicesComponent implements OnDestroy {
         if (c.name === 'countryCodename') {
           this.userPickedCountry[deviceIndex] = true;
         }
-        this.recordProvenance(deviceIndex, c.name, source, c.field.confidence, next);
+        this.recordProvenance(
+          deviceIndex,
+          c.name,
+          source,
+          c.field.confidence,
+          next,
+          sourceDoc,
+        );
         filled++;
         continue;
       }
@@ -2169,6 +2210,7 @@ export class AddDevicesComponent implements OnDestroy {
           source,
           c.field.confidence,
           next,
+          sourceDoc,
         );
         continue;
       }
@@ -2232,7 +2274,14 @@ export class AddDevicesComponent implements OnDestroy {
       if (c.name === 'countryCodename') {
         this.userPickedCountry[c.deviceIndex] = true;
       }
-      this.recordProvenance(c.deviceIndex, c.name, source, c.confidence, c.next);
+      this.recordProvenance(
+        c.deviceIndex,
+        c.name,
+        source,
+        c.confidence,
+        c.next,
+        this.docForSource(c.deviceIndex, source),
+      );
       applied++;
     }
     this.pendingOverwriteAfter?.();
@@ -2287,6 +2336,7 @@ export class AddDevicesComponent implements OnDestroy {
   private extractSf02cFieldsForDevice(file: File, deviceIndex: number): void {
     this.sf02cExtracting[deviceIndex] = true;
     this.sf02cExtractions[deviceIndex] = null;
+    this.sf02cExtractionDoc[deviceIndex] = { name: file.name };
     if (this.extractionApplied[deviceIndex]) {
       this.extractionApplied[deviceIndex]['SF-02c'] = false;
     }
@@ -2344,6 +2394,7 @@ export class AddDevicesComponent implements OnDestroy {
   private extractCodFieldsForDevice(file: File, deviceIndex: number): void {
     this.codExtracting[deviceIndex] = true;
     this.codExtractions[deviceIndex] = null;
+    this.codExtractionDoc[deviceIndex] = { name: file.name };
     if (this.extractionApplied[deviceIndex]) {
       this.extractionApplied[deviceIndex]['COD'] = false;
     }
@@ -2424,6 +2475,7 @@ export class AddDevicesComponent implements OnDestroy {
   private extractSf02FieldsForDevice(file: File, deviceIndex: number): void {
     this.sf02Extracting[deviceIndex] = true;
     this.sf02Extractions[deviceIndex] = null;
+    this.sf02ExtractionDoc[deviceIndex] = { name: file.name };
     if (this.extractionApplied[deviceIndex]) {
       this.extractionApplied[deviceIndex]['SF-02'] = false;
     }
@@ -2545,6 +2597,9 @@ export class AddDevicesComponent implements OnDestroy {
     if (!this.meterIdsExtractions[deviceIndex]) {
       this.meterIdsExtractions[deviceIndex] = [];
     }
+    if (!this.meterIdsExtractionDocs[deviceIndex]) {
+      this.meterIdsExtractionDocs[deviceIndex] = {};
+    }
     this.documentClassifier
       .extractMeterIds(file)
       .then((res) =>
@@ -2554,7 +2609,18 @@ export class AddDevicesComponent implements OnDestroy {
             const existing = new Set(
               this.meterIdsExtractions[deviceIndex] || [],
             );
-            for (const id of res.measurementIds.value) existing.add(id);
+            for (const id of res.measurementIds.value) {
+              existing.add(id);
+              // Tag this id with the file it was harvested from so
+              // applyMeterIdsExtraction can record per-id doc identity
+              // instead of just the source type. First-write-wins —
+              // if the same ID appears in two uploads, the first file
+              // is treated as authoritative (matches the existing-set
+              // de-dupe semantics on line above).
+              if (!this.meterIdsExtractionDocs[deviceIndex][id]) {
+                this.meterIdsExtractionDocs[deviceIndex][id] = { name: file.name };
+              }
+            }
             this.meterIdsExtractions[deviceIndex] = [...existing];
           }
           if (res?.inverterMakeModel && res.inverterMakeModel.confidence >= 0.7) {
@@ -2607,13 +2673,33 @@ export class AddDevicesComponent implements OnDestroy {
     }
     this.serialNumberLists[deviceIndex] = merged.length ? merged : [''];
     this.syncSerialNumberControl(deviceIndex);
+    // Build a docs map for the IDs being recorded — one ID can have
+    // come from one of several uploads in the same batch. Stored under
+    // .docs on the provenance entry alongside the joined value list.
+    const docsByValue = this.meterIdsExtractionDocs[deviceIndex] ?? {};
+    const usedDocs = merged
+      .map((id) => docsByValue[id])
+      .filter((d): d is { name: string; id?: number } => !!d);
+    // De-dupe by name so the provenance entry's docName is the most
+    // useful single-doc label (the first file that contributed).
+    const primaryDoc = usedDocs[0];
     this.recordProvenance(
       deviceIndex,
       'serialNumber',
       'Meter IDs',
       1,
       merged.join(';'),
+      primaryDoc,
     );
+    // Stash the per-id map alongside the entry so the UI can show
+    // "from photo3.jpg" per chip, not just the first-file headline.
+    if (
+      Object.keys(docsByValue).length &&
+      this.appliedProvenance[deviceIndex]?.['serialNumber']
+    ) {
+      (this.appliedProvenance[deviceIndex]['serialNumber'] as any).docsByValue =
+        docsByValue;
+    }
     // SNs were read from a metering portal / nameplate — the data
     // source is the inverter.
     this.setDataSourceIfEmpty(deviceIndex, 'Inverter');
@@ -3240,16 +3326,29 @@ export class AddDevicesComponent implements OnDestroy {
   appliedProvenance: {
     [deviceIndex: number]: Record<
       string,
-      { source: string; confidence: number; at: string; value?: any }
+      {
+        source: string;
+        confidence: number;
+        at: string;
+        value?: any;
+        docId?: number;
+        docName?: string;
+        // For multi-value lists (serialNumber): per-value doc map so
+        // each chip can show its specific source even when different
+        // files contributed different IDs in the same batch.
+        docsByValue?: Record<string, { id?: number; name: string }>;
+      }
     >;
   } = {};
 
-  /** Per-chip source badge for the (14) Meter/Measurement IDs list.
-   *  Checks whether the chip value appears in the saved serialNumber
-   *  provenance value (semicolon-joined list of doc-extracted IDs).
-   *  Returns the source label (e.g. "Meter IDs") if doc-backed, null
-   *  for manually-typed entries. */
-  meterIdSource(deviceIndex: number, value: string): string | null {
+  /** Per-chip source for the (14) Meter/Measurement IDs list.
+   *  Returns the recorded source type + the specific file (when known)
+   *  per chip — multi-doc batches keep a per-id map under docsByValue.
+   *  Null when no provenance exists for that chip (Unattributed). */
+  meterIdSource(
+    deviceIndex: number,
+    value: string,
+  ): { source: string; doc?: { id?: number; name: string } } | null {
     const v = (value || '').trim();
     if (!v) return null;
     const prov = this.appliedProvenance[deviceIndex]?.['serialNumber'];
@@ -3257,7 +3356,13 @@ export class AddDevicesComponent implements OnDestroy {
     const list = String(prov.value)
       .split(';')
       .map((s) => s.trim().toLowerCase());
-    return list.includes(v.toLowerCase()) ? prov.source : null;
+    if (!list.includes(v.toLowerCase())) return null;
+    const perId = prov.docsByValue?.[v];
+    if (perId) return { source: prov.source, doc: perId };
+    if (prov.docName) {
+      return { source: prov.source, doc: { name: prov.docName, id: prov.docId } };
+    }
+    return { source: prov.source };
   }
 
   /** Pre-submit review modal state. */
@@ -3328,12 +3433,13 @@ export class AddDevicesComponent implements OnDestroy {
     displayValue: string;
     source: string | null;
     confidence: number | null;
+    docName: string | null;
     docUrl: string | null;
   }> = [];
 
-  evidenceSummary: { docBacked: number; manual: number; total: number } = {
+  evidenceSummary: { docBacked: number; unattributed: number; total: number } = {
     docBacked: 0,
-    manual: 0,
+    unattributed: 0,
     total: 0,
   };
 
@@ -3386,8 +3492,8 @@ export class AddDevicesComponent implements OnDestroy {
       // Only credit as doc-backed when confidence clears the 0.70
       // auto-apply threshold. Sub-threshold matches (e.g. a backfill
       // weakly correlating the form value to something it thinks is
-      // in the doc) get shown as Manual — claiming a doc backs a
-      // value the doc doesn't clearly contain misleads the reviewer.
+      // in the doc) get shown as Unattributed — claiming a doc backs
+      // a value the doc doesn't clearly contain misleads the reviewer.
       const trusted = p && (p.confidence ?? 0) >= 0.7;
       rows.push({
         field: name,
@@ -3395,6 +3501,7 @@ export class AddDevicesComponent implements OnDestroy {
         displayValue: display(v),
         source: trusted ? p!.source : null,
         confidence: trusted ? p!.confidence : null,
+        docName: trusted ? (p!.docName ?? null) : null,
         docUrl: null,
       });
     }
@@ -3408,7 +3515,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.evidenceRows = rows;
     this.evidenceSummary = {
       docBacked: rows.filter((r) => r.source).length,
-      manual: rows.filter((r) => !r.source).length,
+      unattributed: rows.filter((r) => !r.source).length,
       total: rows.length,
     };
     if (!this.evidenceReviewDialog) return;
@@ -3887,6 +3994,7 @@ export class AddDevicesComponent implements OnDestroy {
     source: string,
     confidence: number,
     value?: any,
+    doc?: { id?: number; name?: string },
   ): void {
     if (!this.appliedProvenance[deviceIndex]) {
       this.appliedProvenance[deviceIndex] = {};
@@ -3900,6 +4008,14 @@ export class AddDevicesComponent implements OnDestroy {
       // entries from before this commit won't have a value; the hint
       // helper falls through cleanly when value is undefined.
       ...(value !== undefined ? { value } : {}),
+      // Doc identity — when present, lets the UI show "from
+      // atsawa_sld.pdf" instead of the bare source type "SLD" and
+      // makes the badge a one-click link to that exact file.
+      // Persists into device.field_provenance so the source survives
+      // reload and downstream consumers (OC checklist, audit export,
+      // evidence-review dialog) can all link back to the same doc.
+      ...(doc?.id != null ? { docId: doc.id } : {}),
+      ...(doc?.name ? { docName: doc.name } : {}),
     };
   }
 
