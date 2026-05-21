@@ -2192,7 +2192,13 @@ export class AddDevicesComponent implements OnDestroy {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const page = item.region?.page ?? 1;
-    const targetW = 800;
+    // Render at higher internal resolution than the dialog actually
+    // shows. The canvas has max-width:100% so it visually scales down
+    // to ~880px in the dialog; when the user zooms in via the
+    // appImageZoomPan transform there are still 2400px of source
+    // pixels available, so the zoomed view stays sharp. 800px was
+    // pixel-doubled almost immediately on any zoom.
+    const targetW = 2400;
     try {
       if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
         const pdfjs: any = await import('pdfjs-dist' as any);

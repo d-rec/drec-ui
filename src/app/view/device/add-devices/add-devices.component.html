@@ -1965,6 +1965,10 @@
         </div>
       </div>
 
+      <div class="text-muted small mb-1 d-flex align-items-center gap-2">
+        <mat-icon style="font-size:14px;height:14px;width:14px">zoom_in</mat-icon>
+        Scroll over the SLD to zoom · drag to pan · double-click to reset
+      </div>
       <div class="verify-source__zoom" appImageZoomPan [resetKey]="v.field">
         <div class="verify-source__doc">
           <canvas #verifyCanvas
@@ -1993,9 +1997,6 @@
       <div *ngIf="v.region && v.regionSource !== 'tesseract'" class="alert alert-info small mt-2 mb-0">
         <mat-icon style="font-size:16px;vertical-align:middle">info_outline</mat-icon>
         Approximate location — the value isn't a literal string in the doc (likely derived, e.g. summed from components). The model estimated the location; verify by reading nearby labels.
-      </div>
-      <div class="text-muted small mt-1" style="text-align:center">
-        Scroll to zoom · drag to pan · double-click to reset
       </div>
 
       <p class="text-muted small mt-3 mb-0">
