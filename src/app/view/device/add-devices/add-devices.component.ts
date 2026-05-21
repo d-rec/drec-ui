@@ -464,6 +464,26 @@ export class AddDevicesComponent implements OnDestroy {
       .subscribe({
         next: (data: any) => {
           this.editingDeviceId = data.id;
+          // Hydrate any previously-persisted dismissed-serials list
+          // BEFORE we hand the device's serialNumber to the form, so
+          // we can strip phantom values the user already declined in
+          // a prior session.
+          this.loadDismissedSerials(0);
+          const dismissed = this.dismissedSerialNumbers[0] ?? new Set();
+          const filterDismissed = (s: string | null) => {
+            if (!s) return s;
+            const kept = String(s)
+              .split(';')
+              .map((x) => x.trim())
+              .filter((x) => x && !dismissed.has(x.toLowerCase()));
+            return kept.length ? kept.join(';') : null;
+          };
+          if (data.serialNumber) {
+            const cleaned = filterDismissed(data.serialNumber);
+            if (cleaned !== data.serialNumber) {
+              data.serialNumber = cleaned;
+            }
+          }
           this.initSerialNumber = data.serialNumber ?? null;
           this.initSiteName = data.siteName ?? null;
           this.initialValues = { ...data };
@@ -525,6 +545,34 @@ export class AddDevicesComponent implements OnDestroy {
           // conflict block can credit fields to their original source
           // instead of falsely tagging them MANUAL on re-edit.
           this.appliedProvenance[0] = { ...((data as any).fieldProvenance ?? {}) };
+          // Filter dismissed serials out of the persisted serialNumber
+          // provenance .value (joined chip list) AND its per-id
+          // docsByValue / personByValue / verifiedByValue maps. Without
+          // this, a phantom serial saved in a prior session would
+          // re-attach when the device reloads.
+          const snProv = (this.appliedProvenance[0] as any)?.['serialNumber'];
+          const dismissedSet = this.dismissedSerialNumbers[0] ?? new Set();
+          if (snProv && dismissedSet.size) {
+            const filterMap = (m: Record<string, any> | undefined) => {
+              if (!m) return m;
+              const out: Record<string, any> = {};
+              for (const k of Object.keys(m)) {
+                if (!dismissedSet.has(k.toLowerCase())) out[k] = m[k];
+              }
+              return out;
+            };
+            if (typeof snProv.value === 'string') {
+              const kept = snProv.value
+                .split(';')
+                .map((s: string) => s.trim())
+                .filter((s: string) => s && !dismissedSet.has(s.toLowerCase()));
+              snProv.value = kept.join(';');
+            }
+            snProv.docsByValue = filterMap(snProv.docsByValue);
+            snProv.personByValue = filterMap(snProv.personByValue);
+            snProv.verifiedByValue = filterMap(snProv.verifiedByValue);
+            snProv.regionByValue = filterMap(snProv.regionByValue);
+          }
           firstRow.patchValue({
             siteName: data.siteName,
             serialNumber: data.serialNumber,
@@ -1517,18 +1565,73 @@ export class AddDevicesComponent implements OnDestroy {
   /** Serial-number values the user has explicitly removed. Keyed
    *  by device index → lowercased value set. Used by
    *  applyMeterIdsExtraction so the same spurious OCR result
-   *  doesn't reappear after the user deletes it. */
+   *  doesn't reappear after the user deletes it. Persisted to
+   *  localStorage keyed by deviceId so it survives reloads + re-
+   *  uploads (the original phantom-serial bug). */
   private dismissedSerialNumbers: { [deviceIndex: number]: Set<string> } = {};
+
+  /** localStorage key for a device's dismissed-serials list. Uses
+   *  the persisted deviceId when known, or a synthetic
+   *  "draft:<index>" key for unsaved devices being added fresh. */
+  private dismissedSerialsKey(deviceIndex: number): string {
+    // Prefer the persisted deviceId for stable persistence across
+    // sessions; the URL externalId is the human-readable fallback.
+    const id =
+      (this as any).editingDeviceId ??
+      this.editingExternalId ??
+      `draft:${deviceIndex}`;
+    return `drec.dismissedSerials.${id}`;
+  }
+  /** Hydrate dismissedSerialNumbers[deviceIndex] from localStorage. */
+  private loadDismissedSerials(deviceIndex: number): void {
+    try {
+      const raw = localStorage.getItem(this.dismissedSerialsKey(deviceIndex));
+      if (!raw) return;
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) {
+        this.dismissedSerialNumbers[deviceIndex] = new Set(
+          arr.map((s) => String(s).toLowerCase()),
+        );
+      }
+    } catch {}
+  }
+  /** Persist dismissedSerialNumbers[deviceIndex] to localStorage. */
+  private saveDismissedSerials(deviceIndex: number): void {
+    try {
+      const set = this.dismissedSerialNumbers[deviceIndex];
+      if (!set || !set.size) {
+        localStorage.removeItem(this.dismissedSerialsKey(deviceIndex));
+        return;
+      }
+      localStorage.setItem(
+        this.dismissedSerialsKey(deviceIndex),
+        JSON.stringify([...set]),
+      );
+    } catch {}
+  }
+  /** Mark a serial as dismissed for this device + persist. Central
+   *  helper so every dismiss path (chip-remove, verifyDecline,
+   *  applyMeterIdsExtraction unchecked) goes through one funnel. */
+  private dismissSerial(deviceIndex: number, value: string): void {
+    const v = (value || '').trim().toLowerCase();
+    if (!v) return;
+    if (!this.dismissedSerialNumbers[deviceIndex]) {
+      this.dismissedSerialNumbers[deviceIndex] = new Set();
+    }
+    this.dismissedSerialNumbers[deviceIndex].add(v);
+    this.saveDismissedSerials(deviceIndex);
+    // Belt-and-braces: also strip from the extractor's pending list
+    // so the banner / queue / future Apply can't bring it back.
+    const ids = this.meterIdsExtractions[deviceIndex] || [];
+    this.meterIdsExtractions[deviceIndex] = ids.filter(
+      (id) => id.trim().toLowerCase() !== v,
+    );
+  }
 
   removeSerialNumber(deviceIndex: number, rowIndex: number): void {
     const list = this.getSerialNumbers(deviceIndex);
     const removed = (list[rowIndex] || '').trim();
-    if (removed) {
-      if (!this.dismissedSerialNumbers[deviceIndex]) {
-        this.dismissedSerialNumbers[deviceIndex] = new Set();
-      }
-      this.dismissedSerialNumbers[deviceIndex].add(removed.toLowerCase());
-    }
+    if (removed) this.dismissSerial(deviceIndex, removed);
     if (list.length <= 1) {
       list[0] = '';
     } else {
@@ -2662,19 +2765,7 @@ export class AddDevicesComponent implements OnDestroy {
   verifyDecline(): void {
     const item = this.verifyCurrent;
     if (item && typeof item.field === 'string' && item.field.startsWith('meterId:')) {
-      const id = String(item.value).trim();
-      if (id) {
-        if (!this.dismissedSerialNumbers[item.deviceIndex]) {
-          this.dismissedSerialNumbers[item.deviceIndex] = new Set();
-        }
-        this.dismissedSerialNumbers[item.deviceIndex].add(id.toLowerCase());
-        // Also drop from the extractor's pending list so the banner
-        // count + future queues both reflect the user's choice.
-        const ids = this.meterIdsExtractions[item.deviceIndex] || [];
-        this.meterIdsExtractions[item.deviceIndex] = ids.filter(
-          (v) => v.trim().toLowerCase() !== id.toLowerCase(),
-        );
-      }
+      this.dismissSerial(item.deviceIndex, String(item.value));
     }
     this.verifyAdvance();
   }
@@ -3081,10 +3172,17 @@ export class AddDevicesComponent implements OnDestroy {
             res.measurementIds.confidence >= 0.7 &&
             res.measurementIds.value.length
           ) {
+            const dismissed = this.dismissedSerialNumbers[deviceIndex] ?? new Set();
             const existing = new Set(
               this.meterIdsExtractions[deviceIndex] || [],
             );
-            for (const id of res.measurementIds.value) existing.add(id);
+            for (const id of res.measurementIds.value) {
+              // Honour the user's dismiss — a value they declined or
+              // removed must NOT come back via the opportunistic COD
+              // harvest, even if Haiku still confidently sees it.
+              if (dismissed.has((id || '').trim().toLowerCase())) continue;
+              existing.add(id);
+            }
             this.meterIdsExtractions[deviceIndex] = [...existing];
           }
           this.codExtractionFile[deviceIndex] = file;
@@ -3224,14 +3322,13 @@ export class AddDevicesComponent implements OnDestroy {
             const existing = new Set(
               this.meterIdsExtractions[deviceIndex] || [],
             );
+            const dismissed = this.dismissedSerialNumbers[deviceIndex] ?? new Set();
             for (const id of res.measurementIds.value) {
+              // Honour the user's dismiss — re-extracting the doc that
+              // produced a phantom serial must not bring the phantom
+              // back.
+              if (dismissed.has((id || '').trim().toLowerCase())) continue;
               existing.add(id);
-              // Tag this id with the file it was harvested from so
-              // applyMeterIdsExtraction can record per-id doc identity
-              // instead of just the source type. First-write-wins —
-              // if the same ID appears in two uploads, the first file
-              // is treated as authoritative (matches the existing-set
-              // de-dupe semantics on line above).
               if (!this.meterIdsExtractionDocs[deviceIndex][id]) {
                 this.meterIdsExtractionDocs[deviceIndex][id] = { name: file.name, file };
               }
@@ -3273,10 +3370,7 @@ export class AddDevicesComponent implements OnDestroy {
       // documents conclusion. Add to dismissed so the spurious
       // value stays gone across subsequent extractor replays.
       if (unchecked.has(`meterId:${id}`) && !existing.includes(id)) {
-        if (!this.dismissedSerialNumbers[deviceIndex]) {
-          this.dismissedSerialNumbers[deviceIndex] = new Set();
-        }
-        this.dismissedSerialNumbers[deviceIndex].add(k);
+        this.dismissSerial(deviceIndex, id);
         continue;
       }
       seen.add(k);
