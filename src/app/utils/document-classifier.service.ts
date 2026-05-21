@@ -16,6 +16,19 @@ const SLD_MAX_PAGES = 2;
 export interface ExtractedField<T> {
   value: T;
   confidence: number;
+  /** Optional region pointer into the source document — 1-based page
+   *  number plus a normalised bounding box (0..1, page treated as
+   *  1x1). Set by the hybrid Tesseract pass when the value's literal
+   *  string is locatable in the OCR output, or as a fallback by the
+   *  model itself when prompted for one. Lets the UI's verify-source
+   *  modal highlight the exact location to the registrant. */
+  region?: {
+    page: number;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  };
 }
 
 export interface CodExtractedFields {
@@ -667,10 +680,100 @@ export class DocumentClassifierService {
           },
         ),
       );
-      return res ?? null;
+      if (!res) return null;
+      // Hybrid bbox: Tesseract finds the exact pixel location of each
+      // value's literal string on the rendered canvases; we patch the
+      // model's region (which is just an estimate at best) with that
+      // when a match is found. Falls back to the model's region — or
+      // none — when Tesseract can't locate the token. This is what
+      // makes the verify-source UI's highlights pixel-accurate rather
+      // than off-by-rows-of-text.
+      try {
+        const tokenMap = await this.buildTesseractTokenMap(canvases);
+        this.patchRegionsFromTesseract(res, tokenMap);
+      } catch (err) {
+        console.warn('[DocumentClassifier] Tesseract bbox pass failed:', err);
+      }
+      return res;
     } catch (err) {
       console.warn('[DocumentClassifier] SLD extract failed:', err);
       return null;
+    }
+  }
+
+  /** Per-page word-level OCR of a stack of canvases. Returns a map
+   *  keyed by normalised token text → array of { page, x, y, w, h }
+   *  bboxes (x/y/w/h normalised 0..1 against the canvas size, so the
+   *  region travels with whatever scaling the UI ends up rendering at).
+   *  Multiple entries per key when the same word appears more than
+   *  once on a page; the matcher picks the longest contiguous span. */
+  private async buildTesseractTokenMap(
+    canvases: HTMLCanvasElement[],
+  ): Promise<Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>> {
+    const map = new Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>();
+    const Tesseract = await import('tesseract.js' as any);
+    const createWorker = Tesseract.createWorker || Tesseract.default?.createWorker;
+    const worker = await createWorker('eng', 1);
+    try {
+      for (let i = 0; i < canvases.length; i++) {
+        const canvas = canvases[i];
+        const result = await worker.recognize(canvas);
+        const words: Array<{ text: string; bbox: { x0: number; y0: number; x1: number; y1: number } }> =
+          (result?.data?.words as any) ?? [];
+        const W = canvas.width || 1;
+        const H = canvas.height || 1;
+        for (const w of words) {
+          const text = (w.text || '').trim().toLowerCase();
+          if (!text) continue;
+          const bbox = w.bbox;
+          if (!bbox) continue;
+          const entry = {
+            page: i + 1,
+            x: bbox.x0 / W,
+            y: bbox.y0 / H,
+            w: (bbox.x1 - bbox.x0) / W,
+            h: (bbox.y1 - bbox.y0) / H,
+          };
+          const existing = map.get(text);
+          if (existing) existing.push(entry);
+          else map.set(text, [entry]);
+        }
+      }
+    } finally {
+      await worker.terminate();
+    }
+    return map;
+  }
+
+  /** Walk every ExtractedField on the SLD result and patch its region
+   *  with the Tesseract-derived bbox when the value's literal string
+   *  appears in the OCR token map. Leaves the existing region intact
+   *  (model fallback) when no token match is found. */
+  private patchRegionsFromTesseract(
+    result: SldExtractedFields,
+    tokenMap: Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>,
+  ): void {
+    if (!result || typeof result !== 'object') return;
+    for (const key of Object.keys(result)) {
+      const field = (result as any)[key];
+      if (!field || typeof field !== 'object' || !('value' in field)) continue;
+      if (field.value == null) continue;
+      const candidate = String(field.value).trim().toLowerCase();
+      if (!candidate) continue;
+      // Try exact-token match first; fall back to substring match
+      // (split on whitespace and look up each piece). Number values
+      // commonly appear as bare tokens (e.g. "250"); multi-word values
+      // like "HUAWEI SUN2000-30KTL-M3" become several Tesseract tokens.
+      const direct = tokenMap.get(candidate);
+      if (direct?.length) {
+        field.region = direct[0];
+        continue;
+      }
+      const parts = candidate.split(/\s+/).filter(Boolean);
+      const firstHit = parts
+        .map((p) => tokenMap.get(p)?.[0])
+        .find((b) => !!b);
+      if (firstHit) field.region = firstHit;
     }
   }
 
