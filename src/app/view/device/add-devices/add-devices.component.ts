@@ -2702,9 +2702,22 @@ export class AddDevicesComponent implements OnDestroy {
       }
     }
     const added = merged.length - existing.length;
-    this.toastrService.success(
-      `${added} measurement ID${added === 1 ? '' : 's'} added`,
-    );
+    const attributed = Object.keys(
+      this.meterIdsExtractionDocs[deviceIndex] ?? {},
+    ).filter((id) => merged.includes(id)).length;
+    if (added > 0) {
+      this.toastrService.success(
+        `${added} measurement ID${added === 1 ? '' : 's'} added ` +
+          `(${attributed} attributed to source).`,
+      );
+    } else if (attributed > 0) {
+      this.toastrService.success(
+        `Provenance refreshed — ${attributed} chip${attributed === 1 ? '' : 's'} ` +
+          `now attributed to source.`,
+      );
+    } else {
+      this.toastrService.info('No changes — all chips already in place.');
+    }
   }
 
   dismissMeterIdsExtraction(deviceIndex: number): void {
