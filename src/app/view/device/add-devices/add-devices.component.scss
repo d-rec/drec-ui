@@ -1922,14 +1922,19 @@ $as-bg:       #f8fafc;
   &__doc {
     position: relative;
   }
-  // Highlight box overlaid on the rendered source canvas. Pulses
-  // briefly so the user's eye lands on it when the dialog opens.
+  // Highlight box overlaid on the rendered source canvas. Translucent
+  // fill so the underlying text stays readable when the bbox tightly
+  // encloses small text (a thick solid border or shadow ate the
+  // glyphs on small boxes like "400Vac"). Outline sits on the bbox
+  // boundary without nudging layout; outline-offset:-1px pulls it
+  // just inside so it visually frames the highlighted region.
   &__region {
     position: absolute;
     pointer-events: none;
-    border: 3px solid #dc2626;
-    border-radius: 3px;
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+    background: rgba(220, 38, 38, 0.22);
+    outline: 2px solid #dc2626;
+    outline-offset: -1px;
+    border-radius: 2px;
     animation: verify-pulse 1.2s ease-out 1;
   }
 }
