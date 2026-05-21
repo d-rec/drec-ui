@@ -747,8 +747,11 @@ export class DocumentClassifierService {
 
   /** Walk every ExtractedField on the SLD result and patch its region
    *  with the Tesseract-derived bbox when the value's literal string
-   *  appears in the OCR token map. Leaves the existing region intact
-   *  (model fallback) when no token match is found. */
+   *  appears in the OCR token map. Tags each region with
+   *  regionSource: 'tesseract' (pixel-exact, value literally found) or
+   *  'model' (Haiku's estimate, approximate — value likely derived /
+   *  symbol-only / OCR-missed) so the UI can show whether the
+   *  highlight is trustworthy. */
   private patchRegionsFromTesseract(
     result: SldExtractedFields,
     tokenMap: Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>,
@@ -760,20 +763,34 @@ export class DocumentClassifierService {
       if (field.value == null) continue;
       const candidate = String(field.value).trim().toLowerCase();
       if (!candidate) continue;
-      // Try exact-token match first; fall back to substring match
-      // (split on whitespace and look up each piece). Number values
-      // commonly appear as bare tokens (e.g. "250"); multi-word values
-      // like "HUAWEI SUN2000-30KTL-M3" become several Tesseract tokens.
+      // Exact-token match first
       const direct = tokenMap.get(candidate);
       if (direct?.length) {
         field.region = direct[0];
+        field.regionSource = 'tesseract';
         continue;
       }
+      // Multi-word split — pick the most distinctive token (longest
+      // non-numeric one, falling back to first hit) so "HUAWEI
+      // SUN2000-30KTL-M3" lands on "sun2000-30ktl-m3" not "huawei",
+      // which appears in lots of other diagrams.
       const parts = candidate.split(/\s+/).filter(Boolean);
-      const firstHit = parts
-        .map((p) => tokenMap.get(p)?.[0])
-        .find((b) => !!b);
-      if (firstHit) field.region = firstHit;
+      const candidates = parts
+        .map((p) => ({ token: p, hit: tokenMap.get(p)?.[0] }))
+        .filter((c) => !!c.hit);
+      if (candidates.length) {
+        const best =
+          candidates.find((c) => /[a-z]/.test(c.token) && c.token.length >= 4) ??
+          candidates[0];
+        field.region = best.hit;
+        field.regionSource = 'tesseract';
+        continue;
+      }
+      // No literal token match. If the model gave us a region, keep
+      // it but flag as approximate so the UI can show a warning.
+      if (field.region) {
+        field.regionSource = 'model';
+      }
     }
   }
 

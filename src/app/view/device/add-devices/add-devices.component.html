@@ -1961,26 +1961,37 @@
         </div>
       </div>
 
-      <div class="verify-source__doc" style="position:relative;display:inline-block">
-        <canvas #verifyCanvas
-          style="display:block;max-width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
-        </canvas>
-        <!-- Region overlay positioned in percentages so we don't need
-             to know the canvas's CSS pixel size at render time. The
-             wrapper above is inline-block so it shrinks to the
-             canvas; that anchors the percentages correctly. -->
-        <div *ngIf="v.region"
-          class="verify-source__region"
-          [style.left.%]="v.region.x * 100"
-          [style.top.%]="v.region.y * 100"
-          [style.width.%]="v.region.w * 100"
-          [style.height.%]="v.region.h * 100">
-        </div>
-        <div *ngIf="!v.region" class="alert alert-warning small mt-2 mb-0">
-          <mat-icon style="font-size:16px;vertical-align:middle">warning_amber</mat-icon>
-          The model didn't return a region for this field. Verify the value against the document manually before accepting.
+      <div class="verify-source__zoom" appImageZoomPan [resetKey]="v.field">
+        <div class="verify-source__doc">
+          <canvas #verifyCanvas
+            style="display:block;max-width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
+          </canvas>
+          <!-- Region overlay positioned in percentages so we don't
+               need to know the canvas's CSS pixel size at render
+               time. Both the canvas and this overlay live inside the
+               zoom-pan container, so they scale + translate together
+               and the bbox stays anchored to the value as the user
+               zooms in to read small labels. -->
+          <div *ngIf="v.region"
+            class="verify-source__region"
+            [class.verify-source__region--approx]="v.regionSource !== 'tesseract'"
+            [style.left.%]="v.region.x * 100"
+            [style.top.%]="v.region.y * 100"
+            [style.width.%]="v.region.w * 100"
+            [style.height.%]="v.region.h * 100">
+          </div>
         </div>
       </div>
+      <div *ngIf="!v.region" class="alert alert-warning small mt-2 mb-0">
+        <mat-icon style="font-size:16px;vertical-align:middle">warning_amber</mat-icon>
+        The model didn't return a region for this field. Verify the value against the document manually before accepting.
+      </div>
+      <div *ngIf="v.region && v.regionSource !== 'tesseract'" class="alert alert-info small mt-2 mb-0">
+        <mat-icon style="font-size:16px;vertical-align:middle">info_outline</mat-icon>
+        Approximate location — the value isn't a literal string in the doc (likely derived, e.g. summed from components). The model estimated the location; verify by reading nearby labels.
+      </div>
+      <div class="text-muted small mt-1" style="text-align:center">
+        Scroll to zoom · drag to pan · double-click to reset
 
       <p class="text-muted small mt-3 mb-0">
         Accepting attests <em>{{ user?.email || 'you' }}</em> as the verifier of this value against the source document.
