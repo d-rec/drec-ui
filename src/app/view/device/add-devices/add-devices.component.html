@@ -1589,12 +1589,21 @@
                       <ul class="sld-extract-banner__list">
                         <li *ngFor="let id of meterIdsExtractions[i]" class="d-flex justify-content-between align-items-center gap-2">
                           <span style="font-family:'JetBrains Mono',ui-monospace,monospace;font-size:12px">{{ id }}</span>
-                          <small *ngIf="meterIdsExtractionDocs[i]?.[id]?.name as docName"
-                            class="text-muted"
-                            style="font-size:11px"
-                            [title]="'Extracted from ' + docName">
-                            from {{ docName }}
-                          </small>
+                          <span class="d-flex align-items-center gap-2">
+                            <small *ngIf="meterIdsExtractionDocs[i]?.[id]?.name as docName"
+                              class="text-muted"
+                              style="font-size:11px"
+                              [title]="'Extracted from ' + docName">
+                              from {{ docName }}
+                            </small>
+                            <button type="button"
+                              class="btn btn-sm btn-link text-danger p-0"
+                              style="line-height:1;font-size:18px"
+                              (click)="dismissOneExtractedMeterId(i, id)" (mousedown)="$event.stopPropagation()"
+                              [title]="'Reject ' + id + ' as a phantom — blacklisted; will not return on re-extract.'">
+                              ×
+                            </button>
+                          </span>
                         </li>
                       </ul>
                       <div class="sld-extract-banner__actions">

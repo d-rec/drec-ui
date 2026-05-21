@@ -3540,8 +3540,22 @@ export class AddDevicesComponent implements OnDestroy {
     }
   }
 
+  /** Bulk "Dismiss" on the AI-extracted-IDs banner. Blacklists EVERY
+   *  currently-extracted ID for this device before clearing the list,
+   *  so re-extracting the same screenshots doesn't bring the phantoms
+   *  back. Previously this just emptied the array without recording
+   *  anything — the prime "10024nen keeps coming back" reseed. */
   dismissMeterIdsExtraction(deviceIndex: number): void {
+    const ids = this.meterIdsExtractions[deviceIndex] || [];
+    for (const id of ids) this.dismissSerial(deviceIndex, id);
     this.meterIdsExtractions[deviceIndex] = [];
+  }
+
+  /** Dismiss a SINGLE extracted ID from the banner without nuking the
+   *  rest. Blacklists the value so it can't return on re-extract.
+   *  Wired to a × button per <li> in the meter-IDs banner template. */
+  dismissOneExtractedMeterId(deviceIndex: number, id: string): void {
+    this.dismissSerial(deviceIndex, id);
   }
 
   /** OK + Extract: keep the magic dialog open, transition into
