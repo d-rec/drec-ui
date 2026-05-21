@@ -2086,17 +2086,14 @@ export class AddDevicesComponent implements OnDestroy {
       transform?: (v: any) => any,
     ) => {
       if (!field || field.value == null) return;
-      // Skip fields that are already filled with the same value — no
-      // reason to ask the user to verify what's already correct.
-      const cur = this.deviceForms.at(deviceIndex)?.get(name)?.value;
+      // Strict: skip only when the saved provenance ALREADY carries a
+      // verifiedBy stamp for this field. A value that happens to match
+      // the form but has no verifier on its provenance still needs a
+      // human to confirm it against the source — matching by accident
+      // isn't the same as someone having attested to it.
+      const prov = this.appliedProvenance[deviceIndex]?.[name];
+      if (prov && (prov as any).verifiedBy) return;
       const next = transform ? transform(field.value) : field.value;
-      if (
-        cur != null &&
-        cur !== '' &&
-        this.normalizeForCompare(cur) === this.normalizeForCompare(next)
-      ) {
-        return;
-      }
       items.push({
         deviceIndex,
         field: name,
