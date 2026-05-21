@@ -4286,6 +4286,41 @@ export class AddDevicesComponent implements OnDestroy {
    *  no-subject rows on hover/focus of the Flush or Attest button. */
   evidenceHoverAction: 'attest' | 'flush' | null = null;
 
+  /** Credit a doc as the source for an orphan row. Called when the
+   *  registrant has opened the doc, confirmed the value is in it,
+   *  and clicks "credit". Writes a real fieldProvenance entry with
+   *  the doc identity, verifiedBy stamped to the registrant. Updates
+   *  the row in place so the dialog re-renders as cleanly-attributed. */
+  creditValueToDoc(
+    row: { field: string; displayValue: string; source: string | null; docName: string | null; helpfulDocs?: any },
+    doc: { name: string; url?: string; docType: string },
+  ): void {
+    const i = 0;
+    const ctl = this.deviceForms.at(i)?.get(row.field);
+    const value = ctl ? ctl.value : row.displayValue;
+    const source = `${doc.docType.replace(/_/g, ' ')} (registrant-credited)`;
+    this.recordProvenance(i, row.field, source, 1, value, { name: doc.name });
+    const email = (this.user?.email ?? '').trim() || 'unknown';
+    const entry = this.appliedProvenance[i]?.[row.field];
+    if (entry) {
+      (entry as any).verifiedBy = { email, at: new Date().toISOString() };
+    }
+    // Update the in-memory row so the dialog re-renders without a
+    // full close+reopen.
+    row.source = source;
+    row.docName = doc.name;
+    row.helpfulDocs = undefined;
+    this.evidenceSummary = {
+      docBacked: this.evidenceRows.filter((r) => r.source).length,
+      unattributed: this.evidenceRows.filter((r) => !r.source).length,
+      total: this.evidenceRows.length,
+    };
+    this.unattributedFields = this.evidenceRows
+      .filter((r) => !r.source)
+      .map((r) => r.field);
+    this.toastrService.success(`Credited ${doc.name} for ${row.field}.`);
+  }
+
   /** Count of no-subject rows the user has ticked to attest. */
   attestSelectedCount(): number {
     return this.evidenceRows.filter((r) => !r.source && r.attestSelected).length;
@@ -4547,6 +4582,76 @@ export class AddDevicesComponent implements OnDestroy {
       }
       return out;
     };
+    // Free, local re-attribution pass — for each orphan field, walk
+    // cached extractor outputs (sld/sf02c/cod/sf02) and credit any
+    // doc whose extracted value matches the form value verbatim.
+    // Only positive hits write provenance; misses leave the orphan
+    // alone (asymmetric: a miss is epistemically weak — the value
+    // may be there but OCR-distorted, paraphrased, or in a region
+    // the extractor didn't read).
+    const valueEq = (a: any, b: any): boolean => {
+      if (a == null || b == null) return false;
+      return (
+        String(a).trim().toLowerCase() === String(b).trim().toLowerCase()
+      );
+    };
+    const cachedExtractions: Array<{ source: string; doc: any; fx: any }> = [];
+    if (this.sldExtractions[i]) {
+      cachedExtractions.push({
+        source: 'SLD',
+        doc: this.sldExtractionDoc[i] ?? null,
+        fx: this.sldExtractions[i],
+      });
+    }
+    if (this.sf02cExtractions[i]) {
+      cachedExtractions.push({
+        source: 'SF-02c',
+        doc: this.sf02cExtractionDoc[i] ?? null,
+        fx: this.sf02cExtractions[i],
+      });
+    }
+    if (this.codExtractions[i]) {
+      cachedExtractions.push({
+        source: 'COD',
+        doc: this.codExtractionDoc[i] ?? null,
+        fx: this.codExtractions[i],
+      });
+    }
+    if (this.sf02Extractions[i]) {
+      cachedExtractions.push({
+        source: 'SF-02',
+        doc: this.sf02ExtractionDoc[i] ?? null,
+        fx: this.sf02Extractions[i],
+      });
+    }
+    // Field-name aliasing between form and extractor outputs (e.g.
+    // SLD calls it acCapacityKw, form calls it capacity).
+    const FORM_TO_FX_KEYS: Record<string, string[]> = {
+      capacity: ['acCapacityKw'],
+      generatingUnitCount: ['inverterCount'],
+      interconnectionVoltage: ['gridVoltage'],
+      dataSourceBrand: ['inverterMakeModel'],
+      siteName: ['projectName', 'facilityName'],
+      pvSystemOwner: ['ownerLegalName', 'ownerName'],
+      pvSystemOwnerAddress: ['ownerAddress'],
+      countryCodename: ['ownerCountry', 'country'],
+      address: ['ownerAddress', 'facilityName'],
+    };
+    const matchCachedSource = (
+      field: string,
+      value: any,
+    ): { source: string; doc: any; confidence: number } | null => {
+      const candidates = [field, ...(FORM_TO_FX_KEYS[field] ?? [])];
+      for (const ce of cachedExtractions) {
+        for (const k of candidates) {
+          const ef = ce.fx?.[k];
+          if (ef?.value != null && valueEq(ef.value, value)) {
+            return { source: ce.source, doc: ce.doc, confidence: ef.confidence ?? 0.9 };
+          }
+        }
+      }
+      return null;
+    };
     const rows: typeof this.evidenceRows = [];
     for (const name of Object.keys(form.controls)) {
       if (skip.has(name)) continue;
@@ -4554,8 +4659,26 @@ export class AddDevicesComponent implements OnDestroy {
       if (!ctl) continue;
       const v = ctl.value;
       if (isEmpty(v)) continue;
-      const p = prov[name];
-      const hasSource = !!p?.source;
+      let p = prov[name];
+      let hasSource = !!p?.source;
+      // If orphan + a cached extractor saw this exact value: credit
+      // it now. Writes to appliedProvenance so the next reload reads
+      // it as cleanly-attributed too.
+      if (!hasSource) {
+        const m = matchCachedSource(name, v);
+        if (m) {
+          this.recordProvenance(
+            i,
+            name,
+            m.source,
+            m.confidence,
+            v,
+            m.doc ?? undefined,
+          );
+          p = prov[name];
+          hasSource = !!p?.source;
+        }
+      }
       rows.push({
         field: name,
         label: labelOf(name),

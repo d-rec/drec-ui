@@ -1971,17 +1971,25 @@
                 <span>attest</span>
               </label>
               <div *ngIf="r.helpfulDocs?.length" class="evidence-attest__docs">
-                <small class="text-muted d-block">or open a doc to verify:</small>
-                <a *ngFor="let d of r.helpfulDocs"
-                   [href]="d.url || null"
-                   [target]="d.url ? '_blank' : null"
-                   rel="noopener"
-                   class="evidence-attest__doc"
-                   [class.evidence-attest__doc--inert]="!d.url"
-                   [title]="d.url ? ('Open ' + d.name) : (d.name + ' (attached, but no preview URL)')">
-                  <mat-icon style="font-size:13px;height:13px;width:13px;vertical-align:middle">description</mat-icon>
-                  {{ d.name }}
-                </a>
+                <small class="text-muted d-block">or credit a doc you've verified:</small>
+                <div *ngFor="let d of r.helpfulDocs" class="evidence-attest__doc-row">
+                  <a [href]="d.url || null"
+                     [target]="d.url ? '_blank' : null"
+                     rel="noopener"
+                     class="evidence-attest__doc"
+                     [class.evidence-attest__doc--inert]="!d.url"
+                     [title]="d.url ? ('Open ' + d.name + ' in a new tab to verify the value is there') : (d.name + ' (attached, no preview URL)')">
+                    <mat-icon style="font-size:13px;height:13px;width:13px;vertical-align:middle">open_in_new</mat-icon>
+                    {{ d.name }}
+                  </a>
+                  <button type="button"
+                    class="btn btn-sm btn-outline-success evidence-attest__credit"
+                    (click)="creditValueToDoc(r, d)"
+                    [title]="'I verified this value is in ' + d.name + ' — credit it as the source.'">
+                    <mat-icon style="font-size:12px;height:12px;width:12px;vertical-align:middle">check</mat-icon>
+                    credit
+                  </button>
+                </div>
               </div>
               <small *ngIf="!r.helpfulDocs?.length" class="text-muted d-block">
                 <mat-icon style="font-size:13px;height:13px;width:13px;vertical-align:middle">info_outline</mat-icon>
