@@ -3334,6 +3334,11 @@ export class AddDevicesComponent implements OnDestroy {
         // each chip can show its specific source even when different
         // files contributed different IDs in the same batch.
         docsByValue?: Record<string, { id?: number; name: string }>;
+        // Sibling map for human attestation — chips not covered by a
+        // doc but personally vouched for by a registrant. Keyed by
+        // chip value → email. Used so Attest doesn't clobber the
+        // per-id doc attributions when only SOME chips lack a doc.
+        personByValue?: Record<string, string>;
       }
     >;
   } = {};
@@ -3547,17 +3552,49 @@ export class AddDevicesComponent implements OnDestroy {
       this.recordProvenance(i, f, source, 1, ctl.value);
     }
     if (orphanedSerials.length) {
-      // serialNumber provenance covers the full list (joined). Build
-      // the new value to include orphan chips so they're attested
-      // along with any previously-attributed ones.
+      // Mixed-attribution path: preserve any existing docsByValue
+      // (doc-backed chips keep their photo source) AND promote any
+      // pending extraction (meterIdsExtractionDocs) into docsByValue
+      // — otherwise Attest would clobber 4 OCR-attributable chips
+      // just because they hadn't been Applied yet. Person attestation
+      // (Manual:<email>) goes into a sibling personByValue map,
+      // covering only the chips that have NEITHER a doc nor a
+      // previously-recorded human source.
       const allSerials = serials.filter((s) => (s || '').trim());
+      const existingProv = this.appliedProvenance[i]?.['serialNumber'];
+      const docsByValue: Record<string, { id?: number; name: string }> = {
+        ...(existingProv?.docsByValue ?? {}),
+        ...(this.meterIdsExtractionDocs[i] ?? {}),
+      };
+      const personByValue: Record<string, string> = {
+        ...(existingProv?.personByValue ?? {}),
+      };
+      const orphans = allSerials.filter(
+        (id) => !docsByValue[id] && !personByValue[id],
+      );
+      for (const id of orphans) personByValue[id] = email;
+      // Source label: 'Meter IDs' when at least one chip is
+      // doc-backed (the dominant attribution), else the Manual
+      // label so single-source rendering stays sensible.
+      const hasDocs = Object.keys(docsByValue).length > 0;
+      const headlineSource = hasDocs ? 'Meter IDs' : source;
+      const primaryDoc = hasDocs
+        ? Object.values(docsByValue).find((d) => d?.name)
+        : undefined;
       this.recordProvenance(
         i,
         'serialNumber',
-        source,
+        headlineSource,
         1,
         allSerials.join(';'),
+        primaryDoc,
       );
+      // Stash the per-value maps on the fresh provenance entry.
+      const entry = this.appliedProvenance[i]?.['serialNumber'];
+      if (entry) {
+        if (Object.keys(docsByValue).length) entry.docsByValue = docsByValue;
+        if (Object.keys(personByValue).length) entry.personByValue = personByValue;
+      }
     }
     this.toastrService.success(
       `Attested ${fields.length} field${fields.length === 1 ? '' : 's'} ` +
