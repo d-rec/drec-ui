@@ -767,37 +767,52 @@ export class DocumentClassifierService {
     tokenMap: Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>,
   ): void {
     if (!result || typeof result !== 'object') return;
+    // Short tokens (1-2 chars) are too risky to trust as exact matches
+    // — a value of "2" (e.g. inverterCount) hits ANY stray digit on
+    // the diagram (Fuse 2A, 3xCT split as ["3","x","CT"], etc.) and
+    // the resulting "exact" highlight points at unrelated parts of
+    // the SLD. Require ≥3 chars for the candidate AND the matched
+    // token, AND require the matched token to be unique on its page
+    // (one occurrence) so we don't pick the first of many "250a"s
+    // when the value is a bare "250".
+    const MIN_TOKEN_LEN = 3;
     for (const key of Object.keys(result)) {
       const field = (result as any)[key];
       if (!field || typeof field !== 'object' || !('value' in field)) continue;
       if (field.value == null) continue;
       const candidate = String(field.value).trim().toLowerCase();
-      if (!candidate) continue;
-      // Exact-token match first
+      if (!candidate || candidate.length < MIN_TOKEN_LEN) {
+        // Too short to safely match — fall through to model bbox.
+        if (field.region) field.regionSource = 'model';
+        continue;
+      }
+      // Exact-token match — only if unique on its page.
       const direct = tokenMap.get(candidate);
-      if (direct?.length) {
+      if (direct?.length === 1) {
         field.region = direct[0];
         field.regionSource = 'tesseract';
         continue;
       }
-      // Multi-word split — pick the most distinctive token (longest
-      // non-numeric one, falling back to first hit) so "HUAWEI
-      // SUN2000-30KTL-M3" lands on "sun2000-30ktl-m3" not "huawei",
-      // which appears in lots of other diagrams.
-      const parts = candidate.split(/\s+/).filter(Boolean);
+      // Multi-word split — same safety: require ≥3 chars, unique hit.
+      const parts = candidate
+        .split(/\s+/)
+        .filter((p) => p.length >= MIN_TOKEN_LEN);
       const candidates = parts
-        .map((p) => ({ token: p, hit: tokenMap.get(p)?.[0] }))
-        .filter((c) => !!c.hit);
+        .map((p) => ({ token: p, hits: tokenMap.get(p) ?? [] }))
+        .filter((c) => c.hits.length === 1);
       if (candidates.length) {
+        // Prefer the most distinctive token: longest one with letters,
+        // since those are less likely to be ambiguous than pure digits.
         const best =
           candidates.find((c) => /[a-z]/.test(c.token) && c.token.length >= 4) ??
           candidates[0];
-        field.region = best.hit;
+        field.region = best.hits[0];
         field.regionSource = 'tesseract';
         continue;
       }
-      // No literal token match. If the model gave us a region, keep
-      // it but flag as approximate so the UI can show a warning.
+      // No safe literal token match. Fall back to model bbox if any,
+      // flagged so the UI can hide it (since model bbox for derived
+      // values is unreliable enough that we don't draw an arrow).
       if (field.region) {
         field.regionSource = 'model';
       }
