@@ -2003,12 +2003,13 @@ export class AddDevicesComponent implements OnDestroy {
         this.ngZone.run(() => {
           this.sldExtracting[deviceIndex] = false;
           this.sldExtractions[deviceIndex] = res;
-          // Auto-fill any currently-empty form fields; conflicts are
-          // left for the explicit "Apply to form" button (silent here).
-          this.applySldExtraction(deviceIndex, {
-            silentIfConflicts: true,
-            silentIfEmpty: true,
-          });
+          // Strict verification path: instead of auto-applying with a
+          // confidence threshold, walk the registrant through each
+          // extracted value field-by-field, highlighting the source
+          // region in the SLD doc and requiring an explicit OK/Decline.
+          // No silent attribution; every doc-backed value carries a
+          // human verifier on its provenance entry.
+          this.openSldVerifyQueue(deviceIndex, file);
         }),
       )
       .catch(() =>
@@ -2016,6 +2017,231 @@ export class AddDevicesComponent implements OnDestroy {
           this.sldExtracting[deviceIndex] = false;
         }),
       );
+  }
+
+  /** Verify-Source queue state — populated when an SLD extraction
+   *  completes. The queue is one entry per field the model returned,
+   *  walked one at a time in the dialog with OK/Decline. */
+  verifyQueue: Array<{
+    deviceIndex: number;
+    field: string;          // form control name
+    label: string;          // human label for the field
+    source: string;         // 'SLD' for now; Phase 2 adds others
+    value: any;             // candidate value from extractor
+    confidence: number;
+    region?: { page: number; x: number; y: number; w: number; h: number };
+    transform?: (v: any) => any;
+  }> = [];
+  verifyQueueIndex = 0;
+  verifyQueueFile: File | null = null;
+  @ViewChild('verifySourceDialog') verifySourceDialog?: TemplateRef<any>;
+  @ViewChild('verifyCanvas') verifyCanvasEl?: ElementRef<HTMLCanvasElement>;
+  private verifySourceDialogRef: MatDialogRef<any> | null = null;
+
+  /** Resolved CSS size of the rendered verify canvas — needed so the
+   *  overlay div above it can position its highlight bbox in screen
+   *  pixels (the region coords are normalised 0..1). */
+  verifyCanvasSize: { cssWidth: number; cssHeight: number } | null = null;
+
+  /** Open the verify-source queue for an SLD extraction. Walks the
+   *  user through each field the model returned, showing the source
+   *  region in the doc and requiring OK or Decline before moving on. */
+  openSldVerifyQueue(deviceIndex: number, file: File): void {
+    const fx = this.sldExtractions[deviceIndex];
+    if (!fx) return;
+    const items: typeof this.verifyQueue = [];
+    const push = (
+      name: string,
+      label: string,
+      field: { value: any; confidence: number; region?: any } | undefined,
+      transform?: (v: any) => any,
+    ) => {
+      if (!field || field.value == null) return;
+      // Skip fields that are already filled with the same value — no
+      // reason to ask the user to verify what's already correct.
+      const cur = this.deviceForms.at(deviceIndex)?.get(name)?.value;
+      const next = transform ? transform(field.value) : field.value;
+      if (
+        cur != null &&
+        cur !== '' &&
+        this.normalizeForCompare(cur) === this.normalizeForCompare(next)
+      ) {
+        return;
+      }
+      items.push({
+        deviceIndex,
+        field: name,
+        label:
+          AddDevicesComponent.FIELD_LABELS[name] ?? label,
+        source: 'SLD',
+        value: next,
+        confidence: field.confidence,
+        region: field.region,
+        transform,
+      });
+    };
+    push('capacity', '(9) Total AC capacity', fx.acCapacityKw);
+    push('generatingUnitCount', '(13) Number of generating units', fx.inverterCount);
+    push('interconnectionVoltage', '(18) Interconnection voltage', fx.gridVoltage);
+    push('gridInterconnection', '(15) Grid-connected?', fx.gridTied, (v) => !!v);
+    push('dataSourceBrand', '(27) Data Source Brand', fx.inverterMakeModel);
+    push('networkOwner', '(17) Network owner', fx.networkOwner);
+    push(
+      'hasNetworkMeter',
+      '(19) Network meter installed?',
+      fx.hasNetworkMeter,
+      (v) => (v ? 'Yes' : 'No'),
+    );
+    push('gridExportType', '(16) Exports to grid?', fx.gridExportType);
+    push(
+      'hasAuxiliaryEnergySources',
+      '(24) Auxiliary energy sources?',
+      fx.hasAuxiliaryEnergySources,
+      (v) => (v ? 'Yes' : 'No'),
+    );
+    push(
+      'auxiliaryEnergySourceDetails',
+      '(25) Aux source details',
+      fx.auxiliaryEnergySourceDetails,
+    );
+    push(
+      'hasCaptiveConsumer',
+      '(23) Captive consumer present?',
+      fx.hasCaptiveConsumer,
+      (v) => (v ? 'Yes' : 'No'),
+    );
+    if (!items.length) {
+      this.toastrService.info(
+        'SLD extracted: every field already matches the form. Nothing to verify.',
+      );
+      return;
+    }
+    this.verifyQueue = items;
+    this.verifyQueueIndex = 0;
+    this.verifyQueueFile = file;
+    if (!this.verifySourceDialog) return;
+    this.verifySourceDialogRef = this.dialog.open(
+      this.verifySourceDialog,
+      {
+        width: '900px',
+        maxWidth: '95vw',
+        disableClose: true,
+      },
+    );
+    // Render after the dialog's view is committed, otherwise the
+    // canvas element isn't in the DOM yet.
+    setTimeout(() => this.renderVerifyCanvas(), 50);
+  }
+
+  /** Render the current verify queue item's source page onto the
+   *  dialog's canvas. Uses pdf.js for PDFs; for images, loads into
+   *  an <img> and copies to the canvas. Captures the resulting CSS
+   *  size on verifyCanvasSize so the overlay div can position the
+   *  bbox in screen pixels. */
+  private async renderVerifyCanvas(): Promise<void> {
+    const canvas = this.verifyCanvasEl?.nativeElement;
+    const file = this.verifyQueueFile;
+    const item = this.verifyCurrent;
+    if (!canvas || !file || !item) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const page = item.region?.page ?? 1;
+    const targetW = 800;
+    try {
+      if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+        const pdfjs: any = await import('pdfjs-dist' as any);
+        const data = new Uint8Array(await file.arrayBuffer());
+        const pdf = await pdfjs.getDocument({ data }).promise;
+        const pdfPage = await pdf.getPage(Math.min(page, pdf.numPages));
+        const viewport = pdfPage.getViewport({ scale: 1 });
+        const scale = targetW / viewport.width;
+        const scaled = pdfPage.getViewport({ scale });
+        canvas.width = scaled.width;
+        canvas.height = scaled.height;
+        await pdfPage.render({ canvasContext: ctx, viewport: scaled }).promise;
+      } else {
+        const url = URL.createObjectURL(file);
+        try {
+          const img = await new Promise<HTMLImageElement>((res, rej) => {
+            const el = new Image();
+            el.onload = () => res(el);
+            el.onerror = rej;
+            el.src = url;
+          });
+          const scale = Math.min(targetW / img.width, 1);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        } finally {
+          URL.revokeObjectURL(url);
+        }
+      }
+      // CSS size matches intrinsic since max-width:100% above scales
+      // it down; read the resolved size after a microtask so the
+      // overlay positions correctly even when the dialog narrowed it.
+      requestAnimationFrame(() => {
+        this.verifyCanvasSize = {
+          cssWidth: canvas.clientWidth,
+          cssHeight: canvas.clientHeight,
+        };
+      });
+    } catch (err) {
+      console.warn('renderVerifyCanvas failed', err);
+      this.verifyCanvasSize = null;
+    }
+  }
+
+  /** Current item in the verify queue, or null when done. */
+  get verifyCurrent(): typeof this.verifyQueue[number] | null {
+    return this.verifyQueue[this.verifyQueueIndex] ?? null;
+  }
+
+  /** Accept the current extraction — write provenance with verifier
+   *  email + region, advance the queue. */
+  verifyAccept(): void {
+    const item = this.verifyCurrent;
+    if (!item) return;
+    const ctl = this.deviceForms.at(item.deviceIndex)?.get(item.field);
+    if (ctl) {
+      ctl.setValue(item.value);
+      ctl.markAsDirty();
+    }
+    const email = (this.user?.email ?? '').trim() || 'unknown';
+    this.recordProvenance(
+      item.deviceIndex,
+      item.field,
+      item.source,
+      item.confidence,
+      item.value,
+      this.verifyQueueFile ? { name: this.verifyQueueFile.name } : undefined,
+    );
+    const entry = this.appliedProvenance[item.deviceIndex]?.[item.field];
+    if (entry) {
+      (entry as any).verifiedBy = { email, at: new Date().toISOString() };
+      if (item.region) (entry as any).region = item.region;
+    }
+    this.verifyAdvance();
+  }
+
+  /** Skip the current item — no value applied, no provenance written. */
+  verifyDecline(): void {
+    this.verifyAdvance();
+  }
+
+  private verifyAdvance(): void {
+    this.verifyQueueIndex++;
+    if (this.verifyQueueIndex >= this.verifyQueue.length) {
+      // Queue exhausted — close dialog and reset.
+      this.verifySourceDialogRef?.close();
+      this.verifySourceDialogRef = null;
+      this.verifyQueue = [];
+      this.verifyQueueIndex = 0;
+      this.verifyQueueFile = null;
+      this.verifyCanvasSize = null;
+      return;
+    }
+    // Re-render the canvas for the next item (region/page may change).
+    setTimeout(() => this.renderVerifyCanvas(), 0);
   }
 
   /** Apply confident SLD-extracted values into the form. We only patch

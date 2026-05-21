@@ -1897,3 +1897,44 @@ $as-bg:       #f8fafc;
   padding-top: 8px;
   border-top: 1px solid #e2e8f0;
 }
+
+// Verify-source modal — circles the value being read in the source doc.
+.verify-source {
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 12px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+  &__label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+  }
+  &__value {
+    font-size: 18px;
+    color: #0f172a;
+  }
+  &__doc {
+    position: relative;
+  }
+  // Highlight box overlaid on the rendered source canvas. Pulses
+  // briefly so the user's eye lands on it when the dialog opens.
+  &__region {
+    position: absolute;
+    pointer-events: none;
+    border: 3px solid #dc2626;
+    border-radius: 3px;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+    animation: verify-pulse 1.2s ease-out 1;
+  }
+}
+@keyframes verify-pulse {
+  0%   { transform: scale(1.6); opacity: 0.0; }
+  20%  { transform: scale(1.3); opacity: 1.0; }
+  100% { transform: scale(1.0); opacity: 1.0; }
+}

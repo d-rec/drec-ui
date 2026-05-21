@@ -1933,3 +1933,61 @@
     <button mat-button class="btn btn-outline-secondary" mat-dialog-close>Close</button>
   </div>
 </ng-template>
+
+<ng-template #verifySourceDialog>
+  <h2 mat-dialog-title class="d-flex align-items-center gap-2">
+    <mat-icon>verified</mat-icon>
+    Verify source ({{ verifyQueueIndex + 1 }} / {{ verifyQueue.length }})
+  </h2>
+  <div mat-dialog-content style="max-height:75vh">
+    <div *ngIf="verifyCurrent as v" class="verify-source">
+      <div class="verify-source__head">
+        <div>
+          <div class="verify-source__label">{{ v.label }}</div>
+          <div class="verify-source__value">
+            <strong>{{ v.value }}</strong>
+            <small class="text-muted ms-2">{{ v.source }} · {{ (v.confidence * 100) | number:'1.0-0' }}%</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="verify-source__doc" style="position:relative">
+        <canvas #verifyCanvas
+          style="display:block;max-width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
+        </canvas>
+        <!-- Region overlay: positioned absolutely over the canvas using
+             normalised 0..1 coords, scaled to canvas client size. -->
+        <div *ngIf="v.region && verifyCanvasSize"
+          class="verify-source__region"
+          [style.left.px]="v.region.x * verifyCanvasSize.cssWidth"
+          [style.top.px]="v.region.y * verifyCanvasSize.cssHeight"
+          [style.width.px]="v.region.w * verifyCanvasSize.cssWidth"
+          [style.height.px]="v.region.h * verifyCanvasSize.cssHeight">
+        </div>
+        <div *ngIf="!v.region" class="alert alert-warning small mt-2 mb-0">
+          <mat-icon style="font-size:16px;vertical-align:middle">warning_amber</mat-icon>
+          The model didn't return a region for this field. Verify the value against the document manually before accepting.
+        </div>
+      </div>
+
+      <p class="text-muted small mt-3 mb-0">
+        Accepting attests <em>{{ user?.email || 'you' }}</em> as the verifier of this value against the source document.
+      </p>
+    </div>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-between align-items-center gap-2">
+    <button mat-button
+      class="btn btn-outline-secondary"
+      (click)="verifyDecline()"
+      title="Skip this value — don't apply, no provenance written.">
+      Decline
+    </button>
+    <button mat-button
+      class="btn btn-primary"
+      (click)="verifyAccept()"
+      [title]="'Apply ' + (verifyCurrent?.value ?? '') + ' and stamp ' + (user?.email || 'me') + ' as verifier.'">
+      <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">check_circle</mat-icon>
+      Accept &amp; verify
+    </button>
+  </div>
+</ng-template>
