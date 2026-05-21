@@ -6522,8 +6522,8 @@ export class AddDevicesComponent implements OnDestroy {
         }
         this.toastrService.warning(
           `${this.evidenceSummary.unattributed} value${this.evidenceSummary.unattributed === 1 ? '' : 's'} ` +
-            `have no source. Flush or Attest from the Review evidence dialog ` +
-            `before submitting.`,
+            `need a subject in charge — either a document or your attestation. ` +
+            `Use Flush or Attest in the Review evidence dialog.`,
           'Submit blocked',
           { timeOut: 8000 },
         );

@@ -413,11 +413,10 @@
                           [title]="'From ' + src.doc.name">
                           <mat-icon>description</mat-icon>{{ src.doc.name }}
                         </span>
-                        <span class="serial-list__src serial-list__src--manual"
-                          *ngIf="!meterIdSource(i, s) && (s || '').trim()"
-                          title="No source recorded — could be a previous extraction whose source wasn't tracked, or hand-entered. Click 'Apply to (14)' on a fresh metering doc extraction to attribute these to a specific file.">
-                          Unattributed
-                        </span>
+                        <!-- No badge for chips without provenance — they're
+                          the default, not a labelled state. The Review
+                          Evidence dialog is the audit surface. -->
+
                       </div>
                       <button type="button"
                         mat-stroked-button
@@ -1878,7 +1877,7 @@
   </h2>
   <div mat-dialog-content style="max-height:70vh">
     <p class="text-muted small mb-2">
-      Every filled field on this form, the value about to be submitted, and where the value came from. "Unattributed" means the system has no record of the source — could be a prior extraction whose source wasn't tracked, or hand-entered. Verify those before you Update.
+      Every value has a subject in charge — either a document or a person. Rows shown as <strong>—</strong> below have neither yet; Flush them or Attest as yourself before submitting.
     </p>
     <table class="table table-sm evidence-table">
       <thead>
@@ -1899,7 +1898,7 @@
               <ng-container *ngIf="!r.docName">{{ r.source }}</ng-container>
               <span *ngIf="r.confidence != null" class="evidence-pill__conf">{{ (r.confidence * 100) | number:"1.0-0" }}%</span>
             </span>
-            <span *ngIf="!r.source" class="evidence-pill evidence-pill--manual" title="No source recorded — pre-existing data or hand-entered. Verify before submitting.">Unattributed</span>
+            <span *ngIf="!r.source" class="evidence-pill evidence-pill--manual" title="No source recorded — pre-existing data or hand-entered. Verify before submitting.">—</span>
             <a *ngIf="r.docUrl" [href]="r.docUrl" target="_blank" rel="noopener" class="ms-2 small">view ↗</a>
           </td>
         </tr>
@@ -1908,7 +1907,7 @@
     <p *ngIf="!evidenceRows.length" class="text-muted small">No filled fields yet.</p>
     <div class="evidence-summary small mt-3">
       <strong>{{ evidenceSummary.docBacked }}</strong> doc-backed,
-      <strong>{{ evidenceSummary.unattributed }}</strong> unattributed,
+      <strong>{{ evidenceSummary.unattributed }}</strong> need a subject,
       <strong>{{ evidenceSummary.total }}</strong> total.
     </div>
   </div>
@@ -1924,7 +1923,7 @@
       <button mat-button
         class="btn btn-outline-primary"
         (click)="attestUnattributed()"
-        [title]="'Stamp every unattributed value with your email as the source. ' +
+        [title]="'Stamp every value without a source with your email. ' +
                  'You\'re personally attesting the values are correct.'">
         <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">verified_user</mat-icon>
         Attest {{ evidenceSummary.unattributed }} as me
