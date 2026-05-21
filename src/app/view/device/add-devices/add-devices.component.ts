@@ -2,6 +2,7 @@ import {
   Component,
   TemplateRef,
   ViewChild,
+  ElementRef,
   EventEmitter,
   Output,
   OnDestroy,
