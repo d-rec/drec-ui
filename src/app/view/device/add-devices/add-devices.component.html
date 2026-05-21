@@ -973,11 +973,6 @@
                               (click)="openVerifyForSource(i, 'SF-02c')">
                               Verify ({{ pendingVerifyCount(i, 'SF-02c') }})
                             </button>
-                            <small class="as-log__debug" *ngIf="!sf02cExtracting[i]">
-                              [dbg] ex:{{ sf02cExtractions[i] ? 'y' : 'n' }}
-                              pend:{{ pendingVerifyCount(i, 'SF-02c') }}
-                              file:{{ sf02cExtractionFile[i] ? 'y' : 'n' }}
-                            </small>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="codExtracting[i] || codExtractions[i]"
@@ -1248,11 +1243,14 @@
                         </ul>
                         <div class="sld-extract-banner__actions">
                           <button type="button" class="btn btn-sm btn-primary"
-                            (click)="applySf02Extraction(i)" (mousedown)="$event.stopPropagation()"
-                            [disabled]="extractionApplied[i]?.['SF-02']"
-                            [title]="extractionApplied[i]?.['SF-02'] ? 'Already applied this session' : ''">
-                            {{ extractionApplied[i]?.['SF-02'] ? 'Applied' : 'Apply to form' }}
+                            *ngIf="pendingVerifyCount(i, 'SF-02') > 0"
+                            (click)="openVerifyForSource(i, 'SF-02')" (mousedown)="$event.stopPropagation()">
+                            <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
+                            Verify ({{ pendingVerifyCount(i, 'SF-02') }})
                           </button>
+                          <span class="text-success" *ngIf="extractionApplied[i]?.['SF-02'] && pendingVerifyCount(i, 'SF-02') === 0">
+                            ✓ Verified
+                          </span>
                           <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissSf02Extraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
                         </div>
                       </div>
@@ -1428,11 +1426,14 @@
                       </ul>
                       <div class="sld-extract-banner__actions">
                         <button type="button" class="btn btn-sm btn-primary"
-                          (click)="applySf02cExtraction(i)" (mousedown)="$event.stopPropagation()"
-                          [disabled]="extractionApplied[i]?.['SF-02c']"
-                          [title]="extractionApplied[i]?.['SF-02c'] ? 'Already applied this session' : ''">
-                          {{ extractionApplied[i]?.['SF-02c'] ? 'Applied' : 'Apply to form' }}
+                          *ngIf="pendingVerifyCount(i, 'SF-02c') > 0"
+                          (click)="openVerifyForSource(i, 'SF-02c')" (mousedown)="$event.stopPropagation()">
+                          <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
+                          Verify ({{ pendingVerifyCount(i, 'SF-02c') }})
                         </button>
+                        <span class="text-success" *ngIf="extractionApplied[i]?.['SF-02c'] && pendingVerifyCount(i, 'SF-02c') === 0">
+                          ✓ Verified
+                        </span>
                         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissSf02cExtraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
                       </div>
                     </div>
@@ -1510,11 +1511,14 @@
                       </ul>
                       <div class="sld-extract-banner__actions">
                         <button type="button" class="btn btn-sm btn-primary"
-                          (click)="applyCodExtraction(i)" (mousedown)="$event.stopPropagation()"
-                          [disabled]="extractionApplied[i]?.['COD']"
-                          [title]="extractionApplied[i]?.['COD'] ? 'Already applied this session' : ''">
-                          {{ extractionApplied[i]?.['COD'] ? 'Applied' : 'Apply to form' }}
+                          *ngIf="pendingVerifyCount(i, 'COD') > 0"
+                          (click)="openVerifyForSource(i, 'COD')" (mousedown)="$event.stopPropagation()">
+                          <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
+                          Verify ({{ pendingVerifyCount(i, 'COD') }})
                         </button>
+                        <span class="text-success" *ngIf="extractionApplied[i]?.['COD'] && pendingVerifyCount(i, 'COD') === 0">
+                          ✓ Verified
+                        </span>
                         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissCodExtraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
                       </div>
                     </div>
