@@ -1956,7 +1956,7 @@
           <div class="verify-source__label">{{ v.label }}</div>
           <div class="verify-source__value">
             <strong>{{ v.value }}</strong>
-            <small class="text-muted ms-2">{{ v.source }} · {{ (v.confidence * 100) | number:'1.0-0' }}%</small>
+            <small class="text-muted ms-2">{{ (v.confidence * 100) | number:'1.0-0' }}%</small>
           </div>
           <div *ngIf="v.reasoning" class="verify-source__reasoning">
             <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">lightbulb_outline</mat-icon>
