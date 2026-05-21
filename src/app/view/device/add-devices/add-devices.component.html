@@ -950,12 +950,6 @@
                             </span>
                             <span class="as-log__label">SLD</span>
                             <span class="as-log__time">{{ sldExtracting[i] ? 'reading…' : 'done' }}</span>
-                            <button type="button"
-                              *ngIf="!sldExtracting[i] && sldExtractions[i] && pendingVerifyCount(i, 'SLD') > 0"
-                              class="btn btn-sm btn-primary as-log__verify-btn"
-                              (click)="openVerifyForSource(i, 'SLD')">
-                              Verify ({{ pendingVerifyCount(i, 'SLD') }})
-                            </button>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="sf02cExtracting[i] || sf02cExtractions[i]"
@@ -967,12 +961,6 @@
                             </span>
                             <span class="as-log__label">SF-02c</span>
                             <span class="as-log__time">{{ sf02cExtracting[i] ? 'reading…' : 'done' }}</span>
-                            <button type="button"
-                              *ngIf="!sf02cExtracting[i] && sf02cExtractions[i] && pendingVerifyCount(i, 'SF-02c') > 0"
-                              class="btn btn-sm btn-primary as-log__verify-btn"
-                              (click)="openVerifyForSource(i, 'SF-02c')">
-                              Verify ({{ pendingVerifyCount(i, 'SF-02c') }})
-                            </button>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="codExtracting[i] || codExtractions[i]"
@@ -984,12 +972,6 @@
                             </span>
                             <span class="as-log__label">COD proof</span>
                             <span class="as-log__time">{{ codExtracting[i] ? 'reading…' : 'done' }}</span>
-                            <button type="button"
-                              *ngIf="!codExtracting[i] && codExtractions[i] && pendingVerifyCount(i, 'COD') > 0"
-                              class="btn btn-sm btn-primary as-log__verify-btn"
-                              (click)="openVerifyForSource(i, 'COD')">
-                              Verify ({{ pendingVerifyCount(i, 'COD') }})
-                            </button>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="sf02Extracting[i] || sf02Extractions[i]"
@@ -1001,12 +983,6 @@
                             </span>
                             <span class="as-log__label">SF-02</span>
                             <span class="as-log__time">{{ sf02Extracting[i] ? 'reading…' : 'done' }}</span>
-                            <button type="button"
-                              *ngIf="!sf02Extracting[i] && sf02Extractions[i] && pendingVerifyCount(i, 'SF-02') > 0"
-                              class="btn btn-sm btn-primary as-log__verify-btn"
-                              (click)="openVerifyForSource(i, 'SF-02')">
-                              Verify ({{ pendingVerifyCount(i, 'SF-02') }})
-                            </button>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="meterIdsExtracting[i] || meterIdsExtractions[i]?.length"
@@ -1371,11 +1347,14 @@
                       </ul>
                       <div class="sld-extract-banner__actions">
                         <button type="button" class="btn btn-sm btn-primary"
-                          (click)="applySldExtraction(i)" (mousedown)="$event.stopPropagation()"
-                          [disabled]="extractionApplied[i]?.['SLD']"
-                          [title]="extractionApplied[i]?.['SLD'] ? 'Already applied this session' : ''">
-                          {{ extractionApplied[i]?.['SLD'] ? 'Applied' : 'Apply to form' }}
+                          *ngIf="pendingVerifyCount(i, 'SLD') > 0"
+                          (click)="openVerifyForSource(i, 'SLD')" (mousedown)="$event.stopPropagation()">
+                          <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
+                          Verify ({{ pendingVerifyCount(i, 'SLD') }})
                         </button>
+                        <span class="text-success" *ngIf="extractionApplied[i]?.['SLD'] && pendingVerifyCount(i, 'SLD') === 0">
+                          ✓ Verified
+                        </span>
                         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissSldExtraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
                       </div>
                     </div>

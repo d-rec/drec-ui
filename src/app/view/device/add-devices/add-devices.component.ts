@@ -2482,37 +2482,6 @@ export class AddDevicesComponent implements OnDestroy {
     }
   }
 
-  /** Apply confident SLD-extracted values into the form. We only patch
-   *  fields the user hasn't already filled in (don't overwrite manual
-   *  input) and only when confidence ≥ 0.7. Reasoning: any false
-   *  positive at this layer is a bug a registrant has to find and undo. */
-  applySldExtraction(
-    deviceIndex: number,
-    opts: { silentIfConflicts?: boolean; silentIfEmpty?: boolean } = {},
-  ): void {
-    const fx = this.sldExtractions[deviceIndex];
-    if (!fx) return;
-    this.applyExtractionWithPrompt(deviceIndex, 'SLD', [
-      { name: 'capacity', field: fx.acCapacityKw },
-      { name: 'generatingUnitCount', field: fx.inverterCount },
-      { name: 'interconnectionVoltage', field: fx.gridVoltage },
-      { name: 'gridInterconnection', field: fx.gridTied, transform: (v) => !!v },
-      { name: 'dataSourceBrand', field: fx.inverterMakeModel },
-      { name: 'networkOwner', field: fx.networkOwner },
-      { name: 'hasNetworkMeter', field: fx.hasNetworkMeter, transform: (v) => (v ? 'Yes' : 'No') },
-      { name: 'gridExportType', field: fx.gridExportType },
-      { name: 'hasAuxiliaryEnergySources', field: fx.hasAuxiliaryEnergySources, transform: (v) => (v ? 'Yes' : 'No') },
-      { name: 'auxiliaryEnergySourceDetails', field: fx.auxiliaryEnergySourceDetails },
-      { name: 'hasCaptiveConsumer', field: fx.hasCaptiveConsumer, transform: (v) => (v ? 'Yes' : 'No') },
-    ], () => {
-      // SLD always describes inverter-side topology — if we read an
-      // inverter make/model or count, the data source is the inverter.
-      if (fx.inverterMakeModel || fx.inverterCount) {
-        this.setDataSourceIfEmpty(deviceIndex, 'Inverter', 'SLD');
-      }
-    }, opts);
-  }
-
   /**
    * Generic apply-extraction helper. Splits candidates into
    * fill-empty (silent) and conflict (existing value differs from
@@ -2803,34 +2772,6 @@ export class AddDevicesComponent implements OnDestroy {
       );
   }
 
-  applySf02cExtraction(
-    deviceIndex: number,
-    opts: { silentIfConflicts?: boolean; silentIfEmpty?: boolean } = {},
-  ): void {
-    const fx = this.sf02cExtractions[deviceIndex];
-    if (!fx) return;
-    this.applyExtractionWithPrompt(deviceIndex, 'SF-02c', [
-      { name: 'siteName', field: fx.projectName },
-      { name: 'pvSystemOwner', field: fx.ownerLegalName },
-      // SF-02c "ownerAddress" is the registrant org's mailing address;
-      // route it to pvSystemOwnerAddress, NOT to form field "(16) Address"
-      // (which is the device's site location).
-      { name: 'pvSystemOwnerAddress', field: fx.ownerAddress },
-      { name: 'countryCodename', field: fx.ownerCountry },
-      { name: 'signatoryName', field: fx.signatoryName },
-    ], () => {
-      // SF-02C carries the no-double-counting declaration — by
-      // signing it the owner attests they aren't enrolled in
-      // another EAC scheme. Default (31) to "No" when empty.
-      const ec = this.deviceForms.at(deviceIndex)?.get('otherEacSchemeRegistration');
-      if (ec && !ec.value) {
-        ec.setValue('No');
-        ec.markAsDirty();
-      }
-      this.deriveOffTakerSameAsOwner(deviceIndex);
-    }, opts);
-  }
-
   dismissSf02cExtraction(deviceIndex: number): void {
     this.sf02cExtractions[deviceIndex] = null;
   }
@@ -2870,26 +2811,6 @@ export class AddDevicesComponent implements OnDestroy {
           this.codExtracting[deviceIndex] = false;
         }),
       );
-  }
-
-  applyCodExtraction(
-    deviceIndex: number,
-    opts: { silentIfConflicts?: boolean; silentIfEmpty?: boolean } = {},
-  ): void {
-    const fx = this.codExtractions[deviceIndex];
-    if (!fx) return;
-    // utilityOrIssuer not auto-mapped to networkOwner — see SF-02
-    // / SLD extractors for the dedicated DSO field.
-    this.applyExtractionWithPrompt(deviceIndex, 'COD', [
-      { name: 'commissioningDate', field: fx.commissioningDate },
-      { name: 'siteName', field: fx.facilityName },
-      { name: 'capacity', field: fx.acCapacityKw },
-      { name: 'pvSystemOwner', field: fx.ownerName },
-      { name: 'countryCodename', field: fx.country },
-      { name: 'offTakerName', field: fx.offTakerName },
-    ], () => {
-      this.deriveOffTakerSameAsOwner(deviceIndex);
-    }, opts);
   }
 
   /**
@@ -2934,34 +2855,6 @@ export class AddDevicesComponent implements OnDestroy {
           this.sf02Extracting[deviceIndex] = false;
         }),
       );
-  }
-
-  applySf02Extraction(
-    deviceIndex: number,
-    opts: { silentIfConflicts?: boolean; silentIfEmpty?: boolean } = {},
-  ): void {
-    const fx = this.sf02Extractions[deviceIndex];
-    if (!fx) return;
-    this.applyExtractionWithPrompt(deviceIndex, 'SF-02', [
-      { name: 'siteName', field: fx.facilityName },
-      { name: 'capacity', field: fx.acCapacityKw },
-      { name: 'commissioningDate', field: fx.commissioningDate },
-      { name: 'deviceTypeCode', field: fx.deviceTypeCode },
-      { name: 'pvSystemOwner', field: fx.ownerLegalName },
-      // SF-02 ownerAddress = participant mailing address; route to
-      // pvSystemOwnerAddress. Site location comes from lat/lng below.
-      { name: 'pvSystemOwnerAddress', field: fx.ownerAddress },
-      { name: 'countryCodename', field: fx.ownerCountry },
-      { name: 'latitude', field: fx.latitude },
-      { name: 'longitude', field: fx.longitude },
-      { name: 'generatingUnitCount', field: fx.inverterCount },
-      { name: 'networkOwner', field: fx.networkOwner },
-    ], () => {
-      if (fx.inverterCount) {
-        this.setDataSourceIfEmpty(deviceIndex, 'Inverter', 'SF-02');
-      }
-      this.deriveOffTakerSameAsOwner(deviceIndex);
-    }, opts);
   }
 
   dismissSf02Extraction(deviceIndex: number): void {
