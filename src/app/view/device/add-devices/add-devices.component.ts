@@ -469,6 +469,7 @@ export class AddDevicesComponent implements OnDestroy {
           // we can strip phantom values the user already declined in
           // a prior session.
           this.loadDismissedSerials(0);
+          this.loadDismissedFieldValues(0);
           const dismissed = this.dismissedSerialNumbers[0] ?? new Set();
           const filterDismissed = (s: string | null) => {
             if (!s) return s;
@@ -482,6 +483,17 @@ export class AddDevicesComponent implements OnDestroy {
             const cleaned = filterDismissed(data.serialNumber);
             if (cleaned !== data.serialNumber) {
               data.serialNumber = cleaned;
+            }
+          }
+          // Generic blacklist: for each non-serial field that has a
+          // dismissed value matching what the server returned, NULL
+          // it on data before patchValue runs. The registrant once
+          // declined the value — it stays gone.
+          const fieldBlacklist = this.dismissedFieldValues[0] ?? {};
+          for (const f of Object.keys(fieldBlacklist)) {
+            const v = (data as any)[f];
+            if (v != null && fieldBlacklist[f].has(String(v).trim().toLowerCase())) {
+              (data as any)[f] = null;
             }
           }
           this.initSerialNumber = data.serialNumber ?? null;
@@ -1609,6 +1621,78 @@ export class AddDevicesComponent implements OnDestroy {
       );
     } catch {}
   }
+  /** Generic per-(field, value) blacklist. Mirrors dismissedSerial-
+   *  Numbers but for any field — the user declining or removing a
+   *  value anywhere writes to this set, and every extractor /
+   *  verify-queue / conflict-picker path consults it before showing
+   *  the value again. Persisted to localStorage by device so a
+   *  blacklisted value stays blacklisted across reloads. */
+  private dismissedFieldValues: {
+    [deviceIndex: number]: { [field: string]: Set<string> };
+  } = {};
+
+  private dismissedFieldValuesKey(deviceIndex: number): string {
+    const id =
+      (this as any).editingDeviceId ??
+      this.editingExternalId ??
+      `draft:${deviceIndex}`;
+    return `drec.dismissedFieldValues.${id}`;
+  }
+  private loadDismissedFieldValues(deviceIndex: number): void {
+    try {
+      const raw = localStorage.getItem(this.dismissedFieldValuesKey(deviceIndex));
+      if (!raw) return;
+      const obj = JSON.parse(raw);
+      if (obj && typeof obj === 'object') {
+        const out: { [field: string]: Set<string> } = {};
+        for (const k of Object.keys(obj)) {
+          if (Array.isArray(obj[k])) {
+            out[k] = new Set(obj[k].map((v: any) => String(v).toLowerCase()));
+          }
+        }
+        this.dismissedFieldValues[deviceIndex] = out;
+      }
+    } catch {}
+  }
+  private saveDismissedFieldValues(deviceIndex: number): void {
+    try {
+      const m = this.dismissedFieldValues[deviceIndex];
+      if (!m || !Object.keys(m).length) {
+        localStorage.removeItem(this.dismissedFieldValuesKey(deviceIndex));
+        return;
+      }
+      const obj: Record<string, string[]> = {};
+      for (const k of Object.keys(m)) obj[k] = [...m[k]];
+      localStorage.setItem(this.dismissedFieldValuesKey(deviceIndex), JSON.stringify(obj));
+    } catch {}
+  }
+  /** Mark a (field, value) pair as blacklisted and persist. Routes
+   *  serialNumber:* through the dedicated serial path so the chip-
+   *  list filter logic keeps working. */
+  private dismissFieldValue(deviceIndex: number, field: string, value: any): void {
+    if (value == null || value === '') return;
+    const v = String(value).trim();
+    if (!v) return;
+    if (field === 'serialNumber' || field.startsWith('meterId:')) {
+      this.dismissSerial(deviceIndex, v);
+      return;
+    }
+    if (!this.dismissedFieldValues[deviceIndex]) this.dismissedFieldValues[deviceIndex] = {};
+    if (!this.dismissedFieldValues[deviceIndex][field]) this.dismissedFieldValues[deviceIndex][field] = new Set();
+    this.dismissedFieldValues[deviceIndex][field].add(v.toLowerCase());
+    this.saveDismissedFieldValues(deviceIndex);
+  }
+  /** Check if a (field, value) is blacklisted. */
+  private isDismissed(deviceIndex: number, field: string, value: any): boolean {
+    if (value == null || value === '') return false;
+    if (field === 'serialNumber' || field.startsWith('meterId:')) {
+      const set = this.dismissedSerialNumbers[deviceIndex];
+      return !!set && set.has(String(value).trim().toLowerCase());
+    }
+    const set = this.dismissedFieldValues[deviceIndex]?.[field];
+    return !!set && set.has(String(value).trim().toLowerCase());
+  }
+
   /** Mark a serial as dismissed for this device + persist. Central
    *  helper so every dismiss path (chip-remove, verifyDecline,
    *  applyMeterIdsExtraction unchecked) goes through one funnel. */
@@ -2248,6 +2332,8 @@ export class AddDevicesComponent implements OnDestroy {
       if (!field || field.value == null) continue;
       const prov = this.appliedProvenance[deviceIndex]?.[s.name];
       if (prov && (prov as any).verifiedBy) continue;
+      const next = s.transform ? s.transform(field.value) : field.value;
+      if (this.isDismissed(deviceIndex, s.name, next)) continue;
       n++;
     }
     return n;
@@ -2376,6 +2462,10 @@ export class AddDevicesComponent implements OnDestroy {
       const prov = this.appliedProvenance[deviceIndex]?.[s.name];
       if (prov && (prov as any).verifiedBy) continue;
       const next = s.transform ? s.transform(field.value) : field.value;
+      // Blacklist check: a (field, value) the user explicitly
+      // declined in any prior session must not re-appear in the
+      // queue. Persistent dismiss is the user's final word.
+      if (this.isDismissed(deviceIndex, s.name, next)) continue;
       items.push({
         deviceIndex,
         field: s.name,
@@ -2764,8 +2854,12 @@ export class AddDevicesComponent implements OnDestroy {
    *  so they don't reappear on the next openMeterIdsVerifyQueue. */
   verifyDecline(): void {
     const item = this.verifyCurrent;
-    if (item && typeof item.field === 'string' && item.field.startsWith('meterId:')) {
-      this.dismissSerial(item.deviceIndex, String(item.value));
+    if (item) {
+      // Blacklist the (field, value). Funnel decides whether to
+      // route to the serial-number specific path or the generic
+      // per-field set. Either way the next openVerifyQueue won't
+      // re-offer this value.
+      this.dismissFieldValue(item.deviceIndex, item.field, item.value);
     }
     this.verifyAdvance();
   }
