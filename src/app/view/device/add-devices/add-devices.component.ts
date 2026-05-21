@@ -2037,6 +2037,10 @@ export class AddDevicesComponent implements OnDestroy {
      *                solid-red vs dashed-amber and an approximate-
      *                location banner. */
     regionSource?: 'tesseract' | 'model';
+    /** Per-field justification from the extractor — what in the doc
+     *  the model used to decide this value. Useful when the bbox is
+     *  approximate. */
+    reasoning?: string;
     transform?: (v: any) => any;
   }> = [];
   verifyQueueIndex = 0;
@@ -2089,7 +2093,13 @@ export class AddDevicesComponent implements OnDestroy {
       name: string,
       label: string,
       field:
-        | { value: any; confidence: number; region?: any; regionSource?: any }
+        | {
+            value: any;
+            confidence: number;
+            region?: any;
+            regionSource?: any;
+            reasoning?: string;
+          }
         | undefined,
       transform?: (v: any) => any,
     ) => {
@@ -2112,6 +2122,7 @@ export class AddDevicesComponent implements OnDestroy {
         confidence: field.confidence,
         region: field.region,
         regionSource: field.regionSource,
+        reasoning: field.reasoning,
         transform,
       });
     };

@@ -29,6 +29,16 @@ export interface ExtractedField<T> {
     w: number;
     h: number;
   };
+  /** 'tesseract' when the bbox came from a pixel-exact OCR token
+   *  match; 'model' when we fell back to Haiku's estimate. The verify
+   *  dialog styles the two differently (solid vs. dashed) so the
+   *  user knows which to trust. */
+  regionSource?: 'tesseract' | 'model';
+  /** One-line justification — what specifically in the doc the model
+   *  used to derive this value. Surfaced in the verify dialog so the
+   *  registrant can scan the diagram for the basis even when the
+   *  bbox is approximate. */
+  reasoning?: string;
 }
 
 export interface CodExtractedFields {

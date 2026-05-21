@@ -1957,3 +1957,15 @@ $as-bg:       #f8fafc;
   border-style: dashed !important;
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18) !important;
 }
+
+.verify-source__reasoning {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #475569;
+  font-style: italic;
+  line-height: 1.4;
+  mat-icon {
+    color: #d97706;
+    margin-right: 4px;
+  }
+}
