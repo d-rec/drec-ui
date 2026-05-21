@@ -1914,6 +1914,46 @@ $as-bg:       #f8fafc;
   &__conf   { opacity: 0.7; font-weight: 400; margin-left: 2px; }
 }
 
+// Per-row attest cell — checkbox + helpful-doc links + fallback hint.
+.evidence-attest {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  &__check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #b45309;
+    cursor: pointer;
+    user-select: none;
+    input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: #b45309;
+    }
+  }
+  &__docs {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  &__doc {
+    font-size: 11px;
+    text-decoration: none;
+    color: #1d4ed8;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    &:hover { text-decoration: underline; }
+    &--inert {
+      color: #64748b;
+      pointer-events: none;
+    }
+  }
+}
+
 .evidence-summary {
   color: #64748b;
   padding-top: 8px;

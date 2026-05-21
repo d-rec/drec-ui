@@ -1957,11 +1957,32 @@
               <ng-container *ngIf="!r.docName">{{ r.source }}</ng-container>
               <span *ngIf="r.confidence != null" class="evidence-pill__conf">{{ (r.confidence * 100) | number:"1.0-0" }}%</span>
             </span>
-            <span *ngIf="!r.source" class="evidence-pill evidence-pill--manual" title="No source recorded — pre-existing data or hand-entered. Verify before submitting.">
-              <mat-icon style="font-size:14px;height:14px;width:14px">error_outline</mat-icon>
-              no subject
-            </span>
             <a *ngIf="r.docUrl" [href]="r.docUrl" target="_blank" rel="noopener" class="ms-2 small">view ↗</a>
+            <div *ngIf="!r.source" class="evidence-attest">
+              <label class="evidence-attest__check">
+                <input type="checkbox"
+                  [checked]="!!r.attestSelected"
+                  (change)="r.attestSelected = $any($event.target).checked" />
+                <span>attest as me</span>
+              </label>
+              <div *ngIf="r.helpfulDocs?.length" class="evidence-attest__docs">
+                <small class="text-muted d-block">or open a doc to verify:</small>
+                <a *ngFor="let d of r.helpfulDocs"
+                   [href]="d.url || null"
+                   [target]="d.url ? '_blank' : null"
+                   rel="noopener"
+                   class="evidence-attest__doc"
+                   [class.evidence-attest__doc--inert]="!d.url"
+                   [title]="d.url ? ('Open ' + d.name) : (d.name + ' (attached, but no preview URL)')">
+                  <mat-icon style="font-size:13px;height:13px;width:13px;vertical-align:middle">description</mat-icon>
+                  {{ d.name }}
+                </a>
+              </div>
+              <small *ngIf="!r.helpfulDocs?.length" class="text-muted d-block">
+                <mat-icon style="font-size:13px;height:13px;width:13px;vertical-align:middle">info_outline</mat-icon>
+                no attached doc covers this — must attest
+              </small>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -1974,7 +1995,17 @@
     </div>
   </div>
   <div mat-dialog-actions class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
-    <div class="d-flex gap-2" *ngIf="evidenceSummary.unattributed > 0">
+    <div class="d-flex gap-2 flex-wrap" *ngIf="evidenceSummary.unattributed > 0">
+      <button mat-button class="btn btn-outline-secondary btn-sm"
+        (click)="toggleAllAttest(true)"
+        [disabled]="attestSelectedCount() === evidenceSummary.unattributed">
+        Select all ({{ evidenceSummary.unattributed }})
+      </button>
+      <button mat-button class="btn btn-outline-secondary btn-sm"
+        (click)="toggleAllAttest(false)"
+        [disabled]="attestSelectedCount() === 0">
+        Clear
+      </button>
       <button mat-button
         class="btn btn-outline-danger"
         (click)="flushUnattributed()"
@@ -1984,18 +2015,19 @@
         (blur)="evidenceHoverAction = null"
         [title]="'Clear every value highlighted above (no recorded source).'">
         <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">delete_sweep</mat-icon>
-        Flush {{ evidenceSummary.unattributed }} highlighted
+        Flush {{ evidenceSummary.unattributed }}
       </button>
       <button mat-button
         class="btn btn-outline-primary"
-        (click)="attestUnattributed()"
+        (click)="attestSelected()"
         (mouseenter)="evidenceHoverAction = 'attest'"
         (mouseleave)="evidenceHoverAction = null"
         (focus)="evidenceHoverAction = 'attest'"
         (blur)="evidenceHoverAction = null"
-        [title]="'Stamp the ' + evidenceSummary.unattributed + ' highlighted value(s) with your email — you personally attest they are correct.'">
+        [disabled]="attestSelectedCount() === 0"
+        [title]="'Stamp the ' + attestSelectedCount() + ' ticked value(s) with your email — you personally attest they are correct.'">
         <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">verified_user</mat-icon>
-        Attest {{ evidenceSummary.unattributed }} highlighted as me
+        Attest {{ attestSelectedCount() }} as me
       </button>
     </div>
     <span *ngIf="evidenceSummary.unattributed === 0"></span>

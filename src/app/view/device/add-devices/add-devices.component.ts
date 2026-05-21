@@ -4043,6 +4043,14 @@ export class AddDevicesComponent implements OnDestroy {
     confidence: number | null;
     docName: string | null;
     docUrl: string | null;
+    /** Per-row "attest as me" toggle for no-subject rows. Drives the
+     *  "Attest selected" action at the bottom. */
+    attestSelected?: boolean;
+    /** Attached docs that could plausibly cover this field — links the
+     *  registrant can open to verify before attesting. Computed from
+     *  DOC_FIELD_MAP ∩ existingDocs. Empty when no doc type maps to
+     *  this field (free text like impactStory). */
+    helpfulDocs?: Array<{ name: string; url?: string; docType: string }>;
   }> = [];
 
   evidenceSummary: { docBacked: number; unattributed: number; total: number } = {
@@ -4053,6 +4061,33 @@ export class AddDevicesComponent implements OnDestroy {
   /** Drives the evidence-table data-attribute used by CSS to emphasise
    *  no-subject rows on hover/focus of the Flush or Attest button. */
   evidenceHoverAction: 'attest' | 'flush' | null = null;
+
+  /** Count of no-subject rows the user has ticked to attest. */
+  attestSelectedCount(): number {
+    return this.evidenceRows.filter((r) => !r.source && r.attestSelected).length;
+  }
+
+  /** Bulk select / clear of every no-subject row's attest checkbox. */
+  toggleAllAttest(on: boolean): void {
+    for (const r of this.evidenceRows) {
+      if (!r.source) r.attestSelected = on;
+    }
+  }
+
+  /** Attest only the rows the user has ticked. Same effect as the old
+   *  attestUnattributed but scoped to the registrant's per-row choices
+   *  — preserves rows they wanted to leave un-attested (e.g. ones
+   *  they're still verifying via the helpful-docs links). */
+  attestSelected(): void {
+    const picked = this.evidenceRows
+      .filter((r) => !r.source && r.attestSelected)
+      .map((r) => r.field);
+    if (!picked.length) {
+      this.toastrService.info('Tick the rows you want to attest first.');
+      return;
+    }
+    this.attestUnattributed({ keys: new Set(picked) });
+  }
 
   /** Field names with no provenance entry (or sub-threshold) — used by
    *  the Flush Unattributed action to know what to clear. */
@@ -4121,7 +4156,7 @@ export class AddDevicesComponent implements OnDestroy {
    *  second — the registrant's email becomes the source label so
    *  the audit trail has a defensible "<user> attested this value
    *  on <date>" line for each previously-orphan entry. */
-  attestUnattributed(): void {
+  attestUnattributed(scope?: { keys: Set<string> }): void {
     const i = 0;
     const form = this.deviceForms.at(i) as FormGroup;
     if (!form) return;
@@ -4133,10 +4168,11 @@ export class AddDevicesComponent implements OnDestroy {
       );
       return;
     }
-    const fields = this.unattributedFields.filter((f) => !f.includes(':'));
+    let fields = this.unattributedFields.filter((f) => !f.includes(':'));
+    if (scope) fields = fields.filter((f) => scope.keys.has(f));
     const serialProv = this.appliedProvenance[i]?.['serialNumber'];
     const serials = this.serialNumberLists[i] ?? [];
-    const orphanedSerials = serials.filter((s) => {
+    let orphanedSerials = serials.filter((s) => {
       const v = (s || '').trim();
       if (!v) return false;
       if (!serialProv || serialProv.value == null) return true;
@@ -4145,6 +4181,11 @@ export class AddDevicesComponent implements OnDestroy {
         .map((x) => x.trim().toLowerCase());
       return !list.includes(v.toLowerCase());
     });
+    if (scope) {
+      orphanedSerials = orphanedSerials.filter((id) =>
+        scope.keys.has(`serialNumber:${id}`),
+      );
+    }
     const total = fields.length + orphanedSerials.length;
     if (total === 0) {
       this.toastrService.info('Nothing to attest — every value has a source.');
@@ -4184,7 +4225,13 @@ export class AddDevicesComponent implements OnDestroy {
       const orphans = allSerials.filter(
         (id) => !docsByValue[id] && !personByValue[id],
       );
-      for (const id of orphans) personByValue[id] = email;
+      // When the caller passed a scope, only stamp the chips the user
+      // actually ticked — leave the rest as orphans so they remain
+      // visible on next dialog open.
+      const toStamp = scope
+        ? orphans.filter((id) => scope.keys.has(`serialNumber:${id}`))
+        : orphans;
+      for (const id of toStamp) personByValue[id] = email;
       // Source label: 'Meter IDs' when at least one chip is
       // doc-backed (the dominant attribution), else the Manual
       // label so single-source rendering stays sensible.
@@ -4256,6 +4303,26 @@ export class AddDevicesComponent implements OnDestroy {
       if (typeof v === 'boolean') return v ? 'Yes' : 'No';
       return String(v);
     };
+    // Reverse map: field name → set of doc types that could cover it.
+    // Used to suggest attached docs alongside each no-subject row.
+    const fieldToDocTypes: Record<string, string[]> = {};
+    for (const [dt, fields] of Object.entries(AddDevicesComponent.DOC_FIELD_MAP)) {
+      for (const f of fields) {
+        if (!fieldToDocTypes[f]) fieldToDocTypes[f] = [];
+        fieldToDocTypes[f].push(dt);
+      }
+    }
+    const helpfulDocsFor = (field: string): Array<{ name: string; url?: string; docType: string }> => {
+      const types = fieldToDocTypes[field] ?? [];
+      const out: Array<{ name: string; url?: string; docType: string }> = [];
+      for (const t of types) {
+        const docs = this.existingDocs[i]?.[t] ?? [];
+        for (const d of docs as any[]) {
+          out.push({ name: d.name, url: d.url, docType: t });
+        }
+      }
+      return out;
+    };
     const rows: typeof this.evidenceRows = [];
     for (const name of Object.keys(form.controls)) {
       if (skip.has(name)) continue;
@@ -4264,10 +4331,7 @@ export class AddDevicesComponent implements OnDestroy {
       const v = ctl.value;
       if (isEmpty(v)) continue;
       const p = prov[name];
-      // After migration 1780000000000 the only persisted entries
-      // come from real UI apply paths (confidence ≥0.7 by gate) or
-      // the content-verifying SLD backfill service (also ≥0.7). No
-      // display-time threshold needed — if it's there, it's real.
+      const hasSource = !!p?.source;
       rows.push({
         field: name,
         label: labelOf(name),
@@ -4276,6 +4340,8 @@ export class AddDevicesComponent implements OnDestroy {
         confidence: p?.confidence ?? null,
         docName: p?.docName ?? null,
         docUrl: null,
+        attestSelected: false,
+        helpfulDocs: hasSource ? undefined : helpfulDocsFor(name),
       });
     }
     // Surface orphan serial chips as their own rows — a serial chip
@@ -4303,6 +4369,8 @@ export class AddDevicesComponent implements OnDestroy {
         confidence: null,
         docName: null,
         docUrl: null,
+        attestSelected: false,
+        helpfulDocs: helpfulDocsFor('serialNumber'),
       });
     }
     const orphanChipCount = orphanChips.length;
