@@ -6317,6 +6317,22 @@ export class AddDevicesComponent implements OnDestroy {
     // could keep that attribution even after photo_001.jpg is gone).
     this.meterIdsExtractions[deviceIndex] = [];
     this.meterIdsExtractionDocs[deviceIndex] = {};
+    // Also reset the dismiss / uncheck sets — "re-extract from
+    // attached" means start over. Without this, any ID that was ever
+    // removed via the chip X button (or unticked in a prior
+    // Reading-documents review) is silently filtered out of the
+    // fresh batch, producing the "No new measurement IDs to add"
+    // toast even when the extractor returned real values.
+    this.dismissedSerialNumbers[deviceIndex] = new Set();
+    if (this.uncheckedExtractedFields[deviceIndex]) {
+      // Strip only the meterId:* keys; leave non-meter-id unchecks
+      // (e.g. sld:capacity dismissals) alone.
+      const keep = new Set<string>();
+      for (const k of this.uncheckedExtractedFields[deviceIndex]) {
+        if (!k.startsWith('meterId:')) keep.add(k);
+      }
+      this.uncheckedExtractedFields[deviceIndex] = keep;
+    }
     this.meterIdsExtracting[deviceIndex] = true;
     let remaining = docs.length;
     let any = false;
