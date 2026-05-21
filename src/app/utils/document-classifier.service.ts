@@ -762,8 +762,12 @@ export class DocumentClassifierService {
    *  'model' (Haiku's estimate, approximate — value likely derived /
    *  symbol-only / OCR-missed) so the UI can show whether the
    *  highlight is trustworthy. */
+  /** Generic across SLD / SF-02c / COD / SF-02 — walks any object,
+   *  patching every ExtractedField-shaped property with a Tesseract-
+   *  derived bbox when its value (or reasoning) matches a unique-
+   *  enough OCR token. Mutates in place. */
   private patchRegionsFromTesseract(
-    result: SldExtractedFields,
+    result: Record<string, any>,
     tokenMap: Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>,
   ): void {
     if (!result || typeof result !== 'object') return;
@@ -1032,7 +1036,21 @@ export class DocumentClassifierService {
       const res = await firstValueFrom(
         this.http.post<T>(`${environment.API_URL}${endpointPath}`, payload),
       );
-      return res ?? null;
+      if (!res) return null;
+      // Phase 2: Tesseract bbox pass for verify-source. Skip for the
+      // meter-ids endpoint — its result shape is a string[] list, not
+      // individual ExtractedFields that benefit from per-field bboxes
+      // (the per-id docs are already tracked separately in the UI).
+      if (!endpointPath.includes('meter-ids')) {
+        try {
+          const canvases = await this.renderFirstNPages(file, 2);
+          const tokenMap = await this.buildTesseractTokenMap(canvases);
+          this.patchRegionsFromTesseract(res as any, tokenMap);
+        } catch (err) {
+          console.warn(`[DocumentClassifier] ${endpointPath} Tesseract pass failed:`, err);
+        }
+      }
+      return res;
     } catch (err) {
       console.warn(`[DocumentClassifier] ${endpointPath} failed:`, err);
       return null;
@@ -1075,7 +1093,19 @@ export class DocumentClassifierService {
           payload,
         ),
       );
-      return res ?? null;
+      if (!res) return null;
+      // Phase 2: hybrid Tesseract bbox pass. Even for text-layer PDFs
+      // we render the canvas once so the verify-source UI can
+      // highlight the literal token positions, since the model's
+      // bbox estimates without OCR backup tend to drift.
+      try {
+        const canvases = await this.renderFirstNPages(file, 2);
+        const tokenMap = await this.buildTesseractTokenMap(canvases);
+        this.patchRegionsFromTesseract(res, tokenMap);
+      } catch (err) {
+        console.warn('[DocumentClassifier] SF-02c Tesseract pass failed:', err);
+      }
+      return res;
     } catch (err) {
       console.warn('[DocumentClassifier] SF-02c extract failed:', err);
       return null;

@@ -2004,17 +2004,26 @@
   </div>
   <div mat-dialog-actions class="d-flex justify-content-between align-items-center gap-2">
     <button mat-button
-      class="btn btn-outline-secondary"
-      (click)="verifyDecline()"
-      title="Skip this value — don't apply, no provenance written.">
-      Decline
+      class="btn btn-outline-danger"
+      (click)="verifyCancelQueue()"
+      title="Quit out of the verify queue entirely. Remaining values aren't shown; already-accepted values keep their verifiedBy stamps.">
+      <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">close</mat-icon>
+      Cancel queue
     </button>
-    <button mat-button
-      class="btn btn-primary"
-      (click)="verifyAccept()"
-      [title]="'Apply ' + (verifyCurrent?.value ?? '') + ' and stamp ' + (user?.email || 'me') + ' as verifier.'">
-      <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">check_circle</mat-icon>
-      Accept &amp; verify
-    </button>
+    <div class="d-flex gap-2">
+      <button mat-button
+        class="btn btn-outline-secondary"
+        (click)="verifyDecline()"
+        title="Skip this value — don't apply, no provenance written.">
+        Decline
+      </button>
+      <button mat-button
+        class="btn btn-primary"
+        (click)="verifyAccept()"
+        [title]="'Apply ' + (verifyCurrent?.value ?? '') + ' and stamp ' + (user?.email || 'me') + ' as verifier.'">
+        <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">check_circle</mat-icon>
+        Accept &amp; verify
+      </button>
+    </div>
   </div>
 </ng-template>

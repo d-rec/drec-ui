@@ -2166,12 +2166,23 @@ export class AddDevicesComponent implements OnDestroy {
     this.verifyQueueIndex = 0;
     this.verifyQueueFile = file;
     if (!this.verifySourceDialog) return;
+    // Don't stack: if a queue dialog is already open, close it before
+    // opening a fresh one. Prevents "the dialog keeps popping open"
+    // when re-verify is fired while the user is mid-queue.
+    if (this.verifySourceDialogRef) {
+      this.verifySourceDialogRef.close();
+      this.verifySourceDialogRef = null;
+    }
     this.verifySourceDialogRef = this.dialog.open(
       this.verifySourceDialog,
       {
         width: '900px',
         maxWidth: '95vw',
-        disableClose: true,
+        // Allow ESC + backdrop close. The user can always quit out;
+        // we don't want strict verification to be a UX trap. Declined
+        // items just don't write provenance, same as if the user
+        // manually clicked Decline for each.
+        disableClose: false,
       },
     );
     // Render after the dialog's view is committed, otherwise the
@@ -2278,6 +2289,20 @@ export class AddDevicesComponent implements OnDestroy {
   /** Skip the current item — no value applied, no provenance written. */
   verifyDecline(): void {
     this.verifyAdvance();
+  }
+
+  /** Bail out of the entire verify queue. Any remaining items aren't
+   *  shown; nothing is applied; provenance for already-accepted items
+   *  stays as already written. Same effect as closing the dialog via
+   *  ESC or backdrop click — explicit button for users who don't
+   *  realise the dialog is dismissable. */
+  verifyCancelQueue(): void {
+    this.verifySourceDialogRef?.close();
+    this.verifySourceDialogRef = null;
+    this.verifyQueue = [];
+    this.verifyQueueIndex = 0;
+    this.verifyQueueFile = null;
+    this.verifyCanvasSize = null;
   }
 
   private verifyAdvance(): void {
