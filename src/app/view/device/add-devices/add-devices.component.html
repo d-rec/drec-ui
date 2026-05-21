@@ -410,8 +410,8 @@
                         </mat-form-field>
                         <span class="serial-list__src"
                           *ngIf="meterIdSource(i, s) as src"
-                          [title]="src.doc ? ('From ' + src.doc.name) : ('Source: ' + src.source)">
-                          <mat-icon>description</mat-icon>{{ src.doc?.name || src.source }}
+                          [title]="'From ' + src.doc.name">
+                          <mat-icon>description</mat-icon>{{ src.doc.name }}
                         </span>
                         <span class="serial-list__src serial-list__src--manual"
                           *ngIf="!meterIdSource(i, s) && (s || '').trim()"

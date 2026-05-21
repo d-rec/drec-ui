@@ -2667,18 +2667,11 @@ export class AddDevicesComponent implements OnDestroy {
       seen.add(k);
       merged.push(id);
     }
-    // Don't early-return on "nothing new" — even when extraction
-    // adds no new chips, we still want to (re-)record provenance so
-    // existing chips that match an extracted ID pick up their
-    // per-file attribution. Without this, a device with pre-existing
-    // chips that the extractor independently confirms ships forever
-    // as "Unattributed". A brief info toast is enough; the real
-    // value of this apply is the provenance refresh.
-    const nothingNew = merged.length === existing.length;
-    if (nothingNew && !Object.keys(this.meterIdsExtractionDocs[deviceIndex] ?? {}).length) {
-      this.toastrService.info('No new measurement IDs to add');
-      return;
-    }
+    // Always proceed when there's an extraction in scope — even if
+    // every extracted ID matches an existing chip, the apply rewrites
+    // provenance so the existing chips pick up their per-file
+    // attribution. Without this, a device with pre-existing chips
+    // that the extractor independently confirms ships as Unattributed.
     this.serialNumberLists[deviceIndex] = merged.length ? merged : [''];
     this.syncSerialNumberControl(deviceIndex);
     // Build a docs map for the IDs being recorded — one ID can have
@@ -3350,34 +3343,26 @@ export class AddDevicesComponent implements OnDestroy {
   } = {};
 
   /** Per-chip source for the (14) Meter/Measurement IDs list.
-   *  Returns the recorded source type + the specific file (when known)
-   *  per chip — multi-doc batches keep a per-id map under docsByValue.
-   *  Null when no provenance exists for that chip (Unattributed). */
+   *  Returns the recorded source type + the specific file per chip,
+   *  or null when no provenance covers that chip (Unattributed).
+   *
+   *  After migration 1780000000000 + the per-id docsByValue map
+   *  introduced for fresh extractions, the invariant is: a chip is
+   *  doc-backed iff its value appears in prov.docsByValue with a doc
+   *  entry. No more "value-list match but no docsByValue → guess at
+   *  primaryDoc" — that branch existed to tolerate the now-deleted
+   *  backfill rows and would misattribute pre-existing chips. */
   meterIdSource(
     deviceIndex: number,
     value: string,
-  ): { source: string; doc?: { id?: number; name: string } } | null {
+  ): { source: string; doc: { id?: number; name: string } } | null {
     const v = (value || '').trim();
     if (!v) return null;
     const prov = this.appliedProvenance[deviceIndex]?.['serialNumber'];
-    if (!prov || prov.value == null) return null;
-    const list = String(prov.value)
-      .split(';')
-      .map((s) => s.trim().toLowerCase());
-    if (!list.includes(v.toLowerCase())) return null;
-    const perId = prov.docsByValue?.[v];
-    if (perId) return { source: prov.source, doc: perId };
-    // If a per-id map exists but THIS id isn't in it, the chip came
-    // from before per-file tracking — fall through to Unattributed
-    // rather than claim the primary doc (which would misattribute
-    // pre-existing chips to a photo that doesn't contain them).
-    if (prov.docsByValue && Object.keys(prov.docsByValue).length > 0) {
-      return null;
-    }
-    if (prov.docName) {
-      return { source: prov.source, doc: { name: prov.docName, id: prov.docId } };
-    }
-    return { source: prov.source };
+    if (!prov) return null;
+    const doc = prov.docsByValue?.[v];
+    if (!doc) return null;
+    return { source: prov.source, doc };
   }
 
   /** Pre-submit review modal state. */
@@ -3634,19 +3619,17 @@ export class AddDevicesComponent implements OnDestroy {
       const v = ctl.value;
       if (isEmpty(v)) continue;
       const p = prov[name];
-      // Only credit as doc-backed when confidence clears the 0.70
-      // auto-apply threshold. Sub-threshold matches (e.g. a backfill
-      // weakly correlating the form value to something it thinks is
-      // in the doc) get shown as Unattributed — claiming a doc backs
-      // a value the doc doesn't clearly contain misleads the reviewer.
-      const trusted = p && (p.confidence ?? 0) >= 0.7;
+      // After migration 1780000000000 the only persisted entries
+      // come from real UI apply paths (confidence ≥0.7 by gate) or
+      // the content-verifying SLD backfill service (also ≥0.7). No
+      // display-time threshold needed — if it's there, it's real.
       rows.push({
         field: name,
         label: labelOf(name),
         displayValue: display(v),
-        source: trusted ? p!.source : null,
-        confidence: trusted ? p!.confidence : null,
-        docName: trusted ? (p!.docName ?? null) : null,
+        source: p?.source ?? null,
+        confidence: p?.confidence ?? null,
+        docName: p?.docName ?? null,
         docUrl: null,
       });
     }
