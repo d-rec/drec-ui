@@ -1668,6 +1668,14 @@
               <mat-icon style="font-size:16px;vertical-align:middle">warning_amber</mat-icon>
               Some required documents are missing — you can still submit and upload them later.
             </span>
+            <span *ngIf="liveIssues.disagrees.length && !isSubmitting"
+              class="text-danger small d-inline-flex align-items-center gap-1"
+              style="cursor:pointer"
+              (click)="scrollToLiveIssues()"
+              [matTooltip]="liveIssues.disagrees.length + ' value(s) on this form disagree with attached documents. Click to jump to the sidebar and resolve each.'">
+              <mat-icon style="font-size:16px;vertical-align:middle">error_outline</mat-icon>
+              Resolve {{ liveIssues.disagrees.length }} disagreement{{ liveIssues.disagrees.length === 1 ? '' : 's' }} in the sidebar before submitting.
+            </span>
             <button type="button" class="btn btn-outline-secondary text-capitalize px-4"
               (click)="cancelEdit()">
               Cancel
@@ -1680,7 +1688,8 @@
               Review evidence
             </button>
             <button type="submit" class="btn-primary btn text-capitalize px-4 d-inline-flex align-items-center gap-2"
-              [disabled]="isSubmitting || (isEditMode && !hasUnsavedEditChanges())"
+              [disabled]="isSubmitting || (isEditMode && !hasUnsavedEditChanges()) || liveIssues.disagrees.length > 0"
+              [matTooltip]="liveIssues.disagrees.length > 0 ? 'Resolve the ' + liveIssues.disagrees.length + ' disagreement(s) in the sidebar first.' : null"
               test-id="submit-device">
               <mat-progress-spinner
                 *ngIf="isSubmitting"

@@ -4257,6 +4257,18 @@ export class AddDevicesComponent implements OnDestroy {
     }, 300);
   }
 
+  /** Expand the live-issues sidebar if collapsed, scroll it into
+   *  view, and pulse it briefly. Used by the inline "Resolve N
+   *  disagreements" link next to the Submit button. */
+  scrollToLiveIssues(): void {
+    this.liveIssuesCollapsed = false;
+    const el = document.querySelector('.live-issues');
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.classList.add('live-issues--flash');
+    setTimeout(() => el.classList.remove('live-issues--flash'), 1600);
+  }
+
   /** Resolve one row in the live-issues "disagrees" block. Called by
    *  the inline picker — user clicks "keep" on the Form row or
    *  "use this" on a doc row, the value lands in the form control
@@ -7600,31 +7612,17 @@ export class AddDevicesComponent implements OnDestroy {
     // first; once the user has resolved each conflict (keep-form or
     // switch-to-doc), the pre-submit dialog only surfaces issues the
     // picker can't address (empty fields, unextracted-but-extractable).
-    // Form-vs-doc conflicts no longer pop a modal on submit. The
-    // live-issues sidebar already shows every disagreement inline
-    // while the user is editing — interrupting submit with the same
-    // info as a dialog just delayed the moment they could leave the
-    // page happy. Now: refuse submit, scroll/highlight the sidebar,
-    // let them resolve each disagreement in place.
+    // Form-vs-doc conflicts: submit button is disabled while
+    // disagreements exist, plus an inline "Resolve N disagreements
+    // in the sidebar" message sits next to it. So this code only
+    // hits via keyboard / programmatic submit. Refuse silently and
+    // scroll to the sidebar — no toast, the inline indicator is
+    // already loud enough.
     if (!this.presubmitOverride && this.isEditMode) {
       const conflicts = this.collectFormVsDocConflicts(0);
       if (conflicts.length) {
         this.isSubmitting = false;
-        this.liveIssuesCollapsed = false;
-        const n = conflicts.length;
-        this.toastrService.warning(
-          `${n} value${n === 1 ? '' : 's'} on this form disagree${n === 1 ? 's' : ''} with the attached documents. ` +
-            `Resolve the highlighted issues in the sidebar before submitting.`,
-          'Resolve disagreements first',
-          { timeOut: 6000 },
-        );
-        // Pulse the sidebar so it's visually obvious where to look.
-        const el = document.querySelector('.live-issues');
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          el.classList.add('live-issues--flash');
-          setTimeout(() => el.classList.remove('live-issues--flash'), 1600);
-        }
+        this.scrollToLiveIssues();
         return;
       }
     }
