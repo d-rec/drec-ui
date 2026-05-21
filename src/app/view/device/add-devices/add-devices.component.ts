@@ -1847,42 +1847,25 @@ export class AddDevicesComponent implements OnDestroy {
         this.magicCurrentStep[deviceIndex] = null;
       });
       if (this.isDuplicate(deviceIndex, file)) {
-        // Don't route the duplicate to a slot, but DO classify it so
-        // the OK + Extract path can still pull fields from the bytes.
-        this.documentClassifier.classify(file, (step) =>
-          this.ngZone.run(() => {
-            this.magicCurrentStep[deviceIndex] = step;
-          }),
-        ).subscribe({
-          next: (result) => {
-            this.ngZone.run(() => {
-              const rawType = result?.suggestedType ?? DocumentType.OTHER_DOCUMENTS;
-              this.magicLog[deviceIndex].push({
-                filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
-                target: 'Skipped (duplicate)',
-                confidence: null,
-                type: 'skip',
-                file,
-                docType: rawType,
-              });
-              this.magicDone[deviceIndex] = idx + 1;
-            });
-            setTimeout(() => processNext(idx + 1));
-          },
-          error: () => {
-            this.ngZone.run(() => {
-              this.magicLog[deviceIndex].push({
-                filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
-                target: 'Skipped (duplicate)',
-                confidence: null,
-                type: 'skip',
-                file,
-              });
-              this.magicDone[deviceIndex] = idx + 1;
-            });
-            setTimeout(() => processNext(idx + 1));
-          },
+        // Don't burn an AI roundtrip on a file we already have. The
+        // old code classified duplicates "just in case the OK +
+        // Extract path needs it" — but that path can re-classify on
+        // demand at zero user-perceived cost. Skipping the classify
+        // call here is what makes drag-drop of 50 photos feel fast:
+        // the bar jumps to 100% as soon as the filename+size match
+        // hits, instead of grinding through 3-5s of Anthropic latency
+        // per duplicate.
+        this.ngZone.run(() => {
+          this.magicLog[deviceIndex].push({
+            filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
+            target: 'Skipped (duplicate)',
+            confidence: null,
+            type: 'skip',
+            file,
+          });
+          this.magicDone[deviceIndex] = idx + 1;
         });
+        setTimeout(() => processNext(idx + 1));
         return;
       }
       this.documentClassifier.classify(file, (step) =>
