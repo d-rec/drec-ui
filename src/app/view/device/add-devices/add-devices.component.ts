@@ -4066,7 +4066,9 @@ export class AddDevicesComponent implements OnDestroy {
     const i = 0;
     const form = this.deviceForms.at(i) as FormGroup;
     if (!form) return;
-    const fields = [...this.unattributedFields];
+    // Filter out synthetic "serialNumber:<chip>" entries — those are
+    // handled by the orphanedSerials path below.
+    const fields = this.unattributedFields.filter((f) => !f.includes(':'));
     const serialProv = this.appliedProvenance[i]?.['serialNumber'];
     const serials = this.serialNumberLists[i] ?? [];
     const orphanedSerials = serials.filter((s) => {
@@ -4131,7 +4133,7 @@ export class AddDevicesComponent implements OnDestroy {
       );
       return;
     }
-    const fields = [...this.unattributedFields];
+    const fields = this.unattributedFields.filter((f) => !f.includes(':'));
     const serialProv = this.appliedProvenance[i]?.['serialNumber'];
     const serials = this.serialNumberLists[i] ?? [];
     const orphanedSerials = serials.filter((s) => {
@@ -4143,7 +4145,7 @@ export class AddDevicesComponent implements OnDestroy {
         .map((x) => x.trim().toLowerCase());
       return !list.includes(v.toLowerCase());
     });
-    const total = fields.length + (orphanedSerials.length ? 1 : 0);
+    const total = fields.length + orphanedSerials.length;
     if (total === 0) {
       this.toastrService.info('Nothing to attest — every value has a source.');
       return;
@@ -4276,6 +4278,34 @@ export class AddDevicesComponent implements OnDestroy {
         docUrl: null,
       });
     }
+    // Surface orphan serial chips as their own rows — a serial chip
+    // is independently no-subject when its specific value isn't
+    // covered by the provenance.value list (or there's no provenance
+    // at all). Showing them as rows makes the "N highlighted" count
+    // match what the registrant actually sees in the table.
+    const serialProv = this.appliedProvenance[i]?.['serialNumber'];
+    const serials = this.serialNumberLists[i] ?? [];
+    const orphanChips: string[] = serials.filter((s) => {
+      const v = (s || '').trim();
+      if (!v) return false;
+      if (!serialProv || serialProv.value == null) return true;
+      const list = String(serialProv.value)
+        .split(';')
+        .map((x) => x.trim().toLowerCase());
+      return !list.includes(v.toLowerCase());
+    });
+    for (const chip of orphanChips) {
+      rows.push({
+        field: `serialNumber:${chip}`,
+        label: '(14) Serial number',
+        displayValue: chip,
+        source: null,
+        confidence: null,
+        docName: null,
+        docUrl: null,
+      });
+    }
+    const orphanChipCount = orphanChips.length;
     rows.sort((a, b) => {
       // Doc-backed first, then manual — registrant skims sources, eyes
       // settle on the Manual block to verify there's nothing dodgy.
@@ -4284,37 +4314,28 @@ export class AddDevicesComponent implements OnDestroy {
       return ad !== bd ? ad - bd : a.label.localeCompare(b.label);
     });
     this.evidenceRows = rows;
-    // Count orphan chips on the (14) list too — a serialNumber row in
-    // the form table might be "Unattributed" once globally, but each
-    // chip is independently orphaned when its specific value isn't
-    // covered by the provenance.value list. The flush button needs
-    // both numbers so it appears whenever there's anything to clear.
-    const serialProv = this.appliedProvenance[i]?.['serialNumber'];
-    const serials = this.serialNumberLists[i] ?? [];
-    const orphanChipCount = serials.filter((s) => {
-      const v = (s || '').trim();
-      if (!v) return false;
-      if (!serialProv || serialProv.value == null) return true;
-      const list = String(serialProv.value)
-        .split(';')
-        .map((x) => x.trim().toLowerCase());
-      return !list.includes(v.toLowerCase());
-    }).length;
-    // Don't double-count the serialNumber row itself when ALL chips
-    // are orphaned — that case shows up as one row + N chips in the
-    // raw filter, but conceptually it's N orphans, not N+1.
-    const fieldOrphans = rows.filter((r) => !r.source).length;
-    const adjustedFieldOrphans = orphanChipCount > 0
-      ? fieldOrphans - (rows.some((r) => r.field === 'serialNumber' && !r.source) ? 1 : 0)
-      : fieldOrphans;
+    // Orphan chips are now their own rows in the table; the
+    // serialNumber field row itself only stays if there's a chip with
+    // attribution. Drop the duplicate serialNumber-field row when
+    // every chip is orphaned (one row + N chip-rows would read as
+    // N+1 no-subjects).
+    if (
+      orphanChipCount > 0 &&
+      orphanChipCount === serials.filter((s) => (s || '').trim()).length
+    ) {
+      this.evidenceRows = rows.filter(
+        (r) => !(r.field === 'serialNumber' && !r.source),
+      );
+    }
     this.evidenceSummary = {
-      docBacked: rows.filter((r) => r.source).length,
-      unattributed: adjustedFieldOrphans + orphanChipCount,
-      total: rows.length,
+      docBacked: this.evidenceRows.filter((r) => r.source).length,
+      unattributed: this.evidenceRows.filter((r) => !r.source).length,
+      total: this.evidenceRows.length,
     };
-    // Stash the unattributed field list for the flush action — the
-    // dialog uses this to show "Flush N unattributed" with a live count.
-    this.unattributedFields = rows.filter((r) => !r.source).map((r) => r.field);
+    // Stash the unattributed field list for the flush action. Includes
+    // synthetic "serialNumber:<chip>" entries so flush/attest can act
+    // on individual chips, not just the field row.
+    this.unattributedFields = this.evidenceRows.filter((r) => !r.source).map((r) => r.field);
     if (!this.evidenceReviewDialog) return;
     this.evidenceReviewDialogRef = this.dialog.open(
       this.evidenceReviewDialog,
