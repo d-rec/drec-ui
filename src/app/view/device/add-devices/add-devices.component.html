@@ -1137,6 +1137,12 @@
                                     [style.text-decoration]="isFieldChecked(i, 'meterId:' + id) ? 'none' : 'line-through'">
                                     {{ id }}
                                   </span>
+                                  <small *ngIf="meterIdsExtractionDocs[i]?.[id]?.name as docName"
+                                    class="text-muted"
+                                    style="font-family:inherit;font-size:11px;margin-left:auto"
+                                    [title]="'Extracted from ' + docName">
+                                    from {{ docName }}
+                                  </small>
                                 </label>
                               </li>
                             </ul>
