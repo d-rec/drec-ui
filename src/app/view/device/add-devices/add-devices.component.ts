@@ -3383,12 +3383,18 @@ export class AddDevicesComponent implements OnDestroy {
       const v = ctl.value;
       if (isEmpty(v)) continue;
       const p = prov[name];
+      // Only credit as doc-backed when confidence clears the 0.70
+      // auto-apply threshold. Sub-threshold matches (e.g. a backfill
+      // weakly correlating the form value to something it thinks is
+      // in the doc) get shown as Manual — claiming a doc backs a
+      // value the doc doesn't clearly contain misleads the reviewer.
+      const trusted = p && (p.confidence ?? 0) >= 0.7;
       rows.push({
         field: name,
         label: labelOf(name),
         displayValue: display(v),
-        source: p?.source ?? null,
-        confidence: p?.confidence ?? null,
+        source: trusted ? p!.source : null,
+        confidence: trusted ? p!.confidence : null,
         docUrl: null,
       });
     }
