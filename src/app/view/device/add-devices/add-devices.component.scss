@@ -1371,7 +1371,7 @@ $as-bg:       #f8fafc;
 }
 .as-log__entry {
   display: grid;
-  grid-template-columns: 24px 28px 1fr auto;
+  grid-template-columns: 24px 28px 1fr auto auto;
   grid-template-rows: auto auto;
   align-items: center;
   gap: 0 8px;
