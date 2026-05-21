@@ -1708,7 +1708,8 @@
 </ng-template>
 
 <ng-template #presubmitDialog>
-  <h2 mat-dialog-title>Before you submit — please review</h2>
+  <div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
+  <h2 mat-dialog-title cdkDragHandle style="cursor: move;">Before you submit — please review</h2>
   <div mat-dialog-content style="max-height:60vh;overflow:auto;padding-bottom:8px">
     <p class="text-muted small mb-3" style="font-size:12px">
       A few items on this device need attention. Each one will save the reviewer a chat ping — fix what you can, then re-submit.
@@ -1748,10 +1749,11 @@
       <button mat-button class="btn-warning" (click)="submitAnyway()">Submit anyway</button>
     </div>
   </div>
+  </div>
 </ng-template>
 
-<ng-template #formVsDocDialog>
-  <h2 mat-dialog-title>Documents disagree with the form</h2>
+<ng-template #formVsDocDialog><div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
+  <h2 mat-dialog-title cdkDragHandle style="cursor: move;">Documents disagree with the form</h2>
   <div mat-dialog-content style="max-height:60vh;overflow:auto;padding-bottom:8px">
     <p class="text-muted small mb-2" style="font-size:12px">
       The following form values don't match what the source documents say. Pick the value you want for each field, or keep the form value.
@@ -1786,10 +1788,11 @@
     <button mat-button class="btn-default" (click)="cancelFormVsDocResolution()">Cancel submit</button>
     <button mat-button class="btn-primary" (click)="applyFormVsDocPicks()">Apply picks &amp; continue</button>
   </div>
+  </div>
 </ng-template>
 
-<ng-template #overwriteConfirmDialog>
-  <h2 mat-dialog-title>{{ pendingOverwriteSource }} — Overwrite existing values?</h2>
+<ng-template #overwriteConfirmDialog><div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
+  <h2 mat-dialog-title cdkDragHandle style="cursor: move;">{{ pendingOverwriteSource }} — Overwrite existing values?</h2>
   <div mat-dialog-content style="max-height:60vh;overflow:auto;padding-bottom:8px">
     <p class="text-muted small mb-2" style="font-size:12px">
       These fields already have a value. Tick the ones you want to replace with the {{ pendingOverwriteSource }} extraction.
@@ -1814,6 +1817,7 @@
   <div mat-dialog-actions class="d-flex justify-content-end gap-2 pt-2">
     <button mat-button class="btn-default" (click)="cancelOverwrite()">Skip all</button>
     <button mat-button class="btn-primary" (click)="applyOverwriteConfirmed()">Overwrite selected</button>
+  </div>
   </div>
 </ng-template>
 
@@ -1862,8 +1866,8 @@
   </div>
 </ng-template>
 
-<ng-template #renameDialog>
-  <h2 mat-dialog-title class="d-flex justify-content-between align-items-center mb-0">
+<ng-template #renameDialog><div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
+  <h2 mat-dialog-title cdkDragHandle class="d-flex justify-content-between align-items-center mb-0" style="cursor: move;">
     <span>Name files — {{ renameDialogType }}</span>
     <button mat-icon-button (click)="cancelRenameDialog()">
       <mat-icon>close</mat-icon>
@@ -1899,6 +1903,7 @@
     <button mat-button class="btn btn-outline-secondary" (click)="cancelRenameDialog()">Cancel</button>
     <button mat-button class="btn btn-primary" (click)="saveRenameDialog()">Save</button>
   </div>
+  </div>
 </ng-template>
 
 <ng-template #imageFullView>
@@ -1929,8 +1934,8 @@
   </div>
 </ng-template>
 
-<ng-template #evidenceReviewDialog>
-  <h2 mat-dialog-title class="d-flex align-items-center gap-2">
+<ng-template #evidenceReviewDialog><div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
+  <h2 mat-dialog-title cdkDragHandle class="d-flex align-items-center gap-2" style="cursor: move;">
     <mat-icon>fact_check</mat-icon>
     Evidence review
   </h2>
@@ -2023,10 +2028,11 @@
     <span *ngIf="evidenceSummary.unattributed === 0"></span>
     <button mat-button class="btn btn-outline-secondary" mat-dialog-close>Close</button>
   </div>
+  </div>
 </ng-template>
 
-<ng-template #verifySourceDialog>
-  <h2 mat-dialog-title class="d-flex align-items-center gap-2">
+<ng-template #verifySourceDialog><div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
+  <h2 mat-dialog-title cdkDragHandle class="d-flex align-items-center gap-2" style="cursor: move;">
     <mat-icon>verified</mat-icon>
     Verify source ({{ verifyQueueIndex + 1 }} / {{ verifyQueue.length }})
   </h2>
@@ -2157,5 +2163,6 @@
         Accept &amp; verify
       </button>
     </div>
+  </div>
   </div>
 </ng-template>

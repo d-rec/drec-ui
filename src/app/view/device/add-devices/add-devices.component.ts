@@ -2327,7 +2327,10 @@ export class AddDevicesComponent implements OnDestroy {
     if (!ids.length) return 0;
     const prov = this.appliedProvenance[deviceIndex]?.['serialNumber'] as any;
     const verifiedByValue: Record<string, any> = prov?.verifiedByValue ?? {};
-    return ids.filter((id) => !verifiedByValue[id]).length;
+    const dismissed = this.dismissedSerialNumbers[deviceIndex] ?? new Set();
+    return ids.filter(
+      (id) => !verifiedByValue[id] && !dismissed.has(id.trim().toLowerCase()),
+    ).length;
   }
 
   /** Open a meter-IDs verify queue: one queue item per extracted serial
@@ -2344,9 +2347,11 @@ export class AddDevicesComponent implements OnDestroy {
     const prov = this.appliedProvenance[deviceIndex]?.['serialNumber'] as any;
     const verifiedByValue: Record<string, any> = prov?.verifiedByValue ?? {};
     const docsByValue = this.meterIdsExtractionDocs[deviceIndex] ?? {};
+    const dismissed = this.dismissedSerialNumbers[deviceIndex] ?? new Set();
     const items: typeof this.verifyQueue = [];
     for (const id of ids) {
       if (verifiedByValue[id]) continue;
+      if (dismissed.has(id.trim().toLowerCase())) continue;
       const doc = docsByValue[id];
       items.push({
         deviceIndex,
@@ -2651,8 +2656,26 @@ export class AddDevicesComponent implements OnDestroy {
     this.verifyAdvance();
   }
 
-  /** Skip the current item — no value applied, no provenance written. */
+  /** Skip the current item — no value applied, no provenance written.
+   *  Meter-IDs special case: declined IDs are recorded as dismissed
+   *  so they don't reappear on the next openMeterIdsVerifyQueue. */
   verifyDecline(): void {
+    const item = this.verifyCurrent;
+    if (item && typeof item.field === 'string' && item.field.startsWith('meterId:')) {
+      const id = String(item.value).trim();
+      if (id) {
+        if (!this.dismissedSerialNumbers[item.deviceIndex]) {
+          this.dismissedSerialNumbers[item.deviceIndex] = new Set();
+        }
+        this.dismissedSerialNumbers[item.deviceIndex].add(id.toLowerCase());
+        // Also drop from the extractor's pending list so the banner
+        // count + future queues both reflect the user's choice.
+        const ids = this.meterIdsExtractions[item.deviceIndex] || [];
+        this.meterIdsExtractions[item.deviceIndex] = ids.filter(
+          (v) => v.trim().toLowerCase() !== id.toLowerCase(),
+        );
+      }
+    }
     this.verifyAdvance();
   }
 
