@@ -1976,13 +1976,15 @@
           </canvas>
           <!-- Region overlay positioned in percentages so we don't
                need to know the canvas's CSS pixel size at render
-               time. Both the canvas and this overlay live inside the
-               zoom-pan container, so they scale + translate together
-               and the bbox stays anchored to the value as the user
-               zooms in to read small labels. -->
-          <div *ngIf="v.region"
+               time. Only show the highlight when the bbox came from
+               Tesseract (a pixel-exact literal-token match). Model-
+               estimated bboxes for derived/boolean values are too
+               unreliable to draw — they point at unrelated symbols
+               often enough that a visible wrong arrow is worse than
+               no arrow. The reasoning text below the canvas tells
+               the user what to scan for in those cases. -->
+          <div *ngIf="v.region && v.regionSource === 'tesseract'"
             class="verify-source__region"
-            [class.verify-source__region--approx]="v.regionSource !== 'tesseract'"
             [style.left.%]="v.region.x * 100"
             [style.top.%]="v.region.y * 100"
             [style.width.%]="v.region.w * 100"
@@ -1990,13 +1992,9 @@
           </div>
         </div>
       </div>
-      <div *ngIf="!v.region" class="alert alert-warning small mt-2 mb-0">
-        <mat-icon style="font-size:16px;vertical-align:middle">warning_amber</mat-icon>
-        The model didn't return a region for this field. Verify the value against the document manually before accepting.
-      </div>
-      <div *ngIf="v.region && v.regionSource !== 'tesseract'" class="alert alert-info small mt-2 mb-0">
+      <div *ngIf="v.regionSource !== 'tesseract'" class="alert alert-info small mt-2 mb-0">
         <mat-icon style="font-size:16px;vertical-align:middle">info_outline</mat-icon>
-        Approximate location — the value isn't a literal string in the doc (likely derived, e.g. summed from components). The model estimated the location; verify by reading nearby labels.
+        No literal token match — the value is derived or boolean (no exact string to highlight). Use the reasoning above to scan the diagram and verify.
       </div>
 
       <p class="text-muted small mt-3 mb-0">
