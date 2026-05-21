@@ -2000,6 +2000,13 @@
               [title]="'AI says the value is on page ' + v.region?.page">
               jump to p.{{ v.region?.page }}
             </button>
+            <button type="button" class="btn btn-sm btn-outline-warning ms-2"
+              *ngIf="totalMatchesInDoc() > 0"
+              (click)="verifyNextMatchPage()"
+              [title]="totalMatchesInDoc() + ' occurrence(s) of \'' + v.value + '\' in this document'">
+              <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">search</mat-icon>
+              {{ totalMatchesInDoc() }} match<ng-container *ngIf="totalMatchesInDoc() !== 1">es</ng-container>
+            </button>
           </span>
         </ng-container>
       </div>
@@ -2023,6 +2030,17 @@
             [style.top.%]="v.region.y * 100"
             [style.width.%]="v.region.w * 100"
             [style.height.%]="v.region.h * 100">
+          </div>
+          <!-- Text-layer matches: drawn for every occurrence of the
+               value's literal text on the current page. Soft yellow
+               so the Tesseract-derived primary region (red) still
+               stands out as "this is the AI's pick". -->
+          <div *ngFor="let m of verifyTextMatches"
+            class="verify-source__match"
+            [style.left.%]="m.x * 100"
+            [style.top.%]="m.y * 100"
+            [style.width.%]="m.w * 100"
+            [style.height.%]="m.h * 100">
           </div>
         </div>
       </div>

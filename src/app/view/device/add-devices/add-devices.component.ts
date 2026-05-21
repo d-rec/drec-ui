@@ -2065,6 +2065,14 @@ export class AddDevicesComponent implements OnDestroy {
   /** Total pages in the verify dialog's loaded doc, for the page
    *  indicator and Next button disable. 1 for non-PDF images. */
   verifyPageCount = 1;
+  /** Per-page occurrence count of the current item's value, derived
+   *  from pdf.js text-content. Index 0 unused; pages are 1-based to
+   *  match pdf.js. Lets the UI show "page 3 of 30 · 2 matches" and
+   *  hint which page to flip to. */
+  verifyMatchesByPage: number[] = [];
+  /** Match rects on the CURRENT page only, normalised 0..1 against
+   *  the rendered canvas. Drawn as yellow translucent overlays. */
+  verifyTextMatches: Array<{ x: number; y: number; w: number; h: number }> = [];
 
   /** Re-run the SLD extractor against the device's attached SLD doc
    *  and route through the verify-source queue. Use when an existing
@@ -2324,9 +2332,20 @@ export class AddDevicesComponent implements OnDestroy {
         canvas.width = scaled.width;
         canvas.height = scaled.height;
         await pdfPage.render({ canvasContext: ctx, viewport: scaled }).promise;
+        // Find-on-page: locate the current value's literal text in the
+        // page's text content and draw highlight overlays. Async + best-
+        // effort: if the doc is scanned (no text layer) we just get
+        // zero hits — no error.
+        this.verifyTextMatches = await this.findValueOnPage(pdfPage, scaled, item.value);
+        // Kick off a whole-doc scan if we don't have it yet — populates
+        // verifyMatchesByPage so the indicator can show "5 matches on
+        // p.7" hints. Cached per (file, value).
+        this.scanAllPagesForMatches(pdf, item.value);
       } else {
         this.verifyPageCount = 1;
         this.verifyCurrentPage = 1;
+        this.verifyTextMatches = [];
+        this.verifyMatchesByPage = [];
         const url = URL.createObjectURL(file);
         try {
           const img = await new Promise<HTMLImageElement>((res, rej) => {
@@ -2355,6 +2374,115 @@ export class AddDevicesComponent implements OnDestroy {
     } catch (err) {
       console.warn('renderVerifyCanvas failed', err);
       this.verifyCanvasSize = null;
+    }
+  }
+
+  /** Cache key for the whole-doc match scan so we don't re-run it on
+   *  every page flip. Cleared whenever the file or item changes. */
+  private verifyScanKey = '';
+
+  /** Find every occurrence of the value's literal text on the current
+   *  page and convert each match's bbox to normalised (0..1) coords
+   *  against the rendered canvas. Returns [] when the page has no text
+   *  layer (scanned doc) or the value isn't found. */
+  private async findValueOnPage(
+    pdfPage: any,
+    viewport: any,
+    value: any,
+  ): Promise<Array<{ x: number; y: number; w: number; h: number }>> {
+    const needle = String(value ?? '').trim().toLowerCase();
+    if (needle.length < 3) return [];
+    try {
+      const tc = await pdfPage.getTextContent();
+      const matches: Array<{ x: number; y: number; w: number; h: number }> = [];
+      for (const it of tc.items as any[]) {
+        if (!it.str) continue;
+        const haystack = String(it.str).toLowerCase();
+        if (!haystack.includes(needle)) continue;
+        // pdf.js text items carry a transform [a, b, c, d, e, f]; e,f
+        // is origin in PDF user space (y-up). Convert to viewport
+        // coords (which are top-left origin, canvas-pixel scaled).
+        const [ex, ey] = [it.transform[4], it.transform[5]];
+        const vp: [number, number] = viewport.convertToViewportPoint(ex, ey);
+        const w = (it.width || 0) * viewport.scale;
+        const h = (it.transform[3] || it.height || 0) * viewport.scale;
+        const x = vp[0];
+        // convertToViewportPoint already returns top-left-origin coords,
+        // but the y refers to the *baseline*; subtract glyph height for
+        // the top edge of the rect.
+        const y = vp[1] - h;
+        if (!isFinite(x) || !isFinite(y) || !isFinite(w) || !isFinite(h)) continue;
+        matches.push({
+          x: x / viewport.width,
+          y: y / viewport.height,
+          w: Math.max(w, 8) / viewport.width,
+          h: Math.max(h, 8) / viewport.height,
+        });
+      }
+      return matches;
+    } catch {
+      return [];
+    }
+  }
+
+  /** Walk every page of the PDF once, counting matches per page.
+   *  Caches by (file identity, value) so flipping pages doesn't rerun
+   *  the scan. Fire-and-forget; updates verifyMatchesByPage when done. */
+  private scanAllPagesForMatches(pdf: any, value: any): void {
+    const file = this.verifyQueueFile;
+    if (!file) return;
+    const key = `${file.name}::${file.size}::${String(value)}`;
+    if (key === this.verifyScanKey) return;
+    this.verifyScanKey = key;
+    const needle = String(value ?? '').trim().toLowerCase();
+    if (needle.length < 3) {
+      this.verifyMatchesByPage = [];
+      return;
+    }
+    (async () => {
+      const counts: number[] = new Array(pdf.numPages + 1).fill(0);
+      for (let p = 1; p <= pdf.numPages; p++) {
+        try {
+          const pg = await pdf.getPage(p);
+          const tc = await pg.getTextContent();
+          let n = 0;
+          for (const it of tc.items as any[]) {
+            if (it.str && String(it.str).toLowerCase().includes(needle)) n++;
+          }
+          counts[p] = n;
+        } catch {
+          counts[p] = 0;
+        }
+      }
+      // Only commit if the scan is still relevant to the user's current
+      // queue item (they may have advanced while we were scanning).
+      if (key === this.verifyScanKey) {
+        this.ngZone.run(() => { this.verifyMatchesByPage = counts; });
+      }
+    })();
+  }
+
+  /** Jump to the next page containing at least one match of the
+   *  current value, wrapping around. Called by the "next match" arrow
+   *  in the dialog header. */
+  /** Sum of matches across the whole doc — drives the "N matches" pill. */
+  totalMatchesInDoc(): number {
+    let n = 0;
+    for (const c of this.verifyMatchesByPage) n += c || 0;
+    return n;
+  }
+
+  verifyNextMatchPage(): void {
+    const counts = this.verifyMatchesByPage;
+    if (counts.length < 2) return;
+    const start = this.verifyCurrentPage;
+    for (let i = 1; i <= this.verifyPageCount; i++) {
+      const p = ((start - 1 + i) % this.verifyPageCount) + 1;
+      if ((counts[p] ?? 0) > 0) {
+        this.verifyCurrentPage = p;
+        this.renderVerifyCanvas();
+        return;
+      }
     }
   }
 
