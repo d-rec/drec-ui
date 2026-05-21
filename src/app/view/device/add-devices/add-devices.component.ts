@@ -3443,6 +3443,64 @@ export class AddDevicesComponent implements OnDestroy {
     total: 0,
   };
 
+  /** Field names with no provenance entry (or sub-threshold) — used by
+   *  the Flush Unattributed action to know what to clear. */
+  unattributedFields: string[] = [];
+
+  /** Clear every field listed in unattributedFields plus any chip-list
+   *  values (serialNumber) whose individual provenance is missing.
+   *  Destructive — confirm first. After clear, regenerate the evidence
+   *  rows so the dialog reflects the post-flush state. */
+  flushUnattributed(): void {
+    const i = 0;
+    const form = this.deviceForms.at(i) as FormGroup;
+    if (!form) return;
+    const fields = [...this.unattributedFields];
+    const serialProv = this.appliedProvenance[i]?.['serialNumber'];
+    const serials = this.serialNumberLists[i] ?? [];
+    const orphanedSerials = serials.filter((s) => {
+      const v = (s || '').trim();
+      if (!v) return false;
+      if (!serialProv || serialProv.value == null) return true;
+      const list = String(serialProv.value)
+        .split(';')
+        .map((x) => x.trim().toLowerCase());
+      return !list.includes(v.toLowerCase());
+    });
+    const total = fields.length + orphanedSerials.length;
+    if (total === 0) {
+      this.toastrService.info('Nothing to flush — all values have a source.');
+      return;
+    }
+    const msg =
+      `Clear ${total} unattributed value${total === 1 ? '' : 's'}?\n\n` +
+      `Form fields: ${fields.length}\n` +
+      `Meter ID chips: ${orphanedSerials.length}\n\n` +
+      `This wipes any value the system has no source record for. ` +
+      `You'll need to re-extract from a doc or type the values back.`;
+    if (!confirm(msg)) return;
+    for (const f of fields) {
+      const ctl = form.get(f);
+      if (!ctl) continue;
+      ctl.setValue(Array.isArray(ctl.value) ? [] : null);
+      ctl.markAsDirty();
+    }
+    if (orphanedSerials.length) {
+      const kept = serials.filter((s) => !orphanedSerials.includes(s));
+      this.serialNumberLists[i] = kept.length ? kept : [''];
+      this.syncSerialNumberControl(i);
+    }
+    this.toastrService.success(
+      `Flushed ${fields.length} field${fields.length === 1 ? '' : 's'} and ${orphanedSerials.length} meter ID${orphanedSerials.length === 1 ? '' : 's'}.`,
+    );
+    // Close-and-reopen so the dialog reflects the post-flush state
+    // (the row builder reads from form + provenance, both just
+    // changed). Without close+open the user sees stale rows.
+    this.evidenceReviewDialogRef?.close();
+    this.evidenceReviewDialogRef = null;
+    setTimeout(() => this.openEvidenceReview(), 0);
+  }
+
   /** Build evidence rows from the current form state + appliedProvenance
    *  and pop the dialog. Edit-mode only (button is hidden otherwise).
    *  Skips empty fields and a handful of plumbing controls the
@@ -3518,6 +3576,9 @@ export class AddDevicesComponent implements OnDestroy {
       unattributed: rows.filter((r) => !r.source).length,
       total: rows.length,
     };
+    // Stash the unattributed field list for the flush action — the
+    // dialog uses this to show "Flush N unattributed" with a live count.
+    this.unattributedFields = rows.filter((r) => !r.source).map((r) => r.field);
     if (!this.evidenceReviewDialog) return;
     this.evidenceReviewDialogRef = this.dialog.open(
       this.evidenceReviewDialog,

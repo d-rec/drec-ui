@@ -1893,7 +1893,17 @@
       <strong>{{ evidenceSummary.total }}</strong> total.
     </div>
   </div>
-  <div mat-dialog-actions class="d-flex justify-content-end gap-2">
+  <div mat-dialog-actions class="d-flex justify-content-between align-items-center gap-2">
+    <button mat-button
+      class="btn btn-outline-danger"
+      *ngIf="evidenceSummary.unattributed > 0"
+      (click)="flushUnattributed()"
+      [title]="'Clear every form field and chip with no recorded source. ' +
+               'Useful when the device carries pre-extraction data you can\'t defend.'">
+      <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">delete_sweep</mat-icon>
+      Flush {{ evidenceSummary.unattributed }} unattributed
+    </button>
+    <span *ngIf="evidenceSummary.unattributed === 0"></span>
     <button mat-button class="btn btn-outline-secondary" mat-dialog-close>Close</button>
   </div>
 </ng-template>
