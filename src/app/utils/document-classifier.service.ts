@@ -786,26 +786,36 @@ export class DocumentClassifierService {
         if (field.region) field.regionSource = 'model';
         continue;
       }
-      // Exact-token match — only if unique on its page.
+      // A "distinctive" token has letters AND is ≥5 chars — those
+      // are safe to match even when they appear multiple times on
+      // the page (e.g. "3p-125kw" labels two identical inverters;
+      // either bbox is a valid highlight for the inverterCapacityKw
+      // value). Pure-numeric / short tokens still require uniqueness
+      // to prevent "250" matching one of N "250A" MCCB labels.
+      const isDistinctive = (t: string) =>
+        /[a-z]/.test(t) && t.length >= 5;
+      const acceptHits = (
+        t: string,
+        hits: Array<{ page: number; x: number; y: number; w: number; h: number }>,
+      ) => hits.length === 1 || (hits.length > 0 && isDistinctive(t));
+
+      // Exact-token match
       const direct = tokenMap.get(candidate);
-      if (direct?.length === 1) {
+      if (direct && acceptHits(candidate, direct)) {
         field.region = direct[0];
         field.regionSource = 'tesseract';
         continue;
       }
-      // Multi-word split — same safety: require ≥3 chars, unique hit.
+      // Multi-word split
       const parts = candidate
         .split(/\s+/)
         .filter((p) => p.length >= MIN_TOKEN_LEN);
       const candidates = parts
         .map((p) => ({ token: p, hits: tokenMap.get(p) ?? [] }))
-        .filter((c) => c.hits.length === 1);
+        .filter((c) => acceptHits(c.token, c.hits));
       if (candidates.length) {
-        // Prefer the most distinctive token: longest one with letters,
-        // since those are less likely to be ambiguous than pure digits.
         const best =
-          candidates.find((c) => /[a-z]/.test(c.token) && c.token.length >= 4) ??
-          candidates[0];
+          candidates.find((c) => isDistinctive(c.token)) ?? candidates[0];
         field.region = best.hits[0];
         field.regionSource = 'tesseract';
         continue;
@@ -825,7 +835,12 @@ export class DocumentClassifierService {
           .filter((t) => t.length >= 4);
         for (const t of reasoningTokens) {
           const hits = tokenMap.get(t);
-          if (hits?.length === 1) {
+          if (!hits?.length) continue;
+          // Same rule: accept multi-hit tokens only when distinctive
+          // (letters + ≥5 chars). "smart" appearing once is fine;
+          // "3p-125kw" appearing twice is still good (both labels
+          // are valid matches for the same value).
+          if (hits.length === 1 || (/[a-z]/.test(t) && t.length >= 5)) {
             field.region = hits[0];
             field.regionSource = 'tesseract';
             break;
