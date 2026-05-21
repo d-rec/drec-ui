@@ -1815,6 +1815,45 @@ $as-bg:       #f8fafc;
     color: #1f2937;
     word-break: break-word;
   }
+  &-pick {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #2563eb;
+    opacity: 0;
+    transition: opacity 120ms ease-out;
+  }
+  &-row--btn {
+    appearance: none;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin: 1px 0;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    &:hover {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      .live-issues__conflict-pick { opacity: 1; }
+    }
+    &:focus-visible {
+      outline: 2px solid #2563eb;
+      outline-offset: 1px;
+    }
+  }
+}
+
+/* Sidebar "look here!" pulse fired when user clicks Submit while
+   there's still a disagreement to resolve. */
+.live-issues--flash {
+  animation: live-issues-flash 1.6s ease-out 1;
+}
+@keyframes live-issues-flash {
+  0%   { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+  30%  { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0.3); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
 }
 
 .submit-overlay {

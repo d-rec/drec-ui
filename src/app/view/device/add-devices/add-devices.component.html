@@ -77,14 +77,21 @@
             <li *ngFor="let i of liveIssues.disagrees">
               <a href="javascript:void(0)" (click)="jumpToField(i.field)">{{ i.label }} ↗</a>
               <div class="live-issues__conflict">
-                <div class="live-issues__conflict-row">
+                <button type="button" class="live-issues__conflict-row live-issues__conflict-row--btn"
+                  (click)="resolveDisagreement(i.field, i.current, 'Form')"
+                  [title]="'Keep the form value &amp; mark this resolved.'">
                   <span class="live-issues__conflict-src">Form</span>
                   <span class="live-issues__conflict-val">{{ i.current }}</span>
-                </div>
-                <div *ngFor="let c of i.candidates" class="live-issues__conflict-row">
+                  <span class="live-issues__conflict-pick">keep</span>
+                </button>
+                <button type="button" *ngFor="let c of i.candidates"
+                  class="live-issues__conflict-row live-issues__conflict-row--btn"
+                  (click)="resolveDisagreement(i.field, c.value, c.source)"
+                  [title]="'Adopt the ' + c.source + ' value into the form.'">
                   <span class="live-issues__conflict-src">{{ c.source }}</span>
                   <span class="live-issues__conflict-val">{{ c.value }}</span>
-                </div>
+                  <span class="live-issues__conflict-pick">use this</span>
+                </button>
               </div>
             </li>
           </ul>

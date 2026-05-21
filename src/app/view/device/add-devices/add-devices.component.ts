@@ -4257,6 +4257,38 @@ export class AddDevicesComponent implements OnDestroy {
     }, 300);
   }
 
+  /** Resolve one row in the live-issues "disagrees" block. Called by
+   *  the inline picker — user clicks "keep" on the Form row or
+   *  "use this" on a doc row, the value lands in the form control
+   *  and provenance is credited to the chosen source. */
+  resolveDisagreement(field: string, value: any, source: string): void {
+    const form = this.deviceForms.at(0);
+    const ctl = form?.get(field);
+    if (!ctl) return;
+    ctl.setValue(value);
+    ctl.markAsDirty();
+    if (source === 'Form') {
+      // Keep form value: credit the registrant as the verifier.
+      const email = (this.user?.email ?? '').trim() || 'unknown';
+      this.recordProvenance(0, field, `Manual: ${email}`, 1, value);
+      const entry = this.appliedProvenance[0]?.[field];
+      if (entry) {
+        (entry as any).verifiedBy = { email, at: new Date().toISOString() };
+      }
+    } else {
+      // Adopt doc value: credit the doc source. recordProvenance
+      // uses 'Manual: <email>'-style strings for human attestation,
+      // and bare source labels (SLD/SF-02c/COD/SF-02) for doc.
+      this.recordProvenance(0, field, source, 0.9, value);
+    }
+    if (field === 'countryCodename') {
+      // Pin against the geocoder so the user's explicit pick isn't
+      // reverted on the next coord recompute.
+      this.userPickedCountry[0] = true;
+    }
+    this.refreshLiveIssues();
+  }
+
   liveIssueCount(): number {
     return (
       this.liveIssues.empty.length +
@@ -7568,25 +7600,31 @@ export class AddDevicesComponent implements OnDestroy {
     // first; once the user has resolved each conflict (keep-form or
     // switch-to-doc), the pre-submit dialog only surfaces issues the
     // picker can't address (empty fields, unextracted-but-extractable).
-    if (
-      !this.presubmitOverride &&
-      this.isEditMode &&
-      !this.formVsDocPromptShown
-    ) {
+    // Form-vs-doc conflicts no longer pop a modal on submit. The
+    // live-issues sidebar already shows every disagreement inline
+    // while the user is editing — interrupting submit with the same
+    // info as a dialog just delayed the moment they could leave the
+    // page happy. Now: refuse submit, scroll/highlight the sidebar,
+    // let them resolve each disagreement in place.
+    if (!this.presubmitOverride && this.isEditMode) {
       const conflicts = this.collectFormVsDocConflicts(0);
       if (conflicts.length) {
-        this.formVsDocPromptShown = true;
-        this.openFormVsDocConflictDialog(conflicts, (proceed) => {
-          if (!proceed) {
-            this.isSubmitting = false;
-            this.formVsDocPromptShown = false;
-            return;
-          }
-          // User resolved conflicts (form values may have been
-          // updated). Re-enter submitEdit which will now skip Step 1
-          // (formVsDocPromptShown=true) and run Step 2.
-          this.submitEdit();
-        });
+        this.isSubmitting = false;
+        this.liveIssuesCollapsed = false;
+        const n = conflicts.length;
+        this.toastrService.warning(
+          `${n} value${n === 1 ? '' : 's'} on this form disagree${n === 1 ? 's' : ''} with the attached documents. ` +
+            `Resolve the highlighted issues in the sidebar before submitting.`,
+          'Resolve disagreements first',
+          { timeOut: 6000 },
+        );
+        // Pulse the sidebar so it's visually obvious where to look.
+        const el = document.querySelector('.live-issues');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          el.classList.add('live-issues--flash');
+          setTimeout(() => el.classList.remove('live-issues--flash'), 1600);
+        }
         return;
       }
     }
