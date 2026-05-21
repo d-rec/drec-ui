@@ -2058,6 +2058,14 @@ export class AddDevicesComponent implements OnDestroy {
    *  pixels (the region coords are normalised 0..1). */
   verifyCanvasSize: { cssWidth: number; cssHeight: number } | null = null;
 
+  /** Currently-displayed page in the verify dialog. Starts at the
+   *  model-reported region.page (or 1) and the user can flip with
+   *  Prev/Next for multi-page docs where the bbox is missing. */
+  verifyCurrentPage = 1;
+  /** Total pages in the verify dialog's loaded doc, for the page
+   *  indicator and Next button disable. 1 for non-PDF images. */
+  verifyPageCount = 1;
+
   /** Re-run the SLD extractor against the device's attached SLD doc
    *  and route through the verify-source queue. Use when an existing
    *  SLD was applied before strict verification was wired (no
@@ -2269,7 +2277,7 @@ export class AddDevicesComponent implements OnDestroy {
         disableClose: false,
       },
     );
-    setTimeout(() => this.renderVerifyCanvas(), 50);
+    setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 50);
   }
 
   /** Open the verify-source queue for an SLD extraction. Kept for
@@ -2284,14 +2292,17 @@ export class AddDevicesComponent implements OnDestroy {
    *  an <img> and copies to the canvas. Captures the resulting CSS
    *  size on verifyCanvasSize so the overlay div can position the
    *  bbox in screen pixels. */
-  private async renderVerifyCanvas(): Promise<void> {
+  private async renderVerifyCanvas(opts?: { resetToItemPage?: boolean }): Promise<void> {
     const canvas = this.verifyCanvasEl?.nativeElement;
     const file = this.verifyQueueFile;
     const item = this.verifyCurrent;
     if (!canvas || !file || !item) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const page = item.region?.page ?? 1;
+    if (opts?.resetToItemPage ?? false) {
+      this.verifyCurrentPage = item.region?.page ?? 1;
+    }
+    const page = this.verifyCurrentPage;
     // Render at higher internal resolution than the dialog actually
     // shows. The canvas has max-width:100% so it visually scales down
     // to ~880px in the dialog; when the user zooms in via the
@@ -2304,7 +2315,9 @@ export class AddDevicesComponent implements OnDestroy {
         const pdfjs: any = await import('pdfjs-dist' as any);
         const data = new Uint8Array(await file.arrayBuffer());
         const pdf = await pdfjs.getDocument({ data }).promise;
-        const pdfPage = await pdf.getPage(Math.min(page, pdf.numPages));
+        this.verifyPageCount = pdf.numPages;
+        this.verifyCurrentPage = Math.min(Math.max(1, page), pdf.numPages);
+        const pdfPage = await pdf.getPage(this.verifyCurrentPage);
         const viewport = pdfPage.getViewport({ scale: 1 });
         const scale = targetW / viewport.width;
         const scaled = pdfPage.getViewport({ scale });
@@ -2312,6 +2325,8 @@ export class AddDevicesComponent implements OnDestroy {
         canvas.height = scaled.height;
         await pdfPage.render({ canvasContext: ctx, viewport: scaled }).promise;
       } else {
+        this.verifyPageCount = 1;
+        this.verifyCurrentPage = 1;
         const url = URL.createObjectURL(file);
         try {
           const img = await new Promise<HTMLImageElement>((res, rej) => {
@@ -2416,7 +2431,30 @@ export class AddDevicesComponent implements OnDestroy {
       this.verifyCanvasSize = null;
       return;
     }
-    setTimeout(() => this.renderVerifyCanvas(), 0);
+    setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 0);
+  }
+
+  /** Prev/Next page within the verify dialog's loaded doc. Used when
+   *  the model didn't pin the value to a specific page or its bbox is
+   *  missing — the user can flip through to find it. */
+  verifyPrevPage(): void {
+    if (this.verifyCurrentPage <= 1) return;
+    this.verifyCurrentPage--;
+    this.renderVerifyCanvas();
+  }
+  verifyNextPage(): void {
+    if (this.verifyCurrentPage >= this.verifyPageCount) return;
+    this.verifyCurrentPage++;
+    this.renderVerifyCanvas();
+  }
+  /** Jump to the model-reported page (if any) — useful after the user
+   *  has flipped away. */
+  verifyJumpToReportedPage(): void {
+    const item = this.verifyCurrent;
+    const target = item?.region?.page;
+    if (!target || target === this.verifyCurrentPage) return;
+    this.verifyCurrentPage = target;
+    this.renderVerifyCanvas();
   }
 
   /** Source-specific side effects that used to live inside the old

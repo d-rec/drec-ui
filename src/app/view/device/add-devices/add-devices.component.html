@@ -1998,9 +1998,31 @@
         </div>
       </div>
 
-      <div class="text-muted small mb-1 d-flex align-items-center gap-2">
+      <div class="text-muted small mb-1 d-flex align-items-center gap-2 flex-wrap">
+        <mat-icon style="font-size:14px;height:14px;width:14px">description</mat-icon>
+        <span *ngIf="verifyQueueFile" class="text-truncate" style="max-width:280px" [title]="verifyQueueFile.name">{{ verifyQueueFile.name }}</span>
+        <span class="text-muted">·</span>
         <mat-icon style="font-size:14px;height:14px;width:14px">zoom_in</mat-icon>
-        Scroll over the SLD to zoom · drag to pan · double-click to reset
+        scroll to zoom · drag to pan · double-click resets
+        <ng-container *ngIf="verifyPageCount > 1">
+          <span class="ms-auto d-flex align-items-center gap-1">
+            <button type="button" class="btn btn-sm btn-outline-secondary"
+              [disabled]="verifyCurrentPage <= 1" (click)="verifyPrevPage()" title="Previous page">
+              <mat-icon style="font-size:14px;height:14px;width:14px">chevron_left</mat-icon>
+            </button>
+            <span class="px-1">page <strong>{{ verifyCurrentPage }}</strong> of {{ verifyPageCount }}</span>
+            <button type="button" class="btn btn-sm btn-outline-secondary"
+              [disabled]="verifyCurrentPage >= verifyPageCount" (click)="verifyNextPage()" title="Next page">
+              <mat-icon style="font-size:14px;height:14px;width:14px">chevron_right</mat-icon>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-primary ms-2"
+              *ngIf="v.region?.page && v.region.page !== verifyCurrentPage"
+              (click)="verifyJumpToReportedPage()"
+              [title]="'AI says the value is on page ' + v.region.page">
+              jump to p.{{ v.region.page }}
+            </button>
+          </span>
+        </ng-container>
       </div>
       <div class="verify-source__zoom" appImageZoomPan [resetKey]="v.field">
         <div class="verify-source__doc">
