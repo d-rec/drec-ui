@@ -2175,7 +2175,7 @@ export class AddDevicesComponent implements OnDestroy {
         { name: 'siteName', label: '(7) Site name', field: fx.projectName },
         { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerLegalName },
         { name: 'pvSystemOwnerAddress', label: 'PV System Owner address', field: fx.ownerAddress },
-        { name: 'countryCodename', label: 'Country', field: fx.ownerCountry },
+        { name: 'countryCodename', label: 'Country', field: fx.ownerCountry, transform: (v) => this.normalizeCountry(v) },
         { name: 'signatoryName', label: 'Signatory name', field: fx.signatoryName },
       ];
     }
@@ -2187,7 +2187,7 @@ export class AddDevicesComponent implements OnDestroy {
         { name: 'siteName', label: '(7) Site name', field: fx.facilityName },
         { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
         { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerName },
-        { name: 'countryCodename', label: 'Country', field: fx.country },
+        { name: 'countryCodename', label: 'Country', field: fx.country, transform: (v) => this.normalizeCountry(v) },
         { name: 'offTakerName', label: '(28) Off-taker name', field: fx.offTakerName },
       ];
     }
@@ -2201,7 +2201,7 @@ export class AddDevicesComponent implements OnDestroy {
         { name: 'deviceTypeCode', label: 'Device type code', field: fx.deviceTypeCode },
         { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerLegalName },
         { name: 'pvSystemOwnerAddress', label: 'PV System Owner address', field: fx.ownerAddress },
-        { name: 'countryCodename', label: 'Country', field: fx.ownerCountry },
+        { name: 'countryCodename', label: 'Country', field: fx.ownerCountry, transform: (v) => this.normalizeCountry(v) },
         { name: 'latitude', label: 'Latitude', field: fx.latitude },
         { name: 'longitude', label: 'Longitude', field: fx.longitude },
         { name: 'generatingUnitCount', label: '(13) Number of generating units', field: fx.inverterCount },
@@ -3818,6 +3818,17 @@ export class AddDevicesComponent implements OnDestroy {
       const sa = [...a].map(String).sort();
       const sb = [...b].map(String).sort();
       return JSON.stringify(sa) === JSON.stringify(sb);
+    }
+    // Country field: compare normalised forms so ISO codes ("VN") and
+    // common short names ("Vietnam") match the canonical full name
+    // ("Viet Nam"). Without this, the form-vs-doc conflict picker
+    // surfaces a fake "Keep VN / Switch to: Viet Nam" choice that
+    // the registrant shouldn't have to make — the form always wants
+    // the full name and the ISO code is just a noisy extractor artifact.
+    if (field === 'countryCodename') {
+      const na = String(this.normalizeCountry(a) ?? '').trim().toLowerCase();
+      const nb = String(this.normalizeCountry(b) ?? '').trim().toLowerCase();
+      if (na && nb && na === nb) return true;
     }
     const sa = String(a).trim().toLowerCase();
     const sb = String(b).trim().toLowerCase();
@@ -7169,11 +7180,18 @@ export class AddDevicesComponent implements OnDestroy {
     this.presubmitOverride = false;
     this.formVsDocPromptShown = false;
 
+    // Defensive: extractors / pasted values may have left an ISO code
+    // or short form in countryCodename. Normalise to the canonical
+    // full name first so the alpha3 lookup below actually matches.
+    // Without this, "VN" falls through to formValue.countryCodename
+    // and the backend rejects with "Invalid countryCode".
+    const normalisedName = this.normalizeCountry(firstRow.value.countryCodename);
     const selectedCountry: CountryInfo | undefined = this.countrylist.find(
-      (option) => option.country === firstRow.value.countryCodename,
+      (option) => option.country === normalisedName,
     );
 
     const formValue: any = { ...firstRow.value };
+    if (normalisedName) formValue.countryCodename = normalisedName;
     formValue.countryCode = selectedCountry?.alpha3 ?? formValue.countryCodename;
     delete formValue.countryCodename;
     formValue.organizationId = this.organizationId ?? this.user?.organizationId;
