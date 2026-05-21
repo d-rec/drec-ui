@@ -1573,6 +1573,13 @@
               (click)="cancelEdit()">
               Cancel
             </button>
+            <button *ngIf="isEditMode" type="button"
+              class="btn btn-outline-primary text-capitalize px-4 d-inline-flex align-items-center gap-2"
+              (click)="openEvidenceReview()"
+              title="Show the source (doc / manual) for every filled field before submitting">
+              <mat-icon style="font-size:18px;height:18px;width:18px;line-height:1">fact_check</mat-icon>
+              Review evidence
+            </button>
             <button type="submit" class="btn-primary btn text-capitalize px-4 d-inline-flex align-items-center gap-2"
               [disabled]="isSubmitting || (isEditMode && !hasUnsavedEditChanges())"
               test-id="submit-device">
@@ -1836,5 +1843,49 @@
   </div>
   <div mat-dialog-actions class="d-flex justify-content-end">
     <button mat-button class="btn btn-primary" mat-dialog-close>OK</button>
+  </div>
+</ng-template>
+
+<ng-template #evidenceReviewDialog>
+  <h2 mat-dialog-title class="d-flex align-items-center gap-2">
+    <mat-icon>fact_check</mat-icon>
+    Evidence review
+  </h2>
+  <div mat-dialog-content style="max-height:70vh">
+    <p class="text-muted small mb-2">
+      Every filled field on this form, the value about to be submitted, and where the value came from. Manual rows have no document source — verify those carry the right value before you Update.
+    </p>
+    <table class="table table-sm evidence-table">
+      <thead>
+        <tr>
+          <th style="width:34%">Field</th>
+          <th style="width:36%">Value</th>
+          <th style="width:30%">Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of evidenceRows" [class.evidence-row--manual]="!r.source">
+          <td>{{ r.label }}</td>
+          <td class="evidence-table__val">{{ r.displayValue }}</td>
+          <td>
+            <span *ngIf="r.source" class="evidence-pill evidence-pill--doc">
+              <mat-icon>description</mat-icon>{{ r.source }}
+              <span *ngIf="r.confidence != null" class="evidence-pill__conf">{{ (r.confidence * 100) | number:"1.0-0" }}%</span>
+            </span>
+            <span *ngIf="!r.source" class="evidence-pill evidence-pill--manual">Manual</span>
+            <a *ngIf="r.docUrl" [href]="r.docUrl" target="_blank" rel="noopener" class="ms-2 small">view ↗</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="!evidenceRows.length" class="text-muted small">No filled fields yet.</p>
+    <div class="evidence-summary small mt-3">
+      <strong>{{ evidenceSummary.docBacked }}</strong> doc-backed,
+      <strong>{{ evidenceSummary.manual }}</strong> manual,
+      <strong>{{ evidenceSummary.total }}</strong> total.
+    </div>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-end gap-2">
+    <button mat-button class="btn btn-outline-secondary" mat-dialog-close>Close</button>
   </div>
 </ng-template>

@@ -1856,3 +1856,44 @@ $as-bg:       #f8fafc;
     max-width: 80vw;
   }
 }
+
+// Evidence review dialog — table of every filled field + its source.
+.evidence-table {
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+  td { vertical-align: middle; }
+  &__val {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    word-break: break-word;
+  }
+}
+.evidence-row--manual td:first-child { font-weight: 500; }
+
+.evidence-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+
+  mat-icon {
+    font-size: 12px;
+    height: 12px;
+    width: 12px;
+    line-height: 1;
+  }
+
+  &--doc    { background: #ecfdf5; color: #047857; }
+  &--manual { background: #f1f5f9; color: #64748b; }
+  &__conf   { opacity: 0.7; font-weight: 400; margin-left: 2px; }
+}
+
+.evidence-summary {
+  color: #64748b;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+}

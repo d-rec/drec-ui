@@ -3315,6 +3315,102 @@ export class AddDevicesComponent implements OnDestroy {
   }
   @ViewChild('presubmitDialog') presubmitDialog?: TemplateRef<any>;
   private presubmitDialogRef: MatDialogRef<any> | null = null;
+
+  @ViewChild('evidenceReviewDialog') evidenceReviewDialog?: TemplateRef<any>;
+  private evidenceReviewDialogRef: MatDialogRef<any> | null = null;
+
+  /** Rows for the Review Evidence modal. Populated synchronously when
+   *  the registrant clicks the button so the dialog opens with state
+   *  matching the form at that instant. */
+  evidenceRows: Array<{
+    field: string;
+    label: string;
+    displayValue: string;
+    source: string | null;
+    confidence: number | null;
+    docUrl: string | null;
+  }> = [];
+
+  evidenceSummary: { docBacked: number; manual: number; total: number } = {
+    docBacked: 0,
+    manual: 0,
+    total: 0,
+  };
+
+  /** Build evidence rows from the current form state + appliedProvenance
+   *  and pop the dialog. Edit-mode only (button is hidden otherwise).
+   *  Skips empty fields and a handful of plumbing controls the
+   *  registrant doesn't think of as "evidence-worthy" (organizationId,
+   *  countryCode, eSignature, document-type slots). */
+  openEvidenceReview(): void {
+    const i = 0;
+    const form = this.deviceForms.at(i) as FormGroup;
+    if (!form) return;
+    const prov = this.appliedProvenance[i] ?? {};
+    const skip = new Set([
+      'organizationId',
+      'countryCode',
+      'eSignature',
+      'SINGLE_LINE_DIAGRAM',
+      'FORM_SF_02',
+      'SF_02C',
+      'COD_PROOF',
+      'PROOF_OF_OWNERSHIP',
+      'PROJECT_PHOTOS',
+      'METERING_EVIDENCE',
+      'OTHER_DOCUMENTS',
+      'sf02EvidenceMode',
+    ]);
+    const isEmpty = (v: any): boolean =>
+      v === null ||
+      v === undefined ||
+      v === '' ||
+      (Array.isArray(v) && v.length === 0);
+    const labelOf = (name: string) =>
+      AddDevicesComponent.FIELD_LABELS[name] ??
+      name.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase());
+    const display = (v: any): string => {
+      if (v == null) return '';
+      if (Array.isArray(v)) return v.join(', ');
+      if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+      return String(v);
+    };
+    const rows: typeof this.evidenceRows = [];
+    for (const name of Object.keys(form.controls)) {
+      if (skip.has(name)) continue;
+      const ctl = form.get(name);
+      if (!ctl) continue;
+      const v = ctl.value;
+      if (isEmpty(v)) continue;
+      const p = prov[name];
+      rows.push({
+        field: name,
+        label: labelOf(name),
+        displayValue: display(v),
+        source: p?.source ?? null,
+        confidence: p?.confidence ?? null,
+        docUrl: null,
+      });
+    }
+    rows.sort((a, b) => {
+      // Doc-backed first, then manual — registrant skims sources, eyes
+      // settle on the Manual block to verify there's nothing dodgy.
+      const ad = a.source ? 0 : 1;
+      const bd = b.source ? 0 : 1;
+      return ad !== bd ? ad - bd : a.label.localeCompare(b.label);
+    });
+    this.evidenceRows = rows;
+    this.evidenceSummary = {
+      docBacked: rows.filter((r) => r.source).length,
+      manual: rows.filter((r) => !r.source).length,
+      total: rows.length,
+    };
+    if (!this.evidenceReviewDialog) return;
+    this.evidenceReviewDialogRef = this.dialog.open(
+      this.evidenceReviewDialog,
+      { width: '780px', maxWidth: '95vw' },
+    );
+  }
   /** Set to true when the registrant clicks "Submit anyway" so the
    *  next submitEdit re-entry skips the issues check. */
   presubmitOverride = false;
