@@ -1452,6 +1452,14 @@ $as-bg:       #f8fafc;
   font-size: 11px;
   color: $as-muted;
 }
+.as-log__verify-btn {
+  grid-row: 1;
+  grid-column: 5;
+  justify-self: end;
+  font-size: 11px;
+  padding: 2px 8px;
+  margin-left: 8px;
+}
 .as-log__detail {
   grid-row: 2;
   grid-column: 3 / 5;

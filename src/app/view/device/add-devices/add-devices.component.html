@@ -950,6 +950,12 @@
                             </span>
                             <span class="as-log__label">SLD</span>
                             <span class="as-log__time">{{ sldExtracting[i] ? 'reading…' : 'done' }}</span>
+                            <button type="button"
+                              *ngIf="!sldExtracting[i] && sldExtractions[i] && pendingVerifyCount(i, 'SLD') > 0"
+                              class="btn btn-sm btn-primary as-log__verify-btn"
+                              (click)="openVerifyForSource(i, 'SLD')">
+                              Verify ({{ pendingVerifyCount(i, 'SLD') }})
+                            </button>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="sf02cExtracting[i] || sf02cExtractions[i]"
@@ -961,6 +967,12 @@
                             </span>
                             <span class="as-log__label">SF-02c</span>
                             <span class="as-log__time">{{ sf02cExtracting[i] ? 'reading…' : 'done' }}</span>
+                            <button type="button"
+                              *ngIf="!sf02cExtracting[i] && sf02cExtractions[i] && pendingVerifyCount(i, 'SF-02c') > 0"
+                              class="btn btn-sm btn-primary as-log__verify-btn"
+                              (click)="openVerifyForSource(i, 'SF-02c')">
+                              Verify ({{ pendingVerifyCount(i, 'SF-02c') }})
+                            </button>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="codExtracting[i] || codExtractions[i]"
@@ -972,6 +984,12 @@
                             </span>
                             <span class="as-log__label">COD proof</span>
                             <span class="as-log__time">{{ codExtracting[i] ? 'reading…' : 'done' }}</span>
+                            <button type="button"
+                              *ngIf="!codExtracting[i] && codExtractions[i] && pendingVerifyCount(i, 'COD') > 0"
+                              class="btn btn-sm btn-primary as-log__verify-btn"
+                              (click)="openVerifyForSource(i, 'COD')">
+                              Verify ({{ pendingVerifyCount(i, 'COD') }})
+                            </button>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="sf02Extracting[i] || sf02Extractions[i]"
@@ -983,6 +1001,12 @@
                             </span>
                             <span class="as-log__label">SF-02</span>
                             <span class="as-log__time">{{ sf02Extracting[i] ? 'reading…' : 'done' }}</span>
+                            <button type="button"
+                              *ngIf="!sf02Extracting[i] && sf02Extractions[i] && pendingVerifyCount(i, 'SF-02') > 0"
+                              class="btn btn-sm btn-primary as-log__verify-btn"
+                              (click)="openVerifyForSource(i, 'SF-02')">
+                              Verify ({{ pendingVerifyCount(i, 'SF-02') }})
+                            </button>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="meterIdsExtracting[i] || meterIdsExtractions[i]?.length"

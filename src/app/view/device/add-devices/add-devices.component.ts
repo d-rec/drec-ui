@@ -163,6 +163,12 @@ export class AddDevicesComponent implements OnDestroy {
   sf02cExtractionDoc: { [deviceIndex: number]: { id?: number; name: string } | null } = {};
   codExtractionDoc: { [deviceIndex: number]: { id?: number; name: string } | null } = {};
   sf02ExtractionDoc: { [deviceIndex: number]: { id?: number; name: string } | null } = {};
+  /** Cached File objects from the most recent extraction. Kept so the
+   *  user can re-open the verify-source queue without re-uploading. */
+  sldExtractionFile: { [deviceIndex: number]: File | null } = {};
+  sf02cExtractionFile: { [deviceIndex: number]: File | null } = {};
+  codExtractionFile: { [deviceIndex: number]: File | null } = {};
+  sf02ExtractionFile: { [deviceIndex: number]: File | null } = {};
   meterIdsExtractionDocs: {
     [deviceIndex: number]: Record<string, { id?: number; name: string }>;
   } = {};
@@ -2004,13 +2010,11 @@ export class AddDevicesComponent implements OnDestroy {
         this.ngZone.run(() => {
           this.sldExtracting[deviceIndex] = false;
           this.sldExtractions[deviceIndex] = res;
-          // Strict verification path: instead of auto-applying with a
-          // confidence threshold, walk the registrant through each
-          // extracted value field-by-field, highlighting the source
-          // region in the SLD doc and requiring an explicit OK/Decline.
-          // No silent attribution; every doc-backed value carries a
-          // human verifier on its provenance entry.
-          this.openSldVerifyQueue(deviceIndex, file);
+          // Extraction is silent. The user opens the verify queue
+          // explicitly via the per-doc "Verify" button so multiple
+          // extractors finishing in parallel don't chaotically pop
+          // dialogs over each other.
+          this.sldExtractionFile[deviceIndex] = file;
         }),
       )
       .catch(() =>
@@ -2080,6 +2084,119 @@ export class AddDevicesComponent implements OnDestroy {
           `Failed to fetch ${doc.name}: ${err?.message ?? err}`,
         );
       });
+  }
+
+  /** Count of fields from a given extractor that the registrant
+   *  hasn't yet verified-or-declined. Used by the per-doc "Verify"
+   *  button to show "Verify (N)" and to hide it when zero. Mirrors
+   *  the skip logic in openVerifyQueue: skip when saved provenance
+   *  already carries verifiedBy. */
+  pendingVerifyCount(deviceIndex: number, source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02'): number {
+    const specs = this.buildVerifySpecs(deviceIndex, source);
+    if (!specs.length) return 0;
+    let n = 0;
+    for (const s of specs) {
+      const field = s.field;
+      if (!field || field.value == null) continue;
+      const prov = this.appliedProvenance[deviceIndex]?.[s.name];
+      if (prov && (prov as any).verifiedBy) continue;
+      n++;
+    }
+    return n;
+  }
+
+  /** Build the field-spec list for a given extractor. Shared by both
+   *  the queue opener and the pending-count getter so the two stay in
+   *  lockstep. */
+  private buildVerifySpecs(
+    deviceIndex: number,
+    source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02',
+  ): Array<{ name: string; label: string; field: any; transform?: (v: any) => any }> {
+    if (source === 'SLD') {
+      const fx = this.sldExtractions[deviceIndex];
+      if (!fx) return [];
+      return [
+        { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
+        { name: 'generatingUnitCount', label: '(13) Number of generating units', field: fx.inverterCount },
+        { name: 'interconnectionVoltage', label: '(18) Interconnection voltage', field: fx.gridVoltage },
+        { name: 'gridInterconnection', label: '(15) Grid-connected?', field: fx.gridTied, transform: (v) => !!v },
+        { name: 'dataSourceBrand', label: '(27) Data Source Brand', field: fx.inverterMakeModel },
+        { name: 'networkOwner', label: '(17) Network owner', field: fx.networkOwner },
+        { name: 'hasNetworkMeter', label: '(19) Network meter installed?', field: fx.hasNetworkMeter, transform: (v) => (v ? 'Yes' : 'No') },
+        { name: 'gridExportType', label: '(16) Exports to grid?', field: fx.gridExportType },
+        { name: 'hasAuxiliaryEnergySources', label: '(24) Auxiliary energy sources?', field: fx.hasAuxiliaryEnergySources, transform: (v) => (v ? 'Yes' : 'No') },
+        { name: 'auxiliaryEnergySourceDetails', label: '(25) Aux source details', field: fx.auxiliaryEnergySourceDetails },
+        { name: 'hasCaptiveConsumer', label: '(23) Captive consumer present?', field: fx.hasCaptiveConsumer, transform: (v) => (v ? 'Yes' : 'No') },
+      ];
+    }
+    if (source === 'SF-02c') {
+      const fx = this.sf02cExtractions[deviceIndex];
+      if (!fx) return [];
+      return [
+        { name: 'siteName', label: '(7) Site name', field: fx.projectName },
+        { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerLegalName },
+        { name: 'pvSystemOwnerAddress', label: 'PV System Owner address', field: fx.ownerAddress },
+        { name: 'countryCodename', label: 'Country', field: fx.ownerCountry },
+        { name: 'signatoryName', label: 'Signatory name', field: fx.signatoryName },
+      ];
+    }
+    if (source === 'COD') {
+      const fx = this.codExtractions[deviceIndex];
+      if (!fx) return [];
+      return [
+        { name: 'commissioningDate', label: '(10) Commissioning date', field: fx.commissioningDate },
+        { name: 'siteName', label: '(7) Site name', field: fx.facilityName },
+        { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
+        { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerName },
+        { name: 'countryCodename', label: 'Country', field: fx.country },
+        { name: 'offTakerName', label: '(28) Off-taker name', field: fx.offTakerName },
+      ];
+    }
+    if (source === 'SF-02') {
+      const fx = this.sf02Extractions[deviceIndex];
+      if (!fx) return [];
+      return [
+        { name: 'siteName', label: '(7) Site name', field: fx.facilityName },
+        { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
+        { name: 'commissioningDate', label: '(10) Commissioning date', field: fx.commissioningDate },
+        { name: 'deviceTypeCode', label: 'Device type code', field: fx.deviceTypeCode },
+        { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerLegalName },
+        { name: 'pvSystemOwnerAddress', label: 'PV System Owner address', field: fx.ownerAddress },
+        { name: 'countryCodename', label: 'Country', field: fx.ownerCountry },
+        { name: 'latitude', label: 'Latitude', field: fx.latitude },
+        { name: 'longitude', label: 'Longitude', field: fx.longitude },
+        { name: 'generatingUnitCount', label: '(13) Number of generating units', field: fx.inverterCount },
+        { name: 'networkOwner', label: '(17) Network owner', field: fx.networkOwner },
+      ];
+    }
+    return [];
+  }
+
+  /** Open the verify queue for any of the four extractors using the
+   *  most-recently-cached file. Template entry point for the per-doc
+   *  "Verify (N)" button. */
+  openVerifyForSource(
+    deviceIndex: number,
+    source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02',
+  ): void {
+    const fileMap = {
+      'SLD': this.sldExtractionFile,
+      'SF-02c': this.sf02cExtractionFile,
+      'COD': this.codExtractionFile,
+      'SF-02': this.sf02ExtractionFile,
+    } as const;
+    const file = fileMap[source][deviceIndex];
+    if (!file) {
+      // No cached file (e.g. existing devices loaded from server).
+      // Fall back to fetching the attached doc, same path as
+      // reverifySldFromAttached uses for SLD.
+      if (source === 'SLD') return this.reverifySldFromAttached(deviceIndex);
+      this.toastrService.info(
+        `Re-upload the ${source} document to verify its fields.`,
+      );
+      return;
+    }
+    this.openVerifyQueue(deviceIndex, file, source, this.buildVerifySpecs(deviceIndex, source));
   }
 
   /** Generic verify-source queue opener. Builds queue items from a
@@ -2155,71 +2272,11 @@ export class AddDevicesComponent implements OnDestroy {
     setTimeout(() => this.renderVerifyCanvas(), 50);
   }
 
-  /** Open the verify-source queue for an SLD extraction. */
+  /** Open the verify-source queue for an SLD extraction. Kept for
+   *  reverifySldFromAttached + any external callers; new code should
+   *  prefer openVerifyForSource(deviceIndex, 'SLD'). */
   openSldVerifyQueue(deviceIndex: number, file: File): void {
-    const fx = this.sldExtractions[deviceIndex];
-    if (!fx) return;
-    this.openVerifyQueue(deviceIndex, file, 'SLD', [
-      { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
-      { name: 'generatingUnitCount', label: '(13) Number of generating units', field: fx.inverterCount },
-      { name: 'interconnectionVoltage', label: '(18) Interconnection voltage', field: fx.gridVoltage },
-      { name: 'gridInterconnection', label: '(15) Grid-connected?', field: fx.gridTied, transform: (v) => !!v },
-      { name: 'dataSourceBrand', label: '(27) Data Source Brand', field: fx.inverterMakeModel },
-      { name: 'networkOwner', label: '(17) Network owner', field: fx.networkOwner },
-      { name: 'hasNetworkMeter', label: '(19) Network meter installed?', field: fx.hasNetworkMeter, transform: (v) => (v ? 'Yes' : 'No') },
-      { name: 'gridExportType', label: '(16) Exports to grid?', field: fx.gridExportType },
-      { name: 'hasAuxiliaryEnergySources', label: '(24) Auxiliary energy sources?', field: fx.hasAuxiliaryEnergySources, transform: (v) => (v ? 'Yes' : 'No') },
-      { name: 'auxiliaryEnergySourceDetails', label: '(25) Aux source details', field: fx.auxiliaryEnergySourceDetails },
-      { name: 'hasCaptiveConsumer', label: '(23) Captive consumer present?', field: fx.hasCaptiveConsumer, transform: (v) => (v ? 'Yes' : 'No') },
-    ]);
-  }
-
-  /** Open the verify-source queue for an SF-02c extraction. */
-  openSf02cVerifyQueue(deviceIndex: number, file: File): void {
-    const fx = this.sf02cExtractions[deviceIndex];
-    if (!fx) return;
-    this.openVerifyQueue(deviceIndex, file, 'SF-02c', [
-      { name: 'siteName', label: '(7) Site name', field: fx.projectName },
-      { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerLegalName },
-      // SF-02c ownerAddress = registrant org mailing address → maps
-      // to pvSystemOwnerAddress, NOT (16) site address.
-      { name: 'pvSystemOwnerAddress', label: 'PV System Owner address', field: fx.ownerAddress },
-      { name: 'countryCodename', label: 'Country', field: fx.ownerCountry },
-      { name: 'signatoryName', label: 'Signatory name', field: fx.signatoryName },
-    ]);
-  }
-
-  /** Open the verify-source queue for a COD extraction. */
-  openCodVerifyQueue(deviceIndex: number, file: File): void {
-    const fx = this.codExtractions[deviceIndex];
-    if (!fx) return;
-    this.openVerifyQueue(deviceIndex, file, 'COD', [
-      { name: 'commissioningDate', label: '(10) Commissioning date', field: fx.commissioningDate },
-      { name: 'siteName', label: '(7) Site name', field: fx.facilityName },
-      { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
-      { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerName },
-      { name: 'countryCodename', label: 'Country', field: fx.country },
-      { name: 'offTakerName', label: '(28) Off-taker name', field: fx.offTakerName },
-    ]);
-  }
-
-  /** Open the verify-source queue for an SF-02 extraction. */
-  openSf02VerifyQueue(deviceIndex: number, file: File): void {
-    const fx = this.sf02Extractions[deviceIndex];
-    if (!fx) return;
-    this.openVerifyQueue(deviceIndex, file, 'SF-02', [
-      { name: 'siteName', label: '(7) Site name', field: fx.facilityName },
-      { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
-      { name: 'commissioningDate', label: '(10) Commissioning date', field: fx.commissioningDate },
-      { name: 'deviceTypeCode', label: 'Device type code', field: fx.deviceTypeCode },
-      { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerLegalName },
-      { name: 'pvSystemOwnerAddress', label: 'PV System Owner address', field: fx.ownerAddress },
-      { name: 'countryCodename', label: 'Country', field: fx.ownerCountry },
-      { name: 'latitude', label: 'Latitude', field: fx.latitude },
-      { name: 'longitude', label: 'Longitude', field: fx.longitude },
-      { name: 'generatingUnitCount', label: '(13) Number of generating units', field: fx.inverterCount },
-      { name: 'networkOwner', label: '(17) Network owner', field: fx.networkOwner },
-    ]);
+    this.openVerifyQueue(deviceIndex, file, 'SLD', this.buildVerifySpecs(deviceIndex, 'SLD'));
   }
 
   /** Render the current verify queue item's source page onto the
@@ -2698,9 +2755,7 @@ export class AddDevicesComponent implements OnDestroy {
         this.ngZone.run(() => {
           this.sf02cExtracting[deviceIndex] = false;
           this.sf02cExtractions[deviceIndex] = res;
-          // Strict verification: walk the registrant through each
-          // field instead of auto-applying. Mirrors the SLD path.
-          this.openSf02cVerifyQueue(deviceIndex, file);
+          this.sf02cExtractionFile[deviceIndex] = file;
         }),
       )
       .catch(() =>
@@ -2769,7 +2824,7 @@ export class AddDevicesComponent implements OnDestroy {
             for (const id of res.measurementIds.value) existing.add(id);
             this.meterIdsExtractions[deviceIndex] = [...existing];
           }
-          this.openCodVerifyQueue(deviceIndex, file);
+          this.codExtractionFile[deviceIndex] = file;
         }),
       )
       .catch(() =>
@@ -2833,7 +2888,7 @@ export class AddDevicesComponent implements OnDestroy {
         this.ngZone.run(() => {
           this.sf02Extracting[deviceIndex] = false;
           this.sf02Extractions[deviceIndex] = res;
-          this.openSf02VerifyQueue(deviceIndex, file);
+          this.sf02ExtractionFile[deviceIndex] = file;
         }),
       )
       .catch(() =>
