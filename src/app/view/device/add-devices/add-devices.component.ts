@@ -2667,7 +2667,15 @@ export class AddDevicesComponent implements OnDestroy {
       seen.add(k);
       merged.push(id);
     }
-    if (merged.length === existing.length) {
+    // Don't early-return on "nothing new" — even when extraction
+    // adds no new chips, we still want to (re-)record provenance so
+    // existing chips that match an extracted ID pick up their
+    // per-file attribution. Without this, a device with pre-existing
+    // chips that the extractor independently confirms ships forever
+    // as "Unattributed". A brief info toast is enough; the real
+    // value of this apply is the provenance refresh.
+    const nothingNew = merged.length === existing.length;
+    if (nothingNew && !Object.keys(this.meterIdsExtractionDocs[deviceIndex] ?? {}).length) {
       this.toastrService.info('No new measurement IDs to add');
       return;
     }
@@ -3359,6 +3367,13 @@ export class AddDevicesComponent implements OnDestroy {
     if (!list.includes(v.toLowerCase())) return null;
     const perId = prov.docsByValue?.[v];
     if (perId) return { source: prov.source, doc: perId };
+    // If a per-id map exists but THIS id isn't in it, the chip came
+    // from before per-file tracking — fall through to Unattributed
+    // rather than claim the primary doc (which would misattribute
+    // pre-existing chips to a photo that doesn't contain them).
+    if (prov.docsByValue && Object.keys(prov.docsByValue).length > 0) {
+      return null;
+    }
     if (prov.docName) {
       return { source: prov.source, doc: { name: prov.docName, id: prov.docId } };
     }
