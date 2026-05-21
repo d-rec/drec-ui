@@ -973,6 +973,11 @@
                               (click)="openVerifyForSource(i, 'SF-02c')">
                               Verify ({{ pendingVerifyCount(i, 'SF-02c') }})
                             </button>
+                            <small class="as-log__debug" *ngIf="!sf02cExtracting[i]">
+                              [dbg] ex:{{ sf02cExtractions[i] ? 'y' : 'n' }}
+                              pend:{{ pendingVerifyCount(i, 'SF-02c') }}
+                              file:{{ sf02cExtractionFile[i] ? 'y' : 'n' }}
+                            </small>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="codExtracting[i] || codExtractions[i]"
