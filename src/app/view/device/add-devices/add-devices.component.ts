@@ -4050,6 +4050,9 @@ export class AddDevicesComponent implements OnDestroy {
     unattributed: 0,
     total: 0,
   };
+  /** Drives the evidence-table data-attribute used by CSS to emphasise
+   *  no-subject rows on hover/focus of the Flush or Attest button. */
+  evidenceHoverAction: 'attest' | 'flush' | null = null;
 
   /** Field names with no provenance entry (or sub-threshold) — used by
    *  the Flush Unattributed action to know what to clear. */

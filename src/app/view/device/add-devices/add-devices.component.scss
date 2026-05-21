@@ -1867,7 +1867,29 @@ $as-bg:       #f8fafc;
     word-break: break-word;
   }
 }
-.evidence-row--manual td:first-child { font-weight: 500; }
+// Rows with no recorded source — the ones a Flush/Attest action
+// will affect. Persistent amber bar + tinted background so the user
+// can see at a glance which rows are at stake. Hover state on either
+// action button (via .evidence-table[data-hover="…"]) deepens the
+// outline so it's unmistakable.
+.evidence-row--manual {
+  background: rgba(245, 158, 11, 0.06);
+  td:first-child {
+    font-weight: 600;
+    border-left: 3px solid #f59e0b;
+  }
+  td { box-shadow: inset 0 -1px 0 rgba(245, 158, 11, 0.18); }
+}
+.evidence-table[data-hover="attest"] .evidence-row--manual,
+.evidence-table[data-hover="flush"]  .evidence-row--manual {
+  background: rgba(245, 158, 11, 0.16);
+  outline: 1px solid #f59e0b;
+  outline-offset: -1px;
+}
+.evidence-table[data-hover="flush"] .evidence-row--manual {
+  background: rgba(220, 38, 38, 0.10);
+  outline-color: #dc2626;
+}
 
 .evidence-pill {
   display: inline-flex;
@@ -1888,7 +1910,7 @@ $as-bg:       #f8fafc;
   }
 
   &--doc    { background: #ecfdf5; color: #047857; }
-  &--manual { background: #f1f5f9; color: #64748b; }
+  &--manual { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
   &__conf   { opacity: 0.7; font-weight: 400; margin-left: 2px; }
 }
 
