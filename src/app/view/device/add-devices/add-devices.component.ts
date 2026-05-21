@@ -2031,6 +2031,12 @@ export class AddDevicesComponent implements OnDestroy {
     value: any;             // candidate value from extractor
     confidence: number;
     region?: { page: number; x: number; y: number; w: number; h: number };
+    /** 'tesseract' = pixel-exact, OCR token matched the value;
+     *  'model'     = Haiku's bbox estimate (derived value, no literal
+     *                string to match). Used by the dialog to show
+     *                solid-red vs dashed-amber and an approximate-
+     *                location banner. */
+    regionSource?: 'tesseract' | 'model';
     transform?: (v: any) => any;
   }> = [];
   verifyQueueIndex = 0;
@@ -2082,7 +2088,9 @@ export class AddDevicesComponent implements OnDestroy {
     const push = (
       name: string,
       label: string,
-      field: { value: any; confidence: number; region?: any } | undefined,
+      field:
+        | { value: any; confidence: number; region?: any; regionSource?: any }
+        | undefined,
       transform?: (v: any) => any,
     ) => {
       if (!field || field.value == null) return;
@@ -2103,6 +2111,7 @@ export class AddDevicesComponent implements OnDestroy {
         value: next,
         confidence: field.confidence,
         region: field.region,
+        regionSource: field.regionSource,
         transform,
       });
     };
