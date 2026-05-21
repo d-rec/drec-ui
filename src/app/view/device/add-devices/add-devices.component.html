@@ -1996,27 +1996,6 @@
   </div>
   <div mat-dialog-actions class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
     <div class="d-flex gap-2 flex-wrap" *ngIf="evidenceSummary.unattributed > 0">
-      <button mat-button class="btn btn-outline-secondary btn-sm"
-        (click)="toggleAllAttest(true)"
-        [disabled]="attestSelectedCount() === evidenceSummary.unattributed">
-        Select all ({{ evidenceSummary.unattributed }})
-      </button>
-      <button mat-button class="btn btn-outline-secondary btn-sm"
-        (click)="toggleAllAttest(false)"
-        [disabled]="attestSelectedCount() === 0">
-        Clear
-      </button>
-      <button mat-button
-        class="btn btn-outline-danger"
-        (click)="flushUnattributed()"
-        (mouseenter)="evidenceHoverAction = 'flush'"
-        (mouseleave)="evidenceHoverAction = null"
-        (focus)="evidenceHoverAction = 'flush'"
-        (blur)="evidenceHoverAction = null"
-        [title]="'Clear every value highlighted above (no recorded source).'">
-        <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">delete_sweep</mat-icon>
-        Flush {{ evidenceSummary.unattributed }}
-      </button>
       <button mat-button
         class="btn btn-outline-primary"
         (click)="attestSelected()"
@@ -2025,9 +2004,20 @@
         (focus)="evidenceHoverAction = 'attest'"
         (blur)="evidenceHoverAction = null"
         [disabled]="attestSelectedCount() === 0"
-        [title]="'Stamp the ' + attestSelectedCount() + ' ticked value(s) with your email — you personally attest they are correct.'">
+        [title]="'Stamp the ' + attestSelectedCount() + ' ticked row(s) — you personally attest these values are correct.'">
         <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">verified_user</mat-icon>
-        Attest {{ attestSelectedCount() }} as me
+        Attest {{ attestSelectedCount() }} ticked
+      </button>
+      <button mat-button
+        class="btn btn-outline-danger"
+        (click)="flushUnattributed()"
+        (mouseenter)="evidenceHoverAction = 'flush'"
+        (mouseleave)="evidenceHoverAction = null"
+        (focus)="evidenceHoverAction = 'flush'"
+        (blur)="evidenceHoverAction = null"
+        [title]="'Clear every value with no recorded source.'">
+        <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">delete_sweep</mat-icon>
+        Flush all {{ evidenceSummary.unattributed }}
       </button>
     </div>
     <span *ngIf="evidenceSummary.unattributed === 0"></span>
