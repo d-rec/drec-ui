@@ -1961,18 +1961,20 @@
         </div>
       </div>
 
-      <div class="verify-source__doc" style="position:relative">
+      <div class="verify-source__doc" style="position:relative;display:inline-block">
         <canvas #verifyCanvas
           style="display:block;max-width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
         </canvas>
-        <!-- Region overlay: positioned absolutely over the canvas using
-             normalised 0..1 coords, scaled to canvas client size. -->
-        <div *ngIf="v.region && verifyCanvasSize"
+        <!-- Region overlay positioned in percentages so we don't need
+             to know the canvas's CSS pixel size at render time. The
+             wrapper above is inline-block so it shrinks to the
+             canvas; that anchors the percentages correctly. -->
+        <div *ngIf="v.region"
           class="verify-source__region"
-          [style.left.px]="v.region.x * verifyCanvasSize.cssWidth"
-          [style.top.px]="v.region.y * verifyCanvasSize.cssHeight"
-          [style.width.px]="v.region.w * verifyCanvasSize.cssWidth"
-          [style.height.px]="v.region.h * verifyCanvasSize.cssHeight">
+          [style.left.%]="v.region.x * 100"
+          [style.top.%]="v.region.y * 100"
+          [style.width.%]="v.region.w * 100"
+          [style.height.%]="v.region.h * 100">
         </div>
         <div *ngIf="!v.region" class="alert alert-warning small mt-2 mb-0">
           <mat-icon style="font-size:16px;vertical-align:middle">warning_amber</mat-icon>
