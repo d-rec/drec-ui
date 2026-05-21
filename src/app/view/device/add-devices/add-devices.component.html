@@ -2016,10 +2016,10 @@
               <mat-icon style="font-size:14px;height:14px;width:14px">chevron_right</mat-icon>
             </button>
             <button type="button" class="btn btn-sm btn-outline-primary ms-2"
-              *ngIf="v.region?.page && v.region.page !== verifyCurrentPage"
+              *ngIf="v.region?.page && v.region?.page !== verifyCurrentPage"
               (click)="verifyJumpToReportedPage()"
-              [title]="'AI says the value is on page ' + v.region.page">
-              jump to p.{{ v.region.page }}
+              [title]="'AI says the value is on page ' + v.region?.page">
+              jump to p.{{ v.region?.page }}
             </button>
           </span>
         </ng-container>
