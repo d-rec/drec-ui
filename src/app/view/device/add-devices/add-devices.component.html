@@ -1199,6 +1199,16 @@
                       <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'FORM_SF_02' }"></ng-container>
                     <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'FORM_SF_02' }"></ng-container>
                     <ng-container *ngTemplateOutlet="stagedDocList; context: { idx: i, docType: 'FORM_SF_02' }"></ng-container>
+                      <div *ngIf="!sf02Extracting[i] && !sf02Extractions[i] &&
+                                  existingDocs[i]?.['FORM_SF_02']?.length"
+                        class="d-flex justify-content-end mt-1">
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                          (click)="reverifyFromAttached(i, 'SF-02')"
+                          title="Re-run the SF-02 extractor against the attached file and walk through each value in the verify-source dialog.">
+                          <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
+                          Re-verify SF-02
+                        </button>
+                      </div>
                       <div class="sld-extract-running" *ngIf="sf02Extracting[i]">
                         <span class="barber-pole" aria-hidden="true"></span>
                         <small>Reading SF-02…</small>
@@ -1387,6 +1397,16 @@
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SF_02C' }"></ng-container>
                     <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'SF_02C' }"></ng-container>
                     <ng-container *ngTemplateOutlet="stagedDocList; context: { idx: i, docType: 'SF_02C' }"></ng-container>
+                    <div *ngIf="!sf02cExtracting[i] && !sf02cExtractions[i] &&
+                                existingDocs[i]?.['SF_02C']?.length"
+                      class="d-flex justify-content-end mt-1">
+                      <button type="button" class="btn btn-sm btn-outline-primary"
+                        (click)="reverifyFromAttached(i, 'SF-02c')"
+                        title="Re-run the SF-02c extractor against the attached file and walk through each value in the verify-source dialog.">
+                        <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
+                        Re-verify SF-02c
+                      </button>
+                    </div>
                     <div class="sld-extract-running" *ngIf="sf02cExtracting[i]">
                       <span class="barber-pole" aria-hidden="true"></span>
                       <small>Reading SF-02c…</small>
@@ -1475,6 +1495,16 @@
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'COD_PROOF' }"></ng-container>
                     <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'COD_PROOF' }"></ng-container>
                     <ng-container *ngTemplateOutlet="stagedDocList; context: { idx: i, docType: 'COD_PROOF' }"></ng-container>
+                    <div *ngIf="!codExtracting[i] && !codExtractions[i] &&
+                                existingDocs[i]?.['COD_PROOF']?.length"
+                      class="d-flex justify-content-end mt-1">
+                      <button type="button" class="btn btn-sm btn-outline-primary"
+                        (click)="reverifyFromAttached(i, 'COD')"
+                        title="Re-run the COD-proof extractor against the attached file and walk through each value in the verify-source dialog.">
+                        <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
+                        Re-verify COD
+                      </button>
+                    </div>
                     <div class="sld-extract-running" *ngIf="codExtracting[i]">
                       <span class="barber-pole" aria-hidden="true"></span>
                       <small>Reading COD proof…</small>

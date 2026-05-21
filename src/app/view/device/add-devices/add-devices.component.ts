@@ -2074,32 +2074,51 @@ export class AddDevicesComponent implements OnDestroy {
    *  the rendered canvas. Drawn as yellow translucent overlays. */
   verifyTextMatches: Array<{ x: number; y: number; w: number; h: number }> = [];
 
-  /** Re-run the SLD extractor against the device's attached SLD doc
-   *  and route through the verify-source queue. Use when an existing
-   *  SLD was applied before strict verification was wired (no
-   *  verifiedBy on the saved provenance) and the registrant wants
-   *  to attest each value against the source. */
-  reverifySldFromAttached(deviceIndex: number): void {
-    const docs = this.existingDocs[deviceIndex]?.['SINGLE_LINE_DIAGRAM'] ?? [];
+  /** Map a verify-source key to the docType + extractor entry point
+   *  used by reverifyFromAttached. */
+  private readonly REVERIFY_SOURCES: {
+    [k: string]: {
+      docType: string;
+      label: string;
+      flagKey: 'sldExtracting' | 'sf02cExtracting' | 'codExtracting' | 'sf02Extracting';
+      extract: (file: File, deviceIndex: number) => void;
+    };
+  } = {
+    'SLD':    { docType: 'SINGLE_LINE_DIAGRAM', label: 'SLD',     flagKey: 'sldExtracting',   extract: (f, i) => this.extractSldFieldsForDevice(f, i) },
+    'SF-02c': { docType: 'SF_02C',              label: 'SF-02c',  flagKey: 'sf02cExtracting', extract: (f, i) => this.extractSf02cFieldsForDevice(f, i) },
+    'COD':    { docType: 'COD_PROOF',           label: 'COD proof', flagKey: 'codExtracting', extract: (f, i) => this.extractCodFieldsForDevice(f, i) },
+    'SF-02':  { docType: 'FORM_SF_02',          label: 'SF-02',   flagKey: 'sf02Extracting',  extract: (f, i) => this.extractSf02FieldsForDevice(f, i) },
+  };
+
+  /** Re-run a given extractor against the device's attached doc of the
+   *  matching type and route through the verify-source queue. Use when
+   *  values were applied before strict verification was wired (no
+   *  verifiedBy on the saved provenance) and the registrant wants to
+   *  attest each value against the source. Generic over all four
+   *  extractors. */
+  reverifyFromAttached(deviceIndex: number, source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02'): void {
+    const cfg = this.REVERIFY_SOURCES[source];
+    const docs = this.existingDocs[deviceIndex]?.[cfg.docType] ?? [];
     if (!docs.length) {
-      this.toastrService.info('No SLD attached to re-verify against.');
+      this.toastrService.info(`No ${cfg.label} attached to re-verify against.`);
       return;
     }
     const doc = docs[0];
-    this.sldExtracting[deviceIndex] = true;
+    (this as any)[cfg.flagKey][deviceIndex] = true;
     this.fetchAttachedDocAsFile(doc)
-      .then((file) => {
-        // Mirrors extractSldFieldsForDevice — sets state and runs
-        // the extractor; on completion the verify queue opens via
-        // the same path that fresh uploads take.
-        this.extractSldFieldsForDevice(file, deviceIndex);
-      })
+      .then((file) => cfg.extract(file, deviceIndex))
       .catch((err) => {
-        this.sldExtracting[deviceIndex] = false;
+        (this as any)[cfg.flagKey][deviceIndex] = false;
         this.toastrService.error(
           `Failed to fetch ${doc.name}: ${err?.message ?? err}`,
         );
       });
+  }
+
+  /** Back-compat shim — kept because the template calls this by name
+   *  on the (45) SLD panel. Delegates to the generic method. */
+  reverifySldFromAttached(deviceIndex: number): void {
+    this.reverifyFromAttached(deviceIndex, 'SLD');
   }
 
   /** Count of fields from a given extractor that the registrant
@@ -2203,14 +2222,10 @@ export class AddDevicesComponent implements OnDestroy {
     } as const;
     const file = fileMap[source][deviceIndex];
     if (!file) {
-      // No cached file (e.g. existing devices loaded from server).
-      // Fall back to fetching the attached doc, same path as
-      // reverifySldFromAttached uses for SLD.
-      if (source === 'SLD') return this.reverifySldFromAttached(deviceIndex);
-      this.toastrService.info(
-        `Re-upload the ${source} document to verify its fields.`,
-      );
-      return;
+      // No cached file (existing device loaded from server). Fetch
+      // the attached doc + re-run the extractor; the verify queue
+      // will open as part of the extraction completion path.
+      return this.reverifyFromAttached(deviceIndex, source);
     }
     this.openVerifyQueue(deviceIndex, file, source, this.buildVerifySpecs(deviceIndex, source));
   }
