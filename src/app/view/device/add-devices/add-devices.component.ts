@@ -3571,9 +3571,32 @@ export class AddDevicesComponent implements OnDestroy {
       return ad !== bd ? ad - bd : a.label.localeCompare(b.label);
     });
     this.evidenceRows = rows;
+    // Count orphan chips on the (14) list too — a serialNumber row in
+    // the form table might be "Unattributed" once globally, but each
+    // chip is independently orphaned when its specific value isn't
+    // covered by the provenance.value list. The flush button needs
+    // both numbers so it appears whenever there's anything to clear.
+    const serialProv = this.appliedProvenance[i]?.['serialNumber'];
+    const serials = this.serialNumberLists[i] ?? [];
+    const orphanChipCount = serials.filter((s) => {
+      const v = (s || '').trim();
+      if (!v) return false;
+      if (!serialProv || serialProv.value == null) return true;
+      const list = String(serialProv.value)
+        .split(';')
+        .map((x) => x.trim().toLowerCase());
+      return !list.includes(v.toLowerCase());
+    }).length;
+    // Don't double-count the serialNumber row itself when ALL chips
+    // are orphaned — that case shows up as one row + N chips in the
+    // raw filter, but conceptually it's N orphans, not N+1.
+    const fieldOrphans = rows.filter((r) => !r.source).length;
+    const adjustedFieldOrphans = orphanChipCount > 0
+      ? fieldOrphans - (rows.some((r) => r.field === 'serialNumber' && !r.source) ? 1 : 0)
+      : fieldOrphans;
     this.evidenceSummary = {
       docBacked: rows.filter((r) => r.source).length,
-      unattributed: rows.filter((r) => !r.source).length,
+      unattributed: adjustedFieldOrphans + orphanChipCount,
       total: rows.length,
     };
     // Stash the unattributed field list for the flush action — the
