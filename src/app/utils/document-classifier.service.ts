@@ -810,9 +810,33 @@ export class DocumentClassifierService {
         field.regionSource = 'tesseract';
         continue;
       }
-      // No safe literal token match. Fall back to model bbox if any,
-      // flagged so the UI can hide it (since model bbox for derived
-      // values is unreliable enough that we don't draw an arrow).
+      // Reasoning-guided match: when the value isn't a literal token
+      // (booleans, derived numbers), the model's per-field reasoning
+      // usually names the specific labels in the diagram that
+      // justify the value — e.g. "ZERO EXPORT SMART METER label
+      // below the busbar". Those words ARE in the OCR output. Pull
+      // tokens ≥4 chars from the reasoning, look up each, and use
+      // the first one that matches a unique Tesseract token.
+      const reasoning = (field.reasoning ?? '') as string;
+      if (reasoning) {
+        const reasoningTokens = reasoning
+          .toLowerCase()
+          .split(/[^a-z0-9-]+/)
+          .filter((t) => t.length >= 4);
+        for (const t of reasoningTokens) {
+          const hits = tokenMap.get(t);
+          if (hits?.length === 1) {
+            field.region = hits[0];
+            field.regionSource = 'tesseract';
+            break;
+          }
+        }
+        if (field.regionSource === 'tesseract') continue;
+      }
+      // No safe literal token match in either the value or the
+      // reasoning. Fall back to model bbox if any, flagged so the
+      // UI can hide it (since model bbox for derived values is
+      // unreliable enough that we don't draw an arrow).
       if (field.region) {
         field.regionSource = 'model';
       }
