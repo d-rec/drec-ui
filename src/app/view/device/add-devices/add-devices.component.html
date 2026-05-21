@@ -2079,7 +2079,18 @@
           </span>
         </ng-container>
       </div>
-      <div class="verify-source__zoom" appImageZoomPan [resetKey]="v.field">
+      <div class="d-flex justify-content-end gap-1 mb-1">
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="verifyZoomOut()" title="Zoom out">
+          <mat-icon style="font-size:14px;height:14px;width:14px">remove</mat-icon>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="verifyZoomReset()" title="Reset zoom">
+          <mat-icon style="font-size:14px;height:14px;width:14px">center_focus_strong</mat-icon>
+        </button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="verifyZoomIn()" title="Zoom in">
+          <mat-icon style="font-size:14px;height:14px;width:14px">add</mat-icon>
+        </button>
+      </div>
+      <div #verifyZoomEl class="verify-source__zoom" appImageZoomPan [resetKey]="v.field">
         <div class="verify-source__doc">
           <canvas #verifyCanvas
             style="display:block;max-width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">

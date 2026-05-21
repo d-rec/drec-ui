@@ -20,6 +20,7 @@ import {
   FormControl,
 } from '@angular/forms';
 import { AuthbaseService } from '../../../auth/authbase.service';
+import { ImageZoomPanDirective } from '../../../shared/directives/image-zoom-pan.directive';
 import {
   DeviceService,
   AdminService,
@@ -2055,6 +2056,11 @@ export class AddDevicesComponent implements OnDestroy {
   verifyQueueFile: File | null = null;
   @ViewChild('verifySourceDialog') verifySourceDialog?: TemplateRef<any>;
   @ViewChild('verifyCanvas') verifyCanvasEl?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('verifyZoomEl', { read: ImageZoomPanDirective }) verifyZoomDirective?: ImageZoomPanDirective;
+
+  verifyZoomIn(): void { this.verifyZoomDirective?.zoomIn(); }
+  verifyZoomOut(): void { this.verifyZoomDirective?.zoomOut(); }
+  verifyZoomReset(): void { this.verifyZoomDirective?.reset(); }
   private verifySourceDialogRef: MatDialogRef<any> | null = null;
 
   /** Resolved CSS size of the rendered verify canvas — needed so the
@@ -2436,9 +2442,16 @@ export class AddDevicesComponent implements OnDestroy {
             el.onerror = rej;
             el.src = url;
           });
-          const scale = Math.min(targetW / img.width, 1);
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
+          // Always render to the full target width — both upscaling
+          // small phone snapshots and downscaling huge originals end at
+          // 2400px, so zoom transforms always have headroom to scale
+          // sharply. ctx.drawImage on a high-res canvas + browser
+          // bilinear upsampling looks fine for the verify use case.
+          const scale = targetW / img.width;
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         } finally {
           URL.revokeObjectURL(url);
