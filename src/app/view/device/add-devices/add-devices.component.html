@@ -1314,6 +1314,16 @@
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
                     <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
                     <ng-container *ngTemplateOutlet="stagedDocList; context: { idx: i, docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
+                    <div *ngIf="!sldExtracting[i] &&
+                                existingDocs[i]?.['SINGLE_LINE_DIAGRAM']?.length"
+                      class="d-flex justify-content-end mt-1">
+                      <button type="button" class="btn btn-sm btn-outline-primary"
+                        (click)="reverifySldFromAttached(i)"
+                        title="Re-run the SLD extractor against the attached file and walk through each value one-by-one in the verify-source modal. Use this on devices whose SLD was applied before strict verification was wired.">
+                        <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
+                        Re-verify SLD
+                      </button>
+                    </div>
                     <div class="sld-extract-running" *ngIf="sldExtracting[i]">
                       <span class="barber-pole" aria-hidden="true"></span>
                       <small>Reading SLD…</small>

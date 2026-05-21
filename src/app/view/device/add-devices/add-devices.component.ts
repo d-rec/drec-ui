@@ -2044,6 +2044,34 @@ export class AddDevicesComponent implements OnDestroy {
    *  pixels (the region coords are normalised 0..1). */
   verifyCanvasSize: { cssWidth: number; cssHeight: number } | null = null;
 
+  /** Re-run the SLD extractor against the device's attached SLD doc
+   *  and route through the verify-source queue. Use when an existing
+   *  SLD was applied before strict verification was wired (no
+   *  verifiedBy on the saved provenance) and the registrant wants
+   *  to attest each value against the source. */
+  reverifySldFromAttached(deviceIndex: number): void {
+    const docs = this.existingDocs[deviceIndex]?.['SINGLE_LINE_DIAGRAM'] ?? [];
+    if (!docs.length) {
+      this.toastrService.info('No SLD attached to re-verify against.');
+      return;
+    }
+    const doc = docs[0];
+    this.sldExtracting[deviceIndex] = true;
+    this.fetchAttachedDocAsFile(doc)
+      .then((file) => {
+        // Mirrors extractSldFieldsForDevice — sets state and runs
+        // the extractor; on completion the verify queue opens via
+        // the same path that fresh uploads take.
+        this.extractSldFieldsForDevice(file, deviceIndex);
+      })
+      .catch((err) => {
+        this.sldExtracting[deviceIndex] = false;
+        this.toastrService.error(
+          `Failed to fetch ${doc.name}: ${err?.message ?? err}`,
+        );
+      });
+  }
+
   /** Open the verify-source queue for an SLD extraction. Walks the
    *  user through each field the model returned, showing the source
    *  region in the doc and requiring OK or Decline before moving on. */
