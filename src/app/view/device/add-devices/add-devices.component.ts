@@ -6265,6 +6265,93 @@ export class AddDevicesComponent implements OnDestroy {
     return new File([blob], doc.name, { type: 'text/csv' });
   }
 
+  /** Generalised variant of fetchExistingDocAsFile — infers the MIME
+   *  type from the filename so the resulting File works with image /
+   *  PDF / spreadsheet extractors, not just CSV. The CSV-specific
+   *  helper above is kept for binary compatibility with existing
+   *  ingest callers; this one is the path forward for re-extraction. */
+  private async fetchAttachedDocAsFile(doc: {
+    id: number;
+    name: string;
+  }): Promise<File> {
+    const resp = await fetch(
+      `${environment.API_URL}document-uploads/${doc.id}/url`,
+      {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem('access-token') ?? ''}`,
+        },
+      },
+    );
+    if (!resp.ok) {
+      throw new Error(`Failed to fetch ${doc.name} (${resp.status})`);
+    }
+    const blob = await resp.blob();
+    const ext = (doc.name.split('.').pop() || '').toLowerCase();
+    const mime =
+      ext === 'pdf' ? 'application/pdf' :
+      ext === 'png' ? 'image/png' :
+      ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' :
+      ext === 'webp' ? 'image/webp' :
+      ext === 'gif' ? 'image/gif' :
+      ext === 'csv' ? 'text/csv' :
+      ext === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
+      ext === 'xls' ? 'application/vnd.ms-excel' :
+      blob.type || 'application/octet-stream';
+    return new File([blob], doc.name, { type: mime });
+  }
+
+  /** Re-run the meter-IDs extractor against every METERING_EVIDENCE
+   *  doc already attached to this device. Use when the (14) chips
+   *  were flushed and the user needs to rebuild them with proper
+   *  per-id source attribution — drag-and-drop would hit isDuplicate
+   *  and bounce. This bypasses the auto-sort entirely; it just feeds
+   *  each attached doc directly to extractMeterIdsForDevice. */
+  reextractMeterIdsFromAttached(deviceIndex: number): void {
+    const docs = this.existingDocs[deviceIndex]?.['METERING_EVIDENCE'] ?? [];
+    if (!docs.length) {
+      this.toastrService.info('No metering evidence attached to re-extract from.');
+      return;
+    }
+    // Clear the in-memory state so old per-id docs don't shadow the
+    // refresh (otherwise an ID that came from photo_001.jpg before
+    // could keep that attribution even after photo_001.jpg is gone).
+    this.meterIdsExtractions[deviceIndex] = [];
+    this.meterIdsExtractionDocs[deviceIndex] = {};
+    this.meterIdsExtracting[deviceIndex] = true;
+    let remaining = docs.length;
+    let any = false;
+    const done = () => {
+      if (--remaining > 0) return;
+      this.ngZone.run(() => {
+        this.meterIdsExtracting[deviceIndex] = false;
+        if (any) {
+          this.toastrService.success(
+            `Re-extracted from ${docs.length} metering doc${docs.length === 1 ? '' : 's'}.`,
+          );
+        } else {
+          this.toastrService.warning(
+            'No meter IDs found in the attached metering docs.',
+          );
+        }
+      });
+    };
+    for (const doc of docs) {
+      this.fetchAttachedDocAsFile(doc)
+        .then((file) => {
+          // Reuse the existing extractor path so docsByValue gets
+          // populated the same way it does for fresh uploads.
+          this.extractMeterIdsForDevice(file, deviceIndex);
+          any = true;
+        })
+        .catch((err) => {
+          this.toastrService.error(
+            `Failed to fetch ${doc.name}: ${err?.message ?? err}`,
+          );
+        })
+        .finally(done);
+    }
+  }
+
   private runCsvIngest(
     externalId: string,
     file: File,
