@@ -941,12 +941,37 @@ input.example-right-align {
 
   &__row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 4px;
+  }
 
-    &:has(.serial-list__remove) {
-      grid-template-columns: minmax(0, 1fr) 28px;
+  // Provenance pill to the right of each chip. Green when the value
+  // came from a doc extractor, muted gray when manually-entered. The
+  // OC-checklist uses the same pair so reviewer + registrant see the
+  // same shorthand.
+  &__src {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    mat-icon {
+      font-size: 12px;
+      height: 12px;
+      width: 12px;
+      line-height: 1;
+    }
+
+    &--manual {
+      background: #f1f5f9;
+      color: #64748b;
     }
   }
 

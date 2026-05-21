@@ -408,6 +408,16 @@
                             <mat-icon>close</mat-icon>
                           </button>
                         </mat-form-field>
+                        <span class="serial-list__src"
+                          *ngIf="meterIdSource(i, s) as src"
+                          [title]="'Source: ' + src">
+                          <mat-icon>description</mat-icon>{{ src }}
+                        </span>
+                        <span class="serial-list__src serial-list__src--manual"
+                          *ngIf="!meterIdSource(i, s) && (s || '').trim()"
+                          title="No document source recorded — value was entered manually or has no provenance">
+                          Manual
+                        </span>
                       </div>
                       <button type="button"
                         mat-stroked-button

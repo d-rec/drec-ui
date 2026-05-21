@@ -3244,6 +3244,22 @@ export class AddDevicesComponent implements OnDestroy {
     >;
   } = {};
 
+  /** Per-chip source badge for the (14) Meter/Measurement IDs list.
+   *  Checks whether the chip value appears in the saved serialNumber
+   *  provenance value (semicolon-joined list of doc-extracted IDs).
+   *  Returns the source label (e.g. "Meter IDs") if doc-backed, null
+   *  for manually-typed entries. */
+  meterIdSource(deviceIndex: number, value: string): string | null {
+    const v = (value || '').trim();
+    if (!v) return null;
+    const prov = this.appliedProvenance[deviceIndex]?.['serialNumber'];
+    if (!prov || prov.value == null) return null;
+    const list = String(prov.value)
+      .split(';')
+      .map((s) => s.trim().toLowerCase());
+    return list.includes(v.toLowerCase()) ? prov.source : null;
+  }
+
   /** Pre-submit review modal state. */
   presubmitIssues: {
     empty: Array<{ field: string; label: string }>;
