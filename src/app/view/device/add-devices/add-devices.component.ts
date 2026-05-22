@@ -4306,21 +4306,34 @@ export class AddDevicesComponent implements OnDestroy {
     });
   }
 
-  /** Inject a hand-rolled resize handle into every floating dialog
-   *  pane. Native CSS resize is unreliable across browser + Material
-   *  combinations (Firefox + flex parent: handle never renders).
-   *  We watch the overlay container for new floating panes and add
-   *  a <div class="drec-resize-handle"> that wires mousedown/move/up
-   *  to set the pane's inline width/height. */
+  /** Hand-rolled resize for floating dialogs. Body-attached handle
+   *  (position: fixed) that tracks the pane's bottom-right corner on
+   *  every animation frame. Body-level so it can't be clipped or
+   *  z-ordered behind the cdkDrag wrapper inside the pane. */
   private installFloatingDialogResize(): void {
     if ((window as any).__drecFloatingDialogResizeInstalled) return;
     (window as any).__drecFloatingDialogResizeInstalled = true;
-    const attach = (pane: HTMLElement) => {
-      if (pane.querySelector(':scope > .drec-resize-handle')) return;
+    const handles = new WeakMap<HTMLElement, HTMLElement>();
+    const tracked = new Set<HTMLElement>();
+
+    const positionHandle = (pane: HTMLElement, handle: HTMLElement) => {
+      const r = pane.getBoundingClientRect();
+      handle.style.left = r.right - 20 + 'px';
+      handle.style.top = r.bottom - 20 + 'px';
+    };
+
+    const attachHandle = (pane: HTMLElement) => {
+      if (handles.has(pane)) return;
       const handle = document.createElement('div');
       handle.className = 'drec-resize-handle';
+      handle.style.position = 'fixed';
+      handle.style.zIndex = '10000';
       handle.title = 'Drag to resize';
-      pane.appendChild(handle);
+      document.body.appendChild(handle);
+      handles.set(pane, handle);
+      tracked.add(pane);
+      positionHandle(pane, handle);
+
       handle.addEventListener('mousedown', (e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -4334,6 +4347,7 @@ export class AddDevicesComponent implements OnDestroy {
           const h = Math.max(240, startH + (ev.clientY - startY));
           pane.style.width = w + 'px';
           pane.style.height = h + 'px';
+          positionHandle(pane, handle);
         };
         const onUp = () => {
           window.removeEventListener('mousemove', onMove, true);
@@ -4343,21 +4357,44 @@ export class AddDevicesComponent implements OnDestroy {
         window.addEventListener('mouseup', onUp, true);
       });
     };
-    // Scan any already-open panes (defensive — ngOnInit fires before
-    // any dialog opens normally, but the same component could be
-    // re-entered).
+
+    const tick = () => {
+      // Reposition handles on every frame so dragging the dialog
+      // (cdkDrag transforms the pane) keeps the corner glued. Remove
+      // handles whose pane has gone away.
+      for (const pane of tracked) {
+        const handle = handles.get(pane);
+        if (!handle) continue;
+        if (!pane.isConnected) {
+          handle.remove();
+          tracked.delete(pane);
+          continue;
+        }
+        positionHandle(pane, handle);
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+
     document
       .querySelectorAll('.cdk-overlay-pane.drec-floating-dialog')
-      .forEach((p) => attach(p as HTMLElement));
-    // Watch for new panes being added to the overlay container.
+      .forEach((p) => attachHandle(p as HTMLElement));
     const container = document.querySelector('.cdk-overlay-container');
     const observer = new MutationObserver((mutations) => {
       for (const m of mutations) {
         for (const n of Array.from(m.addedNodes)) {
           if (!(n instanceof HTMLElement)) continue;
-          if (n.classList?.contains('drec-floating-dialog')) attach(n);
-          n.querySelectorAll?.('.cdk-overlay-pane.drec-floating-dialog')
-            .forEach((p) => attach(p as HTMLElement));
+          // Material may apply panelClass async; scan all panes after
+          // each mutation, not just those classed at mutation time.
+          n.querySelectorAll?.('.cdk-overlay-pane')
+            .forEach((p) => {
+              const el = p as HTMLElement;
+              if (el.classList.contains('drec-floating-dialog')) attachHandle(el);
+            });
+          if (n.classList?.contains('cdk-overlay-pane') &&
+              n.classList?.contains('drec-floating-dialog')) {
+            attachHandle(n);
+          }
         }
       }
     });

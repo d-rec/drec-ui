@@ -1374,24 +1374,13 @@ input[type='number']::-webkit-inner-spin-button {
    browsers (especially Firefox + flex parents). This is a corner div
    the host wires mousedown/mousemove/mouseup to. */
 .drec-resize-handle {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 18px;
-  height: 18px;
+  /* position: fixed; the host sets left/top on every animation frame. */
+  width: 20px;
+  height: 20px;
   cursor: nwse-resize;
-  z-index: 10;
   user-select: none;
-  background:
-    linear-gradient(135deg,
-      transparent 0 10px,
-      #64748b 10px 11px,
-      transparent 11px 13px,
-      #64748b 13px 14px,
-      transparent 14px 16px,
-      #64748b 16px 17px,
-      transparent 17px 18px);
-  opacity: 0.85;
-  &:hover { opacity: 1; }
-  &:active { background-color: rgba(100, 116, 139, 0.15); }
+  background: linear-gradient(135deg, transparent 50%, #0f607f 50%);
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  &:hover { background: linear-gradient(135deg, transparent 50%, #115e59 50%); }
 }
