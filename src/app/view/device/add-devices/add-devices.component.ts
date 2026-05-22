@@ -4635,67 +4635,6 @@ export class AddDevicesComponent implements OnDestroy {
 
   /** Resolve the current step's source label to a (fileMap, docType)
    *  pair used by both ocWalkSourceFile and the on-demand fetcher. */
-  /** Form-field values for the literal-evidence fields a derived
-   *  field rests on. Fed into Tesseract as additional keywords so a
-   *  derived numeric ("60") can be pinned via the brand string
-   *  ("HUAWEI SUN2000-30KTL-M3") which the OCR pass CAN find. */
-  private relatedLiteralValuesFor(field: string): string[] {
-    const RELATED: Record<string, string[]> = {
-      capacity:             ['dataSourceBrand'],
-      generatingUnitCount:  ['dataSourceBrand'],
-      gridInterconnection:  ['networkOwner'],
-      gridExportType:       ['networkOwner'],
-      hasNetworkMeter:      ['networkOwner'],
-    };
-    const sources = RELATED[field] ?? [];
-    const form = this.deviceForms.at(0);
-    const out: string[] = [];
-    for (const s of sources) {
-      const v = form?.get(s)?.value;
-      if (v != null && v !== '') out.push(String(v));
-    }
-    return out;
-  }
-
-  /** When a derived field has no region of its own, borrow one from
-   *  a related literal-evidence field. Returns the region object or
-   *  null. */
-  private inheritBboxFromRelated(field: string):
-    | { page?: number; x: number; y: number; w: number; h: number }
-    | null {
-    // form-field → list of extractor-field candidates to inherit from
-    const RELATED: Record<string, string[]> = {
-      capacity:             ['inverterMakeModel', 'inverterCapacityKw', 'dcCapacityKwp'],
-      generatingUnitCount:  ['inverterMakeModel', 'inverterCapacityKw'],
-      dataSourceBrand:      ['inverterMakeModel'],
-      gridInterconnection:  ['networkOwner', 'transformerKva', 'gridVoltage'],
-      gridExportType:       ['hasNetworkMeter', 'networkOwner'],
-      hasNetworkMeter:      ['networkOwner', 'gridVoltage'],
-      hasCaptiveConsumer:   ['gridExportType'],
-      hasAuxiliaryEnergySources: ['auxiliaryEnergySourceDetails'],
-    };
-    const candidates = RELATED[field] ?? [];
-    if (!candidates.length) return null;
-    const fx = this.sldExtractions[0] as any;
-    if (!fx) return null;
-    for (const c of candidates) {
-      const r = fx?.[c]?.region;
-      if (r && typeof r.x === 'number') return r;
-    }
-    // Also check appliedProvenance — the user may have applied a
-    // value whose region landed there but not in the raw extraction.
-    const provMap: Record<string, string> = {
-      capacity: 'dataSourceBrand',
-      generatingUnitCount: 'dataSourceBrand',
-    };
-    const provField = provMap[field];
-    if (provField) {
-      const r = (this.appliedProvenance[0]?.[provField] as any)?.region;
-      if (r && typeof r.x === 'number') return r;
-    }
-    return null;
-  }
-
   private ocWalkSourceKey(): { fileMap: string; docType: string } | null {
     const item = this.ocWalkCurrent;
     if (!item) return null;
@@ -4759,18 +4698,7 @@ export class AddDevicesComponent implements OnDestroy {
     if (!item) return;
     const p = this.appliedProvenance[0]?.[item.field] as any;
     if (!p?.source) return;
-    if (p.region) {
-      this.ocWalkCurrentRegion = p.region;
-    } else {
-      // Inherit bbox from a literal-evidence field when this one is
-      // derived. Haiku reliably bboxes "HUAWEI SUN2000-30KTL-M3" but
-      // not "60" (the derived 2× 30 kW). Reusing the inverter-label
-      // bbox for capacity/count/brand is honest — the rectangle still
-      // covers the evidence the value rests on, even if the value
-      // itself doesn't appear inside it.
-      const inherited = this.inheritBboxFromRelated(item.field);
-      if (inherited) this.ocWalkCurrentRegion = inherited;
-    }
+    if (p.region) this.ocWalkCurrentRegion = p.region;
     // Pre-flight: do we even have an attached doc of the matching
     // type? If not, don't flip the gate.
     const key = this.ocWalkSourceKey();
@@ -4849,31 +4777,21 @@ export class AddDevicesComponent implements OnDestroy {
           cssHeight: canvas.clientHeight,
         };
       });
-      // Tesseract last-resort: pull keywords from (1) the reasoning,
-      // and (2) the VALUE of any related literal-evidence field
-      // (e.g. dataSourceBrand="HUAWEI SUN2000-30KTL-M3" supplies
-      // "huawei", "sun2000" as anchors for capacity / inverterCount).
-      // If we find a literal hit, promote it to the primary bbox so
-      // the registrant sees a real rectangle, not "scan visually".
+      // Soft "scan around here" hints when there's no precise bbox.
+      // Keywords from the reasoning, run through Tesseract on the
+      // canvas. Only fires for keyword overlap that exists — never
+      // pretends a region.
       this.ocWalkTextHints = [];
       if (!this.ocWalkCurrentRegion && canvas) {
         const reasoning = String(p?.reasoning ?? '').trim();
-        const related = this.relatedLiteralValuesFor(item.field);
-        const keywords = `${reasoning} ${related.join(' ')}`.trim();
-        if (keywords) {
+        if (reasoning) {
           try {
-            const hits = await this.documentClassifier.findReasoningHints(
+            this.ocWalkTextHints = await this.documentClassifier.findReasoningHints(
               canvas,
-              keywords,
+              reasoning,
             );
-            if (hits.length) {
-              // First hit becomes the primary region (red solid bbox);
-              // remaining hits stay as soft yellow tints.
-              this.ocWalkCurrentRegion = { ...hits[0] };
-              this.ocWalkTextHints = hits.slice(1);
-            }
           } catch (e) {
-            console.warn('OC walk Tesseract fallback failed', e);
+            console.warn('OC walk reasoning-hints failed', e);
           }
         }
       }
