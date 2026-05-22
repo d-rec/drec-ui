@@ -917,11 +917,14 @@ export class DocumentClassifierService {
   async extractCodFields(
     file: File,
     deviceId?: number,
+    siteName?: string,
   ): Promise<CodExtractedFields | null> {
     return this.runDocExtractionFE<CodExtractedFields>(
       'ai/extract-cod-fields',
       file,
       deviceId,
+      false,
+      siteName ? { siteName } : undefined,
     );
   }
 
@@ -1008,6 +1011,7 @@ export class DocumentClassifierService {
     file: File,
     deviceId: number | undefined,
     preferVision = false,
+    extras?: Record<string, any>,
   ): Promise<T | null> {
     try {
       let text = '';
@@ -1019,6 +1023,7 @@ export class DocumentClassifierService {
       }
       const payload: any = { filename: file.name };
       if (deviceId) payload.deviceId = deviceId;
+      if (extras) Object.assign(payload, extras);
       const contentHash = await this.sha256OfFile(file);
       if (contentHash) payload.contentHash = contentHash;
       if (text && text.trim().length >= 40) {

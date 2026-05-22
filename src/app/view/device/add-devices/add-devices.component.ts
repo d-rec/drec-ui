@@ -3281,8 +3281,16 @@ export class AddDevicesComponent implements OnDestroy {
     if (this.extractionApplied[deviceIndex]) {
       this.extractionApplied[deviceIndex]['COD'] = false;
     }
+    // Pass the device's current siteName so the COD extractor can
+    // filter on the right row in multi-site certificates (e.g. a
+    // Provisional Acceptance Certificate listing 15 mini-grids).
+    // Without this, the extractor reads the table arbitrarily and
+    // returns garbage values (totals, sums, wrong rows).
+    const siteName = String(
+      this.deviceForms.at(deviceIndex)?.get('siteName')?.value ?? '',
+    ).trim() || undefined;
     this.documentClassifier
-      .extractCodFields(file)
+      .extractCodFields(file, this.editingDeviceId ?? undefined, siteName)
       .then((res) =>
         this.ngZone.run(() => {
           this.codExtracting[deviceIndex] = false;
