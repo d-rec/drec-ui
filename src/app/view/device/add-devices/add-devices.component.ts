@@ -4376,31 +4376,22 @@ export class AddDevicesComponent implements OnDestroy {
     };
     requestAnimationFrame(tick);
 
-    document
-      .querySelectorAll('.cdk-overlay-pane.drec-floating-dialog')
-      .forEach((p) => attachHandle(p as HTMLElement));
-    const container = document.querySelector('.cdk-overlay-container');
-    const observer = new MutationObserver((mutations) => {
-      for (const m of mutations) {
-        for (const n of Array.from(m.addedNodes)) {
-          if (!(n instanceof HTMLElement)) continue;
-          // Material may apply panelClass async; scan all panes after
-          // each mutation, not just those classed at mutation time.
-          n.querySelectorAll?.('.cdk-overlay-pane')
-            .forEach((p) => {
-              const el = p as HTMLElement;
-              if (el.classList.contains('drec-floating-dialog')) attachHandle(el);
-            });
-          if (n.classList?.contains('cdk-overlay-pane') &&
-              n.classList?.contains('drec-floating-dialog')) {
-            attachHandle(n);
-          }
-        }
-      }
-    });
-    if (container) {
-      observer.observe(container, { childList: true, subtree: true });
-    }
+    // Scan everything currently in the DOM.
+    const scan = () => {
+      document
+        .querySelectorAll('.cdk-overlay-pane.drec-floating-dialog')
+        .forEach((p) => attachHandle(p as HTMLElement));
+    };
+    scan();
+    // Observe document.body, not .cdk-overlay-container — the
+    // container is created lazily by Material on the first dialog
+    // open, so observing it at ngOnInit time hits a null and does
+    // nothing forever. Body is always there.
+    const observer = new MutationObserver(() => scan());
+    observer.observe(document.body, { childList: true, subtree: true });
+    // Polling fallback in case the observer misses something (Angular
+    // CDK has some attribute-only flows). 500ms idle scan is cheap.
+    setInterval(scan, 500);
   }
 
   /* ---- OC# walkthrough ---- */
