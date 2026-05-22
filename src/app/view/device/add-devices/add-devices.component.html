@@ -1694,6 +1694,13 @@
               <mat-icon style="font-size:18px;height:18px;width:18px;line-height:1">checklist</mat-icon>
               Walk OC#
             </button>
+            <button *ngIf="isEditMode && ocWalkLog.length" type="button"
+              class="btn btn-outline-secondary text-capitalize px-4 d-inline-flex align-items-center gap-2"
+              (click)="startOcWalkReplay()"
+              [title]="'Replay the registrant\\'s OC# walkthrough — ' + ocWalkLog.length + ' recorded step(s). Read-only.'">
+              <mat-icon style="font-size:18px;height:18px;width:18px;line-height:1">play_circle</mat-icon>
+              Replay OC# walk ({{ ocWalkLog.length }})
+            </button>
             <button type="submit" class="btn-primary btn text-capitalize px-4 d-inline-flex align-items-center gap-2"
               [disabled]="isSubmitting || (isEditMode && !hasUnsavedEditChanges()) || liveIssues.disagrees.length > 0"
               [matTooltip]="liveIssues.disagrees.length > 0 ? 'Resolve the ' + liveIssues.disagrees.length + ' disagreement(s) in the sidebar first.' : null"
@@ -2073,11 +2080,13 @@
 
 <ng-template #ocWalkthroughDialog><div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
   <h2 mat-dialog-title cdkDragHandle class="d-flex align-items-center gap-2" style="cursor: move;">
-    <mat-icon>checklist</mat-icon>
-    Walk OC# ({{ ocWalkIndex + 1 }} / {{ ocWalkQueue.length }})
+    <mat-icon>{{ ocWalkReplay ? 'play_circle' : 'checklist' }}</mat-icon>
+    <ng-container *ngIf="!ocWalkReplay">Walk OC# ({{ ocWalkIndex + 1 }} / {{ ocWalkQueue.length }})</ng-container>
+    <ng-container *ngIf="ocWalkReplay">Replay (registrant) — step {{ ocWalkReplayIndex + 1 }} / {{ ocWalkLog.length }}</ng-container>
   </h2>
   <div mat-dialog-content style="max-height:75vh">
-    <div *ngIf="ocWalkCurrent as v">
+    <!-- Interactive mode (registrant) -->
+    <div *ngIf="!ocWalkReplay && ocWalkCurrent as v">
       <div class="oc-walk__head">
         <div class="oc-walk__label">{{ v.label }}</div>
         <div class="oc-walk__value">
@@ -2102,30 +2111,85 @@
           (keydown.enter)="ocWalkFillOwn()" />
       </div>
     </div>
+    <!-- Replay mode (reviewer) — read-only, shows the recorded action -->
+    <div *ngIf="ocWalkReplay && ocWalkReplayCurrent as r">
+      <div class="oc-walk__head">
+        <div class="oc-walk__label">{{ r.label }}</div>
+        <div class="oc-walk__value">
+          <ng-container [ngSwitch]="r.action">
+            <span *ngSwitchCase="'approve'" class="text-success">
+              <mat-icon style="font-size:18px;vertical-align:middle">check_circle</mat-icon>
+              Approved · <strong>{{ r.valueAfter }}</strong>
+            </span>
+            <span *ngSwitchCase="'decline'" class="text-danger">
+              <mat-icon style="font-size:18px;vertical-align:middle">cancel</mat-icon>
+              Declined · cleared <em>{{ r.valueBefore }}</em>
+            </span>
+            <span *ngSwitchCase="'fill_your_own'" class="text-primary">
+              <mat-icon style="font-size:18px;vertical-align:middle">edit</mat-icon>
+              Filled own · <strong>{{ r.valueAfter }}</strong>
+              <small class="text-muted" *ngIf="r.valueBefore != null && r.valueBefore !== ''">
+                (was: <em>{{ r.valueBefore }}</em>)
+              </small>
+            </span>
+            <span *ngSwitchCase="'skip'" class="text-muted">
+              <mat-icon style="font-size:18px;vertical-align:middle">skip_next</mat-icon>
+              Skipped (empty)
+            </span>
+          </ng-container>
+        </div>
+        <div class="oc-walk__source">
+          <small class="text-muted">
+            source at the time: {{ r.source ?? '— no recorded source' }}
+          </small>
+        </div>
+        <div class="oc-walk__source">
+          <small class="text-muted">
+            by {{ r.by }} · {{ r.at | date:'short' }}
+          </small>
+        </div>
+      </div>
+    </div>
   </div>
   <div mat-dialog-actions class="d-flex justify-content-between gap-2 flex-wrap">
-    <div class="d-flex gap-2">
-      <button mat-button class="btn btn-outline-secondary" (click)="ocWalkPrev()" [disabled]="ocWalkIndex <= 0">
-        <mat-icon style="font-size:16px">chevron_left</mat-icon> Prev
-      </button>
-      <button mat-button class="btn btn-outline-secondary" (click)="ocWalkNext()">
-        Skip <mat-icon style="font-size:16px">chevron_right</mat-icon>
-      </button>
-    </div>
-    <div class="d-flex gap-2 flex-wrap">
-      <button mat-button class="btn btn-outline-danger" (click)="ocWalkDecline()"
-        title="Clear this value and blacklist it — will not return on reload or re-extract.">
-        Decline
-      </button>
-      <button mat-button class="btn btn-outline-primary" (click)="ocWalkFillOwn()"
-        title="Replace the value with what you typed above. You become the source.">
-        Use mine
-      </button>
-      <button mat-button class="btn btn-success" (click)="ocWalkApprove()"
-        title="Keep the current value. If unsourced, you become the verifier.">
-        Approve
-      </button>
-    </div>
+    <!-- Interactive mode footer -->
+    <ng-container *ngIf="!ocWalkReplay">
+      <div class="d-flex gap-2">
+        <button mat-button class="btn btn-outline-secondary" (click)="ocWalkPrev()" [disabled]="ocWalkIndex <= 0">
+          <mat-icon style="font-size:16px">chevron_left</mat-icon> Prev
+        </button>
+        <button mat-button class="btn btn-outline-secondary" (click)="ocWalkNext()">
+          Skip <mat-icon style="font-size:16px">chevron_right</mat-icon>
+        </button>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button mat-button class="btn btn-outline-danger" (click)="ocWalkDecline()"
+          title="Clear this value and blacklist it — will not return on reload or re-extract.">
+          Decline
+        </button>
+        <button mat-button class="btn btn-outline-primary" (click)="ocWalkFillOwn()"
+          title="Replace the value with what you typed above. You become the source.">
+          Use mine
+        </button>
+        <button mat-button class="btn btn-success" (click)="ocWalkApprove()"
+          title="Keep the current value. If unsourced, you become the verifier.">
+          Approve
+        </button>
+      </div>
+    </ng-container>
+    <!-- Replay mode footer: navigation only, no interaction -->
+    <ng-container *ngIf="ocWalkReplay">
+      <div class="d-flex gap-2">
+        <button mat-button class="btn btn-outline-secondary" (click)="ocWalkReplayPrev()" [disabled]="ocWalkReplayIndex <= 0">
+          <mat-icon style="font-size:16px">chevron_left</mat-icon> Prev
+        </button>
+        <button mat-button class="btn btn-primary" (click)="ocWalkReplayNext()">
+          <ng-container *ngIf="ocWalkReplayIndex < ocWalkLog.length - 1">Next <mat-icon style="font-size:16px">chevron_right</mat-icon></ng-container>
+          <ng-container *ngIf="ocWalkReplayIndex >= ocWalkLog.length - 1">Done</ng-container>
+        </button>
+      </div>
+      <small class="text-muted ms-auto">read-only replay — no edits</small>
+    </ng-container>
   </div>
   </div>
 </ng-template>

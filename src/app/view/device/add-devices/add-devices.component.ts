@@ -557,6 +557,11 @@ export class AddDevicesComponent implements OnDestroy {
           // conflict block can credit fields to their original source
           // instead of falsely tagging them MANUAL on re-edit.
           this.appliedProvenance[0] = { ...((data as any).fieldProvenance ?? {}) };
+          // Hydrate OC# walkthrough recording (if the prior session
+          // ran one). Stored under the synthetic key __ocWalkLog so
+          // it rides on fieldProvenance — no schema change needed.
+          const rec = (this.appliedProvenance[0] as any)?.['__ocWalkLog'];
+          this.ocWalkLog = Array.isArray(rec?.value) ? rec.value : [];
           // Filter dismissed serials out of the persisted serialNumber
           // provenance .value (joined chip list) AND its per-id
           // docsByValue / personByValue / verifiedByValue maps. Without
@@ -4264,6 +4269,26 @@ export class AddDevicesComponent implements OnDestroy {
   @ViewChild('ocWalkthroughDialog') ocWalkthroughDialog?: TemplateRef<any>;
   private ocWalkDialogRef: MatDialogRef<any> | null = null;
 
+  /** Recorded sequence of the registrant's last walkthrough — one
+   *  entry per Approve / Decline / Use-mine action. Persisted on
+   *  the device record so a reviewer can replay it later. */
+  ocWalkLog: Array<{
+    at: string;              // ISO timestamp
+    oc: number;
+    field: string;
+    label: string;
+    action: 'approve' | 'decline' | 'fill_your_own' | 'skip';
+    valueBefore: any;
+    valueAfter: any;
+    source: string | null;   // recorded provenance source AT THE TIME
+    by: string;              // registrant email
+  }> = [];
+  /** Replay mode: when true, the same wizard dialog shows the recorded
+   *  log instead of the live form, with no interactive Approve/Decline/
+   *  Use-mine buttons. Reviewer view. */
+  ocWalkReplay = false;
+  ocWalkReplayIndex = 0;
+
   /** Build the queue: every field whose FIELD_LABELS entry starts with
    *  "(N)" (i.e. has an OC#), sorted by OC#. Walks the registrant
    *  through each one, showing the current value + source + three
@@ -4328,13 +4353,36 @@ export class AddDevicesComponent implements OnDestroy {
     this.ocWalkOverride = v == null ? '' : String(v);
   }
 
+  /** Append one entry to the walkthrough log. Captures the state the
+   *  reviewer needs to reconstruct what the registrant saw and did. */
+  private logOcWalkAction(
+    item: { field: string; oc: number; label: string },
+    action: 'approve' | 'decline' | 'fill_your_own' | 'skip',
+    valueBefore: any,
+    valueAfter: any,
+  ): void {
+    const p = this.appliedProvenance[0]?.[item.field] as any;
+    this.ocWalkLog.push({
+      at: new Date().toISOString(),
+      oc: item.oc,
+      field: item.field,
+      label: item.label,
+      action,
+      valueBefore,
+      valueAfter,
+      source: p?.source ?? null,
+      by: (this.user?.email ?? '').trim() || 'unknown',
+    });
+  }
+
   ocWalkApprove(): void {
     const item = this.ocWalkCurrent;
     if (!item) return;
     const ctl = this.deviceForms.at(0)?.get(item.field);
     const v = ctl?.value;
     if (v == null || v === '') {
-      // Approving an empty value is meaningless — skip.
+      // Approving an empty value is meaningless — log as skip.
+      this.logOcWalkAction(item, 'skip', v, v);
       this.ocWalkAdvance();
       return;
     }
@@ -4345,6 +4393,7 @@ export class AddDevicesComponent implements OnDestroy {
     }
     const entry = this.appliedProvenance[0]?.[item.field] as any;
     if (entry) entry.verifiedBy = { email, at: new Date().toISOString() };
+    this.logOcWalkAction(item, 'approve', v, v);
     this.ocWalkAdvance();
   }
 
@@ -4354,11 +4403,11 @@ export class AddDevicesComponent implements OnDestroy {
     const ctl = this.deviceForms.at(0)?.get(item.field);
     const v = ctl?.value;
     if (v != null && v !== '') {
-      // Blacklist the (field, value) so it stays gone across reloads.
       this.dismissFieldValue(0, item.field, v);
       ctl?.setValue(Array.isArray(v) ? [] : null);
       ctl?.markAsDirty();
     }
+    this.logOcWalkAction(item, 'decline', v, null);
     this.ocWalkAdvance();
   }
 
@@ -4368,15 +4417,50 @@ export class AddDevicesComponent implements OnDestroy {
     const v = this.ocWalkOverride;
     const ctl = this.deviceForms.at(0)?.get(item.field);
     if (!ctl) { this.ocWalkAdvance(); return; }
-    ctl.setValue(v === '' ? null : v);
+    const before = ctl.value;
+    const after = v === '' ? null : v;
+    ctl.setValue(after);
     ctl.markAsDirty();
-    if (v !== '' && v != null) {
+    if (after != null) {
       const email = (this.user?.email ?? '').trim() || 'unknown';
-      this.recordProvenance(0, item.field, `Manual: ${email}`, 1, v);
+      this.recordProvenance(0, item.field, `Manual: ${email}`, 1, after);
       const entry = this.appliedProvenance[0]?.[item.field] as any;
       if (entry) entry.verifiedBy = { email, at: new Date().toISOString() };
     }
+    this.logOcWalkAction(item, 'fill_your_own', before, after);
     this.ocWalkAdvance();
+  }
+
+  /** Open the wizard in replay mode for the reviewer. Same template,
+   *  but ocWalkReplay=true hides the interactive buttons and steps
+   *  through the recorded log instead of the live form. */
+  startOcWalkReplay(): void {
+    if (!this.ocWalkLog.length) {
+      this.toastrService.info('No recorded walkthrough on this device yet.');
+      return;
+    }
+    this.ocWalkReplay = true;
+    this.ocWalkReplayIndex = 0;
+    if (!this.ocWalkthroughDialog) return;
+    if (this.ocWalkDialogRef) { this.ocWalkDialogRef.close(); this.ocWalkDialogRef = null; }
+    this.ocWalkDialogRef = this.dialog.open(this.ocWalkthroughDialog, {
+      width: '720px', maxWidth: '95vw', disableClose: false,
+    });
+  }
+
+  get ocWalkReplayCurrent(): typeof this.ocWalkLog[number] | null {
+    return this.ocWalkLog[this.ocWalkReplayIndex] ?? null;
+  }
+  ocWalkReplayPrev(): void {
+    if (this.ocWalkReplayIndex <= 0) return;
+    this.ocWalkReplayIndex--;
+  }
+  ocWalkReplayNext(): void {
+    if (this.ocWalkReplayIndex >= this.ocWalkLog.length - 1) {
+      this.ocWalkClose();
+      return;
+    }
+    this.ocWalkReplayIndex++;
   }
 
   ocWalkPrev(): void {
@@ -4399,6 +4483,8 @@ export class AddDevicesComponent implements OnDestroy {
     this.ocWalkQueue = [];
     this.ocWalkIndex = 0;
     this.ocWalkOverride = '';
+    this.ocWalkReplay = false;
+    this.ocWalkReplayIndex = 0;
     this.refreshLiveIssues();
   }
 
@@ -7855,6 +7941,17 @@ export class AddDevicesComponent implements OnDestroy {
           at: new Date().toISOString(),
         };
       }
+    }
+    // Persist the OC# walkthrough log (if any) alongside provenance,
+    // under the synthetic __ocWalkLog key. Reviewers can replay it.
+    if (this.ocWalkLog.length) {
+      (this.appliedProvenance[0] = this.appliedProvenance[0] || {});
+      (this.appliedProvenance[0] as any)['__ocWalkLog'] = {
+        source: 'OC# walkthrough',
+        confidence: 1,
+        at: new Date().toISOString(),
+        value: [...this.ocWalkLog],
+      };
     }
     // Persist provenance recorded by Apply paths + the auto-tag pass
     // above (merged with whatever was already on the device from
