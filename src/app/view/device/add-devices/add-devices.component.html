@@ -2111,10 +2111,11 @@
           no recorded source
         </div>
       </div>
-      <div *ngIf="ocWalkCurrentRegion" class="oc-walk__source-canvas mt-3">
+      <div *ngIf="ocWalkHasSourceDoc" class="oc-walk__source-canvas mt-3">
         <small class="text-muted d-block mb-1 d-flex align-items-center gap-1">
           <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">description</mat-icon>
-          source — bbox highlights where the value was read
+          <ng-container *ngIf="ocWalkCurrentRegion">source — bbox highlights where the value was read</ng-container>
+          <ng-container *ngIf="!ocWalkCurrentRegion">source — no precise bbox for this field; scan visually</ng-container>
           <span *ngIf="ocWalkSourceLoading" class="text-muted ms-2 d-inline-flex align-items-center gap-1">
             <mat-progress-spinner mode="indeterminate" diameter="12" strokeWidth="2"></mat-progress-spinner>
             fetching attached document…

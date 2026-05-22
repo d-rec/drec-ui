@@ -4513,30 +4513,39 @@ export class AddDevicesComponent implements OnDestroy {
     }
   }
 
+  /** True when the current OC# step has any source doc to render
+   *  (with or without a region). Template gates the canvas section
+   *  on this — drops down to "doc preview only, no bbox" when the
+   *  provenance lacks a region. */
+  ocWalkHasSourceDoc = false;
+
   /** Render the source doc behind the current OC# step into
-   *  ocWalkCanvas, with the recorded region as an overlay bbox.
-   *  Skips silently when there's no canvas yet, no source file
-   *  cached, or no region recorded. */
+   *  ocWalkCanvas, with the recorded region overlaid (if any). */
   private async renderOcWalkSource(): Promise<void> {
     this.ocWalkCurrentRegion = null;
     this.ocWalkCanvasSize = null;
+    this.ocWalkHasSourceDoc = false;
     const item = this.ocWalkCurrent;
     if (!item) return;
     const p = this.appliedProvenance[0]?.[item.field] as any;
-    if (!p?.region) return;
-    this.ocWalkCurrentRegion = p.region;
-    // Wait for the @if/*ngIf to materialize the canvas. requestAnimation
-    // -Frame is not enough if the dialog content just changed; queue
-    // microtask + setTimeout.
+    if (!p?.source) return;
+    // Region is optional — boolean / derived fields often lack one
+    // but the doc itself is still worth showing as context.
+    if (p.region) this.ocWalkCurrentRegion = p.region;
+    // Flip the gate ON before fetching so the canvas element is in
+    // the DOM by the time we go to render. The template uses
+    // ocWalkHasSourceDoc, not ocWalkCurrentRegion, so the section
+    // shows even for region-less boolean steps.
+    this.ocWalkHasSourceDoc = true;
     await new Promise((r) => setTimeout(r, 0));
     const canvas = this.ocWalkCanvasEl?.nativeElement;
     if (!canvas) return;
-    // Fetch the attached doc on demand if it isn't cached this session
-    // (existing-device loads have no in-memory File until something
-    // triggers a re-extract). One fetch, then it stays cached for the
-    // rest of the walk.
+    // Fetch the attached doc on demand if it isn't cached this session.
     const file = await this.ensureOcWalkSourceFile();
-    if (!file) return;
+    if (!file) {
+      this.ocWalkHasSourceDoc = false;
+      return;
+    }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const page = p.region.page ?? 1;
@@ -4581,6 +4590,7 @@ export class AddDevicesComponent implements OnDestroy {
     } catch (err) {
       console.warn('renderOcWalkSource failed', err);
       this.ocWalkCurrentRegion = null;
+      this.ocWalkHasSourceDoc = false;
     }
   }
 
