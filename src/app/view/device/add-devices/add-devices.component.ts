@@ -4635,6 +4635,28 @@ export class AddDevicesComponent implements OnDestroy {
 
   /** Resolve the current step's source label to a (fileMap, docType)
    *  pair used by both ocWalkSourceFile and the on-demand fetcher. */
+  /** Form-field values for the literal-evidence fields a derived
+   *  field rests on. Fed into Tesseract as additional keywords so a
+   *  derived numeric ("60") can be pinned via the brand string
+   *  ("HUAWEI SUN2000-30KTL-M3") which the OCR pass CAN find. */
+  private relatedLiteralValuesFor(field: string): string[] {
+    const RELATED: Record<string, string[]> = {
+      capacity:             ['dataSourceBrand'],
+      generatingUnitCount:  ['dataSourceBrand'],
+      gridInterconnection:  ['networkOwner'],
+      gridExportType:       ['networkOwner'],
+      hasNetworkMeter:      ['networkOwner'],
+    };
+    const sources = RELATED[field] ?? [];
+    const form = this.deviceForms.at(0);
+    const out: string[] = [];
+    for (const s of sources) {
+      const v = form?.get(s)?.value;
+      if (v != null && v !== '') out.push(String(v));
+    }
+    return out;
+  }
+
   private ocWalkSourceKey(): { fileMap: string; docType: string } | null {
     const item = this.ocWalkCurrent;
     if (!item) return null;
@@ -4777,21 +4799,30 @@ export class AddDevicesComponent implements OnDestroy {
           cssHeight: canvas.clientHeight,
         };
       });
-      // Soft "scan around here" hints when there's no precise bbox.
-      // Keywords from the reasoning, run through Tesseract on the
-      // canvas. Only fires for keyword overlap that exists — never
-      // pretends a region.
+      // Tesseract last-resort: keywords from (1) the reasoning and
+      // (2) the VALUE of any related literal-evidence field
+      // (dataSourceBrand="HUAWEI SUN2000-30KTL-M3" supplies "huawei",
+      // "sun2000" as anchors for capacity / inverterCount). First
+      // hit becomes the primary red bbox, the rest are yellow tints.
       this.ocWalkTextHints = [];
       if (!this.ocWalkCurrentRegion && canvas) {
         const reasoning = String(p?.reasoning ?? '').trim();
-        if (reasoning) {
+        const related = this.relatedLiteralValuesFor(item.field);
+        const keywords = `${reasoning} ${related.join(' ')}`.trim();
+        if (keywords) {
           try {
-            this.ocWalkTextHints = await this.documentClassifier.findReasoningHints(
+            const hits = await this.documentClassifier.findReasoningHints(
               canvas,
-              reasoning,
+              keywords,
             );
+            if (hits.length) {
+              // First hit becomes the primary region (red solid bbox);
+              // remaining hits stay as soft yellow tints.
+              this.ocWalkCurrentRegion = { ...hits[0] };
+              this.ocWalkTextHints = hits.slice(1);
+            }
           } catch (e) {
-            console.warn('OC walk reasoning-hints failed', e);
+            console.warn('OC walk Tesseract fallback failed', e);
           }
         }
       }

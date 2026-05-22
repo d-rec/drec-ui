@@ -738,7 +738,11 @@ export class DocumentClassifierService {
       new Set(
         reasoning
           .toLowerCase()
-          .split(/[^a-z0-9-]+/)
+          // Split on hyphens too: "SUN2000-30KTL-M3" → ["sun2000",
+          // "30ktl", "m3"]. Tesseract emits each token separately
+          // even if the source uses hyphens, so a hyphen-joined
+          // search string never hits.
+          .split(/[^a-z0-9]+/)
           .filter((t) => t.length >= 4 && !STOP.has(t)),
       ),
     );
