@@ -1860,6 +1860,16 @@ $as-bg:       #f8fafc;
   border: 1px solid rgba(202, 138, 4, 0.55);
   border-radius: 2px;
 }
+/* Primary text-layer hit — same crisp rectangle as a yellow hint,
+   just red. No blur, no animation: this IS a precise bbox now, not
+   an approximate "around here" model claim. */
+.oc-walk__hint--primary {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(220, 38, 38, 0.18);
+  border: 1px solid rgba(220, 38, 38, 0.85);
+  border-radius: 2px;
+}
 .oc-walk__source-canvas {
   /* No vertical cap on the container — the canvas itself is
      max-height:46vh + height:auto so it fits aspect into the dialog
