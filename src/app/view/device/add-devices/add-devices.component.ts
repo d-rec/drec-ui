@@ -4655,6 +4655,10 @@ export class AddDevicesComponent implements OnDestroy {
       hasNetworkMeter:            { x: 0,    y: 0,    w: 1,   h: 0.5  },
       gridInterconnection:        { x: 0,    y: 0,    w: 1,   h: 0.5  },
       interconnectionVoltage:     { x: 0,    y: 0,    w: 1,   h: 0.5  },
+      // Middle band (inverter row — where capacity, count, brand live)
+      capacity:                   { x: 0,    y: 0.3,  w: 1,   h: 0.4  },
+      generatingUnitCount:        { x: 0,    y: 0.3,  w: 1,   h: 0.4  },
+      dataSourceBrand:            { x: 0,    y: 0.3,  w: 1,   h: 0.4  },
       // Bottom half (LV distribution / customer / loads)
       gridExportType:             { x: 0,    y: 0.45, w: 1,   h: 0.55 },
       hasCaptiveConsumer:         { x: 0,    y: 0.45, w: 1,   h: 0.55 },
