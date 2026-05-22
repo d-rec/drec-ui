@@ -4912,15 +4912,10 @@ export class AddDevicesComponent implements OnDestroy {
             this.ocWalkCurrentRegion = { ...ownHits[0] };
             this.ocWalkTextHints = ownHits.slice(1);
           } else if (ownStr) {
-            // No hit on the current page — try every other page
-            // before declaring it missing. Pages are often near-
-            // identical except for which block carries which stamp.
+            // No hit on the current page — try every other page. If
+            // one has the value, jump there directly and re-render
+            // so the bbox lands on the hit page.
             let foundOnOther: number | null = null;
-            const pdfObj = (ocWalkPdfPage as any).pdfObj || null;
-            // findPdfTextHits operates on a page object we already
-            // hold; we need other pages from the same pdf doc. Pull
-            // from the closure via this.ocWalkPageCount + a fresh
-            // getPage call.
             if (this.ocWalkPageCount > 1) {
               try {
                 const pdfjs: any = await import('pdfjs-dist' as any);
@@ -4942,8 +4937,14 @@ export class AddDevicesComponent implements OnDestroy {
                 console.warn('cross-page own-value search failed', e);
               }
             }
-            this.ocWalkValueFoundInText = foundOnOther !== null;
-            this.ocWalkValueFoundOnPage = foundOnOther;
+            if (foundOnOther !== null) {
+              // Navigate to the hit page; the re-render finds the
+              // value on the (now current) page and bboxes it.
+              this.ocWalkCurrentPage = foundOnOther;
+              this.renderOcWalkSource();
+              return;
+            }
+            this.ocWalkValueFoundInText = false;
           }
           // Related-field anchors — useful when the field's own value
           // is derived (capacity, count) and so isn't on the doc, but
