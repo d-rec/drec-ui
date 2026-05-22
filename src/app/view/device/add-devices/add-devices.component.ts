@@ -2656,6 +2656,29 @@ export class AddDevicesComponent implements OnDestroy {
         // effort: if the doc is scanned (no text layer) we just get
         // zero hits — no error.
         this.verifyTextMatches = await this.findValueOnPage(pdfPage, scaled, item.value);
+        // Fallback: when the value is a digit / boolean / derived
+        // (so its literal text doesn't anchor), search the
+        // extractor's reasoning keywords + related-field values in
+        // the text layer too. Same logic as the OC# walk.
+        if (!this.verifyTextMatches.length) {
+          const reasoning = String((item.field as any)?.reasoning ?? '').trim();
+          const related = this.relatedLiteralValuesFor(item.name);
+          const needles = [
+            ...(reasoning ? [reasoning] : []),
+            ...related,
+          ];
+          if (needles.length) {
+            const hits = await this.findPdfTextHits(
+              pdfPage,
+              scaled,
+              needles,
+              this.verifyCurrentPage,
+              { minLen: 3 },
+            );
+            // Strip the page field — verifyTextMatches expects {x,y,w,h}.
+            this.verifyTextMatches = hits.map(({ x, y, w, h }) => ({ x, y, w, h }));
+          }
+        }
         // Kick off a whole-doc scan if we don't have it yet — populates
         // verifyMatchesByPage so the indicator can show "5 matches on
         // p.7" hints. Cached per (file, value).

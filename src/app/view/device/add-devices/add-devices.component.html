@@ -2391,7 +2391,7 @@
           </div>
         </div>
       </div>
-      <div *ngIf="v.regionSource !== 'tesseract'" class="alert alert-info small mt-2 mb-0">
+      <div *ngIf="v.regionSource !== 'tesseract' && !verifyTextMatches.length" class="alert alert-info small mt-2 mb-0">
         <mat-icon style="font-size:16px;vertical-align:middle">info_outline</mat-icon>
         No literal token match — the value is derived or boolean (no exact string to highlight). Use the reasoning above to scan the diagram and verify.
       </div>
