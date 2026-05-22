@@ -470,6 +470,7 @@ export class AddDevicesComponent implements OnDestroy {
           // a prior session.
           this.loadDismissedSerials(0);
           this.loadDismissedFieldValues(0);
+          this.loadOcWalkState();
           const dismissed = this.dismissedSerialNumbers[0] ?? new Set();
           const filterDismissed = (s: string | null) => {
             if (!s) return s;
@@ -4266,6 +4267,12 @@ export class AddDevicesComponent implements OnDestroy {
   ocWalkQueue: Array<{ field: string; oc: number; label: string }> = [];
   ocWalkIndex = 0;
   ocWalkOverride = '';
+  /** True when the dialog is closed but state is preserved — registrant
+   *  can resume from the same step later. Distinct from ocWalkQueue
+   *  being empty (which means no walk has been started or it was
+   *  explicitly quit). Persisted to localStorage so a page reload
+   *  doesn't drop progress mid-walk. */
+  ocWalkPaused = false;
   @ViewChild('ocWalkthroughDialog') ocWalkthroughDialog?: TemplateRef<any>;
   private ocWalkDialogRef: MatDialogRef<any> | null = null;
 
@@ -4289,11 +4296,60 @@ export class AddDevicesComponent implements OnDestroy {
   ocWalkReplay = false;
   ocWalkReplayIndex = 0;
 
+  /** localStorage key for the paused-walk state. */
+  private ocWalkStateKey(): string {
+    const id =
+      (this as any).editingDeviceId ??
+      this.editingExternalId ??
+      `draft:0`;
+    return `drec.ocWalkState.${id}`;
+  }
+  /** Persist current walk state (queue + index) so a refresh resumes
+   *  from the same step. Writes whenever a queue exists; deletes only
+   *  when the walk is finished or explicitly quit. */
+  private saveOcWalkState(): void {
+    try {
+      if (!this.ocWalkQueue.length) {
+        localStorage.removeItem(this.ocWalkStateKey());
+        return;
+      }
+      localStorage.setItem(
+        this.ocWalkStateKey(),
+        JSON.stringify({
+          queue: this.ocWalkQueue,
+          index: this.ocWalkIndex,
+          paused: this.ocWalkPaused,
+        }),
+      );
+    } catch {}
+  }
+  /** Hydrate paused-walk state on edit-load. Called from
+   *  loadDeviceForEdit alongside the other localStorage hydrators. */
+  loadOcWalkState(): void {
+    try {
+      const raw = localStorage.getItem(this.ocWalkStateKey());
+      if (!raw) return;
+      const s = JSON.parse(raw);
+      if (Array.isArray(s?.queue) && typeof s?.index === 'number') {
+        this.ocWalkQueue = s.queue;
+        this.ocWalkIndex = Math.max(0, Math.min(s.index, s.queue.length - 1));
+        this.ocWalkPaused = true;
+      }
+    } catch {}
+  }
+
   /** Build the queue: every field whose FIELD_LABELS entry starts with
    *  "(N)" (i.e. has an OC#), sorted by OC#. Walks the registrant
    *  through each one, showing the current value + source + three
-   *  actions: approve / decline / fill-your-own. */
-  startOcWalkthrough(): void {
+   *  actions: approve / decline / fill-your-own.
+   *
+   *  If a paused walk exists, resumes it instead of starting a fresh
+   *  one. Pass force:true to restart from the top regardless. */
+  startOcWalkthrough(opts?: { force?: boolean }): void {
+    if (!opts?.force && this.ocWalkPaused && this.ocWalkQueue.length) {
+      this.resumeOcWalkthrough();
+      return;
+    }
     const items: Array<{ field: string; oc: number; label: string }> = [];
     for (const [name, label] of Object.entries(AddDevicesComponent.FIELD_LABELS)) {
       const m = /^\((\d+)[a-z]?\)/.exec(label);
@@ -4310,10 +4366,56 @@ export class AddDevicesComponent implements OnDestroy {
     this.ocWalkQueue = items;
     this.ocWalkIndex = 0;
     this.ocWalkOverride = '';
+    this.ocWalkPaused = false;
+    this.saveOcWalkState();
+    this.openOcWalkDialog();
+  }
+
+  /** Re-open the dialog at the paused step. */
+  resumeOcWalkthrough(): void {
+    if (!this.ocWalkQueue.length) return;
+    this.ocWalkPaused = false;
+    this.saveOcWalkState();
+    this.openOcWalkDialog();
+  }
+
+  /** Pause: close the dialog but keep queue + index alive. The button
+   *  in the form footer flips to "Resume OC# walk (i / N)" so the
+   *  user can pick up where they left off. */
+  pauseOcWalkthrough(): void {
+    if (!this.ocWalkQueue.length) return;
+    this.ocWalkPaused = true;
+    this.saveOcWalkState();
+    this.ocWalkDialogRef?.close();
+    this.ocWalkDialogRef = null;
+  }
+
+  /** Shared dialog-opener used by both fresh-start and resume. */
+  private openOcWalkDialog(): void {
     if (!this.ocWalkthroughDialog) return;
     if (this.ocWalkDialogRef) { this.ocWalkDialogRef.close(); this.ocWalkDialogRef = null; }
     this.ocWalkDialogRef = this.dialog.open(this.ocWalkthroughDialog, {
       width: '720px', maxWidth: '95vw', disableClose: false,
+    });
+    // ESC or backdrop click closes the dialog. Treat that as PAUSE,
+    // not quit — registrant resumes via the "Resume OC# walk" button.
+    // Explicit Quit/Done paths clear ocWalkDialogRef before this fires.
+    this.ocWalkDialogRef.afterClosed().subscribe(() => {
+      if (this.ocWalkDialogRef) {
+        // afterClosed fired but ref wasn't cleared by an explicit
+        // handler — user dismissed. Pause unless we're already
+        // mid-replay (which is fine to abandon).
+        this.ocWalkDialogRef = null;
+        if (this.ocWalkReplay) {
+          this.ocWalkReplay = false;
+          this.ocWalkReplayIndex = 0;
+          return;
+        }
+        if (this.ocWalkQueue.length && this.ocWalkIndex < this.ocWalkQueue.length) {
+          this.ocWalkPaused = true;
+          this.saveOcWalkState();
+        }
+      }
     });
     this.primeOcWalkOverride();
   }
@@ -4476,7 +4578,10 @@ export class AddDevicesComponent implements OnDestroy {
     this.ocWalkIndex++;
     this.primeOcWalkOverride();
   }
-  private ocWalkAdvance(): void { this.ocWalkNext(); }
+  private ocWalkAdvance(): void {
+    this.ocWalkNext();
+    this.saveOcWalkState();
+  }
   ocWalkClose(): void {
     this.ocWalkDialogRef?.close();
     this.ocWalkDialogRef = null;
@@ -4485,7 +4590,16 @@ export class AddDevicesComponent implements OnDestroy {
     this.ocWalkOverride = '';
     this.ocWalkReplay = false;
     this.ocWalkReplayIndex = 0;
+    this.ocWalkPaused = false;
+    this.saveOcWalkState();
     this.refreshLiveIssues();
+  }
+
+  /** Explicit "quit" — abandon the walk. Discards queue and any
+   *  paused-resume state. Distinct from pause/dismiss which preserves. */
+  ocWalkQuit(): void {
+    if (!confirm('Quit OC# walkthrough? Progress to here is kept (already-attested values stay attested), but the walk position will be lost.')) return;
+    this.ocWalkClose();
   }
 
   /** Expand the live-issues sidebar if collapsed, scroll it into

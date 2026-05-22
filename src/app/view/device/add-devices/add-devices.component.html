@@ -1690,9 +1690,16 @@
             <button *ngIf="isEditMode" type="button"
               class="btn btn-outline-primary text-capitalize px-4 d-inline-flex align-items-center gap-2"
               (click)="startOcWalkthrough()"
-              title="Walk every OC# question one by one: approve, decline, or fill your own value.">
-              <mat-icon style="font-size:18px;height:18px;width:18px;line-height:1">checklist</mat-icon>
-              Walk OC#
+              [title]="ocWalkPaused && ocWalkQueue.length
+                ? ('Resume the paused OC# walk at step ' + (ocWalkIndex + 1) + ' of ' + ocWalkQueue.length + '.')
+                : 'Walk every OC# question one by one: approve, decline, or fill your own value.'">
+              <mat-icon style="font-size:18px;height:18px;width:18px;line-height:1">
+                {{ ocWalkPaused && ocWalkQueue.length ? 'play_arrow' : 'checklist' }}
+              </mat-icon>
+              <ng-container *ngIf="!(ocWalkPaused && ocWalkQueue.length)">Walk OC#</ng-container>
+              <ng-container *ngIf="ocWalkPaused && ocWalkQueue.length">
+                Resume OC# walk ({{ ocWalkIndex + 1 }} / {{ ocWalkQueue.length }})
+              </ng-container>
             </button>
             <button *ngIf="isEditMode && ocWalkLog.length" type="button"
               class="btn btn-outline-secondary text-capitalize px-4 d-inline-flex align-items-center gap-2"
@@ -2154,12 +2161,16 @@
   <div mat-dialog-actions class="d-flex justify-content-between gap-2 flex-wrap">
     <!-- Interactive mode footer -->
     <ng-container *ngIf="!ocWalkReplay">
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2 flex-wrap">
         <button mat-button class="btn btn-outline-secondary" (click)="ocWalkPrev()" [disabled]="ocWalkIndex <= 0">
           <mat-icon style="font-size:16px">chevron_left</mat-icon> Prev
         </button>
         <button mat-button class="btn btn-outline-secondary" (click)="ocWalkNext()">
           Skip <mat-icon style="font-size:16px">chevron_right</mat-icon>
+        </button>
+        <button mat-button class="btn btn-outline-warning" (click)="pauseOcWalkthrough()"
+          title="Pause the walk. State is saved; use the Resume button on the form to pick up here later.">
+          <mat-icon style="font-size:16px">pause</mat-icon> Pause
         </button>
       </div>
       <div class="d-flex gap-2 flex-wrap">
