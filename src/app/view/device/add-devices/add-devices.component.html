@@ -2122,13 +2122,21 @@
             </ng-container>
             <ng-container *ngIf="!ocWalkCurrentRegion && !ocWalkTextHints.length">source — no precise bbox; scan visually</ng-container>
           </small>
-          <span *ngIf="ocWalkValueFoundInText === true"
+          <span *ngIf="ocWalkValueFoundInText === true && !ocWalkValueFoundOnPage"
                 class="small d-inline-flex align-items-center gap-1"
                 style="color:#16a34a"
                 title="The extracted value's literal text is present on this page of the PDF.">
             <mat-icon style="font-size:14px;height:14px;width:14px">check_circle</mat-icon>
             value anchored in document text
           </span>
+          <a *ngIf="ocWalkValueFoundInText === true && ocWalkValueFoundOnPage"
+             href="#" (click)="$event.preventDefault(); ocWalkGoToPage(ocWalkValueFoundOnPage!)"
+             class="small d-inline-flex align-items-center gap-1"
+             style="color:#0284c7"
+             [title]="'Value found on page ' + ocWalkValueFoundOnPage + ' — jump there.'">
+            <mat-icon style="font-size:14px;height:14px;width:14px">north_east</mat-icon>
+            value found on p.{{ ocWalkValueFoundOnPage }} — jump
+          </a>
           <span *ngIf="ocWalkValueFoundInText === false"
                 class="small d-inline-flex align-items-center gap-1"
                 style="color:#b45309"

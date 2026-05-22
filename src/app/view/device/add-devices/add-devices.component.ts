@@ -2288,6 +2288,11 @@ export class AddDevicesComponent implements OnDestroy {
     this.ocWalkCurrentPage++;
     this.renderOcWalkSource();
   }
+  ocWalkGoToPage(p: number): void {
+    if (p < 1 || p > this.ocWalkPageCount) return;
+    this.ocWalkCurrentPage = p;
+    this.renderOcWalkSource();
+  }
 
   /** Per-page occurrence count of the current item's value, derived
    *  from pdf.js text-content. Index 0 unused; pages are 1-based to
@@ -2756,6 +2761,7 @@ export class AddDevicesComponent implements OnDestroy {
     viewport: any,
     values: string[],
     pageNumber: number,
+    opts: { minLen?: number } = {},
   ): Promise<Array<{ page: number; x: number; y: number; w: number; h: number }>> {
     const STOP = new Set([
       'the', 'and', 'for', 'with', 'this', 'that', 'from', 'into',
@@ -2765,11 +2771,12 @@ export class AddDevicesComponent implements OnDestroy {
       'inferred', 'derived', 'mentioned', 'visible', 'appears',
       'based', 'implied', 'because', 'which', 'where', 'there',
     ]);
+    const minLen = opts.minLen ?? 4;
     const needles = Array.from(
       new Set(
         values
           .flatMap((v) => String(v ?? '').toLowerCase().split(/[^a-z0-9]+/))
-          .filter((t) => t.length >= 4 && !STOP.has(t)),
+          .filter((t) => t.length >= minLen && !STOP.has(t)),
       ),
     );
     if (!needles.length) return [];
@@ -4501,6 +4508,11 @@ export class AddDevicesComponent implements OnDestroy {
    *  = not found (Haiku inferred or hallucinated), null = not
    *  applicable (no value yet, image-only doc, or field skipped). */
   ocWalkValueFoundInText: boolean | null = null;
+  /** If the own-value search found a hit on a DIFFERENT page than
+   *  the one currently rendered, the page number lives here so the
+   *  UI can offer a "jump to p.N" link. null = current page or no
+   *  cross-page hit. */
+  ocWalkValueFoundOnPage: number | null = null;
 
   /** Recorded sequence of the registrant's last walkthrough — one
    *  entry per Approve / Decline / Use-mine action. Persisted on
@@ -4874,6 +4886,7 @@ export class AddDevicesComponent implements OnDestroy {
       // Tesseract is only a fallback for image docs (PNG / scanned).
       this.ocWalkTextHints = [];
       this.ocWalkValueFoundInText = null;
+      this.ocWalkValueFoundOnPage = null;
       if (!this.ocWalkCurrentRegion && canvas) {
         const ownValue = this.deviceForms.at(0)?.get(item.field)?.value;
         const ownStr = ownValue == null ? '' : String(ownValue);
@@ -4882,12 +4895,16 @@ export class AddDevicesComponent implements OnDestroy {
           // Search the field's own value first — that's the "is
           // this real?" check. A hit proves the value is in the doc;
           // no hit means Haiku either inferred it or hallucinated.
+          // minLen=3 so a short numeric value like "415" still
+          // counts when its unit ("V") is positioned as a separate
+          // text item in the PDF (common for unit suffixes).
           const ownHits = ownStr
             ? await this.findPdfTextHits(
                 ocWalkPdfPage,
                 ocWalkPdfViewport,
                 [ownStr],
                 this.ocWalkCurrentPage,
+                { minLen: 3 },
               )
             : [];
           if (ownHits.length) {
@@ -4895,7 +4912,38 @@ export class AddDevicesComponent implements OnDestroy {
             this.ocWalkCurrentRegion = { ...ownHits[0] };
             this.ocWalkTextHints = ownHits.slice(1);
           } else if (ownStr) {
-            this.ocWalkValueFoundInText = false;
+            // No hit on the current page — try every other page
+            // before declaring it missing. Pages are often near-
+            // identical except for which block carries which stamp.
+            let foundOnOther: number | null = null;
+            const pdfObj = (ocWalkPdfPage as any).pdfObj || null;
+            // findPdfTextHits operates on a page object we already
+            // hold; we need other pages from the same pdf doc. Pull
+            // from the closure via this.ocWalkPageCount + a fresh
+            // getPage call.
+            if (this.ocWalkPageCount > 1) {
+              try {
+                const pdfjs: any = await import('pdfjs-dist' as any);
+                const data = new Uint8Array(await file.arrayBuffer());
+                const pdf = await pdfjs.getDocument({ data }).promise;
+                for (let p = 1; p <= pdf.numPages; p++) {
+                  if (p === this.ocWalkCurrentPage) continue;
+                  const pg = await pdf.getPage(p);
+                  const vp = pg.getViewport({ scale: 1 });
+                  const otherHits = await this.findPdfTextHits(
+                    pg, vp, [ownStr], p, { minLen: 3 },
+                  );
+                  if (otherHits.length) {
+                    foundOnOther = p;
+                    break;
+                  }
+                }
+              } catch (e) {
+                console.warn('cross-page own-value search failed', e);
+              }
+            }
+            this.ocWalkValueFoundInText = foundOnOther !== null;
+            this.ocWalkValueFoundOnPage = foundOnOther;
           }
           // Related-field anchors — useful when the field's own value
           // is derived (capacity, count) and so isn't on the doc, but
