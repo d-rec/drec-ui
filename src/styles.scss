@@ -1359,6 +1359,28 @@ input[type='number']::-webkit-inner-spin-button {
     height: 100%;
     border-bottom-right-radius: 0;
   }
+  /* CSS-only fallback handle: a bright magenta corner block that
+     CANNOT be hidden by any internal stacking. If the user can see
+     this but not the JS-driven teal handle, the JS injection isn't
+     running and we know where to look. If neither shows, panelClass
+     itself isn't being applied. */
+  &::before {
+    content: 'resize';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 50px;
+    height: 18px;
+    background: #ec4899;
+    color: #fff;
+    font: bold 10px monospace;
+    text-align: center;
+    line-height: 18px;
+    cursor: nwse-resize;
+    z-index: 99998;
+    border-top-left-radius: 6px;
+    pointer-events: none; /* JS handle handles the drag */
+  }
   /* Ctrl+scroll to zoom dialog contents — independent of browser zoom.
      Implemented via a runtime CSS custom property set by the host
      component on wheel events (--drec-dialog-zoom). Default 1. */

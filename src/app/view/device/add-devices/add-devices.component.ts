@@ -4306,6 +4306,25 @@ export class AddDevicesComponent implements OnDestroy {
     });
   }
 
+  /** Visible diagnostic strip — bottom-left of the viewport — so we
+   *  can see what installFloatingDialogResize is finding without
+   *  asking the user to open devtools. Format: "resize: installed |
+   *  panes:N | handles:M". */
+  private dbgEl: HTMLElement | null = null;
+  private updateResizeDebug(panes: number, handles: number): void {
+    if (!this.dbgEl) {
+      this.dbgEl = document.createElement('div');
+      this.dbgEl.style.cssText =
+        'position:fixed;left:8px;bottom:8px;z-index:99999;' +
+        'background:#0f172a;color:#f8fafc;font:11px/1.4 monospace;' +
+        'padding:4px 8px;border-radius:4px;pointer-events:none;' +
+        'opacity:0.85';
+      document.body.appendChild(this.dbgEl);
+    }
+    this.dbgEl.textContent =
+      `[drec resize] installed | panes:${panes} | handles:${handles}`;
+  }
+
   /** Hand-rolled resize for floating dialogs. Body-attached handle
    *  (position: fixed) that tracks the pane's bottom-right corner on
    *  every animation frame. Body-level so it can't be clipped or
@@ -4359,9 +4378,6 @@ export class AddDevicesComponent implements OnDestroy {
     };
 
     const tick = () => {
-      // Reposition handles on every frame so dragging the dialog
-      // (cdkDrag transforms the pane) keeps the corner glued. Remove
-      // handles whose pane has gone away.
       for (const pane of tracked) {
         const handle = handles.get(pane);
         if (!handle) continue;
@@ -4372,6 +4388,11 @@ export class AddDevicesComponent implements OnDestroy {
         }
         positionHandle(pane, handle);
       }
+      // Diagnostic
+      const allPanes = document.querySelectorAll(
+        '.cdk-overlay-pane.drec-floating-dialog',
+      ).length;
+      this.updateResizeDebug(allPanes, tracked.size);
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
