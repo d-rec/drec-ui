@@ -2133,6 +2133,10 @@
             [style.height.%]="ocWalkCurrentRegion.h * 100">
           </div>
         </div>
+        <div *ngIf="ocWalkSourceError" class="alert alert-warning small mt-2 mb-0">
+          <mat-icon style="font-size:16px;vertical-align:middle">warning_amber</mat-icon>
+          {{ ocWalkSourceError }}
+        </div>
       </div>
       <div class="oc-walk__own mt-3">
         <label class="form-label small text-muted">fill your own value (optional):</label>

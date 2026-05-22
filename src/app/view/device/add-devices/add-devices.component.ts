@@ -4518,6 +4518,10 @@ export class AddDevicesComponent implements OnDestroy {
    *  on this — drops down to "doc preview only, no bbox" when the
    *  provenance lacks a region. */
   ocWalkHasSourceDoc = false;
+  /** Human-readable error if the source render failed (file fetch
+   *  404, non-renderable type, pdf.js threw, …). Shown inline so the
+   *  user sees WHY the canvas is empty, not just a blank box. */
+  ocWalkSourceError: string | null = null;
 
   /** Render the source doc behind the current OC# step into
    *  ocWalkCanvas, with the recorded region overlaid (if any). */
@@ -4525,25 +4529,33 @@ export class AddDevicesComponent implements OnDestroy {
     this.ocWalkCurrentRegion = null;
     this.ocWalkCanvasSize = null;
     this.ocWalkHasSourceDoc = false;
+    this.ocWalkSourceError = null;
     const item = this.ocWalkCurrent;
     if (!item) return;
     const p = this.appliedProvenance[0]?.[item.field] as any;
     if (!p?.source) return;
-    // Region is optional — boolean / derived fields often lack one
-    // but the doc itself is still worth showing as context.
     if (p.region) this.ocWalkCurrentRegion = p.region;
-    // Flip the gate ON before fetching so the canvas element is in
-    // the DOM by the time we go to render. The template uses
-    // ocWalkHasSourceDoc, not ocWalkCurrentRegion, so the section
-    // shows even for region-less boolean steps.
+    // Pre-flight: do we even have an attached doc of the matching
+    // type? If not, don't flip the gate.
+    const key = this.ocWalkSourceKey();
+    const fileMap = key ? (this as any)[key.fileMap] : null;
+    const cached = fileMap?.[0] as File | undefined;
+    const attached = key ? (this.existingDocs[0]?.[key.docType] ?? []) : [];
+    if (!cached && !attached.length) {
+      // Doc-backed value but no doc on file (likely Manual:<email>
+      // routed under a doc source label, or a stale provenance entry).
+      return;
+    }
     this.ocWalkHasSourceDoc = true;
     await new Promise((r) => setTimeout(r, 0));
     const canvas = this.ocWalkCanvasEl?.nativeElement;
-    if (!canvas) return;
-    // Fetch the attached doc on demand if it isn't cached this session.
+    if (!canvas) {
+      this.ocWalkSourceError = 'internal: canvas element missing';
+      return;
+    }
     const file = await this.ensureOcWalkSourceFile();
     if (!file) {
-      this.ocWalkHasSourceDoc = false;
+      this.ocWalkSourceError = 'failed to fetch the attached document';
       return;
     }
     const ctx = canvas.getContext('2d');
@@ -4587,10 +4599,9 @@ export class AddDevicesComponent implements OnDestroy {
           cssHeight: canvas.clientHeight,
         };
       });
-    } catch (err) {
+    } catch (err: any) {
       console.warn('renderOcWalkSource failed', err);
-      this.ocWalkCurrentRegion = null;
-      this.ocWalkHasSourceDoc = false;
+      this.ocWalkSourceError = `render failed — ${err?.message ?? err}`;
     }
   }
 
