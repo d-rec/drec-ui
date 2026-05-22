@@ -1850,16 +1850,16 @@ $as-bg:       #f8fafc;
   position: relative;
 }
 .oc-walk__source-canvas {
-  /* Cap the canvas height so it doesn't push Approve/Decline/Use-mine
-     off-screen on small displays. Scroll if the page is tall. */
-  max-height: 50vh;
+  /* No vertical cap on the container — the canvas itself is
+     max-height:46vh + height:auto so it fits aspect into the dialog
+     without clipping. */
 }
 .oc-walk__zoom {
   overflow: hidden;
   border-radius: 6px;
-  max-height: 50vh;
   cursor: grab;
   user-select: none;
+  display: inline-block; /* hug the (now aspect-fitted) canvas */
   &:active { cursor: grabbing; }
 }
 .oc-walk__head {

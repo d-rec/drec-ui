@@ -4721,7 +4721,11 @@ export class AddDevicesComponent implements OnDestroy {
     // Initialise the per-step page state if we just landed on this
     // step. Subsequent Prev/Next clicks reuse it.
     if (this.ocWalkCurrentPage < 1) this.ocWalkCurrentPage = 1;
-    const targetW = 1600;
+    // 3200px wide — high enough that zooming in via the appImage
+    // -ZoomPan transform (up to 2.5x) keeps the SLD's tiny labels
+    // legible. A1-sized plotter SLDs at 1600px were ~33 DPI which
+    // got pixelated immediately on any zoom.
+    const targetW = 3200;
     try {
       if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
         const pdfjs: any = await import('pdfjs-dist' as any);

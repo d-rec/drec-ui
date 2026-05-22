@@ -2149,7 +2149,7 @@
         <div #ocWalkZoomEl class="oc-walk__zoom" appImageZoomPan [resetKey]="ocWalkCurrent?.field">
           <div class="oc-walk__doc">
             <canvas #ocWalkCanvas
-              style="display:block;max-width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
+              style="display:block;max-width:100%;max-height:46vh;width:auto;height:auto;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
             </canvas>
             <div *ngIf="ocWalkCurrentRegion"
               class="verify-source__region"
