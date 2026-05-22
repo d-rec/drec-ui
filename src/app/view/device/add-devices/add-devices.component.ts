@@ -4871,7 +4871,7 @@ export class AddDevicesComponent implements OnDestroy {
             ocWalkPdfPage,
             ocWalkPdfViewport,
             related,
-            page,
+            this.ocWalkCurrentPage,
           );
           if (hits.length) {
             this.ocWalkCurrentRegion = { ...hits[0] };
