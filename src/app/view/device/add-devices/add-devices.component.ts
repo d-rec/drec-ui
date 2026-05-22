@@ -4554,10 +4554,8 @@ export class AddDevicesComponent implements OnDestroy {
     if (this.ocWalkDialogRef) { this.ocWalkDialogRef.close(); this.ocWalkDialogRef = null; }
     this.ocWalkDialogRef = this.dialog.open(this.ocWalkthroughDialog, {
       width: '720px', maxWidth: '95vw', disableClose: false,
+      panelClass: 'drec-floating-dialog',
     });
-    // ESC or backdrop click closes the dialog. Treat that as PAUSE,
-    // not quit — registrant resumes via the "Resume OC# walk" button.
-    // Explicit Quit/Done paths clear ocWalkDialogRef before this fires.
     this.ocWalkDialogRef.afterClosed().subscribe(() => {
       if (this.ocWalkDialogRef) {
         // afterClosed fired but ref wasn't cleared by an explicit
@@ -4849,6 +4847,7 @@ export class AddDevicesComponent implements OnDestroy {
     if (this.ocWalkDialogRef) { this.ocWalkDialogRef.close(); this.ocWalkDialogRef = null; }
     this.ocWalkDialogRef = this.dialog.open(this.ocWalkthroughDialog, {
       width: '720px', maxWidth: '95vw', disableClose: false,
+      panelClass: 'drec-floating-dialog',
     });
   }
 
