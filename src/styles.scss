@@ -1341,3 +1341,32 @@ input[type='number']::-webkit-inner-spin-button {
     user-select: text;
   }
 }
+
+/* Floating dialog windows.
+   Marked via panelClass: 'drec-floating-dialog' on dialog.open. The
+   dialog is already draggable by its title (cdkDrag in each template);
+   here we add CSS resize so the pane corner can be dragged to grow/
+   shrink the window, like a real desktop tool window. */
+.cdk-overlay-pane.drec-floating-dialog {
+  resize: both;
+  overflow: auto;
+  min-width: 320px;
+  min-height: 240px;
+  max-width: 98vw !important;
+  max-height: 92vh !important;
+  /* The Material default sets overflow:hidden on .mat-mdc-dialog-container;
+     undo so the inner scrollers don't double up with our resize. */
+  .mat-mdc-dialog-container,
+  .mat-mdc-dialog-surface {
+    overflow: visible;
+    height: 100%;
+  }
+  /* Ctrl+scroll to zoom dialog contents — independent of browser zoom.
+     Implemented via a runtime CSS custom property set by the host
+     component on wheel events (--drec-dialog-zoom). Default 1. */
+  .mat-mdc-dialog-content {
+    transform-origin: top left;
+    transform: scale(var(--drec-dialog-zoom, 1));
+    width: calc(100% / var(--drec-dialog-zoom, 1));
+  }
+}

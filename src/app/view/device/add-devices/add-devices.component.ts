@@ -416,6 +416,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.initializeForm();
     this.showerror[0] = false;
     this.siteNameExists[0] = false;
+    this.installFloatingDialogZoom();
 
     this.deviceForms.controls.forEach((group, i) => {
       this.setupdataSourceBrandWatcher(group as FormGroup);
@@ -2507,6 +2508,7 @@ export class AddDevicesComponent implements OnDestroy {
         width: '900px',
         maxWidth: '95vw',
         disableClose: false,
+        panelClass: 'drec-floating-dialog',
       },
     );
     setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 50);
@@ -2580,7 +2582,7 @@ export class AddDevicesComponent implements OnDestroy {
     }
     this.verifySourceDialogRef = this.dialog.open(
       this.verifySourceDialog,
-      { width: '900px', maxWidth: '95vw', disableClose: false },
+      { width: '900px', maxWidth: '95vw', disableClose: false, panelClass: 'drec-floating-dialog' },
     );
     setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 50);
   }
@@ -3149,6 +3151,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.overwriteDialogRef = this.dialog.open(this.overwriteConfirmDialog!, {
       width: '640px',
       maxWidth: '95vw',
+      panelClass: 'drec-floating-dialog',
     });
   }
 
@@ -4263,6 +4266,45 @@ export class AddDevicesComponent implements OnDestroy {
     }, 300);
   }
 
+  /** Wire Ctrl+wheel (or pinch on touch) to zoom the contents of any
+   *  floating dialog. Each dialog tracks its own zoom on a CSS
+   *  custom property so multiple open dialogs zoom independently. */
+  private installFloatingDialogZoom(): void {
+    if ((window as any).__drecFloatingDialogZoomInstalled) return;
+    (window as any).__drecFloatingDialogZoomInstalled = true;
+    document.addEventListener(
+      'wheel',
+      (e: WheelEvent) => {
+        if (!e.ctrlKey && !e.metaKey) return;
+        const target = e.target as HTMLElement | null;
+        if (!target) return;
+        const pane = target.closest('.cdk-overlay-pane.drec-floating-dialog') as HTMLElement | null;
+        if (!pane) return;
+        e.preventDefault();
+        const cur = parseFloat(
+          getComputedStyle(pane).getPropertyValue('--drec-dialog-zoom') || '1',
+        ) || 1;
+        const next = Math.max(
+          0.5,
+          Math.min(2.5, cur * (e.deltaY < 0 ? 1.1 : 1 / 1.1)),
+        );
+        pane.style.setProperty('--drec-dialog-zoom', String(next));
+      },
+      { passive: false },
+    );
+    // Double-click reset on any drec-floating-dialog: Ctrl+double-click
+    // resets zoom to 1. (Plain double-click is reserved for inner
+    // controls like the SLD canvas's appImageZoomPan reset.)
+    document.addEventListener('dblclick', (e: MouseEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const target = e.target as HTMLElement | null;
+      const pane = target?.closest(
+        '.cdk-overlay-pane.drec-floating-dialog',
+      ) as HTMLElement | null;
+      if (pane) pane.style.setProperty('--drec-dialog-zoom', '1');
+    });
+  }
+
   /* ---- OC# walkthrough ---- */
   ocWalkQueue: Array<{ field: string; oc: number; label: string }> = [];
   ocWalkIndex = 0;
@@ -5307,7 +5349,7 @@ export class AddDevicesComponent implements OnDestroy {
     if (!this.evidenceReviewDialog) return;
     this.evidenceReviewDialogRef = this.dialog.open(
       this.evidenceReviewDialog,
-      { width: '780px', maxWidth: '95vw' },
+      { width: '780px', maxWidth: '95vw', panelClass: 'drec-floating-dialog' },
     );
   }
   /** Set to true when the registrant clicks "Submit anyway" so the
@@ -5479,6 +5521,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.presubmitDialogRef = this.dialog.open(this.presubmitDialog!, {
       width: '640px',
       maxWidth: '95vw',
+      panelClass: 'drec-floating-dialog',
     });
   }
 
@@ -6676,6 +6719,7 @@ export class AddDevicesComponent implements OnDestroy {
       maxWidth: '95vw',
       maxHeight: '92vh',
       disableClose: true,
+      panelClass: 'drec-floating-dialog',
     });
     this.renameDialogRef.afterClosed().subscribe(() => {
       // Release object URLs and clear dialog-local state. Label commit happens in saveRenameDialog().
@@ -7490,6 +7534,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.formVsDocDialogRef = this.dialog.open(this.formVsDocDialog, {
       width: '760px',
       maxWidth: '95vw',
+      panelClass: 'drec-floating-dialog',
     });
   }
 
