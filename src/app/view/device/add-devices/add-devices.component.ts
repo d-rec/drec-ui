@@ -4274,7 +4274,13 @@ export class AddDevicesComponent implements OnDestroy {
    *  doesn't drop progress mid-walk. */
   ocWalkPaused = false;
   @ViewChild('ocWalkthroughDialog') ocWalkthroughDialog?: TemplateRef<any>;
+  @ViewChild('ocWalkCanvas') ocWalkCanvasEl?: ElementRef<HTMLCanvasElement>;
   private ocWalkDialogRef: MatDialogRef<any> | null = null;
+  /** Source-canvas size for bbox overlay positioning. */
+  ocWalkCanvasSize: { cssWidth: number; cssHeight: number } | null = null;
+  /** Region to draw on the OC# walk source canvas — pulled from the
+   *  current step's appliedProvenance entry. */
+  ocWalkCurrentRegion: { page?: number; x: number; y: number; w: number; h: number } | null = null;
 
   /** Recorded sequence of the registrant's last walkthrough — one
    *  entry per Approve / Decline / Use-mine action. Persisted on
@@ -4453,6 +4459,88 @@ export class AddDevicesComponent implements OnDestroy {
     if (!item) { this.ocWalkOverride = ''; return; }
     const v = this.deviceForms.at(0)?.get(item.field)?.value;
     this.ocWalkOverride = v == null ? '' : String(v);
+    this.renderOcWalkSource();
+  }
+
+  /** Source File cached this session for the OC# walk current step,
+   *  derived from the source label on the provenance entry. Null if
+   *  no cache (existing device load with no re-extract this session). */
+  private ocWalkSourceFile(): File | null {
+    const item = this.ocWalkCurrent;
+    if (!item) return null;
+    const p = this.appliedProvenance[0]?.[item.field] as any;
+    const src: string = p?.source ?? '';
+    if (src.startsWith('SLD')) return this.sldExtractionFile[0] ?? null;
+    if (src.startsWith('SF-02c')) return this.sf02cExtractionFile[0] ?? null;
+    if (src.startsWith('COD')) return this.codExtractionFile[0] ?? null;
+    if (src.startsWith('SF-02')) return this.sf02ExtractionFile[0] ?? null;
+    return null;
+  }
+
+  /** Render the source doc behind the current OC# step into
+   *  ocWalkCanvas, with the recorded region as an overlay bbox.
+   *  Skips silently when there's no canvas yet, no source file
+   *  cached, or no region recorded. */
+  private async renderOcWalkSource(): Promise<void> {
+    this.ocWalkCurrentRegion = null;
+    this.ocWalkCanvasSize = null;
+    const item = this.ocWalkCurrent;
+    if (!item) return;
+    const p = this.appliedProvenance[0]?.[item.field] as any;
+    if (!p?.region) return;
+    this.ocWalkCurrentRegion = p.region;
+    // Wait for the @if/*ngIf to materialize the canvas. requestAnimation
+    // -Frame is not enough if the dialog content just changed; queue
+    // microtask + setTimeout.
+    await new Promise((r) => setTimeout(r, 0));
+    const canvas = this.ocWalkCanvasEl?.nativeElement;
+    const file = this.ocWalkSourceFile();
+    if (!canvas || !file) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const page = p.region.page ?? 1;
+    const targetW = 1600;
+    try {
+      if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
+        const pdfjs: any = await import('pdfjs-dist' as any);
+        const data = new Uint8Array(await file.arrayBuffer());
+        const pdf = await pdfjs.getDocument({ data }).promise;
+        const pdfPage = await pdf.getPage(Math.min(Math.max(1, page), pdf.numPages));
+        const viewport = pdfPage.getViewport({ scale: 1 });
+        const scale = targetW / viewport.width;
+        const scaled = pdfPage.getViewport({ scale });
+        canvas.width = scaled.width;
+        canvas.height = scaled.height;
+        await pdfPage.render({ canvasContext: ctx, viewport: scaled }).promise;
+      } else {
+        const url = URL.createObjectURL(file);
+        try {
+          const img = await new Promise<HTMLImageElement>((res, rej) => {
+            const el = new Image();
+            el.onload = () => res(el);
+            el.onerror = rej;
+            el.src = url;
+          });
+          const scale = targetW / img.width;
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        } finally {
+          URL.revokeObjectURL(url);
+        }
+      }
+      requestAnimationFrame(() => {
+        this.ocWalkCanvasSize = {
+          cssWidth: canvas.clientWidth,
+          cssHeight: canvas.clientHeight,
+        };
+      });
+    } catch (err) {
+      console.warn('renderOcWalkSource failed', err);
+      this.ocWalkCurrentRegion = null;
+    }
   }
 
   /** Append one entry to the walkthrough log. Captures the state the

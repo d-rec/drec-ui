@@ -1846,6 +1846,15 @@ $as-bg:       #f8fafc;
 }
 
 /* OC# walkthrough dialog */
+.oc-walk__doc {
+  position: relative;
+}
+.oc-walk__source-canvas {
+  /* Cap the canvas height so it doesn't push Approve/Decline/Use-mine
+     off-screen on small displays. Scroll if the page is tall. */
+  max-height: 40vh;
+  overflow: auto;
+}
 .oc-walk__head {
   padding: 12px 14px;
   background: #f1f5f9;

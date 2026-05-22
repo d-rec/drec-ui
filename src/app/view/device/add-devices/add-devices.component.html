@@ -2111,6 +2111,24 @@
           no recorded source
         </div>
       </div>
+      <div *ngIf="ocWalkCurrentRegion" class="oc-walk__source-canvas mt-3">
+        <small class="text-muted d-block mb-1">
+          <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">description</mat-icon>
+          source — bbox highlights where the value was read
+        </small>
+        <div class="oc-walk__doc">
+          <canvas #ocWalkCanvas
+            style="display:block;max-width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
+          </canvas>
+          <div *ngIf="ocWalkCurrentRegion"
+            class="verify-source__region"
+            [style.left.%]="ocWalkCurrentRegion.x * 100"
+            [style.top.%]="ocWalkCurrentRegion.y * 100"
+            [style.width.%]="ocWalkCurrentRegion.w * 100"
+            [style.height.%]="ocWalkCurrentRegion.h * 100">
+          </div>
+        </div>
+      </div>
       <div class="oc-walk__own mt-3">
         <label class="form-label small text-muted">fill your own value (optional):</label>
         <input type="text" class="form-control form-control-sm"
