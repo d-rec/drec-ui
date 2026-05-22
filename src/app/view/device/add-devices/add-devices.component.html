@@ -2112,25 +2112,52 @@
         </div>
       </div>
       <div *ngIf="ocWalkHasSourceDoc" class="oc-walk__source-canvas mt-3">
-        <small class="text-muted d-block mb-1 d-flex align-items-center gap-1">
-          <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">description</mat-icon>
-          <ng-container *ngIf="ocWalkCurrentRegion">source — bbox highlights where the value was read</ng-container>
-          <ng-container *ngIf="!ocWalkCurrentRegion">source — no precise bbox for this field; scan visually</ng-container>
-          <span *ngIf="ocWalkSourceLoading" class="text-muted ms-2 d-inline-flex align-items-center gap-1">
+        <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+          <small class="text-muted d-flex align-items-center gap-1">
+            <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">description</mat-icon>
+            <ng-container *ngIf="ocWalkCurrentRegion">source — bbox marks where the value was read</ng-container>
+            <ng-container *ngIf="!ocWalkCurrentRegion">source — no precise bbox; scan visually</ng-container>
+          </small>
+          <span *ngIf="ocWalkSourceLoading" class="text-muted small d-inline-flex align-items-center gap-1">
             <mat-progress-spinner mode="indeterminate" diameter="12" strokeWidth="2"></mat-progress-spinner>
-            fetching attached document…
+            fetching…
           </span>
-        </small>
-        <div class="oc-walk__doc">
-          <canvas #ocWalkCanvas
-            style="display:block;max-width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
-          </canvas>
-          <div *ngIf="ocWalkCurrentRegion"
-            class="verify-source__region"
-            [style.left.%]="ocWalkCurrentRegion.x * 100"
-            [style.top.%]="ocWalkCurrentRegion.y * 100"
-            [style.width.%]="ocWalkCurrentRegion.w * 100"
-            [style.height.%]="ocWalkCurrentRegion.h * 100">
+          <span class="ms-auto d-flex align-items-center gap-1">
+            <ng-container *ngIf="ocWalkPageCount > 1">
+              <button type="button" class="btn btn-sm btn-outline-secondary"
+                [disabled]="ocWalkCurrentPage <= 1" (click)="ocWalkPrevPage()" title="Previous page">
+                <mat-icon style="font-size:14px;height:14px;width:14px">chevron_left</mat-icon>
+              </button>
+              <span class="px-1 small">p.<strong>{{ ocWalkCurrentPage }}</strong>/{{ ocWalkPageCount }}</span>
+              <button type="button" class="btn btn-sm btn-outline-secondary"
+                [disabled]="ocWalkCurrentPage >= ocWalkPageCount" (click)="ocWalkNextPage()" title="Next page">
+                <mat-icon style="font-size:14px;height:14px;width:14px">chevron_right</mat-icon>
+              </button>
+              <span class="text-muted mx-1">·</span>
+            </ng-container>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="ocWalkZoomOut()" title="Zoom out">
+              <mat-icon style="font-size:14px;height:14px;width:14px">remove</mat-icon>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="ocWalkZoomReset()" title="Reset zoom">
+              <mat-icon style="font-size:14px;height:14px;width:14px">center_focus_strong</mat-icon>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="ocWalkZoomIn()" title="Zoom in">
+              <mat-icon style="font-size:14px;height:14px;width:14px">add</mat-icon>
+            </button>
+          </span>
+        </div>
+        <div #ocWalkZoomEl class="oc-walk__zoom" appImageZoomPan [resetKey]="ocWalkCurrent?.field">
+          <div class="oc-walk__doc">
+            <canvas #ocWalkCanvas
+              style="display:block;max-width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
+            </canvas>
+            <div *ngIf="ocWalkCurrentRegion"
+              class="verify-source__region"
+              [style.left.%]="ocWalkCurrentRegion.x * 100"
+              [style.top.%]="ocWalkCurrentRegion.y * 100"
+              [style.width.%]="ocWalkCurrentRegion.w * 100"
+              [style.height.%]="ocWalkCurrentRegion.h * 100">
+            </div>
           </div>
         </div>
         <div *ngIf="ocWalkSourceError" class="alert alert-warning small mt-2 mb-0">

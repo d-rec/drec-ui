@@ -2270,6 +2270,25 @@ export class AddDevicesComponent implements OnDestroy {
   /** Total pages in the verify dialog's loaded doc, for the page
    *  indicator and Next button disable. 1 for non-PDF images. */
   verifyPageCount = 1;
+  @ViewChild('ocWalkZoomEl', { read: ImageZoomPanDirective }) ocWalkZoomDirective?: ImageZoomPanDirective;
+  ocWalkZoomIn(): void { this.ocWalkZoomDirective?.zoomIn(); }
+  ocWalkZoomOut(): void { this.ocWalkZoomDirective?.zoomOut(); }
+  ocWalkZoomReset(): void { this.ocWalkZoomDirective?.reset(); }
+
+  /** OC# walk current PDF page state (Prev/Next nav). */
+  ocWalkCurrentPage = 1;
+  ocWalkPageCount = 1;
+  ocWalkPrevPage(): void {
+    if (this.ocWalkCurrentPage <= 1) return;
+    this.ocWalkCurrentPage--;
+    this.renderOcWalkSource();
+  }
+  ocWalkNextPage(): void {
+    if (this.ocWalkCurrentPage >= this.ocWalkPageCount) return;
+    this.ocWalkCurrentPage++;
+    this.renderOcWalkSource();
+  }
+
   /** Per-page occurrence count of the current item's value, derived
    *  from pdf.js text-content. Index 0 unused; pages are 1-based to
    *  match pdf.js. Lets the UI show "page 3 of 30 · 2 matches" and
@@ -4306,25 +4325,6 @@ export class AddDevicesComponent implements OnDestroy {
     });
   }
 
-  /** Visible diagnostic strip — bottom-left of the viewport — so we
-   *  can see what installFloatingDialogResize is finding without
-   *  asking the user to open devtools. Format: "resize: installed |
-   *  panes:N | handles:M". */
-  private dbgEl: HTMLElement | null = null;
-  private updateResizeDebug(panes: number, handles: number): void {
-    if (!this.dbgEl) {
-      this.dbgEl = document.createElement('div');
-      this.dbgEl.style.cssText =
-        'position:fixed;left:8px;bottom:8px;z-index:99999;' +
-        'background:#0f172a;color:#f8fafc;font:11px/1.4 monospace;' +
-        'padding:4px 8px;border-radius:4px;pointer-events:none;' +
-        'opacity:0.85';
-      document.body.appendChild(this.dbgEl);
-    }
-    this.dbgEl.textContent =
-      `[drec resize] installed | panes:${panes} | handles:${handles}`;
-  }
-
   /** Hand-rolled resize for floating dialogs. Body-attached handle
    *  (position: fixed) that tracks the pane's bottom-right corner on
    *  every animation frame. Body-level so it can't be clipped or
@@ -4388,11 +4388,6 @@ export class AddDevicesComponent implements OnDestroy {
         }
         positionHandle(pane, handle);
       }
-      // Diagnostic
-      const allPanes = document.querySelectorAll(
-        '.cdk-overlay-pane.drec-floating-dialog',
-      ).length;
-      this.updateResizeDebug(allPanes, tracked.size);
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
@@ -4609,6 +4604,11 @@ export class AddDevicesComponent implements OnDestroy {
     if (!item) { this.ocWalkOverride = ''; return; }
     const v = this.deviceForms.at(0)?.get(item.field)?.value;
     this.ocWalkOverride = v == null ? '' : String(v);
+    // Reset page on step change so the next render starts from the
+    // new step's region.page (or 1) instead of inheriting the last
+    // step's flipped-to page.
+    this.ocWalkCurrentPage = 1;
+    this.ocWalkPageCount = 1;
     this.renderOcWalkSource();
   }
 
@@ -4710,14 +4710,24 @@ export class AddDevicesComponent implements OnDestroy {
     }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const page = p.region?.page ?? 1;
+    // Initialise the per-step page state if we just landed on this
+    // step. Subsequent Prev/Next clicks reuse it.
+    if (this.ocWalkCurrentPage < 1) this.ocWalkCurrentPage = 1;
     const targetW = 1600;
     try {
       if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
         const pdfjs: any = await import('pdfjs-dist' as any);
         const data = new Uint8Array(await file.arrayBuffer());
         const pdf = await pdfjs.getDocument({ data }).promise;
-        const pdfPage = await pdf.getPage(Math.min(Math.max(1, page), pdf.numPages));
+        this.ocWalkPageCount = pdf.numPages;
+        // Default to region.page on first render of a step; the user's
+        // explicit Prev/Next overrides this on subsequent renders.
+        if (this.ocWalkCurrentPage === 1 && p.region?.page) {
+          this.ocWalkCurrentPage = Math.min(p.region.page, pdf.numPages);
+        }
+        const page = Math.min(Math.max(1, this.ocWalkCurrentPage), pdf.numPages);
+        this.ocWalkCurrentPage = page;
+        const pdfPage = await pdf.getPage(page);
         const viewport = pdfPage.getViewport({ scale: 1 });
         const scale = targetW / viewport.width;
         const scaled = pdfPage.getViewport({ scale });
