@@ -4635,6 +4635,45 @@ export class AddDevicesComponent implements OnDestroy {
 
   /** Resolve the current step's source label to a (fileMap, docType)
    *  pair used by both ocWalkSourceFile and the on-demand fetcher. */
+  /** When a derived field has no region of its own, borrow one from
+   *  a related literal-evidence field. Returns the region object or
+   *  null. */
+  private inheritBboxFromRelated(field: string):
+    | { page?: number; x: number; y: number; w: number; h: number }
+    | null {
+    // form-field → list of extractor-field candidates to inherit from
+    const RELATED: Record<string, string[]> = {
+      capacity:             ['inverterMakeModel', 'inverterCapacityKw', 'dcCapacityKwp'],
+      generatingUnitCount:  ['inverterMakeModel', 'inverterCapacityKw'],
+      dataSourceBrand:      ['inverterMakeModel'],
+      gridInterconnection:  ['networkOwner', 'transformerKva', 'gridVoltage'],
+      gridExportType:       ['hasNetworkMeter', 'networkOwner'],
+      hasNetworkMeter:      ['networkOwner', 'gridVoltage'],
+      hasCaptiveConsumer:   ['gridExportType'],
+      hasAuxiliaryEnergySources: ['auxiliaryEnergySourceDetails'],
+    };
+    const candidates = RELATED[field] ?? [];
+    if (!candidates.length) return null;
+    const fx = this.sldExtractions[0] as any;
+    if (!fx) return null;
+    for (const c of candidates) {
+      const r = fx?.[c]?.region;
+      if (r && typeof r.x === 'number') return r;
+    }
+    // Also check appliedProvenance — the user may have applied a
+    // value whose region landed there but not in the raw extraction.
+    const provMap: Record<string, string> = {
+      capacity: 'dataSourceBrand',
+      generatingUnitCount: 'dataSourceBrand',
+    };
+    const provField = provMap[field];
+    if (provField) {
+      const r = (this.appliedProvenance[0]?.[provField] as any)?.region;
+      if (r && typeof r.x === 'number') return r;
+    }
+    return null;
+  }
+
   private ocWalkSourceKey(): { fileMap: string; docType: string } | null {
     const item = this.ocWalkCurrent;
     if (!item) return null;
@@ -4698,13 +4737,18 @@ export class AddDevicesComponent implements OnDestroy {
     if (!item) return;
     const p = this.appliedProvenance[0]?.[item.field] as any;
     if (!p?.source) return;
-    // Only show a bbox when Haiku gave us a precise region (or the
-    // Tesseract pass found a literal token). Coarse heuristic bands
-    // covering 40% of the diagram are visual noise — better to be
-    // honest with "no precise bbox; scan visually" and let the
-    // registrant use zoom + pan than to pretend a giant rectangle
-    // is informative.
-    if (p.region) this.ocWalkCurrentRegion = p.region;
+    if (p.region) {
+      this.ocWalkCurrentRegion = p.region;
+    } else {
+      // Inherit bbox from a literal-evidence field when this one is
+      // derived. Haiku reliably bboxes "HUAWEI SUN2000-30KTL-M3" but
+      // not "60" (the derived 2× 30 kW). Reusing the inverter-label
+      // bbox for capacity/count/brand is honest — the rectangle still
+      // covers the evidence the value rests on, even if the value
+      // itself doesn't appear inside it.
+      const inherited = this.inheritBboxFromRelated(item.field);
+      if (inherited) this.ocWalkCurrentRegion = inherited;
+    }
     // Pre-flight: do we even have an attached doc of the matching
     // type? If not, don't flip the gate.
     const key = this.ocWalkSourceKey();
