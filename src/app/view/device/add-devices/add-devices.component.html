@@ -2116,7 +2116,10 @@
           <small class="text-muted d-flex align-items-center gap-1">
             <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">description</mat-icon>
             <ng-container *ngIf="ocWalkCurrentRegion">source — bbox marks where the value was read</ng-container>
-            <ng-container *ngIf="!ocWalkCurrentRegion">source — no precise bbox; scan visually</ng-container>
+            <ng-container *ngIf="!ocWalkCurrentRegion && ocWalkTextHints.length">
+              source — yellow tints show keywords from the reasoning ({{ ocWalkTextHints.length }} hit{{ ocWalkTextHints.length === 1 ? '' : 's' }})
+            </ng-container>
+            <ng-container *ngIf="!ocWalkCurrentRegion && !ocWalkTextHints.length">source — no precise bbox; scan visually</ng-container>
           </small>
           <span *ngIf="ocWalkSourceLoading" class="text-muted small d-inline-flex align-items-center gap-1">
             <mat-progress-spinner mode="indeterminate" diameter="12" strokeWidth="2"></mat-progress-spinner>
@@ -2157,6 +2160,13 @@
               [style.top.%]="ocWalkCurrentRegion.y * 100"
               [style.width.%]="ocWalkCurrentRegion.w * 100"
               [style.height.%]="ocWalkCurrentRegion.h * 100">
+            </div>
+            <div *ngFor="let h of ocWalkTextHints"
+              class="oc-walk__hint"
+              [style.left.%]="h.x * 100"
+              [style.top.%]="h.y * 100"
+              [style.width.%]="h.w * 100"
+              [style.height.%]="h.h * 100">
             </div>
           </div>
         </div>

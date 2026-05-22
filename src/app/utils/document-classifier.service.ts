@@ -717,6 +717,42 @@ export class DocumentClassifierService {
    *  region travels with whatever scaling the UI ends up rendering at).
    *  Multiple entries per key when the same word appears more than
    *  once on a page; the matcher picks the longest contiguous span. */
+  /** Scan a rendered canvas for tokens that match keywords from a
+   *  reasoning string. Returns yellow-hint rects in 0..1 coords —
+   *  used by the OC# walk to show "scan around here" hints for
+   *  derived classifications that have no precise model bbox. */
+  async findReasoningHints(
+    canvas: HTMLCanvasElement,
+    reasoning: string,
+  ): Promise<Array<{ x: number; y: number; w: number; h: number }>> {
+    if (!reasoning) return [];
+    // Stoplist: keywords too generic to be useful as anchors.
+    const STOP = new Set([
+      'this', 'that', 'with', 'from', 'into', 'over', 'under', 'than',
+      'shows', 'show', 'showing', 'shown', 'where', 'which', 'while',
+      'because', 'doc', 'document', 'diagram', 'sld', 'value', 'field',
+      'about', 'around', 'system', 'systems', 'side', 'sides', 'left',
+      'right', 'above', 'below', 'inside', 'outside',
+    ]);
+    const keywords = Array.from(
+      new Set(
+        reasoning
+          .toLowerCase()
+          .split(/[^a-z0-9-]+/)
+          .filter((t) => t.length >= 4 && !STOP.has(t)),
+      ),
+    );
+    if (!keywords.length) return [];
+    const tokenMap = await this.buildTesseractTokenMap([canvas]);
+    const hits: Array<{ x: number; y: number; w: number; h: number }> = [];
+    for (const kw of keywords) {
+      const entries = tokenMap.get(kw);
+      if (!entries) continue;
+      for (const e of entries) hits.push({ x: e.x, y: e.y, w: e.w, h: e.h });
+    }
+    return hits;
+  }
+
   private async buildTesseractTokenMap(
     canvases: HTMLCanvasElement[],
   ): Promise<Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>> {

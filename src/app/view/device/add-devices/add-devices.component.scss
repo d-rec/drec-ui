@@ -1849,6 +1849,17 @@ $as-bg:       #f8fafc;
 .oc-walk__doc {
   position: relative;
 }
+/* Soft yellow "scan around here" hint — keyword from reasoning was
+   found on the canvas via Tesseract. Distinct from the red precise
+   bbox: lower contrast, no animation, filled translucent rather
+   than outlined. */
+.oc-walk__hint {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(250, 204, 21, 0.32);
+  border: 1px solid rgba(202, 138, 4, 0.55);
+  border-radius: 2px;
+}
 .oc-walk__source-canvas {
   /* No vertical cap on the container — the canvas itself is
      max-height:46vh + height:auto so it fits aspect into the dialog

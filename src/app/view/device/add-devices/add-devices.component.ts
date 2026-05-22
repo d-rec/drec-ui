@@ -4436,6 +4436,11 @@ export class AddDevicesComponent implements OnDestroy {
   /** Region to draw on the OC# walk source canvas — pulled from the
    *  current step's appliedProvenance entry. */
   ocWalkCurrentRegion: { page?: number; x: number; y: number; w: number; h: number } | null = null;
+  /** "Scan around here" hints when the field has no precise bbox.
+   *  Populated by a client-side Tesseract pass that matches tokens
+   *  from the reasoning text against the rendered canvas. Rendered
+   *  as soft yellow overlays distinct from the red precise-bbox. */
+  ocWalkTextHints: Array<{ x: number; y: number; w: number; h: number }> = [];
 
   /** Recorded sequence of the registrant's last walkthrough — one
    *  entry per Approve / Decline / Use-mine action. Persisted on
@@ -4685,6 +4690,7 @@ export class AddDevicesComponent implements OnDestroy {
    *  ocWalkCanvas, with the recorded region overlaid (if any). */
   private async renderOcWalkSource(): Promise<void> {
     this.ocWalkCurrentRegion = null;
+    this.ocWalkTextHints = [];
     this.ocWalkCanvasSize = null;
     this.ocWalkHasSourceDoc = false;
     this.ocWalkSourceError = null;
@@ -4771,6 +4777,24 @@ export class AddDevicesComponent implements OnDestroy {
           cssHeight: canvas.clientHeight,
         };
       });
+      // Soft "scan around here" hints when there's no precise bbox.
+      // Tesseract over the rendered canvas, matching keywords from
+      // the reasoning text. Lets the registrant find the relevant
+      // area on a sprawling SLD without a model-claimed region.
+      this.ocWalkTextHints = [];
+      if (!this.ocWalkCurrentRegion) {
+        const reasoning = String(p?.reasoning ?? '').trim();
+        if (reasoning && canvas) {
+          try {
+            this.ocWalkTextHints = await this.documentClassifier.findReasoningHints(
+              canvas,
+              reasoning,
+            );
+          } catch (e) {
+            console.warn('OC walk reasoning-hints failed', e);
+          }
+        }
+      }
     } catch (err: any) {
       console.warn('renderOcWalkSource failed', err);
       this.ocWalkSourceError = `render failed — ${err?.message ?? err}`;
