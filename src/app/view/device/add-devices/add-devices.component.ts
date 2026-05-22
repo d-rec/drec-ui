@@ -3930,18 +3930,10 @@ export class AddDevicesComponent implements OnDestroy {
         addInferred('labellingSchemeAccreditation', 'Platform default', lsa);
       }
 
-      // meterReadsShareable = 'Yes' is reasonable to infer when the
-      // SLD found a network meter (hasNetworkMeter='Yes') OR a
-      // METERING_EVIDENCE doc is attached. Credit accordingly.
-      const mrs = formAt.get('meterReadsShareable')?.value;
-      const hnm = formAt.get('hasNetworkMeter')?.value;
-      if (mrs === 'Yes') {
-        if (hnm === 'Yes' && docs['SINGLE_LINE_DIAGRAM']?.length) {
-          addInferred('meterReadsShareable', 'SLD', 'Yes');
-        } else if (docs['METERING_EVIDENCE']?.length) {
-          addInferred('meterReadsShareable', 'Meter IDs', 'Yes');
-        }
-      }
+      // meterReadsShareable is a contractual attestation by the
+      // registrant — having a meter on the SLD doesn't grant
+      // shareability, the operator does. No doc-source inference;
+      // fall through to Manual:<email> at submit.
 
       // evidence_pathway is mechanically derived from operating
       // configuration + sourceAccessMode (per the D-REC §3.1 table).
