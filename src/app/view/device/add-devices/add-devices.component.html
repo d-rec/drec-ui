@@ -2122,6 +2122,20 @@
             </ng-container>
             <ng-container *ngIf="!ocWalkCurrentRegion && !ocWalkTextHints.length">source — no precise bbox; scan visually</ng-container>
           </small>
+          <span *ngIf="ocWalkValueFoundInText === true"
+                class="small d-inline-flex align-items-center gap-1"
+                style="color:#16a34a"
+                title="The extracted value's literal text is present on this page of the PDF.">
+            <mat-icon style="font-size:14px;height:14px;width:14px">check_circle</mat-icon>
+            value anchored in document text
+          </span>
+          <span *ngIf="ocWalkValueFoundInText === false"
+                class="small d-inline-flex align-items-center gap-1"
+                style="color:#b45309"
+                title="The extracted value's literal text was NOT found on this page. Haiku may have inferred or hallucinated it — verify visually.">
+            <mat-icon style="font-size:14px;height:14px;width:14px">warning</mat-icon>
+            value not found in document text — verify visually
+          </span>
           <span *ngIf="ocWalkSourceLoading" class="text-muted small d-inline-flex align-items-center gap-1">
             <mat-progress-spinner mode="indeterminate" diameter="12" strokeWidth="2"></mat-progress-spinner>
             fetching…

@@ -4492,6 +4492,11 @@ export class AddDevicesComponent implements OnDestroy {
    *  from the reasoning text against the rendered canvas. Rendered
    *  as soft yellow overlays distinct from the red precise-bbox. */
   ocWalkTextHints: Array<{ x: number; y: number; w: number; h: number }> = [];
+  /** Self-check: did the field's own value (e.g. "415V") turn up in
+   *  the PDF text layer on the current page? true = anchored, false
+   *  = not found (Haiku inferred or hallucinated), null = not
+   *  applicable (no value yet, image-only doc, or field skipped). */
+  ocWalkValueFoundInText: boolean | null = null;
 
   /** Recorded sequence of the registrant's last walkthrough — one
    *  entry per Approve / Decline / Use-mine action. Persisted on
@@ -4864,18 +4869,44 @@ export class AddDevicesComponent implements OnDestroy {
       // SUN2000-30KTL-M3") is addressable directly — no OCR, no AI.
       // Tesseract is only a fallback for image docs (PNG / scanned).
       this.ocWalkTextHints = [];
+      this.ocWalkValueFoundInText = null;
       if (!this.ocWalkCurrentRegion && canvas) {
+        const ownValue = this.deviceForms.at(0)?.get(item.field)?.value;
+        const ownStr = ownValue == null ? '' : String(ownValue);
         const related = this.relatedLiteralValuesFor(item.field);
-        if (ocWalkPdfPage && ocWalkPdfViewport && related.length) {
-          const hits = await this.findPdfTextHits(
-            ocWalkPdfPage,
-            ocWalkPdfViewport,
-            related,
-            this.ocWalkCurrentPage,
-          );
-          if (hits.length) {
-            this.ocWalkCurrentRegion = { ...hits[0] };
-            this.ocWalkTextHints = hits.slice(1);
+        if (ocWalkPdfPage && ocWalkPdfViewport) {
+          // Search the field's own value first — that's the "is
+          // this real?" check. A hit proves the value is in the doc;
+          // no hit means Haiku either inferred it or hallucinated.
+          const ownHits = ownStr
+            ? await this.findPdfTextHits(
+                ocWalkPdfPage,
+                ocWalkPdfViewport,
+                [ownStr],
+                this.ocWalkCurrentPage,
+              )
+            : [];
+          if (ownHits.length) {
+            this.ocWalkValueFoundInText = true;
+            this.ocWalkCurrentRegion = { ...ownHits[0] };
+            this.ocWalkTextHints = ownHits.slice(1);
+          } else if (ownStr) {
+            this.ocWalkValueFoundInText = false;
+          }
+          // Related-field anchors — useful when the field's own value
+          // is derived (capacity, count) and so isn't on the doc, but
+          // related literals (brand, owner) ARE.
+          if (!this.ocWalkCurrentRegion && related.length) {
+            const hits = await this.findPdfTextHits(
+              ocWalkPdfPage,
+              ocWalkPdfViewport,
+              related,
+              this.ocWalkCurrentPage,
+            );
+            if (hits.length) {
+              this.ocWalkCurrentRegion = { ...hits[0] };
+              this.ocWalkTextHints = hits.slice(1);
+            }
           }
         }
         if (!this.ocWalkCurrentRegion && !ocWalkPdfPage) {
