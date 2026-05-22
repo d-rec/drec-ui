@@ -2781,8 +2781,42 @@ export class AddDevicesComponent implements OnDestroy {
     );
     if (!needles.length) return [];
     try {
-      const tc = await pdfPage.getTextContent();
       const out: Array<{ page: number; x: number; y: number; w: number; h: number }> = [];
+      // Form-widget annotations (fillable PDFs): the user-typed value
+      // lives in the widget's fieldValue, NOT in the text layer. pdfjs
+      // exposes them via getAnnotations(); rect is in PDF user space.
+      try {
+        const annos = await pdfPage.getAnnotations();
+        for (const a of annos as any[]) {
+          if (a?.subtype !== 'Widget') continue;
+          const fv = a.fieldValue;
+          const sCandidates: string[] = [];
+          if (typeof fv === 'string') sCandidates.push(fv);
+          else if (Array.isArray(fv)) for (const v of fv) if (typeof v === 'string') sCandidates.push(v);
+          const blob = sCandidates.join(' ').toLowerCase();
+          if (!blob) continue;
+          if (!needles.some((n) => blob.includes(n))) continue;
+          const r = a.rect; // [x1, y1, x2, y2] in PDF user space (y-up)
+          if (!Array.isArray(r) || r.length !== 4) continue;
+          const [p1x, p1y] = viewport.convertToViewportPoint(r[0], r[1]);
+          const [p2x, p2y] = viewport.convertToViewportPoint(r[2], r[3]);
+          const x = Math.min(p1x, p2x);
+          const y = Math.min(p1y, p2y);
+          const w = Math.abs(p2x - p1x);
+          const h = Math.abs(p2y - p1y);
+          if (!isFinite(x) || !isFinite(y) || !isFinite(w) || !isFinite(h)) continue;
+          out.push({
+            page: pageNumber,
+            x: x / viewport.width,
+            y: y / viewport.height,
+            w: Math.max(w, 8) / viewport.width,
+            h: Math.max(h, 8) / viewport.height,
+          });
+        }
+      } catch (e) {
+        // Annotations are optional — fall through to text-layer search.
+      }
+      const tc = await pdfPage.getTextContent();
       for (const it of tc.items as any[]) {
         if (!it.str) continue;
         const s = String(it.str).toLowerCase();
@@ -4500,6 +4534,18 @@ export class AddDevicesComponent implements OnDestroy {
    *  = not found (Haiku inferred or hallucinated), null = not
    *  applicable (no value yet, image-only doc, or field skipped). */
   ocWalkValueFoundInText: boolean | null = null;
+
+  /** True when the current OC# walk step's source provenance ends in
+   *  "(backfill)" — i.e. attributed by the one-time migration, not
+   *  by a real extractor run. Used to suppress the amber "verify
+   *  visually" badge (which would blame Haiku unfairly) and show a
+   *  more accurate "migration-inferred source" label instead. */
+  get ocWalkSourceIsBackfill(): boolean {
+    const item = this.ocWalkCurrent;
+    if (!item) return false;
+    const p = this.appliedProvenance[0]?.[item.field] as any;
+    return /\(backfill\)\s*$/i.test(String(p?.source ?? ''));
+  }
   /** If the own-value search found a hit on a DIFFERENT page than
    *  the one currently rendered, the page number lives here so the
    *  UI can offer a "jump to p.N" link. null = current page or no

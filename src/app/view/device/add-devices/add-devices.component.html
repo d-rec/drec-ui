@@ -2129,12 +2129,19 @@
             <mat-icon style="font-size:14px;height:14px;width:14px">check_circle</mat-icon>
             value anchored in document text
           </span>
-          <span *ngIf="ocWalkValueFoundInText === false"
+          <span *ngIf="ocWalkValueFoundInText === false && !ocWalkSourceIsBackfill"
                 class="small d-inline-flex align-items-center gap-1"
                 style="color:#b45309"
                 title="The extracted value's literal text was NOT found on this page. Haiku may have inferred or hallucinated it — verify visually.">
             <mat-icon style="font-size:14px;height:14px;width:14px">warning</mat-icon>
             value not found in document text — verify visually
+          </span>
+          <span *ngIf="ocWalkValueFoundInText === false && ocWalkSourceIsBackfill"
+                class="small d-inline-flex align-items-center gap-1"
+                style="color:#64748b"
+                title="The source attribution comes from a one-time DB backfill migration, not from an actual extraction. The value pre-dates provenance tracking — the doc shown may not literally contain it.">
+            <mat-icon style="font-size:14px;height:14px;width:14px">info</mat-icon>
+            migration-inferred source — attribution unverified
           </span>
           <span *ngIf="ocWalkSourceLoading" class="text-muted small d-inline-flex align-items-center gap-1">
             <mat-progress-spinner mode="indeterminate" diameter="12" strokeWidth="2"></mat-progress-spinner>
