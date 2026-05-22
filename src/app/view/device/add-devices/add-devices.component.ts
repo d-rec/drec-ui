@@ -417,6 +417,7 @@ export class AddDevicesComponent implements OnDestroy {
     this.showerror[0] = false;
     this.siteNameExists[0] = false;
     this.installFloatingDialogZoom();
+    this.installFloatingDialogResize();
 
     this.deviceForms.controls.forEach((group, i) => {
       this.setupdataSourceBrandWatcher(group as FormGroup);
@@ -4303,6 +4304,66 @@ export class AddDevicesComponent implements OnDestroy {
       ) as HTMLElement | null;
       if (pane) pane.style.setProperty('--drec-dialog-zoom', '1');
     });
+  }
+
+  /** Inject a hand-rolled resize handle into every floating dialog
+   *  pane. Native CSS resize is unreliable across browser + Material
+   *  combinations (Firefox + flex parent: handle never renders).
+   *  We watch the overlay container for new floating panes and add
+   *  a <div class="drec-resize-handle"> that wires mousedown/move/up
+   *  to set the pane's inline width/height. */
+  private installFloatingDialogResize(): void {
+    if ((window as any).__drecFloatingDialogResizeInstalled) return;
+    (window as any).__drecFloatingDialogResizeInstalled = true;
+    const attach = (pane: HTMLElement) => {
+      if (pane.querySelector(':scope > .drec-resize-handle')) return;
+      const handle = document.createElement('div');
+      handle.className = 'drec-resize-handle';
+      handle.title = 'Drag to resize';
+      pane.appendChild(handle);
+      handle.addEventListener('mousedown', (e: MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const rect = pane.getBoundingClientRect();
+        const startW = rect.width;
+        const startH = rect.height;
+        const onMove = (ev: MouseEvent) => {
+          const w = Math.max(320, startW + (ev.clientX - startX));
+          const h = Math.max(240, startH + (ev.clientY - startY));
+          pane.style.width = w + 'px';
+          pane.style.height = h + 'px';
+        };
+        const onUp = () => {
+          window.removeEventListener('mousemove', onMove, true);
+          window.removeEventListener('mouseup', onUp, true);
+        };
+        window.addEventListener('mousemove', onMove, true);
+        window.addEventListener('mouseup', onUp, true);
+      });
+    };
+    // Scan any already-open panes (defensive — ngOnInit fires before
+    // any dialog opens normally, but the same component could be
+    // re-entered).
+    document
+      .querySelectorAll('.cdk-overlay-pane.drec-floating-dialog')
+      .forEach((p) => attach(p as HTMLElement));
+    // Watch for new panes being added to the overlay container.
+    const container = document.querySelector('.cdk-overlay-container');
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        for (const n of Array.from(m.addedNodes)) {
+          if (!(n instanceof HTMLElement)) continue;
+          if (n.classList?.contains('drec-floating-dialog')) attach(n);
+          n.querySelectorAll?.('.cdk-overlay-pane.drec-floating-dialog')
+            .forEach((p) => attach(p as HTMLElement));
+        }
+      }
+    });
+    if (container) {
+      observer.observe(container, { childList: true, subtree: true });
+    }
   }
 
   /* ---- OC# walkthrough ---- */
