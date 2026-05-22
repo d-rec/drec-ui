@@ -4463,18 +4463,54 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   /** Source File cached this session for the OC# walk current step,
-   *  derived from the source label on the provenance entry. Null if
-   *  no cache (existing device load with no re-extract this session). */
+   *  derived from the source label on the provenance entry. */
   private ocWalkSourceFile(): File | null {
+    const key = this.ocWalkSourceKey();
+    if (!key) return null;
+    return (this as any)[key.fileMap][0] ?? null;
+  }
+
+  /** Resolve the current step's source label to a (fileMap, docType)
+   *  pair used by both ocWalkSourceFile and the on-demand fetcher. */
+  private ocWalkSourceKey(): { fileMap: string; docType: string } | null {
     const item = this.ocWalkCurrent;
     if (!item) return null;
     const p = this.appliedProvenance[0]?.[item.field] as any;
     const src: string = p?.source ?? '';
-    if (src.startsWith('SLD')) return this.sldExtractionFile[0] ?? null;
-    if (src.startsWith('SF-02c')) return this.sf02cExtractionFile[0] ?? null;
-    if (src.startsWith('COD')) return this.codExtractionFile[0] ?? null;
-    if (src.startsWith('SF-02')) return this.sf02ExtractionFile[0] ?? null;
+    if (src.startsWith('SLD')) return { fileMap: 'sldExtractionFile', docType: 'SINGLE_LINE_DIAGRAM' };
+    if (src.startsWith('SF-02c')) return { fileMap: 'sf02cExtractionFile', docType: 'SF_02C' };
+    if (src.startsWith('COD')) return { fileMap: 'codExtractionFile', docType: 'COD_PROOF' };
+    if (src.startsWith('SF-02')) return { fileMap: 'sf02ExtractionFile', docType: 'FORM_SF_02' };
     return null;
+  }
+
+  /** Spinner state while fetching an attached doc on demand for the
+   *  OC# walk source canvas. */
+  ocWalkSourceLoading = false;
+
+  /** If no cached File for the current source, fetch the first
+   *  attached doc of the matching type from the server and stash it
+   *  into the local cache slot. Returns the File (or null if no
+   *  attachment of that type exists or fetch fails). */
+  private async ensureOcWalkSourceFile(): Promise<File | null> {
+    const cached = this.ocWalkSourceFile();
+    if (cached) return cached;
+    const key = this.ocWalkSourceKey();
+    if (!key) return null;
+    const docs = this.existingDocs[0]?.[key.docType] ?? [];
+    if (!docs.length) return null;
+    const doc = docs[0];
+    this.ocWalkSourceLoading = true;
+    try {
+      const file = await this.fetchAttachedDocAsFile(doc);
+      (this as any)[key.fileMap][0] = file;
+      return file;
+    } catch (err) {
+      console.warn('ensureOcWalkSourceFile failed', err);
+      return null;
+    } finally {
+      this.ocWalkSourceLoading = false;
+    }
   }
 
   /** Render the source doc behind the current OC# step into
@@ -4494,8 +4530,13 @@ export class AddDevicesComponent implements OnDestroy {
     // microtask + setTimeout.
     await new Promise((r) => setTimeout(r, 0));
     const canvas = this.ocWalkCanvasEl?.nativeElement;
-    const file = this.ocWalkSourceFile();
-    if (!canvas || !file) return;
+    if (!canvas) return;
+    // Fetch the attached doc on demand if it isn't cached this session
+    // (existing-device loads have no in-memory File until something
+    // triggers a re-extract). One fetch, then it stays cached for the
+    // rest of the walk.
+    const file = await this.ensureOcWalkSourceFile();
+    if (!file) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const page = p.region.page ?? 1;

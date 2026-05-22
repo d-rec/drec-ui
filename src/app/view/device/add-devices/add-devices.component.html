@@ -2112,9 +2112,13 @@
         </div>
       </div>
       <div *ngIf="ocWalkCurrentRegion" class="oc-walk__source-canvas mt-3">
-        <small class="text-muted d-block mb-1">
+        <small class="text-muted d-block mb-1 d-flex align-items-center gap-1">
           <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">description</mat-icon>
           source — bbox highlights where the value was read
+          <span *ngIf="ocWalkSourceLoading" class="text-muted ms-2 d-inline-flex align-items-center gap-1">
+            <mat-progress-spinner mode="indeterminate" diameter="12" strokeWidth="2"></mat-progress-spinner>
+            fetching attached document…
+          </span>
         </small>
         <div class="oc-walk__doc">
           <canvas #ocWalkCanvas
