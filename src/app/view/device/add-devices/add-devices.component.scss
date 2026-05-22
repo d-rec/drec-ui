@@ -2144,9 +2144,11 @@ $as-bg:       #f8fafc;
 // the box border is dashed + amber so the user knows not to trust
 // the precise location.
 .verify-source__region--approx {
-  border-color: #f59e0b !important;
-  border-style: dashed !important;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18) !important;
+  position: absolute;
+  pointer-events: none;
+  border: 2px dashed #f59e0b;
+  border-radius: 2px;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
 }
 
 .verify-source__reasoning {

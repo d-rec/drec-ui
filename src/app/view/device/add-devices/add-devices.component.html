@@ -2115,7 +2115,8 @@
         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
           <small class="text-muted d-flex align-items-center gap-1">
             <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">description</mat-icon>
-            <ng-container *ngIf="ocWalkCurrentRegion">source — bbox marks where the value was read</ng-container>
+            <ng-container *ngIf="ocWalkCurrentRegion?.approximate">source — approximate area for a derived field; scan within</ng-container>
+            <ng-container *ngIf="ocWalkCurrentRegion && !ocWalkCurrentRegion.approximate">source — bbox marks where the value was read</ng-container>
             <ng-container *ngIf="!ocWalkCurrentRegion && ocWalkTextHints.length">
               source — yellow tints show keywords from the reasoning ({{ ocWalkTextHints.length }} hit{{ ocWalkTextHints.length === 1 ? '' : 's' }})
             </ng-container>
@@ -2155,7 +2156,8 @@
               style="display:block;max-width:100%;max-height:46vh;width:auto;height:auto;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
             </canvas>
             <div *ngIf="ocWalkCurrentRegion"
-              class="verify-source__region"
+              [class.verify-source__region]="!ocWalkCurrentRegion.approximate"
+              [class.verify-source__region--approx]="ocWalkCurrentRegion.approximate"
               [style.left.%]="ocWalkCurrentRegion.x * 100"
               [style.top.%]="ocWalkCurrentRegion.y * 100"
               [style.width.%]="ocWalkCurrentRegion.w * 100"

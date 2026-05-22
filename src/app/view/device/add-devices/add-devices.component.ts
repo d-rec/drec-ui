@@ -4435,7 +4435,7 @@ export class AddDevicesComponent implements OnDestroy {
   ocWalkCanvasSize: { cssWidth: number; cssHeight: number } | null = null;
   /** Region to draw on the OC# walk source canvas — pulled from the
    *  current step's appliedProvenance entry. */
-  ocWalkCurrentRegion: { page?: number; x: number; y: number; w: number; h: number } | null = null;
+  ocWalkCurrentRegion: { page?: number; x: number; y: number; w: number; h: number; approximate?: boolean } | null = null;
   /** "Scan around here" hints when the field has no precise bbox.
    *  Populated by a client-side Tesseract pass that matches tokens
    *  from the reasoning text against the rendered canvas. Rendered
@@ -4635,6 +4635,39 @@ export class AddDevicesComponent implements OnDestroy {
 
   /** Resolve the current step's source label to a (fileMap, docType)
    *  pair used by both ocWalkSourceFile and the on-demand fetcher. */
+  /** Coarse region heuristic by field name. Used as a client-side
+   *  fallback when Haiku drops the region for derived fields — the
+   *  rectangle is deliberately rough (a quadrant or a half) and the
+   *  template tags it "approximate region" so the registrant knows
+   *  it's a "look around here", not the model's pick. */
+  private heuristicOcWalkRegion(
+    field: string,
+    p: any,
+  ): { x: number; y: number; w: number; h: number; approximate?: boolean } | null {
+    // SLD topology heuristics (Atsawa-shape mini-grid + utility-scale).
+    // Conventions: grid/utility on TOP (DSO, MV transformer, revenue
+    // meter); inverters in the MIDDLE; LV bus + customer loads at
+    // BOTTOM. Battery / genset usually OFF to one side. Not universal
+    // but a reasonable default for the SLDs we see.
+    const map: Record<string, { x: number; y: number; w: number; h: number }> = {
+      // Top half (utility / grid side)
+      networkOwner:               { x: 0,    y: 0,    w: 1,   h: 0.5  },
+      hasNetworkMeter:            { x: 0,    y: 0,    w: 1,   h: 0.5  },
+      gridInterconnection:        { x: 0,    y: 0,    w: 1,   h: 0.5  },
+      interconnectionVoltage:     { x: 0,    y: 0,    w: 1,   h: 0.5  },
+      // Bottom half (LV distribution / customer / loads)
+      gridExportType:             { x: 0,    y: 0.45, w: 1,   h: 0.55 },
+      hasCaptiveConsumer:         { x: 0,    y: 0.45, w: 1,   h: 0.55 },
+      // Aux sources usually live somewhere on the left or middle
+      // (battery banks, gensets). Loose middle band as a default.
+      hasAuxiliaryEnergySources:  { x: 0,    y: 0.25, w: 1,   h: 0.5  },
+      auxiliaryEnergySourceDetails: { x: 0, y: 0.25, w: 1,    h: 0.5  },
+    };
+    const r = map[field];
+    if (!r) return null;
+    return { ...r, approximate: true } as any;
+  }
+
   private ocWalkSourceKey(): { fileMap: string; docType: string } | null {
     const item = this.ocWalkCurrent;
     if (!item) return null;
@@ -4698,7 +4731,16 @@ export class AddDevicesComponent implements OnDestroy {
     if (!item) return;
     const p = this.appliedProvenance[0]?.[item.field] as any;
     if (!p?.source) return;
-    if (p.region) this.ocWalkCurrentRegion = p.region;
+    if (p.region) {
+      this.ocWalkCurrentRegion = p.region;
+    } else {
+      // Haiku reliably drops the region for derived/topological
+      // fields no matter how the prompt is worded. Fall back to a
+      // coarse client-side heuristic so the registrant has SOME
+      // spatial anchor on a wall-sized SLD instead of staring at the
+      // whole sheet.
+      this.ocWalkCurrentRegion = this.heuristicOcWalkRegion(item.field, p) ?? null;
+    }
     // Pre-flight: do we even have an attached doc of the matching
     // type? If not, don't flip the gate.
     const key = this.ocWalkSourceKey();
