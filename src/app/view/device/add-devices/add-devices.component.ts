@@ -2746,6 +2746,57 @@ export class AddDevicesComponent implements OnDestroy {
     }
   }
 
+  /** ctrl-F over the PDF's text layer: search a list of value strings
+   *  (form-field values for related literal-evidence fields) and
+   *  return each match's bbox in fractional (0..1) canvas coords.
+   *  Each value is tokenised on non-alphanumerics so multi-word
+   *  values like "HUAWEI SUN2000-30KTL-M3" hit on each part. */
+  private async findPdfTextHits(
+    pdfPage: any,
+    viewport: any,
+    values: string[],
+    pageNumber: number,
+  ): Promise<Array<{ page: number; x: number; y: number; w: number; h: number }>> {
+    const STOP = new Set([
+      'the', 'and', 'for', 'with', 'this', 'that', 'from', 'into',
+      'shown', 'page', 'label', 'value', 'kwac', 'kwdc',
+    ]);
+    const needles = Array.from(
+      new Set(
+        values
+          .flatMap((v) => String(v ?? '').toLowerCase().split(/[^a-z0-9]+/))
+          .filter((t) => t.length >= 4 && !STOP.has(t)),
+      ),
+    );
+    if (!needles.length) return [];
+    try {
+      const tc = await pdfPage.getTextContent();
+      const out: Array<{ page: number; x: number; y: number; w: number; h: number }> = [];
+      for (const it of tc.items as any[]) {
+        if (!it.str) continue;
+        const s = String(it.str).toLowerCase();
+        if (!needles.some((n) => s.includes(n))) continue;
+        const [ex, ey] = [it.transform[4], it.transform[5]];
+        const vp: [number, number] = viewport.convertToViewportPoint(ex, ey);
+        const w = (it.width || 0) * viewport.scale;
+        const h = (it.transform[3] || it.height || 0) * viewport.scale;
+        const x = vp[0];
+        const y = vp[1] - h;
+        if (!isFinite(x) || !isFinite(y) || !isFinite(w) || !isFinite(h)) continue;
+        out.push({
+          page: pageNumber,
+          x: x / viewport.width,
+          y: y / viewport.height,
+          w: Math.max(w, 8) / viewport.width,
+          h: Math.max(h, 8) / viewport.height,
+        });
+      }
+      return out;
+    } catch {
+      return [];
+    }
+  }
+
   /** Walk every page of the PDF once, counting matches per page.
    *  Caches by (file identity, value) so flipping pages doesn't rerun
    *  the scan. Fire-and-forget; updates verifyMatchesByPage when done. */
@@ -4754,6 +4805,10 @@ export class AddDevicesComponent implements OnDestroy {
     // legible. A1-sized plotter SLDs at 1600px were ~33 DPI which
     // got pixelated immediately on any zoom.
     const targetW = 3200;
+    // Captured by the PDF branch so the text-layer search after
+    // render has the page+viewport on hand.
+    let ocWalkPdfPage: any = null;
+    let ocWalkPdfViewport: any = null;
     try {
       if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
         const pdfjs: any = await import('pdfjs-dist' as any);
@@ -4774,6 +4829,11 @@ export class AddDevicesComponent implements OnDestroy {
         canvas.width = scaled.width;
         canvas.height = scaled.height;
         await pdfPage.render({ canvasContext: ctx, viewport: scaled }).promise;
+        // Text-layer search: same path Firefox ctrl-F uses. For PDFs
+        // with a text layer (most SLDs, all CODs) the brand string,
+        // owner name, etc. are addressable directly — no OCR, no AI.
+        ocWalkPdfPage = pdfPage;
+        ocWalkPdfViewport = scaled;
       } else {
         const url = URL.createObjectURL(file);
         try {
@@ -4799,30 +4859,42 @@ export class AddDevicesComponent implements OnDestroy {
           cssHeight: canvas.clientHeight,
         };
       });
-      // Tesseract last-resort: keywords from (1) the reasoning and
-      // (2) the VALUE of any related literal-evidence field
-      // (dataSourceBrand="HUAWEI SUN2000-30KTL-M3" supplies "huawei",
-      // "sun2000" as anchors for capacity / inverterCount). First
-      // hit becomes the primary red bbox, the rest are yellow tints.
+      // No model bbox? Try ctrl-F. For PDFs with a text layer the
+      // related literal value (e.g. dataSourceBrand="HUAWEI
+      // SUN2000-30KTL-M3") is addressable directly — no OCR, no AI.
+      // Tesseract is only a fallback for image docs (PNG / scanned).
       this.ocWalkTextHints = [];
       if (!this.ocWalkCurrentRegion && canvas) {
-        const reasoning = String(p?.reasoning ?? '').trim();
         const related = this.relatedLiteralValuesFor(item.field);
-        const keywords = `${reasoning} ${related.join(' ')}`.trim();
-        if (keywords) {
-          try {
-            const hits = await this.documentClassifier.findReasoningHints(
-              canvas,
-              keywords,
-            );
-            if (hits.length) {
-              // First hit becomes the primary region (red solid bbox);
-              // remaining hits stay as soft yellow tints.
-              this.ocWalkCurrentRegion = { ...hits[0] };
-              this.ocWalkTextHints = hits.slice(1);
+        if (ocWalkPdfPage && ocWalkPdfViewport && related.length) {
+          const hits = await this.findPdfTextHits(
+            ocWalkPdfPage,
+            ocWalkPdfViewport,
+            related,
+            page,
+          );
+          if (hits.length) {
+            this.ocWalkCurrentRegion = { ...hits[0] };
+            this.ocWalkTextHints = hits.slice(1);
+          }
+        }
+        if (!this.ocWalkCurrentRegion && !ocWalkPdfPage) {
+          // Image fallback: Tesseract over the rendered canvas.
+          const reasoning = String(p?.reasoning ?? '').trim();
+          const keywords = `${reasoning} ${related.join(' ')}`.trim();
+          if (keywords) {
+            try {
+              const hits = await this.documentClassifier.findReasoningHints(
+                canvas,
+                keywords,
+              );
+              if (hits.length) {
+                this.ocWalkCurrentRegion = { ...hits[0] };
+                this.ocWalkTextHints = hits.slice(1);
+              }
+            } catch (e) {
+              console.warn('OC walk Tesseract fallback failed', e);
             }
-          } catch (e) {
-            console.warn('OC walk Tesseract fallback failed', e);
           }
         }
       }
