@@ -2759,7 +2759,11 @@ export class AddDevicesComponent implements OnDestroy {
   ): Promise<Array<{ page: number; x: number; y: number; w: number; h: number }>> {
     const STOP = new Set([
       'the', 'and', 'for', 'with', 'this', 'that', 'from', 'into',
-      'shown', 'page', 'label', 'value', 'kwac', 'kwdc',
+      'shown', 'page', 'label', 'labeled', 'labelled', 'value',
+      'kwac', 'kwdc', 'states', 'indicates', 'confirms', 'shows',
+      'reads', 'block', 'section', 'diagram', 'document',
+      'inferred', 'derived', 'mentioned', 'visible', 'appears',
+      'based', 'implied', 'because', 'which', 'where', 'there',
     ]);
     const needles = Array.from(
       new Set(
@@ -4906,6 +4910,27 @@ export class AddDevicesComponent implements OnDestroy {
             if (hits.length) {
               this.ocWalkCurrentRegion = { ...hits[0] };
               this.ocWalkTextHints = hits.slice(1);
+            }
+          }
+          // Reasoning keywords — last resort for boolean / derived
+          // fields whose value ("Yes") is uninformative and whose
+          // related literals don't exist. e.g. (15) Grid-connected?:
+          // Haiku's reasoning mentions "Grid tied solar Inverter
+          // system" (from the title) — those tokens find the title
+          // in the text layer.
+          if (!this.ocWalkCurrentRegion) {
+            const reasoning = String(p?.reasoning ?? '').trim();
+            if (reasoning) {
+              const hits = await this.findPdfTextHits(
+                ocWalkPdfPage,
+                ocWalkPdfViewport,
+                [reasoning],
+                this.ocWalkCurrentPage,
+              );
+              if (hits.length) {
+                this.ocWalkCurrentRegion = { ...hits[0] };
+                this.ocWalkTextHints = hits.slice(1);
+              }
             }
           }
         }
