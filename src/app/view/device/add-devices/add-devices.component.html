@@ -1697,7 +1697,7 @@
             <button *ngIf="isEditMode && ocWalkLog.length" type="button"
               class="btn btn-outline-secondary text-capitalize px-4 d-inline-flex align-items-center gap-2"
               (click)="startOcWalkReplay()"
-              [title]="'Replay the registrant\\'s OC# walkthrough — ' + ocWalkLog.length + ' recorded step(s). Read-only.'">
+              [title]="'Replay the recorded OC# walkthrough (' + ocWalkLog.length + ' step(s)). Read-only.'">
               <mat-icon style="font-size:18px;height:18px;width:18px;line-height:1">play_circle</mat-icon>
               Replay OC# walk ({{ ocWalkLog.length }})
             </button>
