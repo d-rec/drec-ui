@@ -1687,6 +1687,13 @@
               <mat-icon style="font-size:18px;height:18px;width:18px;line-height:1">fact_check</mat-icon>
               Review evidence
             </button>
+            <button *ngIf="isEditMode" type="button"
+              class="btn btn-outline-primary text-capitalize px-4 d-inline-flex align-items-center gap-2"
+              (click)="startOcWalkthrough()"
+              title="Walk every OC# question one by one: approve, decline, or fill your own value.">
+              <mat-icon style="font-size:18px;height:18px;width:18px;line-height:1">checklist</mat-icon>
+              Walk OC#
+            </button>
             <button type="submit" class="btn-primary btn text-capitalize px-4 d-inline-flex align-items-center gap-2"
               [disabled]="isSubmitting || (isEditMode && !hasUnsavedEditChanges()) || liveIssues.disagrees.length > 0"
               [matTooltip]="liveIssues.disagrees.length > 0 ? 'Resolve the ' + liveIssues.disagrees.length + ' disagreement(s) in the sidebar first.' : null"
@@ -2060,6 +2067,65 @@
     </div>
     <span *ngIf="evidenceSummary.unattributed === 0"></span>
     <button mat-button class="btn btn-outline-secondary" mat-dialog-close>Close</button>
+  </div>
+  </div>
+</ng-template>
+
+<ng-template #ocWalkthroughDialog><div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
+  <h2 mat-dialog-title cdkDragHandle class="d-flex align-items-center gap-2" style="cursor: move;">
+    <mat-icon>checklist</mat-icon>
+    Walk OC# ({{ ocWalkIndex + 1 }} / {{ ocWalkQueue.length }})
+  </h2>
+  <div mat-dialog-content style="max-height:75vh">
+    <div *ngIf="ocWalkCurrent as v">
+      <div class="oc-walk__head">
+        <div class="oc-walk__label">{{ v.label }}</div>
+        <div class="oc-walk__value">
+          <strong>{{ ocWalkCurrentValueDisplay() }}</strong>
+        </div>
+        <div *ngIf="ocWalkCurrentSource() as src" class="oc-walk__source">
+          <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">description</mat-icon>
+          <span>{{ src.source }}<ng-container *ngIf="src.docName"> · {{ src.docName }}</ng-container></span>
+          <span *ngIf="src.verifiedBy" class="oc-walk__verified" [title]="'Verified at: ' + src.verifiedBy">
+            ✓ verified by {{ src.verifiedBy }}
+          </span>
+        </div>
+        <div *ngIf="!ocWalkCurrentSource()" class="oc-walk__source oc-walk__source--orphan">
+          <mat-icon style="font-size:14px;height:14px;width:14px;vertical-align:middle">error_outline</mat-icon>
+          no recorded source
+        </div>
+      </div>
+      <div class="oc-walk__own mt-3">
+        <label class="form-label small text-muted">fill your own value (optional):</label>
+        <input type="text" class="form-control form-control-sm"
+          [(ngModel)]="ocWalkOverride"
+          (keydown.enter)="ocWalkFillOwn()" />
+      </div>
+    </div>
+  </div>
+  <div mat-dialog-actions class="d-flex justify-content-between gap-2 flex-wrap">
+    <div class="d-flex gap-2">
+      <button mat-button class="btn btn-outline-secondary" (click)="ocWalkPrev()" [disabled]="ocWalkIndex <= 0">
+        <mat-icon style="font-size:16px">chevron_left</mat-icon> Prev
+      </button>
+      <button mat-button class="btn btn-outline-secondary" (click)="ocWalkNext()">
+        Skip <mat-icon style="font-size:16px">chevron_right</mat-icon>
+      </button>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button mat-button class="btn btn-outline-danger" (click)="ocWalkDecline()"
+        title="Clear this value and blacklist it — will not return on reload or re-extract.">
+        Decline
+      </button>
+      <button mat-button class="btn btn-outline-primary" (click)="ocWalkFillOwn()"
+        title="Replace the value with what you typed above. You become the source.">
+        Use mine
+      </button>
+      <button mat-button class="btn btn-success" (click)="ocWalkApprove()"
+        title="Keep the current value. If unsourced, you become the verifier.">
+        Approve
+      </button>
+    </div>
   </div>
   </div>
 </ng-template>

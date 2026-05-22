@@ -4257,6 +4257,151 @@ export class AddDevicesComponent implements OnDestroy {
     }, 300);
   }
 
+  /* ---- OC# walkthrough ---- */
+  ocWalkQueue: Array<{ field: string; oc: number; label: string }> = [];
+  ocWalkIndex = 0;
+  ocWalkOverride = '';
+  @ViewChild('ocWalkthroughDialog') ocWalkthroughDialog?: TemplateRef<any>;
+  private ocWalkDialogRef: MatDialogRef<any> | null = null;
+
+  /** Build the queue: every field whose FIELD_LABELS entry starts with
+   *  "(N)" (i.e. has an OC#), sorted by OC#. Walks the registrant
+   *  through each one, showing the current value + source + three
+   *  actions: approve / decline / fill-your-own. */
+  startOcWalkthrough(): void {
+    const items: Array<{ field: string; oc: number; label: string }> = [];
+    for (const [name, label] of Object.entries(AddDevicesComponent.FIELD_LABELS)) {
+      const m = /^\((\d+)[a-z]?\)/.exec(label);
+      if (!m) continue;
+      const ctl = this.deviceForms.at(0)?.get(name);
+      if (!ctl) continue;
+      items.push({ field: name, oc: parseInt(m[1], 10), label });
+    }
+    items.sort((a, b) => a.oc - b.oc);
+    if (!items.length) {
+      this.toastrService.info('No OC# fields found on this form.');
+      return;
+    }
+    this.ocWalkQueue = items;
+    this.ocWalkIndex = 0;
+    this.ocWalkOverride = '';
+    if (!this.ocWalkthroughDialog) return;
+    if (this.ocWalkDialogRef) { this.ocWalkDialogRef.close(); this.ocWalkDialogRef = null; }
+    this.ocWalkDialogRef = this.dialog.open(this.ocWalkthroughDialog, {
+      width: '720px', maxWidth: '95vw', disableClose: false,
+    });
+    this.primeOcWalkOverride();
+  }
+
+  get ocWalkCurrent(): { field: string; oc: number; label: string } | null {
+    return this.ocWalkQueue[this.ocWalkIndex] ?? null;
+  }
+
+  /** Current form value display for the wizard header. */
+  ocWalkCurrentValueDisplay(): string {
+    const item = this.ocWalkCurrent;
+    if (!item) return '';
+    const v = this.deviceForms.at(0)?.get(item.field)?.value;
+    if (v == null || v === '') return '(empty)';
+    if (Array.isArray(v)) return v.join(', ');
+    if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+    return String(v);
+  }
+
+  /** Source label for the current row, drawn from appliedProvenance. */
+  ocWalkCurrentSource(): { source: string; docName?: string; verifiedBy?: string } | null {
+    const item = this.ocWalkCurrent;
+    if (!item) return null;
+    const p = this.appliedProvenance[0]?.[item.field] as any;
+    if (!p?.source) return null;
+    return {
+      source: p.source,
+      docName: p.docName ?? undefined,
+      verifiedBy: p.verifiedBy?.email ?? undefined,
+    };
+  }
+
+  private primeOcWalkOverride(): void {
+    const item = this.ocWalkCurrent;
+    if (!item) { this.ocWalkOverride = ''; return; }
+    const v = this.deviceForms.at(0)?.get(item.field)?.value;
+    this.ocWalkOverride = v == null ? '' : String(v);
+  }
+
+  ocWalkApprove(): void {
+    const item = this.ocWalkCurrent;
+    if (!item) return;
+    const ctl = this.deviceForms.at(0)?.get(item.field);
+    const v = ctl?.value;
+    if (v == null || v === '') {
+      // Approving an empty value is meaningless — skip.
+      this.ocWalkAdvance();
+      return;
+    }
+    const email = (this.user?.email ?? '').trim() || 'unknown';
+    const existing = this.appliedProvenance[0]?.[item.field] as any;
+    if (!existing?.source) {
+      this.recordProvenance(0, item.field, `Manual: ${email}`, 1, v);
+    }
+    const entry = this.appliedProvenance[0]?.[item.field] as any;
+    if (entry) entry.verifiedBy = { email, at: new Date().toISOString() };
+    this.ocWalkAdvance();
+  }
+
+  ocWalkDecline(): void {
+    const item = this.ocWalkCurrent;
+    if (!item) return;
+    const ctl = this.deviceForms.at(0)?.get(item.field);
+    const v = ctl?.value;
+    if (v != null && v !== '') {
+      // Blacklist the (field, value) so it stays gone across reloads.
+      this.dismissFieldValue(0, item.field, v);
+      ctl?.setValue(Array.isArray(v) ? [] : null);
+      ctl?.markAsDirty();
+    }
+    this.ocWalkAdvance();
+  }
+
+  ocWalkFillOwn(): void {
+    const item = this.ocWalkCurrent;
+    if (!item) return;
+    const v = this.ocWalkOverride;
+    const ctl = this.deviceForms.at(0)?.get(item.field);
+    if (!ctl) { this.ocWalkAdvance(); return; }
+    ctl.setValue(v === '' ? null : v);
+    ctl.markAsDirty();
+    if (v !== '' && v != null) {
+      const email = (this.user?.email ?? '').trim() || 'unknown';
+      this.recordProvenance(0, item.field, `Manual: ${email}`, 1, v);
+      const entry = this.appliedProvenance[0]?.[item.field] as any;
+      if (entry) entry.verifiedBy = { email, at: new Date().toISOString() };
+    }
+    this.ocWalkAdvance();
+  }
+
+  ocWalkPrev(): void {
+    if (this.ocWalkIndex <= 0) return;
+    this.ocWalkIndex--;
+    this.primeOcWalkOverride();
+  }
+  ocWalkNext(): void {
+    if (this.ocWalkIndex >= this.ocWalkQueue.length - 1) {
+      this.ocWalkClose();
+      return;
+    }
+    this.ocWalkIndex++;
+    this.primeOcWalkOverride();
+  }
+  private ocWalkAdvance(): void { this.ocWalkNext(); }
+  ocWalkClose(): void {
+    this.ocWalkDialogRef?.close();
+    this.ocWalkDialogRef = null;
+    this.ocWalkQueue = [];
+    this.ocWalkIndex = 0;
+    this.ocWalkOverride = '';
+    this.refreshLiveIssues();
+  }
+
   /** Expand the live-issues sidebar if collapsed, scroll it into
    *  view, and pulse it briefly. Used by the inline "Resolve N
    *  disagreements" link next to the Submit button. */
