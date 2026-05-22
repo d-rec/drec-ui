@@ -2118,7 +2118,7 @@
             <ng-container *ngIf="ocWalkCurrentRegion?.approximate">source — approximate area for a derived field; scan within</ng-container>
             <ng-container *ngIf="ocWalkCurrentRegion && !ocWalkCurrentRegion.approximate">source — bbox marks where the value was read</ng-container>
             <ng-container *ngIf="!ocWalkCurrentRegion && ocWalkTextHints.length">
-              source — yellow tints show keywords from the reasoning ({{ ocWalkTextHints.length }} hit{{ ocWalkTextHints.length === 1 ? '' : 's' }})
+              source — {{ ocWalkTextHints.length }} keyword hit{{ ocWalkTextHints.length === 1 ? '' : 's' }} from the reasoning
             </ng-container>
             <ng-container *ngIf="!ocWalkCurrentRegion && !ocWalkTextHints.length">source — no precise bbox; scan visually</ng-container>
           </small>

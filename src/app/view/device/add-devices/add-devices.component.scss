@@ -1853,20 +1853,19 @@ $as-bg:       #f8fafc;
    found on the canvas via Tesseract. Distinct from the red precise
    bbox: lower contrast, no animation, filled translucent rather
    than outlined. */
-/* Outline + offset rather than border so the visible rectangle sits
-   outside the glyph-tight bbox returned by the text layer. */
+/* All text-layer hits use red. Primary = stronger outline, secondary
+   = thinner — same color so the registrant doesn't have to decode a
+   yellow-vs-red language. Outline + offset sits outside the glyph-
+   tight bbox returned by the text layer for breathing room. */
 .oc-walk__hint {
   position: absolute;
   pointer-events: none;
-  outline: 1px solid rgba(202, 138, 4, 0.65);
+  outline: 1px solid rgba(220, 38, 38, 0.65);
   outline-offset: 4px;
-  background: rgba(250, 204, 21, 0.18);
+  background: rgba(220, 38, 38, 0.08);
   border-radius: 2px;
-  box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.18);
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.10);
 }
-/* Primary text-layer hit — same crisp rectangle as a yellow hint,
-   just red. No blur, no animation: this IS a precise bbox now, not
-   an approximate "around here" model claim. */
 .oc-walk__hint--primary {
   position: absolute;
   pointer-events: none;
@@ -1874,7 +1873,7 @@ $as-bg:       #f8fafc;
   outline-offset: 4px;
   background: rgba(220, 38, 38, 0.10);
   border-radius: 2px;
-  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.14);
 }
 .oc-walk__source-canvas {
   /* No vertical cap on the container — the canvas itself is
