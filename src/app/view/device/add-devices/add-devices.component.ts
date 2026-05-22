@@ -4560,7 +4560,7 @@ export class AddDevicesComponent implements OnDestroy {
     }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    const page = p.region.page ?? 1;
+    const page = p.region?.page ?? 1;
     const targetW = 1600;
     try {
       if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
