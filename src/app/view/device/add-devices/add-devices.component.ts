@@ -2661,8 +2661,8 @@ export class AddDevicesComponent implements OnDestroy {
         // extractor's reasoning keywords + related-field values in
         // the text layer too. Same logic as the OC# walk.
         if (!this.verifyTextMatches.length) {
-          const reasoning = String((item.field as any)?.reasoning ?? '').trim();
-          const related = this.relatedLiteralValuesFor(item.name);
+          const reasoning = String((item as any).reasoning ?? '').trim();
+          const related = this.relatedLiteralValuesFor(item.field);
           const needles = [
             ...(reasoning ? [reasoning] : []),
             ...related,
