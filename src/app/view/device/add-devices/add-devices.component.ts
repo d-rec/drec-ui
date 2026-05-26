@@ -1269,6 +1269,17 @@ export class AddDevicesComponent implements OnDestroy {
       const idx = this.deviceForms.controls.indexOf(deviceGroup);
       if (next) {
         this.recordInference(idx, name, 'Geocoder (lat/lng)', next);
+        // Also write to appliedProvenance so the hint chip below the
+        // field renders "Geocoder (lat/lng): <value>" and the orphan
+        // pill doesn't show. Without this geocoder-filled fields
+        // looked source-less to the registrant.
+        this.recordProvenance(
+          idx,
+          name,
+          'Geocoder (lat/lng)',
+          0.9,
+          next,
+        );
       }
     }
   }
@@ -5428,6 +5439,9 @@ export class AddDevicesComponent implements OnDestroy {
     confidence: number | null;
     docName: string | null;
     docUrl: string | null;
+    /** Staged-file fallback for add-mode docs without a server URL
+     *  yet. openDocInPreview builds a blob URL on demand. */
+    docFile?: File | null;
     /** Per-row "attest as me" toggle for no-subject rows. Drives the
      *  "Attest selected" action at the bottom. */
     attestSelected?: boolean;
@@ -5743,6 +5757,69 @@ export class AddDevicesComponent implements OnDestroy {
       }
       return out;
     };
+    // Look up a server-side URL by doc filename across every doc-type
+    // bucket on this device. Used to enrich evidence-table rows so the
+    // doc name is clickable and lands in the dedicated viewer.
+    // Returns null when the file is staged-only (add-mode, not yet
+    // persisted) — the viewer can still be opened from the doc slot
+    // in those cases.
+    const urlForDocName = (docName: string | null | undefined): string | null => {
+      if (!docName) return null;
+      const buckets = this.existingDocs[i] ?? {};
+      for (const t of Object.keys(buckets)) {
+        for (const d of (buckets as any)[t] ?? []) {
+          if (d?.name === docName && d?.url) return d.url as string;
+        }
+      }
+      return null;
+    };
+    // Staged-file lookup — add-mode docs have File handles but no
+    // server URL until submit. Returns the File so openDocInPreview
+    // can build a blob URL on demand.
+    const stagedFileByName = (docName: string | null | undefined): File | null => {
+      if (!docName) return null;
+      const bucket = this.files[i] ?? {};
+      for (const t of Object.keys(bucket)) {
+        for (const f of (bucket as any)[t] ?? []) {
+          if (f?.name === docName) return f as File;
+        }
+      }
+      return null;
+    };
+    // Generic-source fallback — when provenance source is just a
+    // doc-type label ("SLD", "Metering evidence") and no specific
+    // docName was recorded, point the pill at the FIRST attached doc
+    // of that type. Lets the registrant click the source label and
+    // land directly in the right viewer. Returns {name, url, file}.
+    const sourceToDocType: Record<string, string> = {
+      'SLD': 'SINGLE_LINE_DIAGRAM',
+      'SF-02': 'FORM_SF_02',
+      'SF-02c': 'SF_02C',
+      'COD': 'COD_PROOF',
+      'Metering evidence': 'METERING_EVIDENCE',
+      'PROOF_OF_OWNERSHIP': 'PROOF_OF_OWNERSHIP',
+      'PROJECT_PHOTOS': 'PROJECT_PHOTOS',
+    };
+    const firstDocOfSource = (
+      source: string | null | undefined,
+    ): { name: string; url: string | null; file: File | null } | null => {
+      if (!source) return null;
+      // Source labels can carry " (registrant-credited)" or " (backfill)"
+      // suffixes; strip before mapping.
+      const bare = source.replace(/\s*\((?:registrant-credited|backfill|saved)\)\s*$/i, '').trim();
+      const t = sourceToDocType[bare];
+      if (!t) return null;
+      const existing = (this.existingDocs[i]?.[t] ?? []) as any[];
+      if (existing.length) {
+        const d = existing[0];
+        return { name: d?.name ?? bare, url: d?.url ?? null, file: null };
+      }
+      const staged = (this.files[i]?.[t as keyof DeviceFiles] ?? []) as File[];
+      if (staged.length) {
+        return { name: staged[0].name, url: null, file: staged[0] };
+      }
+      return null;
+    };
     // Free, local re-attribution pass — for each orphan field, walk
     // cached extractor outputs (sld/sf02c/cod/sf02) and credit any
     // doc whose extracted value matches the form value verbatim.
@@ -5840,14 +5917,29 @@ export class AddDevicesComponent implements OnDestroy {
           hasSource = !!p?.source;
         }
       }
+      let docName: string | null = p?.docName ?? null;
+      let docUrl: string | null = urlForDocName(docName);
+      let docFile: File | null = stagedFileByName(docName);
+      // Fall back to the first attached doc of this source's type
+      // when no specific doc was recorded — covers generic "SLD" /
+      // "Metering evidence" provenance labels.
+      if (!docUrl && !docFile) {
+        const fb = firstDocOfSource(p?.source);
+        if (fb) {
+          if (!docName) docName = fb.name;
+          docUrl = fb.url;
+          docFile = fb.file;
+        }
+      }
       rows.push({
         field: name,
         label: labelOf(name),
         displayValue: display(v),
         source: p?.source ?? null,
         confidence: p?.confidence ?? null,
-        docName: p?.docName ?? null,
-        docUrl: null,
+        docName,
+        docUrl,
+        docFile,
         attestSelected: false,
         helpfulDocs: hasSource ? undefined : helpfulDocsFor(name),
       });
@@ -8497,6 +8589,44 @@ export class AddDevicesComponent implements OnDestroy {
         console.error('viewExistingDoc error', { docId: doc.id, err });
         this.toastrService.error(text, '', { timeOut: 8000 });
       },
+    });
+  }
+
+  /** Open any document (by URL or staged File) in the in-app preview
+   *  dialog — the same one with zoom / OCR / text-layer search.
+   *  Used by the Evidence-Review panel so doc names in the table are
+   *  clickable and land in the dedicated viewer instead of the
+   *  browser's raw new-tab handler (which varies by type and gives
+   *  zero in-app affordances). Pass null/undefined and it no-ops. */
+  openDocInPreview(
+    docName: string | null | undefined,
+    docUrl: string | null | undefined,
+    docFile?: File | null,
+  ): void {
+    if (!docUrl && !docFile) return;
+    const name = (docName || docFile?.name || '').trim() || 'document';
+    const ext = name.split('.').pop()?.toLowerCase() || '';
+    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext);
+    const isPdf = ext === 'pdf';
+    const isExcel = ext === 'xlsx' || ext === 'xls';
+    this.currentPreviewDocType = null;
+    this.currentPreviewFile = docFile ?? null;
+    // Prefer the staged File when available (no network round-trip),
+    // else use the server URL directly — pdf-preview + ocrSource
+    // both accept string URLs. The browser fetches via the existing
+    // bearer-token interceptor when the URL is on /api/.
+    const url = docFile ? URL.createObjectURL(docFile) : (docUrl as string);
+    this.previewData = {
+      url: this.sanitizer.bypassSecurityTrustResourceUrl(url),
+      type: isImage ? 'image' : isPdf ? 'pdf' : isExcel ? 'excel' : 'other',
+      name,
+    };
+    this.previewDialogRef = this.dialog.open(this.previewDialogTemplate, {
+      width: '95vw',
+      maxWidth: '100vw',
+      height: '90vh',
+      maxHeight: '100vh',
+      panelClass: 'file-preview-dialog',
     });
   }
 

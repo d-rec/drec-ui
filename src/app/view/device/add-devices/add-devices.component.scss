@@ -2061,6 +2061,19 @@ $as-bg:       #f8fafc;
   &--doc    { background: #ecfdf5; color: #047857; }
   &--manual { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
   &__conf   { opacity: 0.7; font-weight: 400; margin-left: 2px; }
+  // Anchor variant — pill is clickable and lands in the dedicated
+  // preview dialog. Subtle border + cursor + hover so the registrant
+  // sees it's actionable, not just a label.
+  &--link {
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    &:hover {
+      background: #d1fae5;
+      border-color: #6ee7b7;
+      text-decoration: underline;
+    }
+  }
 }
 
 // Per-row attest cell — checkbox + helpful-doc links + fallback hint.

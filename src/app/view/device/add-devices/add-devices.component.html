@@ -245,6 +245,7 @@
                       <mat-label class="text-capitalize">(3) State/Province/County <span style="color:#dc2626;">*</span></mat-label>
                       <input matInput formControlName="stateProvince" autocomplete="off" />
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'stateProvince') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'stateProvince')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -252,6 +253,7 @@
                       <input matInput type="string" formControlName="postcode" test-id="postcode" />
                       <mat-error>Please enter the valid postcode</mat-error>
                     </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'postcode') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'postcode')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -2014,13 +2016,21 @@
           <td>{{ r.label }}</td>
           <td class="evidence-table__val">{{ r.displayValue }}</td>
           <td>
-            <span *ngIf="r.source" class="evidence-pill evidence-pill--doc" [title]="r.docName ? ('From ' + r.docName) : ('Source type: ' + r.source)">
+            <a *ngIf="r.source && (r.docUrl || r.docFile)" href="javascript:void(0)"
+              class="evidence-pill evidence-pill--doc evidence-pill--link"
+              (click)="openDocInPreview(r.docName, r.docUrl, r.docFile)"
+              [title]="('Open ' + (r.docName || r.source) + ' in the dedicated viewer')">
+              <mat-icon>description</mat-icon>
+              <ng-container *ngIf="r.docName">{{ r.docName }}</ng-container>
+              <ng-container *ngIf="!r.docName">{{ r.source }}</ng-container>
+              <span *ngIf="r.confidence != null" class="evidence-pill__conf">{{ (r.confidence * 100) | number:"1.0-0" }}%</span>
+            </a>
+            <span *ngIf="r.source && !r.docUrl && !r.docFile" class="evidence-pill evidence-pill--doc" [title]="'Source type: ' + r.source">
               <mat-icon>description</mat-icon>
               <ng-container *ngIf="r.docName">{{ r.docName }}</ng-container>
               <ng-container *ngIf="!r.docName">{{ r.source }}</ng-container>
               <span *ngIf="r.confidence != null" class="evidence-pill__conf">{{ (r.confidence * 100) | number:"1.0-0" }}%</span>
             </span>
-            <a *ngIf="r.docUrl" [href]="r.docUrl" target="_blank" rel="noopener" class="ms-2 small">view ↗</a>
             <div *ngIf="!r.source" class="evidence-attest">
               <label class="evidence-attest__check">
                 <input type="checkbox"
@@ -2031,12 +2041,11 @@
               <div *ngIf="r.helpfulDocs?.length" class="evidence-attest__docs">
                 <small class="text-muted d-block">or credit a doc you've verified:</small>
                 <div *ngFor="let d of r.helpfulDocs" class="evidence-attest__doc-row">
-                  <a [href]="d.url || null"
-                     [target]="d.url ? '_blank' : null"
-                     rel="noopener"
+                  <a [href]="d.url ? 'javascript:void(0)' : null"
+                     (click)="d.url && openDocInPreview(d.name, d.url)"
                      class="evidence-attest__doc"
                      [class.evidence-attest__doc--inert]="!d.url"
-                     [title]="d.url ? ('Open ' + d.name + ' in a new tab to verify the value is there') : (d.name + ' (attached, no preview URL)')">
+                     [title]="d.url ? ('Open ' + d.name + ' in the dedicated viewer to verify the value is there') : (d.name + ' (attached, no preview URL)')">
                     <mat-icon style="font-size:13px;height:13px;width:13px;vertical-align:middle">open_in_new</mat-icon>
                     {{ d.name }}
                   </a>

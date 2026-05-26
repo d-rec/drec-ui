@@ -36,7 +36,21 @@ export class PictureWindowComponent implements OnInit {
     return this.pic.url;
   }
   get enableOcr(): boolean {
-    return this.pic.enableOcr;
+    // Honour the caller's explicit `false` (e.g. live satellite view).
+    // For anything else, decide from the URL: site photos
+    // (PROJECT_PHOTOS / facility boundary images) have no useful text,
+    // so OCR is hidden even when the caller passed `true`.
+    if (this.pic.enableOcr === false) return false;
+    const url = (this.pic.url ?? '').toLowerCase();
+    if (
+      url.includes('/project_photos/') ||
+      url.includes('project_photos%2f') ||
+      url.includes('_boundaries_') ||
+      url.includes('_boundary_')
+    ) {
+      return false;
+    }
+    return true;
   }
   private get currentUrl(): string {
     return this.pic.url;

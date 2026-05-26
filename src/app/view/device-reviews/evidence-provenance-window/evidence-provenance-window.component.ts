@@ -134,7 +134,13 @@ export class EvidenceProvenanceWindowComponent implements OnInit, OnDestroy {
         // Picture-window opens an OpenPicture object — just feed
         // the streaming URL straight through; the viewer fetches
         // the image with the existing auth interceptor.
-        this.svc.viewPicture(href, false);
+        // OCR enabled so reviewers can pull text out of metering-
+        // evidence screenshots (kWh readings, serial numbers,
+        // dashboard captions) on demand. Site-photo and boundary-
+        // image links are linked to their own dedicated viewers
+        // upstream; this report only ever surfaces metering /
+        // doc-style images.
+        this.svc.viewPicture(href, true);
       } else {
         this.svc.viewPdf(href);
       }
