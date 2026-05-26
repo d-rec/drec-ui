@@ -2192,15 +2192,15 @@ $as-bg:       #f8fafc;
   100% { transform: scale(1.0); opacity: 1.0; }
 }
 
-// Verify-source zoom container — the canvas + overlay live inside
-// this so they transform together. overflow:hidden so panned-out
-// content doesn't bleed into the rest of the dialog.
+// Verify-source viewport — plain scrollable container. The canvas
+// renders at its natural pixel size (already capped to a reasonable
+// width upstream) and CSS max-width:100% on the canvas fits it to
+// the dialog horizontally; vertical overflow scrolls naturally.
+// No transforms — zoom-pan was getting in the way more than it
+// helped for this "look-and-confirm" interaction.
 .verify-source__zoom {
-  overflow: hidden;
+  overflow: auto;
   border-radius: 6px;
-  cursor: grab;
-  user-select: none;
-  &:active { cursor: grabbing; }
 }
 // Base bbox: pixel-exact Tesseract match — solid red.
 // Negative margin to inflate the visible box ~6px on each side so the

@@ -2274,11 +2274,6 @@ export class AddDevicesComponent implements OnDestroy {
   verifyQueueFile: File | null = null;
   @ViewChild('verifySourceDialog') verifySourceDialog?: TemplateRef<any>;
   @ViewChild('verifyCanvas') verifyCanvasEl?: ElementRef<HTMLCanvasElement>;
-  @ViewChild('verifyZoomEl', { read: ImageZoomPanDirective }) verifyZoomDirective?: ImageZoomPanDirective;
-
-  verifyZoomIn(): void { this.verifyZoomDirective?.zoomIn(); }
-  verifyZoomOut(): void { this.verifyZoomDirective?.zoomOut(); }
-  verifyZoomReset(): void { this.verifyZoomDirective?.reset(); }
   private verifySourceDialogRef: MatDialogRef<any> | null = null;
 
   /** Resolved CSS size of the rendered verify canvas — needed so the
@@ -2931,20 +2926,38 @@ export class AddDevicesComponent implements OnDestroy {
         // themselves.
       });
       // Auto-skip items that would land on whitespace. After the
-      // text-layer search + Tesseract sweep, if neither produced a
-      // literal hit AND Haiku's region was only a model estimate (not
-      // a real pixel bbox from Tesseract at extract time), the
-      // overlay would draw an empty rectangle on the page — looks
-      // broken. Auto-verify those with an `auto: true` stamp instead,
-      // so the walk advances and the audit trail still distinguishes
-      // human-verified from auto-verified.
+      // text-layer search + Tesseract sweep, decide whether we have
+      // useful visual evidence:
+      //  - Tesseract pixel region (regionSource='tesseract'): always
+      //    real evidence, never skip.
+      //  - Haiku model bbox present: literal-text hits only count if
+      //    one falls inside (or near) the model bbox. A date match in
+      //    a page header/footer doesn't save a blank-body page from
+      //    being auto-skipped — without proximity gating SF-02 walks
+      //    landed on empty pages because some repeated value matched
+      //    in the running header.
+      //  - No model bbox: any literal hit counts (best we've got).
+      // Auto-skipped items get a `verifiedBy:{auto:'no-literal-
+      // evidence'}` stamp so the audit trail still distinguishes
+      // human- from auto-verified.
       const hasTesseractRegion = item.regionSource === 'tesseract';
-      const hasLiteralHit = this.verifyTextMatches.length > 0;
-      if (!hasTesseractRegion && !hasLiteralHit) {
+      let hasMeaningfulHit = false;
+      if (!hasTesseractRegion) {
+        const modelRegion = item.region;
+        if (modelRegion && (modelRegion.page ?? 1) === this.verifyCurrentPage) {
+          hasMeaningfulHit = this.verifyTextMatches.some((m) =>
+            this.rectsOverlap(m, modelRegion, /*pad=*/ 0.10),
+          );
+        } else {
+          hasMeaningfulHit = this.verifyTextMatches.length > 0;
+        }
+      }
+      if (!hasTesseractRegion && !hasMeaningfulHit) {
         console.log(
           '[verify] auto-skip',
           item.field,
-          '— no literal evidence in source',
+          '— no literal evidence near model bbox on page',
+          this.verifyCurrentPage,
         );
         // Small delay so the registrant briefly sees the dialog
         // change (otherwise it flicks past too fast to notice the
@@ -2955,6 +2968,28 @@ export class AddDevicesComponent implements OnDestroy {
       console.warn('renderVerifyCanvas failed', err);
       this.verifyCanvasSize = null;
     }
+  }
+
+  /** Do two 0..1 normalised rectangles overlap, with an optional
+   *  isotropic padding (in 0..1 units) applied to the second rect?
+   *  Used to decide whether a text-layer match falls inside / near
+   *  Haiku's estimated bbox. */
+  private rectsOverlap(
+    a: { x: number; y: number; w: number; h: number },
+    b: { x: number; y: number; w: number; h: number },
+    pad = 0,
+  ): boolean {
+    if (!a || !b) return false;
+    const bx = b.x - pad;
+    const by = b.y - pad;
+    const bw = b.w + pad * 2;
+    const bh = b.h + pad * 2;
+    return (
+      a.x < bx + bw &&
+      a.x + a.w > bx &&
+      a.y < by + bh &&
+      a.y + a.h > by
+    );
   }
 
   /** Auto-verify the current queue item without a human click.
@@ -6526,6 +6561,9 @@ export class AddDevicesComponent implements OnDestroy {
     source: string;
     value: any;
     url: string | null;
+    /** File name so openHintDoc can pick the right in-app viewer
+     *  (PDF → pdf-preview, image → picture-window-style, etc.) */
+    docName: string | null;
     confidence: number | null;
     /** Form-field name — threaded through so the chip's "use this"
      *  click handler can patch the right control without re-typing it
@@ -6618,12 +6656,14 @@ export class AddDevicesComponent implements OnDestroy {
       candidates.sort((a, b) => b.confidence - a.confidence);
       const best = candidates[0];
       const docType = docTypeBySource[best.source];
-      const url =
-        (this.existingDocs[deviceIndex]?.[docType]?.[0] as any)?.url ?? null;
+      const doc0 = this.existingDocs[deviceIndex]?.[docType]?.[0] as any;
+      const url = doc0?.url ?? null;
+      const docName = doc0?.name ?? null;
       return {
         source: best.source,
         value: best.value,
         url,
+        docName,
         confidence: best.confidence,
         field,
         lowConfidence: best.confidence < 0.7,
@@ -6657,12 +6697,14 @@ export class AddDevicesComponent implements OnDestroy {
         '',
       );
       const docType = docTypeBySource[rawSource];
-      const url =
-        (this.existingDocs[deviceIndex]?.[docType]?.[0] as any)?.url ?? null;
+      const doc0 = this.existingDocs[deviceIndex]?.[docType]?.[0] as any;
+      const url = doc0?.url ?? null;
+      const docName = doc0?.name ?? null;
       return {
         source: persisted.source,
         value: persisted.value,
         url,
+        docName,
         confidence: persisted.confidence ?? null,
         field,
         lowConfidence: (persisted.confidence ?? 1) < 0.7,
@@ -6671,12 +6713,20 @@ export class AddDevicesComponent implements OnDestroy {
     return null;
   }
 
-  /** Click the hint → open the doc in a new tab. Signed URL was
-   *  produced when the page loaded; for short-lived devices we just
-   *  let the browser request it directly. */
-  openHintDoc(url: string | null): void {
-    if (!url) return;
-    window.open(url, '_blank', 'noopener');
+  /** Click the ↗ on an extractor-hint chip → open the source doc in
+   *  its dedicated in-app viewer (PDF / image / Excel) via
+   *  openDocInPreview, instead of dumping it into a new browser tab.
+   *  Routes by file-extension off docName. Falls back to window.open
+   *  only when there's no name to dispatch on. */
+  openHintDoc(hint: { url: string | null; docName: string | null } | null): void {
+    if (!hint?.url) return;
+    if (hint.docName) {
+      this.openDocInPreview(hint.docName, hint.url);
+      return;
+    }
+    // Last-resort fallback when we don't have a filename to type the
+    // doc by — shouldn't happen for hints sourced from existingDocs.
+    window.open(hint.url, '_blank', 'noopener');
   }
 
   /** True when the field has a non-empty value but no recorded
