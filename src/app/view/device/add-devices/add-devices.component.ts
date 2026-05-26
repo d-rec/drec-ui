@@ -2949,31 +2949,40 @@ export class AddDevicesComponent implements OnDestroy {
       let hasMeaningfulHit = false;
       if (!hasTesseractRegion) {
         // SF-02 model bboxes from Haiku are consistently wrong across
-        // pages — ignore them for the overlap check (treat as "no
-        // model bbox" and fall back to any-literal-hit), otherwise
-        // valid items get auto-skipped because text matches don't
-        // overlap with the bad bbox.
+        // pages — ignore them entirely (treat as "no model bbox" and
+        // fall back to any-literal-hit). Other sources (SLD, SF-02c,
+        // COD): trust the model bbox when present on the current
+        // page — it's enough to count as evidence on its own. Without
+        // this, short numeric values like "(13) Number of generating
+        // units = 2" auto-skipped because findValueOnPage refuses
+        // needles <3 chars and no text overlap exists to validate.
         const modelRegion =
           item.source === 'SF-02' ? undefined : item.region;
         if (modelRegion && (modelRegion.page ?? 1) === this.verifyCurrentPage) {
-          hasMeaningfulHit = this.verifyTextMatches.some((m) =>
-            this.rectsOverlap(m, modelRegion, /*pad=*/ 0.10),
-          );
+          hasMeaningfulHit = true;
         } else {
           hasMeaningfulHit = this.verifyTextMatches.length > 0;
         }
       }
       if (!hasTesseractRegion && !hasMeaningfulHit) {
-        console.log(
-          '[verify] auto-skip',
-          item.field,
-          '— no literal evidence near model bbox on page',
-          this.verifyCurrentPage,
-        );
-        // Small delay so the registrant briefly sees the dialog
-        // change (otherwise it flicks past too fast to notice the
-        // skip happened).
-        setTimeout(() => this.verifyAcceptAuto('no-literal-evidence'), 250);
+        if (this.suppressNextAutoSkip) {
+          // Manual prev/next navigation — let the registrant see the
+          // item even though there's nothing to attest against. They
+          // landed here on purpose; auto-skipping would yank them
+          // straight back where they came from.
+          this.suppressNextAutoSkip = false;
+        } else {
+          console.log(
+            '[verify] auto-skip',
+            item.field,
+            '— no literal evidence near model bbox on page',
+            this.verifyCurrentPage,
+          );
+          // Small delay so the registrant briefly sees the dialog
+          // change (otherwise it flicks past too fast to notice the
+          // skip happened).
+          setTimeout(() => this.verifyAcceptAuto('no-literal-evidence'), 250);
+        }
       }
     } catch (err) {
       console.warn('renderVerifyCanvas failed', err);
@@ -3420,6 +3429,30 @@ export class AddDevicesComponent implements OnDestroy {
     this.verifyQueueIndex = 0;
     this.verifyQueueFile = null;
     this.verifyCanvasSize = null;
+  }
+
+  /** Set by verifyPrev/verifyNext to suppress the next renderVerifyCanvas's
+   *  auto-skip pass — so manually navigating back onto an auto-skippable
+   *  item doesn't immediately re-skip it past the registrant. Consumed on
+   *  the next render. */
+  private suppressNextAutoSkip = false;
+
+  /** Navigate the verify queue backward (re-show auto-skipped items). */
+  verifyPrev(): void {
+    if (this.verifyQueueIndex <= 0) return;
+    this.verifyQueueIndex--;
+    this.suppressNextAutoSkip = true;
+    setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 0);
+  }
+
+  /** Skip the current item without accepting or declining — just move
+   *  forward. Different from verifyDecline (which dismisses the value).
+   *  Auto-skip is suppressed so a no-evidence next-item stays visible. */
+  verifyNext(): void {
+    if (this.verifyQueueIndex >= this.verifyQueue.length - 1) return;
+    this.verifyQueueIndex++;
+    this.suppressNextAutoSkip = true;
+    setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 0);
   }
 
   private verifyAdvance(): void {

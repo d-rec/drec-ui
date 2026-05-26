@@ -2345,7 +2345,21 @@
 <ng-template #verifySourceDialog><div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
   <h2 mat-dialog-title cdkDragHandle class="d-flex align-items-center gap-2 flex-wrap" style="cursor: move;">
     <mat-icon>verified</mat-icon>
+    <button type="button" class="btn btn-sm btn-outline-secondary"
+      (click)="verifyPrev(); $event.stopPropagation()"
+      (mousedown)="$event.stopPropagation()"
+      [disabled]="verifyQueueIndex <= 0"
+      title="Previous item (re-show any that were auto-skipped).">
+      <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">chevron_left</mat-icon>
+    </button>
     <span>Verify {{ verifyQueueIndex + 1 }} of {{ verifyQueue.length }}</span>
+    <button type="button" class="btn btn-sm btn-outline-secondary"
+      (click)="verifyNext(); $event.stopPropagation()"
+      (mousedown)="$event.stopPropagation()"
+      [disabled]="verifyQueueIndex >= verifyQueue.length - 1"
+      title="Next item — skip without accepting or declining.">
+      <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">chevron_right</mat-icon>
+    </button>
     <ng-container *ngIf="verifyCurrent as v">
       <span class="text-muted">·</span>
       <span class="text-muted" style="font-weight:normal">{{ v.label }}</span>
