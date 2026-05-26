@@ -497,17 +497,12 @@ export class AddDevicesComponent implements OnDestroy {
               data.serialNumber = cleaned;
             }
           }
-          // Generic blacklist: for each non-serial field that has a
-          // dismissed value matching what the server returned, NULL
-          // it on data before patchValue runs. The registrant once
-          // declined the value — it stays gone.
-          const fieldBlacklist = this.dismissedFieldValues[0] ?? {};
-          for (const f of Object.keys(fieldBlacklist)) {
-            const v = (data as any)[f];
-            if (v != null && fieldBlacklist[f].has(String(v).trim().toLowerCase())) {
-              (data as any)[f] = null;
-            }
-          }
+          // (Generic per-field dismiss blacklist removed 2026-05-26.
+          // A single Decline in a verify walk was poisoning the value
+          // across sessions, even when the registrant later typed it
+          // back and saved. The serial-number blacklist still applies
+          // because phantom SNs from OCR are a real recurring threat;
+          // free-text fields aren't.)
           this.initSerialNumber = data.serialNumber ?? null;
           this.initSiteName = data.siteName ?? null;
           this.initialValues = { ...data };
@@ -568,6 +563,10 @@ export class AddDevicesComponent implements OnDestroy {
           // Restore extractor provenance saved on prior edits so the
           // conflict block can credit fields to their original source
           // instead of falsely tagging them MANUAL on re-edit.
+          console.log(
+            '[edit-load] server.address =', JSON.stringify((data as any).address),
+            'server.fieldProvenance.address =', JSON.stringify((data as any).fieldProvenance?.address),
+          );
           this.appliedProvenance[0] = { ...((data as any).fieldProvenance ?? {}) };
           // Hydrate OC# walkthrough recording (if the prior session
           // ran one). Stored under the synthetic key __ocWalkLog so
@@ -1705,20 +1704,20 @@ export class AddDevicesComponent implements OnDestroy {
       this.dismissSerial(deviceIndex, v);
       return;
     }
-    if (!this.dismissedFieldValues[deviceIndex]) this.dismissedFieldValues[deviceIndex] = {};
-    if (!this.dismissedFieldValues[deviceIndex][field]) this.dismissedFieldValues[deviceIndex][field] = new Set();
-    this.dismissedFieldValues[deviceIndex][field].add(v.toLowerCase());
-    this.saveDismissedFieldValues(deviceIndex);
+    // Free-text fields no longer maintain a per-value dismiss
+    // blacklist (removed 2026-05-26). A single Decline used to
+    // poison the value across sessions even after a Save.
   }
-  /** Check if a (field, value) is blacklisted. */
+  /** Check if a (field, value) is blacklisted. Only meaningful for
+   *  serial-number / meterId: synthetic keys; other fields never
+   *  blacklist after the 2026-05-26 simplification. */
   private isDismissed(deviceIndex: number, field: string, value: any): boolean {
     if (value == null || value === '') return false;
     if (field === 'serialNumber' || field.startsWith('meterId:')) {
       const set = this.dismissedSerialNumbers[deviceIndex];
       return !!set && set.has(String(value).trim().toLowerCase());
     }
-    const set = this.dismissedFieldValues[deviceIndex]?.[field];
-    return !!set && set.has(String(value).trim().toLowerCase());
+    return false;
   }
 
   /** Mark a serial as dismissed for this device + persist. Central
@@ -9412,6 +9411,12 @@ export class AddDevicesComponent implements OnDestroy {
     );
 
     const formValue: any = { ...firstRow.value };
+    console.log(
+      '[edit-save] form.address =', JSON.stringify(firstRow.get('address')?.value),
+      'dirty?', firstRow.get('address')?.dirty,
+      'cleared?', (this.explicitlyClearedFields[0] ?? new Set()).has('address'),
+      'prov.address =', JSON.stringify(this.appliedProvenance[0]?.['address']),
+    );
     if (normalisedName) formValue.countryCodename = normalisedName;
     formValue.countryCode = selectedCountry?.alpha3 ?? formValue.countryCodename;
     delete formValue.countryCodename;
@@ -9512,6 +9517,10 @@ export class AddDevicesComponent implements OnDestroy {
     }
     delete (formValue as any).OTHER_DOCUMENTS;
     delete (formValue as any).sf02EvidenceMode;
+    console.log(
+      '[edit-save] payload.address =', JSON.stringify(formValue.address),
+      '— address key present?', 'address' in formValue,
+    );
 
     const fileBucket = this.files[0] || ({} as DeviceFiles);
     const fileFields: FileType[] = [

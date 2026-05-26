@@ -2365,9 +2365,6 @@
       <div class="text-muted small mb-1 d-flex align-items-center gap-2 flex-wrap">
         <mat-icon style="font-size:14px;height:14px;width:14px">description</mat-icon>
         <span *ngIf="verifyQueueFile" class="text-truncate" style="max-width:280px" [title]="verifyQueueFile.name">{{ verifyQueueFile.name }}</span>
-        <span class="text-muted">·</span>
-        <mat-icon style="font-size:14px;height:14px;width:14px">zoom_in</mat-icon>
-        scroll to zoom · drag to pan · double-click resets
         <ng-container *ngIf="verifyPageCount > 1">
           <span class="ms-auto d-flex align-items-center gap-1">
             <button type="button" class="btn btn-sm btn-outline-secondary"
@@ -2398,7 +2395,7 @@
       <div class="verify-source__zoom">
         <div class="verify-source__doc">
           <canvas #verifyCanvas
-            style="display:block;max-width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
+            style="display:block;width:100%;height:auto;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
           </canvas>
           <!-- Region overlay positioned in percentages so we don't
                need to know the canvas's CSS pixel size at render
