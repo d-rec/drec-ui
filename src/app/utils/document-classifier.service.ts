@@ -257,6 +257,18 @@ export class DocumentClassifierService {
             alternatives: [],
           };
         }
+        // Text-dense image but no specific meter signals: most likely
+        // a non-meter document/screenshot (contract, invoice, …).
+        // OTHER_DOCUMENTS is safer than silently filing as Site Photo.
+        const wc = (text.match(/\b[\w-]{2,}\b/g) ?? []).length;
+        if (wc >= 40 || text.trim().length >= 250) {
+          return {
+            suggestedType: DocumentType.OTHER_DOCUMENTS,
+            confidence: 0.5,
+            method: 'keywords',
+            alternatives: [],
+          };
+        }
         return {
           suggestedType: DocumentType.PROJECT_PHOTOS,
           confidence: 0.45,
@@ -343,6 +355,16 @@ export class DocumentClassifierService {
     // Strong-meter signal in OCR text → keep METERING, skip the
     // photo-downgrade.
     if (this.hasMeterSignals(ocrText)) {
+      return result;
+    }
+
+    // Text-dense image (≥40 words / ≥250 chars of OCR) is clearly a
+    // document / screenshot, not a real-world photo. Real site
+    // photos OCR to a handful of stray glyphs at most. Keep
+    // METERING — better wrong-bucket than a metering report landing
+    // silently in Project Photos.
+    const wordCount = (ocrText.match(/\b[\w-]{2,}\b/g) ?? []).length;
+    if (wordCount >= 40 || ocrText.trim().length >= 250) {
       return result;
     }
 
@@ -562,12 +584,15 @@ export class DocumentClassifierService {
         blankrows: false,
         defval: '',
       }) as any[][];
-      // Cap at first 15 rows × 12 cols — enough for column headers
-      // ("PV(kWh)", "Sell(kWh)", "Plant", "Date", etc.) plus a few
-      // sample rows.
+      // Scan up to 60 rows × 20 cols. Some monthly-report templates
+      // park the "Monthly Report / PV(kWh) / Sell(kWh) / Plant"
+      // headers around row 20 with cosmetic empty rows above (which
+      // blankrows:false skips on the row axis but doesn't reorder).
+      // 15-row window was too small — the classifier saw nothing and
+      // silently filed the report under PROJECT_PHOTOS.
       return rows
-        .slice(0, 15)
-        .map((r) => (r || []).slice(0, 12).map((c) => String(c ?? '')).join(' '))
+        .slice(0, 60)
+        .map((r) => (r || []).slice(0, 20).map((c) => String(c ?? '')).join(' '))
         .join('\n')
         .trim();
     } catch (err) {
