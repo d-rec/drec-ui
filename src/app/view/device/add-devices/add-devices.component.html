@@ -2342,9 +2342,15 @@
 </ng-template>
 
 <ng-template #verifySourceDialog><div cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragBoundary=".cdk-overlay-container">
-  <h2 mat-dialog-title cdkDragHandle class="d-flex align-items-center gap-2" style="cursor: move;">
+  <h2 mat-dialog-title cdkDragHandle class="d-flex align-items-center gap-2 flex-wrap" style="cursor: move;">
     <mat-icon>verified</mat-icon>
-    Verify source ({{ verifyQueueIndex + 1 }} / {{ verifyQueue.length }})
+    <span>Verify {{ verifyQueueIndex + 1 }} of {{ verifyQueue.length }}</span>
+    <ng-container *ngIf="verifyCurrent as v">
+      <span class="text-muted">·</span>
+      <span class="text-muted" style="font-weight:normal">{{ v.label }}</span>
+      <span class="text-muted">=</span>
+      <strong style="font-weight:600">{{ v.value }}</strong>
+    </ng-container>
   </h2>
   <div mat-dialog-content style="max-height:75vh">
     <div *ngIf="verifyCurrent as v" class="verify-source">
@@ -2416,7 +2422,7 @@
             [style.width.%]="v.region.w * 100"
             [style.height.%]="v.region.h * 100">
           </div>
-          <div *ngIf="v.region && v.regionSource !== 'tesseract'"
+          <div *ngIf="v.region && v.regionSource !== 'tesseract' && v.source !== 'SF-02'"
             class="verify-source__region verify-source__region--approx"
             [style.left.%]="v.region.x * 100"
             [style.top.%]="v.region.y * 100"

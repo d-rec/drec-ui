@@ -2834,7 +2834,13 @@ export class AddDevicesComponent implements OnDestroy {
         // (so its literal text doesn't anchor), search the
         // extractor's reasoning keywords + related-field values in
         // the text layer too. Same logic as the OC# walk.
-        if (!this.verifyTextMatches.length) {
+        //
+        // Skipped for SF-02: Haiku's reasoning text often mentions
+        // section headers ("Facility address", "Section 1.3") that
+        // happen to exist verbatim on the cover page, producing
+        // highlights that have nothing to do with the actual value
+        // and look broken to the registrant.
+        if (!this.verifyTextMatches.length && item.source !== 'SF-02') {
           const reasoning = String((item as any).reasoning ?? '').trim();
           const related = this.relatedLiteralValuesFor(item.field);
           const needles = [
@@ -2942,7 +2948,13 @@ export class AddDevicesComponent implements OnDestroy {
       const hasTesseractRegion = item.regionSource === 'tesseract';
       let hasMeaningfulHit = false;
       if (!hasTesseractRegion) {
-        const modelRegion = item.region;
+        // SF-02 model bboxes from Haiku are consistently wrong across
+        // pages — ignore them for the overlap check (treat as "no
+        // model bbox" and fall back to any-literal-hit), otherwise
+        // valid items get auto-skipped because text matches don't
+        // overlap with the bad bbox.
+        const modelRegion =
+          item.source === 'SF-02' ? undefined : item.region;
         if (modelRegion && (modelRegion.page ?? 1) === this.verifyCurrentPage) {
           hasMeaningfulHit = this.verifyTextMatches.some((m) =>
             this.rectsOverlap(m, modelRegion, /*pad=*/ 0.10),
