@@ -7513,6 +7513,36 @@ export class AddDevicesComponent implements OnDestroy {
     // Clear suggestion
     this.classificationSuggestions[deviceIndex][fromType] = null;
     this.checkDocumentsUploaded();
+
+    // Fire whichever extractor the destination slot expects. Without
+    // this, accepting the AI suggestion to move a meter screenshot
+    // from Site Photos to Metering Evidence (or any cross-slot move)
+    // left the file in the right bucket but never ran the extractor —
+    // so the meter-IDs / SF-02 / etc. banner never appeared and the
+    // registrant had to delete + re-upload to trigger it.
+    for (const f of filesInSlot) {
+      switch (toType) {
+        case DocumentType.METERING_EVIDENCE:
+          this.extractMeterIdsForDevice(f, deviceIndex);
+          this.classifySourceAccessModeForDevice(f, deviceIndex);
+          break;
+        case DocumentType.SINGLE_LINE_DIAGRAM:
+          this.extractSldFieldsForDevice(f, deviceIndex);
+          break;
+        case DocumentType.SF_02C:
+          this.extractSf02cFieldsForDevice(f, deviceIndex);
+          break;
+        case DocumentType.COD_PROOF:
+          this.extractCodFieldsForDevice(f, deviceIndex);
+          break;
+        case DocumentType.FORM_SF_02:
+          this.extractSf02FieldsForDevice(f, deviceIndex);
+          break;
+      }
+    }
+    if (toType === DocumentType.METERING_EVIDENCE) {
+      this.autoSetMeterReadsShareable(deviceIndex);
+    }
   }
 
   /** Dismiss an AI classification suggestion. */
