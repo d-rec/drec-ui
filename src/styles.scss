@@ -1359,14 +1359,10 @@ input[type='number']::-webkit-inner-spin-button {
     height: 100%;
     border-bottom-right-radius: 0;
   }
-  /* Ctrl+scroll to zoom dialog contents — independent of browser zoom.
-     Implemented via a runtime CSS custom property set by the host
-     component on wheel events (--drec-dialog-zoom). Default 1. */
-  .mat-mdc-dialog-content {
-    transform-origin: top left;
-    transform: scale(var(--drec-dialog-zoom, 1));
-    width: calc(100% / var(--drec-dialog-zoom, 1));
-  }
+  /* (Ctrl+scroll dialog-zoom feature removed 2026-05-26 — it was
+     accidentally engaging during normal scroll and leaving the
+     dialog stuck at half scale with a visually-clamped canvas.
+     Browser-level zoom is fine for users who want it.) */
 }
 
 /* Hand-rolled resize handle injected by installFloatingDialogResize.
