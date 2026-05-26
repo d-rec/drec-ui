@@ -807,6 +807,31 @@ export class DocumentClassifierService {
     return hits;
   }
 
+  /** Public Tesseract sweep on a single canvas — used by the
+   *  verify-source dialog to highlight a literal value on image
+   *  documents (meter screenshots etc.) where pdf.js text-layer
+   *  search doesn't apply. Returns 0..1 normalised bboxes matching
+   *  the verifyTextMatches shape. */
+  async findValueOnCanvas(
+    canvas: HTMLCanvasElement,
+    value: any,
+  ): Promise<Array<{ x: number; y: number; w: number; h: number }>> {
+    const v = String(value ?? '').trim();
+    if (!v || v.length < 3) return [];
+    const map = await this.buildTesseractTokenMap([canvas]);
+    const norm = (s: string) => s.toLowerCase().trim();
+    const target = norm(v);
+    // Direct token match first, then substring-of-token (Tesseract
+    // sometimes glues a value to neighbouring punctuation).
+    const out: Array<{ x: number; y: number; w: number; h: number }> = [];
+    for (const [tok, regs] of map.entries()) {
+      if (tok === target || tok.includes(target) || target.includes(tok)) {
+        for (const r of regs) out.push({ x: r.x, y: r.y, w: r.w, h: r.h });
+      }
+    }
+    return out;
+  }
+
   private async buildTesseractTokenMap(
     canvases: HTMLCanvasElement[],
   ): Promise<Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>> {

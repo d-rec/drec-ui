@@ -35,6 +35,7 @@ import {
   debounceTime,
   distinctUntilChanged,
   switchMap,
+  timeout,
 } from 'rxjs/operators';
 import {
   OrganizationInformation,
@@ -2349,6 +2350,12 @@ export class AddDevicesComponent implements OnDestroy {
    *  extractors. */
   reverifyFromAttached(deviceIndex: number, source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02'): void {
     const cfg = this.REVERIFY_SOURCES[source];
+    // Re-verify means start over: drop any verifiedBy stamps the
+    // registrant accumulated on a prior walk so every extracted
+    // field surfaces in the next queue. Without this, Verify (N)
+    // shows only newly-discovered fields and the demo "re-parse
+    // the whole document" mental model breaks.
+    this.clearVerifiedByForSource(deviceIndex, source);
     // Add-mode files are staged locally (not yet persisted), so try
     // the staged list first — extracting from a File handle is cheaper
     // and works before the device exists.
@@ -2372,6 +2379,120 @@ export class AddDevicesComponent implements OnDestroy {
           `Failed to fetch ${doc.name}: ${err?.message ?? err}`,
         );
       });
+  }
+
+  /** Drop `verifiedBy` stamps on every appliedProvenance entry whose
+   *  field-name appears in this source's verify spec. Called from
+   *  reverifyFromAttached so re-parsing a doc resets the walk.
+   *  Reads the spec BEFORE the extractor clears the previous result
+   *  so we know which field-names to target. The extractor flow
+   *  re-stamps verifiedBy as the registrant accepts each value. */
+  private clearVerifiedByForSource(
+    deviceIndex: number,
+    source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02',
+  ): void {
+    const specs = this.buildVerifySpecs(deviceIndex, source);
+    const prov = this.appliedProvenance[deviceIndex];
+    if (!prov) return;
+    let cleared = 0;
+    for (const s of specs) {
+      const entry = prov[s.name] as any;
+      if (entry && entry.verifiedBy) {
+        delete entry.verifiedBy;
+        cleared++;
+      }
+    }
+    if (cleared) {
+      console.log('[reverify]', source, 'cleared verifiedBy on', cleared, 'fields');
+    }
+  }
+
+  /** "Re-walk all" — open one continuous verify-source queue that
+   *  spans every doc-backed extractor (SLD / SF-02 / SF-02c / COD)
+   *  for the currently-displayed device row. Clears any prior
+   *  verifiedBy stamps first so every field surfaces. The queue
+   *  dialog already supports per-item fileOverride, so we mix items
+   *  from different files in a single walk and the canvas swaps as
+   *  the registrant advances. */
+  rewalkAllSources(): void {
+    const deviceIndex = 0; // add-mode: single row; edit-mode also uses row 0.
+    const sources: Array<'SLD' | 'SF-02' | 'SF-02c' | 'COD'> = ['SLD', 'SF-02', 'SF-02c', 'COD'];
+    const fileMap = {
+      'SLD':    this.sldExtractionFile,
+      'SF-02':  this.sf02ExtractionFile,
+      'SF-02c': this.sf02cExtractionFile,
+      'COD':    this.codExtractionFile,
+    } as const;
+    // Clear verifiedBy first so the pending-count counts everything.
+    for (const src of sources) this.clearVerifiedByForSource(deviceIndex, src);
+
+    const items: typeof this.verifyQueue = [];
+    let skippedNoFile = 0;
+    for (const src of sources) {
+      const file = fileMap[src][deviceIndex];
+      const specs = this.buildVerifySpecs(deviceIndex, src);
+      if (!specs.length) continue;
+      if (!file) {
+        // No cached File handle — happens when the doc was attached
+        // before extraction or this is an edit-mode load. Skip; the
+        // registrant can hit per-source "Re-verify" to materialise it.
+        if (specs.some((s) => s.field && s.field.value != null)) skippedNoFile++;
+        continue;
+      }
+      for (const s of specs) {
+        const field = s.field;
+        if (!field || field.value == null) continue;
+        const next = s.transform ? s.transform(field.value) : field.value;
+        if (this.isDismissed(deviceIndex, s.name, next)) continue;
+        items.push({
+          deviceIndex,
+          field: s.name,
+          label: AddDevicesComponent.FIELD_LABELS[s.name] ?? s.label,
+          source: src,
+          value: next,
+          confidence: field.confidence,
+          region: field.region,
+          regionSource: field.regionSource,
+          reasoning: field.reasoning,
+          transform: s.transform,
+          fileOverride: file,
+        });
+      }
+    }
+    if (!items.length) {
+      const msg = skippedNoFile > 0
+        ? `Re-walk all: no extracted values found. ${skippedNoFile} source(s) had no cached file — hit "Re-verify <doc>" first to materialise them.`
+        : 'Re-walk all: nothing extracted yet. Attach SLD / SF-02 / SF-02c / COD and let the extractor finish first.';
+      this.toastrService.info(msg, '', { timeOut: 8000 });
+      return;
+    }
+    console.log('[rewalk-all] queue size =', items.length,
+      'breakdown:', items.reduce((m, it) => { m[it.source] = (m[it.source] || 0) + 1; return m; }, {} as Record<string, number>),
+      skippedNoFile ? `(skipped ${skippedNoFile} source(s) without cached file)` : '');
+    this.verifyQueue = items;
+    this.verifyQueueIndex = 0;
+    this.verifyQueueFile = null;
+    if (!this.verifySourceDialog) return;
+    if (this.verifySourceDialogRef) {
+      this.verifySourceDialogRef.close();
+      this.verifySourceDialogRef = null;
+    }
+    this.verifySourceDialogRef = this.dialog.open(
+      this.verifySourceDialog,
+      { width: '95vw', maxWidth: '95vw', maxHeight: '95vh', disableClose: false, panelClass: 'drec-floating-dialog' },
+    );
+    setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 50);
+  }
+
+  /** Sum of pending verifications across all doc-backed extractors —
+   *  drives the Re-walk all button label. */
+  totalPendingVerifyCount(deviceIndex: number = 0): number {
+    return (
+      this.pendingVerifyCount(deviceIndex, 'SLD') +
+      this.pendingVerifyCount(deviceIndex, 'SF-02') +
+      this.pendingVerifyCount(deviceIndex, 'SF-02c') +
+      this.pendingVerifyCount(deviceIndex, 'COD')
+    );
   }
 
   /** Back-compat shim — kept because the template calls this by name
@@ -2547,9 +2668,32 @@ export class AddDevicesComponent implements OnDestroy {
       });
     }
     if (!items.length) {
-      this.toastrService.info(
-        `${source} extracted: every field already matches the form. Nothing to verify.`,
-      );
+      // Diagnose so the toast isn't generically misleading. Three
+      // distinct cases: (a) extractor returned nothing usable,
+      // (b) every field already verifiedBy-stamped, (c) every value
+      // is on the dismiss blacklist.
+      let withValue = 0, alreadyVerified = 0, dismissed = 0;
+      for (const s of specs) {
+        const field = s.field;
+        if (!field || field.value == null) continue;
+        withValue++;
+        const prov = this.appliedProvenance[deviceIndex]?.[s.name];
+        if (prov && (prov as any).verifiedBy) { alreadyVerified++; continue; }
+        const next = s.transform ? s.transform(field.value) : field.value;
+        if (this.isDismissed(deviceIndex, s.name, next)) dismissed++;
+      }
+      let msg: string;
+      if (!withValue) {
+        msg = `${source} extracted: no usable values to verify.`;
+      } else if (alreadyVerified === withValue) {
+        msg = `${source}: all ${withValue} extracted field(s) already verified. Re-extract to re-walk.`;
+      } else if (dismissed > 0) {
+        msg = `${source}: ${dismissed} field(s) on the dismiss blacklist, ${alreadyVerified} already verified.`;
+      } else {
+        msg = `${source} extracted: nothing to verify (specs=${specs.length}, withValue=${withValue}).`;
+      }
+      console.warn('[verify] empty queue', { source, deviceIndex, specCount: specs.length, withValue, alreadyVerified, dismissed });
+      this.toastrService.info(msg);
       return;
     }
     this.verifyQueue = items;
@@ -2565,8 +2709,9 @@ export class AddDevicesComponent implements OnDestroy {
     this.verifySourceDialogRef = this.dialog.open(
       this.verifySourceDialog,
       {
-        width: '900px',
+        width: '95vw',
         maxWidth: '95vw',
+        maxHeight: '95vh',
         disableClose: false,
         panelClass: 'drec-floating-dialog',
       },
@@ -2642,7 +2787,7 @@ export class AddDevicesComponent implements OnDestroy {
     }
     this.verifySourceDialogRef = this.dialog.open(
       this.verifySourceDialog,
-      { width: '900px', maxWidth: '95vw', disableClose: false, panelClass: 'drec-floating-dialog' },
+      { width: '95vw', maxWidth: '95vw', maxHeight: '95vh', disableClose: false, panelClass: 'drec-floating-dialog' },
     );
     setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 50);
   }
@@ -2731,17 +2876,41 @@ export class AddDevicesComponent implements OnDestroy {
             el.onerror = rej;
             el.src = url;
           });
-          // Always render to the full target width — both upscaling
-          // small phone snapshots and downscaling huge originals end at
-          // 2400px, so zoom transforms always have headroom to scale
-          // sharply. ctx.drawImage on a high-res canvas + browser
-          // bilinear upsampling looks fine for the verify use case.
-          const scale = targetW / img.width;
+          // Render at natural pixel dimensions — never upscale (it just
+          // wastes memory and blurs phone snapshots) and only downscale
+          // when the source is absurdly large (>3200px). The wrapper
+          // (overflow:hidden + max-width:100%) then sizes the canvas to
+          // the dialog width by aspect, and the zoom-pan directive
+          // handles detail. The prior fixed 2400px-target path produced
+          // a wide canvas that the dialog clamped from the left edge,
+          // hiding the first columns of wide screenshots.
+          const MAX_PX = 3200;
+          const scale = img.width > MAX_PX ? MAX_PX / img.width : 1;
           canvas.width = Math.round(img.width * scale);
           canvas.height = Math.round(img.height * scale);
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          // Meter-id-on-screenshot path: PDFs use the text layer;
+          // images have none, so the verify dialog used to land on
+          // "No literal token match" even when the value was plainly
+          // visible. Run a one-off Tesseract pass on the rendered
+          // canvas to locate the value's literal text, then surface
+          // matches via verifyTextMatches the same way the PDF path
+          // does. Cheap-ish: ~3–8s per image, only fires when the
+          // dialog is open.
+          try {
+            const matches = await this.documentClassifier.findValueOnCanvas(
+              canvas,
+              item.value,
+            );
+            if (matches.length) this.verifyTextMatches = matches;
+          } catch (err) {
+            console.warn(
+              '[renderVerifyCanvas] image-mode Tesseract sweep failed:',
+              err,
+            );
+          }
         } finally {
           URL.revokeObjectURL(url);
         }
@@ -2754,13 +2923,12 @@ export class AddDevicesComponent implements OnDestroy {
           cssWidth: canvas.clientWidth,
           cssHeight: canvas.clientHeight,
         };
-        // Auto-scroll the dialog so the bbox (or first text match) is
-        // in view. Without this the registrant lands on a 14-page PDF
-        // showing the cover and has to manually navigate page-by-page
-        // to find the value — for SF-02 / SF-02c that meant Section
-        // 1.3 was 4+ pages down. Center the bbox vertically in the
-        // scroll viewport.
-        this.scrollDialogToBbox(canvas);
+        // No auto-scroll. Auto-centring the bbox in the scroll
+        // viewport was disorienting on tall PDFs and felt like the
+        // dialog was jerking around on its own. The bbox is visible
+        // (and can be located via the "n matches on p.X" indicator
+        // for off-page hits); the registrant can scroll or zoom-pan
+        // themselves.
       });
     } catch (err) {
       console.warn('renderVerifyCanvas failed', err);
@@ -3032,8 +3200,19 @@ export class AddDevicesComponent implements OnDestroy {
         ];
         this.syncSerialNumberControl(item.deviceIndex);
       }
-      // Ensure a serialNumber provenance entry exists; then layer the
-      // per-ID verifiedByValue map on top.
+      // recordProvenance() replaces the entry wholesale, which would
+      // wipe the per-ID verifiedByValue/regionByValue maps from any
+      // prior meter-IDs accept on this device. Snapshot them, then
+      // restore + extend after the rewrite. Without this, Verify (N)
+      // never drops below N-1 because every accept resets the map and
+      // keeps only the just-accepted ID.
+      const prevProv = this.appliedProvenance[item.deviceIndex]?.['serialNumber'] as any;
+      const prevVerifiedByValue: Record<string, any> = prevProv?.verifiedByValue
+        ? { ...prevProv.verifiedByValue }
+        : {};
+      const prevRegionByValue: Record<string, any> = prevProv?.regionByValue
+        ? { ...prevProv.regionByValue }
+        : {};
       this.recordProvenance(
         item.deviceIndex,
         'serialNumber',
@@ -3044,11 +3223,15 @@ export class AddDevicesComponent implements OnDestroy {
       );
       const prov = this.appliedProvenance[item.deviceIndex]?.['serialNumber'] as any;
       if (prov) {
-        if (!prov.verifiedByValue) prov.verifiedByValue = {};
-        prov.verifiedByValue[id] = { email, at: new Date().toISOString() };
-        if (item.region) {
-          if (!prov.regionByValue) prov.regionByValue = {};
-          prov.regionByValue[id] = item.region;
+        prov.verifiedByValue = {
+          ...prevVerifiedByValue,
+          [id]: { email, at: new Date().toISOString() },
+        };
+        if (item.region || Object.keys(prevRegionByValue).length) {
+          prov.regionByValue = {
+            ...prevRegionByValue,
+            ...(item.region ? { [id]: item.region } : {}),
+          };
         }
       }
       this.verifyAdvance();
@@ -7699,7 +7882,11 @@ export class AddDevicesComponent implements OnDestroy {
     // as bytes are flowing. Only fires when truly nothing happens.
     if (this.submitSafetyTimer) clearTimeout(this.submitSafetyTimer);
     this.submitSafetyTimer = setTimeout(() => this.safetyTimerFire(), 120_000);
-    setTimeout(() => this.openPopupDialog(), 0);
+    console.log('[submit] onSubmit() — yielding macrotask before submitForm');
+    setTimeout(() => {
+      console.log('[submit] onSubmit() macrotask resumed → openPopupDialog');
+      this.openPopupDialog();
+    }, 0);
   }
 
   private submitSafetyTimer: ReturnType<typeof setTimeout> | null = null;
@@ -7841,18 +8028,43 @@ export class AddDevicesComponent implements OnDestroy {
       return;
     }
     const deviceArray = this.myform.value.devices;
+    console.log('[submit] submitForm entry, rowCount=', deviceArray.length);
     deviceArray.forEach((element: any, index: number) => {
       // Skip rows already saved via Save & Generate SF-02.
-      if (this.savedDeviceIdByIndex[index] != null) return;
+      if (this.savedDeviceIdByIndex[index] != null) {
+        console.log('[submit] row', index, 'already saved, skipping');
+        return;
+      }
 
+      const t0 = performance.now();
       const formData = this.buildDeviceFormData(element, index);
+      const buildMs = Math.round(performance.now() - t0);
       if (!formData) {
+        console.warn('[submit] row', index, 'buildDeviceFormData returned null after', buildMs, 'ms');
         this.submitButtonText = 'Submit';
         this.isSubmitting = false;
         return;
       }
+      // Crude payload-size sniff — multipart FormData has no .size
+      // accessor, so estimate by walking the parts.
+      let bytes = 0;
+      try {
+        formData.forEach((v) => {
+          if (v instanceof Blob) bytes += v.size;
+          else bytes += String(v).length;
+        });
+      } catch {}
+      console.log(
+        '[submit] row', index, 'buildDeviceFormData done in', buildMs,
+        'ms, payload≈', Math.round(bytes / 1024), 'KB',
+      );
 
-      this.deviceService.create(formData).subscribe({
+      const subT0 = performance.now();
+      console.log('[submit] row', index, 'subscribing to deviceService.create');
+      this.deviceService
+        .create(formData)
+        .pipe(timeout(180_000))
+        .subscribe({
         next: (event: any) => {
           // HttpEventType.UploadProgress = 1. Bytes are still going up;
           // surface the percentage in the overlay and keep the safety
@@ -7868,6 +8080,12 @@ export class AddDevicesComponent implements OnDestroy {
               this.uploadProgressPct >= 100
                 ? 'processing'
                 : 'uploading';
+            console.log(
+              '[submit] row', index, 'progress',
+              this.uploadProgressPct, '%',
+              'loaded=', event.loaded, 'total=', event.total ?? '?',
+              '+' + Math.round(performance.now() - subT0) + 'ms',
+            );
             // Reset the 2-min safety timer as long as bytes are flowing.
             if (this.submitSafetyTimer) {
               clearTimeout(this.submitSafetyTimer);
@@ -7878,8 +8096,30 @@ export class AddDevicesComponent implements OnDestroy {
             }
             return;
           }
+          // Sent (0), DownloadProgress (3) markers for completeness.
+          if (event?.type === 0) {
+            console.log(
+              '[submit] row', index, 'request Sent +' +
+              Math.round(performance.now() - subT0) + 'ms',
+            );
+            return;
+          }
+          if (event?.type === 3) {
+            console.log(
+              '[submit] row', index, 'DownloadProgress +' +
+              Math.round(performance.now() - subT0) + 'ms',
+            );
+            return;
+          }
           // HttpEventType.Response = 4. The actual response we care about.
-          if (event?.type !== 4) return;
+          if (event?.type !== 4) {
+            console.log('[submit] row', index, 'unknown HttpEvent type=', event?.type);
+            return;
+          }
+          console.log(
+            '[submit] row', index, 'Response status=', event.status,
+            'in', Math.round(performance.now() - subT0), 'ms',
+          );
           const result = event.body;
           // Always reset isSubmitting on success — don't rely on the
           // router.navigate below to unmount the component. That was the
@@ -7917,7 +8157,14 @@ export class AddDevicesComponent implements OnDestroy {
           }
         },
         error: (err) => {
-          console.error('error caught in component', err.error.message);
+          const elapsed = Math.round(performance.now() - subT0);
+          const isTimeout = err?.name === 'TimeoutError';
+          console.error(
+            '[submit] row', index,
+            isTimeout ? 'TIMED OUT (no HttpEvent in 180s)' : 'error',
+            'after', elapsed, 'ms — last progress=', this.uploadProgressPct, '%',
+            err,
+          );
           if (this.submitSafetyTimer) {
             clearTimeout(this.submitSafetyTimer);
             this.submitSafetyTimer = null;
@@ -7925,6 +8172,14 @@ export class AddDevicesComponent implements OnDestroy {
           this.submitButtonText = 'Submit';
           this.isSubmitting = false;
           this.uploadProgressPct = 0;
+          if (isTimeout) {
+            this.toastrService.error(
+              `Upload stalled with no progress for 180s (last seen ${this.uploadProgressPct}%). Check console for [submit] markers.`,
+              'Submission timed out',
+              { timeOut: 12000 },
+            );
+            return;
+          }
           const message =
             err.error?.message || err.message || 'Failed to register device';
           if (err.status === 409 || err.error?.statusCode === 409) {
@@ -8784,8 +9039,10 @@ export class AddDevicesComponent implements OnDestroy {
    *  and bounce. This bypasses the auto-sort entirely; it just feeds
    *  each attached doc directly to extractMeterIdsForDevice. */
   reextractMeterIdsFromAttached(deviceIndex: number): void {
-    const docs = this.existingDocs[deviceIndex]?.['METERING_EVIDENCE'] ?? [];
-    if (!docs.length) {
+    const existing = this.existingDocs[deviceIndex]?.['METERING_EVIDENCE'] ?? [];
+    const staged = this.files[deviceIndex]?.['METERING_EVIDENCE'] ?? [];
+    const total = existing.length + staged.length;
+    if (!total) {
       this.toastrService.info('No metering evidence attached to re-extract from.');
       return;
     }
@@ -8811,7 +9068,7 @@ export class AddDevicesComponent implements OnDestroy {
       this.uncheckedExtractedFields[deviceIndex] = keep;
     }
     this.meterIdsExtracting[deviceIndex] = true;
-    let remaining = docs.length;
+    let remaining = total;
     let any = false;
     const done = () => {
       if (--remaining > 0) return;
@@ -8819,7 +9076,7 @@ export class AddDevicesComponent implements OnDestroy {
         this.meterIdsExtracting[deviceIndex] = false;
         if (any) {
           this.toastrService.success(
-            `Re-extracted from ${docs.length} metering doc${docs.length === 1 ? '' : 's'}.`,
+            `Re-extracted from ${total} metering doc${total === 1 ? '' : 's'}.`,
           );
         } else {
           this.toastrService.warning(
@@ -8828,7 +9085,8 @@ export class AddDevicesComponent implements OnDestroy {
         }
       });
     };
-    for (const doc of docs) {
+    // Existing (S3-backed) docs need a fetch round-trip first.
+    for (const doc of existing) {
       this.fetchAttachedDocAsFile(doc)
         .then((file) => {
           // Reuse the existing extractor path so docsByValue gets
@@ -8842,6 +9100,20 @@ export class AddDevicesComponent implements OnDestroy {
           );
         })
         .finally(done);
+    }
+    // Staged (add-mode) files are already in-memory — feed them
+    // straight through.
+    for (const file of staged) {
+      try {
+        this.extractMeterIdsForDevice(file, deviceIndex);
+        any = true;
+      } catch (err: any) {
+        this.toastrService.error(
+          `Failed to re-extract ${file.name}: ${err?.message ?? err}`,
+        );
+      } finally {
+        done();
+      }
     }
   }
 

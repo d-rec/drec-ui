@@ -1248,8 +1248,10 @@
                         </ul>
                         <div class="sld-extract-banner__actions">
                           <button type="button" class="btn btn-sm btn-primary"
-                            *ngIf="pendingVerifyCount(i, 'SF-02') > 0"
-                            (click)="openVerifyForSource(i, 'SF-02')" (mousedown)="$event.stopPropagation()">
+                            (click)="openVerifyForSource(i, 'SF-02')" (mousedown)="$event.stopPropagation()"
+                            [matTooltip]="pendingVerifyCount(i, 'SF-02') > 0
+                              ? 'Walk through each extracted field, see the exact spot in the PDF, accept or skip.'
+                              : 'Re-walk the extracted fields against the form (already-matching values still need a human attestation).'">
                             <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
                             Verify ({{ pendingVerifyCount(i, 'SF-02') }})
                           </button>
@@ -1376,8 +1378,10 @@
                       </ul>
                       <div class="sld-extract-banner__actions">
                         <button type="button" class="btn btn-sm btn-primary"
-                          *ngIf="pendingVerifyCount(i, 'SLD') > 0"
-                          (click)="openVerifyForSource(i, 'SLD')" (mousedown)="$event.stopPropagation()">
+                          (click)="openVerifyForSource(i, 'SLD')" (mousedown)="$event.stopPropagation()"
+                          [matTooltip]="pendingVerifyCount(i, 'SLD') > 0
+                            ? 'Walk through each extracted field, see the exact spot in the SLD, accept or skip.'
+                            : 'Re-walk the extracted fields against the form (already-matching values still need a human attestation).'">
                           <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
                           Verify ({{ pendingVerifyCount(i, 'SLD') }})
                         </button>
@@ -1446,8 +1450,10 @@
                       </ul>
                       <div class="sld-extract-banner__actions">
                         <button type="button" class="btn btn-sm btn-primary"
-                          *ngIf="pendingVerifyCount(i, 'SF-02c') > 0"
-                          (click)="openVerifyForSource(i, 'SF-02c')" (mousedown)="$event.stopPropagation()">
+                          (click)="openVerifyForSource(i, 'SF-02c')" (mousedown)="$event.stopPropagation()"
+                          [matTooltip]="pendingVerifyCount(i, 'SF-02c') > 0
+                            ? 'Walk through each extracted field, see the exact spot in the PDF, accept or skip.'
+                            : 'Re-walk the extracted fields against the form (already-matching values still need a human attestation).'">
                           <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
                           Verify ({{ pendingVerifyCount(i, 'SF-02c') }})
                         </button>
@@ -1541,8 +1547,10 @@
                       </ul>
                       <div class="sld-extract-banner__actions">
                         <button type="button" class="btn btn-sm btn-primary"
-                          *ngIf="pendingVerifyCount(i, 'COD') > 0"
-                          (click)="openVerifyForSource(i, 'COD')" (mousedown)="$event.stopPropagation()">
+                          (click)="openVerifyForSource(i, 'COD')" (mousedown)="$event.stopPropagation()"
+                          [matTooltip]="pendingVerifyCount(i, 'COD') > 0
+                            ? 'Walk through each extracted field, see the exact spot in the PDF, accept or skip.'
+                            : 'Re-walk the extracted fields against the form (already-matching values still need a human attestation).'">
                           <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
                           Verify ({{ pendingVerifyCount(i, 'COD') }})
                         </button>
@@ -1621,7 +1629,8 @@
                               class="btn btn-sm btn-link text-danger p-0"
                               style="line-height:1;font-size:18px"
                               (click)="dismissOneExtractedMeterId(i, id)" (mousedown)="$event.stopPropagation()"
-                              [title]="'Reject ' + id + ' as a phantom — blacklisted; will not return on re-extract.'">
+                              [matTooltip]="'Reject ' + id + ' as a phantom — blacklisted; will not return on re-extract.'"
+                              matTooltipPosition="left">
                               ×
                             </button>
                           </span>
@@ -1635,6 +1644,14 @@
                           title="Walk through each extracted ID, see the doc it came from, and confirm or skip.">
                           <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
                           Verify ({{ pendingMeterIdsVerifyCount(i) }})
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                          *ngIf="(existingDocs[i]?.['METERING_EVIDENCE']?.length || 0) + (files[i]?.['METERING_EVIDENCE']?.length || 0) > 0"
+                          (click)="reextractMeterIdsFromAttached(i)" (mousedown)="$event.stopPropagation()"
+                          [disabled]="meterIdsExtracting[i]"
+                          matTooltip="Re-run the meter-IDs extractor against every metering doc attached (existing + newly staged). Current list will be replaced.">
+                          <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">refresh</mat-icon>
+                          Re-extract
                         </button>
                         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="dismissMeterIdsExtraction(i)" (mousedown)="$event.stopPropagation()">Dismiss</button>
                       </div>
@@ -1700,6 +1717,13 @@
               title="Show the source (doc / manual) for every filled field before submitting">
               <mat-icon style="font-size:18px;height:18px;width:18px;line-height:1">fact_check</mat-icon>
               Review evidence
+            </button>
+            <button type="button"
+              class="btn btn-outline-primary text-capitalize px-4 d-inline-flex align-items-center gap-2"
+              (click)="rewalkAllSources()"
+              matTooltip="Clear every prior 'Verify' stamp and walk through every extracted field from every attached document (SLD + SF-02 + SF-02c + COD) in one continuous queue. Use to re-confirm the whole picture after a re-extract.">
+              <mat-icon style="font-size:18px;height:18px;width:18px;line-height:1">replay</mat-icon>
+              Re-walk all<ng-container *ngIf="totalPendingVerifyCount() > 0"> ({{ totalPendingVerifyCount() }})</ng-container>
             </button>
             <button *ngIf="isEditMode" type="button"
               class="btn btn-outline-primary text-capitalize px-4 d-inline-flex align-items-center gap-2"
