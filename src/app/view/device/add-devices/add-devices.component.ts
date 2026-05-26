@@ -912,7 +912,7 @@ export class AddDevicesComponent implements OnDestroy {
       fuelCode: ['ES100'],
       deviceTypeCode: [null],
       capacity: [null],
-      commissioningDate: [new Date()],
+      commissioningDate: [null],
       gridInterconnection: [null],
       operatingConfiguration: [null],
       sourceAccessMode: [null],
@@ -1052,7 +1052,7 @@ export class AddDevicesComponent implements OnDestroy {
       fuelCode: ['ES100'],
       deviceTypeCode: [null],
       capacity: [null],
-      commissioningDate: [new Date()],
+      commissioningDate: [null],
       gridInterconnection: [null],
       operatingConfiguration: [null],
       sourceAccessMode: [null],
@@ -2338,6 +2338,14 @@ export class AddDevicesComponent implements OnDestroy {
    *  extractors. */
   reverifyFromAttached(deviceIndex: number, source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02'): void {
     const cfg = this.REVERIFY_SOURCES[source];
+    // Add-mode files are staged locally (not yet persisted), so try
+    // the staged list first — extracting from a File handle is cheaper
+    // and works before the device exists.
+    const staged = this.getStagedFiles(deviceIndex, cfg.docType);
+    if (staged.length) {
+      cfg.extract(staged[0], deviceIndex);
+      return;
+    }
     const docs = this.existingDocs[deviceIndex]?.[cfg.docType] ?? [];
     if (!docs.length) {
       this.toastrService.info(`No ${cfg.label} attached to re-verify against.`);
@@ -4451,7 +4459,7 @@ export class AddDevicesComponent implements OnDestroy {
   /** Debounced re-tally of liveIssues — called from form value
    *  changes + apply paths + hydration. */
   refreshLiveIssues(): void {
-    if (!this.isEditMode || !this.deviceForms.controls.length) return;
+    if (!this.deviceForms.controls.length) return;
     if (this.liveIssuesTimer) clearTimeout(this.liveIssuesTimer);
     this.liveIssuesTimer = setTimeout(() => {
       this.liveIssuesTimer = null;
@@ -5320,6 +5328,26 @@ export class AddDevicesComponent implements OnDestroy {
     this.refreshLiveIssues();
   }
 
+  /** Pretty-print a value for the live-issues sidebar. Date-shaped
+   *  fields (commissioningDate etc.) get the date stripped of the
+   *  time portion; everything else passes through unchanged. */
+  displayIssueValue(field: string, value: any): string {
+    if (value == null) return '';
+    const isDateField = /Date$|date$/.test(field);
+    if (isDateField) {
+      const d = value instanceof Date ? value : new Date(value);
+      if (!isNaN(d.getTime())) {
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      }
+    }
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (Array.isArray(value)) return value.join(', ');
+    return String(value);
+  }
+
   liveIssueCount(): number {
     return (
       this.liveIssues.empty.length +
@@ -6081,6 +6109,10 @@ export class AddDevicesComponent implements OnDestroy {
     value: any;
     url: string | null;
     confidence: number | null;
+    /** Form-field name — threaded through so the chip's "use this"
+     *  click handler can patch the right control without re-typing it
+     *  in every template instance. */
+    field: string;
     /** True when the extracted value didn't make it onto the form
      *  because confidence was below the 0.7 auto-apply threshold. The
      *  template uses this to give the chip a more informative tooltip. */
@@ -6169,6 +6201,7 @@ export class AddDevicesComponent implements OnDestroy {
         value: best.value,
         url,
         confidence: best.confidence,
+        field,
         lowConfidence: best.confidence < 0.7,
       };
     }
@@ -6191,6 +6224,7 @@ export class AddDevicesComponent implements OnDestroy {
         value: persisted.value,
         url,
         confidence: persisted.confidence ?? null,
+        field,
         lowConfidence: (persisted.confidence ?? 1) < 0.7,
       };
     }
@@ -6203,6 +6237,28 @@ export class AddDevicesComponent implements OnDestroy {
   openHintDoc(url: string | null): void {
     if (!url) return;
     window.open(url, '_blank', 'noopener');
+  }
+
+  /** "Use this" action on an extractor-hint chip: adopt the suggested
+   *  value into the form control, credit the doc source as provenance,
+   *  refresh the live-issues sidebar. No-op if the hint vanished
+   *  between render and click. */
+  applyHintValue(deviceIndex: number, field: string): void {
+    const h = this.extractorHintFor(deviceIndex, field);
+    if (!h) return;
+    const form = this.deviceForms.at(deviceIndex);
+    const ctl = form?.get(field);
+    if (!ctl) return;
+    ctl.setValue(h.value);
+    ctl.markAsDirty();
+    this.recordProvenance(
+      deviceIndex,
+      field,
+      h.source,
+      h.confidence ?? 0.9,
+      h.value,
+    );
+    this.refreshLiveIssues();
   }
 
   /** Registrant clicks "Go to field" — scroll the form control into
@@ -7927,10 +7983,24 @@ export class AddDevicesComponent implements OnDestroy {
         return v.map((x) => String(x).trim().toLowerCase()).sort().join('|');
       return String(v).trim().toLowerCase();
     };
+    const prov = this.appliedProvenance[deviceIndex] ?? {};
     const out: any[] = [];
     for (const [field, list] of Object.entries(claims)) {
       const cur = form?.get(field)?.value;
       if (cur == null || cur === '') continue;
+      // Honour explicit user resolution: if the registrant already
+      // clicked "keep" (verifiedBy) or "use this" (set provenance
+      // source to a doc) on this field AND the current form value
+      // still matches what was attested, treat the disagreement as
+      // resolved. Without this check resolveDisagreement clicks set
+      // verifiedBy but the sidebar immediately re-flagged the row.
+      const entry = prov[field] as any;
+      if (
+        entry?.verifiedBy &&
+        this.valuesEquivalent(entry.value, cur, field)
+      ) {
+        continue;
+      }
       // Filter to extractor-only sources (not the synthetic "Current"
       // entry collectExtractionClaims injects), drop low-confidence
       // and any source that already matches the form value.
@@ -8640,7 +8710,7 @@ export class AddDevicesComponent implements OnDestroy {
     // hits via keyboard / programmatic submit. Refuse silently and
     // scroll to the sidebar — no toast, the inline indicator is
     // already loud enough.
-    if (!this.presubmitOverride && this.isEditMode) {
+    if (!this.presubmitOverride) {
       const conflicts = this.collectFormVsDocConflicts(0);
       if (conflicts.length) {
         this.isSubmitting = false;
@@ -8653,7 +8723,7 @@ export class AddDevicesComponent implements OnDestroy {
     // The disagrees bucket is empty here either because the user
     // picked through Step 1 or because there were no conflicts to
     // begin with. Reset the prompt flag for next submit.
-    if (!this.presubmitOverride && this.isEditMode) {
+    if (!this.presubmitOverride) {
       const issues = this.collectPresubmitIssues(0);
       issues.disagrees = [];
       if (issues.empty.length + issues.unextracted.length > 0) {
@@ -8662,35 +8732,16 @@ export class AddDevicesComponent implements OnDestroy {
       }
     }
 
-    // Step 3: attribution gate. Every value must be attributed to
-    // either a document (extractor ≥0.7 with docName) or a named
-    // registrant (Manual: <email>). The override path skips this
-    // for the rare case where a session is mid-recovery and we just
-    // need to ship — same flag the empty/unextracted check uses.
-    if (!this.presubmitOverride && this.isEditMode) {
-      this.openEvidenceReview();
-      const dialog = this.evidenceReviewDialogRef;
-      if (this.evidenceSummary.unattributed > 0) {
-        this.isSubmitting = false;
-        if (this.submitSafetyTimer) {
-          clearTimeout(this.submitSafetyTimer);
-          this.submitSafetyTimer = null;
-        }
-        this.toastrService.warning(
-          `${this.evidenceSummary.unattributed} value${this.evidenceSummary.unattributed === 1 ? '' : 's'} ` +
-            `need a subject in charge — either a document or your attestation. ` +
-            `Use Flush or Attest in the Review evidence dialog.`,
-          'Submit blocked',
-          { timeOut: 8000 },
-        );
-        return;
-      }
-      // No unattributed values — close the just-opened dialog and
-      // continue. (openEvidenceReview opens the dialog even when
-      // the count is zero so the user can sanity-check; for the
-      // gate path that's not the intent.)
-      if (dialog) dialog.close();
-    }
+    // Step 3 (attribution gate) intentionally removed: the auto-tag
+    // pass below stamps Manual:<email> + verifiedBy on every dirty
+    // field that lacks provenance, so by the time we ship the
+    // payload every value already has a subject. The prior gate
+    // opened the Review-Evidence modal as a side effect just to
+    // populate evidenceSummary then closed it again on the same
+    // tick — that open/close dance was hanging submit (no PUT
+    // reached the backend; the 2-min safety timer fired). Users who
+    // want to audit attribution still have the explicit "Review
+    // evidence" button in the form footer.
 
     // Reset both flags so future submits re-evaluate.
     this.presubmitOverride = false;
