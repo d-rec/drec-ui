@@ -2572,13 +2572,13 @@ export class AddDevicesComponent implements OnDestroy {
       return [
         { name: 'siteName', label: '(7) Site name', field: fx.facilityName },
         { name: 'address', label: '(2) Address (site)', field: (fx as any).facilityAddress },
+        { name: 'postcode', label: '(4) Postcode', field: (fx as any).postcode },
         { name: 'stateProvince', label: '(3) State/Province (site)', field: (fx as any).ownerStateProvince },
         { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
         { name: 'commissioningDate', label: '(10) Commissioning date', field: fx.commissioningDate },
         { name: 'deviceTypeCode', label: 'Device type code', field: fx.deviceTypeCode },
         { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerLegalName },
         { name: 'pvSystemOwnerAddress', label: 'PV System Owner address (HQ)', field: fx.ownerAddress },
-        { name: 'countryCodename', label: 'Country', field: fx.ownerCountry, transform: (v) => this.normalizeCountry(v) },
         { name: 'latitude', label: 'Latitude', field: fx.latitude },
         { name: 'longitude', label: 'Longitude', field: fx.longitude },
         { name: 'generatingUnitCount', label: '(13) Number of generating units', field: fx.inverterCount },
@@ -3880,6 +3880,7 @@ export class AddDevicesComponent implements OnDestroy {
       .then((res) =>
         this.ngZone.run(() => {
           this.sf02Extracting[deviceIndex] = false;
+          this.normaliseSf02Result(res);
           this.sf02Extractions[deviceIndex] = res;
           this.sf02ExtractionFile[deviceIndex] = file;
         }),
@@ -3894,6 +3895,39 @@ export class AddDevicesComponent implements OnDestroy {
 
   dismissSf02Extraction(deviceIndex: number): void {
     this.sf02Extractions[deviceIndex] = null;
+  }
+
+  /** Post-process the raw SF-02 extraction:
+   *  - Strip stray internal whitespace from short alphanumeric site
+   *    names ("AC002 641" → "AC002641") that Haiku produces when the
+   *    cover page wraps an ID across whitespace.
+   *  - Split a trailing postcode off the site address ("3/9e Ấp 4,
+   *    ... - 072008" → address="3/9e Ấp 4, ..." + postcode="072008")
+   *    so the (4) Postcode field can pick it up cleanly. */
+  private normaliseSf02Result(res: any): void {
+    if (!res) return;
+    // Site name: collapse "<LETTERS><digits> <digits>" → "<LETTERS><digits><digits>"
+    const fn = res.facilityName?.value;
+    if (typeof fn === 'string') {
+      const compact = fn.replace(/\s+/g, '');
+      if (/^[A-Z]+\d{2,}$/i.test(compact) && compact !== fn) {
+        res.facilityName.value = compact;
+      }
+    }
+    // Site address: detect trailing " - <digits>" and split off
+    const fa = res.facilityAddress?.value;
+    if (typeof fa === 'string') {
+      const m = fa.match(/^(.*?)\s*-\s*(\d{4,7})\s*$/);
+      if (m) {
+        res.facilityAddress.value = m[1].trim().replace(/,\s*$/, '');
+        if (!res.postcode) {
+          res.postcode = {
+            value: m[2],
+            confidence: res.facilityAddress.confidence ?? 0.9,
+          };
+        }
+      }
+    }
   }
 
   /** Classify a metering-evidence file's *shape* (portal screenshot →
@@ -4248,14 +4282,15 @@ export class AddDevicesComponent implements OnDestroy {
       add('siteName', 'SF-02', sf02.facilityName);
       add('address', 'SF-02', sf02.facilityAddress);
       add('stateProvince', 'SF-02', sf02.ownerStateProvince);
+      add('postcode', 'SF-02', (sf02 as any).postcode);
       add('capacity', 'SF-02', sf02.acCapacityKw);
       add('commissioningDate', 'SF-02', sf02.commissioningDate);
       add('deviceTypeCode', 'SF-02', sf02.deviceTypeCode);
       add('pvSystemOwner', 'SF-02', sf02.ownerLegalName);
       add('pvSystemOwnerAddress', 'SF-02', sf02.ownerAddress);
-      add('countryCodename', 'SF-02', sf02.ownerCountry, (v) =>
-        this.normalizeCountry(v),
-      );
+      // Owner country is the HQ country (often differs from site
+      // country — e.g. Vancouver HQ for a Vietnam site). Don't auto-
+      // populate the form's site-country field from it.
       add('latitude', 'SF-02', sf02.latitude);
       add('longitude', 'SF-02', sf02.longitude);
       add('generatingUnitCount', 'SF-02', sf02.inverterCount);
@@ -5689,19 +5724,24 @@ export class AddDevicesComponent implements OnDestroy {
     if (!ctl) return;
     ctl.setValue(value);
     ctl.markAsDirty();
+    const email = (this.user?.email ?? '').trim() || 'unknown';
     if (source === 'Form') {
       // Keep form value: credit the registrant as the verifier.
-      const email = (this.user?.email ?? '').trim() || 'unknown';
       this.recordProvenance(0, field, `Manual: ${email}`, 1, value);
-      const entry = this.appliedProvenance[0]?.[field];
-      if (entry) {
-        (entry as any).verifiedBy = { email, at: new Date().toISOString() };
-      }
     } else {
       // Adopt doc value: credit the doc source. recordProvenance
       // uses 'Manual: <email>'-style strings for human attestation,
       // and bare source labels (SLD/SF-02c/COD/SF-02) for doc.
       this.recordProvenance(0, field, source, 0.9, value);
+    }
+    // Stamp verifiedBy in BOTH paths — clicking either "keep" or
+    // "use this" is an explicit human resolution of the conflict.
+    // Without this on the doc-value path, the live-issues sidebar
+    // re-flagged the row immediately because the conflict-detector
+    // gates resolution on a verifiedBy stamp.
+    const entry = this.appliedProvenance[0]?.[field];
+    if (entry) {
+      (entry as any).verifiedBy = { email, at: new Date().toISOString() };
     }
     if (field === 'countryCodename') {
       // Pin against the geocoder so the user's explicit pick isn't

@@ -972,34 +972,14 @@ export class DocumentClassifierService {
         field.regionSource = 'tesseract';
         continue;
       }
-      // Reasoning-guided match: when the value isn't a literal token
-      // (booleans, derived numbers), the model's per-field reasoning
-      // usually names the specific labels in the diagram that
-      // justify the value — e.g. "ZERO EXPORT SMART METER label
-      // below the busbar". Those words ARE in the OCR output. Pull
-      // tokens ≥4 chars from the reasoning, look up each, and use
-      // the first one that matches a unique Tesseract token.
-      const reasoning = (field.reasoning ?? '') as string;
-      if (reasoning) {
-        const reasoningTokens = reasoning
-          .toLowerCase()
-          .split(/[^a-z0-9-]+/)
-          .filter((t) => t.length >= 4);
-        for (const t of reasoningTokens) {
-          const hits = tokenMap.get(t);
-          if (!hits?.length) continue;
-          // Same rule: accept multi-hit tokens only when distinctive
-          // (letters + ≥5 chars). "smart" appearing once is fine;
-          // "3p-125kw" appearing twice is still good (both labels
-          // are valid matches for the same value).
-          if (hits.length === 1 || (/[a-z]/.test(t) && t.length >= 5)) {
-            field.region = hits[0];
-            field.regionSource = 'tesseract';
-            break;
-          }
-        }
-        if (field.regionSource === 'tesseract') continue;
-      }
+      // (Reasoning-guided Tesseract token match removed 2026-05-26.
+      // It tagged unrelated cover-page words as 'tesseract' regions
+      // — e.g. an "(2) Address" extraction with reasoning "Facility
+      // address field" would mark the word "Facility" on a doc's
+      // title page as the source bbox. The user saw a confident red
+      // outline on the wrong word. Value-match + word-split paths
+      // above are kept; if those don't fire, fall through to the
+      // model bbox.)
       // No safe literal token match in either the value or the
       // reasoning. Fall back to model bbox if any, flagged so the
       // UI can hide it (since model bbox for derived values is

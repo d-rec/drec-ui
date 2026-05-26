@@ -1235,13 +1235,14 @@
                         <ul class="sld-extract-banner__list">
                           <li *ngIf="fx.facilityName">Site: {{ fx.facilityName.value }} <small>({{ (fx.facilityName.confidence * 100) | number:'1.0-0' }}%)</small></li>
                           <li *ngIf="$any(fx).facilityAddress">Site address: {{ $any(fx).facilityAddress.value }} <small>({{ ($any(fx).facilityAddress.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                          <li *ngIf="$any(fx).postcode">Postcode: {{ $any(fx).postcode.value }} <small>({{ ($any(fx).postcode.confidence * 100) | number:'1.0-0' }}%)</small></li>
                           <li *ngIf="$any(fx).ownerStateProvince">Site state/province: {{ $any(fx).ownerStateProvince.value }} <small>({{ ($any(fx).ownerStateProvince.confidence * 100) | number:'1.0-0' }}%)</small></li>
                           <li *ngIf="fx.acCapacityKw">Capacity: {{ fx.acCapacityKw.value }} kW <small>({{ (fx.acCapacityKw.confidence * 100) | number:'1.0-0' }}%)</small></li>
                           <li *ngIf="fx.commissioningDate">COD: {{ fx.commissioningDate.value }} <small>({{ (fx.commissioningDate.confidence * 100) | number:'1.0-0' }}%)</small></li>
                           <li *ngIf="fx.deviceTypeCode">Type: {{ fx.deviceTypeCode.value }}</li>
                           <li *ngIf="fx.ownerLegalName">Owner: {{ fx.ownerLegalName.value }}</li>
                           <li *ngIf="fx.ownerAddress">Owner address (HQ): {{ fx.ownerAddress.value }}</li>
-                          <li *ngIf="fx.ownerCountry">Country: {{ fx.ownerCountry.value }}</li>
+                          <li *ngIf="fx.ownerCountry">Owner country (HQ): {{ fx.ownerCountry.value }}</li>
                           <li *ngIf="fx.latitude && fx.longitude">Coords: {{ fx.latitude.value }}, {{ fx.longitude.value }}</li>
                           <li *ngIf="fx.inverterCount">Inverters: {{ fx.inverterCount.value }}</li>
                           <li *ngIf="fx.moduleCount">Modules: {{ fx.moduleCount.value }}</li>
