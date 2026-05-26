@@ -25,7 +25,7 @@ export class ImageZoomPanDirective implements OnChanges, OnDestroy {
   @Input('appImageZoomPan') enabled: boolean | '' = true;
   /** Reset transform when this value changes (e.g. bind to the image URL). */
   @Input() resetKey: any = null;
-  @Input() minScale = 1;
+  @Input() minScale = 0.25;
   @Input() maxScale = 8;
 
   scale = 1;

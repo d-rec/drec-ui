@@ -1253,7 +1253,7 @@
                               ? 'Walk through each extracted field, see the exact spot in the PDF, accept or skip.'
                               : 'Re-walk the extracted fields against the form (already-matching values still need a human attestation).'">
                             <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
-                            Verify ({{ pendingVerifyCount(i, 'SF-02') }})
+                            Verify {{ pendingVerifyCount(i, 'SF-02') }} pending
                           </button>
                           <span class="text-success" *ngIf="extractionApplied[i]?.['SF-02'] && pendingVerifyCount(i, 'SF-02') === 0">
                             ✓ Verified
@@ -1383,7 +1383,7 @@
                             ? 'Walk through each extracted field, see the exact spot in the SLD, accept or skip.'
                             : 'Re-walk the extracted fields against the form (already-matching values still need a human attestation).'">
                           <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
-                          Verify ({{ pendingVerifyCount(i, 'SLD') }})
+                          Verify {{ pendingVerifyCount(i, 'SLD') }} pending
                         </button>
                         <span class="text-success" *ngIf="extractionApplied[i]?.['SLD'] && pendingVerifyCount(i, 'SLD') === 0">
                           ✓ Verified
@@ -1455,7 +1455,7 @@
                             ? 'Walk through each extracted field, see the exact spot in the PDF, accept or skip.'
                             : 'Re-walk the extracted fields against the form (already-matching values still need a human attestation).'">
                           <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
-                          Verify ({{ pendingVerifyCount(i, 'SF-02c') }})
+                          Verify {{ pendingVerifyCount(i, 'SF-02c') }} pending
                         </button>
                         <span class="text-success" *ngIf="extractionApplied[i]?.['SF-02c'] && pendingVerifyCount(i, 'SF-02c') === 0">
                           ✓ Verified
@@ -1552,7 +1552,7 @@
                             ? 'Walk through each extracted field, see the exact spot in the PDF, accept or skip.'
                             : 'Re-walk the extracted fields against the form (already-matching values still need a human attestation).'">
                           <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
-                          Verify ({{ pendingVerifyCount(i, 'COD') }})
+                          Verify {{ pendingVerifyCount(i, 'COD') }} pending
                         </button>
                         <span class="text-success" *ngIf="extractionApplied[i]?.['COD'] && pendingVerifyCount(i, 'COD') === 0">
                           ✓ Verified
@@ -1637,13 +1637,17 @@
                         </li>
                       </ul>
                       <div class="sld-extract-banner__actions">
-                        <button type="button" class="btn btn-sm btn-primary" (click)="applyMeterIdsExtraction(i)" (mousedown)="$event.stopPropagation()">Apply to (14)</button>
+                        <button type="button" class="btn btn-sm btn-primary"
+                          (click)="applyMeterIdsExtraction(i)" (mousedown)="$event.stopPropagation()"
+                          matTooltip="Fill these IDs into the (14) Serial number form field.">
+                          Apply &rarr; OC#14
+                        </button>
                         <button type="button" class="btn btn-sm btn-outline-primary"
                           *ngIf="pendingMeterIdsVerifyCount(i) > 0"
                           (click)="openMeterIdsVerifyQueue(i)" (mousedown)="$event.stopPropagation()"
-                          title="Walk through each extracted ID, see the doc it came from, and confirm or skip.">
+                          matTooltip="Walk through each extracted ID, see the doc it came from, and confirm or skip.">
                           <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">verified</mat-icon>
-                          Verify ({{ pendingMeterIdsVerifyCount(i) }})
+                          Verify {{ pendingMeterIdsVerifyCount(i) }} pending
                         </button>
                         <button type="button" class="btn btn-sm btn-outline-primary"
                           *ngIf="(existingDocs[i]?.['METERING_EVIDENCE']?.length || 0) + (files[i]?.['METERING_EVIDENCE']?.length || 0) > 0"
@@ -1723,7 +1727,7 @@
               (click)="rewalkAllSources()"
               matTooltip="Clear every prior 'Verify' stamp and walk through every extracted field from every attached document (SLD + SF-02 + SF-02c + COD) in one continuous queue. Use to re-confirm the whole picture after a re-extract.">
               <mat-icon style="font-size:18px;height:18px;width:18px;line-height:1">replay</mat-icon>
-              Re-walk all<ng-container *ngIf="totalPendingVerifyCount() > 0"> ({{ totalPendingVerifyCount() }})</ng-container>
+              Re-walk all<ng-container *ngIf="totalPendingVerifyCount() > 0">: {{ totalPendingVerifyCount() }} pending</ng-container>
             </button>
             <button *ngIf="isEditMode" type="button"
               class="btn btn-outline-primary text-capitalize px-4 d-inline-flex align-items-center gap-2"
@@ -2481,7 +2485,7 @@
         (click)="verifyAccept()"
         [title]="'Apply ' + (verifyCurrent?.value ?? '') + ' and stamp ' + (user?.email || 'me') + ' as verifier.'">
         <mat-icon style="font-size:18px;height:18px;width:18px;vertical-align:middle">check_circle</mat-icon>
-        Accept &amp; verify
+        Verify {{ verifyQueueIndex + 1 }} of {{ verifyQueue.length }}
       </button>
     </div>
   </div>

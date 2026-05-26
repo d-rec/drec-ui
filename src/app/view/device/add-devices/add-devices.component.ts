@@ -2930,10 +2930,97 @@ export class AddDevicesComponent implements OnDestroy {
         // for off-page hits); the registrant can scroll or zoom-pan
         // themselves.
       });
+      // Auto-skip items that would land on whitespace. After the
+      // text-layer search + Tesseract sweep, if neither produced a
+      // literal hit AND Haiku's region was only a model estimate (not
+      // a real pixel bbox from Tesseract at extract time), the
+      // overlay would draw an empty rectangle on the page — looks
+      // broken. Auto-verify those with an `auto: true` stamp instead,
+      // so the walk advances and the audit trail still distinguishes
+      // human-verified from auto-verified.
+      const hasTesseractRegion = item.regionSource === 'tesseract';
+      const hasLiteralHit = this.verifyTextMatches.length > 0;
+      if (!hasTesseractRegion && !hasLiteralHit) {
+        console.log(
+          '[verify] auto-skip',
+          item.field,
+          '— no literal evidence in source',
+        );
+        // Small delay so the registrant briefly sees the dialog
+        // change (otherwise it flicks past too fast to notice the
+        // skip happened).
+        setTimeout(() => this.verifyAcceptAuto('no-literal-evidence'), 250);
+      }
     } catch (err) {
       console.warn('renderVerifyCanvas failed', err);
       this.verifyCanvasSize = null;
     }
+  }
+
+  /** Auto-verify the current queue item without a human click.
+   *  Used when the dialog has no literal evidence to show — applying
+   *  the value with an `auto:` stamp on verifiedBy preserves the
+   *  audit trail (the provenance report can still distinguish human
+   *  from auto verifications) while letting the walk continue. */
+  private verifyAcceptAuto(reason: string): void {
+    const item = this.verifyCurrent;
+    if (!item) return;
+    // Meter-IDs path — synthetic field; reuse the same per-ID stamp
+    // path as verifyAccept but with auto reason.
+    if (typeof item.field === 'string' && item.field.startsWith('meterId:')) {
+      const id = String(item.value);
+      const list = this.serialNumberLists[item.deviceIndex] ?? [];
+      const norm = (s: string) => s.trim().toLowerCase();
+      if (!list.some((s) => norm(s) === norm(id))) {
+        this.serialNumberLists[item.deviceIndex] = [
+          ...list.filter((s) => s.trim()),
+          id,
+        ];
+        this.syncSerialNumberControl(item.deviceIndex);
+      }
+      const prevProv = this.appliedProvenance[item.deviceIndex]?.['serialNumber'] as any;
+      const prevVerifiedByValue: Record<string, any> = prevProv?.verifiedByValue
+        ? { ...prevProv.verifiedByValue }
+        : {};
+      this.recordProvenance(
+        item.deviceIndex,
+        'serialNumber',
+        item.source,
+        item.confidence,
+        id,
+        item.fileOverride ? { name: item.fileOverride.name } : undefined,
+      );
+      const prov = this.appliedProvenance[item.deviceIndex]?.['serialNumber'] as any;
+      if (prov) {
+        prov.verifiedByValue = {
+          ...prevVerifiedByValue,
+          [id]: { auto: reason, at: new Date().toISOString() },
+        };
+      }
+      this.verifyAdvance();
+      return;
+    }
+    // Standard form-control path.
+    const ctl = this.deviceForms.at(item.deviceIndex)?.get(item.field);
+    if (ctl) {
+      ctl.setValue(item.value);
+      ctl.markAsDirty();
+    }
+    const docName = item.fileOverride?.name ?? this.verifyQueueFile?.name;
+    this.recordProvenance(
+      item.deviceIndex,
+      item.field,
+      item.source,
+      item.confidence,
+      item.value,
+      docName ? { name: docName } : undefined,
+    );
+    const entry = this.appliedProvenance[item.deviceIndex]?.[item.field];
+    if (entry) {
+      (entry as any).verifiedBy = { auto: reason, at: new Date().toISOString() };
+      if (item.region) (entry as any).region = item.region;
+    }
+    this.verifyAdvance();
   }
 
   /** Centre the canvas's bbox (model region OR first text match) in
