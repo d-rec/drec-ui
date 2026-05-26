@@ -130,9 +130,13 @@ export const DOCUMENT_KEYWORDS: Partial<
     { pattern: 'outline', weight: 1 },
   ],
   [DocumentType.PROJECT_PHOTOS]: [
-    // Photos rarely have extractable text — relies on CLIP (Tier 2)
-    { pattern: 'photo', weight: 1 },
-    { pattern: 'site', weight: 1 },
+    // No keyword scoring for site photos: real photos OCR to ~nothing,
+    // and substring matches on "photo"/"site" misfired on Excel
+    // screenshots ("Insite", "photovoltaic", template UI). Photo
+    // routing is handled by filename hints (panels|photo|drone|…)
+    // and the final fall-through when OCR returns essentially no
+    // text. Better to under-classify (lands as OTHER) than over-
+    // classify (silently buries a meter report in Site Photos).
   ],
 };
 
