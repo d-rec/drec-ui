@@ -948,48 +948,56 @@
                         <!-- Per-extractor live status (scan-log style) -->
                         <div class="as-log__body" style="margin-top:8px">
                           <div class="as-log__entry"
-                            *ngIf="sldExtracting[i] || sldExtractions[i]"
+                            *ngIf="sldExtracting[i] || sldExtractions[i] || sldExtractionError[i]"
                             [class.as-log__entry--pass]="!sldExtracting[i] && sldExtractions[i]"
+                            [class.as-log__entry--fail]="!sldExtracting[i] && sldExtractionError[i]"
                             [class.as-log__entry--running]="sldExtracting[i]">
                             <span class="as-log__icon">
                               <span *ngIf="sldExtracting[i]" class="as-log__spinner"></span>
-                              <ng-container *ngIf="!sldExtracting[i]">&#x2714;</ng-container>
+                              <ng-container *ngIf="!sldExtracting[i] && sldExtractions[i]">&#x2714;</ng-container>
+                              <ng-container *ngIf="!sldExtracting[i] && sldExtractionError[i]">&#x2716;</ng-container>
                             </span>
                             <span class="as-log__label">SLD</span>
-                            <span class="as-log__time">{{ sldExtracting[i] ? 'reading…' : 'done' }}</span>
+                            <span class="as-log__time" [title]="sldExtractionError[i] || ''">{{ sldExtracting[i] ? 'reading…' : (sldExtractionError[i] ? 'failed' : 'done') }}</span>
                           </div>
                           <div class="as-log__entry"
-                            *ngIf="sf02cExtracting[i] || sf02cExtractions[i]"
+                            *ngIf="sf02cExtracting[i] || sf02cExtractions[i] || sf02cExtractionError[i]"
                             [class.as-log__entry--pass]="!sf02cExtracting[i] && sf02cExtractions[i]"
+                            [class.as-log__entry--fail]="!sf02cExtracting[i] && sf02cExtractionError[i]"
                             [class.as-log__entry--running]="sf02cExtracting[i]">
                             <span class="as-log__icon">
                               <span *ngIf="sf02cExtracting[i]" class="as-log__spinner"></span>
-                              <ng-container *ngIf="!sf02cExtracting[i]">&#x2714;</ng-container>
+                              <ng-container *ngIf="!sf02cExtracting[i] && sf02cExtractions[i]">&#x2714;</ng-container>
+                              <ng-container *ngIf="!sf02cExtracting[i] && sf02cExtractionError[i]">&#x2716;</ng-container>
                             </span>
                             <span class="as-log__label">SF-02c</span>
-                            <span class="as-log__time">{{ sf02cExtracting[i] ? 'reading…' : 'done' }}</span>
+                            <span class="as-log__time" [title]="sf02cExtractionError[i] || ''">{{ sf02cExtracting[i] ? 'reading…' : (sf02cExtractionError[i] ? 'failed' : 'done') }}</span>
                           </div>
                           <div class="as-log__entry"
-                            *ngIf="codExtracting[i] || codExtractions[i]"
+                            *ngIf="codExtracting[i] || codExtractions[i] || codExtractionError[i]"
                             [class.as-log__entry--pass]="!codExtracting[i] && codExtractions[i]"
+                            [class.as-log__entry--fail]="!codExtracting[i] && codExtractionError[i]"
                             [class.as-log__entry--running]="codExtracting[i]">
                             <span class="as-log__icon">
                               <span *ngIf="codExtracting[i]" class="as-log__spinner"></span>
-                              <ng-container *ngIf="!codExtracting[i]">&#x2714;</ng-container>
+                              <ng-container *ngIf="!codExtracting[i] && codExtractions[i]">&#x2714;</ng-container>
+                              <ng-container *ngIf="!codExtracting[i] && codExtractionError[i]">&#x2716;</ng-container>
                             </span>
                             <span class="as-log__label">COD proof</span>
-                            <span class="as-log__time">{{ codExtracting[i] ? 'reading…' : 'done' }}</span>
+                            <span class="as-log__time" [title]="codExtractionError[i] || ''">{{ codExtracting[i] ? 'reading…' : (codExtractionError[i] ? 'failed' : 'done') }}</span>
                           </div>
                           <div class="as-log__entry"
-                            *ngIf="sf02Extracting[i] || sf02Extractions[i]"
+                            *ngIf="sf02Extracting[i] || sf02Extractions[i] || sf02ExtractionError[i]"
                             [class.as-log__entry--pass]="!sf02Extracting[i] && sf02Extractions[i]"
+                            [class.as-log__entry--fail]="!sf02Extracting[i] && sf02ExtractionError[i]"
                             [class.as-log__entry--running]="sf02Extracting[i]">
                             <span class="as-log__icon">
                               <span *ngIf="sf02Extracting[i]" class="as-log__spinner"></span>
-                              <ng-container *ngIf="!sf02Extracting[i]">&#x2714;</ng-container>
+                              <ng-container *ngIf="!sf02Extracting[i] && sf02Extractions[i]">&#x2714;</ng-container>
+                              <ng-container *ngIf="!sf02Extracting[i] && sf02ExtractionError[i]">&#x2716;</ng-container>
                             </span>
                             <span class="as-log__label">SF-02</span>
-                            <span class="as-log__time">{{ sf02Extracting[i] ? 'reading…' : 'done' }}</span>
+                            <span class="as-log__time" [title]="sf02ExtractionError[i] || ''">{{ sf02Extracting[i] ? 'reading…' : (sf02ExtractionError[i] ? 'failed' : 'done') }}</span>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="meterIdsExtracting[i] || meterIdsExtractions[i]?.length"
@@ -1008,7 +1016,7 @@
                           <div class="magic-conflicts__header">
                             ⚠ Sources disagree on these fields — pick one before applying:
                           </div>
-                          <div class="magic-conflict" *ngFor="let entry of getConflicts(i) | keyvalue">
+                          <div class="magic-conflict" *ngFor="let entry of uniqueConflicts(i) | keyvalue">
                             <div class="magic-conflict__field">{{ fieldLabel(entry.key) }}</div>
                             <label class="magic-conflict__option" *ngFor="let c of entry.value">
                               <input type="radio"

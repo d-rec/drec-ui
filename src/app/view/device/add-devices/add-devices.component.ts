@@ -145,6 +145,14 @@ export class AddDevicesComponent implements OnDestroy {
   sf02Extractions: { [deviceIndex: number]: Sf02ExtractedFields | null } = {};
   sf02Extracting: { [deviceIndex: number]: boolean } = {};
 
+  /** Per-extractor failure messages keyed by deviceIndex. When set, the
+   *  "Reading documents" dialog renders ✗ + the message instead of
+   *  silently disappearing the row. */
+  sldExtractionError: { [deviceIndex: number]: string | null } = {};
+  sf02cExtractionError: { [deviceIndex: number]: string | null } = {};
+  codExtractionError: { [deviceIndex: number]: string | null } = {};
+  sf02ExtractionError: { [deviceIndex: number]: string | null } = {};
+
   /** Aggregated measurement IDs harvested from any number of metering
    *  screenshots / nameplate photos / COD proofs. Each upload appends
    *  its results so the user sees the running list. */
@@ -2196,6 +2204,7 @@ export class AddDevicesComponent implements OnDestroy {
   private extractSldFieldsForDevice(file: File, deviceIndex: number): void {
     this.sldExtracting[deviceIndex] = true;
     this.sldExtractions[deviceIndex] = null;
+    this.sldExtractionError[deviceIndex] = null;
     this.sldExtractionDoc[deviceIndex] = { name: file.name };
     if (this.extractionApplied[deviceIndex]) {
       this.extractionApplied[deviceIndex]['SLD'] = false;
@@ -2206,18 +2215,20 @@ export class AddDevicesComponent implements OnDestroy {
         this.ngZone.run(() => {
           this.sldExtracting[deviceIndex] = false;
           this.sldExtractions[deviceIndex] = res;
-          // Extraction is silent. The user opens the verify queue
-          // explicitly via the per-doc "Verify" button so multiple
-          // extractors finishing in parallel don't chaotically pop
-          // dialogs over each other.
           this.sldExtractionFile[deviceIndex] = file;
         }),
       )
-      .catch(() =>
+      .catch((err) =>
         this.ngZone.run(() => {
           this.sldExtracting[deviceIndex] = false;
+          this.sldExtractionError[deviceIndex] = this.extractionFailMsg(err);
         }),
       );
+  }
+
+  private extractionFailMsg(err: any): string {
+    const m = err?.error?.message ?? err?.message ?? String(err ?? 'failed');
+    return typeof m === 'string' && m.length > 160 ? m.slice(0, 160) + '…' : m;
   }
 
   /** Verify-Source queue state — populated when an SLD extraction
@@ -3369,6 +3380,7 @@ export class AddDevicesComponent implements OnDestroy {
   private extractSf02cFieldsForDevice(file: File, deviceIndex: number): void {
     this.sf02cExtracting[deviceIndex] = true;
     this.sf02cExtractions[deviceIndex] = null;
+    this.sf02cExtractionError[deviceIndex] = null;
     this.sf02cExtractionDoc[deviceIndex] = { name: file.name };
     if (this.extractionApplied[deviceIndex]) {
       this.extractionApplied[deviceIndex]['SF-02c'] = false;
@@ -3382,9 +3394,10 @@ export class AddDevicesComponent implements OnDestroy {
           this.sf02cExtractionFile[deviceIndex] = file;
         }),
       )
-      .catch(() =>
+      .catch((err) =>
         this.ngZone.run(() => {
           this.sf02cExtracting[deviceIndex] = false;
+          this.sf02cExtractionError[deviceIndex] = this.extractionFailMsg(err);
         }),
       );
   }
@@ -3396,6 +3409,7 @@ export class AddDevicesComponent implements OnDestroy {
   private extractCodFieldsForDevice(file: File, deviceIndex: number): void {
     this.codExtracting[deviceIndex] = true;
     this.codExtractions[deviceIndex] = null;
+    this.codExtractionError[deviceIndex] = null;
     this.codExtractionDoc[deviceIndex] = { name: file.name };
     if (this.extractionApplied[deviceIndex]) {
       this.extractionApplied[deviceIndex]['COD'] = false;
@@ -3438,9 +3452,10 @@ export class AddDevicesComponent implements OnDestroy {
           this.codExtractionFile[deviceIndex] = file;
         }),
       )
-      .catch(() =>
+      .catch((err) =>
         this.ngZone.run(() => {
           this.codExtracting[deviceIndex] = false;
+          this.codExtractionError[deviceIndex] = this.extractionFailMsg(err);
         }),
       );
   }
@@ -3469,6 +3484,7 @@ export class AddDevicesComponent implements OnDestroy {
   private extractSf02FieldsForDevice(file: File, deviceIndex: number): void {
     this.sf02Extracting[deviceIndex] = true;
     this.sf02Extractions[deviceIndex] = null;
+    this.sf02ExtractionError[deviceIndex] = null;
     this.sf02ExtractionDoc[deviceIndex] = { name: file.name };
     if (this.extractionApplied[deviceIndex]) {
       this.extractionApplied[deviceIndex]['SF-02'] = false;
@@ -3482,9 +3498,10 @@ export class AddDevicesComponent implements OnDestroy {
           this.sf02ExtractionFile[deviceIndex] = file;
         }),
       )
-      .catch(() =>
+      .catch((err) =>
         this.ngZone.run(() => {
           this.sf02Extracting[deviceIndex] = false;
+          this.sf02ExtractionError[deviceIndex] = this.extractionFailMsg(err);
         }),
       );
   }
@@ -4246,6 +4263,26 @@ export class AddDevicesComponent implements OnDestroy {
 
   hasConflicts(deviceIndex: number): boolean {
     return Object.keys(this.getConflicts(deviceIndex)).length > 0;
+  }
+
+  /** Conflicts deduplicated by field LABEL — guards against a field
+   *  appearing twice in the picker because two distinct claim keys
+   *  share the same human-readable label. Keeps the first occurrence;
+   *  ties are vanishingly rare since the underlying field key is also
+   *  the form-control name and stays canonical. */
+  uniqueConflicts(
+    deviceIndex: number,
+  ): { [field: string]: Array<{ source: string; value: any; confidence: number; at?: string }> } {
+    const raw = this.getConflicts(deviceIndex);
+    const seenLabels = new Set<string>();
+    const out: typeof raw = {};
+    for (const [field, list] of Object.entries(raw)) {
+      const label = this.fieldLabel(field);
+      if (seenLabels.has(label)) continue;
+      seenLabels.add(label);
+      out[field] = list;
+    }
+    return out;
   }
 
   setConflictPick(
