@@ -11,7 +11,7 @@ import {
 
 const HAIKU_FALLBACK_THRESHOLD = 0.6;
 const SLD_MAX_LONG_EDGE_PX = 2048;
-const SLD_MAX_PAGES = 2;
+const SLD_MAX_PAGES = 5;
 
 export interface ExtractedField<T> {
   value: T;
@@ -48,6 +48,7 @@ export interface CodExtractedFields {
   ownerName?: ExtractedField<string>;
   utilityOrIssuer?: ExtractedField<string>;
   country?: ExtractedField<string>;
+  stateProvince?: ExtractedField<string>;
   offTakerName?: ExtractedField<string>;
   measurementIds?: ExtractedField<string[]>;
   reasoning: string;
@@ -61,12 +62,14 @@ export interface MeterIdsExtractedFields {
 
 export interface Sf02ExtractedFields {
   facilityName?: ExtractedField<string>;
+  facilityAddress?: ExtractedField<string>;
   acCapacityKw?: ExtractedField<number>;
   commissioningDate?: ExtractedField<string>;
   deviceTypeCode?: ExtractedField<string>;
   ownerLegalName?: ExtractedField<string>;
   ownerAddress?: ExtractedField<string>;
   ownerCountry?: ExtractedField<string>;
+  ownerStateProvince?: ExtractedField<string>;
   latitude?: ExtractedField<number>;
   longitude?: ExtractedField<number>;
   inverterCount?: ExtractedField<number>;
@@ -81,6 +84,7 @@ export interface Sf02cExtractedFields {
   ownerLegalName?: ExtractedField<string>;
   ownerAddress?: ExtractedField<string>;
   ownerCountry?: ExtractedField<string>;
+  ownerStateProvince?: ExtractedField<string>;
   signingDate?: ExtractedField<string>;
   signatoryName?: ExtractedField<string>;
   signatoryEmail?: ExtractedField<string>;
@@ -588,7 +592,7 @@ export class DocumentClassifierService {
       const pdf = await pdfjs.getDocument({
         data: new Uint8Array(arrayBuffer),
       }).promise;
-      const pageCount = Math.min(pdf.numPages, 2);
+      const pageCount = Math.min(pdf.numPages, 8);
       const chunks: string[] = [];
       for (let p = 1; p <= pageCount; p++) {
         const page = await pdf.getPage(p);
@@ -597,6 +601,51 @@ export class DocumentClassifierService {
           .map((it: any) => (typeof it.str === 'string' ? it.str : ''))
           .join(' ');
         chunks.push(pageText);
+        // AcroForm field values aren't in the page content stream —
+        // they live on Widget annotations. Without this, filled-in
+        // SF-02 / SF-02c / etc forms come through as headers-only
+        // (labels: "Facility name", "Facility address") with none of
+        // the actual values, and Haiku quite reasonably reports
+        // "no filled-in data fields".
+        //
+        // Wrap the annotations call in a hard timeout — pdf.js can
+        // HANG (not throw) on certain widget trees, observed on
+        // SF-02 forms with complex AcroForm hierarchies. Without the
+        // timeout the whole extractPdfTextLayer hangs and the
+        // upstream HTTP request never fires (silent fail).
+        try {
+          const anns = await Promise.race<any[]>([
+            page.getAnnotations({ intent: 'display' }),
+            new Promise<any[]>((_, reject) =>
+              setTimeout(
+                () => reject(new Error('pdf.js getAnnotations timeout')),
+                5000,
+              ),
+            ),
+          ]);
+          const fieldLines: string[] = [];
+          for (const a of anns ?? []) {
+            if (a?.subtype !== 'Widget') continue;
+            const name = (a.fieldName || '').trim();
+            const valRaw = a.fieldValue;
+            const val = Array.isArray(valRaw) ? valRaw.join(', ') : valRaw;
+            if (val == null || val === '') continue;
+            const valStr = String(val).trim();
+            if (!valStr) continue;
+            fieldLines.push(name ? `${name}: ${valStr}` : valStr);
+          }
+          if (fieldLines.length) {
+            chunks.push(`[form fields p.${p}]\n${fieldLines.join('\n')}`);
+          }
+        } catch (err) {
+          // pdf.js threw / timed out on annotations — fall through
+          // with content-stream text only. Logged so the console
+          // shows it.
+          console.warn(
+            `[DocumentClassifier] page ${p} annotations skipped:`,
+            err,
+          );
+        }
       }
       return chunks.join('\n');
     } catch (err) {
@@ -1087,33 +1136,110 @@ export class DocumentClassifierService {
     preferVision = false,
     extras?: Record<string, any>,
   ): Promise<T | null> {
+    // Whole-pipeline timeout — pdf.js can hang on certain PDFs (form
+    // widgets, malformed embedded fonts). Without this, the upstream
+    // HTTP request never fires and the UI sits forever with no
+    // visible error. 90s is generous for a normal pipeline (~4s
+    // typical Haiku call + a few seconds of rasterisation).
+    const PIPELINE_TIMEOUT_MS = 90_000;
+    const timer = new Promise<never>((_, reject) =>
+      setTimeout(
+        () =>
+          reject(
+            new Error(
+              `Extraction pipeline timed out after ${PIPELINE_TIMEOUT_MS / 1000}s (likely pdf.js hung on ${file.name}).`,
+            ),
+          ),
+        PIPELINE_TIMEOUT_MS,
+      ),
+    );
+    return Promise.race([
+      this.runDocExtractionFEInner<T>(endpointPath, file, deviceId, preferVision, extras),
+      timer,
+    ]);
+  }
+
+  private async runDocExtractionFEInner<T>(
+    endpointPath: string,
+    file: File,
+    deviceId: number | undefined,
+    preferVision = false,
+    extras?: Record<string, any>,
+  ): Promise<T | null> {
     try {
       let text = '';
       if (
         !preferVision &&
         (file.type === 'application/pdf' || /\.pdf$/i.test(file.name))
       ) {
-        text = await this.extractPdfTextLayer(file);
+        // Per-stage timeout so a hang in extractPdfTextLayer doesn't
+        // eat the whole budget — bail out and try vision only.
+        try {
+          text = await Promise.race<string>([
+            this.extractPdfTextLayer(file),
+            new Promise<string>((_, reject) =>
+              setTimeout(
+                () => reject(new Error('extractPdfTextLayer timeout')),
+                30_000,
+              ),
+            ),
+          ]);
+        } catch (err) {
+          console.warn(
+            '[DocumentClassifier] text-layer timed out, going vision-only:',
+            err,
+          );
+          text = '';
+        }
       }
       const payload: any = { filename: file.name };
       if (deviceId) payload.deviceId = deviceId;
       if (extras) Object.assign(payload, extras);
       const contentHash = await this.sha256OfFile(file);
       if (contentHash) payload.contentHash = contentHash;
+      // Send BOTH text and images when both are available — Haiku
+      // reconciles them. Older code did either/or, but the SF-02 from
+      // Stride (AC002641) has its values rendered as images even
+      // though headers come through as text — text-only made Haiku
+      // report "no filled-in data fields". Including the page raster
+      // lets Haiku see the actual data even on image-heavy or
+      // non-standard-font PDFs.
       if (text && text.trim().length >= 40) {
         payload.text = text;
-      } else {
-        const canvases = await this.renderFirstNPages(file, 2);
+      }
+      const isPdf =
+        file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+      if (isPdf) {
+        const canvases = await this.renderFirstNPages(file, 5);
         payload.images = canvases.map((c) => {
-          const ds = this.downsampleToLongEdge(c, 2048);
+          const ds = this.downsampleToLongEdge(c, 1024);
+          return {
+            base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
+            mimeType: 'image/png' as const,
+          };
+        });
+      } else if (!payload.text) {
+        // Non-PDF without text → vision fallback for image uploads.
+        const canvases = await this.renderFirstNPages(file, 5);
+        payload.images = canvases.map((c) => {
+          const ds = this.downsampleToLongEdge(c, 1024);
           return {
             base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
             mimeType: 'image/png' as const,
           };
         });
       }
+      const payloadSizeKB = Math.round(JSON.stringify(payload).length / 1024);
+      console.log(
+        `[DocumentClassifier] POST ${endpointPath} — payloadSize=${payloadSizeKB}KB, hasText=${!!payload.text}, hasImages=${!!payload.images}, imgCount=${payload.images?.length ?? 0}`,
+      );
+      const startedAt = Date.now();
       const res = await firstValueFrom(
         this.http.post<T>(`${environment.API_URL}${endpointPath}`, payload),
+      );
+      console.log(
+        `[DocumentClassifier] POST ${endpointPath} — done in ${Date.now() - startedAt}ms, res=`,
+        res,
       );
       if (!res) return null;
       // Phase 2: Tesseract bbox pass for verify-source. Skip for the
@@ -1122,7 +1248,7 @@ export class DocumentClassifierService {
       // (the per-id docs are already tracked separately in the UI).
       if (!endpointPath.includes('meter-ids')) {
         try {
-          const canvases = await this.renderFirstNPages(file, 2);
+          const canvases = await this.renderFirstNPages(file, 5);
           const tokenMap = await this.buildTesseractTokenMap(canvases);
           this.patchRegionsFromTesseract(res as any, tokenMap);
         } catch (err) {
@@ -1131,8 +1257,12 @@ export class DocumentClassifierService {
       }
       return res;
     } catch (err) {
+      // Re-throw so the per-extractor catch in add-devices.component.ts
+      // surfaces the message in the Reading-documents dialog instead
+      // of returning null silently. Without this the dialog said
+      // "AI extracted from …" with no rows and no clue why.
       console.warn(`[DocumentClassifier] ${endpointPath} failed:`, err);
-      return null;
+      throw err;
     }
   }
 
@@ -1157,9 +1287,9 @@ export class DocumentClassifierService {
         payload.text = text;
       } else {
         // True scan / no text layer — fall back to up to 2 page images.
-        const canvases = await this.renderFirstNPages(file, 2);
+        const canvases = await this.renderFirstNPages(file, 5);
         payload.images = canvases.map((c) => {
-          const ds = this.downsampleToLongEdge(c, 2048);
+          const ds = this.downsampleToLongEdge(c, 1024);
           return {
             base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
             mimeType: 'image/png' as const,
@@ -1178,7 +1308,7 @@ export class DocumentClassifierService {
       // highlight the literal token positions, since the model's
       // bbox estimates without OCR backup tend to drift.
       try {
-        const canvases = await this.renderFirstNPages(file, 2);
+        const canvases = await this.renderFirstNPages(file, 5);
         const tokenMap = await this.buildTesseractTokenMap(canvases);
         this.patchRegionsFromTesseract(res, tokenMap);
       } catch (err) {

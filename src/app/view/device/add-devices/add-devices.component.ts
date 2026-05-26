@@ -2419,8 +2419,10 @@ export class AddDevicesComponent implements OnDestroy {
       if (!fx) return [];
       return [
         { name: 'siteName', label: '(7) Site name', field: fx.projectName },
+        { name: 'address', label: '(2) Address (site)', field: (fx as any).projectAddress },
+        { name: 'stateProvince', label: '(3) State/Province (site)', field: (fx as any).ownerStateProvince },
         { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerLegalName },
-        { name: 'pvSystemOwnerAddress', label: 'PV System Owner address', field: fx.ownerAddress },
+        { name: 'pvSystemOwnerAddress', label: 'PV System Owner address (HQ)', field: fx.ownerAddress },
         { name: 'countryCodename', label: 'Country', field: fx.ownerCountry, transform: (v) => this.normalizeCountry(v) },
         { name: 'signatoryName', label: 'Signatory name', field: fx.signatoryName },
       ];
@@ -2434,6 +2436,7 @@ export class AddDevicesComponent implements OnDestroy {
         { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
         { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerName },
         { name: 'countryCodename', label: 'Country', field: fx.country, transform: (v) => this.normalizeCountry(v) },
+        { name: 'stateProvince', label: '(3) State/Province', field: (fx as any).stateProvince },
         { name: 'offTakerName', label: '(28) Off-taker name', field: fx.offTakerName },
       ];
     }
@@ -2442,11 +2445,13 @@ export class AddDevicesComponent implements OnDestroy {
       if (!fx) return [];
       return [
         { name: 'siteName', label: '(7) Site name', field: fx.facilityName },
+        { name: 'address', label: '(2) Address (site)', field: (fx as any).facilityAddress },
+        { name: 'stateProvince', label: '(3) State/Province (site)', field: (fx as any).ownerStateProvince },
         { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
         { name: 'commissioningDate', label: '(10) Commissioning date', field: fx.commissioningDate },
         { name: 'deviceTypeCode', label: 'Device type code', field: fx.deviceTypeCode },
         { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerLegalName },
-        { name: 'pvSystemOwnerAddress', label: 'PV System Owner address', field: fx.ownerAddress },
+        { name: 'pvSystemOwnerAddress', label: 'PV System Owner address (HQ)', field: fx.ownerAddress },
         { name: 'countryCodename', label: 'Country', field: fx.ownerCountry, transform: (v) => this.normalizeCountry(v) },
         { name: 'latitude', label: 'Latitude', field: fx.latitude },
         { name: 'longitude', label: 'Longitude', field: fx.longitude },
@@ -2738,11 +2743,57 @@ export class AddDevicesComponent implements OnDestroy {
           cssWidth: canvas.clientWidth,
           cssHeight: canvas.clientHeight,
         };
+        // Auto-scroll the dialog so the bbox (or first text match) is
+        // in view. Without this the registrant lands on a 14-page PDF
+        // showing the cover and has to manually navigate page-by-page
+        // to find the value — for SF-02 / SF-02c that meant Section
+        // 1.3 was 4+ pages down. Center the bbox vertically in the
+        // scroll viewport.
+        this.scrollDialogToBbox(canvas);
       });
     } catch (err) {
       console.warn('renderVerifyCanvas failed', err);
       this.verifyCanvasSize = null;
     }
+  }
+
+  /** Centre the canvas's bbox (model region OR first text match) in
+   *  the dialog's scroll viewport so the registrant lands directly on
+   *  the value instead of the cover page. No-op if neither is set. */
+  private scrollDialogToBbox(canvas: HTMLCanvasElement): void {
+    const item = this.verifyCurrent;
+    if (!item) return;
+    const cssH = canvas.clientHeight;
+    if (!cssH) return;
+    // Pick a y in 0..1: model bbox if it exists for this page; else
+    // the first text-layer match; else null.
+    let yFrac: number | null = null;
+    if (
+      item.region &&
+      (item.region.page ?? 1) === this.verifyCurrentPage &&
+      typeof item.region.y === 'number'
+    ) {
+      yFrac = item.region.y;
+    } else if (this.verifyTextMatches.length) {
+      yFrac = this.verifyTextMatches[0].y;
+    }
+    if (yFrac == null) return;
+    // Walk up to find the scrolling ancestor (mat-dialog-container's
+    // mat-dialog-content has overflow:auto by default).
+    let el: HTMLElement | null = canvas.parentElement;
+    while (el) {
+      const style = window.getComputedStyle(el);
+      const oy = style.overflowY;
+      if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight) {
+        break;
+      }
+      el = el.parentElement;
+    }
+    if (!el) return;
+    const canvasOffsetTop = canvas.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop;
+    const bboxYInScroll = canvasOffsetTop + yFrac * cssH;
+    const target = Math.max(0, bboxYInScroll - el.clientHeight / 2);
+    el.scrollTo({ top: target, behavior: 'smooth' });
   }
 
   /** Cache key for the whole-doc match scan so we don't re-run it on
@@ -3844,6 +3895,7 @@ export class AddDevicesComponent implements OnDestroy {
     if (sf02c) {
       add('siteName', 'SF-02c', sf02c.projectName);
       add('address', 'SF-02c', sf02c.projectAddress);
+      add('stateProvince', 'SF-02c', sf02c.ownerStateProvince);
       add('pvSystemOwner', 'SF-02c', sf02c.ownerLegalName);
       add('pvSystemOwnerAddress', 'SF-02c', sf02c.ownerAddress);
       add('countryCodename', 'SF-02c', sf02c.ownerCountry, (v) =>
@@ -3856,6 +3908,7 @@ export class AddDevicesComponent implements OnDestroy {
       add('siteName', 'COD', cod.facilityName);
       add('capacity', 'COD', cod.acCapacityKw);
       add('pvSystemOwner', 'COD', cod.ownerName);
+      add('stateProvince', 'COD', cod.stateProvince);
       add('countryCodename', 'COD', cod.country, (v) =>
         this.normalizeCountry(v),
       );
@@ -3866,6 +3919,8 @@ export class AddDevicesComponent implements OnDestroy {
     const sf02 = this.sf02Extractions[deviceIndex];
     if (sf02) {
       add('siteName', 'SF-02', sf02.facilityName);
+      add('address', 'SF-02', sf02.facilityAddress);
+      add('stateProvince', 'SF-02', sf02.ownerStateProvince);
       add('capacity', 'SF-02', sf02.acCapacityKw);
       add('commissioningDate', 'SF-02', sf02.commissioningDate);
       add('deviceTypeCode', 'SF-02', sf02.deviceTypeCode);
@@ -6141,6 +6196,7 @@ export class AddDevicesComponent implements OnDestroy {
       const sf02cFieldMap: Record<string, string> = {
         siteName: 'projectName',
         address: 'projectAddress',
+        stateProvince: 'ownerStateProvince',
         pvSystemOwner: 'ownerLegalName',
         pvSystemOwnerAddress: 'ownerAddress',
         countryCodename: 'ownerCountry',
@@ -6151,9 +6207,13 @@ export class AddDevicesComponent implements OnDestroy {
         siteName: 'facilityName',
         capacity: 'acCapacityKw',
         pvSystemOwner: 'ownerName',
+        stateProvince: 'stateProvince',
+        countryCodename: 'country',
       };
       const sf02FieldMap: Record<string, string> = {
         siteName: 'facilityName',
+        address: 'facilityAddress',
+        stateProvince: 'ownerStateProvince',
         capacity: 'acCapacityKw',
         commissioningDate: 'commissioningDate',
         deviceTypeCode: 'deviceTypeCode',
@@ -6210,8 +6270,24 @@ export class AddDevicesComponent implements OnDestroy {
     // Fallback: no live extraction this session, but the registrant's
     // last save persisted a value into field_provenance — show that
     // so hints hydrate on edit-page open without re-running Haiku.
+    // Exception: if the form value is empty AND the persisted source
+    // is Manual (user typed it themselves last time), they cleared
+    // the field on purpose — don't keep nagging them with a chip
+    // showing the value they just deleted.
     const persisted = this.appliedProvenance[deviceIndex]?.[field];
     if (persisted?.value !== undefined && persisted.value !== null) {
+      const formVal = this.deviceForms.at(deviceIndex)?.get(field)?.value;
+      const formEmpty =
+        formVal == null ||
+        formVal === '' ||
+        (Array.isArray(formVal) && formVal.length === 0);
+      if (
+        formEmpty &&
+        typeof persisted.source === 'string' &&
+        persisted.source.startsWith('Manual:')
+      ) {
+        return null;
+      }
       // Source labels can carry " (backfill)" / " (saved)" suffixes;
       // strip for a cleaner pill, but only when looking up the doc URL.
       const rawSource = persisted.source.replace(
@@ -6241,6 +6317,19 @@ export class AddDevicesComponent implements OnDestroy {
     window.open(url, '_blank', 'noopener');
   }
 
+  /** True when the field has a non-empty value but no recorded
+   *  provenance — neither a live extractor hint nor a persisted
+   *  appliedProvenance entry. Shown to the registrant via a small
+   *  "? source unknown" pill next to the field, so orphan values
+   *  surface visibly instead of looking trustworthy. */
+  isOrphanField(deviceIndex: number, field: string): boolean {
+    if (this.extractorHintFor(deviceIndex, field)) return false;
+    const v = this.deviceForms.at(deviceIndex)?.get(field)?.value;
+    if (v == null || v === '') return false;
+    if (Array.isArray(v) && v.length === 0) return false;
+    return true;
+  }
+
   /** "Use this" action on an extractor-hint chip: adopt the suggested
    *  value into the form control, credit the doc source as provenance,
    *  refresh the live-issues sidebar. No-op if the hint vanished
@@ -6251,14 +6340,23 @@ export class AddDevicesComponent implements OnDestroy {
     const form = this.deviceForms.at(deviceIndex);
     const ctl = form?.get(field);
     if (!ctl) return;
-    ctl.setValue(h.value);
+    // Normalise country before patching — Haiku returns "Vietnam" but
+    // the autocomplete only accepts the canonical "Viet Nam" form, so
+    // an unnormalised apply lands "Invalid Country Selected" on the
+    // field. Same pattern as the verify-source transform.
+    let value = h.value;
+    if (field === 'countryCodename') {
+      value = this.normalizeCountry(value);
+      this.userPickedCountry[deviceIndex] = true;
+    }
+    ctl.setValue(value);
     ctl.markAsDirty();
     this.recordProvenance(
       deviceIndex,
       field,
       h.source,
       h.confidence ?? 0.9,
-      h.value,
+      value,
     );
     this.refreshLiveIssues();
   }
@@ -7147,6 +7245,21 @@ export class AddDevicesComponent implements OnDestroy {
     }
     void removed;
     this.checkDocumentsUploaded?.();
+  }
+
+  /** Best-effort source URL for the currently-open preview. Used as a
+   *  fallback when currentPreviewFile is null (preview opened from a
+   *  server URL path). pdf-preview's ocrSource accepts string | File;
+   *  this lets the OCR button stay enabled even without a File handle. */
+  previewSourceUrl(): string | null {
+    const url = this.previewData?.url as any;
+    if (!url) return null;
+    // SafeResourceUrl from DomSanitizer doesn't expose the raw string
+    // directly. The component bypassSecurityTrust paths set
+    // changingThisBreaksApplicationSecurity. Fall through to null if
+    // we can't unwrap.
+    const raw = url.changingThisBreaksApplicationSecurity ?? url;
+    return typeof raw === 'string' ? raw : null;
   }
 
   openPreview(deviceIndex: number, fileType: string) {

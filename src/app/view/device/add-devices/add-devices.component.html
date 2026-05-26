@@ -196,7 +196,7 @@
                       <mat-label test-id="project-name">(1) Site Name</mat-label>
                       <input matInput autocomplete="off" formControlName="siteName" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'siteName') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'siteName') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'siteName')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                     <div *ngIf="siteNameExists[i]" class="text-danger" style="font-size:11px;margin-top:-4px">
                       Site name already exists
                     </div>
@@ -223,7 +223,7 @@
                       <mat-label>{{ dataSourceBrandLabel(i) }}</mat-label>
                       <input matInput formControlName="dataSourceBrand" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'dataSourceBrand') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'dataSourceBrand') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'dataSourceBrand')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                 </div>
 
@@ -238,7 +238,7 @@
                       <input autocomplete="off" matInput formControlName="address" />
                       <mat-error>Address is required</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'address') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'address') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'address')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -269,7 +269,7 @@
                         </mat-option>
                       </mat-autocomplete>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'countryCodename') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'countryCodename') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'countryCodename')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                     <mat-error *ngIf="showerror[i]" style="margin-top: -15px" test-id="invalid-country">
                       Invalid Country Selected
                     </mat-error>
@@ -283,7 +283,7 @@
                         matTooltipPosition="above" />
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'latitude') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'latitude') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'latitude')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline" [class.coord-adjusting]="mapAdjusting">
@@ -294,7 +294,7 @@
                         matTooltipPosition="above" />
                       <mat-error>please enter the valid value</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'longitude') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'longitude') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'longitude')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                 </div>
                 <div class="row map-row">
@@ -335,7 +335,7 @@
                       <mat-datepicker #commPicker></mat-datepicker>
                       <mat-error>Commissioning date is required</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'commissioningDate') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'commissioningDate') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'commissioningDate')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -349,7 +349,7 @@
                       </mat-select>
                       <mat-error>Device type is required</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'deviceTypeCode') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'deviceTypeCode') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'deviceTypeCode')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -357,7 +357,7 @@
                       <input matInput type="number" formControlName="capacity" [min]="1" autocomplete="off" />
                       <mat-error>Capacity is required</mat-error>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'capacity') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'capacity') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'capacity')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                 </div>
 
@@ -392,7 +392,7 @@
                         matTooltip="Please provide the number of devices that output useable electricity at this facility (typically the inverters)"
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'generatingUnitCount') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'generatingUnitCount') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'generatingUnitCount')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <div class="serial-list" test-id="serial-number">
@@ -457,7 +457,7 @@
                         <mat-option value="Yes (full-export)">Yes (full-export)</mat-option>
                       </mat-select>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'gridExportType') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'gridExportType') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'gridExportType')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -466,7 +466,7 @@
                         matTooltip="If the facility is grid-connected, please provide the name of the utility or distribution network"
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'networkOwner') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'networkOwner') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'networkOwner')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -475,7 +475,7 @@
                         matTooltip="If the facility is grid-connected, please provide the interconnection voltage"
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'interconnectionVoltage') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'interconnectionVoltage') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'interconnectionVoltage')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('gridInterconnection')?.value === true">
                     <mat-form-field appearance="outline">
@@ -486,7 +486,7 @@
                         <mat-option value="No">No</mat-option>
                       </mat-select>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'hasNetworkMeter') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'hasNetworkMeter') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'hasNetworkMeter')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasNetworkMeter')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
@@ -558,7 +558,7 @@
                         <mat-option value="No">No</mat-option>
                       </mat-select>
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'hasAuxiliaryEnergySources') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'hasAuxiliaryEnergySources') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'hasAuxiliaryEnergySources')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3" *ngIf="deviceForms.at(i).get('hasAuxiliaryEnergySources')?.value === 'Yes'">
                     <mat-form-field appearance="outline">
@@ -567,7 +567,7 @@
                         matTooltip="Describe the number of units, capacity per unit, and fuel source (e.g. 1 x 250kVA diesel generator)"
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'auxiliaryEnergySourceDetails') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'auxiliaryEnergySourceDetails') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'auxiliaryEnergySourceDetails')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -576,7 +576,7 @@
                         matTooltip='Please provide the legal name of the PV System Owner. This must match the "Proof of Ownership" documentation shared.'
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'pvSystemOwner') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'pvSystemOwner') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'pvSystemOwner')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -585,7 +585,7 @@
                         matTooltip="Mailing/HQ address of the PV System Owner (legal entity). Distinct from the device site address."
                         matTooltipPosition="above" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'pvSystemOwnerAddress') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'pvSystemOwnerAddress') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'pvSystemOwnerAddress')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                   <div class="col-md-3">
                     <mat-form-field appearance="outline">
@@ -728,7 +728,7 @@
                       <mat-label>(41) Signatory name</mat-label>
                       <input matInput formControlName="signatoryName" />
                     </mat-form-field>
-                      <small *ngIf="extractorHintFor(i, 'signatoryName') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small>
+                      <small *ngIf="extractorHintFor(i, 'signatoryName') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h.url); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'signatoryName')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
                 </div>
                 <!-- ── Legacy / non-OC# fields (collapsed by default) ─────
@@ -1214,8 +1214,8 @@
                       <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'FORM_SF_02' }"></ng-container>
                     <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'FORM_SF_02' }"></ng-container>
                     <ng-container *ngTemplateOutlet="stagedDocList; context: { idx: i, docType: 'FORM_SF_02' }"></ng-container>
-                      <div *ngIf="!sf02Extracting[i] && !sf02Extractions[i] &&
-                                  existingDocs[i]?.['FORM_SF_02']?.length"
+                      <div *ngIf="!sf02Extracting[i] &&
+                                  (existingDocs[i]?.['FORM_SF_02']?.length || getStagedFiles(i, 'FORM_SF_02').length)"
                         class="d-flex justify-content-end mt-1">
                         <button type="button" class="btn btn-sm btn-outline-primary"
                           (click)="reverifyFromAttached(i, 'SF-02')"
@@ -1232,11 +1232,13 @@
                         <div class="sld-extract-banner__header"><strong>AI extracted from SF-02:</strong></div>
                         <ul class="sld-extract-banner__list">
                           <li *ngIf="fx.facilityName">Site: {{ fx.facilityName.value }} <small>({{ (fx.facilityName.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                          <li *ngIf="$any(fx).facilityAddress">Site address: {{ $any(fx).facilityAddress.value }} <small>({{ ($any(fx).facilityAddress.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                          <li *ngIf="$any(fx).ownerStateProvince">Site state/province: {{ $any(fx).ownerStateProvince.value }} <small>({{ ($any(fx).ownerStateProvince.confidence * 100) | number:'1.0-0' }}%)</small></li>
                           <li *ngIf="fx.acCapacityKw">Capacity: {{ fx.acCapacityKw.value }} kW <small>({{ (fx.acCapacityKw.confidence * 100) | number:'1.0-0' }}%)</small></li>
                           <li *ngIf="fx.commissioningDate">COD: {{ fx.commissioningDate.value }} <small>({{ (fx.commissioningDate.confidence * 100) | number:'1.0-0' }}%)</small></li>
                           <li *ngIf="fx.deviceTypeCode">Type: {{ fx.deviceTypeCode.value }}</li>
                           <li *ngIf="fx.ownerLegalName">Owner: {{ fx.ownerLegalName.value }}</li>
-                          <li *ngIf="fx.ownerAddress">Address: {{ fx.ownerAddress.value }}</li>
+                          <li *ngIf="fx.ownerAddress">Owner address (HQ): {{ fx.ownerAddress.value }}</li>
                           <li *ngIf="fx.ownerCountry">Country: {{ fx.ownerCountry.value }}</li>
                           <li *ngIf="fx.latitude && fx.longitude">Coords: {{ fx.latitude.value }}, {{ fx.longitude.value }}</li>
                           <li *ngIf="fx.inverterCount">Inverters: {{ fx.inverterCount.value }}</li>
@@ -1343,7 +1345,7 @@
                     <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
                     <ng-container *ngTemplateOutlet="stagedDocList; context: { idx: i, docType: 'SINGLE_LINE_DIAGRAM' }"></ng-container>
                     <div *ngIf="!sldExtracting[i] &&
-                                existingDocs[i]?.['SINGLE_LINE_DIAGRAM']?.length"
+                                (existingDocs[i]?.['SINGLE_LINE_DIAGRAM']?.length || getStagedFiles(i, 'SINGLE_LINE_DIAGRAM').length)"
                       class="d-flex justify-content-end mt-1">
                       <button type="button" class="btn btn-sm btn-outline-primary"
                         (click)="reverifySldFromAttached(i)"
@@ -1412,8 +1414,8 @@
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'SF_02C' }"></ng-container>
                     <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'SF_02C' }"></ng-container>
                     <ng-container *ngTemplateOutlet="stagedDocList; context: { idx: i, docType: 'SF_02C' }"></ng-container>
-                    <div *ngIf="!sf02cExtracting[i] && !sf02cExtractions[i] &&
-                                existingDocs[i]?.['SF_02C']?.length"
+                    <div *ngIf="!sf02cExtracting[i] &&
+                                (existingDocs[i]?.['SF_02C']?.length || getStagedFiles(i, 'SF_02C').length)"
                       class="d-flex justify-content-end mt-1">
                       <button type="button" class="btn btn-sm btn-outline-primary"
                         (click)="reverifyFromAttached(i, 'SF-02c')"
@@ -1432,8 +1434,10 @@
                       </div>
                       <ul class="sld-extract-banner__list">
                         <li *ngIf="fx.projectName">Project: {{ fx.projectName.value }} <small>({{ (fx.projectName.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="$any(fx).projectAddress">Site address: {{ $any(fx).projectAddress.value }} <small>({{ ($any(fx).projectAddress.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="$any(fx).ownerStateProvince">Site state/province: {{ $any(fx).ownerStateProvince.value }} <small>({{ ($any(fx).ownerStateProvince.confidence * 100) | number:'1.0-0' }}%)</small></li>
                         <li *ngIf="fx.ownerLegalName">Owner: {{ fx.ownerLegalName.value }} <small>({{ (fx.ownerLegalName.confidence * 100) | number:'1.0-0' }}%)</small></li>
-                        <li *ngIf="fx.ownerAddress">Address: {{ fx.ownerAddress.value }} <small>({{ (fx.ownerAddress.confidence * 100) | number:'1.0-0' }}%)</small></li>
+                        <li *ngIf="fx.ownerAddress">Owner address (HQ): {{ fx.ownerAddress.value }} <small>({{ (fx.ownerAddress.confidence * 100) | number:'1.0-0' }}%)</small></li>
                         <li *ngIf="fx.ownerCountry">Country: {{ fx.ownerCountry.value }} <small>({{ (fx.ownerCountry.confidence * 100) | number:'1.0-0' }}%)</small></li>
                         <li *ngIf="fx.signingDate">Signed: {{ fx.signingDate.value }} <small>({{ (fx.signingDate.confidence * 100) | number:'1.0-0' }}%)</small></li>
                         <li *ngIf="fx.signatoryName">Signatory: {{ fx.signatoryName.value }}<span *ngIf="fx.signatoryEmail"> &lt;{{ fx.signatoryEmail.value }}&gt;</span></li>
@@ -1510,8 +1514,8 @@
                     <ng-container *ngTemplateOutlet="classifyBadge; context: { idx: i, docType: 'COD_PROOF' }"></ng-container>
                     <ng-container *ngTemplateOutlet="existingDocList; context: { idx: i, docType: 'COD_PROOF' }"></ng-container>
                     <ng-container *ngTemplateOutlet="stagedDocList; context: { idx: i, docType: 'COD_PROOF' }"></ng-container>
-                    <div *ngIf="!codExtracting[i] && !codExtractions[i] &&
-                                existingDocs[i]?.['COD_PROOF']?.length"
+                    <div *ngIf="!codExtracting[i] &&
+                                (existingDocs[i]?.['COD_PROOF']?.length || getStagedFiles(i, 'COD_PROOF').length)"
                       class="d-flex justify-content-end mt-1">
                       <button type="button" class="btn btn-sm btn-outline-primary"
                         (click)="reverifyFromAttached(i, 'COD')"
@@ -1914,7 +1918,7 @@
       <app-pdf-preview
         [previewUrl]="previewData!.url"
         [previewType]="previewData!.type === 'pdf' ? 'pdf' : previewData!.type === 'excel' ? 'excel' : 'image'"
-        [ocrSource]="ocrEligibleDocType(currentPreviewDocType) ? currentPreviewFile : null">
+        [ocrSource]="ocrEligibleDocType(currentPreviewDocType) ? (currentPreviewFile ?? previewSourceUrl()) : null">
       </app-pdf-preview>
     </div>
   </div>

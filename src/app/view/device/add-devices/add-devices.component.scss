@@ -1772,6 +1772,28 @@ $as-bg:       #f8fafc;
   }
 }
 
+// Orphan pill — shown when a field has a value but no recorded
+// source. Muted grey so it doesn't compete with the green attribution
+// chips, but visible enough that the registrant notices the orphan.
+.extractor-orphan {
+  display: inline-block;
+  font-size: 11px;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-top: -8px;
+  margin-bottom: 4px;
+  cursor: help;
+  line-height: 1.3;
+  &:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+    color: #334155;
+  }
+}
+
 /* Pre-submit modal: conflict breakdown rows */
 .ps-conflict {
   margin: 4px 0 6px;
