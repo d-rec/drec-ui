@@ -763,11 +763,40 @@ export class DocumentClassifierService {
     const map = new Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>();
     const Tesseract = await import('tesseract.js' as any);
     const createWorker = Tesseract.createWorker || Tesseract.default?.createWorker;
-    const worker = await createWorker('eng', 1);
+    // Race the worker spawn against a short timeout. If the worker
+    // can't initialise within 5s we bail out with an empty map rather
+    // than letting the page block — historical incident 2026-05-26
+    // saw FF freeze hard enough that DevTools (F12) wouldn't open
+    // when the OCR initialisation hung.
+    const worker = await Promise.race<any>([
+      createWorker('eng', 1),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('tesseract worker spawn timeout')), 5000),
+      ),
+    ]).catch((err) => {
+      console.warn('[DocumentClassifier] tesseract worker init failed:', err);
+      return null;
+    });
+    if (!worker) return map;
     try {
       for (let i = 0; i < canvases.length; i++) {
         const canvas = canvases[i];
-        const result = await worker.recognize(canvas);
+        // Yield to the event loop between pages so the browser can
+        // paint the spinner / handle input even if OCR is heavy.
+        await new Promise((r) => setTimeout(r, 0));
+        const result = await Promise.race<any>([
+          worker.recognize(canvas),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('tesseract recognise timeout')), 20000),
+          ),
+        ]).catch((err) => {
+          console.warn(
+            `[DocumentClassifier] tesseract page ${i + 1} failed:`,
+            err,
+          );
+          return null;
+        });
+        if (!result) continue;
         const words: Array<{ text: string; bbox: { x0: number; y0: number; x1: number; y1: number } }> =
           (result?.data?.words as any) ?? [];
         const W = canvas.width || 1;
@@ -790,7 +819,11 @@ export class DocumentClassifierService {
         }
       }
     } finally {
-      await worker.terminate();
+      try {
+        await worker.terminate();
+      } catch {
+        // ignore
+      }
     }
     return map;
   }

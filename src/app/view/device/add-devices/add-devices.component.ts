@@ -4265,14 +4265,34 @@ export class AddDevicesComponent implements OnDestroy {
     return Object.keys(this.getConflicts(deviceIndex)).length > 0;
   }
 
-  /** Conflicts deduplicated by field LABEL — guards against a field
-   *  appearing twice in the picker because two distinct claim keys
-   *  share the same human-readable label. Keeps the first occurrence;
-   *  ties are vanishingly rare since the underlying field key is also
-   *  the form-control name and stays canonical. */
+  /** Memoised so the *ngFor keyvalue pipe sees a stable object across
+   *  change-detection ticks. Without this, every CD cycle while an
+   *  extraction is in flight rebuilds the whole picker DOM — visibly
+   *  freezes the tab on busy pages. Key: a coarse signature of the
+   *  inputs that affect conflicts. */
+  private _conflictCache: {
+    [deviceIndex: number]: { key: string; value: any };
+  } = {};
   uniqueConflicts(
     deviceIndex: number,
   ): { [field: string]: Array<{ source: string; value: any; confidence: number; at?: string }> } {
+    const sld = this.sldExtractions[deviceIndex];
+    const sf02c = this.sf02cExtractions[deviceIndex];
+    const cod = this.codExtractions[deviceIndex];
+    const sf02 = this.sf02Extractions[deviceIndex];
+    const infer = this.inferenceClaims[deviceIndex];
+    const formVal = this.deviceForms.at(deviceIndex)?.value;
+    const key =
+      (sld ? 'S' : '-') +
+      (sf02c ? 'C' : '-') +
+      (cod ? 'D' : '-') +
+      (sf02 ? '2' : '-') +
+      '|' +
+      JSON.stringify(infer ?? {}).length +
+      '|' +
+      JSON.stringify(formVal ?? {}).length;
+    const cached = this._conflictCache[deviceIndex];
+    if (cached && cached.key === key) return cached.value;
     const raw = this.getConflicts(deviceIndex);
     const seenLabels = new Set<string>();
     const out: typeof raw = {};
@@ -4282,6 +4302,7 @@ export class AddDevicesComponent implements OnDestroy {
       seenLabels.add(label);
       out[field] = list;
     }
+    this._conflictCache[deviceIndex] = { key, value: out };
     return out;
   }
 
