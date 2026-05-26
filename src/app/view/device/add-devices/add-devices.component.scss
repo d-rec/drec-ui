@@ -2167,15 +2167,31 @@ $as-bg:       #f8fafc;
   user-select: none;
   &:active { cursor: grabbing; }
 }
-// When the region is approximate (model estimate, not Tesseract),
-// the box border is dashed + amber so the user knows not to trust
-// the precise location.
-.verify-source__region--approx {
+// Base bbox: pixel-exact Tesseract match — solid red.
+// Negative margin to inflate the visible box ~6px on each side so the
+// border breathes around the text instead of clipping its baseline /
+// ascenders. Box-shadow halo extends another 4px beyond that.
+.verify-source__region {
   position: absolute;
   pointer-events: none;
+  margin: -6px;
+  padding: 6px;
+  border: 2px solid #dc2626;
+  border-radius: 4px;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15);
+}
+// Approximate: model estimate, not Tesseract. Dashed amber so the
+// user knows the precise location isn't guaranteed.
+.verify-source__region--approx {
   border: 2px dashed #f59e0b;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+}
+.verify-source__match {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(250, 204, 21, 0.28);
+  border: 1px solid rgba(202, 138, 4, 0.55);
   border-radius: 2px;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
 }
 
 .verify-source__reasoning {

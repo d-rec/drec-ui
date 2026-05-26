@@ -77,6 +77,7 @@ export interface Sf02ExtractedFields {
 
 export interface Sf02cExtractedFields {
   projectName?: ExtractedField<string>;
+  projectAddress?: ExtractedField<string>;
   ownerLegalName?: ExtractedField<string>;
   ownerAddress?: ExtractedField<string>;
   ownerCountry?: ExtractedField<string>;

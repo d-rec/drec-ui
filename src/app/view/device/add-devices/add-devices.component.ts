@@ -3843,6 +3843,7 @@ export class AddDevicesComponent implements OnDestroy {
     const sf02c = this.sf02cExtractions[deviceIndex];
     if (sf02c) {
       add('siteName', 'SF-02c', sf02c.projectName);
+      add('address', 'SF-02c', sf02c.projectAddress);
       add('pvSystemOwner', 'SF-02c', sf02c.ownerLegalName);
       add('pvSystemOwnerAddress', 'SF-02c', sf02c.ownerAddress);
       add('countryCodename', 'SF-02c', sf02c.ownerCountry, (v) =>
@@ -6139,6 +6140,7 @@ export class AddDevicesComponent implements OnDestroy {
       };
       const sf02cFieldMap: Record<string, string> = {
         siteName: 'projectName',
+        address: 'projectAddress',
         pvSystemOwner: 'ownerLegalName',
         pvSystemOwnerAddress: 'ownerAddress',
         countryCodename: 'ownerCountry',
