@@ -252,6 +252,21 @@ export class DocumentClassifierService {
         }
         return null;
       }
+      // Deterministic portal-signature short-circuit. If the OCR'd text
+      // names a known monitoring portal or its device-list column
+      // headers, classify METERING_EVIDENCE with high confidence and
+      // skip the keyword/vision/Haiku ceremony. Saves a model round-
+      // trip on the most-common misclassified case (Goodwe SemsPortal
+      // screenshots landing in PROJECT_PHOTOS or OTHER_DOCUMENTS).
+      if (this.hasPortalSignals(text)) {
+        return {
+          suggestedType: DocumentType.METERING_EVIDENCE,
+          confidence: 0.95,
+          method: 'keywords',
+          alternatives: [],
+        };
+      }
+
       tick('keyword scoring');
       const kwResult = classifyByKeywords(text);
 
@@ -604,6 +619,23 @@ export class DocumentClassifierService {
       (/\bmonthly\s+report\b/.test(t) ? 1 : 0) +
       (/\bmeter\s*(reading|id|sn|serial)/.test(t) ? 1 : 0);
     return meterHits >= 2;
+  }
+
+  /** Deterministic "this is a monitoring-portal screenshot" check.
+   *  Matches any of the unmistakable strings that vendor portals
+   *  always render on their device-list / plant-overview pages. Hits
+   *  here short-circuit the model entirely — there's no value in
+   *  asking Sonnet whether SemsPortal is METERING_EVIDENCE when the
+   *  literal string "SemsPortal" is on screen. */
+  private hasPortalSignals(text: string): boolean {
+    if (!text) return false;
+    const t = text.toLowerCase();
+    const portalRe =
+      /\b(semsportal|fusionsolar|solaredge\s+monitoring|powertrust|enphase\s+enlighten|growatt\s+shinemonitor|huawei\s+fusionsolar|sungrow\s+isolarcloud|sma\s+sunny\s+portal|goodwe)\b/;
+    if (portalRe.test(t)) return true;
+    const tableCueRe =
+      /\b(data\s*logger|inverter\s+sn|serial\s+no|plants\s+alarms\s+reports|station\s*info|device\s+list|inverter\s+replacement\s+history)\b/;
+    return tableCueRe.test(t);
   }
 
   /**

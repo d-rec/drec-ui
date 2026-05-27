@@ -872,6 +872,13 @@
 
                       <!-- Phase 1: classification (scan-log-style) -->
                       <ng-container *ngIf="!magicExtractMode[i]">
+                        <div class="as-log__legend">
+                          <span class="as-log__legend-item"><span class="as-log__legend-icon">&#x2714;</span>matched (&ge;60%)</span>
+                          <span class="as-log__legend-item"><span class="as-log__legend-icon">&#x26A0;</span>low confidence (&lt;60%)</span>
+                          <span class="as-log__legend-item"><span class="as-log__legend-icon">&#x2026;</span>Other Documents</span>
+                          <span class="as-log__legend-item"><span class="as-log__legend-icon">&#x21A9;</span>duplicate</span>
+                          <span class="as-log__legend-item"><span class="as-log__legend-icon">&#x2718;</span>unrecognised</span>
+                        </div>
                         <div class="as-log__progress">
                           <div class="as-log__bar">
                             <div class="as-log__fill" [class.as-log__fill--done]="!magicRunning[i]"
