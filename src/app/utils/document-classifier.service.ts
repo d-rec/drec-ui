@@ -314,16 +314,26 @@ export class DocumentClassifierService {
       // "timestamp,Solar Yield,PV to grid,…" with units "kWh,kWh,…")
       // gets flagged as METERING_EVIDENCE rather than dropped into
       // OTHER_DOCUMENTS or routed to Haiku as a coin flip.
-      if (
-        /\.(xlsx?|csv)$/i.test(file.name) &&
-        (!kwResult ||
-          kwResult.suggestedType === DocumentType.OTHER_DOCUMENTS ||
-          kwResult.confidence < 0.6) &&
-        this.hasMeterSignals(text)
-      ) {
+      // Spreadsheets are essentially always meter / generation reports
+      // in this app — monthly Plant_XXXX.xlsx, AppendixA meter data,
+      // CSV exports from inverter portals, etc. Default the slot and
+      // skip the Haiku-text fallback (which has been the source of
+      // recurring misclassifications into OTHER_DOCUMENTS when SheetJS
+      // text extraction didn't surface enough kWh/PV column hits).
+      // Only deviate when the keyword classifier picked a non-meter,
+      // non-OTHER slot with strong confidence.
+      if (/\.(xlsx?|csv)$/i.test(file.name)) {
+        const kwIsStrong =
+          kwResult &&
+          kwResult.confidence >= 0.75 &&
+          kwResult.suggestedType !== DocumentType.OTHER_DOCUMENTS &&
+          kwResult.suggestedType !== DocumentType.METERING_EVIDENCE;
+        if (kwIsStrong) {
+          return kwResult!;
+        }
         return {
           suggestedType: DocumentType.METERING_EVIDENCE,
-          confidence: 0.7,
+          confidence: this.hasMeterSignals(text) ? 0.85 : 0.7,
           method: 'keywords',
           alternatives: [],
         };
