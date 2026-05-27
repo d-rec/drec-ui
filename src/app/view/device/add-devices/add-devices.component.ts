@@ -713,13 +713,21 @@ export class AddDevicesComponent implements OnDestroy {
                   '',
                 );
                 name = name.replace(/_\d{10,}_\d+\./, '.');
+                const displayName = doc.originalFilename || name;
                 docsByType[doc.type].push({
                   url: doc.url,
-                  name: doc.originalFilename || name,
+                  name: displayName,
                   id: doc.id,
                   label: doc.label,
                   createdAt: doc.createdAt,
                 });
+                if (doc.type === DocumentType.METERING_EVIDENCE) {
+                  this.seedMeterIdsFromExtraction(
+                    0,
+                    displayName,
+                    doc.extractions?.['extract-meter-ids-fields'],
+                  );
+                }
               }
               for (const t of Object.keys(docsByType)) {
                 docsByType[t].sort((a, b) =>
@@ -1986,7 +1994,7 @@ export class AddDevicesComponent implements OnDestroy {
     const meterDocs = docsByType[DocumentType.METERING_EVIDENCE] ?? [];
     for (const d of meterDocs) {
       void fetchAsFile(d.id, d.name).then((f) => {
-        this.extractMeterIdsForDevice(f, deviceIndex);
+        this.extractMeterIdsForDevice(f, deviceIndex, d.id);
         this.classifySourceAccessModeForDevice(f, deviceIndex);
       });
     }
@@ -4024,7 +4032,11 @@ export class AddDevicesComponent implements OnDestroy {
       );
   }
 
-  private extractMeterIdsForDevice(file: File, deviceIndex: number): void {
+  private extractMeterIdsForDevice(
+    file: File,
+    deviceIndex: number,
+    documentId?: number,
+  ): void {
     this.meterIdsExtracting[deviceIndex] = true;
     if (!this.meterIdsExtractions[deviceIndex]) {
       this.meterIdsExtractions[deviceIndex] = [];
@@ -4057,6 +4069,11 @@ export class AddDevicesComponent implements OnDestroy {
           if (res?.inverterMakeModel && res.inverterMakeModel.confidence >= 0.7) {
             this.meterIdsBrands[deviceIndex] = res.inverterMakeModel.value;
           }
+          if (documentId && res?.measurementIds?.value?.length) {
+            this.deviceService
+              .saveDocumentExtraction(documentId, 'extract-meter-ids-fields', res)
+              .subscribe({ error: () => {/* silent — best-effort */} });
+          }
         }),
       )
       .catch(() =>
@@ -4064,6 +4081,41 @@ export class AddDevicesComponent implements OnDestroy {
           this.meterIdsExtracting[deviceIndex] = false;
         }),
       );
+  }
+
+  /** Rehydrate the AI-extracted meter-IDs panel from a persisted
+   *  extract-meter-ids-fields response stored against the document.
+   *  Idempotent — a subsequent re-extraction merges into the same Set. */
+  private seedMeterIdsFromExtraction(
+    deviceIndex: number,
+    sourceFilename: string,
+    response: any,
+  ): void {
+    const ids: unknown = response?.measurementIds?.value;
+    if (!Array.isArray(ids) || !ids.length) return;
+    if (!this.meterIdsExtractions[deviceIndex]) {
+      this.meterIdsExtractions[deviceIndex] = [];
+    }
+    if (!this.meterIdsExtractionDocs[deviceIndex]) {
+      this.meterIdsExtractionDocs[deviceIndex] = {};
+    }
+    const dismissed =
+      this.dismissedSerialNumbers[deviceIndex] ?? new Set<string>();
+    const existing = new Set(this.meterIdsExtractions[deviceIndex] || []);
+    for (const raw of ids) {
+      const id = typeof raw === 'string' ? raw : '';
+      if (!id) continue;
+      if (dismissed.has(id.trim().toLowerCase())) continue;
+      existing.add(id);
+      if (!this.meterIdsExtractionDocs[deviceIndex][id]) {
+        this.meterIdsExtractionDocs[deviceIndex][id] = { name: sourceFilename };
+      }
+    }
+    this.meterIdsExtractions[deviceIndex] = [...existing];
+    const brand: unknown = response?.inverterMakeModel?.value;
+    if (typeof brand === 'string' && brand && !this.meterIdsBrands[deviceIndex]) {
+      this.meterIdsBrands[deviceIndex] = brand;
+    }
   }
 
   applyMeterIdsExtraction(deviceIndex: number): void {
@@ -9302,7 +9354,7 @@ export class AddDevicesComponent implements OnDestroy {
         .then((file) => {
           // Reuse the existing extractor path so docsByValue gets
           // populated the same way it does for fresh uploads.
-          this.extractMeterIdsForDevice(file, deviceIndex);
+          this.extractMeterIdsForDevice(file, deviceIndex, (doc as any).id);
           any = true;
         })
         .catch((err) => {

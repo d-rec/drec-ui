@@ -126,6 +126,7 @@ export class DeviceService {
       label: string | null;
       originalFilename: string | null;
       createdAt: string;
+      extractions?: Record<string, any>;
     }[]
   > {
     return this.httpClient.get<
@@ -136,8 +137,20 @@ export class DeviceService {
         label: string | null;
         originalFilename: string | null;
         createdAt: string;
+        extractions?: Record<string, any>;
       }[]
     >(this.url + 'device/' + deviceId + '/documents');
+  }
+
+  saveDocumentExtraction(
+    documentId: number,
+    endpoint: string,
+    response: Record<string, any>,
+  ): Observable<{ ok: true }> {
+    return this.httpClient.put<{ ok: true }>(
+      `${this.url}document-uploads/${documentId}/extractions/${endpoint}`,
+      response,
+    );
   }
 
   uploadSingleDocument(
