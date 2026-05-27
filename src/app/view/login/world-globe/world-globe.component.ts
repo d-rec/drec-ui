@@ -239,7 +239,21 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     svg.selectAll('*').remove();
     svg.attr('viewBox', `0 0 ${this.width} ${this.height}`);
 
-    svg.append('defs');
+    const defs = svg.append('defs');
+    // Sphere-shading gradient: light from upper-left, fading to a soft
+    // limb-darkening shadow at the bottom-right edge. Composited on
+    // top of all geo content via a pointer-events:none overlay so the
+    // globe reads as 3D instead of a flat disc, without obscuring the
+    // country / site rendering underneath.
+    const sphereGrad = defs
+      .append('radialGradient')
+      .attr('id', 'sphereShade')
+      .attr('cx', '32%')
+      .attr('cy', '30%')
+      .attr('r', '75%');
+    sphereGrad.append('stop').attr('offset', '0%').attr('stop-color', '#ffffff').attr('stop-opacity', '0.08');
+    sphereGrad.append('stop').attr('offset', '60%').attr('stop-color', '#000000').attr('stop-opacity', '0');
+    sphereGrad.append('stop').attr('offset', '100%').attr('stop-color', '#000000').attr('stop-opacity', '0.12');
 
     const radius = this.projection.scale();
     svg
@@ -256,6 +270,17 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
     svg.append('g').attr('class', 'featured-dots');
     svg.append('g').attr('class', 'featured-labels');
     svg.append('g').attr('class', 'cutaway');
+    // Sphere-shading overlay sits on top of everything so it tints
+    // both ocean and land. Pointer-events:none keeps drag/zoom on
+    // the globe working through it.
+    svg
+      .append('circle')
+      .attr('class', 'sphere-shade')
+      .attr('cx', this.width / 2)
+      .attr('cy', this.height / 2)
+      .attr('r', radius)
+      .attr('fill', 'url(#sphereShade)')
+      .style('pointer-events', 'none');
   }
 
   private startAnimation() {
