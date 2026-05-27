@@ -1628,32 +1628,17 @@ export class AddDevicesComponent implements OnDestroy {
       `draft:${deviceIndex}`;
     return `drec.dismissedSerials.${id}`;
   }
-  /** Hydrate dismissedSerialNumbers[deviceIndex] from localStorage. */
+  /** No-op (dismissedSerialNumbers persistence removed 2026-05-27).
+   *  Also actively scrubs any legacy localStorage entry so an old
+   *  blacklist doesn't keep haunting a freshly-loaded session. */
   private loadDismissedSerials(deviceIndex: number): void {
     try {
-      const raw = localStorage.getItem(this.dismissedSerialsKey(deviceIndex));
-      if (!raw) return;
-      const arr = JSON.parse(raw);
-      if (Array.isArray(arr)) {
-        this.dismissedSerialNumbers[deviceIndex] = new Set(
-          arr.map((s) => String(s).toLowerCase()),
-        );
-      }
+      localStorage.removeItem(this.dismissedSerialsKey(deviceIndex));
     } catch {}
   }
-  /** Persist dismissedSerialNumbers[deviceIndex] to localStorage. */
-  private saveDismissedSerials(deviceIndex: number): void {
-    try {
-      const set = this.dismissedSerialNumbers[deviceIndex];
-      if (!set || !set.size) {
-        localStorage.removeItem(this.dismissedSerialsKey(deviceIndex));
-        return;
-      }
-      localStorage.setItem(
-        this.dismissedSerialsKey(deviceIndex),
-        JSON.stringify([...set]),
-      );
-    } catch {}
+  /** No-op (dismissedSerialNumbers persistence removed 2026-05-27). */
+  private saveDismissedSerials(_deviceIndex: number): void {
+    /* intentionally empty */
   }
   /** Generic per-(field, value) blacklist. Mirrors dismissedSerial-
    *  Numbers but for any field — the user declining or removing a
@@ -1715,31 +1700,22 @@ export class AddDevicesComponent implements OnDestroy {
     // blacklist (removed 2026-05-26). A single Decline used to
     // poison the value across sessions even after a Save.
   }
-  /** Check if a (field, value) is blacklisted. Only meaningful for
-   *  serial-number / meterId: synthetic keys; other fields never
-   *  blacklist after the 2026-05-26 simplification. */
-  private isDismissed(deviceIndex: number, field: string, value: any): boolean {
-    if (value == null || value === '') return false;
-    if (field === 'serialNumber' || field.startsWith('meterId:')) {
-      const set = this.dismissedSerialNumbers[deviceIndex];
-      return !!set && set.has(String(value).trim().toLowerCase());
-    }
+  /** Always returns false — the per-value dismiss blacklist was
+   *  removed 2026-05-27. Serial-number dismiss used to persist to
+   *  localStorage and silently filter SNs out of extractor results
+   *  forever, which caused "missing IDs" symptoms that were hard
+   *  to explain. The chip × on a SN now just removes it from the
+   *  current visible list; re-extract brings it back. */
+  private isDismissed(_deviceIndex: number, _field: string, _value: any): boolean {
     return false;
   }
 
-  /** Mark a serial as dismissed for this device + persist. Central
-   *  helper so every dismiss path (chip-remove, verifyDecline,
-   *  applyMeterIdsExtraction unchecked) goes through one funnel. */
+  /** Drops the SN from the current visible extractor list ONLY (no
+   *  persistence). Re-extract or page reload brings it back if Haiku
+   *  still reports it. */
   private dismissSerial(deviceIndex: number, value: string): void {
     const v = (value || '').trim().toLowerCase();
     if (!v) return;
-    if (!this.dismissedSerialNumbers[deviceIndex]) {
-      this.dismissedSerialNumbers[deviceIndex] = new Set();
-    }
-    this.dismissedSerialNumbers[deviceIndex].add(v);
-    this.saveDismissedSerials(deviceIndex);
-    // Belt-and-braces: also strip from the extractor's pending list
-    // so the banner / queue / future Apply can't bring it back.
     const ids = this.meterIdsExtractions[deviceIndex] || [];
     this.meterIdsExtractions[deviceIndex] = ids.filter(
       (id) => id.trim().toLowerCase() !== v,
