@@ -930,12 +930,14 @@
                         <div class="magic-dialog__footer">
                           <button type="button" class="btn btn-outline-secondary btn-sm"
                             (click)="cancelMagic(i)" (mousedown)="$event.stopPropagation()">Cancel</button>
+                          <button type="button" class="btn btn-outline-secondary btn-sm"
+                            [title]="'Accept the sort but skip reading the documents (no auto-fill, no meter-ID extraction)'"
+                            (click)="acceptMagic(i)" (mousedown)="$event.stopPropagation()">OK (skip extract)</button>
                           <button type="button" class="btn btn-primary btn-sm"
-                            (click)="acceptMagic(i)" (mousedown)="$event.stopPropagation()">OK</button>
-                          <button type="button" class="btn btn-success btn-sm"
                             *ngIf="!magicRunning[i]"
+                            cdkFocusInitial
                             [title]="'Accept the sort + read the documents to pre-fill form fields'"
-                            (click)="extractAllFromMagic(i)" (mousedown)="$event.stopPropagation()">OK + Extract</button>
+                            (click)="extractAllFromMagic(i)" (mousedown)="$event.stopPropagation()">OK &amp; Extract</button>
                         </div>
                       </ng-container>
 
