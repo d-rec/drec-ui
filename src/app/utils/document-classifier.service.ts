@@ -218,9 +218,23 @@ export class DocumentClassifierService {
       }
       if (!text || text.trim().length < 10) {
         if (file.type.startsWith('image/')) {
-          // Even when OCR was thin, a screenshot of a meter portal
-          // sometimes leaks just enough characters to clear the
-          // meter-signal bar — re-check before defaulting to photos.
+          // OCR was useless — escalate to server-side Sonnet vision
+          // instead of guessing from absence of text. The server picks
+          // Sonnet automatically when an image is supplied with thin
+          // text. Falls back to the prior binary heuristic only if the
+          // vision call returns nothing.
+          tick('asking vision model…');
+          const visionImg = await this.fileToVisionImage(file);
+          const hash = await this.sha256OfFile(file);
+          if (visionImg) {
+            const vision = await this.classifyViaHaiku(
+              file.name,
+              text || '',
+              hash,
+              [visionImg],
+            );
+            if (vision) return vision;
+          }
           if (this.hasMeterSignals(text)) {
             return {
               suggestedType: DocumentType.METERING_EVIDENCE,
@@ -242,13 +256,33 @@ export class DocumentClassifierService {
       const kwResult = classifyByKeywords(text);
 
       if (
-        kwResult &&
-        kwResult.suggestedType === DocumentType.OTHER_DOCUMENTS &&
-        file.type.startsWith('image/')
+        file.type.startsWith('image/') &&
+        (!kwResult ||
+          kwResult.confidence < HAIKU_FALLBACK_THRESHOLD ||
+          kwResult.suggestedType === DocumentType.OTHER_DOCUMENTS)
       ) {
-        // Same trapdoor as above: keyword classifier didn't strongly
-        // pick a category, but the OCR'd text has unambiguous meter-
-        // portal vocabulary. Don't silently file as Site Photo.
+        // Image with weak keyword evidence — defer to Sonnet vision
+        // rather than the previous OCR-density heuristic. This is the
+        // path that used to mis-route SemsPortal screenshots into
+        // PROJECT_PHOTOS when their OCR text happened to be thin on
+        // meter vocabulary.
+        tick('asking vision model…');
+        const visionImg = await this.fileToVisionImage(file);
+        const hash = await this.sha256OfFile(file);
+        if (visionImg) {
+          const vision = await this.classifyViaHaiku(
+            file.name,
+            text,
+            hash,
+            [visionImg],
+          );
+          if (
+            vision &&
+            (!kwResult || vision.confidence >= kwResult.confidence)
+          ) {
+            return vision;
+          }
+        }
         if (this.hasMeterSignals(text)) {
           return {
             suggestedType: DocumentType.METERING_EVIDENCE,
@@ -257,9 +291,6 @@ export class DocumentClassifierService {
             alternatives: [],
           };
         }
-        // Text-dense image but no specific meter signals: most likely
-        // a non-meter document/screenshot (contract, invoice, …).
-        // OTHER_DOCUMENTS is safer than silently filing as Site Photo.
         const wc = (text.match(/\b[\w-]{2,}\b/g) ?? []).length;
         if (wc >= 40 || text.trim().length >= 250) {
           return {
@@ -1411,6 +1442,10 @@ export class DocumentClassifierService {
     filename: string,
     text: string,
     contentHash?: string,
+    images?: Array<{
+      base64: string;
+      mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+    }>,
   ): Promise<ClassificationResult | null> {
     try {
       const res = await firstValueFrom(
@@ -1423,6 +1458,7 @@ export class DocumentClassifierService {
           text,
           validTypes: CLASSIFIABLE_TYPES,
           ...(contentHash ? { contentHash } : {}),
+          ...(images && images.length ? { images } : {}),
         }),
       );
       if (!res || !res.suggestedType) return null;
@@ -1434,6 +1470,27 @@ export class DocumentClassifierService {
       };
     } catch (err) {
       console.warn('[DocumentClassifier] Haiku tier failed:', err);
+      return null;
+    }
+  }
+
+  /** Render the file's first page to a JPEG base64 string suitable for
+   *  the Anthropic vision API. Reuses the canvas pipeline used for OCR
+   *  so the bytes Claude sees match what Tesseract saw. */
+  private async fileToVisionImage(
+    file: File,
+  ): Promise<{
+    base64: string;
+    mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
+  } | null> {
+    try {
+      const canvas = await this.renderFirstPage(file);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      const base64 = dataUrl.split(',')[1];
+      if (!base64) return null;
+      return { base64, mimeType: 'image/jpeg' };
+    } catch (err) {
+      console.warn('[DocumentClassifier] fileToVisionImage failed:', err);
       return null;
     }
   }
