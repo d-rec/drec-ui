@@ -785,15 +785,59 @@ export class DocumentClassifierService {
     const createWorker =
       Tesseract.createWorker || Tesseract.default?.createWorker;
 
+    // Pre-process for Tesseract on a clone of the canvas so we don't
+    // mutate the source (other callers — extractMeterIds, vision
+    // classify — still need the full-colour image). Grayscale by
+    // Rec. 601 luminance, then binarize at a fixed threshold so the
+    // input Tesseract sees is identical regardless of OS-level color
+    // management, ICC profile handling, or HiDPI resample paths —
+    // those were silently shifting pixel values just enough to make
+    // OCR on macOS Firefox much worse than the same JPEG on Linux.
+    const prepared = this.binarizeForOcr(canvas);
+
     const worker = await createWorker('eng', 1);
     try {
       const {
         data: { text },
-      } = await worker.recognize(canvas);
+      } = await worker.recognize(prepared);
       return text;
     } finally {
       await worker.terminate();
     }
+  }
+
+  /** Return a black-and-white clone of the input canvas. Tesseract is
+   *  most reliable on a 2-tone image; bypassing OS-level color
+   *  management makes the result independent of which browser / OS
+   *  the user is on. */
+  private binarizeForOcr(canvas: HTMLCanvasElement): HTMLCanvasElement {
+    const out = document.createElement('canvas');
+    out.width = canvas.width;
+    out.height = canvas.height;
+    const ctx = out.getContext('2d');
+    if (!ctx) return canvas;
+    ctx.drawImage(canvas, 0, 0);
+    let imageData: ImageData;
+    try {
+      imageData = ctx.getImageData(0, 0, out.width, out.height);
+    } catch {
+      // tainted canvas (cross-origin image with no CORS) — fall back
+      // to the un-processed canvas; better than throwing.
+      return canvas;
+    }
+    const d = imageData.data;
+    // Fixed threshold tuned for portal-screenshot text (white-on-
+    // light-grey table cells with dark glyphs). Anything brighter
+    // than 180/255 luminance becomes white, anything darker becomes
+    // black. Stroke edges still survive because real glyphs are
+    // <100 luminance even on Mac's contrast-compressed decode.
+    for (let i = 0; i < d.length; i += 4) {
+      const y = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+      const v = y > 180 ? 255 : 0;
+      d[i] = d[i + 1] = d[i + 2] = v;
+    }
+    ctx.putImageData(imageData, 0, 0);
+    return out;
   }
 
   /**
