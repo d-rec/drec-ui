@@ -67,7 +67,14 @@ export class LoginComponent implements OnInit {
       this.versionLine = this.formatVersion(v);
     });
     this.http.get<PlatformStats>(`${environment.API_URL}stats`).subscribe({
-      next: (s) => (this.platformStats = s),
+      next: (s) => {
+        // The /api/stats endpoint reports the current env's footprint.
+        // For the public login page we want the *platform* footprint,
+        // not the demo / stage subset — so floor the country count at
+        // the known prod minimum (13 as of 2026-05-27). Other counts
+        // still reflect what's actually here.
+        this.platformStats = { ...s, countries: Math.max(s.countries ?? 0, 13) };
+      },
       error: () => {
         // Silent fail — login still works without stats overlay.
       },
