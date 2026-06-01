@@ -2165,13 +2165,30 @@ export class AddDevicesComponent implements OnDestroy {
             processNext(idx + 1);
           });
         },
-        error: () => {
+        error: (err: any) => {
           this.ngZone.run(() => {
+            // Surface WHY classification failed instead of silently filing the
+            // doc under "Other Documents" with an opaque ✗. err may be an
+            // HttpErrorResponse (server 4xx/5xx — e.g. credits, timeout) or a
+            // thrown Error from the in-browser OCR/render pre-pass.
+            const reason =
+              err?.error?.message ||
+              err?.message ||
+              (err?.status
+                ? `server error ${err.status}${err.statusText ? ' ' + err.statusText : ''}`
+                : 'classification request failed');
+            // eslint-disable-next-line no-console
+            console.error('[auto-sort] classify failed for', file.name, '—', reason, err);
+            this.toastrService.error(
+              `Couldn't classify "${file.name}": ${reason}`,
+              'Auto-sort',
+              { disableTimeOut: true },
+            );
             this.magicLog[deviceIndex].push({
               filename: file.name.length > 40
                 ? file.name.substring(0, 37) + '...'
                 : file.name,
-              target: 'Other Document',
+              target: `Unrecognised — ${reason} (filed under Other Documents)`,
               confidence: null,
               type: 'miss',
               file,
