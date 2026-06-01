@@ -187,8 +187,12 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
 
     const svg = select(this.svgRef.nativeElement);
     svg.attr('viewBox', `0 0 ${this.width} ${this.height}`);
+    // Rescale both shading circles to the new client area: the ocean disc
+    // and the sphere-shading overlay on top of it. The overlay was previously
+    // left at its initial geometry, so toggling the bookmarks bar (or any
+    // resize) left the limb-darkening shadow offset from the re-centred globe.
     svg
-      .select<SVGCircleElement>('circle.ocean')
+      .selectAll<SVGCircleElement, unknown>('circle.ocean, circle.sphere-shade')
       .attr('cx', this.width / 2)
       .attr('cy', this.height / 2)
       .attr('r', radius);
