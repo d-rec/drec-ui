@@ -177,7 +177,12 @@ export class DocumentClassifierService {
     return (
       type.startsWith('image/') ||
       type === 'application/pdf' ||
-      name.endsWith('.pdf')
+      // Spreadsheets are classifiable too: classifyAsync reads their cells
+      // (SheetJS) and, failing that, recognises them by filename via the AI /
+      // Other-Documents fallback. Excluding them here meant classify() returned
+      // null immediately, so they landed in "Other Document —" with no
+      // confidence and could never be recognised.
+      /\.(pdf|xlsx?|csv)$/i.test(name)
     );
   }
 
@@ -207,7 +212,12 @@ export class DocumentClassifierService {
         tick('reading spreadsheet');
         text = await this.extractSpreadsheetText(file);
       }
-      if (!text || text.trim().length < 10) {
+      const isSpreadsheet = /\.(xlsx?|csv)$/i.test(file.name);
+      // OCR / PDF-render only makes sense for images and PDFs. A spreadsheet
+      // has no rendered page — renderFirstPage() would try to parse the .xls
+      // as a PDF and throw, which surfaced downstream as a null result
+      // ("Other Document —") or an opaque ✗. Never render a spreadsheet.
+      if ((!text || text.trim().length < 10) && !isSpreadsheet) {
         tick(
           file.type.startsWith('image/')
             ? 'OCR on image (slow)…'
@@ -246,6 +256,21 @@ export class DocumentClassifierService {
           return {
             suggestedType: DocumentType.PROJECT_PHOTOS,
             confidence: 0.4,
+            method: 'keywords',
+            alternatives: [],
+          };
+        }
+        // A spreadsheet is always recognisable AS a spreadsheet, even when
+        // SheetJS can't surface its cells in-browser. Let the AI recognise it
+        // from the filename; failing that, file it in Other Documents with a
+        // real confidence — never a null "—" or an opaque ✗ unrecognised.
+        if (isSpreadsheet) {
+          const hash = await this.sha256OfFile(file);
+          const ai = await this.classifyViaHaiku(file.name, text || '', hash);
+          if (ai) return ai;
+          return {
+            suggestedType: DocumentType.OTHER_DOCUMENTS,
+            confidence: 0.6,
             method: 'keywords',
             alternatives: [],
           };

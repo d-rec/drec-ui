@@ -4262,6 +4262,34 @@ export class AddDevicesComponent implements OnDestroy {
     }
   }
 
+  /** Whether the auto-sort scan-log for this device contains at least one
+   *  entry of the given outcome. Drives the legend so it only shows keys for
+   *  outcomes that actually occurred — e.g. no "✗ unrecognised" when nothing
+   *  was unrecognised, no "↩ duplicate" when there were no duplicates. */
+  magicLegendShows(
+    deviceIndex: number,
+    kind: 'matched' | 'lowconf' | 'other' | 'duplicate' | 'unrecognised',
+  ): boolean {
+    const log = this.magicLog[deviceIndex];
+    if (!log?.length) return false;
+    const conf = (e: any) => e.confidence ?? 0;
+    switch (kind) {
+      case 'matched':
+        return log.some((e: any) => e.type === 'hit' && conf(e) >= 60);
+      case 'lowconf':
+        return log.some(
+          (e: any) => e.type === 'hit' && conf(e) > 0 && conf(e) < 60,
+        );
+      case 'other':
+        return log.some((e: any) => e.type === 'other');
+      case 'duplicate':
+        return log.some((e: any) => e.type === 'skip');
+      case 'unrecognised':
+        return log.some((e: any) => e.type === 'miss');
+    }
+    return false;
+  }
+
   /** True while any extractor is still running on this device. */
   isAnyExtracting(deviceIndex: number): boolean {
     return !!(
