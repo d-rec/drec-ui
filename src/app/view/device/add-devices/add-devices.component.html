@@ -1610,13 +1610,13 @@
                     <ng-container *ngTemplateOutlet="stagedDocList; context: { idx: i, docType: 'METERING_EVIDENCE' }"></ng-container>
                     <div *ngIf="!meterIdsExtracting[i] &&
                                 !meterIdsExtractions[i]?.length &&
-                                existingDocs[i]?.['METERING_EVIDENCE']?.length"
+                                ((existingDocs[i]?.['METERING_EVIDENCE']?.length || 0) + (files[i]?.['METERING_EVIDENCE']?.length || 0)) > 0"
                       class="d-flex justify-content-end mt-1">
                       <button type="button" class="btn btn-sm btn-outline-primary"
                         (click)="reextractMeterIdsFromAttached(i)"
-                        title="Re-run the meter-IDs extractor against every metering doc already attached. Use after Flush, or when the previous extraction had no per-file attribution.">
+                        title="Run the meter-IDs extractor against every metering doc attached — newly added (staged) as well as already saved.">
                         <mat-icon style="font-size:16px;height:16px;width:16px;vertical-align:middle">auto_fix_high</mat-icon>
-                        Re-extract IDs from {{ existingDocs[i]?.['METERING_EVIDENCE']?.length }} attached
+                        Extract IDs from {{ (existingDocs[i]?.['METERING_EVIDENCE']?.length || 0) + (files[i]?.['METERING_EVIDENCE']?.length || 0) }} attached
                       </button>
                     </div>
                     <div class="sld-extract-running" *ngIf="meterIdsExtracting[i]">
