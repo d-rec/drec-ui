@@ -1048,6 +1048,13 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                 status: 'info',
                 detail: `${res.capacityKw || '?'} kW`,
               });
+              if (res.capacityBasisNote) {
+                subItems.push({
+                  label: 'Capacity basis (DC/AC)',
+                  status: 'warn',
+                  detail: res.capacityBasisNote,
+                });
+              }
               if (res.irradiance) {
                 subItems.push({
                   label: 'Irradiance estimate',
