@@ -3577,7 +3577,17 @@ export class AddDevicesComponent implements OnDestroy {
       if (m) return m.country;
     }
     // Tolerate common short forms ("Vietnam" → "Viet Nam", "USA" → ...)
-    const flat = (str: string) => str.toLowerCase().replace(/[^a-z]/g, '');
+    // and accent variants ("Việt Nam" from the geocoder → "Viet Nam"
+    // from the dropdown). Fold diacritics to their base letter via NFD
+    // before stripping non-letters — otherwise an accented char is
+    // deleted outright ("việt" → "vit"), the fuzzy match misses, and
+    // the provenance report flags a spurious "DISAGREES WITH DOCS".
+    const flat = (str: string) =>
+      str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z]/g, '');
     const fs = flat(s);
     const fuzzy = (this.countrylist as any[]).find(
       (c) => flat(c.country || '') === fs,
@@ -7053,8 +7063,11 @@ export class AddDevicesComponent implements OnDestroy {
     this.generateProvenanceReport(deviceIndex);
   }
 
-  generateProvenanceReport(deviceIndex: number): void {
-    const deviceId = this.editingDeviceId;
+  generateProvenanceReport(deviceIndex: number, deviceIdOverride?: number): void {
+    // Edit path passes nothing and resolves to the device being edited.
+    // Add path passes the freshly-created id from the create response,
+    // since editingDeviceId is still null during registration.
+    const deviceId = deviceIdOverride ?? this.editingDeviceId;
     if (!deviceId) {
       this.toastrService.warning('Save the device first', 'Provenance');
       return;
@@ -7182,11 +7195,21 @@ export class AddDevicesComponent implements OnDestroy {
       });
     }
     // Manual-only fields (filled by user, no extractor weighed in).
+    // Skip the document-upload controls — they hold File objects, not
+    // data values, so they have no provenance and would otherwise render
+    // a junk "[object File]" / MANUAL row in the report.
+    const fileControlNames = new Set<string>([
+      ...(this.requiredFileTypes as unknown as string[]),
+      DocumentType.OTHER_DOCUMENTS,
+      'data',
+      'images',
+    ]);
     if (form) {
       for (const name of Object.keys(
         (form as FormGroup).controls,
       )) {
         if (handled.has(name)) continue;
+        if (fileControlNames.has(name)) continue;
         const v = form.get(name)?.value;
         if (v == null || v === '' || (Array.isArray(v) && v.length === 0))
           continue;
@@ -7278,8 +7301,22 @@ export class AddDevicesComponent implements OnDestroy {
       ['Other Documents', 'OTHER_DOCUMENTS'],
     ]
       .map(([name, type]) => {
-        const docs = this.existingDocs[deviceIndex]?.[type] ?? [];
-        if (!docs.length) {
+        // Server-saved docs (edit path) carry a presigned URL and
+        // render as links. Staged files (add path — uploaded with the
+        // create request but not yet reflected in existingDocs) only
+        // have a filename, so they render as plain text. Without the
+        // staged half, a freshly-added device's report listed every
+        // category as "none" even though the docs were attached.
+        const existing = this.existingDocs[deviceIndex]?.[type] ?? [];
+        const staged = ((this.files[deviceIndex] as any)?.[type] ?? []) as File[];
+        const entries: Array<{ label: string; url: string | null }> = [
+          ...existing.map((d: any) => ({
+            label: d.label || d.name,
+            url: d.url ?? null,
+          })),
+          ...staged.map((f) => ({ label: f.name, url: null })),
+        ];
+        if (!entries.length) {
           return `<li>${escape(name)}: <em style="color:#94a3b8">none</em></li>`;
         }
         // Multi-doc categories (Metering Evidence, Project Photos)
@@ -7287,15 +7324,17 @@ export class AddDevicesComponent implements OnDestroy {
         // a comma-soup that wraps over many rows. Single-doc
         // categories stay inline.
         // Same auth rationale as docLink above — use the presigned URL.
-        const linkHtml = (d: any): string =>
-          `<a href="${escape(d.url ?? '')}" target="_blank" rel="noopener" style="color:#0f607f">${escape(d.label || d.name)} ↗</a>`;
-        if (docs.length > 1) {
-          const rows = docs
-            .map((d: any) => `<li>${linkHtml(d)}</li>`)
+        const linkHtml = (e: { label: string; url: string | null }): string =>
+          e.url
+            ? `<a href="${escape(e.url)}" target="_blank" rel="noopener" style="color:#0f607f">${escape(e.label)} ↗</a>`
+            : escape(e.label);
+        if (entries.length > 1) {
+          const rows = entries
+            .map((e) => `<li>${linkHtml(e)}</li>`)
             .join('');
-          return `<li>${escape(name)} (${docs.length}):<ul style="margin:4px 0 0 18px;padding:0">${rows}</ul></li>`;
+          return `<li>${escape(name)} (${entries.length}):<ul style="margin:4px 0 0 18px;padding:0">${rows}</ul></li>`;
         }
-        return `<li>${escape(name)}: ${linkHtml(docs[0])}</li>`;
+        return `<li>${escape(name)}: ${linkHtml(entries[0])}</li>`;
       })
       .join('');
 
@@ -7483,6 +7522,21 @@ export class AddDevicesComponent implements OnDestroy {
       }
       ctl.setValue(chosen.value);
       ctl.markAsDirty();
+      // Record provenance for the applied value. Without this, the
+      // single-field hint apply (applyHintValue) credits the source but
+      // "Apply all" did not — so every bulk-applied field later read as
+      // MANUAL once dismissMagicExtraction() clears the live extraction
+      // arrays at the end of this method. On the edit path a re-run of
+      // the extractors masked the gap; on the add path the report has no
+      // such safety net and the field looked manually entered.
+      this.recordProvenance(
+        deviceIndex,
+        field,
+        chosen.source,
+        chosen.confidence,
+        chosen.value,
+        this.docForSource(deviceIndex, chosen.source),
+      );
     }
     // Inverter signal → dataSource = Inverter. Credit whichever doc
     // (highest-confidence) provided the inverter evidence.
@@ -8425,6 +8479,14 @@ export class AddDevicesComponent implements OnDestroy {
           // Persist any per-file labels the registrant set in the rename dialog.
           if (result?.id) {
             this.persistStagedLabels(result.id, index);
+            // Generate the EVIDENCE_PROVENANCE report straight away so a
+            // freshly-added device arrives in review with provenance
+            // already attached, instead of waiting for the registrant to
+            // re-open edit. Pass the new id explicitly — editingDeviceId is
+            // null on the add path. Fire-and-forget: the bare HttpClient
+            // subscription survives this component's teardown on navigate,
+            // so the upload still completes; failures don't block submit.
+            this.generateProvenanceReport(index, result.id);
           }
 
           const idx = deviceArray.indexOf(element);
