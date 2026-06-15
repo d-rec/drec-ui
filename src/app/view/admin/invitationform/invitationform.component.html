@@ -21,7 +21,7 @@
     <form [formGroup]="inviteForm" (ngSubmit)="onSubmit()">
       <mat-card-content>
         <div class="example-container1 row" *ngIf="!preselectedOrg">
-          <div class="col-md-12">
+          <div class="col-md-6">
             <mat-form-field appearance="outline" class="w-100">
               <mat-label class="text-capitalize">Organization</mat-label>
               <mat-select formControlName="orgId">
@@ -63,6 +63,21 @@
             <mat-form-field appearance="outline">
               <mat-label class="text-capitalize">Email</mat-label>
               <input autofocus type="email" matInput formControlName="email" />
+            </mat-form-field>
+          </div>
+          <div class="col-md-3">
+            <mat-form-field appearance="outline">
+              <mat-label class="text-capitalize">Phone Number</mat-label>
+              <input
+                type="tel"
+                matInput
+                formControlName="phoneNumber"
+                placeholder="+91 22 1234 5678"
+                (input)="markAsTouched('phoneNumber')"
+              />
+              <mat-error class="pb-3" *ngIf="showPhoneNumberError()">
+                {{ phoneNumberErrors() }}
+              </mat-error>
             </mat-form-field>
           </div>
           <div class="col-md-3">

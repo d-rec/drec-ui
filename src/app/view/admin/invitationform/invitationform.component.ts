@@ -23,6 +23,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  phoneNumberValidator,
+  getPhoneNumberErrorMessage,
+} from '../../../shared/validators/phone-validators';
 
 @Component({
   standalone: true,
@@ -87,6 +91,7 @@ export class InvitationformComponent {
       firstName: [null],
       lastName: [null],
       email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
+      phoneNumber: [null, [Validators.required, phoneNumberValidator()]],
       role: [null, [Validators.required]],
     });
 
@@ -119,11 +124,25 @@ export class InvitationformComponent {
         ? 'Not a valid emailaddress'
         : '';
   }
+  phoneNumberErrors() {
+    return getPhoneNumberErrorMessage(this.inviteForm.get('phoneNumber'));
+  }
+  markAsTouched(controlName: string): void {
+    const control = this.inviteForm.get(controlName);
+    if (control && !control.touched) {
+      control.markAsTouched();
+    }
+  }
+  showPhoneNumberError(): boolean {
+    const control = this.inviteForm.get('phoneNumber');
+    return !!control && control.invalid && (control.dirty || control.touched);
+  }
   start() {
     this.inviteForm = this.fb.group({
       firstName: [null],
       lastName: [null],
       email: [null, [Validators.required, Validators.pattern(this.emailregex)]],
+      phoneNumber: [null, [Validators.required, phoneNumberValidator()]],
       role: [null, [Validators.required]],
     });
   }
