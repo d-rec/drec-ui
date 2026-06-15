@@ -232,15 +232,11 @@
       </div>
       <div
         style="margin-top: 16px; display: flex; justify-content: flex-end"
-        *ngIf="loginuser?.role === 'Admin' || loginuser?.role === 'Registrant'"
+        *ngIf="loginuser?.role === 'Registrant'"
       >
         <button
           class="btn btn-primary px-4 align-items-center"
-          [routerLink]="
-            loginuser?.role === 'Admin'
-              ? '/admin/add_user'
-              : '/organization/user/invitation'
-          "
+          routerLink="/organization/user/invitation"
         >
           <mat-icon class="align-middle me-2">person_add</mat-icon>Invite User
         </button>
