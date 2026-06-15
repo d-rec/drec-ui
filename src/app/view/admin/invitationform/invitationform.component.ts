@@ -1,5 +1,11 @@
 import { Component, Inject } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import {
+  FormGroup,
+  FormBuilder,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import {
   AdminService,
   UserService,
@@ -7,13 +13,32 @@ import {
 } from '../../../auth/services';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+  MatDialogModule,
+} from '@angular/material/dialog';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  standalone: false,
+  standalone: true,
   selector: 'app-invitationform',
   templateUrl: './invitationform.component.html',
   styleUrls: ['./invitationform.component.scss'],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+  ],
 })
 export class InvitationformComponent {
   title: string;
@@ -49,6 +74,9 @@ export class InvitationformComponent {
     public dialogRef: MatDialogRef<InvitationformComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
+    // Keep the dialog title before `data` is repurposed to hold the
+    // selected org below — otherwise the header renders blank.
+    this.title = data?.title ?? '';
     this.preselectedOrg = data.orginfo ?? null;
     this.data = this.preselectedOrg;
     this.applyOrgType(this.preselectedOrg?.organizationType);

@@ -6,7 +6,6 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AdminAlldevicesComponent } from './admin-alldevices/admin-alldevices.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AddUsersComponent } from './add-users/add-users.component';
-import { InvitationformComponent } from './invitationform/invitationform.component';
 import { RegistrantComponent } from './registrant/registrant.component';
 import { WebhooksComponent } from './webhooks/webhooks.component';
 import { ChatReviewComponent } from './chat-review/chat-review.component';
@@ -21,7 +20,6 @@ import { SatellitePreviewComponent } from '../../shared/satellite-preview/satell
     DashboardComponent,
     AdminAlldevicesComponent,
     AddUsersComponent,
-    InvitationformComponent,
     RegistrantComponent,
     WebhooksComponent,
     ChatReviewComponent,
