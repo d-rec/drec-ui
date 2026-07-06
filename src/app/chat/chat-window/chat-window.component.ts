@@ -379,7 +379,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
 
   highlightText(text: string): string | SafeHtml {
     const term = this.chatSearch.trim();
-    const key = term + ' ' + text;
+    const key = term + '\0' + text;
     const cached = this.highlightCache.get(key);
     if (cached) return cached;
 
