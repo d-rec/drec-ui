@@ -324,11 +324,12 @@ export class AddDevicesComponent implements OnDestroy {
   submitValidationErrors: string[] = [];
 
   /** Block tab-close / refresh while the registrant has unresolved
-   *  submit-time validation errors. The route's CanDeactivate handles
-   *  in-app navigation; this covers the browser-level case. */
+   *  submit-time validation errors or unsaved field contents. The
+   *  route's CanDeactivate handles in-app navigation; this covers the
+   *  browser-level case. */
   @HostListener('window:beforeunload', ['$event'])
   protectAgainstAccidentalNavigation(e: BeforeUnloadEvent): void {
-    if (this.submitValidationErrors.length) {
+    if (this.submitValidationErrors.length || this.myform?.dirty) {
       e.preventDefault();
       e.returnValue = '';
     }
@@ -1226,8 +1227,10 @@ export class AddDevicesComponent implements OnDestroy {
             const cur = ctl?.value;
             const empty = cur == null || cur === '';
             if (ctl && empty) {
+              // Auto-fill, not a user edit — leave pristine so the
+              // unsaved-changes guard doesn't fire on platform-set
+              // values (and the Manual:<email> auto-tag skips them).
               ctl.setValue(c);
-              ctl.markAsDirty();
             }
             // Always record the geocoder's reading even when it
             // didn't write — the credit is "Geocoder said X",
@@ -1268,8 +1271,8 @@ export class AddDevicesComponent implements OnDestroy {
     if (isEmpty || ours.has(name)) {
       const next = value ?? '';
       if (cur !== next) {
+        // Geocoder-derived, not a user edit — leave pristine.
         ctl.setValue(next);
-        ctl.markAsDirty();
       }
       ours.add(name);
       this.coordDerivedDirty.set(deviceGroup, ours);
@@ -1302,8 +1305,8 @@ export class AddDevicesComponent implements OnDestroy {
       const setIfEmpty = (name: string, val: any) => {
         const ctl = deviceGroup.get(name);
         if (!ctl || ctl.value || val == null) return;
+        // Inferred, not a user edit — leave pristine.
         ctl.setValue(val);
-        ctl.markAsDirty();
         this.recordInference(idx, name, 'Impact story', val);
       };
       setIfEmpty('deviceDescription', this.inferDeviceDescription(text));
@@ -1319,8 +1322,8 @@ export class AddDevicesComponent implements OnDestroy {
       if (sdgCtl && (!Array.isArray(cur) || cur.length === 0)) {
         const inferred = this.inferSdgBenefits(text);
         if (inferred.length) {
+          // Inferred, not a user edit — leave pristine.
           sdgCtl.setValue(inferred);
-          sdgCtl.markAsDirty();
           this.recordInference(idx, 'SDGBenefits', 'Impact story', inferred);
         }
       }
@@ -1988,8 +1991,8 @@ export class AddDevicesComponent implements OnDestroy {
     const existing =
       (this.existingDocs[deviceIndex]?.['METERING_EVIDENCE']?.length ?? 0) > 0;
     if (!staged && !existing) return;
+    // Derived from staged docs, not a user edit — leave pristine.
     ctl.setValue('Yes');
-    ctl.markAsDirty();
     this.recordInference(
       deviceIndex,
       'meterReadsShareable',
@@ -3513,8 +3516,8 @@ export class AddDevicesComponent implements OnDestroy {
       // (31) to "No" when empty.
       const ec = this.deviceForms.at(deviceIndex)?.get('otherEacSchemeRegistration');
       if (ec && !ec.value) {
+        // Auto-default, not a user edit — leave pristine.
         ec.setValue('No');
-        ec.markAsDirty();
       }
       this.deriveOffTakerSameAsOwner(deviceIndex);
     } else if (source === 'COD') {
@@ -3796,8 +3799,8 @@ export class AddDevicesComponent implements OnDestroy {
     const ctl = this.deviceForms.at(deviceIndex).get('dataSource');
     if (!ctl) return;
     if (ctl.value !== null && ctl.value !== undefined && ctl.value !== '') return;
+    // Extractor-derived, not a user edit — leave pristine.
     ctl.setValue(value);
-    ctl.markAsDirty();
     // Credit whichever rule fired this — SLD / SF-02 / Meter IDs.
     this.recordProvenance(deviceIndex, 'dataSource', source, 0.9, value);
   }
@@ -3902,8 +3905,8 @@ export class AddDevicesComponent implements OnDestroy {
     const owner = String(form?.get('pvSystemOwner')?.value ?? '').trim().toLowerCase();
     const off = String(form?.get('offTakerName')?.value ?? '').trim().toLowerCase();
     if (!owner || !off) return;
+    // Derived from other fields, not a user edit — leave pristine.
     ctl.setValue(owner === off ? 'Yes' : 'No');
-    ctl.markAsDirty();
   }
 
   dismissCodExtraction(deviceIndex: number): void {
@@ -4009,8 +4012,8 @@ export class AddDevicesComponent implements OnDestroy {
           // who already picked a mode — even Haiku-suggested values
           // defer to explicit human input here.
           if (cur == null || cur === '') {
+            // AI-suggested auto-fill, not a user edit — leave pristine.
             ctrl?.setValue(display);
-            ctrl?.markAsDirty();
           }
           // Record provenance regardless of whether we patched — if the
           // registrant's value matches our suggestion, that's still
@@ -4195,8 +4198,8 @@ export class AddDevicesComponent implements OnDestroy {
       if (brandCtl) {
         const cur = String(brandCtl.value ?? '').trim();
         if (!cur) {
+          // Extractor-derived, not a user edit — leave pristine.
           brandCtl.setValue(brand);
-          brandCtl.markAsDirty();
           this.recordProvenance(deviceIndex, 'dataSourceBrand', 'Meter IDs', 1, brand);
         }
       }
@@ -8132,6 +8135,9 @@ export class AddDevicesComponent implements OnDestroy {
           return;
         }
         this.savedDeviceIdByIndex[index] = body.id;
+        // This row is now persisted — mark it pristine so the
+        // unsaved-changes guard only prompts for rows that aren't.
+        this.deviceForms.at(index)?.markAsPristine();
         this.persistStagedLabels(body.id, index);
         this.runGenerateSf02(index, body.id);
       },
@@ -8493,6 +8499,9 @@ export class AddDevicesComponent implements OnDestroy {
           deviceArray.splice(idx, 1);
 
           if (deviceArray.length === 0) {
+            // Everything submitted — clear dirty state so the
+            // unsaved-changes guard doesn't block this navigation.
+            this.myform.markAsPristine();
             if (this.user.role === OrganizationType.Admin) {
               this.router.navigate(['/admin/All_devices']);
             } else if (this.user.role === OrganizationType.Registrant) {
@@ -9786,6 +9795,9 @@ export class AddDevicesComponent implements OnDestroy {
       sf02Mode === 'self' && this.editingDeviceId != null;
 
     const navigateAway = (): void => {
+      // Update persisted — clear dirty state so the unsaved-changes
+      // guard doesn't block this navigation.
+      this.myform.markAsPristine();
       if (this.user.role === OrganizationType.Admin) {
         this.router.navigate(['/admin/All_devices']);
       } else if (this.user.role === OrganizationType.Registrant) {
