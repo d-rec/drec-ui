@@ -28,7 +28,7 @@ import {
 } from '../../../auth/services';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, Subscription, Subject, combineLatest } from 'rxjs';
+import { Observable, Subscription, combineLatest } from 'rxjs';
 import {
   startWith,
   map,
@@ -73,7 +73,6 @@ import { MeterReadService } from '../../../auth/services/meter-read.service';
 import {
   CodExtractedFields,
   DocumentClassifierService,
-  MeterIdsExtractedFields,
   Sf02ExtractedFields,
   Sf02cExtractedFields,
   SldExtractedFields,
@@ -169,10 +168,18 @@ export class AddDevicesComponent implements OnDestroy {
    *  type. For meter IDs we keep a per-ID map because each upload
    *  appends, so different IDs can come from different docs in the
    *  same batch. */
-  sldExtractionDoc: { [deviceIndex: number]: { id?: number; name: string } | null } = {};
-  sf02cExtractionDoc: { [deviceIndex: number]: { id?: number; name: string } | null } = {};
-  codExtractionDoc: { [deviceIndex: number]: { id?: number; name: string } | null } = {};
-  sf02ExtractionDoc: { [deviceIndex: number]: { id?: number; name: string } | null } = {};
+  sldExtractionDoc: {
+    [deviceIndex: number]: { id?: number; name: string } | null;
+  } = {};
+  sf02cExtractionDoc: {
+    [deviceIndex: number]: { id?: number; name: string } | null;
+  } = {};
+  codExtractionDoc: {
+    [deviceIndex: number]: { id?: number; name: string } | null;
+  } = {};
+  sf02ExtractionDoc: {
+    [deviceIndex: number]: { id?: number; name: string } | null;
+  } = {};
   /** Cached File objects from the most recent extraction. Kept so the
    *  user can re-open the verify-source queue without re-uploading. */
   sldExtractionFile: { [deviceIndex: number]: File | null } = {};
@@ -180,7 +187,10 @@ export class AddDevicesComponent implements OnDestroy {
   codExtractionFile: { [deviceIndex: number]: File | null } = {};
   sf02ExtractionFile: { [deviceIndex: number]: File | null } = {};
   meterIdsExtractionDocs: {
-    [deviceIndex: number]: Record<string, { id?: number; name: string; file?: File }>;
+    [deviceIndex: number]: Record<
+      string,
+      { id?: number; name: string; file?: File }
+    >;
   } = {};
 
   /** Auto-classifier extraction phase. When true, the magic-overlay
@@ -217,14 +227,14 @@ export class AddDevicesComponent implements OnDestroy {
       type: 'hit' | 'other' | 'miss' | 'skip';
       file?: File;
       docType?: string; // populated for hit rows so post-sort extraction
-                       // can route the file to the right extractor.
+      // can route the file to the right extractor.
     }>;
   } = {};
   private magicBackupFiles: { [deviceIndex: number]: any } = {};
   private magicBackupPreviews: { [deviceIndex: number]: any } = {};
 
   /** Called when operating configuration changes. Updates evidence requirements. */
-  onOperatingConfigChange(config: string | null, formIndex: number): void {
+  onOperatingConfigChange(config: string | null, _formIndex: number): void {
     this.evidenceReqs = getEvidenceRequirements(config);
   }
 
@@ -522,11 +532,15 @@ export class AddDevicesComponent implements OnDestroy {
                     this.chatService.getChain(conv.headUuid).subscribe({
                       next: (msgs) =>
                         this.chatService.messages$.next(msgs ?? []),
-                      error: () => {/* silent */},
+                      error: () => {
+                        /* silent */
+                      },
                     });
                   }
                 },
-                error: () => {/* silent; banner stays empty */},
+                error: () => {
+                  /* silent; banner stays empty */
+                },
               });
           }
 
@@ -534,9 +548,9 @@ export class AddDevicesComponent implements OnDestroy {
           if (!firstRow) return;
 
           // Map alpha3 country code → display name for the autocomplete.
-          const countryName = this.countrylist.find(
-            (c: any) => c.alpha3 === data.countryCode,
-          )?.country ?? data.countryCode;
+          const countryName =
+            this.countrylist.find((c: any) => c.alpha3 === data.countryCode)
+              ?.country ?? data.countryCode;
 
           // SDGBenefits storage uses the value but the UI binds on name.
           let sdgBenefitNames: string[] = [];
@@ -564,10 +578,14 @@ export class AddDevicesComponent implements OnDestroy {
           // conflict block can credit fields to their original source
           // instead of falsely tagging them MANUAL on re-edit.
           console.log(
-            '[edit-load] server.address =', JSON.stringify((data as any).address),
-            'server.fieldProvenance.address =', JSON.stringify((data as any).fieldProvenance?.address),
+            '[edit-load] server.address =',
+            JSON.stringify((data as any).address),
+            'server.fieldProvenance.address =',
+            JSON.stringify((data as any).fieldProvenance?.address),
           );
-          this.appliedProvenance[0] = { ...((data as any).fieldProvenance ?? {}) };
+          this.appliedProvenance[0] = {
+            ...((data as any).fieldProvenance ?? {}),
+          };
           // Hydrate OC# walkthrough recording (if the prior session
           // ran one). Stored under the synthetic key __ocWalkLog so
           // it rides on fieldProvenance — no schema change needed.
@@ -697,8 +715,7 @@ export class AddDevicesComponent implements OnDestroy {
               } = {};
               for (const doc of docs) {
                 if (!docsByType[doc.type]) docsByType[doc.type] = [];
-                let name =
-                  doc.url.split('/').pop()?.split('?')[0] || doc.type;
+                let name = doc.url.split('/').pop()?.split('?')[0] || doc.type;
                 name = name.replace(/\+/g, ' ');
                 let prev = '';
                 while (name !== prev) {
@@ -732,10 +749,14 @@ export class AddDevicesComponent implements OnDestroy {
               }
               for (const t of Object.keys(docsByType)) {
                 docsByType[t].sort((a, b) =>
-                  (a.label || a.name).localeCompare(b.label || b.name, undefined, {
-                    numeric: true,
-                    sensitivity: 'base',
-                  }),
+                  (a.label || a.name).localeCompare(
+                    b.label || b.name,
+                    undefined,
+                    {
+                      numeric: true,
+                      sensitivity: 'base',
+                    },
+                  ),
                 );
               }
               this.existingDocs[0] = docsByType;
@@ -784,10 +805,7 @@ export class AddDevicesComponent implements OnDestroy {
                 // Pre-populate filePreviews so View buttons render for
                 // existing docs even before the user touches the file
                 // input.
-                if (
-                  !this.filePreviews[0]?.[type] &&
-                  docsByType[type]?.length
-                ) {
+                if (!this.filePreviews[0]?.[type] && docsByType[type]?.length) {
                   const doc = docsByType[type][0];
                   const ext = doc.name.split('.').pop()?.toLowerCase() || '';
                   const isImage = [
@@ -802,9 +820,7 @@ export class AddDevicesComponent implements OnDestroy {
                   const isExcel = ext === 'xlsx' || ext === 'xls';
                   if (!this.filePreviews[0]) this.filePreviews[0] = {};
                   this.filePreviews[0][type] = {
-                    url: this.sanitizer.bypassSecurityTrustResourceUrl(
-                      doc.url,
-                    ),
+                    url: this.sanitizer.bypassSecurityTrustResourceUrl(doc.url),
                     type: isImage
                       ? 'image'
                       : isPdf
@@ -1161,7 +1177,10 @@ export class AddDevicesComponent implements OnDestroy {
       const trigger = combineLatest([
         lat$.pipe(startWith(deviceGroup.get('latitude')?.value)),
         lng$.pipe(startWith(deviceGroup.get('longitude')?.value)),
-      ]).pipe(debounceTime(1200), distinctUntilChanged((a, b) => a[0] === b[0] && a[1] === b[1]));
+      ]).pipe(
+        debounceTime(1200),
+        distinctUntilChanged((a, b) => a[0] === b[0] && a[1] === b[1]),
+      );
       trigger.subscribe(([lat, lng]) => {
         const flat = parseFloat(String(lat));
         const flng = parseFloat(String(lng));
@@ -1205,7 +1224,11 @@ export class AddDevicesComponent implements OnDestroy {
           // Nominatim returns null for rural locations). Only the
           // tracked geocoder fields get cleared this way.
           this.setCoordDerivedField(deviceGroup, 'stateProvince', stateLike);
-          this.setCoordDerivedField(deviceGroup, 'postcode', a.postcode ?? null);
+          this.setCoordDerivedField(
+            deviceGroup,
+            'postcode',
+            a.postcode ?? null,
+          );
           // The geocoder also writes countryCodename — record it
           // separately so the provenance picks up "Geocoder (lat/lng)"
           // even when only the country was filled.
@@ -1283,13 +1306,7 @@ export class AddDevicesComponent implements OnDestroy {
         // field renders "Geocoder (lat/lng): <value>" and the orphan
         // pill doesn't show. Without this geocoder-filled fields
         // looked source-less to the registrant.
-        this.recordProvenance(
-          idx,
-          name,
-          'Geocoder (lat/lng)',
-          0.9,
-          next,
-        );
+        this.recordProvenance(idx, name, 'Geocoder (lat/lng)', 0.9, next);
       }
     }
   }
@@ -1359,22 +1376,64 @@ export class AddDevicesComponent implements OnDestroy {
     const t = text.toLowerCase();
     const hits: string[] = [];
     const map: Array<{ sdg: string; re: RegExp }> = [
-      { sdg: 'SDG1', re: /\b(poverty|livelihood|income|low[-\s]income|household income)\b/ },
-      { sdg: 'SDG2', re: /\b(food security|hunger|agricultur|farm(ing|s)?|crop yield|irrigation)\b/ },
-      { sdg: 'SDG3', re: /\b(health|clinic(s)?|hospital(s)?|vaccin|cold chain|maternal|disease)\b/ },
-      { sdg: 'SDG4', re: /\b(school(s)?|education|student(s)?|literacy|classroom|teacher(s)?|learning)\b/ },
-      { sdg: 'SDG5', re: /\b(gender|women[-\s]?(led|owned)?|female entrepreneur|girls?\b)/ },
-      { sdg: 'SDG6', re: /\b(clean water|water pump|sanitation|hygiene|wash\b)/ },
+      {
+        sdg: 'SDG1',
+        re: /\b(poverty|livelihood|income|low[-\s]income|household income)\b/,
+      },
+      {
+        sdg: 'SDG2',
+        re: /\b(food security|hunger|agricultur|farm(ing|s)?|crop yield|irrigation)\b/,
+      },
+      {
+        sdg: 'SDG3',
+        re: /\b(health|clinic(s)?|hospital(s)?|vaccin|cold chain|maternal|disease)\b/,
+      },
+      {
+        sdg: 'SDG4',
+        re: /\b(school(s)?|education|student(s)?|literacy|classroom|teacher(s)?|learning)\b/,
+      },
+      {
+        sdg: 'SDG5',
+        re: /\b(gender|women[-\s]?(led|owned)?|female entrepreneur|girls?\b)/,
+      },
+      {
+        sdg: 'SDG6',
+        re: /\b(clean water|water pump|sanitation|hygiene|wash\b)/,
+      },
       // SDG7 and SDG13 are baked-in for any solar project — see below.
-      { sdg: 'SDG8', re: /\b(jobs?|employ|economic growth|decent work|sme(s)?|smb(s)?|micro[-\s]enterprise)\b/ },
-      { sdg: 'SDG9', re: /\b(infrastructur|industr|mini[-\s]?grid|connectivity|digital access|innovation)\b/ },
-      { sdg: 'SDG10', re: /\b(rural|underserved|marginalised|marginalized|last[-\s]mile|equity|inclusion|inequality)\b/ },
-      { sdg: 'SDG11', re: /\b(community|urban|city|cities|sustainable cities|housing)\b/ },
-      { sdg: 'SDG12', re: /\b(responsible consumption|circular|waste reduction|sustainable production)\b/ },
+      {
+        sdg: 'SDG8',
+        re: /\b(jobs?|employ|economic growth|decent work|sme(s)?|smb(s)?|micro[-\s]enterprise)\b/,
+      },
+      {
+        sdg: 'SDG9',
+        re: /\b(infrastructur|industr|mini[-\s]?grid|connectivity|digital access|innovation)\b/,
+      },
+      {
+        sdg: 'SDG10',
+        re: /\b(rural|underserved|marginalised|marginalized|last[-\s]mile|equity|inclusion|inequality)\b/,
+      },
+      {
+        sdg: 'SDG11',
+        re: /\b(community|urban|city|cities|sustainable cities|housing)\b/,
+      },
+      {
+        sdg: 'SDG12',
+        re: /\b(responsible consumption|circular|waste reduction|sustainable production)\b/,
+      },
       { sdg: 'SDG14', re: /\b(marine|ocean|coastal|fisheries)\b/ },
-      { sdg: 'SDG15', re: /\b(biodiversity|forest(s)?|reforestation|land degradation|wildlife)\b/ },
-      { sdg: 'SDG16', re: /\b(governance|peace|justice|institutions|transparency)\b/ },
-      { sdg: 'SDG17', re: /\b(partnership(s)?|public[-\s]private|multi[-\s]stakeholder)\b/ },
+      {
+        sdg: 'SDG15',
+        re: /\b(biodiversity|forest(s)?|reforestation|land degradation|wildlife)\b/,
+      },
+      {
+        sdg: 'SDG16',
+        re: /\b(governance|peace|justice|institutions|transparency)\b/,
+      },
+      {
+        sdg: 'SDG17',
+        re: /\b(partnership(s)?|public[-\s]private|multi[-\s]stakeholder)\b/,
+      },
     ];
     for (const { sdg, re } of map) {
       if (re.test(t)) hits.push(sdg);
@@ -1427,15 +1486,51 @@ export class AddDevicesComponent implements OnDestroy {
     const t = text.toLowerCase();
     const cats: Array<{ key: string; re: RegExp; countRe: RegExp }> = [
       { key: 'School', re: /\bschool(s)?\b/, countRe: /(\d[\d,]*)\s*school/g },
-      { key: 'Education', re: /\beducation\b/, countRe: /(\d[\d,]*)\s*education/g },
-      { key: 'Health Facility', re: /\b(health\s+facilit(y|ies)|clinic(s)?|hospital(s)?)\b/, countRe: /(\d[\d,]*)\s*(health|clinic|hospital)/g },
-      { key: 'Residential', re: /\b(resident(ial|s)?|household(s)?|home(s)?)\b/, countRe: /(\d[\d,]*)\s*(resident|household|home|user)/g },
-      { key: 'Commercial', re: /\b(commercial|business(es)?|shop(s)?|merchant(s)?)\b/, countRe: /(\d[\d,]*)\s*(commercial|business|shop|merchant)/g },
-      { key: 'Industrial', re: /\b(industrial|factor(y|ies)|industry)\b/, countRe: /(\d[\d,]*)\s*(industrial|factor|industry)/g },
-      { key: 'Public Sector', re: /\bpublic sector\b|\bgovernment building/, countRe: /(\d[\d,]*)\s*public/g },
-      { key: 'Agriculture', re: /\b(agricultur|farm(s|ing)?|irrigation)\b/, countRe: /(\d[\d,]*)\s*(farm|agricultur)/g },
-      { key: 'Utility', re: /\butilit(y|ies)\b|\bdisco\b/, countRe: /(\d[\d,]*)\s*utilit/g },
-      { key: 'Off-Grid Community', re: /\boff[\s-]?grid\s+communit(y|ies)\b/, countRe: /(\d[\d,]*)\s*off[\s-]?grid/g },
+      {
+        key: 'Education',
+        re: /\beducation\b/,
+        countRe: /(\d[\d,]*)\s*education/g,
+      },
+      {
+        key: 'Health Facility',
+        re: /\b(health\s+facilit(y|ies)|clinic(s)?|hospital(s)?)\b/,
+        countRe: /(\d[\d,]*)\s*(health|clinic|hospital)/g,
+      },
+      {
+        key: 'Residential',
+        re: /\b(resident(ial|s)?|household(s)?|home(s)?)\b/,
+        countRe: /(\d[\d,]*)\s*(resident|household|home|user)/g,
+      },
+      {
+        key: 'Commercial',
+        re: /\b(commercial|business(es)?|shop(s)?|merchant(s)?)\b/,
+        countRe: /(\d[\d,]*)\s*(commercial|business|shop|merchant)/g,
+      },
+      {
+        key: 'Industrial',
+        re: /\b(industrial|factor(y|ies)|industry)\b/,
+        countRe: /(\d[\d,]*)\s*(industrial|factor|industry)/g,
+      },
+      {
+        key: 'Public Sector',
+        re: /\bpublic sector\b|\bgovernment building/,
+        countRe: /(\d[\d,]*)\s*public/g,
+      },
+      {
+        key: 'Agriculture',
+        re: /\b(agricultur|farm(s|ing)?|irrigation)\b/,
+        countRe: /(\d[\d,]*)\s*(farm|agricultur)/g,
+      },
+      {
+        key: 'Utility',
+        re: /\butilit(y|ies)\b|\bdisco\b/,
+        countRe: /(\d[\d,]*)\s*utilit/g,
+      },
+      {
+        key: 'Off-Grid Community',
+        re: /\boff[\s-]?grid\s+communit(y|ies)\b/,
+        countRe: /(\d[\d,]*)\s*off[\s-]?grid/g,
+      },
     ];
 
     // Pass 1: count-based ranking
@@ -1459,7 +1554,9 @@ export class AddDevicesComponent implements OnDestroy {
     return null;
   }
 
-  private inferDeviceDescription(text: string | null | undefined): string | null {
+  private inferDeviceDescription(
+    text: string | null | undefined,
+  ): string | null {
     if (!text) return null;
     const t = text.toLowerCase();
     // Check most-specific phrases first so "rooftop mini-grid" wins
@@ -1502,7 +1599,6 @@ export class AddDevicesComponent implements OnDestroy {
 
   private setupDataSourceWatcher(deviceGroup: FormGroup) {
     const dataSource = deviceGroup.get('dataSource');
-    const serialNumber = deviceGroup.get('serialNumber');
     const otherDataSource = deviceGroup.get('otherDataSource');
 
     dataSource?.valueChanges.subscribe((value) => {
@@ -1637,7 +1733,9 @@ export class AddDevicesComponent implements OnDestroy {
   private loadDismissedSerials(deviceIndex: number): void {
     try {
       localStorage.removeItem(this.dismissedSerialsKey(deviceIndex));
-    } catch {}
+    } catch {
+      // localStorage unavailable — nothing to clean up.
+    }
   }
   /** No-op (dismissedSerialNumbers persistence removed 2026-05-27). */
   private saveDismissedSerials(_deviceIndex: number): void {
@@ -1662,7 +1760,9 @@ export class AddDevicesComponent implements OnDestroy {
   }
   private loadDismissedFieldValues(deviceIndex: number): void {
     try {
-      const raw = localStorage.getItem(this.dismissedFieldValuesKey(deviceIndex));
+      const raw = localStorage.getItem(
+        this.dismissedFieldValuesKey(deviceIndex),
+      );
       if (!raw) return;
       const obj = JSON.parse(raw);
       if (obj && typeof obj === 'object') {
@@ -1674,7 +1774,9 @@ export class AddDevicesComponent implements OnDestroy {
         }
         this.dismissedFieldValues[deviceIndex] = out;
       }
-    } catch {}
+    } catch {
+      // localStorage unavailable / malformed JSON — start with no blacklist.
+    }
   }
   private saveDismissedFieldValues(deviceIndex: number): void {
     try {
@@ -1685,13 +1787,22 @@ export class AddDevicesComponent implements OnDestroy {
       }
       const obj: Record<string, string[]> = {};
       for (const k of Object.keys(m)) obj[k] = [...m[k]];
-      localStorage.setItem(this.dismissedFieldValuesKey(deviceIndex), JSON.stringify(obj));
-    } catch {}
+      localStorage.setItem(
+        this.dismissedFieldValuesKey(deviceIndex),
+        JSON.stringify(obj),
+      );
+    } catch {
+      // localStorage unavailable — the blacklist just won't persist.
+    }
   }
   /** Mark a (field, value) pair as blacklisted and persist. Routes
    *  serialNumber:* through the dedicated serial path so the chip-
    *  list filter logic keeps working. */
-  private dismissFieldValue(deviceIndex: number, field: string, value: any): void {
+  private dismissFieldValue(
+    deviceIndex: number,
+    field: string,
+    value: any,
+  ): void {
     if (value == null || value === '') return;
     const v = String(value).trim();
     if (!v) return;
@@ -1709,7 +1820,11 @@ export class AddDevicesComponent implements OnDestroy {
    *  forever, which caused "missing IDs" symptoms that were hard
    *  to explain. The chip × on a SN now just removes it from the
    *  current visible list; re-extract brings it back. */
-  private isDismissed(_deviceIndex: number, _field: string, _value: any): boolean {
+  private isDismissed(
+    _deviceIndex: number,
+    _field: string,
+    _value: any,
+  ): boolean {
     return false;
   }
 
@@ -1758,8 +1873,7 @@ export class AddDevicesComponent implements OnDestroy {
           ) {
             return true;
           }
-          const staged =
-            (this.files[deviceIndex]?.[fileType]?.length ?? 0) > 0;
+          const staged = (this.files[deviceIndex]?.[fileType]?.length ?? 0) > 0;
           if (staged) return true;
           const existing = this.existingDocs[deviceIndex]?.[fileType];
           return Array.isArray(existing) && existing.length > 0;
@@ -1784,7 +1898,9 @@ export class AddDevicesComponent implements OnDestroy {
     const deviceFiles = this.files[deviceIndex];
     if (deviceFiles) {
       for (const [slot, list] of Object.entries(deviceFiles)) {
-        if (list?.some((f: File) => f.name === file.name && f.size === file.size)) {
+        if (
+          list?.some((f: File) => f.name === file.name && f.size === file.size)
+        ) {
           return slot;
         }
       }
@@ -1987,7 +2103,8 @@ export class AddDevicesComponent implements OnDestroy {
     const ctl = this.deviceForms.at(deviceIndex)?.get('meterReadsShareable');
     if (!ctl || ctl.value) return;
     const staged =
-      (this.files[deviceIndex]?.[DocumentType.METERING_EVIDENCE]?.length ?? 0) > 0;
+      (this.files[deviceIndex]?.[DocumentType.METERING_EVIDENCE]?.length ?? 0) >
+      0;
     const existing =
       (this.existingDocs[deviceIndex]?.['METERING_EVIDENCE']?.length ?? 0) > 0;
     if (!staged && !existing) return;
@@ -2065,7 +2182,10 @@ export class AddDevicesComponent implements OnDestroy {
         // per duplicate.
         this.ngZone.run(() => {
           this.magicLog[deviceIndex].push({
-            filename: file.name.length > 40 ? file.name.substring(0, 37) + '...' : file.name,
+            filename:
+              file.name.length > 40
+                ? file.name.substring(0, 37) + '...'
+                : file.name,
             target: 'Skipped (duplicate)',
             confidence: null,
             type: 'skip',
@@ -2076,139 +2196,150 @@ export class AddDevicesComponent implements OnDestroy {
         setTimeout(() => processNext(idx + 1));
         return;
       }
-      this.documentClassifier.classify(file, (step) =>
-        this.ngZone.run(() => {
-          this.magicCurrentStep[deviceIndex] = step;
-        }),
-      ).subscribe({
-        next: (result) => {
+      this.documentClassifier
+        .classify(file, (step) =>
           this.ngZone.run(() => {
-            const rawType = result?.suggestedType ?? DocumentType.OTHER_DOCUMENTS;
-            // FACILITY_BOUNDARY has no registrant-side upload slot today,
-            // so drop the boundary file into PROJECT_PHOTOS where it can
-            // still be reviewed. Magic-table label below still shows
-            // "Facility Boundary" so the reviewer knows what it is.
-            const targetType =
-              rawType === DocumentType.FACILITY_BOUNDARY
-                ? DocumentType.PROJECT_PHOTOS
-                : rawType;
-            const label =
-              this.DOCUMENT_TYPE_LABELS[rawType] ?? 'Other Document';
-            const confidence = result
-              ? Math.round(result.confidence * 100)
-              : null;
+            this.magicCurrentStep[deviceIndex] = step;
+          }),
+        )
+        .subscribe({
+          next: (result) => {
+            this.ngZone.run(() => {
+              const rawType =
+                result?.suggestedType ?? DocumentType.OTHER_DOCUMENTS;
+              // FACILITY_BOUNDARY has no registrant-side upload slot today,
+              // so drop the boundary file into PROJECT_PHOTOS where it can
+              // still be reviewed. Magic-table label below still shows
+              // "Facility Boundary" so the reviewer knows what it is.
+              const targetType =
+                rawType === DocumentType.FACILITY_BOUNDARY
+                  ? DocumentType.PROJECT_PHOTOS
+                  : rawType;
+              const label =
+                this.DOCUMENT_TYPE_LABELS[rawType] ?? 'Other Document';
+              const confidence = result
+                ? Math.round(result.confidence * 100)
+                : null;
 
-            // Place file in the target slot
-            const multiTypes = [
-              'PROJECT_PHOTOS',
-              'METERING_EVIDENCE',
-              'OTHER_DOCUMENTS',
-            ];
-            if (multiTypes.includes(targetType)) {
-              this.files[deviceIndex][targetType as FileType] = [
-                ...(this.files[deviceIndex][targetType as FileType] || []),
+              // Place file in the target slot
+              const multiTypes = [
+                'PROJECT_PHOTOS',
+                'METERING_EVIDENCE',
+                'OTHER_DOCUMENTS',
+              ];
+              if (multiTypes.includes(targetType)) {
+                this.files[deviceIndex][targetType as FileType] = [
+                  ...(this.files[deviceIndex][targetType as FileType] || []),
+                  file,
+                ];
+              } else {
+                this.files[deviceIndex][targetType as FileType] = [file];
+              }
+
+              // Keep fileLabels aligned
+              if (!this.fileLabels[deviceIndex])
+                this.fileLabels[deviceIndex] = {};
+              const len =
+                this.files[deviceIndex][targetType as FileType].length;
+              this.fileLabels[deviceIndex][targetType] = Array(len).fill('');
+
+              // Set form control
+              const control = this.deviceForms.at(deviceIndex).get(targetType);
+              if (control) {
+                control.setValue(
+                  this.files[deviceIndex][targetType as FileType][0] ?? null,
+                );
+                control.markAsDirty();
+              }
+
+              // Generate preview
+              if (!this.filePreviews[deviceIndex])
+                this.filePreviews[deviceIndex] = {};
+              const isImage = file.type.startsWith('image/');
+              const isPdf = file.type === 'application/pdf';
+              const isExcel = /\.(xlsx|xls)$/i.test(file.name);
+              const objectUrl = URL.createObjectURL(file);
+              this.filePreviews[deviceIndex][targetType] = {
+                url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
+                type: isImage
+                  ? 'image'
+                  : isPdf
+                    ? 'pdf'
+                    : isExcel
+                      ? 'excel'
+                      : 'other',
+                name: file.name,
+              };
+
+              // Log entry
+              this.magicLog[deviceIndex].push({
+                filename:
+                  file.name.length > 40
+                    ? file.name.substring(0, 37) + '...'
+                    : file.name,
+                target: label,
+                confidence,
+                type:
+                  result &&
+                  result.suggestedType !== DocumentType.OTHER_DOCUMENTS
+                    ? 'hit'
+                    : 'other',
+                file,
+                docType: rawType,
+              });
+
+              this.magicDone[deviceIndex] = idx + 1;
+              processNext(idx + 1);
+            });
+          },
+          error: (err: any) => {
+            this.ngZone.run(() => {
+              // Surface WHY classification failed instead of silently filing the
+              // doc under "Other Documents" with an opaque ✗. err may be an
+              // HttpErrorResponse (server 4xx/5xx — e.g. credits, timeout) or a
+              // thrown Error from the in-browser OCR/render pre-pass.
+              const reason =
+                err?.error?.message ||
+                err?.message ||
+                (err?.status
+                  ? `server error ${err.status}${err.statusText ? ' ' + err.statusText : ''}`
+                  : 'classification request failed');
+              // eslint-disable-next-line no-console
+              console.error(
+                '[auto-sort] classify failed for',
+                file.name,
+                '—',
+                reason,
+                err,
+              );
+              this.toastrService.error(
+                `Couldn't classify "${file.name}": ${reason}`,
+                'Auto-sort',
+                { disableTimeOut: true },
+              );
+              this.magicLog[deviceIndex].push({
+                filename:
+                  file.name.length > 40
+                    ? file.name.substring(0, 37) + '...'
+                    : file.name,
+                target: `Unrecognised — ${reason} (filed under Other Documents)`,
+                confidence: null,
+                type: 'miss',
+                file,
+              });
+
+              // Put in OTHER_DOCUMENTS on error
+              this.files[deviceIndex][DocumentType.OTHER_DOCUMENTS] = [
+                ...(this.files[deviceIndex][DocumentType.OTHER_DOCUMENTS] ||
+                  []),
                 file,
               ];
-            } else {
-              this.files[deviceIndex][targetType as FileType] = [file];
-            }
 
-            // Keep fileLabels aligned
-            if (!this.fileLabels[deviceIndex])
-              this.fileLabels[deviceIndex] = {};
-            const len =
-              this.files[deviceIndex][targetType as FileType].length;
-            this.fileLabels[deviceIndex][targetType] = Array(len).fill('');
-
-            // Set form control
-            const control = this.deviceForms
-              .at(deviceIndex)
-              .get(targetType);
-            if (control) {
-              control.setValue(
-                this.files[deviceIndex][targetType as FileType][0] ?? null,
-              );
-              control.markAsDirty();
-            }
-
-            // Generate preview
-            if (!this.filePreviews[deviceIndex])
-              this.filePreviews[deviceIndex] = {};
-            const isImage = file.type.startsWith('image/');
-            const isPdf = file.type === 'application/pdf';
-            const isExcel = /\.(xlsx|xls)$/i.test(file.name);
-            const objectUrl = URL.createObjectURL(file);
-            this.filePreviews[deviceIndex][targetType] = {
-              url: this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl),
-              type: isImage
-                ? 'image'
-                : isPdf
-                  ? 'pdf'
-                  : isExcel
-                    ? 'excel'
-                    : 'other',
-              name: file.name,
-            };
-
-            // Log entry
-            this.magicLog[deviceIndex].push({
-              filename: file.name.length > 40
-                ? file.name.substring(0, 37) + '...'
-                : file.name,
-              target: label,
-              confidence,
-              type: result && result.suggestedType !== DocumentType.OTHER_DOCUMENTS
-                ? 'hit'
-                : 'other',
-              file,
-              docType: rawType,
+              this.magicDone[deviceIndex] = idx + 1;
+              processNext(idx + 1);
             });
-
-            this.magicDone[deviceIndex] = idx + 1;
-            processNext(idx + 1);
-          });
-        },
-        error: (err: any) => {
-          this.ngZone.run(() => {
-            // Surface WHY classification failed instead of silently filing the
-            // doc under "Other Documents" with an opaque ✗. err may be an
-            // HttpErrorResponse (server 4xx/5xx — e.g. credits, timeout) or a
-            // thrown Error from the in-browser OCR/render pre-pass.
-            const reason =
-              err?.error?.message ||
-              err?.message ||
-              (err?.status
-                ? `server error ${err.status}${err.statusText ? ' ' + err.statusText : ''}`
-                : 'classification request failed');
-            // eslint-disable-next-line no-console
-            console.error('[auto-sort] classify failed for', file.name, '—', reason, err);
-            this.toastrService.error(
-              `Couldn't classify "${file.name}": ${reason}`,
-              'Auto-sort',
-              { disableTimeOut: true },
-            );
-            this.magicLog[deviceIndex].push({
-              filename: file.name.length > 40
-                ? file.name.substring(0, 37) + '...'
-                : file.name,
-              target: `Unrecognised — ${reason} (filed under Other Documents)`,
-              confidence: null,
-              type: 'miss',
-              file,
-            });
-
-            // Put in OTHER_DOCUMENTS on error
-            this.files[deviceIndex][DocumentType.OTHER_DOCUMENTS] = [
-              ...(this.files[deviceIndex][DocumentType.OTHER_DOCUMENTS] ||
-                []),
-              file,
-            ];
-
-            this.magicDone[deviceIndex] = idx + 1;
-            processNext(idx + 1);
-          });
-        },
-      });
+          },
+        });
     };
 
     processNext(0);
@@ -2250,10 +2381,10 @@ export class AddDevicesComponent implements OnDestroy {
    *  walked one at a time in the dialog with OK/Decline. */
   verifyQueue: Array<{
     deviceIndex: number;
-    field: string;          // form control name
-    label: string;          // human label for the field
-    source: string;         // 'SLD' for now; Phase 2 adds others
-    value: any;             // candidate value from extractor
+    field: string; // form control name
+    label: string; // human label for the field
+    source: string; // 'SLD' for now; Phase 2 adds others
+    value: any; // candidate value from extractor
     confidence: number;
     region?: { page: number; x: number; y: number; w: number; h: number };
     /** 'tesseract' = pixel-exact, OCR token matched the value;
@@ -2290,10 +2421,17 @@ export class AddDevicesComponent implements OnDestroy {
   /** Total pages in the verify dialog's loaded doc, for the page
    *  indicator and Next button disable. 1 for non-PDF images. */
   verifyPageCount = 1;
-  @ViewChild('ocWalkZoomEl', { read: ImageZoomPanDirective }) ocWalkZoomDirective?: ImageZoomPanDirective;
-  ocWalkZoomIn(): void { this.ocWalkZoomDirective?.zoomIn(); }
-  ocWalkZoomOut(): void { this.ocWalkZoomDirective?.zoomOut(); }
-  ocWalkZoomReset(): void { this.ocWalkZoomDirective?.reset(); }
+  @ViewChild('ocWalkZoomEl', { read: ImageZoomPanDirective })
+  ocWalkZoomDirective?: ImageZoomPanDirective;
+  ocWalkZoomIn(): void {
+    this.ocWalkZoomDirective?.zoomIn();
+  }
+  ocWalkZoomOut(): void {
+    this.ocWalkZoomDirective?.zoomOut();
+  }
+  ocWalkZoomReset(): void {
+    this.ocWalkZoomDirective?.reset();
+  }
 
   /** OC# walk current PDF page state (Prev/Next nav). */
   ocWalkCurrentPage = 1;
@@ -2329,14 +2467,38 @@ export class AddDevicesComponent implements OnDestroy {
     [k: string]: {
       docType: string;
       label: string;
-      flagKey: 'sldExtracting' | 'sf02cExtracting' | 'codExtracting' | 'sf02Extracting';
+      flagKey:
+        | 'sldExtracting'
+        | 'sf02cExtracting'
+        | 'codExtracting'
+        | 'sf02Extracting';
       extract: (file: File, deviceIndex: number) => void;
     };
   } = {
-    'SLD':    { docType: 'SINGLE_LINE_DIAGRAM', label: 'SLD',     flagKey: 'sldExtracting',   extract: (f, i) => this.extractSldFieldsForDevice(f, i) },
-    'SF-02c': { docType: 'SF_02C',              label: 'SF-02c',  flagKey: 'sf02cExtracting', extract: (f, i) => this.extractSf02cFieldsForDevice(f, i) },
-    'COD':    { docType: 'COD_PROOF',           label: 'COD proof', flagKey: 'codExtracting', extract: (f, i) => this.extractCodFieldsForDevice(f, i) },
-    'SF-02':  { docType: 'FORM_SF_02',          label: 'SF-02',   flagKey: 'sf02Extracting',  extract: (f, i) => this.extractSf02FieldsForDevice(f, i) },
+    SLD: {
+      docType: 'SINGLE_LINE_DIAGRAM',
+      label: 'SLD',
+      flagKey: 'sldExtracting',
+      extract: (f, i) => this.extractSldFieldsForDevice(f, i),
+    },
+    'SF-02c': {
+      docType: 'SF_02C',
+      label: 'SF-02c',
+      flagKey: 'sf02cExtracting',
+      extract: (f, i) => this.extractSf02cFieldsForDevice(f, i),
+    },
+    COD: {
+      docType: 'COD_PROOF',
+      label: 'COD proof',
+      flagKey: 'codExtracting',
+      extract: (f, i) => this.extractCodFieldsForDevice(f, i),
+    },
+    'SF-02': {
+      docType: 'FORM_SF_02',
+      label: 'SF-02',
+      flagKey: 'sf02Extracting',
+      extract: (f, i) => this.extractSf02FieldsForDevice(f, i),
+    },
   };
 
   /** Re-run a given extractor against the device's attached doc of the
@@ -2345,7 +2507,10 @@ export class AddDevicesComponent implements OnDestroy {
    *  verifiedBy on the saved provenance) and the registrant wants to
    *  attest each value against the source. Generic over all four
    *  extractors. */
-  reverifyFromAttached(deviceIndex: number, source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02'): void {
+  reverifyFromAttached(
+    deviceIndex: number,
+    source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02',
+  ): void {
     const cfg = this.REVERIFY_SOURCES[source];
     // Re-verify means start over: drop any verifiedBy stamps the
     // registrant accumulated on a prior walk so every extracted
@@ -2400,7 +2565,13 @@ export class AddDevicesComponent implements OnDestroy {
       }
     }
     if (cleared) {
-      console.log('[reverify]', source, 'cleared verifiedBy on', cleared, 'fields');
+      console.log(
+        '[reverify]',
+        source,
+        'cleared verifiedBy on',
+        cleared,
+        'fields',
+      );
     }
   }
 
@@ -2413,12 +2584,17 @@ export class AddDevicesComponent implements OnDestroy {
    *  the registrant advances. */
   rewalkAllSources(): void {
     const deviceIndex = 0; // add-mode: single row; edit-mode also uses row 0.
-    const sources: Array<'SLD' | 'SF-02' | 'SF-02c' | 'COD'> = ['SLD', 'SF-02', 'SF-02c', 'COD'];
+    const sources: Array<'SLD' | 'SF-02' | 'SF-02c' | 'COD'> = [
+      'SLD',
+      'SF-02',
+      'SF-02c',
+      'COD',
+    ];
     const fileMap = {
-      'SLD':    this.sldExtractionFile,
-      'SF-02':  this.sf02ExtractionFile,
+      SLD: this.sldExtractionFile,
+      'SF-02': this.sf02ExtractionFile,
       'SF-02c': this.sf02cExtractionFile,
-      'COD':    this.codExtractionFile,
+      COD: this.codExtractionFile,
     } as const;
     // Clear verifiedBy first so the pending-count counts everything.
     for (const src of sources) this.clearVerifiedByForSource(deviceIndex, src);
@@ -2433,7 +2609,8 @@ export class AddDevicesComponent implements OnDestroy {
         // No cached File handle — happens when the doc was attached
         // before extraction or this is an edit-mode load. Skip; the
         // registrant can hit per-source "Re-verify" to materialise it.
-        if (specs.some((s) => s.field && s.field.value != null)) skippedNoFile++;
+        if (specs.some((s) => s.field && s.field.value != null))
+          skippedNoFile++;
         continue;
       }
       for (const s of specs) {
@@ -2457,15 +2634,28 @@ export class AddDevicesComponent implements OnDestroy {
       }
     }
     if (!items.length) {
-      const msg = skippedNoFile > 0
-        ? `Re-walk all: no extracted values found. ${skippedNoFile} source(s) had no cached file — hit "Re-verify <doc>" first to materialise them.`
-        : 'Re-walk all: nothing extracted yet. Attach SLD / SF-02 / SF-02c / COD and let the extractor finish first.';
+      const msg =
+        skippedNoFile > 0
+          ? `Re-walk all: no extracted values found. ${skippedNoFile} source(s) had no cached file — hit "Re-verify <doc>" first to materialise them.`
+          : 'Re-walk all: nothing extracted yet. Attach SLD / SF-02 / SF-02c / COD and let the extractor finish first.';
       this.toastrService.info(msg, '', { timeOut: 8000 });
       return;
     }
-    console.log('[rewalk-all] queue size =', items.length,
-      'breakdown:', items.reduce((m, it) => { m[it.source] = (m[it.source] || 0) + 1; return m; }, {} as Record<string, number>),
-      skippedNoFile ? `(skipped ${skippedNoFile} source(s) without cached file)` : '');
+    console.log(
+      '[rewalk-all] queue size =',
+      items.length,
+      'breakdown:',
+      items.reduce(
+        (m, it) => {
+          m[it.source] = (m[it.source] || 0) + 1;
+          return m;
+        },
+        {} as Record<string, number>,
+      ),
+      skippedNoFile
+        ? `(skipped ${skippedNoFile} source(s) without cached file)`
+        : '',
+    );
     this.verifyQueue = items;
     this.verifyQueueIndex = 0;
     this.verifyQueueFile = null;
@@ -2474,10 +2664,13 @@ export class AddDevicesComponent implements OnDestroy {
       this.verifySourceDialogRef.close();
       this.verifySourceDialogRef = null;
     }
-    this.verifySourceDialogRef = this.dialog.open(
-      this.verifySourceDialog,
-      { width: '95vw', maxWidth: '95vw', maxHeight: '95vh', disableClose: false, panelClass: 'drec-floating-dialog' },
-    );
+    this.verifySourceDialogRef = this.dialog.open(this.verifySourceDialog, {
+      width: '95vw',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      disableClose: false,
+      panelClass: 'drec-floating-dialog',
+    });
     setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 50);
   }
 
@@ -2503,7 +2696,10 @@ export class AddDevicesComponent implements OnDestroy {
    *  button to show "Verify (N)" and to hide it when zero. Mirrors
    *  the skip logic in openVerifyQueue: skip when saved provenance
    *  already carries verifiedBy. */
-  pendingVerifyCount(deviceIndex: number, source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02'): number {
+  pendingVerifyCount(
+    deviceIndex: number,
+    source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02',
+  ): number {
     const specs = this.buildVerifySpecs(deviceIndex, source);
     if (!specs.length) return 0;
     let n = 0;
@@ -2525,22 +2721,75 @@ export class AddDevicesComponent implements OnDestroy {
   private buildVerifySpecs(
     deviceIndex: number,
     source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02',
-  ): Array<{ name: string; label: string; field: any; transform?: (v: any) => any }> {
+  ): Array<{
+    name: string;
+    label: string;
+    field: any;
+    transform?: (v: any) => any;
+  }> {
     if (source === 'SLD') {
       const fx = this.sldExtractions[deviceIndex];
       if (!fx) return [];
       return [
-        { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
-        { name: 'generatingUnitCount', label: '(13) Number of generating units', field: fx.inverterCount },
-        { name: 'interconnectionVoltage', label: '(18) Interconnection voltage', field: fx.gridVoltage },
-        { name: 'gridInterconnection', label: '(15) Grid-connected?', field: fx.gridTied, transform: (v) => !!v },
-        { name: 'dataSourceBrand', label: '(27) Data Source Brand', field: fx.inverterMakeModel },
-        { name: 'networkOwner', label: '(17) Network owner', field: fx.networkOwner },
-        { name: 'hasNetworkMeter', label: '(19) Network meter installed?', field: fx.hasNetworkMeter, transform: (v) => (v ? 'Yes' : 'No') },
-        { name: 'gridExportType', label: '(16) Exports to grid?', field: fx.gridExportType },
-        { name: 'hasAuxiliaryEnergySources', label: '(24) Auxiliary energy sources?', field: fx.hasAuxiliaryEnergySources, transform: (v) => (v ? 'Yes' : 'No') },
-        { name: 'auxiliaryEnergySourceDetails', label: '(25) Aux source details', field: fx.auxiliaryEnergySourceDetails },
-        { name: 'hasCaptiveConsumer', label: '(23) Captive consumer present?', field: fx.hasCaptiveConsumer, transform: (v) => (v ? 'Yes' : 'No') },
+        {
+          name: 'capacity',
+          label: '(9) Total AC capacity',
+          field: fx.acCapacityKw,
+        },
+        {
+          name: 'generatingUnitCount',
+          label: '(13) Number of generating units',
+          field: fx.inverterCount,
+        },
+        {
+          name: 'interconnectionVoltage',
+          label: '(18) Interconnection voltage',
+          field: fx.gridVoltage,
+        },
+        {
+          name: 'gridInterconnection',
+          label: '(15) Grid-connected?',
+          field: fx.gridTied,
+          transform: (v) => !!v,
+        },
+        {
+          name: 'dataSourceBrand',
+          label: '(27) Data Source Brand',
+          field: fx.inverterMakeModel,
+        },
+        {
+          name: 'networkOwner',
+          label: '(17) Network owner',
+          field: fx.networkOwner,
+        },
+        {
+          name: 'hasNetworkMeter',
+          label: '(19) Network meter installed?',
+          field: fx.hasNetworkMeter,
+          transform: (v) => (v ? 'Yes' : 'No'),
+        },
+        {
+          name: 'gridExportType',
+          label: '(16) Exports to grid?',
+          field: fx.gridExportType,
+        },
+        {
+          name: 'hasAuxiliaryEnergySources',
+          label: '(24) Auxiliary energy sources?',
+          field: fx.hasAuxiliaryEnergySources,
+          transform: (v) => (v ? 'Yes' : 'No'),
+        },
+        {
+          name: 'auxiliaryEnergySourceDetails',
+          label: '(25) Aux source details',
+          field: fx.auxiliaryEnergySourceDetails,
+        },
+        {
+          name: 'hasCaptiveConsumer',
+          label: '(23) Captive consumer present?',
+          field: fx.hasCaptiveConsumer,
+          transform: (v) => (v ? 'Yes' : 'No'),
+        },
       ];
     }
     if (source === 'SF-02c') {
@@ -2548,25 +2797,75 @@ export class AddDevicesComponent implements OnDestroy {
       if (!fx) return [];
       return [
         { name: 'siteName', label: '(7) Site name', field: fx.projectName },
-        { name: 'address', label: '(2) Address (site)', field: (fx as any).projectAddress },
-        { name: 'stateProvince', label: '(3) State/Province (site)', field: (fx as any).ownerStateProvince },
-        { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerLegalName },
-        { name: 'pvSystemOwnerAddress', label: 'PV System Owner address (HQ)', field: fx.ownerAddress },
-        { name: 'countryCodename', label: 'Country', field: fx.ownerCountry, transform: (v) => this.normalizeCountry(v) },
-        { name: 'signatoryName', label: 'Signatory name', field: fx.signatoryName },
+        {
+          name: 'address',
+          label: '(2) Address (site)',
+          field: (fx as any).projectAddress,
+        },
+        {
+          name: 'stateProvince',
+          label: '(3) State/Province (site)',
+          field: (fx as any).ownerStateProvince,
+        },
+        {
+          name: 'pvSystemOwner',
+          label: '(27) PV System Owner',
+          field: fx.ownerLegalName,
+        },
+        {
+          name: 'pvSystemOwnerAddress',
+          label: 'PV System Owner address (HQ)',
+          field: fx.ownerAddress,
+        },
+        {
+          name: 'countryCodename',
+          label: 'Country',
+          field: fx.ownerCountry,
+          transform: (v) => this.normalizeCountry(v),
+        },
+        {
+          name: 'signatoryName',
+          label: 'Signatory name',
+          field: fx.signatoryName,
+        },
       ];
     }
     if (source === 'COD') {
       const fx = this.codExtractions[deviceIndex];
       if (!fx) return [];
       return [
-        { name: 'commissioningDate', label: '(10) Commissioning date', field: fx.commissioningDate },
+        {
+          name: 'commissioningDate',
+          label: '(10) Commissioning date',
+          field: fx.commissioningDate,
+        },
         { name: 'siteName', label: '(7) Site name', field: fx.facilityName },
-        { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
-        { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerName },
-        { name: 'countryCodename', label: 'Country', field: fx.country, transform: (v) => this.normalizeCountry(v) },
-        { name: 'stateProvince', label: '(3) State/Province', field: (fx as any).stateProvince },
-        { name: 'offTakerName', label: '(28) Off-taker name', field: fx.offTakerName },
+        {
+          name: 'capacity',
+          label: '(9) Total AC capacity',
+          field: fx.acCapacityKw,
+        },
+        {
+          name: 'pvSystemOwner',
+          label: '(27) PV System Owner',
+          field: fx.ownerName,
+        },
+        {
+          name: 'countryCodename',
+          label: 'Country',
+          field: fx.country,
+          transform: (v) => this.normalizeCountry(v),
+        },
+        {
+          name: 'stateProvince',
+          label: '(3) State/Province',
+          field: (fx as any).stateProvince,
+        },
+        {
+          name: 'offTakerName',
+          label: '(28) Off-taker name',
+          field: fx.offTakerName,
+        },
       ];
     }
     if (source === 'SF-02') {
@@ -2574,18 +2873,58 @@ export class AddDevicesComponent implements OnDestroy {
       if (!fx) return [];
       return [
         { name: 'siteName', label: '(7) Site name', field: fx.facilityName },
-        { name: 'address', label: '(2) Address (site)', field: (fx as any).facilityAddress },
-        { name: 'postcode', label: '(4) Postcode', field: (fx as any).postcode },
-        { name: 'stateProvince', label: '(3) State/Province (site)', field: (fx as any).ownerStateProvince },
-        { name: 'capacity', label: '(9) Total AC capacity', field: fx.acCapacityKw },
-        { name: 'commissioningDate', label: '(10) Commissioning date', field: fx.commissioningDate },
-        { name: 'deviceTypeCode', label: 'Device type code', field: fx.deviceTypeCode },
-        { name: 'pvSystemOwner', label: '(27) PV System Owner', field: fx.ownerLegalName },
-        { name: 'pvSystemOwnerAddress', label: 'PV System Owner address (HQ)', field: fx.ownerAddress },
+        {
+          name: 'address',
+          label: '(2) Address (site)',
+          field: (fx as any).facilityAddress,
+        },
+        {
+          name: 'postcode',
+          label: '(4) Postcode',
+          field: (fx as any).postcode,
+        },
+        {
+          name: 'stateProvince',
+          label: '(3) State/Province (site)',
+          field: (fx as any).ownerStateProvince,
+        },
+        {
+          name: 'capacity',
+          label: '(9) Total AC capacity',
+          field: fx.acCapacityKw,
+        },
+        {
+          name: 'commissioningDate',
+          label: '(10) Commissioning date',
+          field: fx.commissioningDate,
+        },
+        {
+          name: 'deviceTypeCode',
+          label: 'Device type code',
+          field: fx.deviceTypeCode,
+        },
+        {
+          name: 'pvSystemOwner',
+          label: '(27) PV System Owner',
+          field: fx.ownerLegalName,
+        },
+        {
+          name: 'pvSystemOwnerAddress',
+          label: 'PV System Owner address (HQ)',
+          field: fx.ownerAddress,
+        },
         { name: 'latitude', label: 'Latitude', field: fx.latitude },
         { name: 'longitude', label: 'Longitude', field: fx.longitude },
-        { name: 'generatingUnitCount', label: '(13) Number of generating units', field: fx.inverterCount },
-        { name: 'networkOwner', label: '(17) Network owner', field: fx.networkOwner },
+        {
+          name: 'generatingUnitCount',
+          label: '(13) Number of generating units',
+          field: fx.inverterCount,
+        },
+        {
+          name: 'networkOwner',
+          label: '(17) Network owner',
+          field: fx.networkOwner,
+        },
       ];
     }
     return [];
@@ -2599,9 +2938,9 @@ export class AddDevicesComponent implements OnDestroy {
     source: 'SLD' | 'SF-02c' | 'COD' | 'SF-02',
   ): void {
     const fileMap = {
-      'SLD': this.sldExtractionFile,
+      SLD: this.sldExtractionFile,
       'SF-02c': this.sf02cExtractionFile,
-      'COD': this.codExtractionFile,
+      COD: this.codExtractionFile,
       'SF-02': this.sf02ExtractionFile,
     } as const;
     const file = fileMap[source][deviceIndex];
@@ -2611,7 +2950,12 @@ export class AddDevicesComponent implements OnDestroy {
       // will open as part of the extraction completion path.
       return this.reverifyFromAttached(deviceIndex, source);
     }
-    this.openVerifyQueue(deviceIndex, file, source, this.buildVerifySpecs(deviceIndex, source));
+    this.openVerifyQueue(
+      deviceIndex,
+      file,
+      source,
+      this.buildVerifySpecs(deviceIndex, source),
+    );
   }
 
   /** Generic verify-source queue opener. Builds queue items from a
@@ -2669,13 +3013,18 @@ export class AddDevicesComponent implements OnDestroy {
       // distinct cases: (a) extractor returned nothing usable,
       // (b) every field already verifiedBy-stamped, (c) every value
       // is on the dismiss blacklist.
-      let withValue = 0, alreadyVerified = 0, dismissed = 0;
+      let withValue = 0,
+        alreadyVerified = 0,
+        dismissed = 0;
       for (const s of specs) {
         const field = s.field;
         if (!field || field.value == null) continue;
         withValue++;
         const prov = this.appliedProvenance[deviceIndex]?.[s.name];
-        if (prov && (prov as any).verifiedBy) { alreadyVerified++; continue; }
+        if (prov && (prov as any).verifiedBy) {
+          alreadyVerified++;
+          continue;
+        }
         const next = s.transform ? s.transform(field.value) : field.value;
         if (this.isDismissed(deviceIndex, s.name, next)) dismissed++;
       }
@@ -2689,7 +3038,14 @@ export class AddDevicesComponent implements OnDestroy {
       } else {
         msg = `${source} extracted: nothing to verify (specs=${specs.length}, withValue=${withValue}).`;
       }
-      console.warn('[verify] empty queue', { source, deviceIndex, specCount: specs.length, withValue, alreadyVerified, dismissed });
+      console.warn('[verify] empty queue', {
+        source,
+        deviceIndex,
+        specCount: specs.length,
+        withValue,
+        alreadyVerified,
+        dismissed,
+      });
       this.toastrService.info(msg);
       return;
     }
@@ -2703,16 +3059,13 @@ export class AddDevicesComponent implements OnDestroy {
       this.verifySourceDialogRef.close();
       this.verifySourceDialogRef = null;
     }
-    this.verifySourceDialogRef = this.dialog.open(
-      this.verifySourceDialog,
-      {
-        width: '95vw',
-        maxWidth: '95vw',
-        maxHeight: '95vh',
-        disableClose: false,
-        panelClass: 'drec-floating-dialog',
-      },
-    );
+    this.verifySourceDialogRef = this.dialog.open(this.verifySourceDialog, {
+      width: '95vw',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      disableClose: false,
+      panelClass: 'drec-floating-dialog',
+    });
     setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 50);
   }
 
@@ -2720,7 +3073,12 @@ export class AddDevicesComponent implements OnDestroy {
    *  reverifySldFromAttached + any external callers; new code should
    *  prefer openVerifyForSource(deviceIndex, 'SLD'). */
   openSldVerifyQueue(deviceIndex: number, file: File): void {
-    this.openVerifyQueue(deviceIndex, file, 'SLD', this.buildVerifySpecs(deviceIndex, 'SLD'));
+    this.openVerifyQueue(
+      deviceIndex,
+      file,
+      'SLD',
+      this.buildVerifySpecs(deviceIndex, 'SLD'),
+    );
   }
 
   /** Count of extracted meter IDs that haven't been per-ID verified
@@ -2782,10 +3140,13 @@ export class AddDevicesComponent implements OnDestroy {
       this.verifySourceDialogRef.close();
       this.verifySourceDialogRef = null;
     }
-    this.verifySourceDialogRef = this.dialog.open(
-      this.verifySourceDialog,
-      { width: '95vw', maxWidth: '95vw', maxHeight: '95vh', disableClose: false, panelClass: 'drec-floating-dialog' },
-    );
+    this.verifySourceDialogRef = this.dialog.open(this.verifySourceDialog, {
+      width: '95vw',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      disableClose: false,
+      panelClass: 'drec-floating-dialog',
+    });
     setTimeout(() => this.renderVerifyCanvas({ resetToItemPage: true }), 50);
   }
 
@@ -2794,7 +3155,9 @@ export class AddDevicesComponent implements OnDestroy {
    *  an <img> and copies to the canvas. Captures the resulting CSS
    *  size on verifyCanvasSize so the overlay div can position the
    *  bbox in screen pixels. */
-  private async renderVerifyCanvas(opts?: { resetToItemPage?: boolean }): Promise<void> {
+  private async renderVerifyCanvas(opts?: {
+    resetToItemPage?: boolean;
+  }): Promise<void> {
     const canvas = this.verifyCanvasEl?.nativeElement;
     const item = this.verifyCurrent;
     // Per-item file (e.g. meter IDs queue, one file per serial) wins;
@@ -2832,7 +3195,11 @@ export class AddDevicesComponent implements OnDestroy {
         // page's text content and draw highlight overlays. Async + best-
         // effort: if the doc is scanned (no text layer) we just get
         // zero hits — no error.
-        this.verifyTextMatches = await this.findValueOnPage(pdfPage, scaled, item.value);
+        this.verifyTextMatches = await this.findValueOnPage(
+          pdfPage,
+          scaled,
+          item.value,
+        );
         // Fallback: when the value is a digit / boolean / derived
         // (so its literal text doesn't anchor), search the
         // extractor's reasoning keywords + related-field values in
@@ -2846,10 +3213,7 @@ export class AddDevicesComponent implements OnDestroy {
         if (!this.verifyTextMatches.length && item.source !== 'SF-02') {
           const reasoning = String((item as any).reasoning ?? '').trim();
           const related = this.relatedLiteralValuesFor(item.field);
-          const needles = [
-            ...(reasoning ? [reasoning] : []),
-            ...related,
-          ];
+          const needles = [...(reasoning ? [reasoning] : []), ...related];
           if (needles.length) {
             const hits = await this.findPdfTextHits(
               pdfPage,
@@ -2859,7 +3223,12 @@ export class AddDevicesComponent implements OnDestroy {
               { minLen: 3 },
             );
             // Strip the page field — verifyTextMatches expects {x,y,w,h}.
-            this.verifyTextMatches = hits.map(({ x, y, w, h }) => ({ x, y, w, h }));
+            this.verifyTextMatches = hits.map(({ x, y, w, h }) => ({
+              x,
+              y,
+              w,
+              h,
+            }));
           }
         }
         // Kick off a whole-doc scan if we don't have it yet — populates
@@ -2959,8 +3328,7 @@ export class AddDevicesComponent implements OnDestroy {
         // this, short numeric values like "(13) Number of generating
         // units = 2" auto-skipped because findValueOnPage refuses
         // needles <3 chars and no text overlap exists to validate.
-        const modelRegion =
-          item.source === 'SF-02' ? undefined : item.region;
+        const modelRegion = item.source === 'SF-02' ? undefined : item.region;
         if (modelRegion && (modelRegion.page ?? 1) === this.verifyCurrentPage) {
           hasMeaningfulHit = true;
         } else {
@@ -3007,12 +3375,7 @@ export class AddDevicesComponent implements OnDestroy {
     const by = b.y - pad;
     const bw = b.w + pad * 2;
     const bh = b.h + pad * 2;
-    return (
-      a.x < bx + bw &&
-      a.x + a.w > bx &&
-      a.y < by + bh &&
-      a.y + a.h > by
-    );
+    return a.x < bx + bw && a.x + a.w > bx && a.y < by + bh && a.y + a.h > by;
   }
 
   /** Auto-verify the current queue item without a human click.
@@ -3036,7 +3399,9 @@ export class AddDevicesComponent implements OnDestroy {
         ];
         this.syncSerialNumberControl(item.deviceIndex);
       }
-      const prevProv = this.appliedProvenance[item.deviceIndex]?.['serialNumber'] as any;
+      const prevProv = this.appliedProvenance[item.deviceIndex]?.[
+        'serialNumber'
+      ] as any;
       const prevVerifiedByValue: Record<string, any> = prevProv?.verifiedByValue
         ? { ...prevProv.verifiedByValue }
         : {};
@@ -3048,7 +3413,9 @@ export class AddDevicesComponent implements OnDestroy {
         id,
         item.fileOverride ? { name: item.fileOverride.name } : undefined,
       );
-      const prov = this.appliedProvenance[item.deviceIndex]?.['serialNumber'] as any;
+      const prov = this.appliedProvenance[item.deviceIndex]?.[
+        'serialNumber'
+      ] as any;
       if (prov) {
         prov.verifiedByValue = {
           ...prevVerifiedByValue,
@@ -3075,7 +3442,10 @@ export class AddDevicesComponent implements OnDestroy {
     );
     const entry = this.appliedProvenance[item.deviceIndex]?.[item.field];
     if (entry) {
-      (entry as any).verifiedBy = { auto: reason, at: new Date().toISOString() };
+      (entry as any).verifiedBy = {
+        auto: reason,
+        at: new Date().toISOString(),
+      };
       if (item.region) (entry as any).region = item.region;
     }
     this.verifyAdvance();
@@ -3108,13 +3478,19 @@ export class AddDevicesComponent implements OnDestroy {
     while (el) {
       const style = window.getComputedStyle(el);
       const oy = style.overflowY;
-      if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight) {
+      if (
+        (oy === 'auto' || oy === 'scroll') &&
+        el.scrollHeight > el.clientHeight
+      ) {
         break;
       }
       el = el.parentElement;
     }
     if (!el) return;
-    const canvasOffsetTop = canvas.getBoundingClientRect().top - el.getBoundingClientRect().top + el.scrollTop;
+    const canvasOffsetTop =
+      canvas.getBoundingClientRect().top -
+      el.getBoundingClientRect().top +
+      el.scrollTop;
     const bboxYInScroll = canvasOffsetTop + yFrac * cssH;
     const target = Math.max(0, bboxYInScroll - el.clientHeight / 2);
     el.scrollTo({ top: target, behavior: 'smooth' });
@@ -3133,7 +3509,9 @@ export class AddDevicesComponent implements OnDestroy {
     viewport: any,
     value: any,
   ): Promise<Array<{ x: number; y: number; w: number; h: number }>> {
-    const needle = String(value ?? '').trim().toLowerCase();
+    const needle = String(value ?? '')
+      .trim()
+      .toLowerCase();
     if (needle.length < 3) return [];
     try {
       const tc = await pdfPage.getTextContent();
@@ -3154,7 +3532,8 @@ export class AddDevicesComponent implements OnDestroy {
         // but the y refers to the *baseline*; subtract glyph height for
         // the top edge of the rect.
         const y = vp[1] - h;
-        if (!isFinite(x) || !isFinite(y) || !isFinite(w) || !isFinite(h)) continue;
+        if (!isFinite(x) || !isFinite(y) || !isFinite(w) || !isFinite(h))
+          continue;
         matches.push({
           x: x / viewport.width,
           y: y / viewport.height,
@@ -3179,26 +3558,68 @@ export class AddDevicesComponent implements OnDestroy {
     values: string[],
     pageNumber: number,
     opts: { minLen?: number } = {},
-  ): Promise<Array<{ page: number; x: number; y: number; w: number; h: number }>> {
+  ): Promise<
+    Array<{ page: number; x: number; y: number; w: number; h: number }>
+  > {
     const STOP = new Set([
-      'the', 'and', 'for', 'with', 'this', 'that', 'from', 'into',
-      'shown', 'page', 'label', 'labeled', 'labelled', 'value',
-      'kwac', 'kwdc', 'states', 'indicates', 'confirms', 'shows',
-      'reads', 'block', 'section', 'diagram', 'document',
-      'inferred', 'derived', 'mentioned', 'visible', 'appears',
-      'based', 'implied', 'because', 'which', 'where', 'there',
+      'the',
+      'and',
+      'for',
+      'with',
+      'this',
+      'that',
+      'from',
+      'into',
+      'shown',
+      'page',
+      'label',
+      'labeled',
+      'labelled',
+      'value',
+      'kwac',
+      'kwdc',
+      'states',
+      'indicates',
+      'confirms',
+      'shows',
+      'reads',
+      'block',
+      'section',
+      'diagram',
+      'document',
+      'inferred',
+      'derived',
+      'mentioned',
+      'visible',
+      'appears',
+      'based',
+      'implied',
+      'because',
+      'which',
+      'where',
+      'there',
     ]);
     const minLen = opts.minLen ?? 4;
     const needles = Array.from(
       new Set(
         values
-          .flatMap((v) => String(v ?? '').toLowerCase().split(/[^a-z0-9]+/))
+          .flatMap((v) =>
+            String(v ?? '')
+              .toLowerCase()
+              .split(/[^a-z0-9]+/),
+          )
           .filter((t) => t.length >= minLen && !STOP.has(t)),
       ),
     );
     if (!needles.length) return [];
     try {
-      const out: Array<{ page: number; x: number; y: number; w: number; h: number }> = [];
+      const out: Array<{
+        page: number;
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+      }> = [];
       // Form-widget annotations (fillable PDFs): the user-typed value
       // lives in the widget's fieldValue, NOT in the text layer. pdfjs
       // exposes them via getAnnotations(); rect is in PDF user space.
@@ -3209,7 +3630,8 @@ export class AddDevicesComponent implements OnDestroy {
           const fv = a.fieldValue;
           const sCandidates: string[] = [];
           if (typeof fv === 'string') sCandidates.push(fv);
-          else if (Array.isArray(fv)) for (const v of fv) if (typeof v === 'string') sCandidates.push(v);
+          else if (Array.isArray(fv))
+            for (const v of fv) if (typeof v === 'string') sCandidates.push(v);
           const blob = sCandidates.join(' ').toLowerCase();
           if (!blob) continue;
           if (!needles.some((n) => blob.includes(n))) continue;
@@ -3221,7 +3643,8 @@ export class AddDevicesComponent implements OnDestroy {
           const y = Math.min(p1y, p2y);
           const w = Math.abs(p2x - p1x);
           const h = Math.abs(p2y - p1y);
-          if (!isFinite(x) || !isFinite(y) || !isFinite(w) || !isFinite(h)) continue;
+          if (!isFinite(x) || !isFinite(y) || !isFinite(w) || !isFinite(h))
+            continue;
           out.push({
             page: pageNumber,
             x: x / viewport.width,
@@ -3244,7 +3667,8 @@ export class AddDevicesComponent implements OnDestroy {
         const h = (it.transform[3] || it.height || 0) * viewport.scale;
         const x = vp[0];
         const y = vp[1] - h;
-        if (!isFinite(x) || !isFinite(y) || !isFinite(w) || !isFinite(h)) continue;
+        if (!isFinite(x) || !isFinite(y) || !isFinite(w) || !isFinite(h))
+          continue;
         out.push({
           page: pageNumber,
           x: x / viewport.width,
@@ -3268,7 +3692,9 @@ export class AddDevicesComponent implements OnDestroy {
     const key = `${file.name}::${file.size}::${String(value)}`;
     if (key === this.verifyScanKey) return;
     this.verifyScanKey = key;
-    const needle = String(value ?? '').trim().toLowerCase();
+    const needle = String(value ?? '')
+      .trim()
+      .toLowerCase();
     if (needle.length < 3) {
       this.verifyMatchesByPage = [];
       return;
@@ -3291,7 +3717,9 @@ export class AddDevicesComponent implements OnDestroy {
       // Only commit if the scan is still relevant to the user's current
       // queue item (they may have advanced while we were scanning).
       if (key === this.verifyScanKey) {
-        this.ngZone.run(() => { this.verifyMatchesByPage = counts; });
+        this.ngZone.run(() => {
+          this.verifyMatchesByPage = counts;
+        });
       }
     })();
   }
@@ -3321,7 +3749,7 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   /** Current item in the verify queue, or null when done. */
-  get verifyCurrent(): typeof this.verifyQueue[number] | null {
+  get verifyCurrent(): (typeof this.verifyQueue)[number] | null {
     return this.verifyQueue[this.verifyQueueIndex] ?? null;
   }
 
@@ -3351,7 +3779,9 @@ export class AddDevicesComponent implements OnDestroy {
       // restore + extend after the rewrite. Without this, Verify (N)
       // never drops below N-1 because every accept resets the map and
       // keeps only the just-accepted ID.
-      const prevProv = this.appliedProvenance[item.deviceIndex]?.['serialNumber'] as any;
+      const prevProv = this.appliedProvenance[item.deviceIndex]?.[
+        'serialNumber'
+      ] as any;
       const prevVerifiedByValue: Record<string, any> = prevProv?.verifiedByValue
         ? { ...prevProv.verifiedByValue }
         : {};
@@ -3366,7 +3796,9 @@ export class AddDevicesComponent implements OnDestroy {
         id,
         item.fileOverride ? { name: item.fileOverride.name } : undefined,
       );
-      const prov = this.appliedProvenance[item.deviceIndex]?.['serialNumber'] as any;
+      const prov = this.appliedProvenance[item.deviceIndex]?.[
+        'serialNumber'
+      ] as any;
       if (prov) {
         prov.verifiedByValue = {
           ...prevVerifiedByValue,
@@ -3514,7 +3946,9 @@ export class AddDevicesComponent implements OnDestroy {
     if (source === 'SF-02c') {
       // SF-02C carries the no-double-counting declaration; default
       // (31) to "No" when empty.
-      const ec = this.deviceForms.at(deviceIndex)?.get('otherEacSchemeRegistration');
+      const ec = this.deviceForms
+        .at(deviceIndex)
+        ?.get('otherEacSchemeRegistration');
       if (ec && !ec.value) {
         // Auto-default, not a user edit — leave pristine.
         ec.setValue('No');
@@ -3614,10 +4048,14 @@ export class AddDevicesComponent implements OnDestroy {
     deviceIndex: number,
     source: string,
   ): { id?: number; name: string } | undefined {
-    if (source === 'SLD') return this.sldExtractionDoc[deviceIndex] ?? undefined;
-    if (source === 'SF-02c') return this.sf02cExtractionDoc[deviceIndex] ?? undefined;
-    if (source === 'COD') return this.codExtractionDoc[deviceIndex] ?? undefined;
-    if (source === 'SF-02') return this.sf02ExtractionDoc[deviceIndex] ?? undefined;
+    if (source === 'SLD')
+      return this.sldExtractionDoc[deviceIndex] ?? undefined;
+    if (source === 'SF-02c')
+      return this.sf02cExtractionDoc[deviceIndex] ?? undefined;
+    if (source === 'COD')
+      return this.codExtractionDoc[deviceIndex] ?? undefined;
+    if (source === 'SF-02')
+      return this.sf02ExtractionDoc[deviceIndex] ?? undefined;
     return undefined;
   }
 
@@ -3636,11 +4074,13 @@ export class AddDevicesComponent implements OnDestroy {
     const sourceDoc = this.docForSource(deviceIndex, source);
     let filled = 0;
     const conflicts: typeof this.pendingOverwriteCandidates = [];
-    const unchecked = this.uncheckedExtractedFields[deviceIndex] ?? new Set<string>();
+    const unchecked =
+      this.uncheckedExtractedFields[deviceIndex] ?? new Set<string>();
     const prefix = source.toLowerCase().replace(/-/g, '');
     for (const c of candidates) {
       if (unchecked.has(`${prefix}:${c.name}`)) continue;
-      if (!c.field || c.field.value == null || c.field.confidence < 0.7) continue;
+      if (!c.field || c.field.value == null || c.field.confidence < 0.7)
+        continue;
       const ctl = form.get(c.name);
       if (!ctl) continue;
       let next = c.transform ? c.transform(c.field.value) : c.field.value;
@@ -3694,7 +4134,9 @@ export class AddDevicesComponent implements OnDestroy {
         name: c.name,
         label:
           AddDevicesComponent.FIELD_LABELS[c.name] ??
-          c.name.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase()),
+          c.name
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, (s) => s.toUpperCase()),
         current: cur,
         next,
         confidence: c.field.confidence,
@@ -3762,7 +4204,9 @@ export class AddDevicesComponent implements OnDestroy {
     }
     this.pendingOverwriteAfter?.();
     if (applied) {
-      this.toastrService.success(`Overwrote ${applied} field${applied === 1 ? '' : 's'}`);
+      this.toastrService.success(
+        `Overwrote ${applied} field${applied === 1 ? '' : 's'}`,
+      );
     }
     this.pendingOverwriteCandidates = [];
     this.pendingOverwriteSource = '';
@@ -3784,7 +4228,11 @@ export class AddDevicesComponent implements OnDestroy {
     if (v === null || v === undefined) return '';
     if (typeof v === 'number') return Number(v.toFixed(4)).toString();
     if (typeof v === 'boolean') return String(v);
-    if (Array.isArray(v)) return v.map((x) => String(x).trim().toLowerCase()).sort().join('|');
+    if (Array.isArray(v))
+      return v
+        .map((x) => String(x).trim().toLowerCase())
+        .sort()
+        .join('|');
     return String(v).trim().toLowerCase();
   }
 
@@ -3798,7 +4246,8 @@ export class AddDevicesComponent implements OnDestroy {
   ): void {
     const ctl = this.deviceForms.at(deviceIndex).get('dataSource');
     if (!ctl) return;
-    if (ctl.value !== null && ctl.value !== undefined && ctl.value !== '') return;
+    if (ctl.value !== null && ctl.value !== undefined && ctl.value !== '')
+      return;
     // Extractor-derived, not a user edit — leave pristine.
     ctl.setValue(value);
     // Credit whichever rule fired this — SLD / SF-02 / Meter IDs.
@@ -3851,9 +4300,10 @@ export class AddDevicesComponent implements OnDestroy {
     // Provisional Acceptance Certificate listing 15 mini-grids).
     // Without this, the extractor reads the table arbitrarily and
     // returns garbage values (totals, sums, wrong rows).
-    const siteName = String(
-      this.deviceForms.at(deviceIndex)?.get('siteName')?.value ?? '',
-    ).trim() || undefined;
+    const siteName =
+      String(
+        this.deviceForms.at(deviceIndex)?.get('siteName')?.value ?? '',
+      ).trim() || undefined;
     this.documentClassifier
       .extractCodFields(file, this.editingDeviceId ?? undefined, siteName)
       .then((res) =>
@@ -3868,7 +4318,8 @@ export class AddDevicesComponent implements OnDestroy {
             res.measurementIds.confidence >= 0.7 &&
             res.measurementIds.value.length
           ) {
-            const dismissed = this.dismissedSerialNumbers[deviceIndex] ?? new Set();
+            const dismissed =
+              this.dismissedSerialNumbers[deviceIndex] ?? new Set();
             const existing = new Set(
               this.meterIdsExtractions[deviceIndex] || [],
             );
@@ -3902,8 +4353,12 @@ export class AddDevicesComponent implements OnDestroy {
     const form = this.deviceForms.at(deviceIndex);
     const ctl = form?.get('offTakerSameCompanyAsOwner');
     if (!ctl || ctl.value) return;
-    const owner = String(form?.get('pvSystemOwner')?.value ?? '').trim().toLowerCase();
-    const off = String(form?.get('offTakerName')?.value ?? '').trim().toLowerCase();
+    const owner = String(form?.get('pvSystemOwner')?.value ?? '')
+      .trim()
+      .toLowerCase();
+    const off = String(form?.get('offTakerName')?.value ?? '')
+      .trim()
+      .toLowerCase();
     if (!owner || !off) return;
     // Derived from other fields, not a user edit — leave pristine.
     ctl.setValue(owner === off ? 'Yes' : 'No');
@@ -4018,11 +4473,7 @@ export class AddDevicesComponent implements OnDestroy {
           // Record provenance regardless of whether we patched — if the
           // registrant's value matches our suggestion, that's still
           // metering-evidence-backed.
-          if (
-            cur == null ||
-            cur === '' ||
-            String(cur).trim() === display
-          ) {
+          if (cur == null || cur === '' || String(cur).trim() === display) {
             this.recordProvenance(
               deviceIndex,
               'sourceAccessMode',
@@ -4059,7 +4510,8 @@ export class AddDevicesComponent implements OnDestroy {
             const existing = new Set(
               this.meterIdsExtractions[deviceIndex] || [],
             );
-            const dismissed = this.dismissedSerialNumbers[deviceIndex] ?? new Set();
+            const dismissed =
+              this.dismissedSerialNumbers[deviceIndex] ?? new Set();
             for (const id of res.measurementIds.value) {
               // Honour the user's dismiss — re-extracting the doc that
               // produced a phantom serial must not bring the phantom
@@ -4067,18 +4519,32 @@ export class AddDevicesComponent implements OnDestroy {
               if (dismissed.has((id || '').trim().toLowerCase())) continue;
               existing.add(id);
               if (!this.meterIdsExtractionDocs[deviceIndex][id]) {
-                this.meterIdsExtractionDocs[deviceIndex][id] = { name: file.name, file };
+                this.meterIdsExtractionDocs[deviceIndex][id] = {
+                  name: file.name,
+                  file,
+                };
               }
             }
             this.meterIdsExtractions[deviceIndex] = [...existing];
           }
-          if (res?.inverterMakeModel && res.inverterMakeModel.confidence >= 0.7) {
+          if (
+            res?.inverterMakeModel &&
+            res.inverterMakeModel.confidence >= 0.7
+          ) {
             this.meterIdsBrands[deviceIndex] = res.inverterMakeModel.value;
           }
           if (documentId && res?.measurementIds?.value?.length) {
             this.deviceService
-              .saveDocumentExtraction(documentId, 'extract-meter-ids-fields', res)
-              .subscribe({ error: () => {/* silent — best-effort */} });
+              .saveDocumentExtraction(
+                documentId,
+                'extract-meter-ids-fields',
+                res,
+              )
+              .subscribe({
+                error: () => {
+                  /* silent — best-effort */
+                },
+              });
           }
         }),
       )
@@ -4119,7 +4585,11 @@ export class AddDevicesComponent implements OnDestroy {
     }
     this.meterIdsExtractions[deviceIndex] = [...existing];
     const brand: unknown = response?.inverterMakeModel?.value;
-    if (typeof brand === 'string' && brand && !this.meterIdsBrands[deviceIndex]) {
+    if (
+      typeof brand === 'string' &&
+      brand &&
+      !this.meterIdsBrands[deviceIndex]
+    ) {
       this.meterIdsBrands[deviceIndex] = brand;
     }
   }
@@ -4200,7 +4670,13 @@ export class AddDevicesComponent implements OnDestroy {
         if (!cur) {
           // Extractor-derived, not a user edit — leave pristine.
           brandCtl.setValue(brand);
-          this.recordProvenance(deviceIndex, 'dataSourceBrand', 'Meter IDs', 1, brand);
+          this.recordProvenance(
+            deviceIndex,
+            'dataSourceBrand',
+            'Meter IDs',
+            1,
+            brand,
+          );
         }
       }
     }
@@ -4328,13 +4804,21 @@ export class AddDevicesComponent implements OnDestroy {
   /** Aggregate every extractor's per-form-field claim with its
    *  source label and confidence. One field may have multiple claims
    *  (e.g. capacity from SLD + COD + SF-02). */
-  collectExtractionClaims(
-    deviceIndex: number,
-  ): {
-    [field: string]: Array<{ source: string; value: any; confidence: number; at?: string }>;
+  collectExtractionClaims(deviceIndex: number): {
+    [field: string]: Array<{
+      source: string;
+      value: any;
+      confidence: number;
+      at?: string;
+    }>;
   } {
     const claims: {
-      [field: string]: Array<{ source: string; value: any; confidence: number; at?: string }>;
+      [field: string]: Array<{
+        source: string;
+        value: any;
+        confidence: number;
+        at?: string;
+      }>;
     } = {};
     const add = (
       field: string,
@@ -4362,10 +4846,17 @@ export class AddDevicesComponent implements OnDestroy {
         v ? 'Yes' : 'No',
       );
       add('gridExportType', 'SLD', sld.gridExportType);
-      add('hasAuxiliaryEnergySources', 'SLD', sld.hasAuxiliaryEnergySources, (v) =>
-        v ? 'Yes' : 'No',
+      add(
+        'hasAuxiliaryEnergySources',
+        'SLD',
+        sld.hasAuxiliaryEnergySources,
+        (v) => (v ? 'Yes' : 'No'),
       );
-      add('auxiliaryEnergySourceDetails', 'SLD', sld.auxiliaryEnergySourceDetails);
+      add(
+        'auxiliaryEnergySourceDetails',
+        'SLD',
+        sld.auxiliaryEnergySourceDetails,
+      );
       add('hasCaptiveConsumer', 'SLD', sld.hasCaptiveConsumer, (v) =>
         v ? 'Yes' : 'No',
       );
@@ -4484,8 +4975,7 @@ export class AddDevicesComponent implements OnDestroy {
       // Inferred string maps 1:1 to the form's enum values.
       const sldFx = this.sldExtractions[deviceIndex];
       const inferOpConfig = (): string | null => {
-        const isMiniGrid =
-          story && /\bmini[\s-]?grid\b/i.test(story);
+        const isMiniGrid = story && /\bmini[\s-]?grid\b/i.test(story);
         const gridTied = sldFx?.gridTied?.value;
         const exportType = sldFx?.gridExportType?.value;
         if (isMiniGrid || gridTied === false) return 'Off-grid / islanded';
@@ -4559,7 +5049,8 @@ export class AddDevicesComponent implements OnDestroy {
       const opConfig = formAt.get('operatingConfiguration')?.value;
       const sam = formAt.get('sourceAccessMode')?.value;
       const offGrid =
-        typeof opConfig === 'string' && /off[\s-]?grid|islanded/i.test(opConfig);
+        typeof opConfig === 'string' &&
+        /off[\s-]?grid|islanded/i.test(opConfig);
       const samMode =
         typeof sam === 'string'
           ? sam.startsWith('Mode 1')
@@ -4593,10 +5084,7 @@ export class AddDevicesComponent implements OnDestroy {
       // value appears in the story, credit the story as the source.
       if (story) {
         const sp = formAt.get('stateProvince')?.value as string | null;
-        if (
-          sp &&
-          story.toLowerCase().includes(sp.toLowerCase())
-        ) {
+        if (sp && story.toLowerCase().includes(sp.toLowerCase())) {
           // addInferred matches via String-equal; pass the form value
           // back as the inferred value so it always matches.
           addInferred('stateProvince', 'Impact story', sp);
@@ -4608,10 +5096,7 @@ export class AddDevicesComponent implements OnDestroy {
         // enough that "Atsawa Community" matches "Atsawa community"
         // but a hand-typed off-taker that's not in the story won't.
         const otn = formAt.get('offTakerName')?.value as string | null;
-        if (
-          otn &&
-          story.toLowerCase().includes(otn.toLowerCase())
-        ) {
+        if (otn && story.toLowerCase().includes(otn.toLowerCase())) {
           addInferred('offTakerName', 'Impact story', otn);
         }
       }
@@ -4638,14 +5123,14 @@ export class AddDevicesComponent implements OnDestroy {
         addInferred('offTaker', 'Impact story', this.inferOffTaker(story));
         const fund = this.inferFundingFlags(story);
         if (fund) {
-          addInferred(
-            'hasPublicFunding',
-            'Impact story',
-            fund.publicFunding,
-          );
+          addInferred('hasPublicFunding', 'Impact story', fund.publicFunding);
           addInferred('hasSubsidy', 'Impact story', fund.subsidy);
         }
-        addInferred('SDGBenefits', 'Impact story', this.inferSdgBenefits(story));
+        addInferred(
+          'SDGBenefits',
+          'Impact story',
+          this.inferSdgBenefits(story),
+        );
       }
     }
     // Don't inject the live form value as a synthetic claim — the
@@ -4664,7 +5149,11 @@ export class AddDevicesComponent implements OnDestroy {
     for (const [field, prov] of Object.entries(persisted)) {
       if (claims[field]?.length) continue;
       const cur = formNow?.get(field)?.value;
-      if (cur == null || cur === '' || (Array.isArray(cur) && cur.length === 0)) {
+      if (
+        cur == null ||
+        cur === '' ||
+        (Array.isArray(cur) && cur.length === 0)
+      ) {
         continue;
       }
       claims[field] = [
@@ -4682,10 +5171,13 @@ export class AddDevicesComponent implements OnDestroy {
   /** Returns only the entries where ≥2 sources disagree (after
    *  normalisation: numbers rounded to 2dp, strings trimmed +
    *  lowercased). */
-  getConflicts(
-    deviceIndex: number,
-  ): {
-    [field: string]: Array<{ source: string; value: any; confidence: number; at?: string }>;
+  getConflicts(deviceIndex: number): {
+    [field: string]: Array<{
+      source: string;
+      value: any;
+      confidence: number;
+      at?: string;
+    }>;
   } {
     const claims = this.collectExtractionClaims(deviceIndex);
     const out: typeof claims = {};
@@ -4773,17 +5265,18 @@ export class AddDevicesComponent implements OnDestroy {
     // the registrant shouldn't have to make — the form always wants
     // the full name and the ISO code is just a noisy extractor artifact.
     if (field === 'countryCodename') {
-      const na = String(this.normalizeCountry(a) ?? '').trim().toLowerCase();
-      const nb = String(this.normalizeCountry(b) ?? '').trim().toLowerCase();
+      const na = String(this.normalizeCountry(a) ?? '')
+        .trim()
+        .toLowerCase();
+      const nb = String(this.normalizeCountry(b) ?? '')
+        .trim()
+        .toLowerCase();
       if (na && nb && na === nb) return true;
     }
     const sa = String(a).trim().toLowerCase();
     const sb = String(b).trim().toLowerCase();
     if (sa === sb) return true;
-    if (
-      !field ||
-      !AddDevicesComponent.LOOSE_MATCH_FIELDS.has(field)
-    ) {
+    if (!field || !AddDevicesComponent.LOOSE_MATCH_FIELDS.has(field)) {
       return false;
     }
     const tokenize = (s: string): Set<string> =>
@@ -4817,9 +5310,14 @@ export class AddDevicesComponent implements OnDestroy {
   private _conflictCache: {
     [deviceIndex: number]: { key: string; value: any };
   } = {};
-  uniqueConflicts(
-    deviceIndex: number,
-  ): { [field: string]: Array<{ source: string; value: any; confidence: number; at?: string }> } {
+  uniqueConflicts(deviceIndex: number): {
+    [field: string]: Array<{
+      source: string;
+      value: any;
+      confidence: number;
+      at?: string;
+    }>;
+  } {
     const sld = this.sldExtractions[deviceIndex];
     const sf02c = this.sf02cExtractions[deviceIndex];
     const cod = this.codExtractions[deviceIndex];
@@ -4850,11 +5348,7 @@ export class AddDevicesComponent implements OnDestroy {
     return out;
   }
 
-  setConflictPick(
-    deviceIndex: number,
-    field: string,
-    source: string,
-  ): void {
+  setConflictPick(deviceIndex: number, field: string, source: string): void {
     if (!this.conflictPicks[deviceIndex]) this.conflictPicks[deviceIndex] = {};
     this.conflictPicks[deviceIndex][field] = source;
   }
@@ -4970,7 +5464,12 @@ export class AddDevicesComponent implements OnDestroy {
       current: any;
       candidates: Array<{ source: string; value: any }>;
     }>;
-    unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
+    unextracted: Array<{
+      field: string;
+      label: string;
+      via: string;
+      value?: any;
+    }>;
   } = { empty: [], disagrees: [], unextracted: [] };
 
   /** Always-on sidebar issue tally. Computed on a debounced cadence
@@ -4984,7 +5483,12 @@ export class AddDevicesComponent implements OnDestroy {
       current: any;
       candidates: Array<{ source: string; value: any }>;
     }>;
-    unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
+    unextracted: Array<{
+      field: string;
+      label: string;
+      via: string;
+      value?: any;
+    }>;
   } = { empty: [], disagrees: [], unextracted: [] };
 
   /** Collapsed state for the sidebar — registrants who hate it can
@@ -5109,7 +5613,14 @@ export class AddDevicesComponent implements OnDestroy {
   ocWalkCanvasSize: { cssWidth: number; cssHeight: number } | null = null;
   /** Region to draw on the OC# walk source canvas — pulled from the
    *  current step's appliedProvenance entry. */
-  ocWalkCurrentRegion: { page?: number; x: number; y: number; w: number; h: number; approximate?: boolean } | null = null;
+  ocWalkCurrentRegion: {
+    page?: number;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    approximate?: boolean;
+  } | null = null;
   /** "Scan around here" hints when the field has no precise bbox.
    *  Populated by a client-side Tesseract pass that matches tokens
    *  from the reasoning text against the rendered canvas. Rendered
@@ -5142,15 +5653,15 @@ export class AddDevicesComponent implements OnDestroy {
    *  entry per Approve / Decline / Use-mine action. Persisted on
    *  the device record so a reviewer can replay it later. */
   ocWalkLog: Array<{
-    at: string;              // ISO timestamp
+    at: string; // ISO timestamp
     oc: number;
     field: string;
     label: string;
     action: 'approve' | 'decline' | 'fill_your_own' | 'skip';
     valueBefore: any;
     valueAfter: any;
-    source: string | null;   // recorded provenance source AT THE TIME
-    by: string;              // registrant email
+    source: string | null; // recorded provenance source AT THE TIME
+    by: string; // registrant email
   }> = [];
   /** Replay mode: when true, the same wizard dialog shows the recorded
    *  log instead of the live form, with no interactive Approve/Decline/
@@ -5161,9 +5672,7 @@ export class AddDevicesComponent implements OnDestroy {
   /** localStorage key for the paused-walk state. */
   private ocWalkStateKey(): string {
     const id =
-      (this as any).editingDeviceId ??
-      this.editingExternalId ??
-      `draft:0`;
+      (this as any).editingDeviceId ?? this.editingExternalId ?? `draft:0`;
     return `drec.ocWalkState.${id}`;
   }
   /** Persist current walk state (queue + index) so a refresh resumes
@@ -5183,7 +5692,9 @@ export class AddDevicesComponent implements OnDestroy {
           paused: this.ocWalkPaused,
         }),
       );
-    } catch {}
+    } catch {
+      // localStorage unavailable — the walk state just won't persist.
+    }
   }
   /** Hydrate paused-walk state on edit-load. Called from
    *  loadDeviceForEdit alongside the other localStorage hydrators. */
@@ -5197,7 +5708,9 @@ export class AddDevicesComponent implements OnDestroy {
         this.ocWalkIndex = Math.max(0, Math.min(s.index, s.queue.length - 1));
         this.ocWalkPaused = true;
       }
-    } catch {}
+    } catch {
+      // localStorage unavailable / malformed JSON — start unpaused.
+    }
   }
 
   /** Build the queue: every field whose FIELD_LABELS entry starts with
@@ -5213,7 +5726,9 @@ export class AddDevicesComponent implements OnDestroy {
       return;
     }
     const items: Array<{ field: string; oc: number; label: string }> = [];
-    for (const [name, label] of Object.entries(AddDevicesComponent.FIELD_LABELS)) {
+    for (const [name, label] of Object.entries(
+      AddDevicesComponent.FIELD_LABELS,
+    )) {
       const m = /^\((\d+)[a-z]?\)/.exec(label);
       if (!m) continue;
       const ctl = this.deviceForms.at(0)?.get(name);
@@ -5255,9 +5770,14 @@ export class AddDevicesComponent implements OnDestroy {
   /** Shared dialog-opener used by both fresh-start and resume. */
   private openOcWalkDialog(): void {
     if (!this.ocWalkthroughDialog) return;
-    if (this.ocWalkDialogRef) { this.ocWalkDialogRef.close(); this.ocWalkDialogRef = null; }
+    if (this.ocWalkDialogRef) {
+      this.ocWalkDialogRef.close();
+      this.ocWalkDialogRef = null;
+    }
     this.ocWalkDialogRef = this.dialog.open(this.ocWalkthroughDialog, {
-      width: '720px', maxWidth: '95vw', disableClose: false,
+      width: '720px',
+      maxWidth: '95vw',
+      disableClose: false,
       panelClass: 'drec-floating-dialog',
     });
     this.ocWalkDialogRef.afterClosed().subscribe(() => {
@@ -5271,7 +5791,10 @@ export class AddDevicesComponent implements OnDestroy {
           this.ocWalkReplayIndex = 0;
           return;
         }
-        if (this.ocWalkQueue.length && this.ocWalkIndex < this.ocWalkQueue.length) {
+        if (
+          this.ocWalkQueue.length &&
+          this.ocWalkIndex < this.ocWalkQueue.length
+        ) {
           this.ocWalkPaused = true;
           this.saveOcWalkState();
         }
@@ -5296,7 +5819,11 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   /** Source label for the current row, drawn from appliedProvenance. */
-  ocWalkCurrentSource(): { source: string; docName?: string; verifiedBy?: string } | null {
+  ocWalkCurrentSource(): {
+    source: string;
+    docName?: string;
+    verifiedBy?: string;
+  } | null {
     const item = this.ocWalkCurrent;
     if (!item) return null;
     const p = this.appliedProvenance[0]?.[item.field] as any;
@@ -5310,7 +5837,10 @@ export class AddDevicesComponent implements OnDestroy {
 
   private primeOcWalkOverride(): void {
     const item = this.ocWalkCurrent;
-    if (!item) { this.ocWalkOverride = ''; return; }
+    if (!item) {
+      this.ocWalkOverride = '';
+      return;
+    }
     const v = this.deviceForms.at(0)?.get(item.field)?.value;
     this.ocWalkOverride = v == null ? '' : String(v);
     // Reset page on step change so the next render starts from the
@@ -5337,11 +5867,11 @@ export class AddDevicesComponent implements OnDestroy {
    *  ("HUAWEI SUN2000-30KTL-M3") which the OCR pass CAN find. */
   private relatedLiteralValuesFor(field: string): string[] {
     const RELATED: Record<string, string[]> = {
-      capacity:             ['dataSourceBrand'],
-      generatingUnitCount:  ['dataSourceBrand'],
-      gridInterconnection:  ['networkOwner'],
-      gridExportType:       ['networkOwner'],
-      hasNetworkMeter:      ['networkOwner'],
+      capacity: ['dataSourceBrand'],
+      generatingUnitCount: ['dataSourceBrand'],
+      gridInterconnection: ['networkOwner'],
+      gridExportType: ['networkOwner'],
+      hasNetworkMeter: ['networkOwner'],
     };
     const sources = RELATED[field] ?? [];
     const form = this.deviceForms.at(0);
@@ -5358,10 +5888,14 @@ export class AddDevicesComponent implements OnDestroy {
     if (!item) return null;
     const p = this.appliedProvenance[0]?.[item.field] as any;
     const src: string = p?.source ?? '';
-    if (src.startsWith('SLD')) return { fileMap: 'sldExtractionFile', docType: 'SINGLE_LINE_DIAGRAM' };
-    if (src.startsWith('SF-02c')) return { fileMap: 'sf02cExtractionFile', docType: 'SF_02C' };
-    if (src.startsWith('COD')) return { fileMap: 'codExtractionFile', docType: 'COD_PROOF' };
-    if (src.startsWith('SF-02')) return { fileMap: 'sf02ExtractionFile', docType: 'FORM_SF_02' };
+    if (src.startsWith('SLD'))
+      return { fileMap: 'sldExtractionFile', docType: 'SINGLE_LINE_DIAGRAM' };
+    if (src.startsWith('SF-02c'))
+      return { fileMap: 'sf02cExtractionFile', docType: 'SF_02C' };
+    if (src.startsWith('COD'))
+      return { fileMap: 'codExtractionFile', docType: 'COD_PROOF' };
+    if (src.startsWith('SF-02'))
+      return { fileMap: 'sf02ExtractionFile', docType: 'FORM_SF_02' };
     return null;
   }
 
@@ -5422,7 +5956,7 @@ export class AddDevicesComponent implements OnDestroy {
     const key = this.ocWalkSourceKey();
     const fileMap = key ? (this as any)[key.fileMap] : null;
     const cached = fileMap?.[0] as File | undefined;
-    const attached = key ? (this.existingDocs[0]?.[key.docType] ?? []) : [];
+    const attached = key ? this.existingDocs[0]?.[key.docType] ?? [] : [];
     if (!cached && !attached.length) {
       // Doc-backed value but no doc on file (likely Manual:<email>
       // routed under a doc source label, or a stale provenance entry).
@@ -5465,7 +5999,10 @@ export class AddDevicesComponent implements OnDestroy {
         if (this.ocWalkCurrentPage === 1 && p.region?.page) {
           this.ocWalkCurrentPage = Math.min(p.region.page, pdf.numPages);
         }
-        const page = Math.min(Math.max(1, this.ocWalkCurrentPage), pdf.numPages);
+        const page = Math.min(
+          Math.max(1, this.ocWalkCurrentPage),
+          pdf.numPages,
+        );
         this.ocWalkCurrentPage = page;
         const pdfPage = await pdf.getPage(page);
         const viewport = pdfPage.getViewport({ scale: 1 });
@@ -5550,7 +6087,11 @@ export class AddDevicesComponent implements OnDestroy {
                   const pg = await pdf.getPage(p);
                   const vp = pg.getViewport({ scale: 1 });
                   const otherHits = await this.findPdfTextHits(
-                    pg, vp, [ownStr], p, { minLen: 3 },
+                    pg,
+                    vp,
+                    [ownStr],
+                    p,
+                    { minLen: 3 },
                   );
                   if (otherHits.length) {
                     foundOnOther = p;
@@ -5696,7 +6237,10 @@ export class AddDevicesComponent implements OnDestroy {
     if (!item) return;
     const v = this.ocWalkOverride;
     const ctl = this.deviceForms.at(0)?.get(item.field);
-    if (!ctl) { this.ocWalkAdvance(); return; }
+    if (!ctl) {
+      this.ocWalkAdvance();
+      return;
+    }
     const before = ctl.value;
     const after = v === '' ? null : v;
     ctl.setValue(after);
@@ -5722,14 +6266,19 @@ export class AddDevicesComponent implements OnDestroy {
     this.ocWalkReplay = true;
     this.ocWalkReplayIndex = 0;
     if (!this.ocWalkthroughDialog) return;
-    if (this.ocWalkDialogRef) { this.ocWalkDialogRef.close(); this.ocWalkDialogRef = null; }
+    if (this.ocWalkDialogRef) {
+      this.ocWalkDialogRef.close();
+      this.ocWalkDialogRef = null;
+    }
     this.ocWalkDialogRef = this.dialog.open(this.ocWalkthroughDialog, {
-      width: '720px', maxWidth: '95vw', disableClose: false,
+      width: '720px',
+      maxWidth: '95vw',
+      disableClose: false,
       panelClass: 'drec-floating-dialog',
     });
   }
 
-  get ocWalkReplayCurrent(): typeof this.ocWalkLog[number] | null {
+  get ocWalkReplayCurrent(): (typeof this.ocWalkLog)[number] | null {
     return this.ocWalkLog[this.ocWalkReplayIndex] ?? null;
   }
   ocWalkReplayPrev(): void {
@@ -5777,7 +6326,12 @@ export class AddDevicesComponent implements OnDestroy {
   /** Explicit "quit" — abandon the walk. Discards queue and any
    *  paused-resume state. Distinct from pause/dismiss which preserves. */
   ocWalkQuit(): void {
-    if (!confirm('Quit OC# walkthrough? Progress to here is kept (already-attested values stay attested), but the walk position will be lost.')) return;
+    if (
+      !confirm(
+        'Quit OC# walkthrough? Progress to here is kept (already-attested values stay attested), but the walk position will be lost.',
+      )
+    )
+      return;
     this.ocWalkClose();
   }
 
@@ -5887,11 +6441,12 @@ export class AddDevicesComponent implements OnDestroy {
     helpfulDocs?: Array<{ name: string; url?: string; docType: string }>;
   }> = [];
 
-  evidenceSummary: { docBacked: number; unattributed: number; total: number } = {
-    docBacked: 0,
-    unattributed: 0,
-    total: 0,
-  };
+  evidenceSummary: { docBacked: number; unattributed: number; total: number } =
+    {
+      docBacked: 0,
+      unattributed: 0,
+      total: 0,
+    };
   /** Drives the evidence-table data-attribute used by CSS to emphasise
    *  no-subject rows on hover/focus of the Flush or Attest button. */
   evidenceHoverAction: 'attest' | 'flush' | null = null;
@@ -5902,7 +6457,13 @@ export class AddDevicesComponent implements OnDestroy {
    *  the doc identity, verifiedBy stamped to the registrant. Updates
    *  the row in place so the dialog re-renders as cleanly-attributed. */
   creditValueToDoc(
-    row: { field: string; displayValue: string; source: string | null; docName: string | null; helpfulDocs?: any },
+    row: {
+      field: string;
+      displayValue: string;
+      source: string | null;
+      docName: string | null;
+      helpfulDocs?: any;
+    },
     doc: { name: string; url?: string; docType: string },
   ): void {
     const i = 0;
@@ -5933,7 +6494,8 @@ export class AddDevicesComponent implements OnDestroy {
 
   /** Count of no-subject rows the user has ticked to attest. */
   attestSelectedCount(): number {
-    return this.evidenceRows.filter((r) => !r.source && r.attestSelected).length;
+    return this.evidenceRows.filter((r) => !r.source && r.attestSelected)
+      .length;
   }
 
   /** Bulk select / clear of every no-subject row's attest checkbox. */
@@ -6121,7 +6683,8 @@ export class AddDevicesComponent implements OnDestroy {
       const entry = this.appliedProvenance[i]?.['serialNumber'];
       if (entry) {
         if (Object.keys(docsByValue).length) entry.docsByValue = docsByValue;
-        if (Object.keys(personByValue).length) entry.personByValue = personByValue;
+        if (Object.keys(personByValue).length)
+          entry.personByValue = personByValue;
       }
     }
     this.toastrService.success(
@@ -6175,13 +6738,17 @@ export class AddDevicesComponent implements OnDestroy {
     // Reverse map: field name → set of doc types that could cover it.
     // Used to suggest attached docs alongside each no-subject row.
     const fieldToDocTypes: Record<string, string[]> = {};
-    for (const [dt, fields] of Object.entries(AddDevicesComponent.DOC_FIELD_MAP)) {
+    for (const [dt, fields] of Object.entries(
+      AddDevicesComponent.DOC_FIELD_MAP,
+    )) {
       for (const f of fields) {
         if (!fieldToDocTypes[f]) fieldToDocTypes[f] = [];
         fieldToDocTypes[f].push(dt);
       }
     }
-    const helpfulDocsFor = (field: string): Array<{ name: string; url?: string; docType: string }> => {
+    const helpfulDocsFor = (
+      field: string,
+    ): Array<{ name: string; url?: string; docType: string }> => {
       const types = fieldToDocTypes[field] ?? [];
       const out: Array<{ name: string; url?: string; docType: string }> = [];
       for (const t of types) {
@@ -6198,7 +6765,9 @@ export class AddDevicesComponent implements OnDestroy {
     // Returns null when the file is staged-only (add-mode, not yet
     // persisted) — the viewer can still be opened from the doc slot
     // in those cases.
-    const urlForDocName = (docName: string | null | undefined): string | null => {
+    const urlForDocName = (
+      docName: string | null | undefined,
+    ): string | null => {
       if (!docName) return null;
       const buckets = this.existingDocs[i] ?? {};
       for (const t of Object.keys(buckets)) {
@@ -6211,7 +6780,9 @@ export class AddDevicesComponent implements OnDestroy {
     // Staged-file lookup — add-mode docs have File handles but no
     // server URL until submit. Returns the File so openDocInPreview
     // can build a blob URL on demand.
-    const stagedFileByName = (docName: string | null | undefined): File | null => {
+    const stagedFileByName = (
+      docName: string | null | undefined,
+    ): File | null => {
       if (!docName) return null;
       const bucket = this.files[i] ?? {};
       for (const t of Object.keys(bucket)) {
@@ -6227,13 +6798,13 @@ export class AddDevicesComponent implements OnDestroy {
     // of that type. Lets the registrant click the source label and
     // land directly in the right viewer. Returns {name, url, file}.
     const sourceToDocType: Record<string, string> = {
-      'SLD': 'SINGLE_LINE_DIAGRAM',
+      SLD: 'SINGLE_LINE_DIAGRAM',
       'SF-02': 'FORM_SF_02',
       'SF-02c': 'SF_02C',
-      'COD': 'COD_PROOF',
+      COD: 'COD_PROOF',
       'Metering evidence': 'METERING_EVIDENCE',
-      'PROOF_OF_OWNERSHIP': 'PROOF_OF_OWNERSHIP',
-      'PROJECT_PHOTOS': 'PROJECT_PHOTOS',
+      PROOF_OF_OWNERSHIP: 'PROOF_OF_OWNERSHIP',
+      PROJECT_PHOTOS: 'PROJECT_PHOTOS',
     };
     const firstDocOfSource = (
       source: string | null | undefined,
@@ -6241,7 +6812,9 @@ export class AddDevicesComponent implements OnDestroy {
       if (!source) return null;
       // Source labels can carry " (registrant-credited)" or " (backfill)"
       // suffixes; strip before mapping.
-      const bare = source.replace(/\s*\((?:registrant-credited|backfill|saved)\)\s*$/i, '').trim();
+      const bare = source
+        .replace(/\s*\((?:registrant-credited|backfill|saved)\)\s*$/i, '')
+        .trim();
       const t = sourceToDocType[bare];
       if (!t) return null;
       const existing = (this.existingDocs[i]?.[t] ?? []) as any[];
@@ -6264,9 +6837,7 @@ export class AddDevicesComponent implements OnDestroy {
     // the extractor didn't read).
     const valueEq = (a: any, b: any): boolean => {
       if (a == null || b == null) return false;
-      return (
-        String(a).trim().toLowerCase() === String(b).trim().toLowerCase()
-      );
+      return String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
     };
     const cachedExtractions: Array<{ source: string; doc: any; fx: any }> = [];
     if (this.sldExtractions[i]) {
@@ -6319,7 +6890,11 @@ export class AddDevicesComponent implements OnDestroy {
         for (const k of candidates) {
           const ef = ce.fx?.[k];
           if (ef?.value != null && valueEq(ef.value, value)) {
-            return { source: ce.source, doc: ce.doc, confidence: ef.confidence ?? 0.9 };
+            return {
+              source: ce.source,
+              doc: ce.doc,
+              confidence: ef.confidence ?? 0.9,
+            };
           }
         }
       }
@@ -6438,12 +7013,15 @@ export class AddDevicesComponent implements OnDestroy {
     // Stash the unattributed field list for the flush action. Includes
     // synthetic "serialNumber:<chip>" entries so flush/attest can act
     // on individual chips, not just the field row.
-    this.unattributedFields = this.evidenceRows.filter((r) => !r.source).map((r) => r.field);
+    this.unattributedFields = this.evidenceRows
+      .filter((r) => !r.source)
+      .map((r) => r.field);
     if (!this.evidenceReviewDialog) return;
-    this.evidenceReviewDialogRef = this.dialog.open(
-      this.evidenceReviewDialog,
-      { width: '780px', maxWidth: '95vw', panelClass: 'drec-floating-dialog' },
-    );
+    this.evidenceReviewDialogRef = this.dialog.open(this.evidenceReviewDialog, {
+      width: '780px',
+      maxWidth: '95vw',
+      panelClass: 'drec-floating-dialog',
+    });
   }
   /** Set to true when the registrant clicks "Submit anyway" so the
    *  next submitEdit re-entry skips the issues check. */
@@ -6496,7 +7074,13 @@ export class AddDevicesComponent implements OnDestroy {
       'countryCodename',
       'signatoryName',
     ],
-    COD_PROOF: ['commissioningDate', 'siteName', 'capacity', 'pvSystemOwner', 'address'],
+    COD_PROOF: [
+      'commissioningDate',
+      'siteName',
+      'capacity',
+      'pvSystemOwner',
+      'address',
+    ],
     METERING_EVIDENCE: ['serialNumber', 'dataSourceBrand'],
   };
 
@@ -6520,7 +7104,12 @@ export class AddDevicesComponent implements OnDestroy {
       current: any;
       candidates: Array<{ source: string; value: any }>;
     }>;
-    unextracted: Array<{ field: string; label: string; via: string; value?: any }>;
+    unextracted: Array<{
+      field: string;
+      label: string;
+      via: string;
+      value?: any;
+    }>;
   } {
     const form = this.deviceForms.at(deviceIndex) as FormGroup;
     const labelOf = (name: string) =>
@@ -6546,17 +7135,15 @@ export class AddDevicesComponent implements OnDestroy {
     // (b) doc-vs-form disagreements — reuse collectFormVsDocConflicts.
     // Carry the candidates through so the modal / sidebar can show
     // *what* the docs say, not just *that* there's a disagreement.
-    const disagrees = this
-      .collectFormVsDocConflicts(deviceIndex)
-      .map((c) => ({
-        field: c.name,
-        label: c.label,
-        current: c.current,
-        candidates: c.candidates.map((k) => ({
-          source: k.source,
-          value: k.value,
-        })),
-      }));
+    const disagrees = this.collectFormVsDocConflicts(deviceIndex).map((c) => ({
+      field: c.name,
+      label: c.label,
+      current: c.current,
+      candidates: c.candidates.map((k) => ({
+        source: k.source,
+        value: k.value,
+      })),
+    }));
 
     // (c) unextracted: doc is attached but a field that doc could
     //     populate is empty AND has no provenance entry yet.
@@ -6564,7 +7151,12 @@ export class AddDevicesComponent implements OnDestroy {
     const docs = this.existingDocs[deviceIndex] ?? {};
     const claims = this.collectExtractionClaims(deviceIndex);
     const seenFields = new Set<string>();
-    const unextracted: Array<{ field: string; label: string; via: string; value?: any }> = [];
+    const unextracted: Array<{
+      field: string;
+      label: string;
+      via: string;
+      value?: any;
+    }> = [];
     // Surface the extractor's actual value (if any) next to the
     // source name so the registrant sees WHAT the doc says, not just
     // WHICH doc could fill the field.
@@ -6600,14 +7192,21 @@ export class AddDevicesComponent implements OnDestroy {
           continue;
         }
         seenFields.add(f);
-        unextracted.push({ field: f, label: labelOf(f), via: friendly, value: v });
+        unextracted.push({
+          field: f,
+          label: labelOf(f),
+          via: friendly,
+          value: v,
+        });
       }
     }
 
     return { empty, disagrees, unextracted };
   }
 
-  private openPresubmitDialog(issues: ReturnType<typeof this.collectPresubmitIssues>): void {
+  private openPresubmitDialog(
+    issues: ReturnType<typeof this.collectPresubmitIssues>,
+  ): void {
     this.presubmitIssues = issues;
     this.isSubmitting = false;
     this.submitButtonText = 'Submit';
@@ -6635,25 +7234,34 @@ export class AddDevicesComponent implements OnDestroy {
   copyPresubmitReport(): void {
     const issues = this.presubmitIssues;
     const lines: string[] = [];
-    const siteName = this.deviceForms.at(0)?.get('siteName')?.value || '(unnamed device)';
+    const siteName =
+      this.deviceForms.at(0)?.get('siteName')?.value || '(unnamed device)';
     lines.push(`Pre-submit checklist — ${siteName}`);
     lines.push('');
     if (issues.empty.length) {
-      lines.push(`${issues.empty.length} required field${issues.empty.length === 1 ? '' : 's'} empty:`);
+      lines.push(
+        `${issues.empty.length} required field${issues.empty.length === 1 ? '' : 's'} empty:`,
+      );
       for (const e of issues.empty) lines.push(`  - ${e.label}`);
       lines.push('');
     }
     if (issues.unextracted.length) {
-      lines.push(`${issues.unextracted.length} field${issues.unextracted.length === 1 ? '' : 's'} look extractable from attached documents:`);
+      lines.push(
+        `${issues.unextracted.length} field${issues.unextracted.length === 1 ? '' : 's'} look extractable from attached documents:`,
+      );
       for (const u of issues.unextracted) {
-        const v = u.value === undefined || u.value === null || u.value === '' ? '' : `: ${u.value}`;
+        const v =
+          u.value === undefined || u.value === null || u.value === ''
+            ? ''
+            : `: ${u.value}`;
         lines.push(`  - ${u.label} (via ${u.via})${v}`);
       }
       lines.push('');
     }
     const text = lines.join('\n').trimEnd();
     navigator.clipboard.writeText(text).then(
-      () => this.toastrService.success('Pre-submit checklist copied to clipboard'),
+      () =>
+        this.toastrService.success('Pre-submit checklist copied to clipboard'),
       () => this.toastrService.error('Copy failed — clipboard access denied'),
     );
   }
@@ -6704,7 +7312,11 @@ export class AddDevicesComponent implements OnDestroy {
      *  template uses this to give the chip a more informative tooltip. */
     lowConfidence: boolean;
   } | null {
-    const collect = (): Array<{ source: string; value: any; confidence: number }> => {
+    const collect = (): Array<{
+      source: string;
+      value: any;
+      confidence: number;
+    }> => {
       const out: Array<{ source: string; value: any; confidence: number }> = [];
       const sld = this.sldExtractions[deviceIndex];
       const sf02c = this.sf02cExtractions[deviceIndex];
@@ -6755,11 +7367,7 @@ export class AddDevicesComponent implements OnDestroy {
         generatingUnitCount: 'inverterCount',
         networkOwner: 'networkOwner',
       };
-      const push = (
-        source: string,
-        fx: any,
-        key: string | undefined,
-      ): void => {
+      const push = (source: string, fx: any, key: string | undefined): void => {
         if (!fx || !key) return;
         const c = fx[key];
         if (!c || c.value == null || c.value === '') return;
@@ -6848,7 +7456,9 @@ export class AddDevicesComponent implements OnDestroy {
    *  openDocInPreview, instead of dumping it into a new browser tab.
    *  Routes by file-extension off docName. Falls back to window.open
    *  only when there's no name to dispatch on. */
-  openHintDoc(hint: { url: string | null; docName: string | null } | null): void {
+  openHintDoc(
+    hint: { url: string | null; docName: string | null } | null,
+  ): void {
     if (!hint?.url) return;
     if (hint.docName) {
       this.openDocInPreview(hint.docName, hint.url);
@@ -6945,24 +7555,20 @@ export class AddDevicesComponent implements OnDestroy {
     const me = this.user?.email ?? '';
     if (!me) return;
     const body = `Registrant updated the device — please re-check ${openCount} open note${openCount === 1 ? '' : 's'}.`;
-    this.chatService
-      .getConversation(undefined, undefined, siteName)
-      .subscribe({
-        next: (conv) => {
-          if (!conv) return; // no chat means no reviewer note path either
-          this.chatService
-            .postToConversation(conv.id, me, body, {
-              kind: 'system',
-              payload: { action: 'registrant-updated', openNoteCount: openCount },
-            })
-            .subscribe({
-              error: (err) =>
-                console.warn('[chat] notify reviewer failed', err),
-            });
-        },
-        error: (err) =>
-          console.warn('[chat] lookup conv for notify failed', err),
-      });
+    this.chatService.getConversation(undefined, undefined, siteName).subscribe({
+      next: (conv) => {
+        if (!conv) return; // no chat means no reviewer note path either
+        this.chatService
+          .postToConversation(conv.id, me, body, {
+            kind: 'system',
+            payload: { action: 'registrant-updated', openNoteCount: openCount },
+          })
+          .subscribe({
+            error: (err) => console.warn('[chat] notify reviewer failed', err),
+          });
+      },
+      error: (err) => console.warn('[chat] lookup conv for notify failed', err),
+    });
   }
 
   /** Open the chat panel so the registrant can reply to a specific
@@ -6987,8 +7593,7 @@ export class AddDevicesComponent implements OnDestroy {
           this.chatService.isChatOpen$.next(true);
         }
       },
-      error: (err) =>
-        console.error('Could not get admin user for chat', err),
+      error: (err) => console.error('Could not get admin user for chat', err),
     });
   }
 
@@ -7066,7 +7671,10 @@ export class AddDevicesComponent implements OnDestroy {
     this.generateProvenanceReport(deviceIndex);
   }
 
-  generateProvenanceReport(deviceIndex: number, deviceIdOverride?: number): void {
+  generateProvenanceReport(
+    deviceIndex: number,
+    deviceIdOverride?: number,
+  ): void {
     // Edit path passes nothing and resolves to the device being edited.
     // Add path passes the freshly-created id from the create response,
     // since editingDeviceId is still null during registration.
@@ -7133,12 +7741,6 @@ export class AddDevicesComponent implements OnDestroy {
   private buildProvenanceHtml(deviceIndex: number): string {
     const form = this.deviceForms.at(deviceIndex);
     const claims = this.collectExtractionClaims(deviceIndex);
-    const docCount = (type: string): number => {
-      const staged =
-        (this.files[deviceIndex] as any)?.[type]?.length ?? 0;
-      const existing = this.existingDocs[deviceIndex]?.[type]?.length ?? 0;
-      return staged + existing;
-    };
 
     const escape = (s: any): string =>
       String(s ?? '')
@@ -7149,7 +7751,12 @@ export class AddDevicesComponent implements OnDestroy {
     type Row = {
       label: string;
       value: any;
-      sources: Array<{ source: string; value: any; confidence: number; at?: string }>;
+      sources: Array<{
+        source: string;
+        value: any;
+        confidence: number;
+        at?: string;
+      }>;
       flag: 'auto-confirmed' | 'overwrote' | 'conflict' | 'manual' | 'empty';
     };
 
@@ -7158,7 +7765,10 @@ export class AddDevicesComponent implements OnDestroy {
       if (typeof v === 'number') return Number(v.toFixed(2)).toString();
       if (typeof v === 'boolean') return String(v);
       if (Array.isArray(v))
-        return v.map((x) => String(x).trim().toLowerCase()).sort().join('|');
+        return v
+          .map((x) => String(x).trim().toLowerCase())
+          .sort()
+          .join('|');
       return String(v).trim().toLowerCase();
     };
 
@@ -7168,7 +7778,6 @@ export class AddDevicesComponent implements OnDestroy {
       handled.add(field);
       const label = AddDevicesComponent.FIELD_LABELS[field] ?? field;
       const cur = form?.get(field)?.value;
-      const curN = norm(cur);
       let flag: Row['flag'];
       if (cur == null || cur === '') {
         flag = 'empty';
@@ -7208,16 +7817,13 @@ export class AddDevicesComponent implements OnDestroy {
       'images',
     ]);
     if (form) {
-      for (const name of Object.keys(
-        (form as FormGroup).controls,
-      )) {
+      for (const name of Object.keys((form as FormGroup).controls)) {
         if (handled.has(name)) continue;
         if (fileControlNames.has(name)) continue;
         const v = form.get(name)?.value;
         if (v == null || v === '' || (Array.isArray(v) && v.length === 0))
           continue;
-        const label =
-          AddDevicesComponent.FIELD_LABELS[name] ?? name;
+        const label = AddDevicesComponent.FIELD_LABELS[name] ?? name;
         rows.push({
           label,
           value: this.formatFieldValue(name, v),
@@ -7275,7 +7881,8 @@ export class AddDevicesComponent implements OnDestroy {
       return sources
         .map((s) => {
           const tick = norm(s.value) === curN ? ' ✓' : '';
-          const tag = docLink(s.source) ?? `<strong>${escape(s.source)}</strong>`;
+          const tag =
+            docLink(s.source) ?? `<strong>${escape(s.source)}</strong>`;
           // Provenance timestamp (YYYY-MM-DD) — present on persisted /
           // session-recorded claims. Skip for live extractor runs where
           // it'd just say "today" and add noise.
@@ -7311,7 +7918,8 @@ export class AddDevicesComponent implements OnDestroy {
         // staged half, a freshly-added device's report listed every
         // category as "none" even though the docs were attached.
         const existing = this.existingDocs[deviceIndex]?.[type] ?? [];
-        const staged = ((this.files[deviceIndex] as any)?.[type] ?? []) as File[];
+        const staged = ((this.files[deviceIndex] as any)?.[type] ??
+          []) as File[];
         const entries: Array<{ label: string; url: string | null }> = [
           ...existing.map((d: any) => ({
             label: d.label || d.name,
@@ -7332,9 +7940,7 @@ export class AddDevicesComponent implements OnDestroy {
             ? `<a href="${escape(e.url)}" target="_blank" rel="noopener" style="color:#0f607f">${escape(e.label)} ↗</a>`
             : escape(e.label);
         if (entries.length > 1) {
-          const rows = entries
-            .map((e) => `<li>${linkHtml(e)}</li>`)
-            .join('');
+          const rows = entries.map((e) => `<li>${linkHtml(e)}</li>`).join('');
           return `<li>${escape(name)} (${entries.length}):<ul style="margin:4px 0 0 18px;padding:0">${rows}</ul></li>`;
         }
         return `<li>${escape(name)}: ${linkHtml(entries[0])}</li>`;
@@ -7409,8 +8015,12 @@ export class AddDevicesComponent implements OnDestroy {
       f('AC capacity (kW)', sld.acCapacityKw);
       f('DC capacity (kWp)', sld.dcCapacityKwp);
       if (sld.inverterCount) {
-        const cap = sld.inverterCapacityKw ? ` × ${sld.inverterCapacityKw.value} kW` : '';
-        const mk = sld.inverterMakeModel ? ` (${sld.inverterMakeModel.value})` : '';
+        const cap = sld.inverterCapacityKw
+          ? ` × ${sld.inverterCapacityKw.value} kW`
+          : '';
+        const mk = sld.inverterMakeModel
+          ? ` (${sld.inverterMakeModel.value})`
+          : '';
         lines.push(`  Inverters: ${sld.inverterCount.value}${cap}${mk}`);
       }
       if (sld.moduleCount) {
@@ -7418,8 +8028,10 @@ export class AddDevicesComponent implements OnDestroy {
         lines.push(`  Modules: ${sld.moduleCount.value}${w}`);
       }
       f('Grid voltage', sld.gridVoltage);
-      if (sld.gridTied) lines.push(`  Grid-tied: ${sld.gridTied.value ? 'yes' : 'no'}`);
-      if (sld.zeroExport) lines.push(`  Zero-export: ${sld.zeroExport.value ? 'yes' : 'no'}`);
+      if (sld.gridTied)
+        lines.push(`  Grid-tied: ${sld.gridTied.value ? 'yes' : 'no'}`);
+      if (sld.zeroExport)
+        lines.push(`  Zero-export: ${sld.zeroExport.value ? 'yes' : 'no'}`);
       f('Transformer (kVA)', sld.transformerKva);
       f('Network owner', sld.networkOwner);
       f('Aux energy', sld.auxiliaryEnergySourceDetails);
@@ -7474,7 +8086,9 @@ export class AddDevicesComponent implements OnDestroy {
       for (const k of conflictKeys) {
         lines.push(`  ${this.fieldLabel(k)}:`);
         for (const c of conflicts[k]) {
-          lines.push(`    - ${c.source}: ${c.value} (${Math.round(c.confidence * 100)}%)`);
+          lines.push(
+            `    - ${c.source}: ${c.value} (${Math.round(c.confidence * 100)}%)`,
+          );
         }
       }
     }
@@ -7543,11 +8157,10 @@ export class AddDevicesComponent implements OnDestroy {
     }
     // Inverter signal → dataSource = Inverter. Credit whichever doc
     // (highest-confidence) provided the inverter evidence.
-    const inverterClaim =
-      [
-        ...(claims['dataSourceBrand'] ?? []),
-        ...(claims['generatingUnitCount'] ?? []),
-      ].sort((a, b) => b.confidence - a.confidence)[0];
+    const inverterClaim = [
+      ...(claims['dataSourceBrand'] ?? []),
+      ...(claims['generatingUnitCount'] ?? []),
+    ].sort((a, b) => b.confidence - a.confidence)[0];
     if (inverterClaim) {
       this.setDataSourceIfEmpty(deviceIndex, 'Inverter', inverterClaim.source);
     }
@@ -7607,8 +8220,7 @@ export class AddDevicesComponent implements OnDestroy {
 
   /** Accept an AI classification suggestion: move the file to the suggested slot. */
   acceptClassification(deviceIndex: number, fromType: string): void {
-    const suggestion =
-      this.classificationSuggestions[deviceIndex]?.[fromType];
+    const suggestion = this.classificationSuggestions[deviceIndex]?.[fromType];
     if (!suggestion) return;
 
     const toType = suggestion.suggestedType as string as FileType;
@@ -7627,7 +8239,8 @@ export class AddDevicesComponent implements OnDestroy {
 
     // Move preview
     if (this.filePreviews[deviceIndex]?.[fromType]) {
-      this.filePreviews[deviceIndex][toType] = this.filePreviews[deviceIndex][fromType];
+      this.filePreviews[deviceIndex][toType] =
+        this.filePreviews[deviceIndex][fromType];
       delete this.filePreviews[deviceIndex][fromType];
     }
 
@@ -7685,7 +8298,11 @@ export class AddDevicesComponent implements OnDestroy {
   /** Read-only view of staged files for a slot — typed in TS so the
    *  template doesn't have to fight `keyof DeviceFiles`. */
   getStagedFiles(deviceIndex: number, fileType: string): File[] {
-    return (this.files[deviceIndex]?.[fileType as keyof DeviceFiles] as File[] | undefined) ?? [];
+    return (
+      (this.files[deviceIndex]?.[fileType as keyof DeviceFiles] as
+        | File[]
+        | undefined) ?? []
+    );
   }
 
   /** Run client-side Tesseract OCR on a metering-evidence image and
@@ -7730,8 +8347,7 @@ export class AddDevicesComponent implements OnDestroy {
       } else {
         text = await this.ocrImageWithTesseract(file);
       }
-      this.ocrResultText =
-        (text || '').trim() || '(no text recognised)';
+      this.ocrResultText = (text || '').trim() || '(no text recognised)';
     } catch (err: any) {
       this.ocrResultText = `OCR failed: ${err?.message ?? err}`;
     } finally {
@@ -7822,8 +8438,14 @@ export class AddDevicesComponent implements OnDestroy {
 
   /** Remove a staged (not-yet-saved) file from a slot. Mirrors the
    *  existing-doc delete affordance for files already on the server. */
-  removeStagedFile(deviceIndex: number, fileType: string, fileIndex: number): void {
-    const list = this.files[deviceIndex]?.[fileType as keyof DeviceFiles] as File[] | undefined;
+  removeStagedFile(
+    deviceIndex: number,
+    fileType: string,
+    fileIndex: number,
+  ): void {
+    const list = this.files[deviceIndex]?.[fileType as keyof DeviceFiles] as
+      | File[]
+      | undefined;
     if (!list) return;
     const removed = list.splice(fileIndex, 1)[0];
     if (this.fileLabels[deviceIndex]?.[fileType]) {
@@ -7894,7 +8516,7 @@ export class AddDevicesComponent implements OnDestroy {
     });
   }
 
-  viewMagicFile(file: File, deviceIndex: number): void {
+  viewMagicFile(file: File, _deviceIndex: number): void {
     const ext = file.name.split('.').pop()?.toLowerCase() || '';
     const isImage = file.type.startsWith('image/');
     const isPdf = ext === 'pdf';
@@ -7926,7 +8548,9 @@ export class AddDevicesComponent implements OnDestroy {
       this.files[deviceIndex] = this.magicBackupFiles[deviceIndex] as any;
     }
     if (this.magicBackupPreviews[deviceIndex]) {
-      this.filePreviews[deviceIndex] = this.magicBackupPreviews[deviceIndex] as any;
+      this.filePreviews[deviceIndex] = this.magicBackupPreviews[
+        deviceIndex
+      ] as any;
     }
     this.magicLog[deviceIndex] = [];
     delete this.magicBackupFiles[deviceIndex];
@@ -8128,10 +8752,7 @@ export class AddDevicesComponent implements OnDestroy {
         const body = event.body;
         if (!body?.id) {
           this.isGeneratingSf02ByIndex[index] = false;
-          this.toastrService.error(
-            'Saved but no device id returned',
-            'SF-02',
-          );
+          this.toastrService.error('Saved but no device id returned', 'SF-02');
           return;
         }
         this.savedDeviceIdByIndex[index] = body.id;
@@ -8384,7 +9005,13 @@ export class AddDevicesComponent implements OnDestroy {
       const formData = this.buildDeviceFormData(element, index);
       const buildMs = Math.round(performance.now() - t0);
       if (!formData) {
-        console.warn('[submit] row', index, 'buildDeviceFormData returned null after', buildMs, 'ms');
+        console.warn(
+          '[submit] row',
+          index,
+          'buildDeviceFormData returned null after',
+          buildMs,
+          'ms',
+        );
         this.submitButtonText = 'Submit';
         this.isSubmitting = false;
         return;
@@ -8397,10 +9024,17 @@ export class AddDevicesComponent implements OnDestroy {
           if (v instanceof Blob) bytes += v.size;
           else bytes += String(v).length;
         });
-      } catch {}
+      } catch {
+        // Size accounting is diagnostic only — ignore failures.
+      }
       console.log(
-        '[submit] row', index, 'buildDeviceFormData done in', buildMs,
-        'ms, payload≈', Math.round(bytes / 1024), 'KB',
+        '[submit] row',
+        index,
+        'buildDeviceFormData done in',
+        buildMs,
+        'ms, payload≈',
+        Math.round(bytes / 1024),
+        'KB',
       );
 
       const subT0 = performance.now();
@@ -8409,149 +9043,172 @@ export class AddDevicesComponent implements OnDestroy {
         .create(formData)
         .pipe(timeout(180_000))
         .subscribe({
-        next: (event: any) => {
-          // HttpEventType.UploadProgress = 1. Bytes are still going up;
-          // surface the percentage in the overlay and keep the safety
-          // timer alive so a slow uplink with 17 files doesn't trigger
-          // a false "stuck" timeout.
-          if (event?.type === 1) {
-            if (event.total) {
-              this.uploadProgressPct = Math.round(
-                (event.loaded / event.total) * 100,
+          next: (event: any) => {
+            // HttpEventType.UploadProgress = 1. Bytes are still going up;
+            // surface the percentage in the overlay and keep the safety
+            // timer alive so a slow uplink with 17 files doesn't trigger
+            // a false "stuck" timeout.
+            if (event?.type === 1) {
+              if (event.total) {
+                this.uploadProgressPct = Math.round(
+                  (event.loaded / event.total) * 100,
+                );
+              }
+              this.uploadPhase =
+                this.uploadProgressPct >= 100 ? 'processing' : 'uploading';
+              console.log(
+                '[submit] row',
+                index,
+                'progress',
+                this.uploadProgressPct,
+                '%',
+                'loaded=',
+                event.loaded,
+                'total=',
+                event.total ?? '?',
+                '+' + Math.round(performance.now() - subT0) + 'ms',
               );
+              // Reset the 2-min safety timer as long as bytes are flowing.
+              if (this.submitSafetyTimer) {
+                clearTimeout(this.submitSafetyTimer);
+                this.submitSafetyTimer = setTimeout(
+                  () => this.safetyTimerFire(),
+                  120_000,
+                );
+              }
+              return;
             }
-            this.uploadPhase =
-              this.uploadProgressPct >= 100
-                ? 'processing'
-                : 'uploading';
+            // Sent (0), DownloadProgress (3) markers for completeness.
+            if (event?.type === 0) {
+              console.log(
+                '[submit] row',
+                index,
+                'request Sent +' + Math.round(performance.now() - subT0) + 'ms',
+              );
+              return;
+            }
+            if (event?.type === 3) {
+              console.log(
+                '[submit] row',
+                index,
+                'DownloadProgress +' +
+                  Math.round(performance.now() - subT0) +
+                  'ms',
+              );
+              return;
+            }
+            // HttpEventType.Response = 4. The actual response we care about.
+            if (event?.type !== 4) {
+              console.log(
+                '[submit] row',
+                index,
+                'unknown HttpEvent type=',
+                event?.type,
+              );
+              return;
+            }
             console.log(
-              '[submit] row', index, 'progress',
-              this.uploadProgressPct, '%',
-              'loaded=', event.loaded, 'total=', event.total ?? '?',
-              '+' + Math.round(performance.now() - subT0) + 'ms',
+              '[submit] row',
+              index,
+              'Response status=',
+              event.status,
+              'in',
+              Math.round(performance.now() - subT0),
+              'ms',
             );
-            // Reset the 2-min safety timer as long as bytes are flowing.
+            const result = event.body;
+            // Always reset isSubmitting on success — don't rely on the
+            // router.navigate below to unmount the component. That was the
+            // bug that left the overlay forever when navigation no-op'd.
             if (this.submitSafetyTimer) {
               clearTimeout(this.submitSafetyTimer);
-              this.submitSafetyTimer = setTimeout(
-                () => this.safetyTimerFire(),
-                120_000,
+              this.submitSafetyTimer = null;
+            }
+            this.isSubmitting = false;
+            this.submitButtonText = 'Submit';
+            this.uploadProgressPct = 0;
+            this.uploadPhase = 'uploading';
+
+            this.toastrService.success(
+              'Added Successfully !!',
+              'Device! ' + element.serialNumber,
+            );
+
+            // Persist any per-file labels the registrant set in the rename dialog.
+            if (result?.id) {
+              this.persistStagedLabels(result.id, index);
+              // Generate the EVIDENCE_PROVENANCE report straight away so a
+              // freshly-added device arrives in review with provenance
+              // already attached, instead of waiting for the registrant to
+              // re-open edit. Pass the new id explicitly — editingDeviceId is
+              // null on the add path. Fire-and-forget: the bare HttpClient
+              // subscription survives this component's teardown on navigate,
+              // so the upload still completes; failures don't block submit.
+              this.generateProvenanceReport(index, result.id);
+            }
+
+            const idx = deviceArray.indexOf(element);
+            deviceArray.splice(idx, 1);
+
+            if (deviceArray.length === 0) {
+              // Everything submitted — clear dirty state so the
+              // unsaved-changes guard doesn't block this navigation.
+              this.myform.markAsPristine();
+              if (this.user.role === OrganizationType.Admin) {
+                this.router.navigate(['/admin/All_devices']);
+              } else if (this.user.role === OrganizationType.Registrant) {
+                this.router.navigate(['/registrant/All_devices']);
+              } else {
+                this.router.navigate(['/device/AllList']);
+              }
+            }
+          },
+          error: (err) => {
+            const elapsed = Math.round(performance.now() - subT0);
+            const isTimeout = err?.name === 'TimeoutError';
+            console.error(
+              '[submit] row',
+              index,
+              isTimeout ? 'TIMED OUT (no HttpEvent in 180s)' : 'error',
+              'after',
+              elapsed,
+              'ms — last progress=',
+              this.uploadProgressPct,
+              '%',
+              err,
+            );
+            if (this.submitSafetyTimer) {
+              clearTimeout(this.submitSafetyTimer);
+              this.submitSafetyTimer = null;
+            }
+            this.submitButtonText = 'Submit';
+            this.isSubmitting = false;
+            this.uploadProgressPct = 0;
+            if (isTimeout) {
+              this.toastrService.error(
+                `Upload stalled with no progress for 180s (last seen ${this.uploadProgressPct}%). Check console for [submit] markers.`,
+                'Submission timed out',
+                { timeOut: 12000 },
               );
+              return;
             }
-            return;
-          }
-          // Sent (0), DownloadProgress (3) markers for completeness.
-          if (event?.type === 0) {
-            console.log(
-              '[submit] row', index, 'request Sent +' +
-              Math.round(performance.now() - subT0) + 'ms',
-            );
-            return;
-          }
-          if (event?.type === 3) {
-            console.log(
-              '[submit] row', index, 'DownloadProgress +' +
-              Math.round(performance.now() - subT0) + 'ms',
-            );
-            return;
-          }
-          // HttpEventType.Response = 4. The actual response we care about.
-          if (event?.type !== 4) {
-            console.log('[submit] row', index, 'unknown HttpEvent type=', event?.type);
-            return;
-          }
-          console.log(
-            '[submit] row', index, 'Response status=', event.status,
-            'in', Math.round(performance.now() - subT0), 'ms',
-          );
-          const result = event.body;
-          // Always reset isSubmitting on success — don't rely on the
-          // router.navigate below to unmount the component. That was the
-          // bug that left the overlay forever when navigation no-op'd.
-          if (this.submitSafetyTimer) {
-            clearTimeout(this.submitSafetyTimer);
-            this.submitSafetyTimer = null;
-          }
-          this.isSubmitting = false;
-          this.submitButtonText = 'Submit';
-          this.uploadProgressPct = 0;
-          this.uploadPhase = 'uploading';
-
-          this.toastrService.success(
-            'Added Successfully !!',
-            'Device! ' + element.serialNumber,
-          );
-
-          // Persist any per-file labels the registrant set in the rename dialog.
-          if (result?.id) {
-            this.persistStagedLabels(result.id, index);
-            // Generate the EVIDENCE_PROVENANCE report straight away so a
-            // freshly-added device arrives in review with provenance
-            // already attached, instead of waiting for the registrant to
-            // re-open edit. Pass the new id explicitly — editingDeviceId is
-            // null on the add path. Fire-and-forget: the bare HttpClient
-            // subscription survives this component's teardown on navigate,
-            // so the upload still completes; failures don't block submit.
-            this.generateProvenanceReport(index, result.id);
-          }
-
-          const idx = deviceArray.indexOf(element);
-          deviceArray.splice(idx, 1);
-
-          if (deviceArray.length === 0) {
-            // Everything submitted — clear dirty state so the
-            // unsaved-changes guard doesn't block this navigation.
-            this.myform.markAsPristine();
-            if (this.user.role === OrganizationType.Admin) {
-              this.router.navigate(['/admin/All_devices']);
-            } else if (this.user.role === OrganizationType.Registrant) {
-              this.router.navigate(['/registrant/All_devices']);
+            const message =
+              err.error?.message || err.message || 'Failed to register device';
+            if (err.status === 409 || err.error?.statusCode === 409) {
+              this.dialog.open(this.errorDialogTemplate, {
+                width: '450px',
+                data: { title: 'Duplicate Entry', message },
+              });
+            } else if (err.error?.statusCode === 403) {
+              this.toastrService.error(
+                "You don't have the permissions to add a device.",
+                'Access Denied',
+              );
             } else {
-              this.router.navigate(['/device/AllList']);
+              this.toastrService.error(message, 'Please try again.');
             }
-          }
-        },
-        error: (err) => {
-          const elapsed = Math.round(performance.now() - subT0);
-          const isTimeout = err?.name === 'TimeoutError';
-          console.error(
-            '[submit] row', index,
-            isTimeout ? 'TIMED OUT (no HttpEvent in 180s)' : 'error',
-            'after', elapsed, 'ms — last progress=', this.uploadProgressPct, '%',
-            err,
-          );
-          if (this.submitSafetyTimer) {
-            clearTimeout(this.submitSafetyTimer);
-            this.submitSafetyTimer = null;
-          }
-          this.submitButtonText = 'Submit';
-          this.isSubmitting = false;
-          this.uploadProgressPct = 0;
-          if (isTimeout) {
-            this.toastrService.error(
-              `Upload stalled with no progress for 180s (last seen ${this.uploadProgressPct}%). Check console for [submit] markers.`,
-              'Submission timed out',
-              { timeOut: 12000 },
-            );
-            return;
-          }
-          const message =
-            err.error?.message || err.message || 'Failed to register device';
-          if (err.status === 409 || err.error?.statusCode === 409) {
-            this.dialog.open(this.errorDialogTemplate, {
-              width: '450px',
-              data: { title: 'Duplicate Entry', message },
-            });
-          } else if (err.error?.statusCode === 403) {
-            this.toastrService.error(
-              "You don't have the permissions to add a device.",
-              'Access Denied',
-            );
-          } else {
-            this.toastrService.error(message, 'Please try again.');
-          }
-        },
-      });
+          },
+        });
     });
   }
 
@@ -8656,35 +9313,37 @@ export class AddDevicesComponent implements OnDestroy {
    *  into the same human-readable phrasing the form shows in
    *  selects/radios. Without this, fields like `sf02EvidenceMode`
    *  appear in the report as bare codes ("self", "upload"). */
-  private static readonly VALUE_FORMATTERS: Record<
-    string,
-    (v: any) => string
-  > = {
-    sf02EvidenceMode: (v) =>
-      v === 'self' ? 'Self-generated' : v === 'upload' ? 'Uploaded' : String(v),
-    // mat-select stores the long form ("No (zero-export)"); Haiku may
-    // emit the short token ("zero-export"). Normalise both to a single
-    // short label for the report.
-    gridExportType: (v) => {
-      const s = String(v ?? '').toLowerCase();
-      if (!s) return '';
-      if (s.includes('zero')) return 'Zero-export (no grid export)';
-      if (s.includes('partial')) return 'Partial export';
-      if (s.includes('full')) return 'Full export';
-      return String(v);
-    },
-    // YesNo enum from the form / 'Yes'|'No' from the SLD apply path /
-    // raw boolean from Haiku — all collapse to the same phrasing.
-    hasNetworkMeter: (v) => {
-      if (v === true || v === 'Yes' || v === 'yes' || v === 'true') {
-        return 'Yes — network meter present';
-      }
-      if (v === false || v === 'No' || v === 'no' || v === 'false') {
-        return 'No — no network meter';
-      }
-      return String(v ?? '');
-    },
-  };
+  private static readonly VALUE_FORMATTERS: Record<string, (v: any) => string> =
+    {
+      sf02EvidenceMode: (v) =>
+        v === 'self'
+          ? 'Self-generated'
+          : v === 'upload'
+            ? 'Uploaded'
+            : String(v),
+      // mat-select stores the long form ("No (zero-export)"); Haiku may
+      // emit the short token ("zero-export"). Normalise both to a single
+      // short label for the report.
+      gridExportType: (v) => {
+        const s = String(v ?? '').toLowerCase();
+        if (!s) return '';
+        if (s.includes('zero')) return 'Zero-export (no grid export)';
+        if (s.includes('partial')) return 'Partial export';
+        if (s.includes('full')) return 'Full export';
+        return String(v);
+      },
+      // YesNo enum from the form / 'Yes'|'No' from the SLD apply path /
+      // raw boolean from Haiku — all collapse to the same phrasing.
+      hasNetworkMeter: (v) => {
+        if (v === true || v === 'Yes' || v === 'yes' || v === 'true') {
+          return 'Yes — network meter present';
+        }
+        if (v === false || v === 'No' || v === 'no' || v === 'false') {
+          return 'No — no network meter';
+        }
+        return String(v ?? '');
+      },
+    };
 
   private formatFieldValue(name: string, value: any): any {
     const fmt = AddDevicesComponent.VALUE_FORMATTERS[name];
@@ -8715,14 +9374,10 @@ export class AddDevicesComponent implements OnDestroy {
         return;
       }
       if (ctl instanceof FormArray) {
-        ctl.controls.forEach((c, i) =>
-          visit(c, `${name}[${i}]`, rowPrefix),
-        );
+        ctl.controls.forEach((c, i) => visit(c, `${name}[${i}]`, rowPrefix));
         return;
       }
-      const errs = ctl.errors
-        ? Object.keys(ctl.errors).join(', ')
-        : 'invalid';
+      const errs = ctl.errors ? Object.keys(ctl.errors).join(', ') : 'invalid';
       const key = `${rowPrefix}${labelFor(name)} (${errs})`;
       if (!seen.has(key)) {
         seen.add(key);
@@ -8767,8 +9422,14 @@ export class AddDevicesComponent implements OnDestroy {
     for (const k of Object.keys(fg.controls)) {
       const cur = norm(fg.get(k)?.value);
       const init = norm(this.initialValues[k]);
-      if (cur !== init && !(typeof cur === 'object' && typeof init === 'object'
-                            && JSON.stringify(cur) === JSON.stringify(init))) {
+      if (
+        cur !== init &&
+        !(
+          typeof cur === 'object' &&
+          typeof init === 'object' &&
+          JSON.stringify(cur) === JSON.stringify(init)
+        )
+      ) {
         return true;
       }
     }
@@ -8788,7 +9449,13 @@ export class AddDevicesComponent implements OnDestroy {
     label: string;
     current: any;
     agreeSources: string[];
-    candidates: Array<{ source: string; value: any; confidence: number; selected?: boolean; agreesWithForm?: boolean }>;
+    candidates: Array<{
+      source: string;
+      value: any;
+      confidence: number;
+      selected?: boolean;
+      agreesWithForm?: boolean;
+    }>;
   }> {
     const claims = this.collectExtractionClaims(deviceIndex);
     const form = this.deviceForms.at(deviceIndex);
@@ -8797,7 +9464,10 @@ export class AddDevicesComponent implements OnDestroy {
       if (typeof v === 'number') return Number(v.toFixed(2)).toString();
       if (typeof v === 'boolean') return String(v);
       if (Array.isArray(v))
-        return v.map((x) => String(x).trim().toLowerCase()).sort().join('|');
+        return v
+          .map((x) => String(x).trim().toLowerCase())
+          .sort()
+          .join('|');
       return String(v).trim().toLowerCase();
     };
     const prov = this.appliedProvenance[deviceIndex] ?? {};
@@ -8812,10 +9482,7 @@ export class AddDevicesComponent implements OnDestroy {
       // resolved. Without this check resolveDisagreement clicks set
       // verifiedBy but the sidebar immediately re-flagged the row.
       const entry = prov[field] as any;
-      if (
-        entry?.verifiedBy &&
-        this.valuesEquivalent(entry.value, cur, field)
-      ) {
+      if (entry?.verifiedBy && this.valuesEquivalent(entry.value, cur, field)) {
         continue;
       }
       // Filter to extractor-only sources (not the synthetic "Current"
@@ -9130,8 +9797,7 @@ export class AddDevicesComponent implements OnDestroy {
   ocrInlineEligible(docType: string, file: File): boolean {
     if (docType === 'PROJECT_PHOTOS') return false;
     const isImage = file.type.startsWith('image/');
-    const isPdf =
-      file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
     if (docType === 'METERING_EVIDENCE') return isImage || isPdf;
     const contractTypes = new Set([
       'PROOF_OF_OWNERSHIP',
@@ -9156,7 +9822,15 @@ export class AddDevicesComponent implements OnDestroy {
   ): void {
     this.currentPreviewDocType = docType ?? null;
     const ext = doc.name.split('.').pop()?.toLowerCase() || '';
-    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext);
+    const isImage = [
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'webp',
+      'bmp',
+      'svg',
+    ].includes(ext);
     const isPdf = ext === 'pdf';
     const isExcel = ext === 'xlsx' || ext === 'xls';
     const mimeMap: Record<string, string> = {
@@ -9216,7 +9890,15 @@ export class AddDevicesComponent implements OnDestroy {
     if (!docUrl && !docFile) return;
     const name = (docName || docFile?.name || '').trim() || 'document';
     const ext = name.split('.').pop()?.toLowerCase() || '';
-    const isImage = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext);
+    const isImage = [
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'webp',
+      'bmp',
+      'svg',
+    ].includes(ext);
     const isPdf = ext === 'pdf';
     const isExcel = ext === 'xlsx' || ext === 'xls';
     this.currentPreviewDocType = null;
@@ -9295,10 +9977,7 @@ export class AddDevicesComponent implements OnDestroy {
     doc: { id: number; name: string; label?: string | null },
   ): void {
     if (!this.editingExternalId) {
-      this.toastrService.warning(
-        'Save the device first',
-        'Ingest as readings',
-      );
+      this.toastrService.warning('Save the device first', 'Ingest as readings');
       return;
     }
     const key = `${deviceIndex}:${doc.id}`;
@@ -9321,10 +10000,7 @@ export class AddDevicesComponent implements OnDestroy {
    *  directly — no round-trip needed. */
   ingestMeterCsvFromStagedFile(deviceIndex: number, file: File): void {
     if (!this.editingExternalId) {
-      this.toastrService.warning(
-        'Save the device first',
-        'Ingest as readings',
-      );
+      this.toastrService.warning('Save the device first', 'Ingest as readings');
       return;
     }
     const key = `${deviceIndex}:staged:${file.name}`;
@@ -9375,15 +10051,23 @@ export class AddDevicesComponent implements OnDestroy {
     const blob = await resp.blob();
     const ext = (doc.name.split('.').pop() || '').toLowerCase();
     const mime =
-      ext === 'pdf' ? 'application/pdf' :
-      ext === 'png' ? 'image/png' :
-      ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' :
-      ext === 'webp' ? 'image/webp' :
-      ext === 'gif' ? 'image/gif' :
-      ext === 'csv' ? 'text/csv' :
-      ext === 'xlsx' ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
-      ext === 'xls' ? 'application/vnd.ms-excel' :
-      blob.type || 'application/octet-stream';
+      ext === 'pdf'
+        ? 'application/pdf'
+        : ext === 'png'
+          ? 'image/png'
+          : ext === 'jpg' || ext === 'jpeg'
+            ? 'image/jpeg'
+            : ext === 'webp'
+              ? 'image/webp'
+              : ext === 'gif'
+                ? 'image/gif'
+                : ext === 'csv'
+                  ? 'text/csv'
+                  : ext === 'xlsx'
+                    ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                    : ext === 'xls'
+                      ? 'application/vnd.ms-excel'
+                      : blob.type || 'application/octet-stream';
     return new File([blob], doc.name, { type: mime });
   }
 
@@ -9394,11 +10078,14 @@ export class AddDevicesComponent implements OnDestroy {
    *  and bounce. This bypasses the auto-sort entirely; it just feeds
    *  each attached doc directly to extractMeterIdsForDevice. */
   reextractMeterIdsFromAttached(deviceIndex: number): void {
-    const existing = this.existingDocs[deviceIndex]?.['METERING_EVIDENCE'] ?? [];
+    const existing =
+      this.existingDocs[deviceIndex]?.['METERING_EVIDENCE'] ?? [];
     const staged = this.files[deviceIndex]?.['METERING_EVIDENCE'] ?? [];
     const total = existing.length + staged.length;
     if (!total) {
-      this.toastrService.info('No metering evidence attached to re-extract from.');
+      this.toastrService.info(
+        'No metering evidence attached to re-extract from.',
+      );
       return;
     }
     // Clear the in-memory state so old per-id docs don't shadow the
@@ -9528,25 +10215,23 @@ export class AddDevicesComponent implements OnDestroy {
     if (!doc) return;
     if (!confirm(`Delete "${doc.label || doc.name}"?`)) return;
     if (!this.editingDeviceId) return;
-    this.deviceService
-      .deleteDocument(this.editingDeviceId, doc.id)
-      .subscribe({
-        next: () => {
-          this.existingDocs[deviceIndex][type].splice(docIndex, 1);
-          if (!this.existingDocs[deviceIndex][type].length) {
-            delete this.existingDocs[deviceIndex][type];
-            if (this.filePreviews[deviceIndex]?.[type]) {
-              delete this.filePreviews[deviceIndex][type];
-            }
+    this.deviceService.deleteDocument(this.editingDeviceId, doc.id).subscribe({
+      next: () => {
+        this.existingDocs[deviceIndex][type].splice(docIndex, 1);
+        if (!this.existingDocs[deviceIndex][type].length) {
+          delete this.existingDocs[deviceIndex][type];
+          if (this.filePreviews[deviceIndex]?.[type]) {
+            delete this.filePreviews[deviceIndex][type];
           }
-          this.toastrService.success('Document deleted');
-        },
-        error: (err) => {
-          this.toastrService.error(
-            err?.error?.message || 'Failed to delete document',
-          );
-        },
-      });
+        }
+        this.toastrService.success('Document deleted');
+      },
+      error: (err) => {
+        this.toastrService.error(
+          err?.error?.message || 'Failed to delete document',
+        );
+      },
+    });
   }
 
   /**
@@ -9624,20 +10309,27 @@ export class AddDevicesComponent implements OnDestroy {
     // full name first so the alpha3 lookup below actually matches.
     // Without this, "VN" falls through to formValue.countryCodename
     // and the backend rejects with "Invalid countryCode".
-    const normalisedName = this.normalizeCountry(firstRow.value.countryCodename);
+    const normalisedName = this.normalizeCountry(
+      firstRow.value.countryCodename,
+    );
     const selectedCountry: CountryInfo | undefined = this.countrylist.find(
       (option) => option.country === normalisedName,
     );
 
     const formValue: any = { ...firstRow.value };
     console.log(
-      '[edit-save] form.address =', JSON.stringify(firstRow.get('address')?.value),
-      'dirty?', firstRow.get('address')?.dirty,
-      'cleared?', (this.explicitlyClearedFields[0] ?? new Set()).has('address'),
-      'prov.address =', JSON.stringify(this.appliedProvenance[0]?.['address']),
+      '[edit-save] form.address =',
+      JSON.stringify(firstRow.get('address')?.value),
+      'dirty?',
+      firstRow.get('address')?.dirty,
+      'cleared?',
+      (this.explicitlyClearedFields[0] ?? new Set()).has('address'),
+      'prov.address =',
+      JSON.stringify(this.appliedProvenance[0]?.['address']),
     );
     if (normalisedName) formValue.countryCodename = normalisedName;
-    formValue.countryCode = selectedCountry?.alpha3 ?? formValue.countryCodename;
+    formValue.countryCode =
+      selectedCountry?.alpha3 ?? formValue.countryCodename;
     delete formValue.countryCodename;
     formValue.organizationId = this.organizationId ?? this.user?.organizationId;
     // Auto-tag every dirty form value that doesn't already have a
@@ -9665,7 +10357,7 @@ export class AddDevicesComponent implements OnDestroy {
     // Persist the OC# walkthrough log (if any) alongside provenance,
     // under the synthetic __ocWalkLog key. Reviewers can replay it.
     if (this.ocWalkLog.length) {
-      (this.appliedProvenance[0] = this.appliedProvenance[0] || {});
+      this.appliedProvenance[0] = this.appliedProvenance[0] || {};
       (this.appliedProvenance[0] as any)['__ocWalkLog'] = {
         source: 'OC# walkthrough',
         confidence: 1,
@@ -9676,7 +10368,10 @@ export class AddDevicesComponent implements OnDestroy {
     // Persist provenance recorded by Apply paths + the auto-tag pass
     // above (merged with whatever was already on the device from
     // prior edits).
-    if (this.appliedProvenance[0] && Object.keys(this.appliedProvenance[0]).length) {
+    if (
+      this.appliedProvenance[0] &&
+      Object.keys(this.appliedProvenance[0]).length
+    ) {
       formValue.fieldProvenance = { ...this.appliedProvenance[0] };
     }
     if (formValue.serialNumber == null) {
@@ -9685,9 +10380,7 @@ export class AddDevicesComponent implements OnDestroy {
 
     if (formValue.latitude) {
       const [intLat, decLat] = String(formValue.latitude).split('.');
-      formValue.latitude = decLat
-        ? `${intLat}.${decLat.slice(0, 20)}`
-        : intLat;
+      formValue.latitude = decLat ? `${intLat}.${decLat.slice(0, 20)}` : intLat;
     }
     if (formValue.longitude) {
       const [intLng, decLng] = String(formValue.longitude).split('.');
@@ -9712,7 +10405,11 @@ export class AddDevicesComponent implements OnDestroy {
     const cleared = this.explicitlyClearedFields[0] ?? new Set<string>();
     const wasInitiallySet = (k: string) => {
       const init = this.initialValues[k];
-      return init != null && init !== '' && !(Array.isArray(init) && init.length === 0);
+      return (
+        init != null &&
+        init !== '' &&
+        !(Array.isArray(init) && init.length === 0)
+      );
     };
     for (const k of Object.keys(formValue)) {
       const v = (formValue as any)[k];
@@ -9737,8 +10434,10 @@ export class AddDevicesComponent implements OnDestroy {
     delete (formValue as any).OTHER_DOCUMENTS;
     delete (formValue as any).sf02EvidenceMode;
     console.log(
-      '[edit-save] payload.address =', JSON.stringify(formValue.address),
-      '— address key present?', 'address' in formValue,
+      '[edit-save] payload.address =',
+      JSON.stringify(formValue.address),
+      '— address key present?',
+      'address' in formValue,
     );
 
     const fileBucket = this.files[0] || ({} as DeviceFiles);
@@ -9787,12 +10486,7 @@ export class AddDevicesComponent implements OnDestroy {
       payload = formValue;
     }
 
-    const serialChanged =
-      formValue.serialNumber !== this.initSerialNumber;
-
-    const sf02Mode = firstRow.get('sf02EvidenceMode')?.value;
-    const shouldRegenerateSf02 =
-      sf02Mode === 'self' && this.editingDeviceId != null;
+    const serialChanged = formValue.serialNumber !== this.initSerialNumber;
 
     const navigateAway = (): void => {
       // Update persisted — clear dirty state so the unsaved-changes

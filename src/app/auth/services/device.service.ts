@@ -178,10 +178,9 @@ export class DeviceService {
     );
   }
   getDocumentBlob(docId: number): Observable<Blob> {
-    return this.httpClient.get(
-      `${this.url}document-uploads/${docId}/url`,
-      { responseType: 'blob' },
-    );
+    return this.httpClient.get(`${this.url}document-uploads/${docId}/url`, {
+      responseType: 'blob',
+    });
   }
 
   deleteDocument(deviceId: number, docId: number): Observable<void> {

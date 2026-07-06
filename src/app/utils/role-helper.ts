@@ -7,7 +7,9 @@ export function getRoleName(role: string): string {
   return role;
 }
 
-export function isInternalReviewerRole(role: string | undefined | null): boolean {
+export function isInternalReviewerRole(
+  role: string | undefined | null,
+): boolean {
   return role === 'Admin' || role === 'Reviewer' || role === 'SeniorReviewer';
 }
 

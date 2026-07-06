@@ -84,8 +84,12 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
             }}
             found</span
           >
-          <pre class="detect-error" *ngIf="detectError"
-               style="white-space:pre-wrap;font-family:inherit;margin:0;font-size:12px;max-height:300px;overflow:auto">{{ detectError }}</pre>
+          <pre
+            class="detect-error"
+            *ngIf="detectError"
+            style="white-space:pre-wrap;font-family:inherit;margin:0;font-size:12px;max-height:300px;overflow:auto"
+            >{{ detectError }}</pre
+          >
         </div>
         <div class="sat-date" *ngIf="satelliteDate">
           🛰 Latest imagery: {{ satelliteDate }}
@@ -158,7 +162,7 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
         padding: 5px 12px;
         border: none;
         border-radius: 6px;
-        background: #0F607F;
+        background: #0f607f;
         color: #fff;
         font-size: 12px;
         font-weight: 600;
@@ -253,7 +257,7 @@ import { currentUserIsInternalReviewer } from '../../../utils/role-helper';
         background: #cbd5e1;
       }
       .detect-confirm__btn--ok {
-        background: #0F607F;
+        background: #0f607f;
         color: #fff;
       }
       .detect-confirm__btn--ok:hover {
@@ -537,7 +541,10 @@ export class SatelliteWindowComponent
    *  frozen latLngs so the mask tracks pan/zoom; falls back to the legacy
    *  image-pixel math for any prediction without latLngs (shouldn't
    *  happen in practice — drawDetections populates them). */
-  private satShape(pred: any): { polygon: { x: number; y: number }[]; bbox: { x: number; y: number; w: number; h: number } } {
+  private satShape(pred: any): {
+    polygon: { x: number; y: number }[];
+    bbox: { x: number; y: number; w: number; h: number };
+  } {
     const map = this.map;
     if (map && pred.latLngs?.length > 2) {
       const polygon = pred.latLngs.map((ll: L.LatLng) => {
@@ -556,7 +563,9 @@ export class SatelliteWindowComponent
       };
     }
     if (map && pred.bboxLatLng?.length === 4) {
-      const corners = pred.bboxLatLng.map((ll: L.LatLng) => map.latLngToContainerPoint(ll));
+      const corners = pred.bboxLatLng.map((ll: L.LatLng) =>
+        map.latLngToContainerPoint(ll),
+      );
       const xs = corners.map((p: { x: number }) => p.x);
       const ys = corners.map((p: { y: number }) => p.y);
       const minX = Math.min(...xs);
@@ -578,7 +587,12 @@ export class SatelliteWindowComponent
     const by = (pred.y - pred.height / 2) * this.satScaleY + this.satCropY;
     return {
       polygon,
-      bbox: { x: bx, y: by, w: pred.width * this.satScaleX, h: pred.height * this.satScaleY },
+      bbox: {
+        x: bx,
+        y: by,
+        w: pred.width * this.satScaleX,
+        h: pred.height * this.satScaleY,
+      },
     };
   }
 
@@ -753,7 +767,12 @@ export class SatelliteWindowComponent
     await Promise.all(tasks);
 
     // Verify canvas isn't blank
-    const sample = ctx.getImageData(Math.floor(halfW), Math.floor(halfH), 1, 1).data;
+    const sample = ctx.getImageData(
+      Math.floor(halfW),
+      Math.floor(halfH),
+      1,
+      1,
+    ).data;
     if (
       sample[0] === 0 &&
       sample[1] === 0 &&
@@ -864,23 +883,31 @@ export class SatelliteWindowComponent
     if (this.panelCount === 0) {
       const hasOutputs = !!outputs;
       const hasImage = !!outputs?.predictions?.image;
-      const hint = hasOutputs && hasImage
-        ? 'Model ran but found 0 panels. Try zooming in (z19+), recentering, or wait for satellite tiles to fully load.'
-        : 'Unexpected model response (no `outputs[0].predictions`).';
+      const hint =
+        hasOutputs && hasImage
+          ? 'Model ran but found 0 panels. Try zooming in (z19+), recentering, or wait for satellite tiles to fully load.'
+          : 'Unexpected model response (no `outputs[0].predictions`).';
       let raw = '';
       try {
-        raw = JSON.stringify(data, (_k, v) => {
-          if (
-            v &&
-            typeof v === 'object' &&
-            v.type === 'base64' &&
-            typeof v.value === 'string'
-          ) {
-            const { value, ...rest } = v;
-            return { ...rest, value: `[${value.length} base64 chars omitted]` };
-          }
-          return v;
-        }, 2);
+        raw = JSON.stringify(
+          data,
+          (_k, v) => {
+            if (
+              v &&
+              typeof v === 'object' &&
+              v.type === 'base64' &&
+              typeof v.value === 'string'
+            ) {
+              const { value, ...rest } = v;
+              return {
+                ...rest,
+                value: `[${value.length} base64 chars omitted]`,
+              };
+            }
+            return v;
+          },
+          2,
+        );
         if (raw.length > 1500) raw = raw.slice(0, 1500) + '\n…[truncated]';
       } catch {
         raw = String(data);

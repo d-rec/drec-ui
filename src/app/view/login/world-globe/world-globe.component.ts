@@ -255,10 +255,26 @@ export class WorldGlobeComponent implements AfterViewInit, OnDestroy {
       .attr('cx', '32%')
       .attr('cy', '30%')
       .attr('r', '75%');
-    sphereGrad.append('stop').attr('offset', '0%').attr('stop-color', '#ffffff').attr('stop-opacity', '0.22');
-    sphereGrad.append('stop').attr('offset', '30%').attr('stop-color', '#ffffff').attr('stop-opacity', '0.08');
-    sphereGrad.append('stop').attr('offset', '60%').attr('stop-color', '#000000').attr('stop-opacity', '0');
-    sphereGrad.append('stop').attr('offset', '100%').attr('stop-color', '#000000').attr('stop-opacity', '0.12');
+    sphereGrad
+      .append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', '#ffffff')
+      .attr('stop-opacity', '0.22');
+    sphereGrad
+      .append('stop')
+      .attr('offset', '30%')
+      .attr('stop-color', '#ffffff')
+      .attr('stop-opacity', '0.08');
+    sphereGrad
+      .append('stop')
+      .attr('offset', '60%')
+      .attr('stop-color', '#000000')
+      .attr('stop-opacity', '0');
+    sphereGrad
+      .append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', '#000000')
+      .attr('stop-opacity', '0.12');
 
     const radius = this.projection.scale();
     svg

@@ -92,7 +92,7 @@ export class SatellitePreviewComponent implements OnChanges {
   private prevLat: number | null = null;
   private prevLng: number | null = null;
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(_changes: SimpleChanges): void {
     if (this.lat == null || this.lng == null) {
       this.preview = null;
       this.satDate = '';

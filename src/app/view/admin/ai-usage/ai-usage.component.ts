@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { select, Selection } from 'd3-selection';
 import { scaleBand, scaleLinear, scaleOrdinal } from 'd3-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
-import { line as d3Line, area as d3Area, arc as d3Arc, pie as d3Pie } from 'd3-shape';
+import { arc as d3Arc, pie as d3Pie } from 'd3-shape';
 import { max as d3Max } from 'd3-array';
 import { environment } from '../../../../environments/environment';
 
@@ -105,35 +105,34 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
   refresh(): void {
     this.loading = true;
     this.error = '';
-    this.http
-      .get<UsageSummary>(`${environment.API_URL}ai/usage`)
-      .subscribe({
-        next: (r) => {
-          this.data = r;
-          this.loading = false;
-          // Defer to next tick so *ngIf="data" renders the SVG first.
-          setTimeout(() => this.renderCharts(), 0);
-        },
-        error: (err) => {
-          this.error =
-            err?.error?.message ?? err?.message ?? 'Failed to load usage';
-          this.loading = false;
-        },
-      });
+    this.http.get<UsageSummary>(`${environment.API_URL}ai/usage`).subscribe({
+      next: (r) => {
+        this.data = r;
+        this.loading = false;
+        // Defer to next tick so *ngIf="data" renders the SVG first.
+        setTimeout(() => this.renderCharts(), 0);
+      },
+      error: (err) => {
+        this.error =
+          err?.error?.message ?? err?.message ?? 'Failed to load usage';
+        this.loading = false;
+      },
+    });
 
     // DeepL: live provider-side quota (free endpoint, doesn't burn chars).
     this.deeplQuotaError = '';
     this.http
       .get<DeeplQuota>(`${environment.API_URL}translate/deepl-quota`)
       .subscribe({
-        next: (q) => { this.deeplQuota = q; },
+        next: (q) => {
+          this.deeplQuota = q;
+        },
         error: (err) => {
           this.deeplQuota = null;
           this.deeplQuotaError =
             err?.error?.message ?? err?.message ?? 'DeepL quota unavailable';
         },
       });
-
   }
 
   byProviderRow(provider: string): UsageSummary['byProvider'][0] | undefined {
@@ -174,9 +173,8 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
     const innerW = width - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
 
-    const svg: Selection<SVGSVGElement, unknown, null, undefined> = select(
-      svgEl,
-    );
+    const svg: Selection<SVGSVGElement, unknown, null, undefined> =
+      select(svgEl);
     svg.attr('viewBox', `0 0 ${width} ${height}`).attr('width', '100%');
     svg.selectAll('*').remove();
     const g = svg
@@ -252,7 +250,11 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Y axis: dollar formatted
     g.append('g')
-      .call(axisLeft(y).ticks(5).tickFormat((v) => `$${(+v).toFixed(2)}`))
+      .call(
+        axisLeft(y)
+          .ticks(5)
+          .tickFormat((v) => `$${(+v).toFixed(2)}`),
+      )
       .selectAll('text')
       .attr('font-size', '10px')
       .attr('fill', '#64748b');
@@ -283,7 +285,7 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
       .domain(data.map((d) => d.endpoint))
       .range(this.palette);
 
-    const pieGen = d3Pie<typeof data[0]>()
+    const pieGen = d3Pie<(typeof data)[0]>()
       .value((d) => d.estimatedUsd || 0.0001)
       .sort(null);
     const arcGen = d3Arc<any>().innerRadius(inner).outerRadius(radius);
@@ -366,7 +368,9 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
       .outerRadius(r)
       .startAngle(-half)
       .endAngle(half);
-    g.append('path').attr('d', bgArc() as string).attr('fill', '#e2e8f0');
+    g.append('path')
+      .attr('d', bgArc() as string)
+      .attr('fill', '#e2e8f0');
 
     const pct = this.capPercent() / 100;
     const fillColor =
@@ -376,7 +380,9 @@ export class AiUsageComponent implements OnInit, AfterViewInit, OnDestroy {
       .outerRadius(r)
       .startAngle(-half)
       .endAngle(-half + pct * Math.PI);
-    g.append('path').attr('d', fgArc() as string).attr('fill', fillColor);
+    g.append('path')
+      .attr('d', fgArc() as string)
+      .attr('fill', fillColor);
 
     g.append('text')
       .attr('text-anchor', 'middle')

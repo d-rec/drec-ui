@@ -23,11 +23,7 @@ import {
   devicecodeType,
   CountryInfo,
 } from '../../../models';
-import {
-  MapComponent,
-  satellitePreview,
-  SatellitePreview,
-} from '../../map/map.component';
+import { MapComponent } from '../../map/map.component';
 @Component({
   standalone: false,
   selector: 'app-admin-alldevices',
@@ -64,7 +60,11 @@ export class AdminAlldevicesComponent {
   }
   @HostListener('document:visibilitychange')
   onVisibilityChange(): void {
-    if (document.visibilityState === 'visible' && !this.loading && this.showlist) {
+    if (
+      document.visibilityState === 'visible' &&
+      !this.loading &&
+      this.showlist
+    ) {
       this.getDeviceListData(this.p);
     }
   }
@@ -372,13 +372,17 @@ export class AdminAlldevicesComponent {
   isAllSelected(): boolean {
     if (!this.dataSource) return false;
     const rows = this.dataSource.filteredData ?? [];
-    return rows.length > 0 && rows.every((r: any) => this.selection.isSelected(r.id));
+    return (
+      rows.length > 0 && rows.every((r: any) => this.selection.isSelected(r.id))
+    );
   }
 
   isIndeterminate(): boolean {
     if (!this.dataSource) return false;
     const rows = this.dataSource.filteredData ?? [];
-    const selectedInView = rows.filter((r: any) => this.selection.isSelected(r.id)).length;
+    const selectedInView = rows.filter((r: any) =>
+      this.selection.isSelected(r.id),
+    ).length;
     return selectedInView > 0 && selectedInView < rows.length;
   }
 
@@ -415,9 +419,7 @@ export class AdminAlldevicesComponent {
       },
       error: (err) => {
         this.bulkDeleting = false;
-        this.toastrService.error(
-          err?.error?.message || 'Bulk delete failed',
-        );
+        this.toastrService.error(err?.error?.message || 'Bulk delete failed');
       },
     });
   }

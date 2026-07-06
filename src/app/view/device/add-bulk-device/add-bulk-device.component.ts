@@ -317,7 +317,7 @@ export class AddBulkDeviceComponent implements OnInit {
   previewTotalCsvRows: number = 0;
   previewSkippedRows: number = 0;
 
-  openPreview(bulkUploadId: string, organizationId: number) {
+  openPreview(bulkUploadId: string, _organizationId: number) {
     this.bulkUploadService.getBulkUploadPreview(bulkUploadId).subscribe({
       next: (res) => {
         this.previewBulkUploadId = bulkUploadId;

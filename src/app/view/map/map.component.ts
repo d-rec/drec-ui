@@ -195,17 +195,16 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       // shows at the default map view (Sahara) before the user has done
       // anything meaningful.
 
-      let dragging = false;
       // Defer all parent-facing emits to the next macrotask so they land
       // outside Angular's current change-detection cycle (avoids NG0100 on
       // [class.coord-adjusting]="mapAdjusting" when leaflet fires
       // movestart+moveend in the same tick, e.g. a click).
-      const deferEmit = (fn: () => void) => setTimeout(() => this.zone.run(fn), 0);
+      const deferEmit = (fn: () => void) =>
+        setTimeout(() => this.zone.run(fn), 0);
       // Drag (pan) is the only thing that moves the pin's anchor latLng;
       // zoom keeps it where it is. Tracking 'dragstart' / 'dragend' lets
       // us distinguish pan from zoom (both fire 'move').
       this.map.on('dragstart', () => {
-        dragging = true;
         deferEmit(() => this.mapDragging.emit(true));
         this.ensureCenterPin();
       });
@@ -224,7 +223,6 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         const c = this.map.getCenter();
         this.pinLatLng = c;
         this.centerPinMarker?.setLatLng(c);
-        dragging = false;
         deferEmit(() => this.mapDragging.emit(false));
       });
       // Initial pin anchor: wherever the map starts.
@@ -295,7 +293,10 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.overlayCanvas) return;
     const mapEl = this.map.getContainer();
     const canvas = this.overlayCanvas.nativeElement;
-    if (canvas.width !== mapEl.offsetWidth || canvas.height !== mapEl.offsetHeight) {
+    if (
+      canvas.width !== mapEl.offsetWidth ||
+      canvas.height !== mapEl.offsetHeight
+    ) {
       canvas.width = mapEl.offsetWidth;
       canvas.height = mapEl.offsetHeight;
     }
@@ -477,7 +478,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private waitForTilesThenCapture(): void {
-    const tileLayer = this.map.eachLayer((layer: any) => {
+    this.map.eachLayer((layer: any) => {
       if (layer._url && layer._loading) return layer;
     });
 
@@ -543,9 +544,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         const imgs = Array.from(
           tilePane.querySelectorAll('img'),
         ) as HTMLImageElement[];
-        const pending = imgs.filter(
-          (i) => !i.complete || i.naturalWidth === 0,
-        );
+        const pending = imgs.filter((i) => !i.complete || i.naturalWidth === 0);
         if (pending.length === 0) {
           resolve();
           return;
@@ -610,11 +609,13 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
    * detection — image px → global Web-Mercator px at captureZoom →
    * latLng → live container point.
    */
-  private imagePxToContainer(
-    px: number,
-    py: number,
-  ): { x: number; y: number } {
-    if (!this.captureCenter || !this.map || !this.captureImgW || !this.captureSize) {
+  private imagePxToContainer(px: number, py: number): { x: number; y: number } {
+    if (
+      !this.captureCenter ||
+      !this.map ||
+      !this.captureImgW ||
+      !this.captureSize
+    ) {
       return { x: 0, y: 0 };
     }
     const TILE = 256;
@@ -632,10 +633,8 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const globalPxY =
       centerPxY - HALF + (py / this.captureImgH) * this.captureSize;
     const lng = (globalPxX / (Math.pow(2, z) * TILE)) * 360 - 180;
-    const n =
-      Math.PI - 2 * Math.PI * (globalPxY / (Math.pow(2, z) * TILE));
-    const lat =
-      (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+    const n = Math.PI - 2 * Math.PI * (globalPxY / (Math.pow(2, z) * TILE));
+    const lat = (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
     const cp = this.map.latLngToContainerPoint([lat, lng]);
     return { x: cp.x, y: cp.y };
   }
@@ -767,9 +766,10 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     if (this.panelCount === 0) {
       const hasOutputs = !!outputs;
       const hasImage = !!outputs?.predictions?.image;
-      const hint = hasOutputs && hasImage
-        ? 'Model ran but found 0 panels. Try zooming in (z19+), recentering, or wait for satellite tiles to fully load.'
-        : 'Unexpected model response (no `outputs[0].predictions`).';
+      const hint =
+        hasOutputs && hasImage
+          ? 'Model ran but found 0 panels. Try zooming in (z19+), recentering, or wait for satellite tiles to fully load.'
+          : 'Unexpected model response (no `outputs[0].predictions`).';
       // Strip long string fields (base64 image data, etc.) before
       // dumping the response — Roboflow workflows return annotated
       // images embedded in the JSON, and a 1500-char slice still
@@ -926,9 +926,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         return;
       }
     }
-    const hit = this.predictions.some((p: any) =>
-      this.regionHitTest(p, x, y),
-    );
+    const hit = this.predictions.some((p: any) => this.regionHitTest(p, x, y));
     container.style.cursor = hit ? 'pointer' : '';
   }
 
@@ -1337,7 +1335,8 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
 
     const byteString = atob(withGpsDataUrl.split(',')[1]);
     const bytes = new Uint8Array(byteString.length);
-    for (let i = 0; i < byteString.length; i++) bytes[i] = byteString.charCodeAt(i);
+    for (let i = 0; i < byteString.length; i++)
+      bytes[i] = byteString.charCodeAt(i);
     const blob = new Blob([bytes], { type: 'image/jpeg' });
 
     const filename = name.replace(/[^a-zA-Z0-9_\- ]/g, '') + '.jpg';

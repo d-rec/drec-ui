@@ -434,7 +434,8 @@ export class AddreadComponent implements OnInit {
   onSubmit(): void {
     if (this.readForm.valid) {
       // Use externalId (globally unique) for API calls, not serialNumber
-      const serialNumber = this.selectedResult?.externalId || this.readForm.value.serialNumber;
+      const serialNumber =
+        this.selectedResult?.externalId || this.readForm.value.serialNumber;
       const myobj: any = {};
       if (this.loginuser.role === 'Registrant') {
         myobj['organizationId'] = this.orgId;

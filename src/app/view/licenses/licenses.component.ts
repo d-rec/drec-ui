@@ -106,15 +106,21 @@ export class LicensesComponent implements OnInit {
     this.http
       .get<MyProviderUsage>(`${environment.API_URL}ai/my-usage`)
       .subscribe({
-        next: (u) => { this.myUsage = u; },
-        error: () => { this.myUsage = null; },
+        next: (u) => {
+          this.myUsage = u;
+        },
+        error: () => {
+          this.myUsage = null;
+        },
       });
     if (this.hasDeeplKey) {
       this.deeplQuotaError = '';
       this.http
         .get<DeeplQuota>(`${environment.API_URL}translate/deepl-quota`)
         .subscribe({
-          next: (q) => { this.deeplQuota = q; },
+          next: (q) => {
+            this.deeplQuota = q;
+          },
           error: (err) => {
             this.deeplQuota = null;
             this.deeplQuotaError =

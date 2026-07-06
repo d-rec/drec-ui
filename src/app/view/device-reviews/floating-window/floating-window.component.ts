@@ -75,7 +75,10 @@ export class FloatingWindowComponent
     this.width = Math.min(this.initWidth, maxW);
     this.height = Math.min(this.initHeight, maxH);
     if (this.maxAspectRatio !== null && this.maxAspectRatio > 0) {
-      this.width = Math.min(this.width, Math.round(this.height * this.maxAspectRatio));
+      this.width = Math.min(
+        this.width,
+        Math.round(this.height * this.maxAspectRatio),
+      );
     }
   }
 

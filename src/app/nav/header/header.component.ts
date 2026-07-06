@@ -8,7 +8,7 @@ import {
 import { AuthbaseService } from '../../auth/authbase.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { ChatService, ChatConversation } from '../../chat/chat.service';
+import { ChatService } from '../../chat/chat.service';
 import { Observable } from 'rxjs';
 @Component({
   standalone: false,
@@ -51,7 +51,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
    *  notification doesn't sit there forever after a user glances at it. */
   private unreadListAutoCloseTimer: ReturnType<typeof setTimeout> | null = null;
   private armAutoClose(): void {
-    if (this.unreadListAutoCloseTimer) clearTimeout(this.unreadListAutoCloseTimer);
+    if (this.unreadListAutoCloseTimer)
+      clearTimeout(this.unreadListAutoCloseTimer);
     this.unreadListAutoCloseTimer = setTimeout(() => {
       this.showUnreadList = false;
       this.unreadListAutoCloseTimer = null;

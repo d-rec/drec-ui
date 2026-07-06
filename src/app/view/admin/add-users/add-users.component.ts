@@ -11,10 +11,7 @@ import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 import { UserService } from '../../../auth/services';
 import { ToastrService } from 'ngx-toastr';
 import { EMAIL_REGEX } from '../../../constants/index';
-import {
-  getPhoneNumberErrorMessage,
-  phoneNumberValidator,
-} from '../../../shared/validators/phone-validators';
+import { getPhoneNumberErrorMessage } from '../../../shared/validators/phone-validators';
 @Component({
   standalone: false,
   selector: 'app-add-users',

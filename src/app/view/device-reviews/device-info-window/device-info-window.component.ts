@@ -100,18 +100,20 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
         const siteName = this.deviceInfo?.siteName ?? '';
         const externalId = this.deviceInfo?.externalId ?? this.deviceInfo?.id;
         const body = `**Haiku extraction contested** (site: ${siteName}, id: ${externalId})\n\n${note.trim()}`;
-        this.chat.sendDirectMessage(admin.email, body, { deviceSiteName: siteName }).subscribe({
-          next: () =>
-            this.toastr.success(
-              'Sent to D-REC admin — thanks for the heads-up',
-              'Provenance',
-            ),
-          error: (e) =>
-            this.toastr.error(
-              e?.error?.message || e?.message || 'Failed to send message',
-              'Provenance',
-            ),
-        });
+        this.chat
+          .sendDirectMessage(admin.email, body, { deviceSiteName: siteName })
+          .subscribe({
+            next: () =>
+              this.toastr.success(
+                'Sent to D-REC admin — thanks for the heads-up',
+                'Provenance',
+              ),
+            error: (e) =>
+              this.toastr.error(
+                e?.error?.message || e?.message || 'Failed to send message',
+                'Provenance',
+              ),
+          });
       },
       error: () =>
         this.toastr.error('Could not resolve admin email', 'Provenance'),
@@ -128,9 +130,7 @@ export class DeviceInfoWindowComponent implements OnInit, OnDestroy {
    *  streaming endpoint requires JWT, which an iframe src= can't
    *  send), wrap as a blob URL, and bind to the iframe. */
   private loadProvenanceReport(): void {
-    const docs = this.documents.filter(
-      (d) => d.type === 'EVIDENCE_PROVENANCE',
-    );
+    const docs = this.documents.filter((d) => d.type === 'EVIDENCE_PROVENANCE');
     if (!docs.length) {
       // No doc for this device — clear any previous render.
       if (this.provenanceObjectUrl) {

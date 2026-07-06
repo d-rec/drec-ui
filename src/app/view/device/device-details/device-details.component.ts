@@ -5,12 +5,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DeviceService } from '../../../auth/services/device.service';
 import { AuthbaseService } from '../../../auth/authbase.service';
-import {
-  Device,
-  CountryInfo,
-  fulecodeType,
-  devicecodeType,
-} from '../../../models';
+import { CountryInfo, fulecodeType, devicecodeType } from '../../../models';
 import { ToastrService } from 'ngx-toastr';
 import { satellitePreview, SatellitePreview } from '../../map/map.component';
 import { extractExt } from '../../../utils/file-ext';

@@ -111,7 +111,10 @@ export class PdfWindowComponent implements OnInit, OnDestroy {
       // cycle and steal focus until the browser is killed. Show an
       // error and let the user click Download (which uses window.open
       // intentionally).
-      console.warn('pdf-window: fetch failed, refusing to render raw URL:', err);
+      console.warn(
+        'pdf-window: fetch failed, refusing to render raw URL:',
+        err,
+      );
       this.fetchError = true;
       this.safeUrl = null;
     } finally {

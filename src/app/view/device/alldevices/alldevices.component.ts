@@ -27,13 +27,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { DeviceDetailsComponent } from '../device-details/device-details.component';
 import { ToastrService } from 'ngx-toastr';
 import { fulecodeType, devicecodeType, CountryInfo } from '../../../models';
-import {
-  MapComponent,
-  satellitePreview,
-  SatellitePreview,
-} from '../../map/map.component';
+import { MapComponent } from '../../map/map.component';
 import { ChatService } from '../../../chat/chat.service';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   standalone: false,
@@ -134,7 +129,8 @@ export class AlldevicesComponent {
     projectName: string;
     error: string;
   }> = [];
-  @ViewChild('bulkDeleteResultsDialog') bulkDeleteResultsDialog?: TemplateRef<any>;
+  @ViewChild('bulkDeleteResultsDialog')
+  bulkDeleteResultsDialog?: TemplateRef<any>;
   private bulkDeleteResultsDialogRef: MatDialogRef<any> | null = null;
   reviewStatusFilters: Set<string> = new Set(['pending']);
   readonly reviewStatusOptions = [

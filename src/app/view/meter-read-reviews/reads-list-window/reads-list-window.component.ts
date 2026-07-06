@@ -118,7 +118,9 @@ export class ReadsListWindowComponent implements OnInit, OnDestroy {
     if (saved) {
       try {
         this.statusFilters = JSON.parse(saved);
-      } catch {}
+      } catch {
+        // Malformed saved filters — keep the defaults.
+      }
     }
 
     // Reactive filtering

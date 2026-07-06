@@ -49,7 +49,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
         { key: 'gridExportType', label: '(16) Exports to grid?' },
         { key: 'hasNetworkMeter', label: '(18) Network meter' },
         { key: 'networkOwner', label: '(17) Network owner' },
-        { key: 'interconnectionVoltage', label: '(31) Interconnection voltage' },
+        {
+          key: 'interconnectionVoltage',
+          label: '(31) Interconnection voltage',
+        },
         { key: 'generatingUnitCount', label: '(33) Generating unit count' },
         { key: 'dataSourceBrand', label: '(22) Data source brand' },
         { key: 'serialNumber', label: '(23) Serial number / meter ID' },
@@ -58,10 +61,19 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
         { key: 'offTakerName', label: '(28) Off-taker name' },
         { key: 'offTaker', label: '(29) Off-taker' },
         { key: 'impactStory', label: '(29) Impact story' },
-        { key: 'hasAuxiliaryEnergySources', label: '(34) Auxiliary energy sources?' },
-        { key: 'auxiliaryEnergySourceDetails', label: '(34a) Auxiliary energy source details' },
+        {
+          key: 'hasAuxiliaryEnergySources',
+          label: '(34) Auxiliary energy sources?',
+        },
+        {
+          key: 'auxiliaryEnergySourceDetails',
+          label: '(34a) Auxiliary energy source details',
+        },
         { key: 'sourceAccessMode', label: 'Source-access mode' },
-        { key: 'operatingConfiguration', label: '(30) Operating configuration' },
+        {
+          key: 'operatingConfiguration',
+          label: '(30) Operating configuration',
+        },
         { key: 'evidencePathway', label: 'Evidence pathway' },
         { key: 'deviceDescription', label: '(8) Device description' },
         { key: 'SDGBenefits', label: '(28) SDG benefits' },
@@ -78,9 +90,7 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
   /** Translate field key to human label for the bubble's anchor tag. */
   fieldLabel(key: string | null): string {
     if (!key) return 'General';
-    return (
-      this.NOTE_FIELD_OPTIONS.find((o) => o.key === key)?.label ?? key
-    );
+    return this.NOTE_FIELD_OPTIONS.find((o) => o.key === key)?.label ?? key;
   }
 
   /** Reviewer/admin clicks Resolve on a note bubble. */
@@ -123,7 +133,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     if (msg.kind !== 'system') return null;
     const payload = msg.payload ?? {};
     const explicit = payload['noteUuid'];
-    if (typeof explicit === 'string' && this.messages.some((m) => m.uuid === explicit)) {
+    if (
+      typeof explicit === 'string' &&
+      this.messages.some((m) => m.uuid === explicit)
+    ) {
       return explicit;
     }
     if (payload['action'] === 'registrant-updated') {
@@ -325,17 +338,17 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
       this.chatService
         .sendMessage(this.currentUsername, text, { kind, fieldName })
         .subscribe({
-        next: () => {
-          this.chatService
-            .getChain(this.chatService.currentHeadUuid!)
-            .subscribe((msgs) => this.chatService.messages$.next(msgs));
-          // The server already cleared this user's unread slot when
-          // appending — pull fresh badges so the indicator stops
-          // pinging without waiting for the 10s unread-poll tick.
-          this.chatService.refreshUnread();
-        },
-        error: (err) => console.error('Chat: failed to send message', err),
-      });
+          next: () => {
+            this.chatService
+              .getChain(this.chatService.currentHeadUuid!)
+              .subscribe((msgs) => this.chatService.messages$.next(msgs));
+            // The server already cleared this user's unread slot when
+            // appending — pull fresh badges so the indicator stops
+            // pinging without waiting for the 10s unread-poll tick.
+            this.chatService.refreshUnread();
+          },
+          error: (err) => console.error('Chat: failed to send message', err),
+        });
     } else {
       // Start new conversation
       this.chatService
@@ -406,7 +419,10 @@ export class ChatWindowComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const re = new RegExp(escaped, 'gi'); // nosemgrep: detect-non-literal-regexp -- term is regex-escaped above
-      html = linked.replace(re, (m) => `<mark class="chat-highlight">${m}</mark>`);
+      html = linked.replace(
+        re,
+        (m) => `<mark class="chat-highlight">${m}</mark>`,
+      );
     }
     const out = this.sanitizer.bypassSecurityTrustHtml(html); // nosemgrep: angular-bypasssecuritytrust
     // Keep the cache bounded so a busy chat doesn't leak memory.

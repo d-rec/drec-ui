@@ -33,9 +33,10 @@ export class DeviceReviewsPageComponent implements OnInit, OnDestroy {
   /** Provenance map of the currently-focused device — feeds the OC#
    *  panel so each row is tinted green (platform-derived) or grey
    *  (manually entered) without auto-ticking anything. */
-  selectedFieldProvenance$: Observable<
-    Record<string, { source: string; confidence: number; at: string; value?: any }> | null
-  >;
+  selectedFieldProvenance$: Observable<Record<
+    string,
+    { source: string; confidence: number; at: string; value?: any }
+  > | null>;
 
   /** Doc-token → signed URL for the currently-focused device. Feeds
    *  the OC# panel's per-row "↗ SLD/SF-02/..." badges. */

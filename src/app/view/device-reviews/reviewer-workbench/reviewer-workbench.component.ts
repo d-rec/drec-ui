@@ -566,7 +566,13 @@ export class ReviewerWorkbenchComponent
     if (a.codProofUrl)
       push('cod', a.codProofUrl, 'COD proof', 'COD_PROOF', 'site');
     a.meteringEvidenceUrls.forEach((u, i) =>
-      push(`metering-${i}`, u, `Metering evidence ${i + 1}`, 'METER', 'metering'),
+      push(
+        `metering-${i}`,
+        u,
+        `Metering evidence ${i + 1}`,
+        'METER',
+        'metering',
+      ),
     );
     a.pictureUrls.forEach((u, i) =>
       push(`photo-${i}`, u, `Site photo ${i + 1}`, 'PHOTO', 'photos'),
@@ -631,8 +637,7 @@ export class ReviewerWorkbenchComponent
     return preset.map((p) => ({
       ocNum: p.ocNum,
       label: p.label,
-      registrantValue:
-        this.ocRows.find((r) => r.num === p.ocNum)?.value || '—',
+      registrantValue: this.ocRows.find((r) => r.num === p.ocNum)?.value || '—',
     }));
   }
 

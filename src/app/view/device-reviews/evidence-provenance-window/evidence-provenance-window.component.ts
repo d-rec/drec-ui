@@ -158,9 +158,9 @@ export class EvidenceProvenanceWindowComponent implements OnInit, OnDestroy {
     this.siteName = asset?.siteName ?? null;
     this.cdr.markForCheck();
     this.http
-      .get<{ id: number; type: string; url: string }[]>(
-        `${environment.API_URL}device/${deviceId}/documents`,
-      )
+      .get<
+        { id: number; type: string; url: string }[]
+      >(`${environment.API_URL}device/${deviceId}/documents`)
       .subscribe({
         next: (docs) => {
           const provs = (docs ?? []).filter(
@@ -175,16 +175,16 @@ export class EvidenceProvenanceWindowComponent implements OnInit, OnDestroy {
           const latest = [...provs].sort((a, b) => b.id - a.id)[0];
           this.reportGeneratedAt = (latest as any).createdAt ?? null;
           if (this.reportGeneratedAt) {
-            const ageMs = Date.now() - new Date(this.reportGeneratedAt).getTime();
+            const ageMs =
+              Date.now() - new Date(this.reportGeneratedAt).getTime();
             this.reportAgeMinutes = Math.floor(ageMs / 60000);
           } else {
             this.reportAgeMinutes = null;
           }
           this.http
-            .get(
-              `${environment.API_URL}document-uploads/${latest.id}/url`,
-              { responseType: 'blob' },
-            )
+            .get(`${environment.API_URL}document-uploads/${latest.id}/url`, {
+              responseType: 'blob',
+            })
             .subscribe({
               next: (raw) => {
                 const blob = new Blob([raw], { type: 'text/html' });
@@ -201,9 +201,7 @@ export class EvidenceProvenanceWindowComponent implements OnInit, OnDestroy {
               error: (e) => {
                 this.loading = false;
                 this.error =
-                  e?.error?.message ||
-                  e?.message ||
-                  'Failed to load report';
+                  e?.error?.message || e?.message || 'Failed to load report';
                 this.cdr.markForCheck();
               },
             });

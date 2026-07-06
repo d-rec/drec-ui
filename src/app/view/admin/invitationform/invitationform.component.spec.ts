@@ -33,7 +33,10 @@ describe('InvitationformComponent', () => {
         { provide: AdminService, useValue: {} },
         { provide: UserService, useValue: {} },
         { provide: InvitationService, useValue: {} },
-        { provide: ToastrService, useValue: { success: () => undefined, error: () => undefined } },
+        {
+          provide: ToastrService,
+          useValue: { success: () => undefined, error: () => undefined },
+        },
         { provide: Router, useValue: { navigate: () => undefined } },
         { provide: ActivatedRoute, useValue: {} },
       ],

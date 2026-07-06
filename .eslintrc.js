@@ -21,5 +21,15 @@ module.exports = {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    // Same convention as drec-origin: a leading underscore marks a
+    // deliberately-unused parameter / variable / caught error.
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      },
+    ],
   },
 };

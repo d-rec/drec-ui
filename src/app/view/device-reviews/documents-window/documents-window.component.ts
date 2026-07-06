@@ -20,7 +20,6 @@ import { Asset, AssetStatus } from '../asset.model';
 import { AssetService } from '../asset.service';
 import { ChatService } from '../../../chat/chat.service';
 import {
-  EvidenceRequirements,
   RequirementLevel,
   getEvidenceRequirements,
   getHint,
@@ -1078,10 +1077,13 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
                 });
               } else {
                 const inputDiag: string[] = [];
-                if (res.lat == null || isNaN(res.lat)) inputDiag.push('latitude');
-                if (res.lng == null || isNaN(res.lng)) inputDiag.push('longitude');
+                if (res.lat == null || isNaN(res.lat))
+                  inputDiag.push('latitude');
+                if (res.lng == null || isNaN(res.lng))
+                  inputDiag.push('longitude');
                 if (!(res.capacityKw > 0)) inputDiag.push('capacity');
-                if (!res.commissioningDate) inputDiag.push('commissioning date');
+                if (!res.commissioningDate)
+                  inputDiag.push('commissioning date');
                 const fallback = inputDiag.length
                   ? `Missing ${inputDiag.join(', ')}`
                   : 'Unavailable — likely SOLAR_GRID_NPZ_PATH unset on API or coordinates outside grid (lat ∈ [-60,65])';
@@ -1474,7 +1476,9 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           break;
 
         case 'requiredFields': {
-          const a = this.svc.assets$.value.find((x) => x.id === String(deviceId));
+          const a = this.svc.assets$.value.find(
+            (x) => x.id === String(deviceId),
+          );
           if (!a) {
             resolve({ status: 'skip', detail: 'Device not in current list' });
             break;
@@ -1485,8 +1489,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
           if (a.long == null) missing.push('longitude');
           if (a.capacity == null || a.capacity <= 0) missing.push('capacity');
           if (!a.countryCode) missing.push('country');
-          if (!a.operatingConfiguration)
-            missing.push('operatingConfiguration');
+          if (!a.operatingConfiguration) missing.push('operatingConfiguration');
           if (!a.sourceAccessMode) missing.push('sourceAccessMode');
           resolve({
             status: missing.length ? 'fail' : 'pass',
@@ -1604,9 +1607,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async runClassifyForScan(
-    _deviceId: number,
-  ): Promise<{
+  private async runClassifyForScan(_deviceId: number): Promise<{
     status: 'pass' | 'warn' | 'fail';
     detail: string;
     subItems?: Array<{
@@ -1814,7 +1815,7 @@ export class DocumentsWindowComponent implements OnInit, OnDestroy {
     private classifier: DocumentClassifierService,
   ) {}
 
-trustUrl(url: string): SafeUrl {
+  trustUrl(url: string): SafeUrl {
     // nosemgrep: angular-bypasssecuritytrust -- url comes from backend S3 presigned URLs, not user input
     return this.sanitizer.bypassSecurityTrustUrl(url);
   }
@@ -2317,11 +2318,7 @@ trustUrl(url: string): SafeUrl {
   }
 
   clearSf02cOwnersDeclaration(asset: Asset): void {
-    this.requestDelete(
-      asset,
-      'proofOfOwnership',
-      'proofOfOwnershipUrl',
-    );
+    this.requestDelete(asset, 'proofOfOwnership', 'proofOfOwnershipUrl');
   }
 
   onOtherDocumentAdd(asset: Asset, event: Event): void {
@@ -3155,7 +3152,7 @@ trustUrl(url: string): SafeUrl {
         return `The registrant hasn't uploaded ${miss[1]} yet — without it the I-REC issuance can't proceed. Ask them to attach via the edit-device page.`;
       }
       if (/flagged/i.test(f)) {
-        return 'The platform couldn\'t confirm the device owner against the documents on file. Either the SF-02C / Proof-of-Ownership name doesn\'t match the registered owner, or one of the docs is missing.';
+        return "The platform couldn't confirm the device owner against the documents on file. Either the SF-02C / Proof-of-Ownership name doesn't match the registered owner, or one of the docs is missing.";
       }
     }
     // -- Production ceiling -----------------------------------
@@ -3165,14 +3162,20 @@ trustUrl(url: string): SafeUrl {
         return `D-REC caps the credible annual yield at ${m[1]} kWh per kW for this site's latitude / climate (Global Solar Atlas). Anything substantially above means a meter, capacity entry, or read-frequency is wrong — investigate before approving.`;
       }
       if (/exceeds/i.test(f)) {
-        return 'The reported energy production this year is higher than what is physically plausible for the site\'s solar resource. Double-check the AC capacity (13) and the metering reads.';
+        return "The reported energy production this year is higher than what is physically plausible for the site's solar resource. Double-check the AC capacity (13) and the metering reads.";
       }
     }
     // -- Photo GPS --------------------------------------------
     if (sectionName === 'Photo GPS') {
-      const m = /(\d+) photos: (\d+) with GPS, (\d+) within 300m, (\d+) flagged/.exec(f);
+      const m =
+        /(\d+) photos: (\d+) with GPS, (\d+) within 300m, (\d+) flagged/.exec(
+          f,
+        );
       if (m) {
-        const total = +m[1], withGps = +m[2], near = +m[3], flagged = +m[4];
+        const total = +m[1],
+          withGps = +m[2],
+          near = +m[3],
+          flagged = +m[4];
         if (flagged > 0) {
           return `${flagged} of ${total} site photos has GPS metadata that doesn't match the device coordinates (>300 m away). Ask the registrant whether the photo is mis-attributed or the coordinate is stale.`;
         }
@@ -3187,7 +3190,7 @@ trustUrl(url: string): SafeUrl {
     // -- Duplicate Screening ----------------------------------
     if (sectionName === 'Duplicate Screening') {
       if (/0 potential duplicate/i.test(f)) {
-        return 'No other device on the platform shares this site\'s name, coordinates, serial number, or external ID — safe from a double-counting perspective.';
+        return "No other device on the platform shares this site's name, coordinates, serial number, or external ID — safe from a double-counting perspective.";
       }
       const m = /(\d+) potential duplicate/.exec(f);
       if (m && +m[1] > 0) {
@@ -3215,16 +3218,16 @@ trustUrl(url: string): SafeUrl {
     // -- Source access mode -----------------------------------
     if (sectionName === 'Source Access Mode') {
       if (/no source access mode/i.test(f) || /not set/i.test(f)) {
-        return 'The registrant hasn\'t declared how D-REC will pull meter reads from this site (API / portal / file submission). Without this we can\'t establish the issuance pathway. Ask them to set (28).';
+        return "The registrant hasn't declared how D-REC will pull meter reads from this site (API / portal / file submission). Without this we can't establish the issuance pathway. Ask them to set (28).";
       }
     }
     // -- SLD Capacity Compare ---------------------------------
     if (sectionName === 'SLD Capacity Compare') {
       if (/no SLD/i.test(f)) {
-        return 'No Single Line Diagram on file — the platform can\'t cross-check the registered capacity (13) against the system the registrant claims. Request an SLD upload.';
+        return "No Single Line Diagram on file — the platform can't cross-check the registered capacity (13) against the system the registrant claims. Request an SLD upload.";
       }
       if (/exceeds|differs|mismatch/i.test(f)) {
-        return 'The SLD\'s nameplate doesn\'t match the registered AC capacity on the form. One of them is wrong — typically the form value when the registrant typed a rounded figure.';
+        return "The SLD's nameplate doesn't match the registered AC capacity on the form. One of them is wrong — typically the form value when the registrant typed a rounded figure.";
       }
     }
     return null;
@@ -3711,7 +3714,11 @@ trustUrl(url: string): SafeUrl {
       .map((id) => parseInt(id, 10))
       .filter((n) => !isNaN(n));
     if (!ids.length) return;
-    if (!confirm(`Run automation on ${ids.length} device(s)? This may take a while.`))
+    if (
+      !confirm(
+        `Run automation on ${ids.length} device(s)? This may take a while.`,
+      )
+    )
       return;
     this.bulkBusy = true;
     this.svc.bulkAutoScreen(ids).subscribe({

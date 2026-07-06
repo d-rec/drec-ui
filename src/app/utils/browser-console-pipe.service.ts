@@ -76,11 +76,7 @@ export class BrowserConsolePipeService implements OnDestroy {
     });
     window.addEventListener('unhandledrejection', (ev) => {
       const reason = (ev as PromiseRejectionEvent).reason;
-      this.capture(
-        'error',
-        ['unhandledrejection', reason],
-        reason?.stack,
-      );
+      this.capture('error', ['unhandledrejection', reason], reason?.stack);
     });
 
     this.flushTimer = setInterval(() => this.flush(), this.FLUSH_INTERVAL_MS);
@@ -104,9 +100,7 @@ export class BrowserConsolePipeService implements OnDestroy {
     const message =
       args.length > 0
         ? args
-            .map((a) =>
-              typeof a === 'string' ? a : safeStringify(a),
-            )
+            .map((a) => (typeof a === 'string' ? a : safeStringify(a)))
             .join(' ')
         : '';
     this.buffer.push({

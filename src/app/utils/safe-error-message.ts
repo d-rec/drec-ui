@@ -20,12 +20,13 @@ const cleanShort = (raw: unknown): string | null => {
   const trimmed = raw.trim();
   if (!trimmed) return null;
   if (looksLikeBase64Blob(trimmed)) return null;
-  return trimmed.length > MAX_LEN
-    ? `${trimmed.slice(0, MAX_LEN)}…`
-    : trimmed;
+  return trimmed.length > MAX_LEN ? `${trimmed.slice(0, MAX_LEN)}…` : trimmed;
 };
 
-export const safeErrorMessage = (err: any, fallback = 'Unknown error'): string => {
+export const safeErrorMessage = (
+  err: any,
+  fallback = 'Unknown error',
+): string => {
   return (
     cleanShort(err?.error?.message) ||
     cleanShort(err?.error?.error) ||

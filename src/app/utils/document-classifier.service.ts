@@ -310,12 +310,9 @@ export class DocumentClassifierService {
         const visionImg = await this.fileToVisionImage(file);
         const hash = await this.sha256OfFile(file);
         if (visionImg) {
-          const vision = await this.classifyViaHaiku(
-            file.name,
-            text,
-            hash,
-            [visionImg],
-          );
+          const vision = await this.classifyViaHaiku(file.name, text, hash, [
+            visionImg,
+          ]);
           if (
             vision &&
             (!kwResult || vision.confidence >= kwResult.confidence)
@@ -429,8 +426,7 @@ export class DocumentClassifierService {
   ): ClassificationResult | null {
     if (!result) return result;
     if (result.suggestedType !== DocumentType.METERING_EVIDENCE) return result;
-    const isJpeg =
-      file.type === 'image/jpeg' || /\.jpe?g$/i.test(file.name);
+    const isJpeg = file.type === 'image/jpeg' || /\.jpe?g$/i.test(file.name);
     if (!isJpeg) return result;
 
     // Strong-meter signal in OCR text → keep METERING, skip the
@@ -512,7 +508,11 @@ export class DocumentClassifierService {
         alternatives: [],
       };
     }
-    if (/title.{0,3}deed|lease.{0,5}agreement|ppa\b|purchase.{0,5}agreement|land.{0,3}registry/i.test(lower)) {
+    if (
+      /title.{0,3}deed|lease.{0,5}agreement|ppa\b|purchase.{0,5}agreement|land.{0,3}registry/i.test(
+        lower,
+      )
+    ) {
       return {
         suggestedType: DocumentType.PROOF_OF_OWNERSHIP,
         confidence: 0.8,
@@ -690,7 +690,12 @@ export class DocumentClassifierService {
       // silently filed the report under PROJECT_PHOTOS.
       return rows
         .slice(0, 60)
-        .map((r) => (r || []).slice(0, 20).map((c) => String(c ?? '')).join(' '))
+        .map((r) =>
+          (r || [])
+            .slice(0, 20)
+            .map((c) => String(c ?? ''))
+            .join(' '),
+        )
         .join('\n')
         .trim();
     } catch (err) {
@@ -777,9 +782,7 @@ export class DocumentClassifierService {
     }
   }
 
-  private async pdfFirstPageToCanvas(
-    file: File,
-  ): Promise<HTMLCanvasElement> {
+  private async pdfFirstPageToCanvas(file: File): Promise<HTMLCanvasElement> {
     let pdfjs = (window as any).pdfjsLib;
     if (!pdfjs) {
       pdfjs = await import('pdfjs-dist' as any);
@@ -882,7 +885,9 @@ export class DocumentClassifierService {
       const images = canvases.map((c) => {
         const ds = this.downsampleToLongEdge(c, SLD_MAX_LONG_EDGE_PX);
         return {
-          base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
+          base64: ds
+            .toDataURL('image/png')
+            .replace(/^data:image\/png;base64,/, ''),
           mimeType: 'image/png' as const,
         };
       });
@@ -945,11 +950,40 @@ export class DocumentClassifierService {
     if (!reasoning) return [];
     // Stoplist: keywords too generic to be useful as anchors.
     const STOP = new Set([
-      'this', 'that', 'with', 'from', 'into', 'over', 'under', 'than',
-      'shows', 'show', 'showing', 'shown', 'where', 'which', 'while',
-      'because', 'doc', 'document', 'diagram', 'sld', 'value', 'field',
-      'about', 'around', 'system', 'systems', 'side', 'sides', 'left',
-      'right', 'above', 'below', 'inside', 'outside',
+      'this',
+      'that',
+      'with',
+      'from',
+      'into',
+      'over',
+      'under',
+      'than',
+      'shows',
+      'show',
+      'showing',
+      'shown',
+      'where',
+      'which',
+      'while',
+      'because',
+      'doc',
+      'document',
+      'diagram',
+      'sld',
+      'value',
+      'field',
+      'about',
+      'around',
+      'system',
+      'systems',
+      'side',
+      'sides',
+      'left',
+      'right',
+      'above',
+      'below',
+      'inside',
+      'outside',
     ]);
     const keywords = Array.from(
       new Set(
@@ -1001,10 +1035,19 @@ export class DocumentClassifierService {
 
   private async buildTesseractTokenMap(
     canvases: HTMLCanvasElement[],
-  ): Promise<Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>> {
-    const map = new Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>();
+  ): Promise<
+    Map<
+      string,
+      Array<{ page: number; x: number; y: number; w: number; h: number }>
+    >
+  > {
+    const map = new Map<
+      string,
+      Array<{ page: number; x: number; y: number; w: number; h: number }>
+    >();
     const Tesseract = await import('tesseract.js' as any);
-    const createWorker = Tesseract.createWorker || Tesseract.default?.createWorker;
+    const createWorker =
+      Tesseract.createWorker || Tesseract.default?.createWorker;
     // Race the worker spawn against a short timeout. If the worker
     // can't initialise within 5s we bail out with an empty map rather
     // than letting the page block — historical incident 2026-05-26
@@ -1013,7 +1056,10 @@ export class DocumentClassifierService {
     const worker = await Promise.race<any>([
       createWorker('eng', 1),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('tesseract worker spawn timeout')), 5000),
+        setTimeout(
+          () => reject(new Error('tesseract worker spawn timeout')),
+          5000,
+        ),
       ),
     ]).catch((err) => {
       console.warn('[DocumentClassifier] tesseract worker init failed:', err);
@@ -1029,7 +1075,10 @@ export class DocumentClassifierService {
         const result = await Promise.race<any>([
           worker.recognize(canvas),
           new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('tesseract recognise timeout')), 20000),
+            setTimeout(
+              () => reject(new Error('tesseract recognise timeout')),
+              20000,
+            ),
           ),
         ]).catch((err) => {
           console.warn(
@@ -1039,8 +1088,10 @@ export class DocumentClassifierService {
           return null;
         });
         if (!result) continue;
-        const words: Array<{ text: string; bbox: { x0: number; y0: number; x1: number; y1: number } }> =
-          (result?.data?.words as any) ?? [];
+        const words: Array<{
+          text: string;
+          bbox: { x0: number; y0: number; x1: number; y1: number };
+        }> = (result?.data?.words as any) ?? [];
         const W = canvas.width || 1;
         const H = canvas.height || 1;
         for (const w of words) {
@@ -1083,7 +1134,10 @@ export class DocumentClassifierService {
    *  enough OCR token. Mutates in place. */
   private patchRegionsFromTesseract(
     result: Record<string, any>,
-    tokenMap: Map<string, Array<{ page: number; x: number; y: number; w: number; h: number }>>,
+    tokenMap: Map<
+      string,
+      Array<{ page: number; x: number; y: number; w: number; h: number }>
+    >,
   ): void {
     if (!result || typeof result !== 'object') return;
     // Short tokens (1-2 chars) are too risky to trust as exact matches
@@ -1111,11 +1165,16 @@ export class DocumentClassifierService {
       // either bbox is a valid highlight for the inverterCapacityKw
       // value). Pure-numeric / short tokens still require uniqueness
       // to prevent "250" matching one of N "250A" MCCB labels.
-      const isDistinctive = (t: string) =>
-        /[a-z]/.test(t) && t.length >= 5;
+      const isDistinctive = (t: string) => /[a-z]/.test(t) && t.length >= 5;
       const acceptHits = (
         t: string,
-        hits: Array<{ page: number; x: number; y: number; w: number; h: number }>,
+        hits: Array<{
+          page: number;
+          x: number;
+          y: number;
+          w: number;
+          h: number;
+        }>,
       ) => hits.length === 1 || (hits.length > 0 && isDistinctive(t));
 
       // Exact-token match
@@ -1181,7 +1240,9 @@ export class DocumentClassifierService {
       const images = canvases.map((c) => {
         const ds = this.downsampleToLongEdge(c, SLD_MAX_LONG_EDGE_PX);
         return {
-          base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
+          base64: ds
+            .toDataURL('image/png')
+            .replace(/^data:image\/png;base64,/, ''),
           mimeType: 'image/png' as const,
         };
       });
@@ -1204,7 +1265,10 @@ export class DocumentClassifierService {
       );
       return res ?? null;
     } catch (err) {
-      console.warn('[DocumentClassifier] source-access-mode classify failed:', err);
+      console.warn(
+        '[DocumentClassifier] source-access-mode classify failed:',
+        err,
+      );
       return null;
     }
   }
@@ -1326,7 +1390,13 @@ export class DocumentClassifierService {
       ),
     );
     return Promise.race([
-      this.runDocExtractionFEInner<T>(endpointPath, file, deviceId, preferVision, extras),
+      this.runDocExtractionFEInner<T>(
+        endpointPath,
+        file,
+        deviceId,
+        preferVision,
+        extras,
+      ),
       timer,
     ]);
   }
@@ -1386,7 +1456,9 @@ export class DocumentClassifierService {
         payload.images = canvases.map((c) => {
           const ds = this.downsampleToLongEdge(c, 1024);
           return {
-            base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
+            base64: ds
+              .toDataURL('image/png')
+              .replace(/^data:image\/png;base64,/, ''),
             mimeType: 'image/png' as const,
           };
         });
@@ -1396,7 +1468,9 @@ export class DocumentClassifierService {
         payload.images = canvases.map((c) => {
           const ds = this.downsampleToLongEdge(c, 1024);
           return {
-            base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
+            base64: ds
+              .toDataURL('image/png')
+              .replace(/^data:image\/png;base64,/, ''),
             mimeType: 'image/png' as const,
           };
         });
@@ -1424,7 +1498,10 @@ export class DocumentClassifierService {
           const tokenMap = await this.buildTesseractTokenMap(canvases);
           this.patchRegionsFromTesseract(res as any, tokenMap);
         } catch (err) {
-          console.warn(`[DocumentClassifier] ${endpointPath} Tesseract pass failed:`, err);
+          console.warn(
+            `[DocumentClassifier] ${endpointPath} Tesseract pass failed:`,
+            err,
+          );
         }
       }
       return res;
@@ -1463,7 +1540,9 @@ export class DocumentClassifierService {
         payload.images = canvases.map((c) => {
           const ds = this.downsampleToLongEdge(c, 1024);
           return {
-            base64: ds.toDataURL('image/png').replace(/^data:image\/png;base64,/, ''),
+            base64: ds
+              .toDataURL('image/png')
+              .replace(/^data:image\/png;base64,/, ''),
             mimeType: 'image/png' as const,
           };
         });
@@ -1509,7 +1588,8 @@ export class DocumentClassifierService {
       }
       pdfjs.GlobalWorkerOptions.workerSrc = 'assets/pdf.worker.min.js';
       const buf = await file.arrayBuffer();
-      const pdf = await pdfjs.getDocument({ data: new Uint8Array(buf) }).promise;
+      const pdf = await pdfjs.getDocument({ data: new Uint8Array(buf) })
+        .promise;
       const pageCount = Math.min(pdf.numPages, n);
       const canvases: HTMLCanvasElement[] = [];
       for (let p = 1; p <= pageCount; p++) {
@@ -1524,7 +1604,10 @@ export class DocumentClassifierService {
       }
       return canvases;
     } catch (err) {
-      console.warn('[DocumentClassifier] multi-page render failed, falling back to page 1:', err);
+      console.warn(
+        '[DocumentClassifier] multi-page render failed, falling back to page 1:',
+        err,
+      );
       return [await this.renderFirstPage(file)];
     }
   }
@@ -1588,9 +1671,7 @@ export class DocumentClassifierService {
   /** Render the file's first page to a JPEG base64 string suitable for
    *  the Anthropic vision API. Reuses the canvas pipeline used for OCR
    *  so the bytes Claude sees match what Tesseract saw. */
-  private async fileToVisionImage(
-    file: File,
-  ): Promise<{
+  private async fileToVisionImage(file: File): Promise<{
     base64: string;
     mimeType: 'image/png' | 'image/jpeg' | 'image/webp' | 'image/gif';
   } | null> {

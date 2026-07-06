@@ -138,8 +138,11 @@ export class AssetService {
         // Only drop selection on the full-list refresh path. The
         // "refresh this site" button in the focus-mode banner sets
         // retainSelection=true so the reviewer stays on the same site.
-        if (retainSelection && previousSelection &&
-            mapped.some((a) => a.id === previousSelection)) {
+        if (
+          retainSelection &&
+          previousSelection &&
+          mapped.some((a) => a.id === previousSelection)
+        ) {
           this.selectedId$.next(previousSelection);
         } else {
           this.selectedId$.next(null);

@@ -37,22 +37,20 @@ export class ChatAdminComponent implements OnInit, OnDestroy {
     } catch {
       this.isAdmin = false;
     }
-    this.route.queryParamMap
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((q) => {
-        const fromQuery = q.get('tab') as ChatAdminTab | null;
-        const fromData = (this.route.snapshot.data?.['tab'] as
-          | ChatAdminTab
-          | undefined) ?? 'conversations';
-        const tab = fromQuery ?? fromData;
-        // Non-admins can never land on the webhooks tab, even if they
-        // craft the query string or deep-link to /admin/webhooks.
-        if (tab === 'webhooks' && !this.isAdmin) {
-          this.selected = 'conversations';
-        } else {
-          this.selected = tab === 'webhooks' ? 'webhooks' : 'conversations';
-        }
-      });
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((q) => {
+      const fromQuery = q.get('tab') as ChatAdminTab | null;
+      const fromData =
+        (this.route.snapshot.data?.['tab'] as ChatAdminTab | undefined) ??
+        'conversations';
+      const tab = fromQuery ?? fromData;
+      // Non-admins can never land on the webhooks tab, even if they
+      // craft the query string or deep-link to /admin/webhooks.
+      if (tab === 'webhooks' && !this.isAdmin) {
+        this.selected = 'conversations';
+      } else {
+        this.selected = tab === 'webhooks' ? 'webhooks' : 'conversations';
+      }
+    });
   }
 
   ngOnDestroy(): void {

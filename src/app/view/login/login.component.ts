@@ -73,7 +73,10 @@ export class LoginComponent implements OnInit {
         // not the demo / stage subset — so floor the country count at
         // the known prod minimum (13 as of 2026-05-27). Other counts
         // still reflect what's actually here.
-        this.platformStats = { ...s, countries: Math.max(s.countries ?? 0, 13) };
+        this.platformStats = {
+          ...s,
+          countries: Math.max(s.countries ?? 0, 13),
+        };
       },
       error: () => {
         // Silent fail — login still works without stats overlay.
@@ -170,8 +173,7 @@ export class LoginComponent implements OnInit {
         } else if (error.status === 403 && error.error?.message) {
           this.loginError = error.error.message;
         } else if (error.status >= 500) {
-          this.loginError =
-            `The D-REC server returned an error (HTTP ${error.status}: ${fallbackDetail()}). Please try again shortly.`;
+          this.loginError = `The D-REC server returned an error (HTTP ${error.status}: ${fallbackDetail()}). Please try again shortly.`;
         } else {
           this.loginError = `Login failed for "${user}" (HTTP ${error.status || 'unknown'}: ${fallbackDetail()}).`;
         }

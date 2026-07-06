@@ -205,7 +205,10 @@ export class RegisterComponent implements OnInit {
         console.error('Login error:', error);
         if (error.status === 403 && error.error?.message) {
           // Account pending approval — not a real error
-          this.toastrService.info(error.error.message, 'Registration successful');
+          this.toastrService.info(
+            error.error.message,
+            'Registration successful',
+          );
           this.router.navigate(['/login']);
         } else {
           this.toastrService.error(

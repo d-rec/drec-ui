@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import {
   BehaviorSubject,
   ReplaySubject,
-  Subject,
   interval,
   Observable,
   Subscription,
@@ -305,9 +304,10 @@ export class ChatService implements OnDestroy {
   deleteMessage(
     uuid: string,
   ): Observable<{ conversationId: number | null; headUuid: string | null }> {
-    return this.http.delete<{ conversationId: number | null; headUuid: string | null }>(
-      `${this.apiUrl}chat/messages/${uuid}`,
-    );
+    return this.http.delete<{
+      conversationId: number | null;
+      headUuid: string | null;
+    }>(`${this.apiUrl}chat/messages/${uuid}`);
   }
 
   getAdminUser(): Observable<{
@@ -357,7 +357,9 @@ export class ChatService implements OnDestroy {
     toEmail: string,
     chatEntry: string,
     opts?: { deviceSiteName?: string },
-  ): Observable<ChatMessage | { conversation: ChatConversation; message: ChatMessage }> {
+  ): Observable<
+    ChatMessage | { conversation: ChatConversation; message: ChatMessage }
+  > {
     const fromEmail = this.getCurrentUserEmail();
     if (!fromEmail) {
       return new Observable((sub) =>
