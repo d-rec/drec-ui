@@ -882,6 +882,7 @@ export class AddDevicesComponent implements OnDestroy {
           (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
         this.filteredOrganizationList = this.organizationList;
+        this.autoSelectSoleOrganization();
         this.date = new Date();
       });
     } else if (this.user.role === OrganizationType.Registrant) {
@@ -891,6 +892,7 @@ export class AddDevicesComponent implements OnDestroy {
             org.organizationType === 'Registrant',
         );
         this.filteredOrganizationList = this.organizationList;
+        this.autoSelectSoleOrganization();
       });
     }
 
@@ -898,6 +900,17 @@ export class AddDevicesComponent implements OnDestroy {
     this.DisplaySDGBList();
     this.DisplayfuelList();
     this.DisplaytypeList();
+  }
+
+  /** When the Organization dropdown has exactly one option, pick it —
+   *  no reason to make the user type out the only possible answer.
+   *  Skips when a selection already exists (e.g. edit-mode hydration
+   *  set organizationId from the loaded device). */
+  private autoSelectSoleOrganization(): void {
+    if (this.organizationList.length !== 1) return;
+    if (this.organizationName || this.organizationId != null) return;
+    this.organizationName = this.organizationList[0].name;
+    this.organizationId = this.organizationList[0].id;
   }
 
   filterOrgList() {
