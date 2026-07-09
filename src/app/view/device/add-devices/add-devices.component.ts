@@ -887,9 +887,12 @@ export class AddDevicesComponent implements OnDestroy {
       });
     } else if (this.user.role === OrganizationType.Registrant) {
       this.orgService.GetRegistrantAllOrganization().subscribe((data) => {
+        // Same semantics as the Admin path: any non-Buyer org can own
+        // devices. The old === 'Registrant' check left users whose orgs
+        // are SiteOperator-typed (post DeviceOwner-merge) with an empty
+        // dropdown; the backend only gates on role + org existence.
         this.organizationList = data.organizations.filter(
-          (org: OrganizationInformation) =>
-            org.organizationType === 'Registrant',
+          (org: OrganizationInformation) => org.organizationType !== 'Buyer',
         );
         this.filteredOrganizationList = this.organizationList;
         this.autoSelectSoleOrganization();
