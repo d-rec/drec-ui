@@ -1357,7 +1357,13 @@ export class DocumentClassifierService {
       const canvas = await this.renderFirstPage(file);
       const text = await this.ocrCanvas(canvas);
       const ids = this.extractSnCandidatesFromText(text);
-      if (ids.length) {
+      // Only short-circuit the server call when Tesseract found a *device
+      // table* — i.e. ≥2 serials. A single 8-char letter+digit token is
+      // usually a stray label (a plant name like "AC002599" read off a
+      // portal Info page), not a serial. Falling through to the server on
+      // those lets it (a) reject the bogus SN and (b) still fish the
+      // Info-page fields (capacity / commissioning date / plant type).
+      if (ids.length >= 2) {
         return {
           measurementIds: { value: ids, confidence: 0.7 },
           reasoning: `${ids.length} SN candidate(s) read via Tesseract`,
