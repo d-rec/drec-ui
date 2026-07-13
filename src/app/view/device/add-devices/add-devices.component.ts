@@ -2304,6 +2304,18 @@ export class AddDevicesComponent implements OnDestroy {
                 control.markAsDirty();
               }
 
+              // A detected SF-02 means the registrant is supplying their
+              // own — switch the evidence mode to "Upload your own SF-02".
+              // The default 'self' (platform-generated) hides the upload
+              // slot, so without this the auto-sorted file would sit in a
+              // slot the user can't see and never gets used.
+              if (targetType === DocumentType.FORM_SF_02) {
+                this.deviceForms
+                  .at(deviceIndex)
+                  .get('sf02EvidenceMode')
+                  ?.setValue('upload');
+              }
+
               // Generate preview
               if (!this.filePreviews[deviceIndex])
                 this.filePreviews[deviceIndex] = {};
