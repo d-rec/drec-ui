@@ -419,11 +419,13 @@
                             <mat-icon>close</mat-icon>
                           </button>
                         </mat-form-field>
-                        <span class="serial-list__src"
+                        <button type="button" class="serial-list__src"
                           *ngIf="meterIdSource(i, s) as src"
-                          [title]="'From ' + src.doc.name">
-                          <mat-icon>description</mat-icon><span class="serial-list__src-name">{{ src.doc.name }}</span>
-                        </span>
+                          (click)="openMeterIdSource(i, s)"
+                          [matTooltip]="'View source: ' + src.doc.name"
+                          matTooltipPosition="left">
+                          <mat-icon>image_search</mat-icon>
+                        </button>
                         <!-- No badge for chips without provenance — they're
                           the default, not a labelled state. The Review
                           Evidence dialog is the audit surface. -->

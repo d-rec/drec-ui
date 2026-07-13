@@ -950,44 +950,40 @@ input.example-right-align {
   // came from a doc extractor, muted gray when manually-entered. The
   // OC-checklist uses the same pair so reviewer + registrant see the
   // same shorthand.
+  // Compact clickable "view source" icon button. Was a wide pill showing
+  // the full filename, which (a) starved the serial input so the value
+  // wasn't readable and (b) wasn't clickable. Now it's a small button
+  // that opens the source screenshot; the filename lives in its tooltip.
   &__src {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 2px 8px;
-    border-radius: 10px;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #a7f3d0;
+    border-radius: 6px;
     background: #ecfdf5;
     color: #047857;
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.2;
-    white-space: nowrap;
-    // Cap the source pill so a long filename (e.g. "Screenshot
-    // 2026-…png") can't starve the input beside it — the input was
-    // collapsing to a clipped "(14) M…" label. Full name stays in the
-    // pill's title tooltip.
-    max-width: 45%;
-    min-width: 0;
+    cursor: pointer;
+
+    &:hover {
+      background: #d1fae5;
+      border-color: #34d399;
+    }
+
     mat-icon {
-      font-size: 12px;
-      height: 12px;
-      width: 12px;
+      font-size: 16px;
+      height: 16px;
+      width: 16px;
       line-height: 1;
-      flex: 0 0 auto;
     }
 
     &--manual {
       background: #f1f5f9;
       color: #64748b;
     }
-  }
-
-  // Ellipsis the filename inside the source pill.
-  &__src-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
   }
 
   // Compress the per-row mat-form-field — drop the bottom subscript
@@ -1000,6 +996,13 @@ input.example-right-align {
       min-height: 36px;
       padding-top: 6px;
       padding-bottom: 6px;
+    }
+    // Serials are long alphanumeric strings — monospace makes them
+    // legible and avoids O/0, I/1 ambiguity when eyeballing against
+    // the source screenshot.
+    ::ng-deep input.mat-mdc-input-element {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 13px;
     }
   }
 

@@ -5574,6 +5574,30 @@ export class AddDevicesComponent implements OnDestroy {
     return { source: prov.source, doc };
   }
 
+  /** Open the metering screenshot a serial was read from, so the reviewer
+   *  can eyeball the serial against its source. Prefers a staged File
+   *  (add flow), falls back to the saved document by id (edit flow). */
+  openMeterIdSource(deviceIndex: number, value: string): void {
+    const src = this.meterIdSource(deviceIndex, value);
+    if (!src) return;
+    const name = src.doc.name;
+    const staged =
+      this.meterIdsExtractionDocs[deviceIndex]?.[(value || '').trim()]?.file ??
+      (this.files[deviceIndex]?.[DocumentType.METERING_EVIDENCE] || []).find(
+        (f) => f.name === name,
+      );
+    if (staged) {
+      this.viewMagicFile(staged, deviceIndex);
+      return;
+    }
+    if (src.doc.id != null) {
+      this.viewExistingDoc(
+        { id: src.doc.id, name, url: '' },
+        DocumentType.METERING_EVIDENCE,
+      );
+    }
+  }
+
   /** Pre-submit review modal state. */
   presubmitIssues: {
     empty: Array<{ field: string; label: string }>;
