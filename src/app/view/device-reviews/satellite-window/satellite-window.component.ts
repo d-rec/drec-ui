@@ -896,9 +896,18 @@ export class SatelliteWindowComponent
     if (this.panelCount === 0) {
       const hasOutputs = !!outputs;
       const hasImage = !!outputs?.predictions?.image;
+      // Don't tell reviewers to "zoom in" — the free basemap (Google /
+      // Esri) has no native imagery beyond ~z19 for most sites, so
+      // zooming just upsamples a blurry image. At ~0.3 m/pixel, small
+      // rooftop / mini-grid arrays are at or below what the model can
+      // resolve, so 0 panels here usually means the imagery is too coarse
+      // for this location, not that the reviewer did anything wrong.
       const hint =
         hasOutputs && hasImage
-          ? 'Model ran but found 0 panels. Try zooming in (z19+), recentering, or wait for satellite tiles to fully load.'
+          ? 'Model ran but found no panels. The satellite imagery for this ' +
+            'location is likely at its resolution limit (~0.3 m/pixel) — small ' +
+            'arrays may be too coarse to detect. Recenter on the array and ' +
+            'retry; if it still finds nothing, verify the panels by eye.'
           : 'Unexpected model response (no `outputs[0].predictions`).';
       let raw = '';
       try {
