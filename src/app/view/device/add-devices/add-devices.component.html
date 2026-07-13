@@ -43,13 +43,15 @@
       </div>
     </mat-card-header>
     <hr class="mb-0 pb-0" />
-    <!-- Always-on registrant-side issue panel. Only renders in edit
-         mode (new-device path can be filled out without the noise);
-         collapses to a chip showing just the total count when the
-         registrant doesn't want to see the full list. -->
+    <!-- Registrant-side issue panel. Edit mode always shows it; the
+         add path stays quiet (no noise on a fresh form) EXCEPT when a
+         form-vs-doc disagreement is present — that hard-blocks submit,
+         and this panel is the only place to resolve it, so it must
+         render or the registrant is stuck with a disabled Submit and a
+         dead "Resolve…" link. -->
     <div
       class="live-issues"
-      *ngIf="isEditMode"
+      *ngIf="isEditMode || liveIssues.disagrees.length > 0"
       [class.live-issues--collapsed]="liveIssuesCollapsed"
       [class.live-issues--clean]="liveIssueCount() === 0"
     >
