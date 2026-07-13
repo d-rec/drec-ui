@@ -57,6 +57,10 @@ export interface CodExtractedFields {
 export interface MeterIdsExtractedFields {
   measurementIds?: ExtractedField<string[]>;
   inverterMakeModel?: ExtractedField<string>;
+  // Portal "Info / Basic Information" overview fields (SolisCloud-style).
+  capacityKwp?: ExtractedField<number>;
+  commissioningDate?: ExtractedField<string>;
+  plantType?: ExtractedField<string>;
   reasoning: string;
 }
 

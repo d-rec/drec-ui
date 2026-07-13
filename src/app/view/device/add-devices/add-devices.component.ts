@@ -4601,6 +4601,57 @@ export class AddDevicesComponent implements OnDestroy {
           ) {
             this.meterIdsBrands[deviceIndex] = res.inverterMakeModel.value;
           }
+
+          // Portal "Info / Basic Information" overview pages (e.g. the
+          // SolisCloud station Info tab) carry capacity / commissioning
+          // date / plant type. Fish those into empty form fields and
+          // credit the metering screenshot, so an info-page upload isn't
+          // wasted just because it has no serial-number table.
+          const row = this.deviceForms.at(deviceIndex) as FormGroup;
+          const applyIfEmpty = (
+            ctrl: string,
+            value: any,
+            confidence: number,
+          ) => {
+            const c = row?.get(ctrl);
+            if (!c || value == null || value === '') return;
+            const cur = c.value;
+            if (cur !== null && cur !== undefined && cur !== '') return;
+            c.setValue(value);
+            this.recordProvenance(
+              deviceIndex,
+              ctrl,
+              'Metering evidence',
+              confidence,
+              value,
+            );
+          };
+          if (res?.capacityKwp && res.capacityKwp.confidence >= 0.7) {
+            applyIfEmpty(
+              'capacity',
+              res.capacityKwp.value,
+              res.capacityKwp.confidence,
+            );
+          }
+          if (
+            res?.commissioningDate &&
+            res.commissioningDate.confidence >= 0.7
+          ) {
+            applyIfEmpty(
+              'commissioningDate',
+              res.commissioningDate.value,
+              res.commissioningDate.confidence,
+            );
+          }
+          if (res?.plantType && res.plantType.confidence >= 0.7) {
+            const pt = String(res.plantType.value ?? '').toLowerCase();
+            const match = this.offtaker.find((o) =>
+              pt.includes(o.toLowerCase()),
+            );
+            if (match)
+              applyIfEmpty('offTaker', match, res.plantType.confidence);
+          }
+
           if (documentId && res?.measurementIds?.value?.length) {
             this.deviceService
               .saveDocumentExtraction(
