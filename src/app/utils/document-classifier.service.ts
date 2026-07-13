@@ -655,8 +655,14 @@ export class DocumentClassifierService {
   private hasPortalSignals(text: string): boolean {
     if (!text) return false;
     const t = text.toLowerCase();
+    // Monitoring-portal PRODUCT names only. Do NOT add registrant/company
+    // names here: those appear in the contact details of every document a
+    // customer submits (SF-02, SF-02C, ownership, COD…), so the short-
+    // circuit would misfile all of them as Metering Evidence. 'powertrust'
+    // was removed for exactly this — it matched "ricky@powertrust.com" in
+    // an SF-02's Registrant Contact Details.
     const portalRe =
-      /\b(semsportal|fusionsolar|solaredge\s+monitoring|powertrust|enphase\s+enlighten|growatt\s+shinemonitor|huawei\s+fusionsolar|sungrow\s+isolarcloud|sma\s+sunny\s+portal|goodwe)\b/;
+      /\b(semsportal|fusionsolar|solaredge\s+monitoring|enphase\s+enlighten|growatt\s+shinemonitor|huawei\s+fusionsolar|sungrow\s+isolarcloud|sma\s+sunny\s+portal|goodwe)\b/;
     if (portalRe.test(t)) return true;
     const tableCueRe =
       /\b(data\s*logger|inverter\s+sn|serial\s+no|plants\s+alarms\s+reports|station\s*info|device\s+list|inverter\s+replacement\s+history)\b/;

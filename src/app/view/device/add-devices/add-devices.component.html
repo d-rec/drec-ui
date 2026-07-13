@@ -822,7 +822,7 @@
                 <ng-template #stagedDocList let-idx="idx" let-docType="docType">
                   <ul class="existing-doc-list" *ngIf="getStagedFiles(idx, docType).length">
                     <li *ngFor="let f of getStagedFiles(idx, docType); let si = index" class="existing-doc-item">
-                      <span class="existing-doc-link" (click)="openPreview(idx, docType)" [title]="f.name">{{ f.name }}</span>
+                      <span class="existing-doc-link" (click)="viewMagicFile(f, idx)" [title]="f.name">{{ f.name }}</span>
                       <button type="button" class="existing-doc-ocr"
                         *ngIf="ocrInlineEligible(docType, f)"
                         (click)="runOcrOnStagedFile(f)"

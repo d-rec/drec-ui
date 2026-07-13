@@ -1932,6 +1932,21 @@ export class AddDevicesComponent implements OnDestroy {
     return null;
   }
 
+  /** Readable slot name for user-facing messages (toasts, warnings). */
+  private docTypeLabel(fileType: string): string {
+    const labels: Record<string, string> = {
+      FORM_SF_02: 'SF-02 registration form',
+      SF_02C: "SF-02C owner's declaration",
+      PROOF_OF_OWNERSHIP: 'Proof of ownership',
+      METERING_EVIDENCE: 'Metering evidence',
+      SINGLE_LINE_DIAGRAM: 'Single line diagram',
+      PROJECT_PHOTOS: 'Project photos',
+      COD_PROOF: 'COD proof',
+      OTHER_DOCUMENTS: 'Other documents',
+    };
+    return labels[fileType] || fileType;
+  }
+
   onFileChange(event: Event, deviceIndex: number, fileType: FileType) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
@@ -1964,6 +1979,27 @@ export class AddDevicesComponent implements OnDestroy {
       this.toastrService.info(
         `Skipped: ${skippedNames.join('; ')}`,
         'Files can only live in one slot',
+      );
+    }
+    if (newFiles.length === 0) return;
+
+    // Cap per slot to match the server's FileFieldsInterceptor maxCount
+    // (20 for Other Documents, 10 for everything else). Without this the
+    // extra files sail through to submit, where multer rejects the whole
+    // request with an opaque "Unexpected field". Trim here and say
+    // exactly which slot is over.
+    const perTypeLimit = fileType === DocumentType.OTHER_DOCUMENTS ? 20 : 10;
+    const existingCount = multiTypes.includes(fileType)
+      ? (this.files[deviceIndex][fileType] || []).length
+      : 0;
+    const room = Math.max(perTypeLimit - existingCount, 0);
+    if (newFiles.length > room) {
+      const dropped = newFiles.length - room;
+      newFiles.splice(room);
+      this.toastrService.warning(
+        `${this.docTypeLabel(fileType)} accepts at most ${perTypeLimit} ` +
+          `file(s). ${dropped} file(s) were not added.`,
+        'File limit reached',
       );
     }
     if (newFiles.length === 0) return;
@@ -8971,6 +9007,31 @@ export class AddDevicesComponent implements OnDestroy {
       DocumentType.COD_PROOF,
       DocumentType.OTHER_DOCUMENTS,
     ];
+
+    // Pre-submit slot-count guard. onFileChange caps manual attachments,
+    // but the auto-sort path (onMagicUpload) files classified documents
+    // straight into this.files without that cap — so a slot can still end
+    // up over the server's maxCount (20 for Other Documents, 10 otherwise)
+    // and submit would fail with an opaque multer "Unexpected field".
+    // Catch it here and name the exact over-filled slot(s).
+    const overfilled: string[] = [];
+    for (const fileType of fileFields) {
+      const count = this.files[index]?.[fileType]?.length ?? 0;
+      const limit = fileType === DocumentType.OTHER_DOCUMENTS ? 20 : 10;
+      if (count > limit) {
+        overfilled.push(
+          `${this.docTypeLabel(fileType)} has ${count} files (max ${limit})`,
+        );
+      }
+    }
+    if (overfilled.length) {
+      this.toastrService.error(
+        `Remove files before submitting — ${overfilled.join('; ')}.`,
+        'Too many files in a document slot',
+        { timeOut: 10000 },
+      );
+      return null;
+    }
 
     const allowedExtensions = [...DOCUMENTS_EXTENSIONS];
     const maxSizeInMB = 20;
