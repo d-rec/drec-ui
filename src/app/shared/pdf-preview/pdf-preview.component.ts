@@ -36,10 +36,21 @@ import { currentUserIsInternalReviewer } from '../../utils/role-helper';
 export class PdfPreviewComponent implements OnChanges {
   /** Sanitized URL for the iframe/img src. */
   @Input() previewUrl: SafeResourceUrl | null = null;
-  /** Whether the preview is a PDF, an image, or an Excel spreadsheet. */
-  @Input() previewType: 'pdf' | 'image' | 'excel' = 'pdf';
+  /** Whether the preview is a PDF, an image, an Excel spreadsheet, or a
+   *  plain-text file (e.g. metering-evidence .txt / .csv exports). */
+  @Input() previewType: 'pdf' | 'image' | 'excel' | 'text' = 'pdf';
+
+  // Plain-text preview state
+  textContent = '';
+  textLoading = false;
+  textError = '';
+  textSearch = '';
   /** Either a File (add/edit-device) or a raw URL string (device-reviews). Triggers OCR (or Excel parsing) automatically. */
   @Input() ocrSource: File | string | null = null;
+  /** Source for the plain-text preview (previewType==='text'): a File or a
+   *  fetchable URL string. Kept separate from ocrSource so a text file
+   *  doesn't surface OCR/translation UI. */
+  @Input() textSource: File | string | null = null;
   /** When set, shows SLD capacity compare panel for this device. */
   @Input() sldDeviceId: number | null = null;
 
@@ -124,6 +135,48 @@ export class PdfPreviewComponent implements OnChanges {
     ) {
       this.loadExcel();
     }
+    if (
+      (changes['previewUrl'] || changes['previewType']) &&
+      this.previewType === 'text'
+    ) {
+      this.loadText();
+    }
+  }
+
+  /** Show a plain-text document verbatim. Metering-evidence exports are
+   *  often .txt / .csv time-series; before this they fell into the 'image'
+   *  branch and rendered as a broken <img>. Prefers the File the caller
+   *  passes as textSource (always set on add/edit-device), falling back to
+   *  fetching a raw URL string. */
+  private async loadText(): Promise<void> {
+    this.textContent = '';
+    this.textError = '';
+    this.textLoading = true;
+    this.cdr.detectChanges();
+    try {
+      let text: string;
+      if (this.textSource instanceof File) {
+        text = await this.textSource.text();
+      } else if (typeof this.textSource === 'string' && this.textSource) {
+        const resp = await fetch(this.textSource);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        text = await resp.text();
+      } else {
+        throw new Error('No text source provided');
+      }
+      // Cap absurdly large files so the DOM doesn't choke.
+      const MAX = 500_000;
+      this.textContent =
+        text.length > MAX
+          ? text.slice(0, MAX) + '\n\n… (truncated — download to see the rest)'
+          : text;
+    } catch (err: any) {
+      this.textError =
+        'Could not load this text file — try downloading it instead.';
+      console.error('Text preview failed:', err);
+    }
+    this.textLoading = false;
+    this.cdr.detectChanges();
   }
 
   setExcelSheet(idx: number): void {

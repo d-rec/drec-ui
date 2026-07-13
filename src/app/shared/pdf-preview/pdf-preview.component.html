@@ -1,6 +1,6 @@
 <div class="pdf-preview">
   <!-- Left: document preview -->
-  <div class="pdf-preview__left" [style.flex]="(previewType === 'image' && !ocrText && !ocrLoading) ? '1 1 100%' : '0 0 ' + leftWidthPct + '%'">
+  <div class="pdf-preview__left" [style.flex]="((previewType === 'image' && !ocrText && !ocrLoading) || previewType === 'text') ? '1 1 100%' : '0 0 ' + leftWidthPct + '%'">
     <div *ngIf="previewType === 'image'" class="pdf-preview__img-wrap">
       <div class="pdf-preview__img-stage" appImageZoomPan [resetKey]="previewUrl" title="Scroll to zoom, drag to pan, double-click to reset">
         <img #detectImg [src]="previewUrl" crossorigin="anonymous"
@@ -25,6 +25,18 @@
     <iframe *ngIf="previewType === 'pdf'" [src]="previewUrl"
       title="Document preview"
       style="width: 100%; height: 100%; border: none;"></iframe>
+    <div *ngIf="previewType === 'text'" class="pdf-preview__text">
+      <div *ngIf="textLoading" class="pdf-preview__text-status">Loading…</div>
+      <div *ngIf="textError && !textLoading" class="pdf-preview__text-status">{{ textError }}</div>
+      <div *ngIf="!textLoading && !textError" class="pdf-preview__text-toolbar">
+        <input type="text" placeholder="Search…" [(ngModel)]="textSearch"
+          class="pdf-preview__search"
+          [style.borderColor]="textSearch && !hasMatch(textContent, textSearch) ? '#dc2626' : null" />
+        <span *ngIf="textSearch && !hasMatch(textContent, textSearch)" style="font-size: 11px; color: #dc2626; white-space: nowrap;">No matches</span>
+      </div>
+      <pre *ngIf="!textLoading && !textError" class="pdf-preview__text-body"
+        [innerHTML]="highlightText(textContent, textSearch)"></pre>
+    </div>
     <div *ngIf="previewType === 'excel'" class="pdf-preview__xlsx">
       <div *ngIf="excelSheets.length > 1" class="pdf-preview__xlsx-tabs">
         <button
@@ -46,12 +58,12 @@
   </div>
   <!-- Vertical divider: drag to resize the left/right split -->
   <div class="pdf-preview__vdivider" (mousedown)="onVerticalDragStart($event)" title="Drag to resize"
-    [hidden]="previewType === 'image' && !ocrText && !ocrLoading">
+    [hidden]="previewType === 'text' || (previewType === 'image' && !ocrText && !ocrLoading)">
     <div class="pdf-preview__vdivider-grip"></div>
   </div>
   <!-- Right: OCR + translation -->
   <div class="pdf-preview__right"
-    [hidden]="previewType === 'image' && !ocrText && !ocrLoading">
+    [hidden]="previewType === 'text' || (previewType === 'image' && !ocrText && !ocrLoading)">
     <div class="pdf-preview__toolbar">
       <h4 style="margin: 0; font-size: 14px; color: #64748b;">
         <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">text_snippet</mat-icon>

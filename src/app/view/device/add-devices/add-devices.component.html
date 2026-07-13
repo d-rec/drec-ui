@@ -1959,7 +1959,8 @@
     <div mat-dialog-content class="preview-dialog-content">
       <app-pdf-preview
         [previewUrl]="previewData!.url"
-        [previewType]="previewData!.type === 'pdf' ? 'pdf' : previewData!.type === 'excel' ? 'excel' : 'image'"
+        [previewType]="previewComponentType(previewData)"
+        [textSource]="previewComponentType(previewData) === 'text' ? currentPreviewFile : null"
         [ocrSource]="ocrEligibleDocType(currentPreviewDocType) ? (currentPreviewFile ?? previewSourceUrl()) : null">
       </app-pdf-preview>
     </div>

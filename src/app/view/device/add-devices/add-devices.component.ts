@@ -9909,6 +9909,26 @@ export class AddDevicesComponent implements OnDestroy {
    * Open a server-saved doc in the preview dialog. Edit-mode only —
    * Add flow has nothing to load. Mirrors edit-device.viewExistingDoc().
    */
+  /** Preview type for the app-pdf-preview component. Single mapping point
+   *  for every preview source (existing docs + staged files). Text files
+   *  (.txt / .csv metering exports) used to fall through to 'image' and
+   *  render as a broken <img>; route them to the text preview instead. */
+  previewComponentType(
+    pd: { type: string; name: string } | null,
+  ): 'pdf' | 'excel' | 'image' | 'text' {
+    if (!pd) return 'image';
+    if (pd.type === 'pdf') return 'pdf';
+    const ext = (pd.name.split('.').pop() || '').toLowerCase();
+    // Spreadsheets — including CSV/TSV — render as a table via SheetJS,
+    // not as text.
+    if (pd.type === 'excel' || ['xlsx', 'xls', 'csv', 'tsv'].includes(ext)) {
+      return 'excel';
+    }
+    const textExts = ['txt', 'log', 'json', 'xml', 'yaml', 'yml', 'md'];
+    if (textExts.includes(ext)) return 'text';
+    return 'image';
+  }
+
   viewExistingDoc(
     doc: { url: string; name: string; id: number },
     docType?: string,
