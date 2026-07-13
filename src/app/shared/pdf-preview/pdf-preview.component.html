@@ -1,6 +1,6 @@
 <div class="pdf-preview">
   <!-- Left: document preview -->
-  <div class="pdf-preview__left" [style.flex]="((previewType === 'image' && !ocrText && !ocrLoading) || previewType === 'text') ? '1 1 100%' : '0 0 ' + leftWidthPct + '%'">
+  <div class="pdf-preview__left" [style.flex]="((previewType === 'image' && !ocrText && !ocrLoading) || previewType === 'text' || previewType === 'excel') ? '1 1 100%' : '0 0 ' + leftWidthPct + '%'">
     <div *ngIf="previewType === 'image'" class="pdf-preview__img-wrap">
       <div class="pdf-preview__img-stage" appImageZoomPan [resetKey]="previewUrl" title="Scroll to zoom, drag to pan, double-click to reset">
         <img #detectImg [src]="previewUrl" crossorigin="anonymous"
@@ -58,12 +58,13 @@
   </div>
   <!-- Vertical divider: drag to resize the left/right split -->
   <div class="pdf-preview__vdivider" (mousedown)="onVerticalDragStart($event)" title="Drag to resize"
-    [hidden]="previewType === 'text' || (previewType === 'image' && !ocrText && !ocrLoading)">
+    [hidden]="previewType === 'text' || previewType === 'excel' || (previewType === 'image' && !ocrText && !ocrLoading)">
     <div class="pdf-preview__vdivider-grip"></div>
   </div>
-  <!-- Right: OCR + translation -->
+  <!-- Right: OCR + translation. Hidden for spreadsheets/text — OCR is
+       meaningless on a parsed table, so no "Extract Text (OCR)" button. -->
   <div class="pdf-preview__right"
-    [hidden]="previewType === 'text' || (previewType === 'image' && !ocrText && !ocrLoading)">
+    [hidden]="previewType === 'text' || previewType === 'excel' || (previewType === 'image' && !ocrText && !ocrLoading)">
     <div class="pdf-preview__toolbar">
       <h4 style="margin: 0; font-size: 14px; color: #64748b;">
         <mat-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: middle;">text_snippet</mat-icon>
