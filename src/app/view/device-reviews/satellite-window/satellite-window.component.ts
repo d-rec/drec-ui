@@ -708,7 +708,15 @@ export class SatelliteWindowComponent
     // always sees the same ground area at the same resolution.
     const TILE = 256;
     const z = 19;
-    const MAX_DIM = 768;
+    // Capture at up to 1536px on the long side (was 768). SAM 3 was
+    // starved of detail: a maximized satellite window got downscaled to
+    // 768 and JPEG-compressed hard, so overhead panels dissolved into
+    // soft blocks and the model returned 0 detections. A higher ceiling
+    // gives full-res capture for large windows (and makes the
+    // capture↔container pixel mapping 1:1 more often, improving mask
+    // placement). drec-api accepts 10 MB bodies and stage-api (ALB) was
+    // verified to accept 6 MB, so the resulting larger JPEG is fine.
+    const MAX_DIM = 1536;
     const mapElNode = this.mapEl.nativeElement;
     const visW = mapElNode.offsetWidth;
     const visH = mapElNode.offsetHeight;
@@ -785,12 +793,17 @@ export class SatelliteWindowComponent
       return;
     }
 
-    const base64 = canvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+    // Quality 0.9 (was 0.6): JPEG blocking artefacts at 0.6 were part of
+    // what made SAM 3 miss panels on overhead imagery.
+    const base64 = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
 
-    // Guard against the stage ingress's body-size cap (~256 KB at the
-    // tightest). Roboflow itself accepts up to ~5 MB, but the request
-    // never reaches it if our own API gateway rejects it first.
-    const MAX_BASE64_KB = 250;
+    // Body-size ceiling. The old 250 KB cap cited a "~256 KB stage ingress
+    // cap" that no longer exists — stage now fronts the API with an AWS ALB
+    // (no small proxy-body-size limit), drec-api's body-parser allows 10 MB
+    // (src/index.ts), and stage-api was verified to accept a 6 MB body. Cap
+    // at 6 MB so a full-res, high-quality capture reaches Roboflow (which
+    // itself accepts ~5–6 MB) instead of being pre-emptively downgraded.
+    const MAX_BASE64_KB = 6000;
     if (base64.length / 1024 > MAX_BASE64_KB) {
       this.detecting = false;
       this.detectError =
