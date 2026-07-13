@@ -402,7 +402,7 @@
                     <div class="serial-list" test-id="serial-number">
                       <div class="serial-list__row" *ngFor="let s of getSerialNumbers(i); let j = index; trackBy: trackByIndex">
                         <mat-form-field appearance="outline" class="serial-list__field" subscriptSizing="dynamic">
-                          <mat-label>{{ j === 0 ? getSerialNumberLabel(i) : 'Additional ID' }}</mat-label>
+                          <mat-label>{{ j === 0 ? getSerialNumberLabel(i) : 'Extra ID' }}</mat-label>
                           <input matInput
                             [ngModel]="s"
                             (ngModelChange)="setSerialNumber(i, j, $event)"
@@ -422,7 +422,7 @@
                         <span class="serial-list__src"
                           *ngIf="meterIdSource(i, s) as src"
                           [title]="'From ' + src.doc.name">
-                          <mat-icon>description</mat-icon>{{ src.doc.name }}
+                          <mat-icon>description</mat-icon><span class="serial-list__src-name">{{ src.doc.name }}</span>
                         </span>
                         <!-- No badge for chips without provenance — they're
                           the default, not a labelled state. The Review

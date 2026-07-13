@@ -962,17 +962,32 @@ input.example-right-align {
     font-weight: 500;
     line-height: 1.2;
     white-space: nowrap;
+    // Cap the source pill so a long filename (e.g. "Screenshot
+    // 2026-…png") can't starve the input beside it — the input was
+    // collapsing to a clipped "(14) M…" label. Full name stays in the
+    // pill's title tooltip.
+    max-width: 45%;
+    min-width: 0;
     mat-icon {
       font-size: 12px;
       height: 12px;
       width: 12px;
       line-height: 1;
+      flex: 0 0 auto;
     }
 
     &--manual {
       background: #f1f5f9;
       color: #64748b;
     }
+  }
+
+  // Ellipsis the filename inside the source pill.
+  &__src-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
   }
 
   // Compress the per-row mat-form-field — drop the bottom subscript

@@ -1629,7 +1629,11 @@ export class AddDevicesComponent implements OnDestroy {
   }
 
   getSerialNumberLabel(_index: number): string {
-    return '(14) Meter/Measurement ID(s)';
+    // Short enough to fit the narrow serial-number field's Material
+    // outline label (which clips with an ellipsis rather than wrapping).
+    // The full "Meter/Measurement ID(s)" wording stays in the input's
+    // hover tooltip.
+    return '(14) Meter ID(s)';
   }
   private setupdataSourceBrandWatcher(deviceGroup: FormGroup) {
     const dataSource = deviceGroup.get('dataSource');
