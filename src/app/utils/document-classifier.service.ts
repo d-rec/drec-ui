@@ -1043,15 +1043,46 @@ export class DocumentClassifierService {
     const map = await this.buildTesseractTokenMap([canvas]);
     const norm = (s: string) => s.toLowerCase().trim();
     const target = norm(v);
-    // Direct token match first, then substring-of-token (Tesseract
-    // sometimes glues a value to neighbouring punctuation).
     const out: Array<{ x: number; y: number; w: number; h: number }> = [];
+    // Pass 1: direct token match, then substring-of-token (Tesseract
+    // sometimes glues a value to neighbouring punctuation).
     for (const [tok, regs] of map.entries()) {
       if (tok === target || tok.includes(target) || target.includes(tok)) {
         for (const r of regs) out.push({ x: r.x, y: r.y, w: r.w, h: r.h });
       }
     }
+    if (out.length) return out;
+    // Pass 2: OCR-confusion-tolerant match. Serials are exactly where
+    // Tesseract confuses look-alikes (O↔0, I/l↔1, S↔5, B↔8, …), so an
+    // exact-read region still fails Pass 1. Fold both sides to a canonical
+    // form and match on that. A slightly-off yellow "look here" box is far
+    // better than none for meter-ID confirmation. Gated to values ≥5 chars
+    // so short/common tokens don't produce spurious boxes.
+    if (target.replace(/[^a-z0-9]/g, '').length < 5) return out;
+    const ct = this.foldOcrConfusables(target);
+    for (const [tok, regs] of map.entries()) {
+      const ck = this.foldOcrConfusables(tok);
+      if (ck.length < 4) continue;
+      if (ck === ct || ck.includes(ct) || ct.includes(ck)) {
+        for (const r of regs) out.push({ x: r.x, y: r.y, w: r.w, h: r.h });
+      }
+    }
     return out;
+  }
+
+  /** Collapse OCR-confusable characters to a canonical alphanumeric form
+   *  so a misread serial still matches its extracted value. */
+  private foldOcrConfusables(s: string): string {
+    return s
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
+      .replace(/[o]/g, '0')
+      .replace(/[il|]/g, '1')
+      .replace(/[s]/g, '5')
+      .replace(/[b]/g, '8')
+      .replace(/[z]/g, '2')
+      .replace(/[g]/g, '6')
+      .replace(/[q]/g, '9');
   }
 
   private async buildTesseractTokenMap(
