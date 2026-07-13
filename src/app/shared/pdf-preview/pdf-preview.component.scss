@@ -463,7 +463,9 @@
   &__xlsx-body {
     flex: 1;
     overflow: auto;
-    padding: 8px;
+    // No top padding so the sticky header sits flush against the scroll
+    // container's top edge (no strip for rows to peek through above it).
+    padding: 0 8px 8px;
     font-size: 12px;
 
     ::ng-deep table {
@@ -478,9 +480,17 @@
       vertical-align: top;
       color: #1e293b;
     }
+    // Keep the header row pinned to the top while scrolling down. The
+    // solid background hides rows sliding underneath, and the inset
+    // box-shadow keeps a visible bottom border (a collapsed border can
+    // render inconsistently on a sticky cell, notably in Firefox).
     ::ng-deep tr:first-child td {
+      position: sticky;
+      top: 0;
+      z-index: 2;
       background: #f1f5f9;
       font-weight: 600;
+      box-shadow: inset 0 -1px 0 #cbd5e1;
     }
   }
 
