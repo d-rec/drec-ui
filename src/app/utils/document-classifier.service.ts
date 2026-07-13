@@ -380,9 +380,24 @@ export class DocumentClassifierService {
         !file.type.startsWith('image/') &&
         (!kwResult || kwResult.confidence < HAIKU_FALLBACK_THRESHOLD)
       ) {
-        tick('asking Haiku…');
         const hash = await this.sha256OfFile(file);
-        const haiku = await this.classifyViaHaiku(file.name, text, hash);
+        // Scanned / non-English PDFs (e.g. a Vietnamese EPC contract used
+        // as proof of ownership) have no text layer and OCR to garbled
+        // ASCII, so the English keyword dictionary matches nothing and
+        // they land in Other Documents. Render page 1 and let the vision
+        // model read it — it handles the language and classifies by
+        // document shape, not keyword hits. Text-only fallback for
+        // anything we can't render.
+        const isPdf =
+          file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+        const visionImg = isPdf ? await this.fileToVisionImage(file) : null;
+        tick(visionImg ? 'asking vision model…' : 'asking Haiku…');
+        const haiku = await this.classifyViaHaiku(
+          file.name,
+          text,
+          hash,
+          visionImg ? [visionImg] : undefined,
+        );
         if (haiku && (!kwResult || haiku.confidence > kwResult.confidence)) {
           return this.applyJpegMeteringGate(file, haiku, text);
         }
