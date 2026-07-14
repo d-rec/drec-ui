@@ -1988,11 +1988,15 @@ export class AddDevicesComponent implements OnDestroy {
     if (newFiles.length === 0) return;
 
     // Cap per slot to match the server's FileFieldsInterceptor maxCount
-    // (20 for Other Documents, 10 for everything else). Without this the
-    // extra files sail through to submit, where multer rejects the whole
-    // request with an opaque "Unexpected field". Trim here and say
-    // exactly which slot is over.
-    const perTypeLimit = fileType === DocumentType.OTHER_DOCUMENTS ? 20 : 10;
+    // (20 for Metering Evidence and Other Documents, 10 for everything
+    // else). Without this the extra files sail through to submit, where
+    // multer rejects the whole request with an opaque "Unexpected field".
+    // Trim here and say exactly which slot is over.
+    const perTypeLimit =
+      fileType === DocumentType.OTHER_DOCUMENTS ||
+      fileType === DocumentType.METERING_EVIDENCE
+        ? 20
+        : 10;
     const existingCount = multiTypes.includes(fileType)
       ? (this.files[deviceIndex][fileType] || []).length
       : 0;
@@ -9102,13 +9106,17 @@ export class AddDevicesComponent implements OnDestroy {
     // Pre-submit slot-count guard. onFileChange caps manual attachments,
     // but the auto-sort path (onMagicUpload) files classified documents
     // straight into this.files without that cap — so a slot can still end
-    // up over the server's maxCount (20 for Other Documents, 10 otherwise)
-    // and submit would fail with an opaque multer "Unexpected field".
-    // Catch it here and name the exact over-filled slot(s).
+    // up over the server's maxCount (20 for Metering Evidence and Other
+    // Documents, 10 otherwise) and submit would fail with an opaque multer
+    // "Unexpected field". Catch it here and name the exact over-filled slot(s).
     const overfilled: string[] = [];
     for (const fileType of fileFields) {
       const count = this.files[index]?.[fileType]?.length ?? 0;
-      const limit = fileType === DocumentType.OTHER_DOCUMENTS ? 20 : 10;
+      const limit =
+        fileType === DocumentType.OTHER_DOCUMENTS ||
+        fileType === DocumentType.METERING_EVIDENCE
+          ? 20
+          : 10;
       if (count > limit) {
         overfilled.push(
           `${this.docTypeLabel(fileType)} has ${count} files (max ${limit})`,
