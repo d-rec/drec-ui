@@ -124,9 +124,16 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   showDetectConfirm = false;
   panelCount = 0;
   detectError = '';
-  // True while one or more satellite tiles are still fetching for the
-  // current viewport. Detection works best after this returns to false.
+  // True while the satellite image for the current viewport is not fully
+  // present — either tiles are still fetching, OR some errored and are being
+  // retried. The Detect button stays disabled until this is false, so a scan
+  // can never run on a half-loaded / blank capture. Starts true in satellite
+  // mode (set in createSatelliteLayer) so the button is disabled from the off.
   tilesLoading = false;
+  private satelliteLayer: L.TileLayer | null = null;
+  private tileErrors = 0; // errored tiles in the current load cycle
+  private tileRetries = 0; // bounded retry attempts for the current viewport
+  private tilesRetrying = false; // distinguishes a retry reload from a user move
   errorCopied = false;
 
   // Live container-coord position of the HTML centre pin. Anchored to
@@ -645,13 +652,14 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
 
-    // Fixed-size, off-screen capture: 512×512 centered on the map
-    // center, at the *current map zoom* (not a hardcoded value). Using
-    // the live zoom keeps the captured image's pixel-to-ground ratio
-    // identical to the viewport's, so when we project predictions back
-    // onto the viewport via map.latLngToContainerPoint(center) the
-    // overlay lines up with what the user is looking at — including
-    // when they Clear, zoom in, and re-Detect.
+    // Fixed-size, off-screen capture: 512×512 centered on the map center,
+    // captured at a FIXED z19 regardless of how far the user has zoomed the
+    // display. Panel detection is scale-sensitive — at low zoom the whole
+    // capture is coarse and the model reads field/vegetation texture as panels
+    // (false positives everywhere); z19 is the resolution it was tuned on and
+    // matches the reviewer window. Because imagePxToContainer projects
+    // image-px → lat/lng → container using captureZoom, the overlay still lines
+    // up on a display that's at a different zoom.
     //
     // Capture is independent of window size, devicePixelRatio, and OS;
     // tiles are fetched directly from Google so Mac / Linux / Firefox /
@@ -659,7 +667,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     const SIZE = 512;
     const TILE = 256;
     const HALF = SIZE / 2;
-    const z = Math.round(this.map.getZoom());
+    const z = 19;
 
     const center = this.map.getCenter();
     const lat = center.lat;
@@ -686,38 +694,43 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     canvas.height = SIZE;
     const ctx = canvas.getContext('2d')!;
 
-    const tasks: Promise<void>[] = [];
+    // Enumerate the tiles the capture needs, then fetch them tracking which
+    // actually drew. A tile can fail even when the Leaflet layer reported
+    // "loaded" (Google 429s a burst of parallel fetches), so we retry any that
+    // failed once before giving up — the model must never see a partial image.
+    const wanted: Array<[number, number]> = [];
     for (let tx = tx0; tx <= tx1; tx++) {
       for (let ty = ty0; ty <= ty1; ty++) {
-        tasks.push(
-          (async () => {
-            const url = `https://mt1.google.com/vt/lyrs=s&x=${tx}&y=${ty}&z=${z}`;
-            try {
-              const resp = await fetch(url);
-              const blob = await resp.blob();
-              const bmp = await createImageBitmap(blob);
-              const dx = tx * TILE - topLeftPx;
-              const dy = ty * TILE - topLeftPy;
-              ctx.drawImage(bmp, dx, dy);
-              bmp.close();
-            } catch {
-              // skip missing tile
-            }
-          })(),
-        );
+        wanted.push([tx, ty]);
       }
     }
-    await Promise.all(tasks);
+    const drawn = new Set<string>();
+    const fetchTile = async (tx: number, ty: number): Promise<void> => {
+      const key = `${tx},${ty}`;
+      if (drawn.has(key)) return;
+      try {
+        const resp = await fetch(
+          `https://mt1.google.com/vt/lyrs=s&x=${tx}&y=${ty}&z=${z}`,
+        );
+        if (!resp.ok) return;
+        const bmp = await createImageBitmap(await resp.blob());
+        ctx.drawImage(bmp, tx * TILE - topLeftPx, ty * TILE - topLeftPy);
+        bmp.close();
+        drawn.add(key);
+      } catch {
+        // leave undrawn; caught by the coverage check below
+      }
+    };
 
-    const sample = ctx.getImageData(HALF, HALF, 1, 1).data;
-    if (
-      sample[0] === 0 &&
-      sample[1] === 0 &&
-      sample[2] === 0 &&
-      sample[3] === 0
-    ) {
+    await Promise.all(wanted.map(([tx, ty]) => fetchTile(tx, ty)));
+    if (drawn.size < wanted.length) {
+      await new Promise((r) => setTimeout(r, 800)); // let a 429 burst cool off
+      await Promise.all(wanted.map(([tx, ty]) => fetchTile(tx, ty)));
+    }
+    if (drawn.size < wanted.length) {
       this.detecting = false;
-      this.detectError = 'Could not capture map tiles';
+      this.detectError =
+        'Satellite tiles are still loading — wait a moment, then Re-scan.';
       return;
     }
 
@@ -1384,19 +1397,47 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
         crossOrigin: true,
       } as any,
     );
-    // 'loading' fires when one+ tiles start fetching after a pan/zoom;
-    // 'load' fires when every visible tile has finished (or errored).
-    // The detect-panels hint tells users to wait for tiles to fully
-    // load — gate that visibly so they know when "ready" actually means
-    // ready.
+    // Start disabled: the button must not be clickable until the first full
+    // load completes.
+    this.tilesLoading = true;
+    this.satelliteLayer = layer;
+
+    // 'loading' fires when tiles start fetching (pan/zoom or our own retry);
+    // 'load' fires when every visible tile has finished OR errored — so 'load'
+    // alone is NOT "fully loaded". We only clear tilesLoading on a load with
+    // zero tile errors; when tiles errored (Google 429s a parallel burst), we
+    // redraw the layer up to 3 times before giving up. The Detect button is
+    // bound to tilesLoading, so it stays disabled until the image is whole.
     layer.on('loading', () => {
       this.zone.run(() => {
         this.tilesLoading = true;
+        this.tileErrors = 0;
+        if (!this.tilesRetrying) this.tileRetries = 0; // fresh user-driven load
       });
+    });
+    layer.on('tileerror', () => {
+      this.tileErrors++;
     });
     layer.on('load', () => {
       this.zone.run(() => {
-        this.tilesLoading = false;
+        this.tilesRetrying = false;
+        if (this.tileErrors === 0) {
+          this.tilesLoading = false; // whole image present — enable Detect
+          this.tileRetries = 0;
+        } else if (this.tileRetries < 3) {
+          this.tileRetries++;
+          this.tilesRetrying = true; // keep the button disabled during retry
+          setTimeout(
+            () => this.satelliteLayer?.redraw(),
+            600 * this.tileRetries,
+          );
+        } else {
+          // Retries exhausted (e.g. no imagery at this spot). Re-enable so the
+          // user isn't stuck; captureAndDetect's coverage check still blocks a
+          // genuinely incomplete capture with a clear message.
+          this.tilesLoading = false;
+          this.tileRetries = 0;
+        }
       });
     });
     return layer;
