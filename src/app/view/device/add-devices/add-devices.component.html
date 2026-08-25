@@ -363,6 +363,13 @@
                     </mat-form-field>
                       <small *ngIf="extractorHintFor(i, 'capacity') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'capacity')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
                   </div>
+                  <div class="col-md-3">
+                    <mat-form-field appearance="outline">
+                      <mat-label test-id="dcCapacity">(9b) DC Capacity (kWp)</mat-label>
+                      <input matInput type="number" formControlName="dcCapacity" [min]="1" autocomplete="off" />
+                    </mat-form-field>
+                      <small *ngIf="extractorHintFor(i, 'dcCapacity') as h" class="extractor-hint" (click)="applyHintValue(i, h.field); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" [class.extractor-hint--low]="h.lowConfidence" [title]="h.source + ' extracted ' + (h.confidence != null ? (h.confidence * 100 | number:'1.0-0') + '% confidence — ' : '') + (h.lowConfidence ? 'below the 0.70 auto-apply threshold, so the field was left empty. Click ↗ to open the source doc.' : 'click to use this value; ↗ opens the source doc.')">{{ h.source }}: <strong>{{ h.value }}</strong><a *ngIf="h.url" class="extractor-hint__open" (click)="openHintDoc(h); $event.stopPropagation()" (mousedown)="$event.stopPropagation()" title="Open source doc"> ↗</a></small><small *ngIf="isOrphanField(i, 'dcCapacity')" class="extractor-orphan" title="No source recorded — this value's origin is unknown. Use Review evidence to attest, or re-verify a doc to attribute it.">? source unknown</small>
+                  </div>
                 </div>
 
                 <!-- ── Grid & Metering ──────────────────────────────────── -->

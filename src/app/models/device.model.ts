@@ -19,6 +19,7 @@ export interface Device {
   fuelCode: string;
   deviceTypeCode: string;
   capacity: number;
+  dcCapacity?: number | null;
   commissioningDate: string;
   gridInterconnection: boolean;
   operatingConfiguration?: string;

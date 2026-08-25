@@ -629,6 +629,7 @@ export class AddDevicesComponent implements OnDestroy {
             fuelCode: data.fuelCode,
             deviceTypeCode: data.deviceTypeCode,
             capacity: data.capacity,
+            dcCapacity: data.dcCapacity ?? null,
             commissioningDate: data.commissioningDate,
             gridInterconnection: data.gridInterconnection,
             operatingConfiguration: data.operatingConfiguration ?? null,
@@ -952,6 +953,7 @@ export class AddDevicesComponent implements OnDestroy {
       fuelCode: ['ES100'],
       deviceTypeCode: [null],
       capacity: [null],
+      dcCapacity: [null],
       commissioningDate: [null],
       gridInterconnection: [null],
       operatingConfiguration: [null],
@@ -1092,6 +1094,7 @@ export class AddDevicesComponent implements OnDestroy {
       fuelCode: ['ES100'],
       deviceTypeCode: [null],
       capacity: [null],
+      dcCapacity: [null],
       commissioningDate: [null],
       gridInterconnection: [null],
       operatingConfiguration: [null],
@@ -2807,6 +2810,11 @@ export class AddDevicesComponent implements OnDestroy {
           name: 'capacity',
           label: '(9) Total AC capacity',
           field: fx.acCapacityKw,
+        },
+        {
+          name: 'dcCapacity',
+          label: '(9b) DC capacity (kWp)',
+          field: fx.dcCapacityKwp,
         },
         {
           name: 'generatingUnitCount',
@@ -4631,8 +4639,9 @@ export class AddDevicesComponent implements OnDestroy {
             );
           };
           if (res?.capacityKwp && res.capacityKwp.confidence >= 0.7) {
+            // capacityKwp is a DC (kWp) figure → the DC nameplate field.
             applyIfEmpty(
-              'capacity',
+              'dcCapacity',
               res.capacityKwp.value,
               res.capacityKwp.confidence,
             );
@@ -4960,6 +4969,7 @@ export class AddDevicesComponent implements OnDestroy {
     const sld = this.sldExtractions[deviceIndex];
     if (sld) {
       add('capacity', 'SLD', sld.acCapacityKw);
+      add('dcCapacity', 'SLD', sld.dcCapacityKwp);
       add('generatingUnitCount', 'SLD', sld.inverterCount);
       add('interconnectionVoltage', 'SLD', sld.gridVoltage);
       add('gridInterconnection', 'SLD', sld.gridTied, (v) => !!v);
@@ -7019,6 +7029,7 @@ export class AddDevicesComponent implements OnDestroy {
     // SLD calls it acCapacityKw, form calls it capacity).
     const FORM_TO_FX_KEYS: Record<string, string[]> = {
       capacity: ['acCapacityKw'],
+      dcCapacity: ['dcCapacityKwp'],
       generatingUnitCount: ['inverterCount'],
       interconnectionVoltage: ['gridVoltage'],
       dataSourceBrand: ['inverterMakeModel'],
@@ -7472,6 +7483,7 @@ export class AddDevicesComponent implements OnDestroy {
       // Map form-field → which extractor field on each doc.
       const sldFieldMap: Record<string, string> = {
         capacity: 'acCapacityKw',
+        dcCapacity: 'dcCapacityKwp',
         generatingUnitCount: 'inverterCount',
         interconnectionVoltage: 'gridVoltage',
         gridInterconnection: 'gridTied',
@@ -8249,6 +8261,7 @@ export class AddDevicesComponent implements OnDestroy {
   fieldLabel(field: string): string {
     const labels: { [k: string]: string } = {
       capacity: '(9) Total AC Capacity (kW)',
+      dcCapacity: '(9b) DC Capacity (kWp)',
       generatingUnitCount: '(13) Number of generating units',
       interconnectionVoltage: '(18) Interconnection voltage',
       gridInterconnection: '(15) Grid-connected?',
@@ -9442,6 +9455,7 @@ export class AddDevicesComponent implements OnDestroy {
     longitude: '(7) Longitude',
     deviceDescription: '(8) Installation type',
     capacity: '(9) Total AC capacity (kW)',
+    dcCapacity: '(9b) DC Capacity (kWp)',
     commissioningDate: '(10) Commissioning date',
     requestedEffectiveRegDate: '(11) Requested effective registration date',
     defaultAccountCode: '(12) Default Evident account code',
