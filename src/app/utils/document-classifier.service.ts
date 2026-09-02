@@ -1032,8 +1032,14 @@ export class DocumentClassifierService {
       moduleWattage: /\d+\s*W(p|P)?\b.*MODULE|MODULE.*\d+\s*W(p|P)?\b/i,
       hasNetworkMeter: /\b(kWh|METER)\b/i,
       hasAuxiliaryEnergySources: /\b(DIESEL|GENSET|GENERATOR|BATTERY|BESS)\b/i,
-      gridInterconnection: /(SUPPLY\s*FROM|UTILITY|\bGRID\b|E\.?C\.?G)/i,
+      // The grid-connected question: the evidence is the utility feed —
+      // the incoming supply, the DSO name, the main grid isolator.
+      gridTied:
+        /(SUPPLY\s*FROM|UTILITY|\bGRID\b|E\.?C\.?G|ISOLATOR|\bDISCO\b)/i,
+      networkOwner: /(E\.?C\.?G|SUPPLY\s*FROM|UTILITY|\bDISCO\b)/i,
       gridExportType: /\b(EXPORT|BIDIRECTIONAL|kWh|METER)\b/i,
+      zeroExport: /(ZERO\s*EXPORT|EXPORT|RELAY|\bCT\b|METER)/i,
+      transformerKva: /\b(TRANSFORMER|kVA|TX)\b/i,
       hasCaptiveConsumer: /\b(LOAD|BUSBAR|CONSUMER)\b/i,
     };
     // Evidence boxes get padding: an OCR line box hugs the glyphs of a

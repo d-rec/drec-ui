@@ -2329,6 +2329,20 @@ $as-bg:       #f8fafc;
 // Evidence: PP-OCR located the lines a derived value was read from (the
 // three "INV 0n" labels behind "3 generating units"). Solid teal — a real
 // located basis, distinct from the red "this is the value" box.
+// "N/A" chip for values with no location on the drawing — makes the
+// empty canvas read as a deliberate answer instead of a broken render.
+.verify-na {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 1px 8px;
+  border-radius: 4px;
+  background: #64748b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
 .verify-source__region--evidence {
   border: 6px solid #0d9488;
   border-radius: 3px;
