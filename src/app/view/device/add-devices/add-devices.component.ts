@@ -3176,7 +3176,7 @@ export class AddDevicesComponent implements OnDestroy {
         confidence: field.confidence,
         region: field.region,
         regionSource: field.regionSource,
-          evidenceRegions: (field as any).evidenceRegions,
+        evidenceRegions: (field as any).evidenceRegions,
         reasoning: field.reasoning,
         transform: s.transform,
       });

@@ -1374,16 +1374,13 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   // --- Tile layers ---
 
   private createTileLayer(): L.TileLayer {
-    return L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      {
-        minZoom: 3,
-        maxZoom: 17,
-        noWrap: true,
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      },
-    );
+    return L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      minZoom: 3,
+      maxZoom: 17,
+      noWrap: true,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    });
   }
 
   private createSatelliteLayer(): L.TileLayer {

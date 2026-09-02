@@ -59,10 +59,10 @@ export class MrrAssetMapComponent
       maxBounds: L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180)),
       maxBoundsViscosity: 1.0,
     }).setView([20, 0], 3);
-    L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      { maxZoom: 17, noWrap: true },
-    ).addTo(this.map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 17,
+      noWrap: true,
+    }).addTo(this.map);
     this.updateMarkers();
 
     this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize());

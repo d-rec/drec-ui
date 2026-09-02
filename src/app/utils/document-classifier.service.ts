@@ -1004,7 +1004,9 @@ export class DocumentClassifierService {
     if (!data?.lines?.length) return;
     const { width: W, height: H, lines } = data;
     const norm = (s: unknown) =>
-      String(s ?? '').toUpperCase().replace(/[\s.,]/g, '');
+      String(s ?? '')
+        .toUpperCase()
+        .replace(/[\s.,]/g, '');
     const findBox = (val: unknown) => {
       const q = norm(val);
       if (q.length < 3) return null; // avoid junk 1-2 char matches
@@ -1045,7 +1047,12 @@ export class DocumentClassifierService {
 
     for (const key of Object.keys(res)) {
       const f = (res as Record<string, any>)[key];
-      if (!f || typeof f !== 'object' || f.value == null || Array.isArray(f.value)) {
+      if (
+        !f ||
+        typeof f !== 'object' ||
+        f.value == null ||
+        Array.isArray(f.value)
+      ) {
         continue;
       }
       const box = findBox(f.value);
