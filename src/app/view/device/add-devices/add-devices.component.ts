@@ -2606,7 +2606,17 @@ export class AddDevicesComponent implements OnDestroy {
   // down to ~2x just to fit the width — barely larger than the page.
   private readonly LOUPE_MIN_W = 280;
   private readonly LOUPE_MAX_W = 560;
-  private readonly LOUPE_H = 150;
+  /** Panel height. Several evidence panels stack vertically, so with
+   *  three of them a fixed height overflowed the dialog and the bottom
+   *  ones were clipped. Divide the available height between them
+   *  instead, within sensible bounds. */
+  private get LOUPE_H(): number {
+    const n = Math.max(1, this.loupeRegions(this.verifyCurrent).length);
+    if (n === 1) return 150;
+    const CHROME = 34; // caption + gap per panel
+    const avail = Math.max(240, (window.innerHeight || 800) - 210);
+    return Math.max(74, Math.min(150, Math.floor(avail / n) - CHROME));
+  }
   private readonly LOUPE_CONTEXT = 1.06;
   private readonly LOUPE_MAX_MAG = 18;
 
