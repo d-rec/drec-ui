@@ -2455,14 +2455,14 @@
                Boolean and fully-derived values that have no region
                from Haiku either still fall through to the "no literal
                token match" note below. -->
-          <div *ngIf="v.region && v.regionSource === 'tesseract'"
+          <div *ngIf="v.region && isExactRegion(v.regionSource)"
             class="verify-source__region"
             [style.left.%]="v.region.x * 100"
             [style.top.%]="v.region.y * 100"
             [style.width.%]="v.region.w * 100"
             [style.height.%]="v.region.h * 100">
           </div>
-          <div *ngIf="v.region && v.regionSource !== 'tesseract' && v.source !== 'SF-02'"
+          <div *ngIf="v.region && !isExactRegion(v.regionSource) && v.source !== 'SF-02'"
             class="verify-source__region verify-source__region--approx"
             [style.left.%]="v.region.x * 100"
             [style.top.%]="v.region.y * 100"
@@ -2483,11 +2483,11 @@
           </div>
         </div>
       </div>
-      <div *ngIf="v.regionSource !== 'tesseract' && !verifyTextMatches.length && v.region" class="alert alert-warning small mt-2 mb-0">
-        <mat-icon style="font-size:16px;vertical-align:middle">info_outline</mat-icon>
-        Dashed orange box = AI's estimate of where this value sits on the page. Pixel-exact OCR didn't lock onto a literal token, so treat the box as a "look around here" hint, not a precise highlight.
+      <div *ngIf="!isExactRegion(v.regionSource) && !verifyTextMatches.length && v.region" class="alert alert-warning small mt-2 mb-0">
+        <mat-icon style="font-size:16px;vertical-align:middle">warning_amber</mat-icon>
+        <strong>Bounding box not found.</strong> Pixel-exact OCR couldn't lock onto this value's text, so the dashed box is only the AI's rough guess of where it sits — often well off. Verify by reading the document directly; don't rely on the box.
       </div>
-      <div *ngIf="v.regionSource !== 'tesseract' && !verifyTextMatches.length && !v.region" class="alert alert-info small mt-2 mb-0">
+      <div *ngIf="!isExactRegion(v.regionSource) && !verifyTextMatches.length && !v.region" class="alert alert-info small mt-2 mb-0">
         <mat-icon style="font-size:16px;vertical-align:middle">info_outline</mat-icon>
         No literal token match — the value is derived or boolean (no exact string to highlight). Use the reasoning above to scan the diagram and verify.
       </div>

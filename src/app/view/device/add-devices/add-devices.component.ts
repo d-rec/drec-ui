@@ -2467,7 +2467,7 @@ export class AddDevicesComponent implements OnDestroy {
      *                string to match). Used by the dialog to show
      *                solid-red vs dashed-amber and an approximate-
      *                location banner. */
-    regionSource?: 'tesseract' | 'model';
+    regionSource?: 'tesseract' | 'model' | 'paddleocr';
     /** Per-field justification from the extractor — what in the doc
      *  the model used to decide this value. Useful when the bbox is
      *  approximate. */
@@ -3397,7 +3397,10 @@ export class AddDevicesComponent implements OnDestroy {
       // Auto-skipped items get a `verifiedBy:{auto:'no-literal-
       // evidence'}` stamp so the audit trail still distinguishes
       // human- from auto-verified.
-      const hasTesseractRegion = item.regionSource === 'tesseract';
+      // 'paddleocr' = the self-hosted PP-OCR line box; pixel-exact like
+      // tesseract (and reliable on dense SLDs where tesseract.js isn't),
+      // so it counts as a trusted region for the same purposes.
+      const hasTesseractRegion = this.isExactRegion(item.regionSource);
       let hasMeaningfulHit = false;
       if (!hasTesseractRegion) {
         // SF-02 model bboxes from Haiku are consistently wrong across
@@ -3584,6 +3587,14 @@ export class AddDevicesComponent implements OnDestroy {
    *  page and convert each match's bbox to normalised (0..1) coords
    *  against the rendered canvas. Returns [] when the page has no text
    *  layer (scanned doc) or the value isn't found. */
+  /** True when the region came from a real OCR pixel match — the
+   *  in-browser tesseract pass or the self-hosted PP-OCR service — as
+   *  opposed to the model's estimated bbox. Drives solid-vs-dashed
+   *  highlighting and the "bounding box not found" notice. */
+  isExactRegion(src?: string | null): boolean {
+    return src === 'tesseract' || src === 'paddleocr';
+  }
+
   private async findValueOnPage(
     pdfPage: any,
     viewport: any,

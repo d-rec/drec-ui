@@ -12,6 +12,9 @@ import {
 const HAIKU_FALLBACK_THRESHOLD = 0.6;
 const SLD_MAX_LONG_EDGE_PX = 2048;
 const SLD_MAX_PAGES = 5;
+/** Self-hosted PP-OCR field-box service (pixel-exact line boxes on dense
+ *  SLDs, where tesseract.js fails). Stage prototype. */
+const PADDLE_OCR_URL = 'https://paddleocr-stage.drecs.org';
 
 export interface ExtractedField<T> {
   value: T;
@@ -33,7 +36,7 @@ export interface ExtractedField<T> {
    *  match; 'model' when we fell back to Haiku's estimate. The verify
    *  dialog styles the two differently (solid vs. dashed) so the
    *  user knows which to trust. */
-  regionSource?: 'tesseract' | 'model';
+  regionSource?: 'tesseract' | 'model' | 'paddleocr';
   /** One-line justification — what specifically in the doc the model
    *  used to derive this value. Surfaced in the verify dialog so the
    *  registrant can scan the diagram for the basis even when the
@@ -951,10 +954,69 @@ export class DocumentClassifierService {
       } catch (err) {
         console.warn('[DocumentClassifier] Tesseract bbox pass failed:', err);
       }
+      // Self-hosted PP-OCR: pixel-exact line boxes on dense SLDs where
+      // tesseract.js fails. Overrides the region when it locates the
+      // value (regionSource='paddleocr' = trusted, solid highlight).
+      try {
+        await this.patchRegionsFromPaddle(res, file);
+      } catch (err) {
+        console.warn('[DocumentClassifier] PaddleOCR bbox pass failed:', err);
+      }
       return res;
     } catch (err) {
       console.warn('[DocumentClassifier] SLD extract failed:', err);
       return null;
+    }
+  }
+
+  /** POST the SLD to the self-hosted PP-OCR service, then match each
+   *  extracted value to the OCR line that contains it and overwrite the
+   *  region with that pixel-exact box (regionSource='paddleocr'). The
+   *  boxes are normalised 0..1 against the page, same convention as the
+   *  tesseract/model regions, so they travel with the verify canvas.
+   *  Best-effort — leaves the tesseract/model region if no line matches. */
+  private async patchRegionsFromPaddle(
+    res: SldExtractedFields,
+    file: File,
+  ): Promise<void> {
+    const fd = new FormData();
+    fd.append('file', file);
+    const data = await firstValueFrom(
+      this.http.post<{
+        width: number;
+        height: number;
+        lines: Array<{ text: string; bbox: [number, number, number, number] }>;
+      }>(`${PADDLE_OCR_URL}/ocr-fields`, fd),
+    );
+    if (!data?.lines?.length) return;
+    const { width: W, height: H, lines } = data;
+    const norm = (s: unknown) =>
+      String(s ?? '').toUpperCase().replace(/[\s.,]/g, '');
+    const findBox = (val: unknown) => {
+      const q = norm(val);
+      if (q.length < 3) return null; // avoid junk 1-2 char matches
+      const hits = lines.filter((l) => norm(l.text).includes(q));
+      if (!hits.length) return null;
+      hits.sort((a, b) => norm(a.text).length - norm(b.text).length);
+      const [x0, y0, x1, y1] = hits[0].bbox;
+      return {
+        page: 1,
+        x: x0 / W,
+        y: y0 / H,
+        w: (x1 - x0) / W,
+        h: (y1 - y0) / H,
+      };
+    };
+    for (const key of Object.keys(res)) {
+      const f = (res as Record<string, any>)[key];
+      if (!f || typeof f !== 'object' || f.value == null || Array.isArray(f.value)) {
+        continue;
+      }
+      const box = findBox(f.value);
+      if (box) {
+        f.region = box;
+        f.regionSource = 'paddleocr';
+      }
     }
   }
 
