@@ -2531,8 +2531,29 @@ export class AddDevicesComponent implements OnDestroy {
     return v.region ? [v.region] : [];
   }
 
-  private readonly LOUPE_W = 240;
-  private readonly LOUPE_H = 132;
+  private readonly LOUPE_W = 300;
+  private readonly LOUPE_H = 170;
+  /** How much slack around the region. 1.0 = region exactly fills the
+   *  panel; higher shows more context at lower magnification. */
+  private readonly LOUPE_CONTEXT = 1.12;
+  private readonly LOUPE_MAX_MAG = 18;
+
+  /** Magnification for a region — shared by the crop and the frame so
+   *  the outline can't drift from the image under it. */
+  private loupeMag(r: { w: number; h: number }): {
+    m: number;
+    rw: number;
+    rh: number;
+  } {
+    const rw = Math.max(r.w * this.verifyPageW, 6);
+    const rh = Math.max(r.h * this.verifyPageH, 6);
+    const m = Math.min(
+      this.LOUPE_W / (rw * this.LOUPE_CONTEXT),
+      this.LOUPE_H / (rh * this.LOUPE_CONTEXT),
+      this.LOUPE_MAX_MAG,
+    );
+    return { m, rw, rh };
+  }
 
   /** Magnified crop, done with background-size/position so no second
    *  canvas is needed. Scales each region up to fill the loupe box. */
@@ -2542,10 +2563,7 @@ export class AddDevicesComponent implements OnDestroy {
     const W = this.verifyPageW,
       H = this.verifyPageH;
     if (!this.verifyPageDataUrl || !W || !H) return {};
-    const rw = Math.max(r.w * W, 6);
-    const rh = Math.max(r.h * H, 6);
-    // 1.7 leaves context around the region; cap so we don't over-blur.
-    const m = Math.min(this.LOUPE_W / (rw * 1.7), this.LOUPE_H / (rh * 1.7), 9);
+    const { m, rw, rh } = this.loupeMag(r);
     const left = r.x * W * m - (this.LOUPE_W - rw * m) / 2;
     const top = r.y * H * m - (this.LOUPE_H - rh * m) / 2;
     return {
@@ -2563,9 +2581,7 @@ export class AddDevicesComponent implements OnDestroy {
     const W = this.verifyPageW,
       H = this.verifyPageH;
     if (!W || !H) return {};
-    const rw = Math.max(r.w * W, 6);
-    const rh = Math.max(r.h * H, 6);
-    const m = Math.min(this.LOUPE_W / (rw * 1.7), this.LOUPE_H / (rh * 1.7), 9);
+    const { m, rw, rh } = this.loupeMag(r);
     return {
       left: `${Math.round((this.LOUPE_W - rw * m) / 2)}px`,
       top: `${Math.round((this.LOUPE_H - rh * m) / 2)}px`,
