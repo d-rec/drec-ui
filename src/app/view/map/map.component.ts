@@ -1375,13 +1375,13 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
 
   private createTileLayer(): L.TileLayer {
     return L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       {
         minZoom: 3,
         maxZoom: 17,
         noWrap: true,
         attribution:
-          '&copy; <a href="https://carto.com/">carto.com</a> contributors',
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       },
     );
   }

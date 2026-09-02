@@ -60,7 +60,7 @@ export class MrrAssetMapComponent
       maxBoundsViscosity: 1.0,
     }).setView([20, 0], 3);
     L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       { maxZoom: 17, noWrap: true },
     ).addTo(this.map);
     this.updateMarkers();
