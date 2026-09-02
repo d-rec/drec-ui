@@ -2263,9 +2263,10 @@ $as-bg:       #f8fafc;
   pointer-events: none;
   margin: -6px;
   padding: 6px;
-  border: 2px solid #dc2626;
+  // One solid 4px outline. The old 2px border + translucent halo ring
+  // read as two separate red lines against a dense diagram.
+  border: 4px solid #dc2626;
   border-radius: 4px;
-  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.15);
 }
 // Approximate: model estimate, not Tesseract. Dashed amber so the
 // user knows the precise location isn't guaranteed.
@@ -2309,9 +2310,8 @@ $as-bg:       #f8fafc;
   }
   &__frame {
     position: absolute;
-    border: 2px solid #dc2626;
+    border: 3px solid #dc2626;
     border-radius: 2px;
-    box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.06);
   }
   &__cap {
     font-size: 11px;
@@ -2330,9 +2330,8 @@ $as-bg:       #f8fafc;
 // three "INV 0n" labels behind "3 generating units"). Solid teal — a real
 // located basis, distinct from the red "this is the value" box.
 .verify-source__region--evidence {
-  border: 2px solid #0d9488;
+  border: 4px solid #0d9488;
   border-radius: 3px;
-  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.16);
 }
 .verify-source__match {
   position: absolute;
