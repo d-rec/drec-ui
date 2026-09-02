@@ -2439,7 +2439,20 @@
         </ng-container>
       </div>
       <div class="verify-source__zoom">
-        <div class="verify-source__doc">
+        <div class="verify-source__doc" (mousemove)="onVerifyDocMouseMove($event)">
+          <!-- Magnifier: SLD labels are unreadable at page scale, so show
+               the highlighted region blown up. Sits in a corner away from
+               the cursor so it never covers what you're pointing at. -->
+          <div class="verify-loupes"
+            *ngIf="verifyPageDataUrl && loupeRegions(v).length"
+            [class.verify-loupes--left]="loupeSide === 'left'">
+            <figure class="verify-loupe" *ngFor="let r of loupeRegions(v)">
+              <div class="verify-loupe__view" [ngStyle]="loupeStyle(r)">
+                <div class="verify-loupe__frame" [ngStyle]="loupeFrameStyle(r)"></div>
+              </div>
+              <figcaption class="verify-loupe__cap">{{ r.text || 'value location' }}</figcaption>
+            </figure>
+          </div>
           <canvas #verifyCanvas
             style="display:block;width:100%;height:auto;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc">
           </canvas>

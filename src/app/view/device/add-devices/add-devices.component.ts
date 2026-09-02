@@ -2492,6 +2492,87 @@ export class AddDevicesComponent implements OnDestroy {
   verifyQueueFile: File | null = null;
   @ViewChild('verifySourceDialog') verifySourceDialog?: TemplateRef<any>;
   @ViewChild('verifyCanvas') verifyCanvasEl?: ElementRef<HTMLCanvasElement>;
+
+  /** Snapshot of the rendered verify page, used as the magnifier's
+   *  source. SLD labels are tiny at page scale, so the loupe shows the
+   *  highlighted region blown up without the reviewer zooming the page. */
+  verifyPageDataUrl: string | null = null;
+  private verifyPageW = 0;
+  private verifyPageH = 0;
+  /** Which corner the loupe sits in — flips away from the cursor so it
+   *  never covers what the reviewer is pointing at. */
+  loupeSide: 'left' | 'right' = 'right';
+
+  private captureVerifyPage(canvas: HTMLCanvasElement): void {
+    try {
+      this.verifyPageW = canvas.width;
+      this.verifyPageH = canvas.height;
+      this.verifyPageDataUrl = canvas.toDataURL('image/png');
+    } catch {
+      this.verifyPageDataUrl = null;
+    }
+  }
+
+  onVerifyDocMouseMove(ev: MouseEvent): void {
+    const el = ev.currentTarget as HTMLElement | null;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const side = ev.clientX - r.left > r.width / 2 ? 'left' : 'right';
+    if (side !== this.loupeSide) this.loupeSide = side;
+  }
+
+  /** Regions worth magnifying for the current item: the exact/estimated
+   *  region, or the PP-OCR evidence lines for a derived value. */
+  loupeRegions(
+    v: any,
+  ): Array<{ x: number; y: number; w: number; h: number; text?: string }> {
+    if (!v) return [];
+    if (v.evidenceRegions?.length) return v.evidenceRegions.slice(0, 3);
+    return v.region ? [v.region] : [];
+  }
+
+  private readonly LOUPE_W = 240;
+  private readonly LOUPE_H = 132;
+
+  /** Magnified crop, done with background-size/position so no second
+   *  canvas is needed. Scales each region up to fill the loupe box. */
+  loupeStyle(r: { x: number; y: number; w: number; h: number }): {
+    [k: string]: string;
+  } {
+    const W = this.verifyPageW,
+      H = this.verifyPageH;
+    if (!this.verifyPageDataUrl || !W || !H) return {};
+    const rw = Math.max(r.w * W, 6);
+    const rh = Math.max(r.h * H, 6);
+    // 1.7 leaves context around the region; cap so we don't over-blur.
+    const m = Math.min(this.LOUPE_W / (rw * 1.7), this.LOUPE_H / (rh * 1.7), 9);
+    const left = r.x * W * m - (this.LOUPE_W - rw * m) / 2;
+    const top = r.y * H * m - (this.LOUPE_H - rh * m) / 2;
+    return {
+      'background-image': `url(${this.verifyPageDataUrl})`,
+      'background-size': `${Math.round(W * m)}px ${Math.round(H * m)}px`,
+      'background-position': `${-Math.round(left)}px ${-Math.round(top)}px`,
+    };
+  }
+
+  /** The region outline drawn inside the loupe, so the reviewer sees
+   *  exactly which text the box refers to. */
+  loupeFrameStyle(r: { x: number; y: number; w: number; h: number }): {
+    [k: string]: string;
+  } {
+    const W = this.verifyPageW,
+      H = this.verifyPageH;
+    if (!W || !H) return {};
+    const rw = Math.max(r.w * W, 6);
+    const rh = Math.max(r.h * H, 6);
+    const m = Math.min(this.LOUPE_W / (rw * 1.7), this.LOUPE_H / (rh * 1.7), 9);
+    return {
+      left: `${Math.round((this.LOUPE_W - rw * m) / 2)}px`,
+      top: `${Math.round((this.LOUPE_H - rh * m) / 2)}px`,
+      width: `${Math.round(rw * m)}px`,
+      height: `${Math.round(rh * m)}px`,
+    };
+  }
   private verifySourceDialogRef: MatDialogRef<any> | null = null;
 
   /** Resolved CSS size of the rendered verify canvas — needed so the
@@ -3283,6 +3364,7 @@ export class AddDevicesComponent implements OnDestroy {
         canvas.width = scaled.width;
         canvas.height = scaled.height;
         await pdfPage.render({ canvasContext: ctx, viewport: scaled }).promise;
+        this.captureVerifyPage(canvas);
         // Find-on-page: locate the current value's literal text in the
         // page's text content and draw highlight overlays. Async + best-
         // effort: if the doc is scanned (no text layer) we just get
@@ -3355,6 +3437,7 @@ export class AddDevicesComponent implements OnDestroy {
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = 'high';
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          this.captureVerifyPage(canvas);
           // Meter-id-on-screenshot path: PDFs use the text layer;
           // images have none, so the verify dialog used to land on
           // "No literal token match" even when the value was plainly
