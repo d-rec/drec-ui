@@ -2277,9 +2277,13 @@ $as-bg:       #f8fafc;
 // Magnifier stack. Floats over the page in a corner, flipping to the
 // side the cursor isn't on so it never hides what's being inspected.
 .verify-loupes {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  // Fixed, not absolute: anchored to the page container it scrolled out
+  // of view as soon as the reviewer scrolled down the drawing, leaving
+  // only its clipped bottom edge visible. Material's dialog pane is a
+  // transformed ancestor, so `fixed` pins this to the dialog.
+  position: fixed;
+  top: 96px;
+  right: 34px;
   z-index: 6;
   display: flex;
   flex-direction: column;
@@ -2289,7 +2293,7 @@ $as-bg:       #f8fafc;
 
   &--left {
     right: auto;
-    left: 10px;
+    left: 34px;
   }
 }
 // Follow-the-cursor magnifier: positioned per-frame from the pointer,
