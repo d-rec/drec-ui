@@ -2365,6 +2365,30 @@ $as-bg:       #f8fafc;
   border: 5px solid #dc2626;
   border-radius: 3px;
 }
+
+// Blink so the outline catches the eye on a dense drawing without
+// needing a second colour or a halo to stand out.
+@keyframes verify-region-blink {
+  0%,
+  100% {
+    border-color: #dc2626;
+  }
+  50% {
+    border-color: rgba(220, 38, 38, 0.12);
+  }
+}
+.verify-source__region,
+.verify-source__region--evidence {
+  animation: verify-region-blink 1.05s ease-in-out infinite;
+}
+// Respect a reduced-motion preference — a blinking outline is exactly
+// the kind of motion that setting exists to suppress.
+@media (prefers-reduced-motion: reduce) {
+  .verify-source__region,
+  .verify-source__region--evidence {
+    animation: none;
+  }
+}
 .verify-source__match {
   position: absolute;
   pointer-events: none;
