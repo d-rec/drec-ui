@@ -470,9 +470,6 @@ input.example-right-align {
   right: 0;
   bottom: 0;
   background: rgba(15, 23, 42, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 9999;
 }
 
@@ -481,10 +478,18 @@ input.example-right-align {
   border-radius: 10px;
   box-shadow: 0 8px 32px rgba(15, 23, 42, 0.18);
   border: 1px solid #cbd5e1;
+  // Anchored by a fixed top-left corner (not flex-centred by the overlay) so
+  // the native bottom-right resize handle grows the dialog from that corner,
+  // instead of scaling it symmetrically around its centre. Opens horizontally
+  // centred, near the top; the max-width keeps the bottom-right handle
+  // on-screen as it widens.
+  position: fixed;
+  top: 8vh;
+  left: calc(50% - 260px);
   width: 520px;
   min-width: 360px;
   min-height: 200px;
-  max-width: 90vw;
+  max-width: calc(50vw + 236px);
   max-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -1500,6 +1505,12 @@ $as-bg:       #f8fafc;
   color: $as-muted;
   padding-top: 2px;
   line-height: 1.4;
+}
+.as-log__errmsg {
+  // Surface the actual extraction error inline (red) instead of only the bare
+  // "failed" label — the full message is still on the row's title tooltip too.
+  color: $as-rejected;
+  word-break: break-word;
 }
 
 .review-feedback {

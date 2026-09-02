@@ -981,6 +981,7 @@
                             </span>
                             <span class="as-log__label">SLD</span>
                             <span class="as-log__time" [title]="sldExtractionError[i] || ''">{{ sldExtracting[i] ? 'reading…' : (sldExtractionError[i] ? 'failed' : 'done') }}</span>
+                            <div class="as-log__detail as-log__errmsg" *ngIf="!sldExtracting[i] && sldExtractionError[i]">{{ sldExtractionError[i] }}</div>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="sf02cExtracting[i] || sf02cExtractions[i] || sf02cExtractionError[i]"
@@ -994,6 +995,7 @@
                             </span>
                             <span class="as-log__label">SF-02c</span>
                             <span class="as-log__time" [title]="sf02cExtractionError[i] || ''">{{ sf02cExtracting[i] ? 'reading…' : (sf02cExtractionError[i] ? 'failed' : 'done') }}</span>
+                            <div class="as-log__detail as-log__errmsg" *ngIf="!sf02cExtracting[i] && sf02cExtractionError[i]">{{ sf02cExtractionError[i] }}</div>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="codExtracting[i] || codExtractions[i] || codExtractionError[i]"
@@ -1007,6 +1009,7 @@
                             </span>
                             <span class="as-log__label">COD proof</span>
                             <span class="as-log__time" [title]="codExtractionError[i] || ''">{{ codExtracting[i] ? 'reading…' : (codExtractionError[i] ? 'failed' : 'done') }}</span>
+                            <div class="as-log__detail as-log__errmsg" *ngIf="!codExtracting[i] && codExtractionError[i]">{{ codExtractionError[i] }}</div>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="sf02Extracting[i] || sf02Extractions[i] || sf02ExtractionError[i]"
@@ -1020,6 +1023,7 @@
                             </span>
                             <span class="as-log__label">SF-02</span>
                             <span class="as-log__time" [title]="sf02ExtractionError[i] || ''">{{ sf02Extracting[i] ? 'reading…' : (sf02ExtractionError[i] ? 'failed' : 'done') }}</span>
+                            <div class="as-log__detail as-log__errmsg" *ngIf="!sf02Extracting[i] && sf02ExtractionError[i]">{{ sf02ExtractionError[i] }}</div>
                           </div>
                           <div class="as-log__entry"
                             *ngIf="meterIdsExtracting[i] || meterIdsExtractions[i]?.length"
