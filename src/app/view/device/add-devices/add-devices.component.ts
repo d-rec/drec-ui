@@ -2552,19 +2552,21 @@ export class AddDevicesComponent implements OnDestroy {
     this.loupeCursor = null;
   }
 
-  /** Panel placement: offset from the cursor, flipping near the edges so
-   *  it stays on screen and never sits under the pointer. */
+  /** Panel placement: the quadrant opposite the cursor. Pointer in the
+   *  left half puts the panel to its right, right half to its left, and
+   *  the same vertically — so it sits away from whatever is being
+   *  inspected rather than trailing over it. */
   cursorLoupeBoxStyle(): { [k: string]: string } {
     const c = this.loupeCursor;
     const host = this.verifyCanvasEl?.nativeElement?.parentElement;
     if (!c || !host) return {};
-    const GAP = 22;
+    const GAP = 26;
     const maxW = host.clientWidth;
-    let left = c.left + GAP;
-    if (left + this.CURSOR_W > maxW) left = c.left - GAP - this.CURSOR_W;
-    let top = c.top + GAP;
-    if (top + this.CURSOR_H > host.clientHeight)
-      top = Math.max(0, c.top - GAP - this.CURSOR_H);
+    const maxH = host.clientHeight;
+    let left = c.left > maxW / 2 ? c.left - GAP - this.CURSOR_W : c.left + GAP;
+    let top = c.top > maxH / 2 ? c.top - GAP - this.CURSOR_H : c.top + GAP;
+    left = Math.max(0, Math.min(left, Math.max(0, maxW - this.CURSOR_W)));
+    top = Math.max(0, Math.min(top, Math.max(0, maxH - this.CURSOR_H)));
     return {
       left: `${Math.max(0, Math.round(left))}px`,
       top: `${Math.round(top)}px`,
