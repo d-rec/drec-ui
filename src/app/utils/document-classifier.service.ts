@@ -36,7 +36,20 @@ export interface ExtractedField<T> {
    *  match; 'model' when we fell back to Haiku's estimate. The verify
    *  dialog styles the two differently (solid vs. dashed) so the
    *  user knows which to trust. */
-  regionSource?: 'tesseract' | 'model' | 'paddleocr';
+  regionSource?: 'tesseract' | 'model' | 'paddleocr' | 'paddleocr-evidence';
+  /** For derived values (a count, a boolean) there is no literal token to
+   *  box. When PP-OCR can locate the lines that *evidence* the value —
+   *  the three "INV 0n" labels behind "3 generating units" — they are
+   *  listed here (normalised 0..1) so the verify view can highlight the
+   *  basis instead of a meaningless estimated rectangle. */
+  evidenceRegions?: Array<{
+    page: number;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    text?: string;
+  }>;
   /** One-line justification — what specifically in the doc the model
    *  used to derive this value. Surfaced in the verify dialog so the
    *  registrant can scan the diagram for the basis even when the
@@ -1007,6 +1020,29 @@ export class DocumentClassifierService {
         h: (y1 - y0) / H,
       };
     };
+    // Derived / boolean fields have no literal token to box. Highlight the
+    // lines that evidence them instead (the three "INV 0n" labels behind
+    // "3 generating units"), so the reviewer sees the basis rather than a
+    // meaningless estimated rectangle.
+    const EVIDENCE: Record<string, RegExp> = {
+      inverterCount: /\bINV\s*0?\d+\b/i,
+      moduleCount: /(MODULES|STRING)/i,
+      moduleWattage: /\d+\s*W(p|P)?\b.*MODULE|MODULE.*\d+\s*W(p|P)?\b/i,
+      hasNetworkMeter: /\b(kWh|METER)\b/i,
+      hasAuxiliaryEnergySources: /\b(DIESEL|GENSET|GENERATOR|BATTERY|BESS)\b/i,
+      gridInterconnection: /(SUPPLY\s*FROM|UTILITY|\bGRID\b|E\.?C\.?G)/i,
+      gridExportType: /\b(EXPORT|BIDIRECTIONAL|kWh|METER)\b/i,
+      hasCaptiveConsumer: /\b(LOAD|BUSBAR|CONSUMER)\b/i,
+    };
+    const toNorm = (bb: [number, number, number, number], text?: string) => ({
+      page: 1,
+      x: bb[0] / W,
+      y: bb[1] / H,
+      w: (bb[2] - bb[0]) / W,
+      h: (bb[3] - bb[1]) / H,
+      ...(text ? { text } : {}),
+    });
+
     for (const key of Object.keys(res)) {
       const f = (res as Record<string, any>)[key];
       if (!f || typeof f !== 'object' || f.value == null || Array.isArray(f.value)) {
@@ -1016,6 +1052,20 @@ export class DocumentClassifierService {
       if (box) {
         f.region = box;
         f.regionSource = 'paddleocr';
+        continue;
+      }
+      const rx = EVIDENCE[key];
+      if (!rx) continue;
+      const ev = lines
+        .filter((l) => rx.test(l.text || ''))
+        .slice(0, 8)
+        .map((l) => toNorm(l.bbox, l.text));
+      if (ev.length) {
+        f.evidenceRegions = ev;
+        f.regionSource = 'paddleocr-evidence';
+        // Drop the model's misleading estimate — the evidence lines are
+        // the honest answer for a derived value.
+        delete f.region;
       }
     }
   }

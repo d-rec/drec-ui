@@ -2462,6 +2462,16 @@
             [style.width.%]="v.region.w * 100"
             [style.height.%]="v.region.h * 100">
           </div>
+          <!-- Derived value: PP-OCR located the lines that evidence it.
+               Teal, solid — a real located basis, not an estimate. -->
+          <div *ngFor="let er of v.evidenceRegions"
+            class="verify-source__region verify-source__region--evidence"
+            [style.left.%]="er.x * 100"
+            [style.top.%]="er.y * 100"
+            [style.width.%]="er.w * 100"
+            [style.height.%]="er.h * 100"
+            [title]="'Evidence: ' + (er.text || '')">
+          </div>
           <div *ngIf="v.region && !isExactRegion(v.regionSource) && v.source !== 'SF-02'"
             class="verify-source__region verify-source__region--approx"
             [style.left.%]="v.region.x * 100"
@@ -2483,11 +2493,11 @@
           </div>
         </div>
       </div>
-      <div *ngIf="!isExactRegion(v.regionSource) && !verifyTextMatches.length && v.region" class="alert alert-warning small mt-2 mb-0">
+      <div *ngIf="!hasEvidenceRegions(v) && !isExactRegion(v.regionSource) && !verifyTextMatches.length && v.region" class="alert alert-warning small mt-2 mb-0">
         <mat-icon style="font-size:16px;vertical-align:middle">warning_amber</mat-icon>
         <strong>Bounding box not found.</strong> Pixel-exact OCR couldn't lock onto this value's text, so the dashed box is only the AI's rough guess of where it sits — often well off. Verify by reading the document directly; don't rely on the box.
       </div>
-      <div *ngIf="!isExactRegion(v.regionSource) && !verifyTextMatches.length && !v.region" class="alert alert-info small mt-2 mb-0">
+      <div *ngIf="!hasEvidenceRegions(v) && !isExactRegion(v.regionSource) && !verifyTextMatches.length && !v.region" class="alert alert-info small mt-2 mb-0">
         <mat-icon style="font-size:16px;vertical-align:middle">info_outline</mat-icon>
         No literal token match — the value is derived or boolean (no exact string to highlight). Use the reasoning above to scan the diagram and verify.
       </div>

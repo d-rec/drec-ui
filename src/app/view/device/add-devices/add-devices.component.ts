@@ -2467,7 +2467,17 @@ export class AddDevicesComponent implements OnDestroy {
      *                string to match). Used by the dialog to show
      *                solid-red vs dashed-amber and an approximate-
      *                location banner. */
-    regionSource?: 'tesseract' | 'model' | 'paddleocr';
+    regionSource?: 'tesseract' | 'model' | 'paddleocr' | 'paddleocr-evidence';
+    /** Lines that evidence a derived value (count / boolean) — shown
+     *  instead of a meaningless estimated box. */
+    evidenceRegions?: Array<{
+      page: number;
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      text?: string;
+    }>;
     /** Per-field justification from the extractor — what in the doc
      *  the model used to decide this value. Useful when the bbox is
      *  approximate. */
@@ -2702,6 +2712,7 @@ export class AddDevicesComponent implements OnDestroy {
           confidence: field.confidence,
           region: field.region,
           regionSource: field.regionSource,
+          evidenceRegions: (field as any).evidenceRegions,
           reasoning: field.reasoning,
           transform: s.transform,
           fileOverride: file,
@@ -3084,6 +3095,7 @@ export class AddDevicesComponent implements OnDestroy {
         confidence: field.confidence,
         region: field.region,
         regionSource: field.regionSource,
+          evidenceRegions: (field as any).evidenceRegions,
         reasoning: field.reasoning,
         transform: s.transform,
       });
@@ -3593,6 +3605,12 @@ export class AddDevicesComponent implements OnDestroy {
    *  highlighting and the "bounding box not found" notice. */
   isExactRegion(src?: string | null): boolean {
     return src === 'tesseract' || src === 'paddleocr';
+  }
+
+  /** True when the item has PP-OCR evidence lines for a derived value —
+   *  no single literal box, but a real, located basis to show. */
+  hasEvidenceRegions(v: any): boolean {
+    return !!v?.evidenceRegions?.length;
   }
 
   private async findValueOnPage(
