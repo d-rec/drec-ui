@@ -2476,6 +2476,7 @@ export class AddDevicesComponent implements OnDestroy {
       y: number;
       w: number;
       h: number;
+      core?: { x: number; y: number; w: number; h: number };
       text?: string;
     }>;
     /** Per-field justification from the extractor — what in the doc
@@ -2513,12 +2514,79 @@ export class AddDevicesComponent implements OnDestroy {
     }
   }
 
+  /** Cursor position over the page: normalised (for the crop) and in
+   *  container pixels (for placing the panel). Null when not hovering,
+   *  which falls back to the pinned region loupes. */
+  loupeCursor: { nx: number; ny: number; left: number; top: number } | null =
+    null;
+  /** Fixed magnification for the follow-the-cursor loupe. */
+  private readonly CURSOR_MAG = 7;
+  private readonly CURSOR_W = 320;
+  private readonly CURSOR_H = 180;
+
   onVerifyDocMouseMove(ev: MouseEvent): void {
-    const el = ev.currentTarget as HTMLElement | null;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const side = ev.clientX - r.left > r.width / 2 ? 'left' : 'right';
+    const host = ev.currentTarget as HTMLElement | null;
+    const canvas = this.verifyCanvasEl?.nativeElement;
+    if (!host || !canvas) return;
+    const hostRect = host.getBoundingClientRect();
+    const cRect = canvas.getBoundingClientRect();
+    const side =
+      ev.clientX - hostRect.left > hostRect.width / 2 ? 'left' : 'right';
     if (side !== this.loupeSide) this.loupeSide = side;
+
+    const nx = (ev.clientX - cRect.left) / (cRect.width || 1);
+    const ny = (ev.clientY - cRect.top) / (cRect.height || 1);
+    if (nx < 0 || nx > 1 || ny < 0 || ny > 1) {
+      this.loupeCursor = null;
+      return;
+    }
+    this.loupeCursor = {
+      nx,
+      ny,
+      left: ev.clientX - hostRect.left,
+      top: ev.clientY - hostRect.top,
+    };
+  }
+
+  onVerifyDocMouseLeave(): void {
+    this.loupeCursor = null;
+  }
+
+  /** Panel placement: offset from the cursor, flipping near the edges so
+   *  it stays on screen and never sits under the pointer. */
+  cursorLoupeBoxStyle(): { [k: string]: string } {
+    const c = this.loupeCursor;
+    const host = this.verifyCanvasEl?.nativeElement?.parentElement;
+    if (!c || !host) return {};
+    const GAP = 22;
+    const maxW = host.clientWidth;
+    let left = c.left + GAP;
+    if (left + this.CURSOR_W > maxW) left = c.left - GAP - this.CURSOR_W;
+    let top = c.top + GAP;
+    if (top + this.CURSOR_H > host.clientHeight)
+      top = Math.max(0, c.top - GAP - this.CURSOR_H);
+    return {
+      left: `${Math.max(0, Math.round(left))}px`,
+      top: `${Math.round(top)}px`,
+    };
+  }
+
+  /** The magnified crop centred on the cursor. */
+  cursorLoupeStyle(): { [k: string]: string } {
+    const c = this.loupeCursor;
+    const W = this.verifyPageW,
+      H = this.verifyPageH;
+    if (!c || !this.verifyPageDataUrl || !W || !H) return {};
+    const m = this.CURSOR_MAG;
+    const left = c.nx * W * m - this.CURSOR_W / 2;
+    const top = c.ny * H * m - this.CURSOR_H / 2;
+    return {
+      width: `${this.CURSOR_W}px`,
+      height: `${this.CURSOR_H}px`,
+      'background-image': `url(${this.verifyPageDataUrl})`,
+      'background-size': `${Math.round(W * m)}px ${Math.round(H * m)}px`,
+      'background-position': `${-Math.round(left)}px ${-Math.round(top)}px`,
+    };
   }
 
   /** Regions worth magnifying for the current item: the exact/estimated
@@ -2548,8 +2616,9 @@ export class AddDevicesComponent implements OnDestroy {
     rh: number;
     panelW: number;
   } {
-    const rw = Math.max(r.w * this.verifyPageW, 6);
-    const rh = Math.max(r.h * this.verifyPageH, 6);
+    const c: any = (r as any).core ?? r;
+    const rw = Math.max(c.w * this.verifyPageW, 6);
+    const rh = Math.max(c.h * this.verifyPageH, 6);
     const m = Math.min(
       this.LOUPE_MAX_W / (rw * this.LOUPE_CONTEXT),
       // Height drives legibility: blow the text up to fill the panel.
@@ -2572,8 +2641,10 @@ export class AddDevicesComponent implements OnDestroy {
       H = this.verifyPageH;
     if (!this.verifyPageDataUrl || !W || !H) return {};
     const { m, rw, rh, panelW } = this.loupeMag(r);
-    const left = r.x * W * m - (panelW - rw * m) / 2;
-    const top = r.y * H * m - (this.LOUPE_H - rh * m) / 2;
+    // Centre on the same box the magnification was computed from.
+    const c: any = (r as any).core ?? r;
+    const left = c.x * W * m - (panelW - rw * m) / 2;
+    const top = c.y * H * m - (this.LOUPE_H - rh * m) / 2;
     return {
       width: `${panelW}px`,
       height: `${this.LOUPE_H}px`,

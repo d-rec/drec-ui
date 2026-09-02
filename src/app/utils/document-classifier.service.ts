@@ -48,6 +48,7 @@ export interface ExtractedField<T> {
     y: number;
     w: number;
     h: number;
+    core?: { x: number; y: number; w: number; h: number };
     text?: string;
   }>;
   /** One-line justification — what specifically in the doc the model
@@ -1061,6 +1062,11 @@ export class DocumentClassifierService {
         y,
         w: Math.min(1 - x, w0 + padX * 2),
         h: Math.min(1 - y, h0 + padY * 2),
+        // The unpadded text line. The on-page outline uses the padded
+        // box (so it frames the component), but the magnifier must zoom
+        // on the text itself — zooming the padded box collapses the
+        // magnification to ~1x and shows mostly blank paper.
+        core: { x: x0, y: y0, w: w0, h: h0 },
         ...(text ? { text } : {}),
       };
     };

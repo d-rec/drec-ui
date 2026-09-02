@@ -2439,12 +2439,22 @@
         </ng-container>
       </div>
       <div class="verify-source__zoom">
-        <div class="verify-source__doc" (mousemove)="onVerifyDocMouseMove($event)">
+        <div class="verify-source__doc" (mousemove)="onVerifyDocMouseMove($event)" (mouseleave)="onVerifyDocMouseLeave()">
+          <!-- Follow-the-cursor magnifier: shows whatever is under the
+               pointer, so any small label on the diagram can be read by
+               hovering it — not just the highlighted value. -->
+          <div class="verify-loupe verify-loupe--cursor"
+            *ngIf="verifyPageDataUrl && loupeCursor"
+            [ngStyle]="cursorLoupeBoxStyle()">
+            <div class="verify-loupe__view" [ngStyle]="cursorLoupeStyle()">
+              <div class="verify-loupe__crosshair"></div>
+            </div>
+          </div>
           <!-- Magnifier: SLD labels are unreadable at page scale, so show
                the highlighted region blown up. Sits in a corner away from
                the cursor so it never covers what you're pointing at. -->
           <div class="verify-loupes"
-            *ngIf="verifyPageDataUrl && loupeRegions(v).length"
+            *ngIf="verifyPageDataUrl && loupeRegions(v).length && !loupeCursor"
             [class.verify-loupes--left]="loupeSide === 'left'">
             <figure class="verify-loupe" *ngFor="let r of loupeRegions(v)">
               <div class="verify-loupe__view" [ngStyle]="loupeStyle(r)">
@@ -2476,7 +2486,7 @@
             [style.height.%]="v.region.h * 100">
           </div>
           <!-- Derived value: PP-OCR located the lines that evidence it.
-               Teal, solid — a real located basis, not an estimate. -->
+               Same red outline as the value box — one colour, one line. -->
           <div *ngFor="let er of v.evidenceRegions"
             class="verify-source__region verify-source__region--evidence"
             [style.left.%]="er.x * 100"
@@ -2497,7 +2507,10 @@
                value's literal text on the current page. Soft yellow
                so the Tesseract-derived primary region (red) still
                stands out as "this is the AI's pick". -->
-          <div *ngFor="let m of verifyTextMatches"
+          <!-- Suppressed when evidence boxes are shown: stacking yellow
+               matches under the evidence outlines put three colours
+               on one thing and read as noise, not information. -->
+          <div *ngFor="let m of hasEvidenceRegions(v) ? [] : verifyTextMatches"
             class="verify-source__match"
             [style.left.%]="m.x * 100"
             [style.top.%]="m.y * 100"
