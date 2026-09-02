@@ -2507,7 +2507,7 @@ export class AddDevicesComponent implements OnDestroy {
     try {
       this.verifyPageW = canvas.width;
       this.verifyPageH = canvas.height;
-      this.verifyPageDataUrl = canvas.toDataURL('image/png');
+      this.verifyPageDataUrl = canvas.toDataURL('image/jpeg', 0.94);
     } catch {
       this.verifyPageDataUrl = null;
     }
@@ -2531,28 +2531,36 @@ export class AddDevicesComponent implements OnDestroy {
     return v.region ? [v.region] : [];
   }
 
-  private readonly LOUPE_W = 300;
-  private readonly LOUPE_H = 170;
-  /** How much slack around the region. 1.0 = region exactly fills the
-   *  panel; higher shows more context at lower magnification. */
-  private readonly LOUPE_CONTEXT = 1.12;
+  // The panel width adapts to the region. SLD labels are wide and short
+  // ("415V SUPPLY FROM E.C.G"), so a fixed narrow panel forced the zoom
+  // down to ~2x just to fit the width — barely larger than the page.
+  private readonly LOUPE_MIN_W = 280;
+  private readonly LOUPE_MAX_W = 560;
+  private readonly LOUPE_H = 150;
+  private readonly LOUPE_CONTEXT = 1.06;
   private readonly LOUPE_MAX_MAG = 18;
 
-  /** Magnification for a region — shared by the crop and the frame so
-   *  the outline can't drift from the image under it. */
+  /** Magnification + panel width for a region — shared by the crop and
+   *  the frame so the outline can't drift from the image under it. */
   private loupeMag(r: { w: number; h: number }): {
     m: number;
     rw: number;
     rh: number;
+    panelW: number;
   } {
     const rw = Math.max(r.w * this.verifyPageW, 6);
     const rh = Math.max(r.h * this.verifyPageH, 6);
     const m = Math.min(
-      this.LOUPE_W / (rw * this.LOUPE_CONTEXT),
-      this.LOUPE_H / (rh * this.LOUPE_CONTEXT),
+      this.LOUPE_MAX_W / (rw * this.LOUPE_CONTEXT),
+      // Height drives legibility: blow the text up to fill the panel.
+      this.LOUPE_H / (rh * 1.5),
       this.LOUPE_MAX_MAG,
     );
-    return { m, rw, rh };
+    const panelW = Math.min(
+      this.LOUPE_MAX_W,
+      Math.max(this.LOUPE_MIN_W, Math.round(rw * m * this.LOUPE_CONTEXT)),
+    );
+    return { m, rw, rh, panelW };
   }
 
   /** Magnified crop, done with background-size/position so no second
@@ -2563,10 +2571,12 @@ export class AddDevicesComponent implements OnDestroy {
     const W = this.verifyPageW,
       H = this.verifyPageH;
     if (!this.verifyPageDataUrl || !W || !H) return {};
-    const { m, rw, rh } = this.loupeMag(r);
-    const left = r.x * W * m - (this.LOUPE_W - rw * m) / 2;
+    const { m, rw, rh, panelW } = this.loupeMag(r);
+    const left = r.x * W * m - (panelW - rw * m) / 2;
     const top = r.y * H * m - (this.LOUPE_H - rh * m) / 2;
     return {
+      width: `${panelW}px`,
+      height: `${this.LOUPE_H}px`,
       'background-image': `url(${this.verifyPageDataUrl})`,
       'background-size': `${Math.round(W * m)}px ${Math.round(H * m)}px`,
       'background-position': `${-Math.round(left)}px ${-Math.round(top)}px`,
@@ -2581,9 +2591,9 @@ export class AddDevicesComponent implements OnDestroy {
     const W = this.verifyPageW,
       H = this.verifyPageH;
     if (!W || !H) return {};
-    const { m, rw, rh } = this.loupeMag(r);
+    const { m, rw, rh, panelW } = this.loupeMag(r);
     return {
-      left: `${Math.round((this.LOUPE_W - rw * m) / 2)}px`,
+      left: `${Math.round((panelW - rw * m) / 2)}px`,
       top: `${Math.round((this.LOUPE_H - rh * m) / 2)}px`,
       width: `${Math.round(rw * m)}px`,
       height: `${Math.round(rh * m)}px`,
@@ -3365,7 +3375,7 @@ export class AddDevicesComponent implements OnDestroy {
     // appImageZoomPan transform there are still 2400px of source
     // pixels available, so the zoomed view stays sharp. 800px was
     // pixel-doubled almost immediately on any zoom.
-    const targetW = 2400;
+    const targetW = 4000; // high DPI: the loupe magnifies this canvas, so detail here is what makes small SLD labels readable
     try {
       if (file.type === 'application/pdf' || /\.pdf$/i.test(file.name)) {
         const pdfjs: any = await import('pdfjs-dist' as any);

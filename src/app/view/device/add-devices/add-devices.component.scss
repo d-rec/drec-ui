@@ -2302,8 +2302,6 @@ $as-bg:       #f8fafc;
 
   &__view {
     position: relative;
-    width: 300px;
-    height: 170px;
     background-repeat: no-repeat;
     background-color: #f8fafc;
     image-rendering: -webkit-optimize-contrast;
@@ -2320,7 +2318,7 @@ $as-bg:       #f8fafc;
     color: #334155;
     background: #f1f5f9;
     border-top: 1px solid #e2e8f0;
-    max-width: 300px;
+    max-width: 560px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
