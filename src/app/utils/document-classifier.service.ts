@@ -1036,14 +1036,28 @@ export class DocumentClassifierService {
       gridExportType: /\b(EXPORT|BIDIRECTIONAL|kWh|METER)\b/i,
       hasCaptiveConsumer: /\b(LOAD|BUSBAR|CONSUMER)\b/i,
     };
-    const toNorm = (bb: [number, number, number, number], text?: string) => ({
-      page: 1,
-      x: bb[0] / W,
-      y: bb[1] / H,
-      w: (bb[2] - bb[0]) / W,
-      h: (bb[3] - bb[1]) / H,
-      ...(text ? { text } : {}),
-    });
+    // Evidence boxes get padding: an OCR line box hugs the glyphs of a
+    // label like "INV 01", which on a wall-sized SLD reads as a sliver.
+    // Widen it so the box frames the component the label belongs to,
+    // with a floor so tiny labels still produce a visible target.
+    const toNorm = (bb: [number, number, number, number], text?: string) => {
+      const x0 = bb[0] / W,
+        y0 = bb[1] / H,
+        w0 = (bb[2] - bb[0]) / W,
+        h0 = (bb[3] - bb[1]) / H;
+      const padX = Math.max(w0 * 0.6, 0.014);
+      const padY = Math.max(h0 * 1.2, 0.012);
+      const x = Math.max(0, x0 - padX);
+      const y = Math.max(0, y0 - padY);
+      return {
+        page: 1,
+        x,
+        y,
+        w: Math.min(1 - x, w0 + padX * 2),
+        h: Math.min(1 - y, h0 + padY * 2),
+        ...(text ? { text } : {}),
+      };
+    };
 
     for (const key of Object.keys(res)) {
       const f = (res as Record<string, any>)[key];
