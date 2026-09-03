@@ -151,7 +151,7 @@
               </mat-autocomplete>
             </mat-form-field>
           </div>
-          <div class="col-auto" *ngIf="deviceForms.controls.length === 1">
+          <div class="col-auto">
             <button type="button" class="magic-btn" (click)="topMagicFileInput.click()"
               (mousedown)="$event.stopPropagation()"
               [disabled]="magicRunning[0]">
@@ -873,21 +873,6 @@
                 </ng-template>
 
                 <div class="row">
-                  <!-- Hidden for a single device: that case is served by
-                       the button in the top row next to Organization. -->
-                  <div class="col-12" *ngIf="deviceForms.controls.length > 1">
-                    <div class="magic-header">
-                      <button type="button" class="magic-btn" (click)="magicFileInput.click()"
-                        (mousedown)="$event.stopPropagation()"
-                        [disabled]="magicRunning[i]">
-                        <mat-icon style="font-size:20px;height:20px;width:20px;vertical-align:middle">auto_fix_high</mat-icon>
-                        Auto-sort documents
-                      </button>
-                      <input type="file" #magicFileInput hidden multiple
-                        accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff,.tif,.webp,.csv,.xlsx,.xls,.txt"
-                        (change)="onMagicUpload($event, i)">
-                    </div>
-                  </div>
 
                   <!-- Magic auto-sort floating dialog -->
                   <div class="magic-overlay" *ngIf="magicRunning[i] || magicLog[i]?.length">
