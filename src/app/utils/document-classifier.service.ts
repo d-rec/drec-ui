@@ -1518,13 +1518,26 @@ export class DocumentClassifierService {
     try {
       paddle = await this.paddleOcr(file);
       if (paddle?.lines?.length) {
+        // Prefer the column: find the header cell that says "SN" and read
+        // the values beneath it. That is the rule a reviewer applies, and
+        // unlike matching on string shape it can actually distinguish a
+        // serial from a firmware version — the two are indistinguishable
+        // as strings, and only their position says which is which.
+        const col = this.readSnColumn(paddle);
+        if (col.ids.length) {
+          return {
+            measurementIds: { value: col.ids, confidence: 0.9 },
+            measurementIdRegions: col.regions,
+            reasoning: `${col.ids.length} SN(s) read from the "${col.header}" column`,
+          };
+        }
         const text = paddle.lines.map((l) => l.text).join('\n');
         const ids = this.extractSnCandidatesFromText(text);
         if (ids.length >= 2) {
           return {
             measurementIds: { value: ids, confidence: 0.8 },
             measurementIdRegions: this.locateIds(ids, paddle),
-            reasoning: `${ids.length} SN candidate(s) read via PP-OCR`,
+            reasoning: `${ids.length} SN candidate(s) read via PP-OCR (no SN column header found)`,
           };
         }
       }
@@ -1592,6 +1605,107 @@ export class DocumentClassifierService {
       console.warn('[locateValueInFile] PP-OCR lookup failed:', err);
       return null;
     }
+  }
+
+  /**
+   * Read serials out of the "SN" column of a device table.
+   *
+   * A serial and a firmware version are indistinguishable as strings —
+   * both alphanumeric, both mixed letters and digits, both the same sort
+   * of length — so any shape-based rule is a guess that will eventually
+   * pick the wrong column. What actually separates them is where they
+   * sit: under a header that says SN. PP-OCR gives a box per line, so
+   * that rule is now expressible: find the header, take its horizontal
+   * span, and collect the values whose boxes fall inside it, below it.
+   *
+   * Needs a visible header and a roughly axis-aligned table — true of
+   * portal screenshots, not of a photo taken at an angle — so the caller
+   * falls back to the string heuristic when this finds nothing.
+   */
+  private readSnColumn(p: {
+    W: number;
+    H: number;
+    lines: Array<{ text: string; bbox: [number, number, number, number] }>;
+  }): {
+    ids: string[];
+    header: string;
+    regions: {
+      [id: string]: {
+        page: number;
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+      };
+    };
+  } {
+    const empty = { ids: [], header: '', regions: {} };
+    const HEADER_RE =
+      /^(sn|s\/n|serial(\s*(no\.?|number))?|device\s*sn|inverter\s*sn|equipment\s*sn)$/i;
+    // A serial is one contiguous token that mixes letters and digits, or
+    // a long run of digits (Huawei SmartLogger IDs are all-numeric).
+    const serialish = (t: string) =>
+      /^[A-Za-z0-9]{6,32}$/.test(t) &&
+      ((/[A-Za-z]/.test(t) && /\d/.test(t)) ||
+        (/^\d+$/.test(t) && t.length >= 10));
+
+    // "SN" appears more than once on these pages — FusionSolar has an SN
+    // *search field* above the table as well as the column header. Score
+    // every candidate by how many serial-like values sit in its column
+    // and keep the best; the search field scores zero, the real header
+    // scores a row per device. Self-validating, so no guessing which
+    // occurrence is the table.
+    let best: {
+      header: { text: string; bbox: [number, number, number, number] };
+      rows: Array<{ text: string; bbox: [number, number, number, number] }>;
+    } | null = null;
+
+    for (const header of p.lines.filter((l) =>
+      HEADER_RE.test((l.text || '').trim()),
+    )) {
+      const [hx0, hy0, hx1, hy1] = header.bbox;
+      const hCentre = (hx0 + hx1) / 2;
+      // Header cells are often narrower than their values, so allow the
+      // wider of the header's own width and a modest slice of the page.
+      const tol = Math.max((hx1 - hx0) * 1.1, p.W * 0.055);
+      const rowGap = (hy1 - hy0) * 1.2;
+      const rows = p.lines
+        .filter((l) => {
+          const [x0, y0, x1] = l.bbox;
+          if (y0 < hy1 - rowGap * 0.2) return false; // above / on the header
+          if (Math.abs((x0 + x1) / 2 - hCentre) > tol) return false;
+          const t = (l.text || '').trim();
+          return !HEADER_RE.test(t) && serialish(t);
+        })
+        .sort((a, b) => a.bbox[1] - b.bbox[1]);
+      if (!best || rows.length > best.rows.length) best = { header, rows };
+    }
+    if (!best?.rows.length) return empty;
+
+    const ids: string[] = [];
+    const regions: {
+      [id: string]: {
+        page: number;
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+      };
+    } = {};
+    for (const r of best.rows) {
+      const t = (r.text || '').trim();
+      if (ids.includes(t)) continue;
+      ids.push(t);
+      const [x0, y0, x1, y1] = r.bbox;
+      regions[t] = {
+        page: 1,
+        x: x0 / p.W,
+        y: y0 / p.H,
+        w: (x1 - x0) / p.W,
+        h: (y1 - y0) / p.H,
+      };
+    }
+    return { ids, header: (best.header.text || 'SN').trim(), regions };
   }
 
   /** POST a file to the self-hosted PP-OCR service for line boxes. */
