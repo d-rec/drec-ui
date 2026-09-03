@@ -1569,6 +1569,31 @@ export class DocumentClassifierService {
     return res;
   }
 
+  /** Locate a literal value on a document via PP-OCR, on demand.
+   *  Used by the verify view so a value extracted before boxes existed
+   *  (or by a path that doesn't capture them) still highlights. Returns
+   *  null when the string isn't on the image — which is itself the
+   *  answer, not a failure. */
+  async locateValueInFile(
+    file: File,
+    value: string,
+  ): Promise<{
+    page: number;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  } | null> {
+    try {
+      const p = await this.paddleOcr(file);
+      if (!p) return null;
+      return this.locateIds([value], p)[value] ?? null;
+    } catch (err) {
+      console.warn('[locateValueInFile] PP-OCR lookup failed:', err);
+      return null;
+    }
+  }
+
   /** POST a file to the self-hosted PP-OCR service for line boxes. */
   private async paddleOcr(file: File): Promise<{
     W: number;
@@ -1599,9 +1624,29 @@ export class DocumentClassifierService {
       lines: Array<{ text: string; bbox: [number, number, number, number] }>;
     },
   ): {
-    [id: string]: { page: number; x: number; y: number; w: number; h: number };
+    [id: string]: {
+      page: number;
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      approx?: boolean;
+      matchedText?: string;
+    };
   } {
     const norm = (s: string) => (s || '').toUpperCase().replace(/[\s\-_]/g, '');
+    // Fold the character pairs OCR habitually confuses, so a serial read
+    // as "V100RO0TCO0SPC153" still finds "V100R001C00SPC153" on the page.
+    // Boxing the near-match is what reveals the real mistake — e.g. that
+    // the value was taken from the Software Version column, not SN.
+    const fold = (s: string) =>
+      norm(s)
+        .replace(/[OQ]/g, '0')
+        .replace(/[IL]/g, '1')
+        .replace(/S/g, '5')
+        .replace(/B/g, '8')
+        .replace(/Z/g, '2')
+        .replace(/G/g, '6');
     const out: {
       [id: string]: {
         page: number;
@@ -1609,21 +1654,30 @@ export class DocumentClassifierService {
         y: number;
         w: number;
         h: number;
+        approx?: boolean;
+        matchedText?: string;
       };
     } = {};
+    const toBox = (bb: [number, number, number, number]) => ({
+      page: 1,
+      x: bb[0] / p.W,
+      y: bb[1] / p.H,
+      w: (bb[2] - bb[0]) / p.W,
+      h: (bb[3] - bb[1]) / p.H,
+    });
     for (const id of ids) {
       const q = norm(id);
       if (q.length < 4) continue;
-      const hit = p.lines.find((l) => norm(l.text).includes(q));
-      if (!hit) continue;
-      const [x0, y0, x1, y1] = hit.bbox;
-      out[id] = {
-        page: 1,
-        x: x0 / p.W,
-        y: y0 / p.H,
-        w: (x1 - x0) / p.W,
-        h: (y1 - y0) / p.H,
-      };
+      const exact = p.lines.find((l) => norm(l.text).includes(q));
+      if (exact) {
+        out[id] = { ...toBox(exact.bbox), matchedText: exact.text };
+        continue;
+      }
+      const qf = fold(id);
+      const near = p.lines.find((l) => fold(l.text).includes(qf));
+      if (near) {
+        out[id] = { ...toBox(near.bbox), approx: true, matchedText: near.text };
+      }
     }
     return out;
   }

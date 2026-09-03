@@ -2517,6 +2517,13 @@
       <!-- A meter ID that OCR could not find anywhere on the evidence
            image is the dangerous case: a wrong ID silently attributes
            readings to the wrong device. Say so plainly. -->
+      <!-- Located, but the text on the image doesn't match character for
+           character. Usually an OCR confusion (O/0, I/1) or the value was
+           taken from the wrong column — the box shows which. -->
+      <div *ngIf="v.region?.approx" class="alert alert-warning small mt-2 mb-0">
+        <mat-icon style="font-size:16px;vertical-align:middle">rule</mat-icon>
+        <strong>Doesn't match the image exactly.</strong> The box marks the closest text found: <code>{{ v.region?.matchedText }}</code>. Compare it with <code>{{ v.value }}</code> — check both the characters and that this is the right column.
+      </div>
       <div *ngIf="v.source === 'Meter IDs' && !v.region" class="alert alert-warning small mt-2 mb-0">
         <mat-icon style="font-size:16px;vertical-align:middle">error_outline</mat-icon>
         <strong>This ID wasn't found on the image.</strong> OCR couldn't locate "{{ v.value }}" anywhere in this evidence, so it may have been misread or inferred. Check it against the document before accepting — a wrong meter ID attributes readings to the wrong device.

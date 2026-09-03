@@ -2476,13 +2476,26 @@ export class AddDevicesComponent implements OnDestroy {
     source: string; // 'SLD' for now; Phase 2 adds others
     value: any; // candidate value from extractor
     confidence: number;
-    region?: { page: number; x: number; y: number; w: number; h: number };
+    region?: {
+      page: number;
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      /** Set when the match needed OCR-confusable folding — the image
+       *  text differs character-for-character from the value. */
+      approx?: boolean;
+      /** The literal text the box actually covers. */
+      matchedText?: string;
+    };
     /** 'tesseract' = pixel-exact, OCR token matched the value;
      *  'model'     = Haiku's bbox estimate (derived value, no literal
      *                string to match). Used by the dialog to show
      *                solid-red vs dashed-amber and an approximate-
      *                location banner. */
     regionSource?: 'tesseract' | 'model' | 'paddleocr' | 'paddleocr-evidence';
+    /** Guards the one-shot on-demand PP-OCR lookup per item. */
+    regionLookupDone?: boolean;
     /** Lines that evidence a derived value (count / boolean) — shown
      *  instead of a meaningless estimated box. */
     evidenceRegions?: Array<{
@@ -3410,6 +3423,28 @@ export class AddDevicesComponent implements OnDestroy {
     // otherwise fall back to the queue-level file.
     const file = item?.fileOverride ?? this.verifyQueueFile;
     if (!canvas || !file || !item) return;
+    // Values extracted before boxes existed (or by a path that doesn't
+    // capture them) still deserve a highlight: ask PP-OCR where this
+    // value sits, once per item. Seeing the box land on the wrong column
+    // is often what reveals a bad extraction.
+    if (
+      !item.region &&
+      typeof item.value === 'string' &&
+      !item.regionLookupDone
+    ) {
+      item.regionLookupDone = true;
+      this.documentClassifier
+        .locateValueInFile(file, item.value)
+        .then((box) =>
+          this.ngZone.run(() => {
+            if (!box || item !== this.verifyCurrent) return;
+            item.region = box;
+            item.regionSource = 'paddleocr';
+            void this.renderVerifyCanvas();
+          }),
+        )
+        .catch(() => undefined);
+    }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     if (opts?.resetToItemPage ?? false) {
