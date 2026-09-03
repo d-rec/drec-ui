@@ -2514,82 +2514,28 @@ export class AddDevicesComponent implements OnDestroy {
     }
   }
 
-  /** Cursor position over the page: normalised (for the crop) and in
-   *  container pixels (for placing the panel). Null when not hovering,
-   *  which falls back to the pinned region loupes. */
-  loupeCursor: { nx: number; ny: number; left: number; top: number } | null =
-    null;
-  /** Fixed magnification for the follow-the-cursor loupe. */
-  private readonly CURSOR_MAG = 7;
-  private readonly CURSOR_W = 320;
-  private readonly CURSOR_H = 180;
+  /** Which vertical half the panels sit in — kept opposite the
+   *  pointer so they never cover the area being inspected. */
+  loupeVert: 'top' | 'bottom' = 'bottom';
 
+  /** Keep the zoomed panels in the quadrant the pointer isn't in, so
+   *  they never sit over the part of the drawing being inspected. */
   onVerifyDocMouseMove(ev: MouseEvent): void {
     const host = ev.currentTarget as HTMLElement | null;
-    const canvas = this.verifyCanvasEl?.nativeElement;
-    if (!host || !canvas) return;
-    const hostRect = host.getBoundingClientRect();
-    const cRect = canvas.getBoundingClientRect();
-    const side =
-      ev.clientX - hostRect.left > hostRect.width / 2 ? 'left' : 'right';
+    if (!host) return;
+    const r = host.getBoundingClientRect();
+    const side = ev.clientX - r.left > r.width / 2 ? 'left' : 'right';
     if (side !== this.loupeSide) this.loupeSide = side;
-
-    const nx = (ev.clientX - cRect.left) / (cRect.width || 1);
-    const ny = (ev.clientY - cRect.top) / (cRect.height || 1);
-    if (nx < 0 || nx > 1 || ny < 0 || ny > 1) {
-      this.loupeCursor = null;
-      return;
-    }
-    this.loupeCursor = {
-      nx,
-      ny,
-      left: ev.clientX - hostRect.left,
-      top: ev.clientY - hostRect.top,
-    };
+    // Vertical half is measured against the visible viewport, not the
+    // full (scrolling) drawing, since the panels are pinned to the
+    // dialog rather than the page.
+    const vert =
+      ev.clientY > (window.innerHeight || 800) / 2 ? 'top' : 'bottom';
+    if (vert !== this.loupeVert) this.loupeVert = vert;
   }
 
-  onVerifyDocMouseLeave(): void {
-    this.loupeCursor = null;
-  }
 
-  /** Panel placement: the quadrant opposite the cursor. Pointer in the
-   *  left half puts the panel to its right, right half to its left, and
-   *  the same vertically — so it sits away from whatever is being
-   *  inspected rather than trailing over it. */
-  cursorLoupeBoxStyle(): { [k: string]: string } {
-    const c = this.loupeCursor;
-    const host = this.verifyCanvasEl?.nativeElement?.parentElement;
-    if (!c || !host) return {};
-    const GAP = 26;
-    const maxW = host.clientWidth;
-    const maxH = host.clientHeight;
-    let left = c.left > maxW / 2 ? c.left - GAP - this.CURSOR_W : c.left + GAP;
-    let top = c.top > maxH / 2 ? c.top - GAP - this.CURSOR_H : c.top + GAP;
-    left = Math.max(0, Math.min(left, Math.max(0, maxW - this.CURSOR_W)));
-    top = Math.max(0, Math.min(top, Math.max(0, maxH - this.CURSOR_H)));
-    return {
-      left: `${Math.max(0, Math.round(left))}px`,
-      top: `${Math.round(top)}px`,
-    };
-  }
 
-  /** The magnified crop centred on the cursor. */
-  cursorLoupeStyle(): { [k: string]: string } {
-    const c = this.loupeCursor;
-    const W = this.verifyPageW,
-      H = this.verifyPageH;
-    if (!c || !this.verifyPageDataUrl || !W || !H) return {};
-    const m = this.CURSOR_MAG;
-    const left = c.nx * W * m - this.CURSOR_W / 2;
-    const top = c.ny * H * m - this.CURSOR_H / 2;
-    return {
-      width: `${this.CURSOR_W}px`,
-      height: `${this.CURSOR_H}px`,
-      'background-image': `url(${this.verifyPageDataUrl})`,
-      'background-size': `${Math.round(W * m)}px ${Math.round(H * m)}px`,
-      'background-position': `${-Math.round(left)}px ${-Math.round(top)}px`,
-    };
-  }
 
   /** Regions worth magnifying for the current item: the exact/estimated
    *  region, or the PP-OCR evidence lines for a derived value. */

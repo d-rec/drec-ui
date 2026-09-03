@@ -2439,23 +2439,14 @@
         </ng-container>
       </div>
       <div class="verify-source__zoom">
-        <div class="verify-source__doc" (mousemove)="onVerifyDocMouseMove($event)" (mouseleave)="onVerifyDocMouseLeave()">
-          <!-- Follow-the-cursor magnifier: shows whatever is under the
-               pointer, so any small label on the diagram can be read by
-               hovering it — not just the highlighted value. -->
-          <div class="verify-loupe verify-loupe--cursor"
-            *ngIf="verifyPageDataUrl && loupeCursor"
-            [ngStyle]="cursorLoupeBoxStyle()">
-            <div class="verify-loupe__view" [ngStyle]="cursorLoupeStyle()">
-              <div class="verify-loupe__crosshair"></div>
-            </div>
-          </div>
+        <div class="verify-source__doc" (mousemove)="onVerifyDocMouseMove($event)">
           <!-- Magnifier: SLD labels are unreadable at page scale, so show
                the highlighted region blown up. Sits in a corner away from
                the cursor so it never covers what you're pointing at. -->
           <div class="verify-loupes"
-            *ngIf="verifyPageDataUrl && loupeRegions(v).length && !loupeCursor"
-            [class.verify-loupes--left]="loupeSide === 'left'">
+            *ngIf="verifyPageDataUrl && loupeRegions(v).length"
+            [class.verify-loupes--left]="loupeSide === 'left'"
+            [class.verify-loupes--bottom]="loupeVert === 'bottom'">
             <figure class="verify-loupe" *ngFor="let r of loupeRegions(v)">
               <div class="verify-loupe__view" [ngStyle]="loupeStyle(r)">
                 <div class="verify-loupe__frame" [ngStyle]="loupeFrameStyle(r)"></div>

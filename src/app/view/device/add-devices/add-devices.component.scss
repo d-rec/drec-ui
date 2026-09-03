@@ -2295,23 +2295,11 @@ $as-bg:       #f8fafc;
     right: auto;
     left: 34px;
   }
-}
-// Follow-the-cursor magnifier: positioned per-frame from the pointer,
-// so it floats free rather than sitting in the pinned corner stack.
-.verify-loupe--cursor {
-  position: absolute;
-  z-index: 7;
-  pointer-events: none;
-}
-.verify-loupe__crosshair {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 26px;
-  height: 26px;
-  margin: -13px 0 0 -13px;
-  border: 2px solid rgba(220, 38, 38, 0.85);
-  border-radius: 50%;
+  // Sits in the lower half when the pointer is in the upper half.
+  &--bottom {
+    top: auto;
+    bottom: 26px;
+  }
 }
 .verify-loupe {
   margin: 0;
