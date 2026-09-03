@@ -2400,3 +2400,11 @@ $as-bg:       #f8fafc;
     margin-right: 4px;
   }
 }
+
+// Organization + Auto-sort on one row. The button sits on the field's
+// baseline rather than the row's top edge, so the two read as a pair.
+.top-actions {
+  .col-auto {
+    padding-top: 6px;
+  }
+}
