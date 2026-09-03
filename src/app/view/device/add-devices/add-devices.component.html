@@ -2514,7 +2514,14 @@
         <mat-icon style="font-size:16px;vertical-align:middle">warning_amber</mat-icon>
         <strong>Bounding box not found.</strong> Pixel-exact OCR couldn't lock onto this value's text, so the dashed box is only the AI's rough guess of where it sits — often well off. Verify by reading the document directly; don't rely on the box.
       </div>
-      <div *ngIf="!hasEvidenceRegions(v) && !isExactRegion(v.regionSource) && !verifyTextMatches.length && !v.region" class="alert alert-secondary small mt-2 mb-0">
+      <!-- A meter ID that OCR could not find anywhere on the evidence
+           image is the dangerous case: a wrong ID silently attributes
+           readings to the wrong device. Say so plainly. -->
+      <div *ngIf="v.source === 'Meter IDs' && !v.region" class="alert alert-warning small mt-2 mb-0">
+        <mat-icon style="font-size:16px;vertical-align:middle">error_outline</mat-icon>
+        <strong>This ID wasn't found on the image.</strong> OCR couldn't locate "{{ v.value }}" anywhere in this evidence, so it may have been misread or inferred. Check it against the document before accepting — a wrong meter ID attributes readings to the wrong device.
+      </div>
+      <div *ngIf="v.source !== 'Meter IDs' && !hasEvidenceRegions(v) && !isExactRegion(v.regionSource) && !verifyTextMatches.length && !v.region" class="alert alert-secondary small mt-2 mb-0">
         <span class="verify-na">N/A</span>
         <strong>Nothing to highlight on the diagram.</strong> This value is a conclusion drawn from the drawing as a whole (a yes/no or a count), not a label that appears on it — so there's no box to draw. Read the reasoning above and check the diagram yourself.
       </div>

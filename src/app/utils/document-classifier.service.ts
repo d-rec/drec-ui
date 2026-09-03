@@ -73,6 +73,13 @@ export interface CodExtractedFields {
 
 export interface MeterIdsExtractedFields {
   measurementIds?: ExtractedField<string[]>;
+  /** Per-ID pixel box from PP-OCR, keyed by the ID. Present when the
+   *  literal string was found on the evidence image, which both places
+   *  the verify highlight and confirms the ID isn't invented. IDs absent
+   *  from this map were not located and want a closer look. */
+  measurementIdRegions?: {
+    [id: string]: { page: number; x: number; y: number; w: number; h: number };
+  };
   inverterMakeModel?: ExtractedField<string>;
   // Portal "Info / Basic Information" overview fields (SolisCloud-style).
   capacityKwp?: ExtractedField<number>;
@@ -1498,6 +1505,32 @@ export class DocumentClassifierService {
     file: File,
     deviceId?: number,
   ): Promise<MeterIdsExtractedFields | null> {
+    // PP-OCR first: it reads portal screenshots far more reliably than
+    // tesseract.js, which is what produced the spurious serials reviewers
+    // keep unticking. It also returns a box per line, so each ID gets a
+    // pixel-exact highlight in the verify walk. Tesseract stays as the
+    // fallback when the service is unreachable.
+    let paddle: {
+      W: number;
+      H: number;
+      lines: Array<{ text: string; bbox: [number, number, number, number] }>;
+    } | null = null;
+    try {
+      paddle = await this.paddleOcr(file);
+      if (paddle?.lines?.length) {
+        const text = paddle.lines.map((l) => l.text).join('\n');
+        const ids = this.extractSnCandidatesFromText(text);
+        if (ids.length >= 2) {
+          return {
+            measurementIds: { value: ids, confidence: 0.8 },
+            measurementIdRegions: this.locateIds(ids, paddle),
+            reasoning: `${ids.length} SN candidate(s) read via PP-OCR`,
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('[meter-ids] PP-OCR pre-pass failed:', err);
+    }
     try {
       const canvas = await this.renderFirstPage(file);
       const text = await this.ocrCanvas(canvas);
@@ -1517,12 +1550,82 @@ export class DocumentClassifierService {
     } catch (err) {
       console.warn('[meter-ids] Tesseract pre-pass failed:', err);
     }
-    return this.runDocExtractionFE<MeterIdsExtractedFields>(
+    const res = await this.runDocExtractionFE<MeterIdsExtractedFields>(
       'ai/extract-meter-ids-fields',
       file,
       deviceId,
       /* preferVision */ true,
     );
+    // Cross-check the model's IDs against the OCR text. A serial the model
+    // returned that appears nowhere on the image is the dangerous case —
+    // a wrong meter ID silently attributes reads to the wrong device — so
+    // locate what we can and let the UI flag the rest.
+    if (res?.measurementIds?.value?.length && paddle) {
+      res.measurementIdRegions = this.locateIds(
+        res.measurementIds.value,
+        paddle,
+      );
+    }
+    return res;
+  }
+
+  /** POST a file to the self-hosted PP-OCR service for line boxes. */
+  private async paddleOcr(file: File): Promise<{
+    W: number;
+    H: number;
+    lines: Array<{ text: string; bbox: [number, number, number, number] }>;
+  } | null> {
+    const fd = new FormData();
+    fd.append('file', file);
+    const d = await firstValueFrom(
+      this.http.post<{
+        width: number;
+        height: number;
+        lines: Array<{ text: string; bbox: [number, number, number, number] }>;
+      }>(`${PADDLE_OCR_URL}/ocr-fields`, fd),
+    );
+    return d?.lines?.length
+      ? { W: d.width, H: d.height, lines: d.lines }
+      : null;
+  }
+
+  /** Map each ID to the OCR line containing it, normalised 0..1. IDs with
+   *  no match are simply absent — that absence is the signal. */
+  private locateIds(
+    ids: string[],
+    p: {
+      W: number;
+      H: number;
+      lines: Array<{ text: string; bbox: [number, number, number, number] }>;
+    },
+  ): {
+    [id: string]: { page: number; x: number; y: number; w: number; h: number };
+  } {
+    const norm = (s: string) => (s || '').toUpperCase().replace(/[\s\-_]/g, '');
+    const out: {
+      [id: string]: {
+        page: number;
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+      };
+    } = {};
+    for (const id of ids) {
+      const q = norm(id);
+      if (q.length < 4) continue;
+      const hit = p.lines.find((l) => norm(l.text).includes(q));
+      if (!hit) continue;
+      const [x0, y0, x1, y1] = hit.bbox;
+      out[id] = {
+        page: 1,
+        x: x0 / p.W,
+        y: y0 / p.H,
+        w: (x1 - x0) / p.W,
+        h: (y1 - y0) / p.H,
+      };
+    }
+    return out;
   }
 
   /** Tokenise OCR'd text and keep only strings that look like a real

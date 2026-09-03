@@ -186,6 +186,21 @@ export class AddDevicesComponent implements OnDestroy {
   sf02cExtractionFile: { [deviceIndex: number]: File | null } = {};
   codExtractionFile: { [deviceIndex: number]: File | null } = {};
   sf02ExtractionFile: { [deviceIndex: number]: File | null } = {};
+  /** Per-device, per-ID pixel box from PP-OCR — where the meter ID was
+   *  literally found on the evidence image. Also a hallucination guard:
+   *  an ID with no entry was never located on the image. */
+  meterIdRegions: {
+    [deviceIndex: number]: {
+      [id: string]: {
+        page: number;
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+      };
+    };
+  } = {};
+
   meterIdsExtractionDocs: {
     [deviceIndex: number]: Record<
       string,
@@ -3350,6 +3365,12 @@ export class AddDevicesComponent implements OnDestroy {
         value: id,
         confidence: 1,
         fileOverride: doc?.file,
+        // Pixel box from PP-OCR when the ID was actually located on the
+        // image; leaving it undefined drives the "not found" notice.
+        region: this.meterIdRegions[deviceIndex]?.[id],
+        regionSource: this.meterIdRegions[deviceIndex]?.[id]
+          ? 'paddleocr'
+          : undefined,
       });
     }
     if (!items.length) {
@@ -4762,6 +4783,15 @@ export class AddDevicesComponent implements OnDestroy {
               // back.
               if (dismissed.has((id || '').trim().toLowerCase())) continue;
               existing.add(id);
+              // Where PP-OCR found the literal ID on the evidence image.
+              // Absence is meaningful: the ID wasn't located, so the
+              // verify view says so instead of implying a location.
+              const box = res.measurementIdRegions?.[id];
+              if (box) {
+                if (!this.meterIdRegions[deviceIndex])
+                  this.meterIdRegions[deviceIndex] = {};
+                this.meterIdRegions[deviceIndex][id] = box;
+              }
               if (!this.meterIdsExtractionDocs[deviceIndex][id]) {
                 this.meterIdsExtractionDocs[deviceIndex][id] = {
                   name: file.name,
