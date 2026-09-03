@@ -1706,12 +1706,37 @@ export class DocumentClassifierService {
       const hasLetter = /[A-Za-z]/.test(t);
       const hasDigit = /\d/.test(t);
       if (!hasLetter || !hasDigit) continue;
+      if (this.isFirmwareVersion(t)) continue;
       const k = t.toLowerCase();
       if (seen.has(k)) continue;
       seen.add(k);
       out.push(t);
     }
     return out;
+  }
+
+  /**
+   * Reject firmware/software version strings that look like serials.
+   *
+   * A Huawei FusionSolar device table puts "Software Version" next to
+   * "SN", and its versions (V100R001C00SPC153, V300R001C00SPC050,
+   * V100R001C01AM001) pass every serial heuristic — alphanumeric, mixed
+   * letters and digits, right length — so they were being harvested as
+   * meter IDs while the real serials (BT2220018220, ES2220068424) sat in
+   * the next column. Match the vendor version grammar rather than a
+   * fixed list, and fold the characters OCR confuses so a misread
+   * "V100RO0TCO0SPC153" is rejected too.
+   */
+  private isFirmwareVersion(token: string): boolean {
+    const t = (token || '')
+      .toUpperCase()
+      .replace(/[OQ]/g, '0')
+      .replace(/[IL]/g, '1');
+    // V<digits>R<digits>... — Huawei/Sungrow-style version grammar.
+    if (/^V\d{2,3}R\d{2,3}/.test(t)) return true;
+    // Generic "...SPC<digits>" / "...SPH<digits>" version suffixes.
+    if (/SP[CH]\d{2,3}$/.test(t) && /^V/.test(t)) return true;
+    return false;
   }
 
   async extractSf02Fields(
