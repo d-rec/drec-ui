@@ -2534,9 +2534,6 @@ export class AddDevicesComponent implements OnDestroy {
     if (vert !== this.loupeVert) this.loupeVert = vert;
   }
 
-
-
-
   /** Regions worth magnifying for the current item: the exact/estimated
    *  region, or the PP-OCR evidence lines for a derived value. */
   loupeRegions(
