@@ -50,6 +50,6 @@ You agree not to use the Platform, including its messaging features and document
 
 D-REC administrators may review any conversation or uploaded document on the Platform and may remove content, reject a submission, or suspend or terminate an account that violates these terms, without prior notice where necessary.
 
-If you experience or observe harassment, abuse or inappropriate content on the Platform, report it to privacy@drec.energy. Reports are reviewed promptly and treated confidentially.
+If you experience or observe harassment, abuse or inappropriate content on the Platform, report it to <privacy@drec.energy>. Reports are reviewed promptly and treated confidentially.
 
 The Platform is a business service for organisations and is not intended for, or offered to, persons under the age of 18.
