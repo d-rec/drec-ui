@@ -19,6 +19,7 @@
     "release:major": "standard-version --release-as major"
   },
   "private": true,
+  "license": "GPL-3.0-or-later",
   "dependencies": {
     "@angular/animations": "^19.2.20",
     "@angular/cdk": "^19.2.19",

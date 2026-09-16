@@ -43,3 +43,13 @@ D-REC shall not be liable for any indirect, incidental, special, consequential, 
 ## 8. Changes to Terms
 
 We reserve the right to modify these terms at any time. We will notify users of any material changes via the Platform or email. Continued use of the Platform after such changes constitutes acceptance of the new terms.
+
+## 9. Acceptable Use, Harassment and Reporting
+
+You agree not to use the Platform, including its messaging features and document uploads, to harass, threaten, abuse or demean any person; to post or upload content that is unlawful, defamatory, obscene, discriminatory or infringing; or to upload material unrelated to the registration and verification of renewable-energy facilities.
+
+D-REC administrators may review any conversation or uploaded document on the Platform and may remove content, reject a submission, or suspend or terminate an account that violates these terms, without prior notice where necessary.
+
+If you experience or observe harassment, abuse or inappropriate content on the Platform, report it to privacy@drec.energy. Reports are reviewed promptly and treated confidentially.
+
+The Platform is a business service for organisations and is not intended for, or offered to, persons under the age of 18.
