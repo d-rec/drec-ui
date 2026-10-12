@@ -292,7 +292,9 @@ export class AddDevicesComponent implements OnDestroy {
   subscription: Subscription;
   filteredOrganizationList: OrganizationInformation[] = [];
   organizationName: string;
-  organizationId: number;
+  // Optional by nature: no organization is selected until one is picked or
+  // auto-selected, and clearing the autocomplete text unsets it again.
+  organizationId?: number;
   offtaker = [
     'School',
     'Education',
@@ -879,11 +881,12 @@ export class AddDevicesComponent implements OnDestroy {
   private fetchOrganizationList() {
     this.orgService.getOrganizationInformation().subscribe((data) => {
       this.currentOrganization = data;
-      if (
-        ![OrganizationType.Registrant, OrganizationType.Admin].includes(
-          this.user.role,
-        )
-      ) {
+      // Only an Admin registers on behalf of other organizations, so only
+      // an Admin needs to choose. Everyone else -- Registrant included --
+      // belongs to exactly one organization; default to it instead of
+      // leaving the field blank and failing at submit with
+      // "Organization id is required".
+      if (this.user.role !== OrganizationType.Admin) {
         this.organizationName = this.currentOrganization?.name;
         this.organizationId = this.currentOrganization?.id;
       }
@@ -938,6 +941,16 @@ export class AddDevicesComponent implements OnDestroy {
         .toLowerCase()
         .includes(this.organizationName.toLowerCase());
     });
+    // Keep the id in step with the text. The autocomplete only sets
+    // organizationId on optionSelected, so typing a name without picking the
+    // option left the id undefined (submit then failed with "Organization id
+    // is required" despite the field looking filled), and editing the text
+    // after a selection left the id pointing at the previous organization.
+    const typed = (this.organizationName ?? '').trim().toLowerCase();
+    const exact = this.organizationList.find(
+      (org: any) => (org.name ?? '').trim().toLowerCase() === typed,
+    );
+    this.organizationId = exact ? exact.id : undefined;
   }
 
   selectOrg(event: any) {
@@ -9272,7 +9285,7 @@ export class AddDevicesComponent implements OnDestroy {
    */
   private buildDeviceFormData(element: any, index: number): FormData | null {
     const formData = new FormData();
-    if (this.organizationName != null) {
+    if (this.organizationId != null) {
       element['organizationId'] = this.organizationId;
     }
     const selectedCountry = this.countrylist.find(
