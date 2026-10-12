@@ -9615,7 +9615,7 @@ export class AddDevicesComponent implements OnDestroy {
             if (err.status === 409 || err.error?.statusCode === 409) {
               this.dialog.open(this.errorDialogTemplate, {
                 width: '450px',
-                data: { title: 'Duplicate Entry', message },
+                data: { title: this.errorDialogTitle(message), message },
               });
             } else if (err.error?.statusCode === 403) {
               this.toastrService.error(
@@ -9628,6 +9628,21 @@ export class AddDevicesComponent implements OnDestroy {
           },
         });
     });
+  }
+
+  /**
+   * The API returns 409 for several things that are not duplicates, so
+   * titling every 409 "Duplicate Entry" mislabels them — a missing
+   * organizationId used to come through as a duplicate. Title from what the
+   * message actually says, and fall back to something neutral.
+   */
+  private errorDialogTitle(message: string): string {
+    const text = (message ?? '').toLowerCase();
+    const looksLikeDuplicate =
+      text.includes('already exist') ||
+      text.includes('duplicate') ||
+      text.includes('same serialnumber');
+    return looksLikeDuplicate ? 'Duplicate Entry' : 'Could not save device';
   }
 
   shortenFileName(fileName: string, maxLength: number = 20): string {
@@ -10972,7 +10987,7 @@ export class AddDevicesComponent implements OnDestroy {
           if (err.status === 409 || err.error?.statusCode === 409) {
             this.dialog.open(this.errorDialogTemplate, {
               width: '450px',
-              data: { title: 'Duplicate Entry', message },
+              data: { title: this.errorDialogTitle(message), message },
             });
           } else {
             this.toastrService.error(
