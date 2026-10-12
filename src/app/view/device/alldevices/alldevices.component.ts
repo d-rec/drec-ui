@@ -416,10 +416,19 @@ export class AlldevicesComponent {
         next: (data) => {
           this.showlist = true;
 
-          if (data.devices) {
+          // The API returns two different shapes from this one endpoint: an
+          // object { devices, totalCount, ... } when it receives a non-empty
+          // filter, and a bare array otherwise. `limit` is not part of
+          // FilterDTO, so `device/my?limit=...` validates down to an empty
+          // filter and comes back as an array — which used to fail the
+          // `data.devices` check silently and render an empty list.
+          const devices = Array.isArray(data) ? data : data?.devices;
+          if (devices) {
             this.loading = false;
 
-            this.data = data;
+            this.data = Array.isArray(data)
+              ? { devices, totalCount: devices.length, totalPages: 1 }
+              : data;
             this.DisplayList();
           }
         },
