@@ -96,24 +96,40 @@
 .guide {
   position: absolute;
   inset: 0;
+  pointer-events: none;
+}
+
+// The box is pinned to the centre and nothing else participates in its
+// layout, so it cannot be moved by a sibling appearing or disappearing.
+// Its height is 80vw / 4 = 20vw, which the caption offset below depends on.
+.guide-box {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  transform: translateY(-50%);
+}
+
+.guide-caption {
+  position: absolute;
+  // Centre, plus half the box height, plus a gap.
+  top: calc(50% + 10vw + 14px);
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  gap: 14px;
+  gap: 10px;
+  padding: 0 16px;
+  box-sizing: border-box;
 }
 
 .guide-box {
   width: 80%;
-  // Matches the 640x160 crop the reader is handed.
+  // Matches the 4:1 crop the reader is handed.
   aspect-ratio: 4 / 1;
   border: 2px solid rgba(74, 222, 128, 0.9);
   border-radius: 10px;
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
   // A decoded barcode is exact — say so, but still wait for the operator.
   &.locked {
@@ -155,8 +171,13 @@
 .hint {
   margin: 0;
   font-size: 13px;
-  color: rgba(248, 250, 252, 0.8);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  // A text shadow is not enough over a barcode or a bright nameplate; this is
+  // read at arm's length, outdoors, often in sun.
+  padding: 5px 12px;
+  border-radius: 7px;
+  background: rgba(2, 6, 12, 0.7);
+  color: rgba(248, 250, 252, 0.92);
+  text-align: center;
 }
 
 .controls {

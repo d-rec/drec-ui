@@ -48,23 +48,28 @@
     <div class="guide">
       <div class="guide-box" [class.locked]="barcodeReady"></div>
 
-      <!-- Below the box, never inside it: anything drawn over the guide area
-           sits on top of the serial the operator is trying to line up. -->
-      <span class="live" *ngIf="livePreviewSerial">
-        {{ livePreviewSerial }}
-        <em *ngIf="liveSource === 'barcode'">barcode</em>
-      </span>
-      <p class="debugref" *ngIf="debugReference">
-        Frame uploaded — {{ debugReference }}
-      </p>
+      <!-- Everything else is absolutely positioned BELOW the box. Nothing here
+           may affect the box's position: when these were flex siblings, the
+           readout or the debug reference appearing re-centred the stack and
+           the aiming rectangle jumped under the operator's hands. -->
+      <div class="guide-caption">
+        <span class="live" *ngIf="livePreviewSerial">
+          {{ livePreviewSerial }}
+          <em *ngIf="liveSource === 'barcode'">barcode</em>
+        </span>
 
-      <p class="hint">
-        {{
-          barcodeReady
-            ? 'Barcode read — press Record when the photo looks right'
-            : 'Fill the box with the serial number'
-        }}
-      </p>
+        <p class="hint">
+          {{
+            barcodeReady
+              ? 'Barcode read — press Record when the photo looks right'
+              : 'Fill the box with the serial number'
+          }}
+        </p>
+
+        <p class="debugref" *ngIf="debugReference">
+          Frame uploaded — {{ debugReference }}
+        </p>
+      </div>
     </div>
 
     <div class="controls">
