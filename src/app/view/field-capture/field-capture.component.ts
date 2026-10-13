@@ -110,6 +110,14 @@ export class FieldCaptureComponent implements OnDestroy {
   pendingCount = 0;
   flushing = false;
 
+  /**
+   * Diagnostic frame upload. Hidden unless switched on, so operators never see
+   * it: visit /capture?debug=1 once and the flag sticks on that device.
+   */
+  debugEnabled = false;
+  debugBusy = false;
+  debugReference = '';
+
   private stream: MediaStream | null = null;
   /** Guards the one-shot camera recovery in attachStream(). */
   private recoveringCamera = false;
@@ -121,6 +129,26 @@ export class FieldCaptureComponent implements OnDestroy {
     window.addEventListener('online', this.onlineHandler);
     void this.refreshPendingCount();
     void this.flush();
+    this.debugEnabled = this.readDebugFlag();
+  }
+
+  /** `?debug=1` turns it on and remembers it; `?debug=0` turns it off again. */
+  private readDebugFlag(): boolean {
+    let stored = false;
+    try {
+      stored = localStorage.getItem('field-capture-debug') === '1';
+    } catch {
+      /* private browsing */
+    }
+    const param = new URLSearchParams(location.search).get('debug');
+    if (param === null) return stored;
+    const on = param !== '0';
+    try {
+      localStorage.setItem('field-capture-debug', on ? '1' : '0');
+    } catch {
+      /* best effort */
+    }
+    return on;
   }
 
   ngOnDestroy(): void {
@@ -549,6 +577,94 @@ export class FieldCaptureComponent implements OnDestroy {
         'better light and try again.';
       this.stopLiveScan();
     }
+  }
+
+  /**
+   * Upload exactly what the readers are looking at right now.
+   *
+   * Sends three things: the raw frame, the preprocessed guide-box crop, and
+   * what each reader made of that crop. The crop is the useful one — if a
+   * serial is legible in the frame but not in the crop, the fault is in the
+   * cropping or the contrast stretch rather than in the OCR engine, and that
+   * distinction is impossible to make from a description.
+   */
+  public async uploadDebugFrame(): Promise<void> {
+    if (this.debugBusy) return;
+    this.debugBusy = true;
+    this.debugReference = '';
+    this.notice = '';
+
+    try {
+      const crop = this.cropGuideBox();
+      const full = await this.grabStill();
+
+      // Read the crop here and now, so the upload carries what the engines
+      // actually produced on this exact frame rather than a stale preview.
+      const barcode = crop ? await this.reader.readBarcodeOnly(crop) : null;
+      const ocr = crop ? await this.reader.readBurst([crop]) : null;
+
+      const track = this.stream?.getVideoTracks()[0];
+      const meta = {
+        barcode: barcode && {
+          text: barcode.text,
+          ms: Math.round(barcode.elapsedMs),
+        },
+        ocr: ocr && {
+          text: ocr.text,
+          source: ocr.source,
+          confidence: ocr.confidence,
+          ms: Math.round(ocr.elapsedMs),
+        },
+        livePreviewSerial: this.livePreviewSerial,
+        liveSource: this.liveSource,
+        crop: crop ? { width: crop.width, height: crop.height } : null,
+        video: this.videoRef?.nativeElement
+          ? {
+              videoWidth: this.videoRef.nativeElement.videoWidth,
+              videoHeight: this.videoRef.nativeElement.videoHeight,
+              readyState: this.videoRef.nativeElement.readyState,
+            }
+          : null,
+        trackSettings: track?.getSettings?.() ?? null,
+        trackCapabilities: (track as any)?.getCapabilities?.() ?? null,
+        gps: {
+          latitude: this.latitude,
+          longitude: this.longitude,
+          accuracy: this.gpsAccuracyM,
+        },
+        userAgent: navigator.userAgent,
+        devicePixelRatio: window.devicePixelRatio,
+        viewport: { w: window.innerWidth, h: window.innerHeight },
+      };
+
+      const form = new FormData();
+      if (full) form.append('full', full, 'full.jpg');
+      if (crop) {
+        const cropBlob = await this.imageDataToBlob(crop);
+        if (cropBlob) form.append('crop', cropBlob, 'crop.png');
+      }
+      form.append('meta', JSON.stringify(meta));
+
+      const response: any = await this.http
+        .post(`${environment.API_URL}field-capture/debug-frame`, form, {
+          headers: this.authHeaders(),
+        })
+        .toPromise();
+
+      this.debugReference = response?.reference ?? '(uploaded)';
+    } catch (err: any) {
+      this.notice = `Debug upload failed: ${err?.error?.message ?? err?.message ?? 'unknown error'}`;
+    } finally {
+      this.debugBusy = false;
+    }
+  }
+
+  private imageDataToBlob(image: ImageData): Promise<Blob | null> {
+    const canvas = document.createElement('canvas');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    canvas.getContext('2d')!.putImageData(image, 0, 0);
+    return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
   }
 
   private async commitRead(read: SerialRead): Promise<void> {

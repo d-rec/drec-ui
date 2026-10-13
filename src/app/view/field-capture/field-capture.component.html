@@ -47,6 +47,10 @@
         {{ livePreviewSerial }}
         <em *ngIf="liveSource === 'barcode'">barcode</em>
       </span>
+      <p class="debugref" *ngIf="debugReference">
+        Frame uploaded — {{ debugReference }}
+      </p>
+
       <p class="hint">
         {{
           barcodeReady
@@ -77,7 +81,21 @@
         Record
       </button>
 
-      <span class="round placeholder" *ngIf="!torchAvailable"></span>
+      <button
+        *ngIf="debugEnabled"
+        class="round debug"
+        type="button"
+        [disabled]="debugBusy"
+        (click)="uploadDebugFrame()"
+        aria-label="Upload this frame for diagnosis"
+      >
+        {{ debugBusy ? '…' : 'DBG' }}
+      </button>
+
+      <span
+        class="round placeholder"
+        *ngIf="!torchAvailable && !debugEnabled"
+      ></span>
     </div>
   </section>
 
