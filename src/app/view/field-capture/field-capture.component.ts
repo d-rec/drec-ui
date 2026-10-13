@@ -39,6 +39,12 @@ const LIVE_SCAN_INTERVAL_MS = 160;
  */
 const BARCODE_HOLD_MS = 4000;
 
+/**
+ * How long to wait for the viewfinder to report a frame size before deciding
+ * it is not painting and re-acquiring the camera.
+ */
+const CAMERA_PAINT_TIMEOUT_MS = 1500;
+
 /** Above this the fix is too coarse to place a site; the operator is warned. */
 const GPS_ACCURACY_WARN_M = 100;
 
@@ -105,6 +111,8 @@ export class FieldCaptureComponent implements OnDestroy {
   flushing = false;
 
   private stream: MediaStream | null = null;
+  /** Guards the one-shot camera recovery in attachStream(). */
+  private recoveringCamera = false;
   private liveTimer: any = null;
   private wakeLock: any = null;
   private onlineHandler = () => this.flush();
@@ -217,14 +225,35 @@ export class FieldCaptureComponent implements OnDestroy {
     } catch {
       /* autoplay rejection is not fatal; the frame grab reads the track */
     }
+
+    // Safety net for the black-viewfinder class of bug. If the element has no
+    // dimensions shortly after play(), it is not painting the stream and every
+    // crop would come back empty, so start over with a fresh camera rather
+    // than scan a black rectangle. Guarded so it can only happen once.
+    if (!(await this.waitForFrames(video))) {
+      if (this.recoveringCamera) return;
+      this.recoveringCamera = true;
+      this.stopCamera();
+      try {
+        await this.startCamera();
+      } finally {
+        this.recoveringCamera = false;
+      }
+      return;
+    }
+
     await this.applyCameraTuning();
     this.startLiveScan();
   }
 
-  /** False once iOS has ended the track, e.g. after backgrounding the tab. */
-  private streamIsLive(): boolean {
-    const track = this.stream?.getVideoTracks()[0];
-    return !!track && track.readyState === 'live';
+  /** Resolves true once the element reports a frame size, false on timeout. */
+  private async waitForFrames(video: HTMLVideoElement): Promise<boolean> {
+    const deadline = Date.now() + CAMERA_PAINT_TIMEOUT_MS;
+    while (Date.now() < deadline) {
+      if (video.videoWidth > 0 && video.readyState >= 2) return true;
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    return video.videoWidth > 0;
   }
 
   /**
@@ -855,20 +884,26 @@ export class FieldCaptureComponent implements OnDestroy {
     this.notice = '';
     this.error = '';
 
-    if (this.streamIsLive()) {
-      this.stage = 'scanning';
-      // Wait for the viewfinder to be re-created before binding to it.
-      setTimeout(() => void this.attachStream());
-      return;
-    }
+    const hadCamera = !!this.stream;
 
-    // The track ended while we were on the review screen — iOS does this when
-    // the tab is backgrounded. Re-acquire it. This runs inside the button's
-    // click handler, so it still counts as the user gesture getUserMedia
-    // requires.
+    // Always tear the camera down and acquire it again, even when the track
+    // is still live.
+    //
+    // The viewfinder sits behind `*ngIf`, so returning to the scanning stage
+    // builds a NEW <video> element, and WebKit will not paint an already-
+    // active MediaStream into one: the track reports `live`, play() resolves,
+    // and the element stays black. Rebinding is enough on Chrome and was
+    // measurably correct there, which is exactly why this needed a phone to
+    // find. A fresh getUserMedia is the only thing iOS reliably renders.
+    //
+    // This runs inside the button's click handler, so it still counts as the
+    // user gesture getUserMedia requires. The cost is the camera warm-up,
+    // which also re-runs focus and exposure for the next nameplate.
     this.stopCamera();
     this.stage = 'idle';
-    await this.startCamera();
+    if (hadCamera) {
+      await this.startCamera();
+    }
   }
 
   /**
