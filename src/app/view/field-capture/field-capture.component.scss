@@ -78,6 +78,8 @@
 // ------------------------------------------------------------ viewfinder
 
 .viewfinder {
+  // Own every touch: a pinch here drives the camera's zoom, not the document's.
+  touch-action: none;
   position: relative;
   flex: 1;
   overflow: hidden;

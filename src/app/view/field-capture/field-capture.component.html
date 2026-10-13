@@ -35,7 +35,14 @@
   </section>
 
   <!-- -------------------------------------------------------- scanning -->
-  <section class="viewfinder" *ngIf="stage === 'scanning'">
+  <section
+    class="viewfinder"
+    *ngIf="stage === 'scanning'"
+    (touchstart)="onTouchStart($event)"
+    (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd()"
+    (touchcancel)="onTouchEnd()"
+  >
     <video #video playsinline autoplay muted></video>
 
     <div class="guide">

@@ -131,7 +131,18 @@ export class FieldCaptureComponent implements OnDestroy {
   private wakeLock: any = null;
   private onlineHandler = () => this.flush();
 
+  /**
+   * iOS Safari zooms the page on pinch regardless of `touch-action`, and only
+   * these non-standard gesture events can stop it.
+   */
+  private readonly blockGesture = (event: Event) => {
+    if (this.stage === 'scanning') event.preventDefault();
+  };
+
   constructor() {
+    for (const name of ['gesturestart', 'gesturechange', 'gestureend']) {
+      document.addEventListener(name, this.blockGesture, { passive: false });
+    }
     window.addEventListener('online', this.onlineHandler);
     void this.refreshPendingCount();
     void this.flush();
@@ -158,6 +169,9 @@ export class FieldCaptureComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    for (const name of ['gesturestart', 'gesturechange', 'gestureend']) {
+      document.removeEventListener(name, this.blockGesture);
+    }
     window.removeEventListener('online', this.onlineHandler);
     this.stopLiveScan();
     this.stopCamera();
@@ -447,11 +461,19 @@ export class FieldCaptureComponent implements OnDestroy {
     const video = this.videoRef?.nativeElement;
     if (!video || !video.videoWidth) return null;
 
-    // Guide box: centred, 80% of frame width, proportioned to the crop.
-    const boxWidth = video.videoWidth * 0.8;
+    // Map the guide box the operator sees onto the source frame.
+    //
+    // The <video> is `object-fit: cover`, so the element shows a CROP of the
+    // source whenever their aspect ratios differ — and they now differ a lot,
+    // because asking for the 4:3 sensor against a tall phone viewport means
+    // roughly a quarter of the source width is off-screen. Taking "80% of
+    // videoWidth" would read a third more than the rectangle shows, including
+    // whatever sits beside the serial. The box has to mean what it draws.
+    const rect = this.coverSourceRect(video);
+    const boxWidth = rect.width * 0.8;
     const boxHeight = boxWidth / CROP_ASPECT;
-    const sx = (video.videoWidth - boxWidth) / 2;
-    const sy = (video.videoHeight - boxHeight) / 2;
+    const sx = rect.x + (rect.width - boxWidth) / 2;
+    const sy = rect.y + (rect.height - boxHeight) / 2;
 
     // Keep the sensor's pixels. Only clamp the extremes.
     const outWidth = Math.round(
@@ -476,6 +498,80 @@ export class FieldCaptureComponent implements OnDestroy {
     );
     this.boostContrast(context, outWidth, outHeight);
     return context.getImageData(0, 0, outWidth, outHeight);
+  }
+
+  /**
+   * The region of the source frame the element is actually showing, given
+   * `object-fit: cover`. Returns the full frame when the element has not been
+   * laid out yet.
+   */
+  private coverSourceRect(video: HTMLVideoElement): {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } {
+    const full = {
+      x: 0,
+      y: 0,
+      width: video.videoWidth,
+      height: video.videoHeight,
+    };
+    const elementWidth = video.clientWidth;
+    const elementHeight = video.clientHeight;
+    if (!elementWidth || !elementHeight) return full;
+
+    // cover scales so the source covers the element; the overflow is clipped.
+    const scale = Math.max(
+      elementWidth / video.videoWidth,
+      elementHeight / video.videoHeight,
+    );
+    const visibleWidth = Math.min(video.videoWidth, elementWidth / scale);
+    const visibleHeight = Math.min(video.videoHeight, elementHeight / scale);
+    return {
+      x: (video.videoWidth - visibleWidth) / 2,
+      y: (video.videoHeight - visibleHeight) / 2,
+      width: visibleWidth,
+      height: visibleHeight,
+    };
+  }
+
+  // ---------------------------------------------------------------- pinch
+
+  private pinchStartDistance = 0;
+  private pinchStartZoom = 1;
+
+  /**
+   * Pinch drives the CAMERA, not the page.
+   *
+   * Left alone, a two-finger pinch zooms the document: the guide rectangle
+   * grows on screen while the crop still comes from the same part of the
+   * sensor, so the box stops meaning anything. Routing the gesture to the
+   * track's zoom constraint is also what anyone who has used a camera app
+   * expects it to do.
+   */
+  public onTouchStart(event: TouchEvent): void {
+    if (event.touches.length !== 2) return;
+    event.preventDefault();
+    this.pinchStartDistance = this.touchDistance(event);
+    this.pinchStartZoom = this.zoom;
+  }
+
+  public onTouchMove(event: TouchEvent): void {
+    if (event.touches.length !== 2 || !this.pinchStartDistance) return;
+    event.preventDefault();
+    if (!this.zoomAvailable) return;
+    const ratio = this.touchDistance(event) / this.pinchStartDistance;
+    void this.setZoom(Math.round(this.pinchStartZoom * ratio * 10) / 10);
+  }
+
+  public onTouchEnd(): void {
+    this.pinchStartDistance = 0;
+  }
+
+  private touchDistance(event: TouchEvent): number {
+    const [a, b] = [event.touches[0], event.touches[1]];
+    return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
   }
 
   /**
