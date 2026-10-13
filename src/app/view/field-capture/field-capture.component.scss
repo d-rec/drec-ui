@@ -3,9 +3,17 @@
 
 :host {
   display: block;
-  // 100dvh, not 100vh: on iOS Safari the toolbar makes 100vh taller than the
-  // visible viewport, which pushes the shutter button under the chrome.
-  height: 100dvh;
+  // svh, not dvh and not vh.
+  //
+  // `vh` is too tall on iOS — the toolbar pushes the shutter under the chrome.
+  // `dvh` fixes that but is DYNAMIC by definition: it tracks the toolbar
+  // retracting and expanding, so anything centred in it moves whenever Safari
+  // decides to change its chrome. That is the aiming rectangle drifting under
+  // the operator's hands. `svh` is the small (toolbars-shown) viewport and
+  // does not change, which is what a camera screen needs.
+  height: 100svh;
+  // Nothing here should ever scroll; a scroll on iOS is also a toolbar change.
+  overflow: hidden;
   background: #0b0f14;
   color: #f8fafc;
   // Kill the 300ms tap delay and double-tap zoom — they fight a camera UI.
@@ -25,6 +33,10 @@
 }
 
 .bar {
+  // Above the fixed viewfinder, which covers the whole screen.
+  position: relative;
+  z-index: 2;
+  background: #0b0f14;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -80,8 +92,26 @@
 .viewfinder {
   // Own every touch: a pinch here drives the camera's zoom, not the document's.
   touch-action: none;
-  position: relative;
-  flex: 1;
+
+  // FIXED to the screen, not laid out inside the page.
+  //
+  // While this was a flex child, its height was whatever the surrounding
+  // layout said — and on iOS that height moves whenever Safari shows or hides
+  // its toolbars, so the aiming rectangle centred inside it drifted under the
+  // operator's hands. Taking it out of flow makes the rectangle static with
+  // respect to the phone, which is the only behaviour an aiming guide can
+  // have. It also gives the camera the full screen.
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  // 100lvh: the LARGE viewport — the size with every retractable browser bar
+  // hidden. Unlike vh/dvh/svh it is a constant, so this box never resizes, and
+  // anything anchored to it never moves. Part of it may sit under Safari's
+  // toolbar while that is shown; the camera is `object-fit: cover` so nothing
+  // is lost, and the aiming rectangle staying put matters more.
+  height: 100lvh;
+  z-index: 1;
   overflow: hidden;
   background: #000;
 
@@ -104,15 +134,18 @@
 // Its height is 80vw / 4 = 20vw, which the caption offset below depends on.
 .guide-box {
   position: absolute;
-  top: 50%;
+  // Centre of the PHONE, measured against the constant large viewport rather
+  // than the live one. Browser chrome appearing or retracting cannot move it.
+  top: 50lvh;
   left: 10%;
   transform: translateY(-50%);
 }
 
 .guide-caption {
   position: absolute;
-  // Centre, plus half the box height, plus a gap.
-  top: calc(50% + 10vw + 14px);
+  // Centre, plus half the box height, plus a gap — same constant unit as the
+  // box, so the two never drift apart.
+  top: calc(50lvh + 10vw + 14px);
   left: 0;
   right: 0;
   display: flex;
@@ -181,7 +214,10 @@
 }
 
 .controls {
-  position: absolute;
+  // Fixed to the VISIBLE viewport, unlike the rectangle: a shutter the
+  // operator cannot reach is worse than one that moves.
+  position: fixed;
+  z-index: 2;
   left: 0;
   right: 0;
   bottom: 0;
@@ -254,7 +290,7 @@
 
 .still {
   width: 100%;
-  max-height: 34dvh;
+  max-height: 34svh;
   object-fit: contain;
   border-radius: 10px;
   background: #000;

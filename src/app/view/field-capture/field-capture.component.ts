@@ -752,6 +752,11 @@ export class FieldCaptureComponent implements OnDestroy {
 
       const track = this.stream?.getVideoTracks()[0];
       const meta = {
+        // Where the aiming rectangle actually sits, sampled over time, plus
+        // the viewport metrics that can move it. Reported as a bug twice and
+        // not reproducible in a desktop harness, so measure it on the device
+        // rather than reason about it.
+        guideBoxTrace: await this.traceGuideBox(),
         barcode: barcode && {
           text: barcode.text,
           ms: Math.round(barcode.elapsedMs),
@@ -804,6 +809,50 @@ export class FieldCaptureComponent implements OnDestroy {
     } finally {
       this.debugBusy = false;
     }
+  }
+
+  /**
+   * Sample the guide box's position and the viewport metrics for ~1.5s.
+   *
+   * On iOS the layout viewport changes when Safari shows or hides its
+   * toolbars, which moves anything positioned relative to it. If the box is
+   * drifting, the y values move while the element's own CSS does not — and
+   * `visualViewport` tells us whether the chrome is what did it.
+   */
+  private async traceGuideBox(): Promise<any[]> {
+    const samples: any[] = [];
+    for (let i = 0; i < 10; i++) {
+      const box = document.querySelector('.guide-box')?.getBoundingClientRect();
+      const video = this.videoRef?.nativeElement;
+      samples.push({
+        t: i * 150,
+        box: box
+          ? {
+              x: Math.round(box.x),
+              y: Math.round(box.y),
+              w: Math.round(box.width),
+              h: Math.round(box.height),
+            }
+          : null,
+        innerHeight: window.innerHeight,
+        visual: (window as any).visualViewport
+          ? {
+              h: Math.round((window as any).visualViewport.height),
+              offsetTop: Math.round((window as any).visualViewport.offsetTop),
+              scale: (window as any).visualViewport.scale,
+            }
+          : null,
+        scrollY: Math.round(window.scrollY),
+        videoClient: video
+          ? { w: video.clientWidth, h: video.clientHeight }
+          : null,
+        videoSource: video
+          ? { w: video.videoWidth, h: video.videoHeight }
+          : null,
+      });
+      await new Promise((r) => setTimeout(r, 150));
+    }
+    return samples;
   }
 
   private imageDataToBlob(image: ImageData): Promise<Blob | null> {
