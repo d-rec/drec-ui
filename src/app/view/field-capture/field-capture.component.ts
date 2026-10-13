@@ -1,0 +1,833 @@
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import {
+  Component,
+  ElementRef,
+  OnDestroy,
+  ViewChild,
+  inject,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { environment } from '../../../environments/environment';
+import { CaptureQueueService, QueuedCapture } from './capture-queue.service';
+import { SerialReaderService, SerialRead } from './serial-reader.service';
+
+type Stage = 'idle' | 'scanning' | 'review' | 'sending' | 'done';
+
+interface SerialMatch {
+  deviceId: number;
+  serialNumber: string;
+  siteName: string | null;
+  kind: 'exact' | 'near';
+  distance: number;
+}
+
+/** The crop handed to the reader. Wider than tall: serials are one line. */
+const CROP_WIDTH = 640;
+const CROP_HEIGHT = 160;
+
+/** Frames per burst when the operator presses Record. */
+const BURST_FRAMES = 5;
+
+/** Live scanning cadence. ~6/s is within reach of a mid-range phone. */
+const LIVE_SCAN_INTERVAL_MS = 160;
+
+/** Above this the fix is too coarse to place a site; the operator is warned. */
+const GPS_ACCURACY_WARN_M = 100;
+
+@Component({
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  selector: 'app-field-capture',
+  templateUrl: './field-capture.component.html',
+  styleUrls: ['./field-capture.component.scss'],
+  providers: [SerialReaderService, CaptureQueueService],
+})
+export class FieldCaptureComponent implements OnDestroy {
+  @ViewChild('video') videoRef?: ElementRef<HTMLVideoElement>;
+  @ViewChild('still') stillRef?: ElementRef<HTMLCanvasElement>;
+
+  private readonly http = inject(HttpClient);
+  private readonly reader = inject(SerialReaderService);
+  private readonly queue = inject(CaptureQueueService);
+
+  stage: Stage = 'idle';
+  error = '';
+  notice = '';
+
+  /** Set when getUserMedia is unavailable — see `cameraUnavailableReason`. */
+  liveCameraBlocked = false;
+  cameraUnavailableReason = '';
+
+  /** What the reader is seeing right now, before the operator commits. */
+  livePreviewSerial = '';
+  liveSource: 'barcode' | 'ocr' | '' = '';
+
+  /** The committed read, editable by the operator. */
+  serialNumber = '';
+  serialRaw = '';
+  serialSource: 'barcode' | 'ocr' | 'ocr-corrected' | 'manual' = 'manual';
+  ocrConfidence: number | null = null;
+  readElapsedMs = 0;
+
+  matches: SerialMatch[] = [];
+  matchesLoading = false;
+
+  latitude: number | null = null;
+  longitude: number | null = null;
+  gpsAccuracyM: number | null = null;
+  gpsError = '';
+
+  /** The three fields the operator fills. Capacity is kW, always. */
+  capacityKw: number | null = null;
+  commissioningDate = '';
+  deviceTypeCode = 'TC110';
+
+  siteName = '';
+  operatorNote = '';
+
+  photoBlob: Blob | null = null;
+  photoPreviewUrl = '';
+  capturedAt = '';
+
+  pendingCount = 0;
+  flushing = false;
+
+  private stream: MediaStream | null = null;
+  private liveTimer: any = null;
+  private wakeLock: any = null;
+  private onlineHandler = () => this.flush();
+
+  constructor() {
+    window.addEventListener('online', this.onlineHandler);
+    void this.refreshPendingCount();
+    void this.flush();
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('online', this.onlineHandler);
+    this.stopLiveScan();
+    this.stopCamera();
+    void this.reader.destroy();
+    void this.releaseWakeLock();
+    if (this.photoPreviewUrl) URL.revokeObjectURL(this.photoPreviewUrl);
+  }
+
+  get gpsTooCoarse(): boolean {
+    return this.gpsAccuracyM != null && this.gpsAccuracyM > GPS_ACCURACY_WARN_M;
+  }
+
+  get exactMatch(): SerialMatch | undefined {
+    return this.matches.find((m) => m.kind === 'exact');
+  }
+
+  get canSubmit(): boolean {
+    return (
+      this.stage === 'review' &&
+      !!this.serialNumber.trim() &&
+      !!this.photoBlob &&
+      this.latitude != null &&
+      this.longitude != null
+    );
+  }
+
+  // ---------------------------------------------------------------- camera
+
+  /**
+   * Must be called from a user gesture: iOS refuses getUserMedia outside one,
+   * and refuses to start video playback outside one even when permission is
+   * already granted.
+   */
+  public async startCamera(): Promise<void> {
+    this.error = '';
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      this.blockLiveCamera(
+        'This browser will not give a web page camera access. Use the ' +
+          'single-photo button below, or open the page in Safari or Chrome.',
+      );
+      return;
+    }
+
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        },
+        audio: false,
+      });
+    } catch (err: any) {
+      // NotAllowedError inside an in-app webview (WhatsApp, Facebook) is the
+      // common case in the field — links reach operators through chat apps.
+      this.blockLiveCamera(
+        err?.name === 'NotAllowedError'
+          ? 'Camera access was refused. If you opened this link from a chat ' +
+              'app, open it in Safari or Chrome instead — or use the ' +
+              'single-photo button below.'
+          : `Camera unavailable (${err?.name ?? 'unknown error'}). Use the ` +
+              'single-photo button below.',
+      );
+      return;
+    }
+
+    this.stage = 'scanning';
+    await this.requestWakeLock();
+    void this.reader.warmUp();
+    void this.locate();
+
+    // The template only renders <video> once stage is 'scanning', so wait a
+    // tick for the ViewChild to exist.
+    setTimeout(() => {
+      const video = this.videoRef?.nativeElement;
+      if (!video || !this.stream) return;
+      video.srcObject = this.stream;
+      void video.play().catch(() => undefined);
+      void this.applyCameraTuning();
+      this.startLiveScan();
+    });
+  }
+
+  /**
+   * Continuous focus where it exists. Queried rather than assumed: Safari
+   * exposes almost none of these, Android Chrome exposes most, and a
+   * constraint the track does not support throws.
+   */
+  private async applyCameraTuning(): Promise<void> {
+    const track = this.stream?.getVideoTracks()[0];
+    if (!track?.getCapabilities) return;
+    const capabilities: any = track.getCapabilities();
+    const advanced: any[] = [];
+    if (capabilities.focusMode?.includes('continuous')) {
+      advanced.push({ focusMode: 'continuous' });
+    }
+    if (advanced.length) {
+      try {
+        await track.applyConstraints({ advanced });
+      } catch {
+        /* optional tuning only */
+      }
+    }
+  }
+
+  /** Android Chrome only — Safari has no torch API at all. */
+  get torchAvailable(): boolean {
+    const track = this.stream?.getVideoTracks()[0];
+    const capabilities: any = track?.getCapabilities?.();
+    return !!capabilities && 'torch' in capabilities;
+  }
+
+  torchOn = false;
+
+  public async toggleTorch(): Promise<void> {
+    const track = this.stream?.getVideoTracks()[0];
+    if (!track) return;
+    try {
+      await track.applyConstraints({
+        advanced: [{ torch: !this.torchOn } as any],
+      });
+      this.torchOn = !this.torchOn;
+    } catch {
+      this.notice = 'This device will not let the page control the flash.';
+    }
+  }
+
+  private blockLiveCamera(reason: string): void {
+    this.liveCameraBlocked = true;
+    this.cameraUnavailableReason = reason;
+    this.stage = 'idle';
+    void this.locate();
+  }
+
+  private stopCamera(): void {
+    this.stream?.getTracks().forEach((t) => t.stop());
+    this.stream = null;
+    this.torchOn = false;
+  }
+
+  // ------------------------------------------------------------ live scan
+
+  private startLiveScan(): void {
+    this.stopLiveScan();
+    let busy = false;
+    let tick = 0;
+    this.liveTimer = setInterval(async () => {
+      if (busy || this.stage !== 'scanning') return;
+      busy = true;
+      try {
+        // Every fourth tick, look for a barcode across the whole frame rather
+        // than inside the guide box. The operator aims at the serial text, so
+        // a barcode a few centimetres away would otherwise never be seen —
+        // and a barcode is exact where OCR is a guess. ~1.5 sweeps/second.
+        if (tick++ % 4 === 3) {
+          const frame = this.fullFrame();
+          const barcode = frame
+            ? await this.reader.readBarcodeOnly(frame)
+            : null;
+          if (barcode && this.stage === 'scanning') {
+            this.livePreviewSerial = barcode.text;
+            this.liveSource = 'barcode';
+            await this.commitRead(barcode);
+            return;
+          }
+        }
+
+        const crop = this.cropGuideBox();
+        if (crop) {
+          const read = await this.reader.read(crop);
+          if (read && this.stage === 'scanning') {
+            this.livePreviewSerial = read.text;
+            this.liveSource = read.source;
+            // A barcode is exact — no reason to make the operator press
+            // anything once we have one.
+            if (read.source === 'barcode') {
+              await this.commitRead(read);
+            }
+          }
+        }
+      } finally {
+        busy = false;
+      }
+    }, LIVE_SCAN_INTERVAL_MS);
+  }
+
+  private stopLiveScan(): void {
+    if (this.liveTimer) clearInterval(this.liveTimer);
+    this.liveTimer = null;
+  }
+
+  /**
+   * Crop the guide box out of the current video frame.
+   *
+   * Cropping is not just a speed optimisation: on the benchmark a full
+   * 1920x1080 frame was both 2.5x slower AND read the serial wrong, because
+   * the serial was one small feature in a two-megapixel scene instead of
+   * filling the image.
+   */
+  private cropGuideBox(): ImageData | null {
+    const video = this.videoRef?.nativeElement;
+    if (!video || !video.videoWidth) return null;
+
+    // Guide box: centred, 80% of frame width, proportioned to the crop.
+    const boxWidth = video.videoWidth * 0.8;
+    const boxHeight = boxWidth * (CROP_HEIGHT / CROP_WIDTH);
+    const sx = (video.videoWidth - boxWidth) / 2;
+    const sy = (video.videoHeight - boxHeight) / 2;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = CROP_WIDTH;
+    canvas.height = CROP_HEIGHT;
+    const context = canvas.getContext('2d', { willReadFrequently: true })!;
+    // Upscaling to a fixed size also normalises away how far the operator is
+    // standing from the nameplate.
+    context.drawImage(
+      video,
+      sx,
+      sy,
+      boxWidth,
+      boxHeight,
+      0,
+      0,
+      CROP_WIDTH,
+      CROP_HEIGHT,
+    );
+    this.boostContrast(context, CROP_WIDTH, CROP_HEIGHT);
+    return context.getImageData(0, 0, CROP_WIDTH, CROP_HEIGHT);
+  }
+
+  /**
+   * The whole video frame, downscaled. Barcode decoding does not need full
+   * resolution and the decoder is markedly faster on a smaller image.
+   */
+  private fullFrame(): ImageData | null {
+    const video = this.videoRef?.nativeElement;
+    if (!video?.videoWidth) return null;
+    return this.downscaleToImageData(
+      video,
+      video.videoWidth,
+      video.videoHeight,
+    );
+  }
+
+  /** Same, for a photo picked through the file input. */
+  private async wholeImageData(file: Blob): Promise<ImageData | null> {
+    const url = URL.createObjectURL(file);
+    try {
+      const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = url;
+      });
+      return this.downscaleToImageData(image, image.width, image.height);
+    } catch {
+      return null;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  private downscaleToImageData(
+    source: CanvasImageSource,
+    width: number,
+    height: number,
+  ): ImageData | null {
+    // 1280 on the long edge keeps Code128 bars resolvable while keeping the
+    // decode cheap enough to run on a timer.
+    const scale = Math.min(1, 1280 / Math.max(width, height));
+    const w = Math.max(1, Math.round(width * scale));
+    const h = Math.max(1, Math.round(height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) return null;
+    context.drawImage(source, 0, 0, w, h);
+    return context.getImageData(0, 0, w, h);
+  }
+
+  /**
+   * Greyscale plus a contrast stretch. Etched and stamped nameplates are low
+   * contrast by nature, and on iOS there is no torch to compensate with.
+   */
+  private boostContrast(
+    context: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+  ): void {
+    const image = context.getImageData(0, 0, width, height);
+    const data = image.data;
+
+    let min = 255;
+    let max = 0;
+    for (let i = 0; i < data.length; i += 4) {
+      const grey =
+        (data[i] * 299 + data[i + 1] * 587 + data[i + 2] * 114) / 1000;
+      data[i] = data[i + 1] = data[i + 2] = grey;
+      if (grey < min) min = grey;
+      if (grey > max) max = grey;
+    }
+
+    const span = max - min;
+    if (span > 8) {
+      const scale = 255 / span;
+      for (let i = 0; i < data.length; i += 4) {
+        const stretched = (data[i] - min) * scale;
+        data[i] = data[i + 1] = data[i + 2] = stretched;
+      }
+    }
+    context.putImageData(image, 0, 0);
+  }
+
+  // --------------------------------------------------------------- record
+
+  /** [Record]: freeze the frame, burst-read it, keep the photo. */
+  public async record(): Promise<void> {
+    if (this.stage !== 'scanning') return;
+
+    const frames: ImageData[] = [];
+    for (let i = 0; i < BURST_FRAMES; i++) {
+      const crop = this.cropGuideBox();
+      if (crop) frames.push(crop);
+      // Spread the burst over a few frames so a single blurred one cannot
+      // decide the answer.
+      await new Promise((r) => setTimeout(r, 40));
+    }
+
+    this.photoBlob = await this.grabStill();
+    this.capturedAt = new Date().toISOString();
+    this.setPhotoPreview(this.photoBlob);
+
+    const read = frames.length ? await this.reader.readBurst(frames) : null;
+    if (read) {
+      await this.commitRead(read);
+    } else {
+      // Nothing legible. The photo is still worth keeping — the reviewer can
+      // read it, and manual entry is a first-class path.
+      this.stage = 'review';
+      this.serialSource = 'manual';
+      this.notice =
+        'Nothing readable in the guide box. Type the serial, or move into ' +
+        'better light and try again.';
+      this.stopLiveScan();
+    }
+  }
+
+  private async commitRead(read: SerialRead): Promise<void> {
+    this.serialNumber = read.text;
+    this.serialRaw = read.text;
+    this.serialSource = read.source;
+    this.ocrConfidence = read.source === 'ocr' ? read.confidence : null;
+    this.readElapsedMs = Math.round(read.elapsedMs);
+
+    if (!this.photoBlob) {
+      this.photoBlob = await this.grabStill();
+      this.capturedAt = new Date().toISOString();
+      this.setPhotoPreview(this.photoBlob);
+    }
+
+    this.stopLiveScan();
+    this.stage = 'review';
+    void this.locate();
+    void this.lookupMatches();
+  }
+
+  /** The photo that goes to the reviewer: the whole frame, not the crop. */
+  private async grabStill(): Promise<Blob | null> {
+    const video = this.videoRef?.nativeElement;
+    if (!video?.videoWidth) return null;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d')!.drawImage(video, 0, 0);
+    return new Promise((resolve) =>
+      canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.85),
+    );
+  }
+
+  private setPhotoPreview(blob: Blob | null): void {
+    if (this.photoPreviewUrl) URL.revokeObjectURL(this.photoPreviewUrl);
+    this.photoPreviewUrl = blob ? URL.createObjectURL(blob) : '';
+  }
+
+  /**
+   * Fallback path: the native camera via a file input.
+   *
+   * This works everywhere getUserMedia does not — in particular inside the
+   * WhatsApp and Facebook webviews operators actually open links from. Same
+   * submission, same reader, one photo instead of a live preview.
+   */
+  public async onFilePicked(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.photoBlob = file;
+    this.capturedAt = new Date(file.lastModified || Date.now()).toISOString();
+    this.setPhotoPreview(file);
+    this.stage = 'review';
+    void this.locate();
+
+    // Barcode across the whole photo before OCR on the crop. There is no
+    // guide box on this path — the operator framed the nameplate, not the
+    // serial — so a barcode is very unlikely to sit in the centre strip.
+    const whole = await this.wholeImageData(file);
+    let read = whole ? await this.reader.readBarcodeOnly(whole) : null;
+
+    if (!read) {
+      const crop = await this.cropFromFile(file);
+      read = crop ? await this.reader.readBurst([crop]) : null;
+    }
+
+    if (read) {
+      this.serialNumber = read.text;
+      this.serialRaw = read.text;
+      this.serialSource = read.source;
+      this.ocrConfidence = read.source === 'ocr' ? read.confidence : null;
+      this.readElapsedMs = Math.round(read.elapsedMs);
+      void this.lookupMatches();
+    } else {
+      this.serialSource = 'manual';
+      this.notice = 'Could not read a serial from that photo. Type it in.';
+    }
+    input.value = '';
+  }
+
+  /** Centre strip of a picked photo, matching the live guide box. */
+  private async cropFromFile(file: Blob): Promise<ImageData | null> {
+    const url = URL.createObjectURL(file);
+    try {
+      const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = url;
+      });
+
+      const boxWidth = image.width * 0.8;
+      const boxHeight = boxWidth * (CROP_HEIGHT / CROP_WIDTH);
+      const canvas = document.createElement('canvas');
+      canvas.width = CROP_WIDTH;
+      canvas.height = CROP_HEIGHT;
+      const context = canvas.getContext('2d', { willReadFrequently: true })!;
+      context.drawImage(
+        image,
+        (image.width - boxWidth) / 2,
+        (image.height - boxHeight) / 2,
+        boxWidth,
+        boxHeight,
+        0,
+        0,
+        CROP_WIDTH,
+        CROP_HEIGHT,
+      );
+      this.boostContrast(context, CROP_WIDTH, CROP_HEIGHT);
+      return context.getImageData(0, 0, CROP_WIDTH, CROP_HEIGHT);
+    } catch {
+      return null;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  // ------------------------------------------------------------- geolocation
+
+  /**
+   * A canvas frame from getUserMedia carries no EXIF, so the coordinates come
+   * from the Geolocation API, not the image. Client-supplied and metres-scale
+   * at best: this answers "which site is this", never "proof of presence".
+   */
+  private locate(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        this.gpsError = 'This browser cannot provide a location.';
+        return resolve();
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.latitude = position.coords.latitude;
+          this.longitude = position.coords.longitude;
+          this.gpsAccuracyM = position.coords.accuracy ?? null;
+          this.gpsError = '';
+          resolve();
+        },
+        (err) => {
+          this.gpsError =
+            err.code === err.PERMISSION_DENIED
+              ? 'Location permission denied. A capture needs coordinates — ' +
+                'allow location and try again.'
+              : `Could not get a location fix (${err.message}).`;
+          resolve();
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+      );
+    });
+  }
+
+  public retryLocate(): void {
+    void this.locate();
+  }
+
+  // ------------------------------------------------------------- matching
+
+  /** Is this serial one we already hold? Drives the three review states. */
+  private async lookupMatches(): Promise<void> {
+    const serial = this.serialNumber.trim();
+    if (!serial) {
+      this.matches = [];
+      return;
+    }
+    this.matchesLoading = true;
+    try {
+      this.matches = await this.http
+        .get<SerialMatch[]>(
+          `${environment.API_URL}field-capture/serial-candidates`,
+          {
+            params: { serial },
+            headers: this.authHeaders(),
+          },
+        )
+        .toPromise()
+        .then((r) => r ?? []);
+    } catch {
+      // Offline is the normal case here, not an error worth showing: the
+      // reviewer does this check again at approval time.
+      this.matches = [];
+    } finally {
+      this.matchesLoading = false;
+    }
+  }
+
+  public onSerialEdited(): void {
+    if (this.serialRaw && this.serialNumber.trim() !== this.serialRaw) {
+      this.serialSource =
+        this.serialSource === 'manual' ? 'manual' : 'ocr-corrected';
+    }
+    void this.lookupMatches();
+  }
+
+  public acceptMatch(match: SerialMatch): void {
+    this.serialNumber = match.serialNumber;
+    this.serialSource = 'ocr-corrected';
+    void this.lookupMatches();
+  }
+
+  // --------------------------------------------------------------- submit
+
+  public async submit(): Promise<void> {
+    if (!this.canSubmit || !this.photoBlob) return;
+
+    const item: QueuedCapture = {
+      clientCaptureId: this.newUuid(),
+      capture: {
+        clientCaptureId: '',
+        serialNumber: this.serialNumber.trim(),
+        serialRaw: this.serialRaw || undefined,
+        serialSource: this.serialSource,
+        ocrConfidence: this.ocrConfidence ?? undefined,
+        latitude: String(this.latitude),
+        longitude: String(this.longitude),
+        gpsAccuracyM: this.gpsAccuracyM ?? undefined,
+        capturedAt: this.capturedAt || new Date().toISOString(),
+        payload: {
+          capacity: this.capacityKw ?? undefined,
+          commissioningDate: this.commissioningDate || undefined,
+          fuelCode: 'ES100',
+          deviceTypeCode: this.deviceTypeCode || undefined,
+          siteName: this.siteName.trim() || undefined,
+          operatorNote: this.operatorNote.trim() || undefined,
+        },
+      },
+      photo: this.photoBlob,
+      attempts: 0,
+      queuedAt: new Date().toISOString(),
+    };
+    item.capture['clientCaptureId'] = item.clientCaptureId;
+
+    this.stage = 'sending';
+    this.error = '';
+
+    // Queue first, then send. If the send fails — or the browser is closed
+    // mid-request — the capture is already durable and the flush will retry
+    // it. The server deduplicates on clientCaptureId, so a retry of a request
+    // that actually succeeded is harmless.
+    try {
+      await this.queue.add(item);
+      await this.refreshPendingCount();
+    } catch {
+      this.notice =
+        'This browser will not store offline captures, so this one must be ' +
+        'sent now.';
+    }
+
+    const sent = await this.send(item);
+    if (sent) {
+      this.stage = 'done';
+      this.notice = '';
+    } else {
+      this.stage = 'done';
+      this.notice =
+        'Saved on this phone and queued. It will upload when you have ' +
+        'signal — keep this page open.';
+    }
+    await this.refreshPendingCount();
+  }
+
+  private async send(item: QueuedCapture): Promise<boolean> {
+    const form = new FormData();
+    form.append('photo', item.photo, `${item.clientCaptureId}.jpg`);
+    form.append('capture', JSON.stringify(item.capture));
+
+    try {
+      await this.http
+        .post(`${environment.API_URL}field-capture`, form, {
+          headers: this.authHeaders(),
+        })
+        .toPromise();
+      await this.queue.remove(item.clientCaptureId);
+      return true;
+    } catch (err: any) {
+      // A 409 means the server rejected it on its merits (a duplicate site
+      // name, say). Retrying will never help, so stop holding it.
+      if (err?.status === 409 || err?.status === 400) {
+        this.error = err?.error?.message ?? 'The server rejected this capture.';
+        await this.queue.remove(item.clientCaptureId);
+        return false;
+      }
+      await this.queue.noteFailure(
+        item.clientCaptureId,
+        err?.message ?? 'send failed',
+      );
+      return false;
+    }
+  }
+
+  /** Try everything in the queue. Safe to call often; idempotent server-side. */
+  public async flush(): Promise<void> {
+    if (this.flushing) return;
+    this.flushing = true;
+    try {
+      const items = await this.queue.all();
+      for (const item of items) {
+        await this.send(item);
+      }
+    } catch {
+      /* queue unavailable; nothing to do */
+    } finally {
+      this.flushing = false;
+      await this.refreshPendingCount();
+    }
+  }
+
+  private async refreshPendingCount(): Promise<void> {
+    this.pendingCount = await this.queue.count();
+  }
+
+  // ---------------------------------------------------------------- misc
+
+  public async captureAnother(): Promise<void> {
+    this.serialNumber = '';
+    this.serialRaw = '';
+    this.serialSource = 'manual';
+    this.ocrConfidence = null;
+    this.readElapsedMs = 0;
+    this.matches = [];
+    this.capacityKw = null;
+    this.commissioningDate = '';
+    this.siteName = '';
+    this.operatorNote = '';
+    this.photoBlob = null;
+    this.setPhotoPreview(null);
+    this.livePreviewSerial = '';
+    this.liveSource = '';
+    this.notice = '';
+    this.error = '';
+
+    if (this.stream) {
+      this.stage = 'scanning';
+      this.startLiveScan();
+    } else {
+      this.stage = 'idle';
+    }
+  }
+
+  /**
+   * Keep the screen awake while the operator is aiming. Safari 16.4+ and
+   * Chrome both support this; a screen that sleeps mid-scan is a guaranteed
+   * complaint.
+   */
+  private async requestWakeLock(): Promise<void> {
+    try {
+      this.wakeLock = await (navigator as any).wakeLock?.request('screen');
+    } catch {
+      /* optional */
+    }
+  }
+
+  private async releaseWakeLock(): Promise<void> {
+    try {
+      await this.wakeLock?.release();
+    } catch {
+      /* optional */
+    }
+    this.wakeLock = null;
+  }
+
+  private authHeaders(): Record<string, string> {
+    return {
+      Authorization: `Bearer ${sessionStorage.getItem('access-token') ?? ''}`,
+    };
+  }
+
+  private newUuid(): string {
+    // randomUUID needs a secure context; getUserMedia does too, so in practice
+    // it is there. The fallback keeps the file-input path working on http.
+    if (crypto?.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+    });
+  }
+}

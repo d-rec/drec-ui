@@ -1,0 +1,222 @@
+<div class="capture">
+  <header class="bar">
+    <span class="title">Field capture</span>
+    <span class="pending" *ngIf="pendingCount > 0" (click)="flush()">
+      {{ pendingCount }} queued<span *ngIf="flushing"> · sending…</span>
+    </span>
+  </header>
+
+  <!-- ------------------------------------------------------------ idle -->
+  <section class="panel" *ngIf="stage === 'idle'">
+    <p class="lead">
+      Point the camera at the equipment nameplate. The serial is read on the
+      phone — nothing is sent until you press Submit.
+    </p>
+
+    <button class="primary big" type="button" (click)="startCamera()">
+      Start camera
+    </button>
+
+    <p class="blocked" *ngIf="liveCameraBlocked">
+      {{ cameraUnavailableReason }}
+    </p>
+
+    <!-- Works everywhere getUserMedia does not, in-app webviews included. -->
+    <label class="secondary big">
+      Take a single photo instead
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        (change)="onFilePicked($event)"
+        hidden
+      />
+    </label>
+  </section>
+
+  <!-- -------------------------------------------------------- scanning -->
+  <section class="viewfinder" *ngIf="stage === 'scanning'">
+    <video #video playsinline autoplay muted></video>
+
+    <div class="guide">
+      <div class="guide-box">
+        <span class="live" *ngIf="livePreviewSerial">
+          {{ livePreviewSerial }}
+          <em *ngIf="liveSource === 'barcode'">barcode</em>
+        </span>
+      </div>
+      <p class="hint">Fill the box with the serial number</p>
+    </div>
+
+    <div class="controls">
+      <button
+        *ngIf="torchAvailable"
+        class="round"
+        type="button"
+        (click)="toggleTorch()"
+        [class.on]="torchOn"
+        aria-label="Toggle flash"
+      >
+        ☀
+      </button>
+
+      <button class="shutter" type="button" (click)="record()">Record</button>
+
+      <span class="round placeholder" *ngIf="!torchAvailable"></span>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- review -->
+  <section class="panel" *ngIf="stage === 'review' || stage === 'sending'">
+    <img
+      class="still"
+      *ngIf="photoPreviewUrl"
+      [src]="photoPreviewUrl"
+      alt="nameplate"
+    />
+
+    <label class="field">
+      <span class="label">Serial number</span>
+      <input
+        class="serial"
+        type="text"
+        inputmode="text"
+        autocapitalize="characters"
+        spellcheck="false"
+        [(ngModel)]="serialNumber"
+        (blur)="onSerialEdited()"
+        name="serialNumber"
+      />
+    </label>
+
+    <p class="readmeta">
+      <ng-container [ngSwitch]="serialSource">
+        <span *ngSwitchCase="'barcode'" class="good">Barcode · exact</span>
+        <span *ngSwitchCase="'ocr'">
+          Read by camera · {{ (ocrConfidence ?? 0) * 100 | number: '1.0-0' }}%
+          agreement
+        </span>
+        <span *ngSwitchCase="'ocr-corrected'">Corrected by hand</span>
+        <span *ngSwitchDefault>Typed in</span>
+      </ng-container>
+      <span class="dim" *ngIf="readElapsedMs"> · {{ readElapsedMs }} ms</span>
+    </p>
+
+    <!-- Three states: already registered, near miss, genuinely new. -->
+    <div class="match exact" *ngIf="exactMatch">
+      Already registered as
+      <strong>{{ exactMatch.siteName || exactMatch.serialNumber }}</strong
+      >. This is a re-scan, not a new device — submit it and the reviewer will
+      treat it as a verification.
+    </div>
+
+    <div class="match near" *ngIf="!exactMatch && matches.length">
+      <p>Did you mean one of these?</p>
+      <button
+        *ngFor="let m of matches"
+        class="chip"
+        type="button"
+        (click)="acceptMatch(m)"
+      >
+        {{ m.serialNumber }}
+        <em *ngIf="m.siteName">{{ m.siteName }}</em>
+      </button>
+    </div>
+
+    <div
+      class="match new"
+      *ngIf="!matchesLoading && !matches.length && serialNumber"
+    >
+      Not in your fleet — this will be registered as a new device.
+    </div>
+
+    <div class="gps" [class.warn]="gpsTooCoarse || gpsError">
+      <ng-container *ngIf="latitude != null && !gpsError">
+        {{ latitude | number: '1.5-5' }}, {{ longitude | number: '1.5-5' }}
+        <span *ngIf="gpsAccuracyM != null">
+          · ±{{ gpsAccuracyM | number: '1.0-0' }} m
+        </span>
+        <span class="warntext" *ngIf="gpsTooCoarse">
+          — too coarse to place the site; the reviewer will have to.
+        </span>
+      </ng-container>
+      <ng-container *ngIf="gpsError">
+        {{ gpsError }}
+        <button class="link" type="button" (click)="retryLocate()">
+          retry
+        </button>
+      </ng-container>
+    </div>
+
+    <label class="field">
+      <span class="label">Capacity (kW)</span>
+      <input
+        type="number"
+        inputmode="decimal"
+        step="0.01"
+        min="0"
+        [(ngModel)]="capacityKw"
+        name="capacityKw"
+      />
+    </label>
+
+    <label class="field">
+      <span class="label">Commissioning date</span>
+      <input
+        type="date"
+        [(ngModel)]="commissioningDate"
+        name="commissioningDate"
+      />
+    </label>
+
+    <label class="field">
+      <span class="label">Technology</span>
+      <select [(ngModel)]="deviceTypeCode" name="deviceTypeCode">
+        <option value="TC110">Solar PV</option>
+        <option value="TC120">Solar, concentrated</option>
+        <option value="TC130">Wind</option>
+        <option value="TC140">Hydro</option>
+      </select>
+    </label>
+
+    <label class="field">
+      <span class="label">Site name <em>optional</em></span>
+      <input type="text" [(ngModel)]="siteName" name="siteName" />
+    </label>
+
+    <label class="field">
+      <span class="label">Note for the reviewer <em>optional</em></span>
+      <textarea
+        rows="2"
+        [(ngModel)]="operatorNote"
+        name="operatorNote"
+      ></textarea>
+    </label>
+
+    <p class="notice" *ngIf="notice">{{ notice }}</p>
+    <p class="error" *ngIf="error">{{ error }}</p>
+
+    <button
+      class="primary big"
+      type="button"
+      [disabled]="!canSubmit || stage === 'sending'"
+      (click)="submit()"
+    >
+      {{ stage === 'sending' ? 'Submitting…' : 'Submit for review' }}
+    </button>
+
+    <button class="secondary" type="button" (click)="captureAnother()">
+      Discard and rescan
+    </button>
+  </section>
+
+  <!-- ------------------------------------------------------------ done -->
+  <section class="panel" *ngIf="stage === 'done'">
+    <p class="lead good">Submitted for review.</p>
+    <p class="notice" *ngIf="notice">{{ notice }}</p>
+    <p class="error" *ngIf="error">{{ error }}</p>
+    <button class="primary big" type="button" (click)="captureAnother()">
+      Capture another
+    </button>
+  </section>
+</div>

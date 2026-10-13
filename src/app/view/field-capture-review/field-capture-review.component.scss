@@ -1,0 +1,346 @@
+// Desktop reviewer screen, inside the app shell. Light theme to match the
+// rest of the portal, unlike the operator's full-screen dark capture view.
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.review {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ---------------------------------------------------------------- queue
+
+.queue {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fff;
+  max-height: calc(100dvh - 160px);
+  overflow-y: auto;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+
+  button {
+    flex: 1;
+    padding: 7px 8px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #475569;
+
+    &.active {
+      background: #0f766e;
+      border-color: #0f766e;
+      color: #fff;
+    }
+  }
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #f8fafc;
+
+  &:hover {
+    background: #f1f5f9;
+  }
+  &.selected {
+    background: #ecfdf5;
+    border-color: #0f766e;
+  }
+
+  .serial {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .meta {
+    font-size: 11px;
+    color: #64748b;
+    &.dim {
+      opacity: 0.75;
+    }
+  }
+
+  .src.warn {
+    color: #b45309;
+    font-weight: 600;
+  }
+  .dot {
+    margin: 0 4px;
+  }
+
+  .flag.known {
+    margin-top: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #0369a1;
+    background: #e0f2fe;
+    padding: 2px 6px;
+    border-radius: 999px;
+  }
+}
+
+// --------------------------------------------------------------- detail
+
+.detail {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fff;
+  min-width: 0;
+
+  &.placeholder {
+    display: grid;
+    place-items: center;
+    min-height: 240px;
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+
+  h2 {
+    margin: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 20px;
+  }
+}
+
+.status {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+
+  &.pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  &.approved {
+    background: #dcfce7;
+    color: #166534;
+  }
+  &.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+}
+
+.evidence {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.photo {
+  display: block;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0f172a;
+
+  img {
+    width: 100%;
+    height: 260px;
+    object-fit: contain;
+    display: block;
+  }
+}
+
+.map {
+  height: 260px;
+  border-radius: 6px;
+  background: #e2e8f0;
+}
+
+.facts {
+  margin: 0 0 18px;
+  display: grid;
+  gap: 8px;
+
+  > div {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  dt {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #64748b;
+    padding-top: 2px;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 14px;
+    color: #0f172a;
+  }
+
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .warn {
+    color: #b45309;
+  }
+  .known {
+    color: #0369a1;
+  }
+  .note {
+    margin-top: 4px;
+    font-style: italic;
+    color: #475569;
+  }
+}
+
+h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+
+    &.wide {
+      grid-column: 1 / -1;
+    }
+
+    > span {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    input,
+    textarea {
+      font-size: 14px;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .hint {
+      font-size: 11px;
+      font-style: normal;
+      color: #94a3b8;
+    }
+  }
+}
+
+.incomplete {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+
+  button {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  .approve {
+    background: #0f766e;
+    color: #fff;
+  }
+  .reject {
+    background: #fff;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+  }
+}
+
+.muted {
+  color: #94a3b8;
+  font-size: 14px;
+  margin: 0;
+}
+.error {
+  color: #b91c1c;
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+.result {
+  color: #166534;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 12px 0 0;
+}

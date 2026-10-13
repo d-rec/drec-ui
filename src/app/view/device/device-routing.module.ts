@@ -30,6 +30,16 @@ const routes: Routes = [
         (m) => m.DeviceReviewsModule,
       ),
   },
+  {
+    // Reviewer side of field capture. The operator's capture screen lives at
+    // the top-level /capture, outside the sidenav shell, because it needs the
+    // whole viewport for the camera; this one is an ordinary portal page.
+    path: 'captures',
+    loadComponent: () =>
+      import('../field-capture-review/field-capture-review.component').then(
+        (m) => m.FieldCaptureReviewComponent,
+      ),
+  },
 ];
 
 @NgModule({

@@ -54,6 +54,18 @@ const routes: Routes = [
       ),
   },
   {
+    // Full-screen field capture for site operators. Deliberately outside the
+    // DefaultLayout shell: mat-sidenav-container caps everything inside it at
+    // z-index 0, so a full-viewport camera view cannot escape it, and the
+    // screen wants the whole viewport anyway.
+    path: 'capture',
+    canActivate: [AuthVerifiedGuard],
+    loadComponent: () =>
+      import('./view/field-capture/field-capture.component').then(
+        (m) => m.FieldCaptureComponent,
+      ),
+  },
+  {
     path: '',
     component: GuestLayoutComponent,
     canActivate: [GuestGuard],

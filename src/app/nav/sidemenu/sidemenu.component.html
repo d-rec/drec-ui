@@ -201,6 +201,20 @@
             mat-button
             class="menu-button inside-menu-button"
             routerLinkActive="active"
+            routerLink="/device/captures"
+            *ngIf="
+              loginuser.role === 'Admin' ||
+              loginuser.role === 'Reviewer' ||
+              loginuser.role === 'SeniorReviewer'
+            "
+            test-id="field-captures"
+          >
+            <span>Field Captures</span>
+          </a>
+          <a
+            mat-button
+            class="menu-button inside-menu-button"
+            routerLinkActive="active"
             routerLink="/device/add"
             *ngIf="
               loginuser.role != 'Reviewer' && loginuser.role != 'SeniorReviewer'

@@ -74,7 +74,8 @@
     "tslib": "^2.3.0",
     "web3": "^4.9.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz",
-    "zone.js": "~0.15.0"
+    "zone.js": "~0.15.0",
+    "zxing-wasm": "3.1.5"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.24",

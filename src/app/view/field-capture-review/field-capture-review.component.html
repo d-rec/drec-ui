@@ -1,0 +1,226 @@
+<div class="review">
+  <aside class="queue">
+    <div class="tabs">
+      <button
+        *ngFor="let tab of tabs"
+        type="button"
+        [class.active]="activeTab === tab"
+        (click)="setTab(tab)"
+      >
+        {{ tab }}
+      </button>
+    </div>
+
+    <p class="muted" *ngIf="listLoading">Loading…</p>
+    <p class="error" *ngIf="listError">{{ listError }}</p>
+    <p class="muted" *ngIf="!listLoading && !listError && !captures.length">
+      Nothing {{ activeTab.toLowerCase() }}.
+    </p>
+
+    <button
+      *ngFor="let capture of captures"
+      type="button"
+      class="row"
+      [class.selected]="selected?.uuid === capture.uuid"
+      (click)="select(capture)"
+    >
+      <span class="serial">{{ capture.serialNumber }}</span>
+      <span class="meta">
+        <span class="src" [class.warn]="lowConfidence(capture)">
+          {{ confidenceLabel(capture) }}
+        </span>
+        <span class="dot">·</span>
+        {{ capture.submittedByEmail }}
+      </span>
+      <span class="meta dim">{{
+        capture.createdAt | date: 'd MMM, HH:mm'
+      }}</span>
+      <span class="flag known" *ngIf="capture.matchedDeviceId">
+        already registered
+      </span>
+    </button>
+  </aside>
+
+  <main class="detail" *ngIf="selected as capture; else empty">
+    <header class="head">
+      <h2>{{ capture.serialNumber }}</h2>
+      <span class="status" [ngClass]="capture.status.toLowerCase()">
+        {{ capture.status }}
+      </span>
+    </header>
+
+    <div class="evidence">
+      <a [href]="capture.photoUrl" target="_blank" rel="noopener" class="photo">
+        <img [src]="capture.photoUrl" alt="nameplate" />
+      </a>
+      <div #map class="map"></div>
+    </div>
+
+    <dl class="facts">
+      <div>
+        <dt>Read as</dt>
+        <dd>
+          {{ confidenceLabel(capture) }}
+          <span class="warn" *ngIf="lowConfidence(capture)">
+            — low agreement, check the photo
+          </span>
+        </dd>
+      </div>
+      <div *ngIf="operatorCorrected">
+        <dt>Operator corrected</dt>
+        <dd class="mono">
+          <s>{{ capture.serialRaw }}</s> → {{ capture.serialNumber }}
+        </dd>
+      </div>
+      <div>
+        <dt>Location</dt>
+        <dd class="mono" [class.warn]="gpsTooCoarse">
+          {{ capture.latitude }}, {{ capture.longitude }}
+          <ng-container *ngIf="capture.gpsAccuracyM != null">
+            · ±{{ capture.gpsAccuracyM | number: '1.0-0' }} m
+          </ng-container>
+          <span class="warn" *ngIf="gpsTooCoarse">
+            — too coarse to place the site
+          </span>
+        </dd>
+      </div>
+      <div>
+        <dt>Submitted</dt>
+        <dd>
+          {{ capture.submittedByEmail }} ·
+          {{ capture.createdAt | date: 'd MMM y, HH:mm' }}
+          <ng-container *ngIf="capture.capturedAt">
+            (photo taken {{ capture.capturedAt | date: 'HH:mm' }})
+          </ng-container>
+        </dd>
+      </div>
+      <div *ngIf="capture.payload && capture.payload['operatorNote']">
+        <dt>Operator note</dt>
+        <dd>{{ capture.payload['operatorNote'] }}</dd>
+      </div>
+      <div *ngIf="capture.matchedDeviceId">
+        <dt>Matched</dt>
+        <dd class="known">
+          Serial already belongs to device {{ capture.matchedDeviceId }} — this
+          is a re-scan, not a new install.
+        </dd>
+      </div>
+      <div *ngIf="capture.deviceId">
+        <dt>Device</dt>
+        <dd>Created as device {{ capture.deviceId }}</dd>
+      </div>
+      <div *ngIf="capture.reviewedByEmail">
+        <dt>Reviewed</dt>
+        <dd>
+          {{ capture.reviewedByEmail }} ·
+          {{ capture.reviewedAt | date: 'd MMM y, HH:mm' }}
+          <div class="note" *ngIf="capture.reviewNote">
+            “{{ capture.reviewNote }}”
+          </div>
+        </dd>
+      </div>
+    </dl>
+
+    <ng-container *ngIf="isPending">
+      <h3>Device to create</h3>
+
+      <div class="form">
+        <label>
+          <span>Serial number</span>
+          <input class="mono" type="text" [(ngModel)]="edit.serialNumber" />
+          <em class="hint" *ngIf="reviewerCorrected">
+            You are overriding what the operator submitted.
+          </em>
+        </label>
+
+        <label>
+          <span>Capacity (kW)</span>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            [(ngModel)]="edit.capacity"
+          />
+        </label>
+
+        <label>
+          <span>Commissioning date</span>
+          <input type="date" [(ngModel)]="edit.commissioningDate" />
+        </label>
+
+        <label>
+          <span>Technology</span>
+          <input
+            type="text"
+            [(ngModel)]="edit.deviceTypeCode"
+            placeholder="TC110"
+          />
+        </label>
+
+        <label>
+          <span>Fuel code</span>
+          <input type="text" [(ngModel)]="edit.fuelCode" placeholder="ES100" />
+        </label>
+
+        <label>
+          <span>Country</span>
+          <input type="text" [(ngModel)]="edit.countryCode" placeholder="UGA" />
+        </label>
+
+        <label class="wide">
+          <span>Site name</span>
+          <input type="text" [(ngModel)]="edit.siteName" />
+          <em class="hint"
+            >Unique across D-REC — a clash is rejected on approve.</em
+          >
+        </label>
+
+        <label class="wide">
+          <span>Address</span>
+          <input type="text" [(ngModel)]="edit.address" />
+        </label>
+
+        <label class="wide">
+          <span>Review note</span>
+          <textarea rows="2" [(ngModel)]="reviewNote"></textarea>
+        </label>
+      </div>
+
+      <p class="incomplete" *ngIf="missingForIssuance.length">
+        Missing {{ missingForIssuance.join(', ') }}. The device will be created,
+        but without these it cannot be ceiling-checked or issued against — it
+        will sit in the registry looking real.
+      </p>
+
+      <p class="error" *ngIf="actionError">{{ actionError }}</p>
+
+      <div class="actions">
+        <button
+          class="approve"
+          type="button"
+          [disabled]="acting"
+          (click)="approve()"
+        >
+          {{ acting ? 'Working…' : 'Approve and create device' }}
+        </button>
+        <button
+          class="reject"
+          type="button"
+          [disabled]="acting"
+          (click)="reject()"
+        >
+          Reject
+        </button>
+      </div>
+    </ng-container>
+
+    <p class="result" *ngIf="actionResult">{{ actionResult }}</p>
+  </main>
+
+  <ng-template #empty>
+    <main class="detail placeholder">
+      <p class="muted" *ngIf="!detailLoading">Select a capture to review it.</p>
+      <p class="muted" *ngIf="detailLoading">Loading…</p>
+    </main>
+  </ng-template>
+</div>
