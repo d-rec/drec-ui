@@ -32,6 +32,13 @@ const BURST_FRAMES = 5;
 /** Live scanning cadence. ~6/s is within reach of a mid-range phone. */
 const LIVE_SCAN_INTERVAL_MS = 160;
 
+/**
+ * How long a decoded barcode stays usable. Long enough that pressing Record
+ * right after one appears uses it, short enough that a barcode seen while
+ * walking past a different unit cannot be attached to this capture.
+ */
+const BARCODE_HOLD_MS = 4000;
+
 /** Above this the fix is too coarse to place a site; the operator is warned. */
 const GPS_ACCURACY_WARN_M = 100;
 
@@ -62,6 +69,10 @@ export class FieldCaptureComponent implements OnDestroy {
   /** What the reader is seeing right now, before the operator commits. */
   livePreviewSerial = '';
   liveSource: 'barcode' | 'ocr' | '' = '';
+
+  /** A decoded barcode waiting for the operator to press Record. */
+  private heldBarcode: SerialRead | null = null;
+  private heldBarcodeAt = 0;
 
   /** The committed read, editable by the operator. */
   serialNumber = '';
@@ -179,14 +190,41 @@ export class FieldCaptureComponent implements OnDestroy {
 
     // The template only renders <video> once stage is 'scanning', so wait a
     // tick for the ViewChild to exist.
-    setTimeout(() => {
-      const video = this.videoRef?.nativeElement;
-      if (!video || !this.stream) return;
+    setTimeout(() => void this.attachStream());
+  }
+
+  /**
+   * Bind the live stream to whatever <video> element currently exists and
+   * start scanning.
+   *
+   * Called on every entry into the scanning stage, not just the first. The
+   * viewfinder is behind `*ngIf`, so leaving the stage destroys the <video>
+   * element and returning creates a brand new one with no `srcObject` — the
+   * stream is still running, but nothing is bound to it, which showed up as a
+   * black viewfinder after "Discard and rescan".
+   */
+  private async attachStream(): Promise<void> {
+    const video = this.videoRef?.nativeElement;
+    if (!video || !this.stream) return;
+
+    if (video.srcObject !== this.stream) {
       video.srcObject = this.stream;
-      void video.play().catch(() => undefined);
-      void this.applyCameraTuning();
-      this.startLiveScan();
-    });
+    }
+    // Safari pauses playback when the element is detached, so this is needed
+    // on re-entry as well as on first start.
+    try {
+      await video.play();
+    } catch {
+      /* autoplay rejection is not fatal; the frame grab reads the track */
+    }
+    await this.applyCameraTuning();
+    this.startLiveScan();
+  }
+
+  /** False once iOS has ended the track, e.g. after backgrounding the tab. */
+  private streamIsLive(): boolean {
+    const track = this.stream?.getVideoTracks()[0];
+    return !!track && track.readyState === 'live';
   }
 
   /**
@@ -266,9 +304,7 @@ export class FieldCaptureComponent implements OnDestroy {
             ? await this.reader.readBarcodeOnly(frame)
             : null;
           if (barcode && this.stage === 'scanning') {
-            this.livePreviewSerial = barcode.text;
-            this.liveSource = 'barcode';
-            await this.commitRead(barcode);
+            this.holdBarcode(barcode);
             return;
           }
         }
@@ -277,12 +313,11 @@ export class FieldCaptureComponent implements OnDestroy {
         if (crop) {
           const read = await this.reader.read(crop);
           if (read && this.stage === 'scanning') {
-            this.livePreviewSerial = read.text;
-            this.liveSource = read.source;
-            // A barcode is exact — no reason to make the operator press
-            // anything once we have one.
             if (read.source === 'barcode') {
-              await this.commitRead(read);
+              this.holdBarcode(read);
+            } else {
+              this.livePreviewSerial = read.text;
+              this.liveSource = 'ocr';
             }
           }
         }
@@ -422,9 +457,42 @@ export class FieldCaptureComponent implements OnDestroy {
 
   // --------------------------------------------------------------- record
 
+  /**
+   * Remember a decoded barcode and show it, but do not commit.
+   *
+   * The scanner never leaves the viewfinder on its own. A barcode is exact,
+   * so it is tempting to jump straight to the review screen the moment one
+   * decodes — but that takes the screen away from an operator who is still
+   * lining up the shot, and the photo it keeps is whatever happened to be in
+   * frame at that instant. The operator decides when the capture is taken.
+   */
+  private holdBarcode(read: SerialRead): void {
+    this.livePreviewSerial = read.text;
+    this.liveSource = 'barcode';
+    this.heldBarcode = read;
+    this.heldBarcodeAt = Date.now();
+  }
+
+  /** True while a decoded barcode is recent enough to use on Record. */
+  get barcodeReady(): boolean {
+    return (
+      !!this.heldBarcode && Date.now() - this.heldBarcodeAt < BARCODE_HOLD_MS
+    );
+  }
+
   /** [Record]: freeze the frame, burst-read it, keep the photo. */
   public async record(): Promise<void> {
     if (this.stage !== 'scanning') return;
+
+    // A barcode decoded moments ago is exact; no reason to re-read it with
+    // OCR just because the operator pressed the button afterwards.
+    if (this.barcodeReady && this.heldBarcode) {
+      this.photoBlob = await this.grabStill();
+      this.capturedAt = new Date().toISOString();
+      this.setPhotoPreview(this.photoBlob);
+      await this.commitRead(this.heldBarcode);
+      return;
+    }
 
     const frames: ImageData[] = [];
     for (let i = 0; i < BURST_FRAMES; i++) {
@@ -782,15 +850,25 @@ export class FieldCaptureComponent implements OnDestroy {
     this.setPhotoPreview(null);
     this.livePreviewSerial = '';
     this.liveSource = '';
+    this.heldBarcode = null;
+    this.heldBarcodeAt = 0;
     this.notice = '';
     this.error = '';
 
-    if (this.stream) {
+    if (this.streamIsLive()) {
       this.stage = 'scanning';
-      this.startLiveScan();
-    } else {
-      this.stage = 'idle';
+      // Wait for the viewfinder to be re-created before binding to it.
+      setTimeout(() => void this.attachStream());
+      return;
     }
+
+    // The track ended while we were on the review screen — iOS does this when
+    // the tab is backgrounded. Re-acquire it. This runs inside the button's
+    // click handler, so it still counts as the user gesture getUserMedia
+    // requires.
+    this.stopCamera();
+    this.stage = 'idle';
+    await this.startCamera();
   }
 
   /**

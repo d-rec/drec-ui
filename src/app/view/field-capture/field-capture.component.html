@@ -39,13 +39,19 @@
     <video #video playsinline autoplay muted></video>
 
     <div class="guide">
-      <div class="guide-box">
+      <div class="guide-box" [class.locked]="barcodeReady">
         <span class="live" *ngIf="livePreviewSerial">
           {{ livePreviewSerial }}
           <em *ngIf="liveSource === 'barcode'">barcode</em>
         </span>
       </div>
-      <p class="hint">Fill the box with the serial number</p>
+      <p class="hint">
+        {{
+          barcodeReady
+            ? 'Barcode read — press Record when the photo looks right'
+            : 'Fill the box with the serial number'
+        }}
+      </p>
     </div>
 
     <div class="controls">
@@ -60,7 +66,14 @@
         ☀
       </button>
 
-      <button class="shutter" type="button" (click)="record()">Record</button>
+      <button
+        class="shutter"
+        type="button"
+        [class.ready]="barcodeReady"
+        (click)="record()"
+      >
+        Record
+      </button>
 
       <span class="round placeholder" *ngIf="!torchAvailable"></span>
     </div>
