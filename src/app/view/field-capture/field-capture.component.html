@@ -82,6 +82,16 @@
       </button>
 
       <button
+        *ngIf="zoomAvailable"
+        class="round zoom"
+        type="button"
+        (click)="cycleZoom()"
+        aria-label="Change zoom"
+      >
+        {{ zoom }}&times;
+      </button>
+
+      <button
         *ngIf="debugEnabled"
         class="round debug"
         type="button"

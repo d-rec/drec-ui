@@ -22,9 +22,21 @@ interface SerialMatch {
   distance: number;
 }
 
-/** The crop handed to the reader. Wider than tall: serials are one line. */
-const CROP_WIDTH = 640;
-const CROP_HEIGHT = 160;
+/**
+ * Aspect of the guide box: serials are one line, so wider than tall.
+ *
+ * The crop is taken at the sensor's own resolution and only capped, never
+ * squashed to a fixed size. The first real captures were cropped to 640x160
+ * from a 1080-wide frame, which left the serial print a dozen pixels tall —
+ * no OCR engine recovers from that, and no amount of preprocessing helps.
+ */
+const CROP_ASPECT = 4;
+
+/** Upper bound on the crop's long edge, to keep a pass affordable. */
+const CROP_MAX_WIDTH = 1600;
+
+/** Below this the crop is upscaled instead: tiny text beats no text. */
+const CROP_MIN_WIDTH = 640;
 
 /** Frames per burst when the operator presses Record. */
 const BURST_FRAMES = 5;
@@ -194,8 +206,12 @@ export class FieldCaptureComponent implements OnDestroy {
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: { ideal: 'environment' },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
+          // Ask for the sensor, not a video preset. A real iPhone 'ideal:
+          // 1920x1080' request came back as 1080x1920 — 2.1 of an available
+          // 12.2 megapixels, which is 17% of the detail the camera can give.
+          // Serial print is small and fine; resolution is the whole game.
+          width: { ideal: 4032 },
+          height: { ideal: 3024 },
         },
         audio: false,
       });
@@ -287,6 +303,10 @@ export class FieldCaptureComponent implements OnDestroy {
     const track = this.stream?.getVideoTracks()[0];
     if (!track?.getCapabilities) return;
     const capabilities: any = track.getCapabilities();
+
+    this.zoomMax = Math.min(capabilities.zoom?.max ?? 1, 6);
+    this.zoomAvailable = this.zoomMax > 1;
+
     const advanced: any[] = [];
     if (capabilities.focusMode?.includes('continuous')) {
       advanced.push({ focusMode: 'continuous' });
@@ -298,6 +318,33 @@ export class FieldCaptureComponent implements OnDestroy {
         /* optional tuning only */
       }
     }
+
+    // Start at 2x where the camera offers it. An operator stands close enough
+    // to read the nameplate by eye, which is still too far for the sensor to
+    // resolve a serial at 1x — the first real captures came back with the
+    // print too small for either engine and the barcodes undecodable.
+    if (this.zoomAvailable) {
+      await this.setZoom(Math.min(2, this.zoomMax));
+    }
+  }
+
+  /** Digital/optical zoom, where the platform exposes it (iOS does). */
+  public async setZoom(zoom: number): Promise<void> {
+    const track = this.stream?.getVideoTracks()[0];
+    if (!track) return;
+    const next = Math.max(1, Math.min(zoom, this.zoomMax));
+    try {
+      await track.applyConstraints({ advanced: [{ zoom: next } as any] });
+      this.zoom = next;
+    } catch {
+      /* not fatal: the viewfinder just stays where it was */
+    }
+  }
+
+  public cycleZoom(): void {
+    const steps = [1, 2, 3, 5].filter((z) => z <= this.zoomMax);
+    const next = steps[(steps.indexOf(this.zoom) + 1) % steps.length] ?? 1;
+    void this.setZoom(next);
   }
 
   /** Android Chrome only — Safari has no torch API at all. */
@@ -308,6 +355,11 @@ export class FieldCaptureComponent implements OnDestroy {
   }
 
   torchOn = false;
+
+  /** Zoom, where offered. iOS exposes 0.5-10x; Android varies. */
+  zoomAvailable = false;
+  zoom = 1;
+  zoomMax = 1;
 
   public async toggleTorch(): Promise<void> {
     const track = this.stream?.getVideoTracks()[0];
@@ -397,16 +449,20 @@ export class FieldCaptureComponent implements OnDestroy {
 
     // Guide box: centred, 80% of frame width, proportioned to the crop.
     const boxWidth = video.videoWidth * 0.8;
-    const boxHeight = boxWidth * (CROP_HEIGHT / CROP_WIDTH);
+    const boxHeight = boxWidth / CROP_ASPECT;
     const sx = (video.videoWidth - boxWidth) / 2;
     const sy = (video.videoHeight - boxHeight) / 2;
 
+    // Keep the sensor's pixels. Only clamp the extremes.
+    const outWidth = Math.round(
+      Math.min(CROP_MAX_WIDTH, Math.max(CROP_MIN_WIDTH, boxWidth)),
+    );
+    const outHeight = Math.round(outWidth / CROP_ASPECT);
+
     const canvas = document.createElement('canvas');
-    canvas.width = CROP_WIDTH;
-    canvas.height = CROP_HEIGHT;
+    canvas.width = outWidth;
+    canvas.height = outHeight;
     const context = canvas.getContext('2d', { willReadFrequently: true })!;
-    // Upscaling to a fixed size also normalises away how far the operator is
-    // standing from the nameplate.
     context.drawImage(
       video,
       sx,
@@ -415,11 +471,11 @@ export class FieldCaptureComponent implements OnDestroy {
       boxHeight,
       0,
       0,
-      CROP_WIDTH,
-      CROP_HEIGHT,
+      outWidth,
+      outHeight,
     );
-    this.boostContrast(context, CROP_WIDTH, CROP_HEIGHT);
-    return context.getImageData(0, 0, CROP_WIDTH, CROP_HEIGHT);
+    this.boostContrast(context, outWidth, outHeight);
+    return context.getImageData(0, 0, outWidth, outHeight);
   }
 
   /**
@@ -459,9 +515,10 @@ export class FieldCaptureComponent implements OnDestroy {
     width: number,
     height: number,
   ): ImageData | null {
-    // 1280 on the long edge keeps Code128 bars resolvable while keeping the
-    // decode cheap enough to run on a timer.
-    const scale = Math.min(1, 1280 / Math.max(width, height));
+    // 2160 on the long edge. The first real captures had two Code128s on the
+    // label and neither decoded: at 1080 across a whole nameplate the bars are
+    // barely a pixel wide. Downscaling further guaranteed failure.
+    const scale = Math.min(1, 2160 / Math.max(width, height));
     const w = Math.max(1, Math.round(width * scale));
     const h = Math.max(1, Math.round(height * scale));
     const canvas = document.createElement('canvas');
@@ -754,10 +811,14 @@ export class FieldCaptureComponent implements OnDestroy {
       });
 
       const boxWidth = image.width * 0.8;
-      const boxHeight = boxWidth * (CROP_HEIGHT / CROP_WIDTH);
+      const boxHeight = boxWidth / CROP_ASPECT;
+      const outWidth = Math.round(
+        Math.min(CROP_MAX_WIDTH, Math.max(CROP_MIN_WIDTH, boxWidth)),
+      );
+      const outHeight = Math.round(outWidth / CROP_ASPECT);
       const canvas = document.createElement('canvas');
-      canvas.width = CROP_WIDTH;
-      canvas.height = CROP_HEIGHT;
+      canvas.width = outWidth;
+      canvas.height = outHeight;
       const context = canvas.getContext('2d', { willReadFrequently: true })!;
       context.drawImage(
         image,
@@ -767,11 +828,11 @@ export class FieldCaptureComponent implements OnDestroy {
         boxHeight,
         0,
         0,
-        CROP_WIDTH,
-        CROP_HEIGHT,
+        outWidth,
+        outHeight,
       );
-      this.boostContrast(context, CROP_WIDTH, CROP_HEIGHT);
-      return context.getImageData(0, 0, CROP_WIDTH, CROP_HEIGHT);
+      this.boostContrast(context, outWidth, outHeight);
+      return context.getImageData(0, 0, outWidth, outHeight);
     } catch {
       return null;
     } finally {

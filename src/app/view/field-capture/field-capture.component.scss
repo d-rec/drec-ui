@@ -204,6 +204,22 @@
     background: #fbbf24;
     color: #1c1917;
   }
+
+  // Zoom step. Resolution is the main lever on fine print, so this is a
+  // first-class control rather than a nicety.
+  &.zoom {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  // Diagnostic upload. Visually quiet — it is not part of the operator's job.
+  &.debug {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #7dd3fc;
+    border-color: rgba(125, 211, 252, 0.5);
+  }
   &.placeholder {
     visibility: hidden;
     border: none;
