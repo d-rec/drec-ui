@@ -39,12 +39,14 @@
     <video #video playsinline autoplay muted></video>
 
     <div class="guide">
-      <div class="guide-box" [class.locked]="barcodeReady">
-        <span class="live" *ngIf="livePreviewSerial">
-          {{ livePreviewSerial }}
-          <em *ngIf="liveSource === 'barcode'">barcode</em>
-        </span>
-      </div>
+      <div class="guide-box" [class.locked]="barcodeReady"></div>
+
+      <!-- Below the box, never inside it: anything drawn over the guide area
+           sits on top of the serial the operator is trying to line up. -->
+      <span class="live" *ngIf="livePreviewSerial">
+        {{ livePreviewSerial }}
+        <em *ngIf="liveSource === 'barcode'">barcode</em>
+      </span>
       <p class="hint">
         {{
           barcodeReady

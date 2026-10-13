@@ -120,24 +120,33 @@
       0 0 0 9999px rgba(0, 0, 0, 0.45),
       0 0 18px rgba(74, 222, 128, 0.65);
   }
+}
 
-  .live {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: clamp(18px, 6vw, 30px);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    color: #4ade80;
-    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
-    text-align: center;
+// The live readout sits BELOW the guide box. Inside it, it covered the very
+// serial the operator is trying to frame, and on a locked barcode the two
+// strings overlapped each other.
+.live {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: clamp(18px, 6vw, 28px);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #4ade80;
+  text-align: center;
+  padding: 6px 14px;
+  border-radius: 8px;
+  // Legible over whatever the camera happens to be pointing at.
+  background: rgba(2, 10, 6, 0.72);
+  border: 1px solid rgba(74, 222, 128, 0.45);
+  max-width: 90%;
+  overflow-wrap: anywhere;
 
-    em {
-      display: block;
-      font-size: 11px;
-      font-style: normal;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      opacity: 0.75;
-    }
+  em {
+    display: block;
+    font-size: 11px;
+    font-style: normal;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.8;
   }
 }
 
