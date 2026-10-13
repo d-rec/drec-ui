@@ -135,32 +135,24 @@
       <span class="dim" *ngIf="readElapsedMs"> · {{ readElapsedMs }} ms</span>
     </p>
 
-    <!-- Three states: already registered, near miss, genuinely new. -->
+    <!-- Capture is the FIRST step of registration, so having no match is the
+         normal case and is not worth saying. Only a collision with something
+         already on file is worth the operator's attention. -->
     <div class="match exact" *ngIf="exactMatch">
       Already registered as
       <strong>{{ exactMatch.siteName || exactMatch.serialNumber }}</strong
-      >. This is a re-scan, not a new device — submit it and the reviewer will
-      treat it as a verification.
+      >. This device is already on file — submit it and the reviewer will treat
+      it as a re-scan, not a new registration.
     </div>
 
+    <!-- Informational only. No tap-to-accept: a new unit a digit away from an
+         existing one is ordinary, and offering to "correct" it would overwrite
+         a right serial with a wrong one. -->
     <div class="match near" *ngIf="!exactMatch && matches.length">
-      <p>Did you mean one of these?</p>
-      <button
-        *ngFor="let m of matches"
-        class="chip"
-        type="button"
-        (click)="acceptMatch(m)"
-      >
-        {{ m.serialNumber }}
-        <em *ngIf="m.siteName">{{ m.siteName }}</em>
-      </button>
-    </div>
-
-    <div
-      class="match new"
-      *ngIf="!matchesLoading && !matches.length && serialNumber"
-    >
-      Not in your fleet — this will be registered as a new device.
+      Close to <strong>{{ matches[0].serialNumber }}</strong
+      ><span *ngIf="matches[0].siteName"> ({{ matches[0].siteName }})</span>,
+      which is already registered. Check the photo before submitting — if they
+      are the same unit, this is a re-scan.
     </div>
 
     <div class="gps" [class.warn]="gpsTooCoarse || gpsError">
@@ -180,42 +172,6 @@
         </button>
       </ng-container>
     </div>
-
-    <label class="field">
-      <span class="label">Capacity (kW)</span>
-      <input
-        type="number"
-        inputmode="decimal"
-        step="0.01"
-        min="0"
-        [(ngModel)]="capacityKw"
-        name="capacityKw"
-      />
-    </label>
-
-    <label class="field">
-      <span class="label">Commissioning date</span>
-      <input
-        type="date"
-        [(ngModel)]="commissioningDate"
-        name="commissioningDate"
-      />
-    </label>
-
-    <label class="field">
-      <span class="label">Technology</span>
-      <select [(ngModel)]="deviceTypeCode" name="deviceTypeCode">
-        <option value="TC110">Solar PV</option>
-        <option value="TC120">Solar, concentrated</option>
-        <option value="TC130">Wind</option>
-        <option value="TC140">Hydro</option>
-      </select>
-    </label>
-
-    <label class="field">
-      <span class="label">Site name <em>optional</em></span>
-      <input type="text" [(ngModel)]="siteName" name="siteName" />
-    </label>
 
     <label class="field">
       <span class="label">Note for the reviewer <em>optional</em></span>

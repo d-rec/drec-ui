@@ -95,12 +95,6 @@ export class FieldCaptureComponent implements OnDestroy {
   gpsAccuracyM: number | null = null;
   gpsError = '';
 
-  /** The three fields the operator fills. Capacity is kW, always. */
-  capacityKw: number | null = null;
-  commissioningDate = '';
-  deviceTypeCode = 'TC110';
-
-  siteName = '';
   operatorNote = '';
 
   photoBlob: Blob | null = null;
@@ -825,7 +819,16 @@ export class FieldCaptureComponent implements OnDestroy {
 
   // ------------------------------------------------------------- matching
 
-  /** Is this serial one we already hold? Drives the three review states. */
+  /**
+   * Is this serial already on file?
+   *
+   * Not an accuracy mechanism. Capture is the first step of a registration, so
+   * for the device this flow exists to create there is by definition nothing
+   * to match against — confusable-tolerant matching cannot rescue a misread
+   * here, only the barcode and the reviewer's eyes can. What it does catch is
+   * a collision: the same unit captured twice, or a serial that already
+   * belongs to a registered device.
+   */
   private async lookupMatches(): Promise<void> {
     const serial = this.serialNumber.trim();
     if (!serial) {
@@ -861,12 +864,6 @@ export class FieldCaptureComponent implements OnDestroy {
     void this.lookupMatches();
   }
 
-  public acceptMatch(match: SerialMatch): void {
-    this.serialNumber = match.serialNumber;
-    this.serialSource = 'ocr-corrected';
-    void this.lookupMatches();
-  }
-
   // --------------------------------------------------------------- submit
 
   public async submit(): Promise<void> {
@@ -884,12 +881,12 @@ export class FieldCaptureComponent implements OnDestroy {
         longitude: String(this.longitude),
         gpsAccuracyM: this.gpsAccuracyM ?? undefined,
         capturedAt: this.capturedAt || new Date().toISOString(),
+        // Serial, photo and coordinates only. Capacity, commissioning date and
+        // technology are not things an operator can read off a nameplate in
+        // the field, and guessing them here would put a wrong number into the
+        // registry under the authority of a photo. The reviewer fills them in
+        // from the documents, and is warned when they are missing.
         payload: {
-          capacity: this.capacityKw ?? undefined,
-          commissioningDate: this.commissioningDate || undefined,
-          fuelCode: 'ES100',
-          deviceTypeCode: this.deviceTypeCode || undefined,
-          siteName: this.siteName.trim() || undefined,
           operatorNote: this.operatorNote.trim() || undefined,
         },
       },
@@ -987,9 +984,6 @@ export class FieldCaptureComponent implements OnDestroy {
     this.ocrConfidence = null;
     this.readElapsedMs = 0;
     this.matches = [];
-    this.capacityKw = null;
-    this.commissioningDate = '';
-    this.siteName = '';
     this.operatorNote = '';
     this.photoBlob = null;
     this.setPhotoPreview(null);
